@@ -207,27 +207,28 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT>*  r
         for(IT i=1; i<nnz1; ++i)
         {
             
-            if(get<1>(rhs[i]) != get<1>(rhs[i-1]))
+            if(std::get<1>(rhs[i]) != std::get<1>(rhs[i-1]))
             {
                 ++localnzc;
             }
         }
+        
         dcsc = new Dcsc<IT,NT>(nnz1,localnzc);
-        dcsc->jc[0]  = get<1>(rhs[0]);
+        dcsc->jc[0]  = std::get<1>(rhs[0]);
         dcsc->cp[0] = 0;
         
         for(IT i=0; i<nnz1; ++i)
         {
-            dcsc->ir[i]  = get<0>(rhs[i]);
-            dcsc->numx[i] = get<2>(rhs[i]);
+            dcsc->ir[i]  = std::get<0>(rhs[i]);
+            dcsc->numx[i] = std::get<2>(rhs[i]);
         }
         
         IT jspos = 1;
         for(IT i=1; i<nnz1; ++i)
         {
-            if(get<1>(rhs[i]) != dcsc->jc[jspos-1])
+            if(std::get<1>(rhs[i]) != dcsc->jc[jspos-1])
             {
-                dcsc->jc[jspos] = get<1>(rhs[i]);
+                dcsc->jc[jspos] = std::get<1>(rhs[i]);
                 dcsc->cp[jspos++] = i;
             }
         }
@@ -890,7 +891,7 @@ ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 	infile >> tuples;
 	tuples.SortColBased();
         
-	SpDCCols<IT,NT> object(tuples, false);	
+	SpDCCols<IT,NT> object(tuples, false);
 	*this = object;
 	return infile;
 }
