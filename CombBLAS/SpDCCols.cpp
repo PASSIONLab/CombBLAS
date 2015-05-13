@@ -188,13 +188,111 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 /**
  * Constructor for converting tuples matrix -> SpDCCols
  * @param[in] 	rhs if transpose=true,
- *	\n		then rhs is assumed to be a row sorted SpTuples object
- *	\n		else rhs is assumed to be a column sorted SpTuples object
+ *	\n		then tuples is assumed to be a row sorted list of tuple objects
+ *	\n		else tuples is assumed to be a column sorted list of tuple objects
  **/
 
+
+
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT>*  rhs)
-: m(nRow), n(nCol), nnz(nnz1), splits(0)
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples)
+: m(nRow), n(nCol), nnz(nTuples), splits(0)
+{
+    
+    if(nnz == 0)	// m by n matrix of complete zeros
+    {
+        dcsc = NULL;
+    }
+    else
+    {
+        int totThreads;
+#pragma omp parallel
+        {
+            totThreads = omp_get_num_threads();
+        }
+        
+        vector <IT> tstart(totThreads);
+        vector <IT> tend(totThreads);
+        vector <IT> tdisp(totThreads+1);
+        
+        // extra memory, but replaces an O(nnz) loop by an O(nzc) loop
+        IT* temp_jc = new IT[nTuples];
+        IT* temp_cp = new IT[nTuples];
+
+        
+#pragma omp parallel
+        {
+            int threadID = omp_get_thread_num();
+            IT start = threadID * (nTuples / totThreads);
+            IT end = (threadID + 1) * (nTuples / totThreads);
+            if(threadID == (totThreads-1)) end = nTuples;
+            IT curpos=start;
+            if(end>start) // no work for the current thread
+            {
+                temp_jc[start] = std::get<1>(tuples[start]);
+                temp_cp[start] = start;
+                for (IT i = start+1; i < end; ++i)
+                {
+                    if(std::get<1>(tuples[i]) != temp_jc[curpos] )
+                    {
+                        temp_jc[++curpos] = std::get<1>(tuples[i]);
+                        temp_cp[curpos] = i;
+                    }
+                }
+            }
+           
+            tstart[threadID] = start;
+            if(end>start) tend[threadID] = curpos+1;
+            else tend[threadID] = end; // start=end
+        }
+
+        
+        // serial part
+        for(int t=totThreads-1; t>0; --t)
+        {
+            if(tend[t] > tstart[t] && tend[t-1] > tstart[t-1])
+            {
+                if(temp_jc[tstart[t]] == temp_jc[tend[t-1]-1])
+                {
+                    tstart[t] ++;
+                }
+            }
+        }
+        
+        tdisp[0] = 0;
+        for(int t=0; t<totThreads; ++t)
+        {
+            tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
+        }
+        
+        
+        IT localnzc = tdisp[totThreads];
+        dcsc = new Dcsc<IT,NT>(nTuples,localnzc);
+#pragma omp parallel
+        {
+            int threadID = omp_get_thread_num();
+            std::copy(dcsc->jc + tstart[threadID], dcsc->jc + tend[threadID], temp_jc + tdisp[threadID]);
+            std::copy(dcsc->cp + tstart[threadID], dcsc->cp + tend[threadID], temp_cp + tdisp[threadID]);
+        }
+        dcsc->cp[localnzc] = nTuples;
+        
+        delete [] temp_jc;
+        delete [] temp_cp;
+        
+#pragma omp parallel for schedule (static)
+        for(IT i=0; i<nTuples; ++i)
+        {
+            dcsc->ir[i]  = std::get<0>(tuples[i]);
+            dcsc->numx[i] = std::get<2>(tuples[i]);
+        }
+     }
+}
+
+
+/*
+template <class IT, class NT>
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples)
+: m(nRow), n(nCol), nnz(nTuples), splits(0)
 {
     
     if(nnz == 0)	// m by n matrix of complete zeros
@@ -204,38 +302,39 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT>*  r
     else
     {
         IT localnzc = 1;
-        for(IT i=1; i<nnz1; ++i)
+#pragma omp parallel for schedule (static) default(shared) reduction(+:localnzc)
+        for(IT i=1; i<nTuples; ++i) // not scaling well, try my own version
         {
-            
-            if(std::get<1>(rhs[i]) != std::get<1>(rhs[i-1]))
+            if(std::get<1>(tuples[i]) != std::get<1>(tuples[i-1]))
             {
                 ++localnzc;
             }
         }
         
-        dcsc = new Dcsc<IT,NT>(nnz1,localnzc);
-        dcsc->jc[0]  = std::get<1>(rhs[0]);
+        dcsc = new Dcsc<IT,NT>(nTuples,localnzc);
+        dcsc->jc[0]  = std::get<1>(tuples[0]);
         dcsc->cp[0] = 0;
         
-        for(IT i=0; i<nnz1; ++i)
+#pragma omp parallel for schedule (static)
+        for(IT i=0; i<nTuples; ++i)
         {
-            dcsc->ir[i]  = std::get<0>(rhs[i]);
-            dcsc->numx[i] = std::get<2>(rhs[i]);
+            dcsc->ir[i]  = std::get<0>(tuples[i]);
+            dcsc->numx[i] = std::get<2>(tuples[i]);
         }
         
         IT jspos = 1;
-        for(IT i=1; i<nnz1; ++i)
+        for(IT i=1; i<nTuples; ++i) // now this loop
         {
-            if(std::get<1>(rhs[i]) != dcsc->jc[jspos-1])
+            if(std::get<1>(tuples[i]) != dcsc->jc[jspos-1])
             {
-                dcsc->jc[jspos] = std::get<1>(rhs[i]);
+                dcsc->jc[jspos] = std::get<1>(tuples[i]);
                 dcsc->cp[jspos++] = i;
             }
         }
-        dcsc->cp[jspos] = nnz1;
+        dcsc->cp[jspos] = nTuples;
     }
 }
-
+*/
 
 /****************************************************************************/
 /************************** PUBLIC OPERATORS ********************************/
