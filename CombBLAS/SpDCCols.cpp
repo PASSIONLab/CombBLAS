@@ -890,7 +890,7 @@ ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 	infile >> tuples;
 	tuples.SortColBased();
         
-	SpDCCols<IT,NT> object(tuples, false, NULL);	
+	SpDCCols<IT,NT> object(tuples, false);	
 	*this = object;
 	return infile;
 }
