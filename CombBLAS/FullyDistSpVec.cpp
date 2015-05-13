@@ -1845,7 +1845,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     
     
     
-    
     NT * datbuf = new NT[ploclen];
     IT * indbuf = new IT[ploclen];
     int *count = new int[nprocs](); //current position
@@ -1858,7 +1857,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
         indbuf[id] = locind;
         count[owner]++;
 	}
-    
+    delete [] count;
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 
     t1 = MPI_Wtime();
@@ -1881,9 +1880,9 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     std::sort(tosort.begin(), tosort.end());
     
-    //Inverted.ind.resize(totrecv);
-    //Inverted.num.resize(totrecv);
     
+    Inverted.ind.reserve(totrecv);
+    Inverted.num.reserve(totrecv);
     IT lastIndex=-1;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
@@ -2793,6 +2792,8 @@ void FullyDistSpVec<IT,NT>::SelectApply (const FullyDistVec<IT,NT1> & denseVec, 
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }
+
+
 
 
 template <typename IT, typename NT>

@@ -342,7 +342,10 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
 	ParallelReduce_Alltoall<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
     //time1 = MPI_Wtime();
     loc_beg1 = MPI_Wtime();
-	locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
+	//locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
+    
+    locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
+    
     MPI_Barrier(MPI_COMM_WORLD); //needed
     comp_reduce += (MPI_Wtime() - loc_beg1); //needed
     // cout <<  "****** reduce2:  "<< MPI_Wtime() - time1 << endl;
