@@ -239,7 +239,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
     cout << " local SpGEMM " << MPI_Wtime()-t01 << " seconds" << endl;
-    return new SpTuples<IT, NTO> (nzc, mdim, ndim, multstack);
+    return new SpTuples<IT, NTO> (nzc, mdim, ndim, multstack, true);
 }
 
 
