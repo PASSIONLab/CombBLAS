@@ -60,7 +60,7 @@ class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 public:
 	// Constructors 
 	SpTuples (int64_t size, IT nRow, IT nCol);
-	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted = false);
 	SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
 	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor

@@ -91,7 +91,7 @@ void multiply_exp(void * A1, void * A2, void * B1, void * B2, CCGrid * cmg, bool
     int c_factor;
     MPI_Comm_split(MPI_COMM_WORLD, cmg->rankinlayer, cmg->layer_grid, &fibWorld);
     MPI_Comm_size(fibWorld, &c_factor);
-    
+    MPI_Barrier(MPI_COMM_WORLD);
     
         if(myrank == 0)
         {
