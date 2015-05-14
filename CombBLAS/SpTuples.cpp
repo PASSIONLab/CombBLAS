@@ -46,10 +46,11 @@ SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
 }
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted)
 :tuples(mytuples), m(nRow), n(nCol), nnz(size)
 {
-	SortColBased();
+    if(!sorted)
+        SortColBased();
 }
 
 /**

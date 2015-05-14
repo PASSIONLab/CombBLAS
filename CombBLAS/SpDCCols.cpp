@@ -219,7 +219,7 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         IT* temp_jc = new IT[nTuples];
         IT* temp_cp = new IT[nTuples];
 
-        
+
 #pragma omp parallel
         {
             int threadID = omp_get_thread_num();
@@ -264,18 +264,18 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         {
             tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
         }
-        
-        
+
         IT localnzc = tdisp[totThreads];
         dcsc = new Dcsc<IT,NT>(nTuples,localnzc);
+    
 #pragma omp parallel
         {
             int threadID = omp_get_thread_num();
-            std::copy(dcsc->jc + tstart[threadID], dcsc->jc + tend[threadID], temp_jc + tdisp[threadID]);
-            std::copy(dcsc->cp + tstart[threadID], dcsc->cp + tend[threadID], temp_cp + tdisp[threadID]);
+            std::copy(temp_jc + tstart[threadID],  temp_jc + tend[threadID], dcsc->jc + tdisp[threadID]);
+            std::copy(temp_cp + tstart[threadID],  temp_cp + tend[threadID], dcsc->cp + tdisp[threadID]);
         }
         dcsc->cp[localnzc] = nTuples;
-        
+
         delete [] temp_jc;
         delete [] temp_cp;
         
@@ -287,6 +287,7 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         }
      }
 }
+
 
 
 /*

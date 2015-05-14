@@ -226,9 +226,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     StackEntry< NTO, pair<IT,IT> > * multstack = static_cast<StackEntry< NTO, pair<IT,IT> > *> (::operator new (sizeof(StackEntry<NTO, pair<IT,IT> >[nzc])));
     
 #pragma omp parallel for
-    for(IT i=0; i< Bdcsc.nzc; ++i)        // combine step
+    for(IT i=0; i< Bdcsc.nzc; ++i)
     {
-        //copy(colsC[i].begin(), colsC[i].end(), multstack + colptrC[i]);
         copy(&colsC[colStart[i]], &colsC[colEnd[i]], multstack + colptrC[i]);
     }
     
@@ -247,18 +246,17 @@ SpTuples<IT, NTO> * LocalSpGEMM
 
 
 template<class IU, class NU>
-//tuple<IU, IU, NU>*  multiwayMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU& mergedListSize, bool delarrs = false )
-tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & ArrSpTups, const vector<IU> & listSizes, IU& mergedListSize, bool delarrs = false )
+tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples, const vector<IU> & listSizes, IU& mergedListSize, bool delarrs = false )
 {
     double t01 = MPI_Wtime();
-    int nlists =  ArrSpTups.size();
+    int nlists =  listTuples.size();
     IU totSize = 0;
     
     vector<pair<tuple<IU, IU, NU>*, tuple<IU, IU, NU>* > > seqs;
     
     for(int i = 0; i < nlists; ++i)
     {
-        seqs.push_back(make_pair(ArrSpTups[i], ArrSpTups[i] + listSizes[i]));
+        seqs.push_back(make_pair(listTuples[i], listTuples[i] + listSizes[i]));
         totSize += listSizes[i];
     }
     
@@ -271,8 +269,8 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & ArrSpTups,
     
     if(delarrs)
     {
-        for(size_t i=0; i<ArrSpTups.size(); ++i)
-            delete ArrSpTups[i];
+        for(size_t i=0; i<listTuples.size(); ++i)
+            delete listTuples[i];
     }
 
     cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
@@ -294,8 +292,6 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & ArrSpTups,
         IU end = (threadID + 1) * (totSize / totThreads);
         if(threadID == (totThreads-1)) end = totSize;
         
-        //cout << "thread: " << threadID << " start " << start << " end " << end << "  "<< totSize/(IU)totThreads << endl;
-        
         IU curpos = start;
         for (IU i = start+1; i < end; ++i)
         {
@@ -311,38 +307,39 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & ArrSpTups,
         tstart[threadID] = start;
         if(end>start) tend[threadID] = curpos+1;
         else tend[threadID] = end; // start=end
-#pragma omp barrier
-#pragma omp single
+    }
+    
+    
+    // serial
+    for(int t=totThreads-1; t>0; --t)
+    {
+        if(tend[t] > tstart[t] && tend[t-1] > tstart[t-1])
         {
-            // serial
-            for(int t=totThreads-1; t>0; --t)
+            if((get<0>(mergedData[tstart[t]]) == get<0>(mergedData[tend[t-1]-1])) && (get<1>(mergedData[tstart[t]]) == get<1>(mergedData[tend[t-1]-1])))
             {
-                if(tend[t] > tstart[t] && tend[t-1] > tstart[t-1])
-                {
-                    if((get<0>(mergedData[tstart[t]]) == get<0>(mergedData[tend[t-1]-1])) && (get<1>(mergedData[tstart[t]]) == get<1>(mergedData[tend[t-1]-1])))
-                    {
-                        get<2>(mergedData[tend[t-1]-1]) += get<2>(mergedData[tstart[t]]);
-                        tstart[t] ++;
-                    }
-                }
-            }
-            
-            tdisp[0] = 0;
-            for(int t=0; t<totThreads; ++t)
-            {
-                tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
+                get<2>(mergedData[tend[t-1]-1]) += get<2>(mergedData[tstart[t]]);
+                tstart[t] ++;
             }
         }
-        
-        // shrink space in parallel
+    }
+    
+    tdisp[0] = 0;
+    for(int t=0; t<totThreads; ++t)
+    {
+        tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
+    }
+
+
+    
+#pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
         std::copy(mergedData + tstart[threadID], mergedData + tend[threadID], mergedData + tdisp[threadID]);
-        
     }
     
 
     mergedListSize = tdisp[totThreads];
     cout << mergedListSize << " entries reduced in " << MPI_Wtime()-t01 << " seconds" << endl;
-    //return SpTuples<IU,NU> (reducedSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData);
     return mergedData;
 }
 
