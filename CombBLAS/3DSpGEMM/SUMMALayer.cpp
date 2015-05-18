@@ -737,6 +737,25 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                 (*ARecv, *BRecv, // parameters themselves
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition
+                
+                ColLexiCompare<int32_t, double> collexicogcmp;
+                SpTuples<int32_t, double> tupl(*C_cont);
+                SpTuples<int32_t, double> tuplA(*ARecv);
+                SpTuples<int32_t, double> tuplB(*BRecv);
+                //cout << tupl.tuples << endl;
+                
+                if(!SpHelper::is_sorted(tuplA.tuples, tuplA.tuples+tuplA.getnnz(), collexicogcmp))
+                cout << "A is not sorted\n";
+                else
+                cout << "A is sorted\n";
+                if(!SpHelper::is_sorted(tuplB.tuples, tuplB.tuples+tuplB.getnnz(), collexicogcmp))
+                cout << "B is not sorted\n";
+                else
+                cout << "B is sorted\n";
+                if(!SpHelper::is_sorted(tupl.tuples, tupl.tuples+tupl.getnnz(), collexicogcmp))
+                cout << "C is not sorted\n";
+                else
+                cout << "C is sorted\n";
             }
             else
             {
@@ -745,6 +764,28 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  false, isBT,	// transpose information (B is transposed)
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition
+                
+                ColLexiCompare<int32_t, double> collexicogcmp;
+                SpTuples<int32_t, double> tupl(*C_cont);
+                SpTuples<int32_t, double> tuplA(*ARecv);
+                SpTuples<int32_t, double> tuplB(*BRecv);
+                //cout << tupl.tuples << endl;
+                
+                if(!SpHelper::is_sorted(tuplA.tuples, tuplA.tuples+tuplA.getnnz(), collexicogcmp))
+                    cout << "A is not sorted\n";
+                else
+                    cout << "A is sorted\n";
+                if(!SpHelper::is_sorted(tuplB.tuples, tuplB.tuples+tuplB.getnnz(), collexicogcmp))
+                    cout << "B is not sorted\n";
+                else
+                    cout << "B is sorted\n";
+                if(!SpHelper::is_sorted(tupl.tuples, tupl.tuples+tupl.getnnz(), collexicogcmp))
+                    cout << "C is not sorted\n";
+                else
+                    cout << "C is sorted\n";
+                
+                
+                
             }
 		
             MPI_Barrier(MPI_COMM_WORLD);
