@@ -160,14 +160,7 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
   	SpTuples<LIT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
-
-    ColLexiCompare<LIT,NT> collexicogcmp;
-    if(!SpHelper::is_sorted(A.tuples, A.tuples + A.getnnz(), collexicogcmp))
-        cout << "A is not sorted\n";
-    else
-        cout << "A is sorted\n";
     
-
   	*spSeq = new DER(A,false);        // Convert SpTuples to DER
 
 }
@@ -186,7 +179,6 @@ SpDCCols<int32_t, double> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double 
 	minfo << "Using " << nprocs << " MPI processes" << endl;
 	SpParHelper::Print(minfo.str());
 
-    //DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
 	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );	// don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
 	SpParHelper::Print("Generated renamed edge lists\n");
 	ostringstream tinfo;
