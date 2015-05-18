@@ -256,7 +256,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     }
     delete [] tuplesC;
     
-    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, false);
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, true);
     cout << " local SpGEMM " << MPI_Wtime()-t01 << " seconds" << endl;
     return spTuplesC;
 }
