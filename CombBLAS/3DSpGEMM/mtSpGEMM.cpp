@@ -245,7 +245,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
     {
         colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
     }
-    cout << endl;
     IT nnzc = colptrC[Bdcsc.nzc];
     
     tuple<IT,IT,NTO> * tuplesOut = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
