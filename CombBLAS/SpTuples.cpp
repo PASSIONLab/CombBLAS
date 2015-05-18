@@ -50,7 +50,10 @@ SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * m
 :tuples(mytuples), m(nRow), n(nCol), nnz(size)
 {
     if(!sorted)
+    {
         SortColBased();
+    }
+    
 }
 
 /**
@@ -133,7 +136,7 @@ SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<I
 		colindex(i) = multstack[i].key.first;
 		rowindex(i) = multstack[i].key.second;
 		numvalue(i) = multstack[i].value;
-	}
+    }
 	delete [] multstack;
 }
 
