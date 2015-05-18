@@ -4,43 +4,6 @@
 
 
 
-template<class SR, class NUO, class IU, class NU1, class NU2>
-SpTuples<IU, NUO> * LocalSpGEMM1
-(const SpDCCols<IU, NU1> & A,
- const SpDCCols<IU, NU2> & B,
- bool clearA , bool clearB )
-{
-    IU mdim = A.getnrow();
-    IU ndim = B.getncol();
-    if(A.isZero() || B.isZero())
-    {
-        return new SpTuples<IU, NUO>(0, mdim, ndim);
-    }
-    StackEntry< NUO, pair<IU,IU> > * multstack;
-    IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
-    
-    if(clearA)
-    delete const_cast<SpDCCols<IU, NU1> *>(&A);
-    if(clearB)
-    delete const_cast<SpDCCols<IU, NU2> *>(&B);
-    
-    
-    SpTuples<IU, NUO>* mat = new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
-    
-    ColLexiCompare<IU, NUO> collexicogcmp;
-    //cout << tupl.tuples << endl;
-    if(!SpHelper::is_sorted(mat->tuples, mat->tuples+mat->getnnz(), collexicogcmp))
-    cout << "**C is not sorted\n";
-    else
-    cout << "**C is sorted\n";
-    
-    return mat;
-    
-    //return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
-}
-
-
-
 // multithreaded
 template <typename SR, typename NTO, typename IT, typename NT1, typename NT2>
 SpTuples<IT, NTO> * LocalSpGEMM
@@ -255,6 +218,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
         copy(&tuplesC[colStart[i]], &tuplesC[colEnd[i]], tuplesOut + colptrC[i]);
     }
     delete [] tuplesC;
+    delete [] colStart;
+    delete [] colEnd;
     
     SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, true);
     cout << " local SpGEMM " << MPI_Wtime()-t01 << " seconds" << endl;
