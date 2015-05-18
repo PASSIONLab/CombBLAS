@@ -3,6 +3,44 @@
 #include "../CombBLAS.h"
 
 
+
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * LocalSpGEMM1
+(const SpDCCols<IU, NU1> & A,
+ const SpDCCols<IU, NU2> & B,
+ bool clearA , bool clearB )
+{
+    IU mdim = A.getnrow();
+    IU ndim = B.getncol();
+    if(A.isZero() || B.isZero())
+    {
+        return new SpTuples<IU, NUO>(0, mdim, ndim);
+    }
+    StackEntry< NUO, pair<IU,IU> > * multstack;
+    IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
+    
+    if(clearA)
+    delete const_cast<SpDCCols<IU, NU1> *>(&A);
+    if(clearB)
+    delete const_cast<SpDCCols<IU, NU2> *>(&B);
+    
+    
+    SpTuples<IU, NUO>* mat = new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
+    
+    ColLexiCompare<IU, NUO> collexicogcmp;
+    //cout << tupl.tuples << endl;
+    if(!SpHelper::is_sorted(mat->tuples, mat->tuples+mat->getnnz(), collexicogcmp))
+    cout << "**C is not sorted\n";
+    else
+    cout << "**C is sorted\n";
+    
+    return mat;
+    
+    //return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
+}
+
+
+
 // multithreaded
 template <typename SR, typename NTO, typename IT, typename NT1, typename NT2>
 SpTuples<IT, NTO> * LocalSpGEMM
@@ -10,7 +48,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
  const SpDCCols<IT, NT2> & B,
  bool clearA, bool clearB)
 {
-    
     double t01 = MPI_Wtime();
     
     IT mdim = A.getnrow();
@@ -100,11 +137,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     colPerThread[numThreads] = Bdcsc.nzc;
 
     IT size = colEnd[Bdcsc.nzc-1] + maxnnzc[Bdcsc.nzc-1];
-    //IT * RowIdsofC = new IT[size];
-    //NT * ValuesofC = new NT[size];
-    //vector<StackEntry< NTO, pair<IT,IT>>> * colsC = new vector<StackEntry< NTO, pair<IT,IT>>>[Bdcsc.nzc];
+    tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[size])));
     
-    StackEntry< NTO, pair<IT,IT> > * colsC = static_cast<StackEntry< NTO, pair<IT,IT> > *> (::operator new (sizeof(StackEntry<NTO, pair<IT,IT> >[size])));
     delete [] maxnnzc;
     // ************************ End Creating global space *************************************
     
@@ -145,11 +179,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
             
         
             IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
-            //HeapEntry<IT, NT1> * wset = new HeapEntry<IT, NT1>[nnzcol];
-            // heap keys are just row indices (IT)
-            // heap values are <numvalue, runrank>
-            // heap size is nnz(B(:,i)
-            
             
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
@@ -166,9 +195,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
             }
             make_heap(wset, wset+hsize);
             
-            
-            
-            // No need to keep redefining key and hentry with each iteration of the loop
+
             while(hsize > 0)
             {
                 pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
@@ -177,19 +204,16 @@ SpTuples<IT, NTO> * LocalSpGEMM
                  NTO mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
                 if (!SR::returnedSAID())
                 {
-                     if( (colEnd[i] > colStart[i]) && colsC[colEnd[i]-1].key.second == wset[hsize-1].key)
+                    if( (colEnd[i] > colStart[i]) && get<0>(tuplesC[colEnd[i]-1]) == wset[hsize-1].key)
                     {
-                        colsC[colEnd[i]-1].value = SR::add(colsC[colEnd[i]-1].value, mrhs);
+                        get<2>(tuplesC[colEnd[i]-1]) = SR::add(get<2>(tuplesC[colEnd[i]-1]), mrhs);
                     }
                     else
                     {
-                        StackEntry< NTO, pair<IT,IT>> se;
-                        se.value = mrhs;
-                        se.key = make_pair(Bdcsc.jc[i], wset[hsize-1].key);
-                        
-                        colsC[colEnd[i]]= se ;
+                        tuplesC[colEnd[i]]= make_tuple(wset[hsize-1].key, Bdcsc.jc[i], mrhs) ;
                         colEnd[i] ++;
                     }
+                    
                 }
                 
                 if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
@@ -204,42 +228,38 @@ SpTuples<IT, NTO> * LocalSpGEMM
                     --hsize;
                 }
             }
-
         }
 
     }
     delete [] aux;
     delete [] globalheap;
+    if(clearA)
+        delete const_cast<SpDCCols<IT, NT1> *>(&A);
+    if(clearB)
+        delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
     
     vector<IT> colptrC(Bdcsc.nzc+1);
     colptrC[0] = 0;
     for(IT i=0; i< Bdcsc.nzc; ++i)  // insignificant
     {
-        //colptrC[i+1] = colptrC[i] + colsC[i].size();
         colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
     }
-    IT nzc = colptrC[Bdcsc.nzc];
+    cout << endl;
+    IT nnzc = colptrC[Bdcsc.nzc];
     
-    
-    //StackEntry< NTO, pair<IT,IT> > * multstack = new StackEntry<NTO, pair<IT,IT> >[nzc];
-    StackEntry< NTO, pair<IT,IT> > * multstack = static_cast<StackEntry< NTO, pair<IT,IT> > *> (::operator new (sizeof(StackEntry<NTO, pair<IT,IT> >[nzc])));
+    tuple<IT,IT,NTO> * tuplesOut = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
     
 #pragma omp parallel for
     for(IT i=0; i< Bdcsc.nzc; ++i)
     {
-        copy(&colsC[colStart[i]], &colsC[colEnd[i]], multstack + colptrC[i]);
+        copy(&tuplesC[colStart[i]], &tuplesC[colEnd[i]], tuplesOut + colptrC[i]);
     }
+    delete [] tuplesC;
     
-    delete [] colsC;
-    
-    if(clearA)
-        delete const_cast<SpDCCols<IT, NT1> *>(&A);
-    if(clearB)
-        delete const_cast<SpDCCols<IT, NT2> *>(&B);
-    
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, false);
     cout << " local SpGEMM " << MPI_Wtime()-t01 << " seconds" << endl;
-    return new SpTuples<IT, NTO> (nzc, mdim, ndim, multstack, true);
+    return spTuplesC;
 }
 
 
@@ -330,17 +350,19 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples
     }
 
 
+    mergedListSize = tdisp[totThreads];
+    tuple<IU, IU, NU>* mergedDataOut = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[mergedListSize])));
     
-#pragma omp parallel
+#pragma omp parallel // canot be done in parallel on the same array
     {
         int threadID = omp_get_thread_num();
-        std::copy(mergedData + tstart[threadID], mergedData + tend[threadID], mergedData + tdisp[threadID]);
+        std::copy(mergedData + tstart[threadID], mergedData + tend[threadID], mergedDataOut + tdisp[threadID]);
     }
-    
+    delete [] mergedData;
 
     mergedListSize = tdisp[totThreads];
     cout << mergedListSize << " entries reduced in " << MPI_Wtime()-t01 << " seconds" << endl;
-    return mergedData;
+    return mergedDataOut;
 }
 
 
