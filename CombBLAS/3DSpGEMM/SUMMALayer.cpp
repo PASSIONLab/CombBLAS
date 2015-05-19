@@ -35,6 +35,30 @@ void DeleteMatrix(void ** A)
 	delete castA;
 }
 
+int* findColSplitters(tuple<int32_t,int32_t,double> * & tuples, int ntuples, int ncols, int nsplits)
+{
+    int nthreads;
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+    int* splitters = new int[nsplits+1];
+    splitters[0] = 0;
+    ColLexiCompare<int32_t,double> comp;
+#pragma omp parallel for  //schedule(dynamic)
+    for(int i=1; i< nsplits; i++)
+    {
+        int32_t cur_col = i * (ncols/nsplits);
+        std::tuple<int32_t,int32_t,double> search_tuple(0, cur_col, 0);
+        tuple<int32_t,int32_t,double>* it;
+        it = std::lower_bound (tuples, tuples+ntuples, search_tuple, comp);
+        splitters[i] = it - tuples;
+    }
+    splitters[nsplits] = ntuples;
+    
+    return splitters;
+}
+
 // localmerged is invalidated in all processes after this redursive function
 // globalmerged is valid on all processes upon exit
 template <typename SR>
@@ -59,8 +83,23 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	int target = 0;
 	int cols_per_proc = (ncols + fprocs - 1) / fprocs;
 	int split_point = cols_per_proc;
-	int send_offsets[fprocs];
+	int send_offsets[fprocs+1];
 	send_offsets[0] = 0;
+    
+    for( int i = 0; i < inputnnz; i++ )
+    {
+        if( std::get<1>(localmerged[i]) >= split_point )
+        {
+            send_offsets[++target] = i;
+            split_point += cols_per_proc;
+        }
+    }
+    while(target < fprocs) send_offsets[++target] = inputnnz;
+    for(int i=0; i<fprocs; i++)
+    {
+        send_sizes[i] = send_offsets[i+1] - send_offsets[i];
+    }
+    /*
 	for( int i = 0; i < inputnnz; i++ ) {
 	  if( std::get<1>(localmerged[i]) >= split_point ) {
 	    if( target == 0 )
@@ -74,6 +113,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	  }
 	}
 	send_sizes[fprocs-1] = inputnnz - send_offsets[fprocs-1];
+     */
     MPI_Barrier(MPI_COMM_WORLD);
 	//comp_reduce += (MPI_Wtime() - loc_beg1);
 
@@ -86,6 +126,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	for( int i = 0; i < fprocs; i++ )
 	  recv_count += recv_sizes[i];
 	tuple<int32_t,int32_t,double> *recvbuf = (tuple<int32_t,int32_t,double>*) malloc( recv_count * sizeof(tuple<int32_t,int32_t,double>) );
+    
 	int recv_offsets[fprocs];
 	recv_offsets[0] = 0;
 	for( int i = 1; i < fprocs; i++ ) {
@@ -124,7 +165,6 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	  if( nexti == -1 ) // merge is finished
 	    break;
 
-	  pos[nexti]++;
 	  if( outputnnz > 0 && std::get<0>(globalmerged[outputnnz-1]) == std::get<0>(recvbuf[pos[nexti]]) && std::get<1>(globalmerged[outputnnz-1]) == std::get<1>(recvbuf[pos[nexti]]) )
 	    // add this one to the previous
 	    std::get<2>(globalmerged[outputnnz-1]) = SR::add( std::get<2>(globalmerged[outputnnz-1]), std::get<2>(recvbuf[pos[nexti]]) );
@@ -133,6 +173,8 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	    globalmerged[outputnnz] = recvbuf[pos[nexti]];
 	    outputnnz++;
 	  }
+        
+    pos[nexti]++;
 	}
     MPI_Barrier(MPI_COMM_WORLD);
 	//comp_reduce += (MPI_Wtime() - loc_beg1);
@@ -141,6 +183,108 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	delete [] localmerged;
 	localmerged  = NULL;
 }
+
+
+
+// localmerged is invalidated in all processes after this redursive function
+// globalmerged is valid on all processes upon exit
+template <typename SR>
+void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> * & localmerged,
+                             MPI_Datatype & MPI_triple, tuple<int32_t,int32_t,double> * & globalmerged,
+                             int inputnnz, int & outputnnz, int ncols)
+{
+    int fprocs;
+    MPI_Comm_size(fibWorld,&fprocs);
+    if(fprocs == 1)
+    {
+        globalmerged = localmerged;
+        localmerged = NULL;
+        outputnnz = inputnnz;
+        return;
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    double loc_beg1 = MPI_Wtime();
+    int send_sizes[fprocs];
+    int recv_sizes[fprocs];
+    
+    
+    int target = 0;
+    int cols_per_proc = (ncols + fprocs - 1) / fprocs;
+    int split_point = cols_per_proc;
+    int send_offsets[fprocs+1];
+    send_offsets[0] = 0;
+    for( int i = 0; i < inputnnz; i++ )
+    {
+        if( std::get<1>(localmerged[i]) >= split_point )
+        {
+            send_offsets[++target] = i;
+            split_point += cols_per_proc;
+        }
+    }
+    while(target < fprocs) send_offsets[++target] = inputnnz;
+    
+    
+    //int* send_offsets = findColSplitters(localmerged, inputnnz, ncols, fprocs);
+    for(int i=0; i<fprocs; i++)
+    {
+        send_sizes[i] = send_offsets[i+1] - send_offsets[i];
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << " splitter time: " << (MPI_Wtime() - loc_beg1) << endl;
+    //comp_reduce += (MPI_Wtime() - loc_beg1);
+    
+    double reduce_beg = MPI_Wtime();
+    MPI_Alltoall( send_sizes, 1, MPI_INT, recv_sizes, 1, MPI_INT,fibWorld);
+    MPI_Barrier(MPI_COMM_WORLD);
+    comm_reduce += (MPI_Wtime() - reduce_beg);
+    
+    int recv_count = 0;
+    for( int i = 0; i < fprocs; i++ )
+    recv_count += recv_sizes[i];
+    tuple<int32_t,int32_t,double> *recvbuf = (tuple<int32_t,int32_t,double>*) malloc( recv_count * sizeof(tuple<int32_t,int32_t,double>) );
+    int recv_offsets[fprocs];
+    recv_offsets[0] = 0;
+    for( int i = 1; i < fprocs; i++ ) {
+        recv_offsets[i] = recv_offsets[i-1]+recv_sizes[i-1];
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    reduce_beg = MPI_Wtime();
+    MPI_Alltoallv( localmerged, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld);
+    MPI_Barrier(MPI_COMM_WORLD);
+    comm_reduce += (MPI_Wtime() - reduce_beg);
+    loc_beg1 = MPI_Wtime();
+    
+    
+    
+    
+    vector<tuple<int32_t, int32_t, double>*> lists;
+    vector<int32_t> listSizes;
+    for(int i=0; i< fprocs; ++i)
+    {
+        if(recv_sizes[i] > 0)
+        {
+            lists.push_back(&recvbuf[recv_offsets[i]]);
+            listSizes.push_back(recv_sizes[i]);
+        }
+    }
+    
+    //int outputnnz1 =0;
+    MPI_Barrier(MPI_COMM_WORLD);
+    //tuple<int32_t,int32_t,double>* globalmerged1;
+    globalmerged = multiwayMerge(lists, listSizes, outputnnz, false); // multiwayMerge returns sorted list, no need to check if it is already sorted
+     
+     
+    MPI_Barrier(MPI_COMM_WORLD);
+    //comp_reduce += (MPI_Wtime() - loc_beg1);
+    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    free(recvbuf);
+    delete [] localmerged;
+    localmerged  = NULL;
+}
+
+
 
 
 // localmerged is invalidated in all processes after this redursive function
@@ -339,7 +483,9 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
 #ifdef PARALLELREDUCE
 	int outputnnz = 0;
 	//ParallelReduce<PTDD>(fibWorld, localmerged.tuples, MPI_triple, recvdata, (int) localmerged.getnnz(), outputnnz);
-	ParallelReduce_Alltoall<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
+	//ParallelReduce_Alltoall<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
+    ParallelReduce_Alltoall_threaded<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
+    
     //time1 = MPI_Wtime();
     loc_beg1 = MPI_Wtime();
 	//locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);

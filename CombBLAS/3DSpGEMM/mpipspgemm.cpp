@@ -243,8 +243,10 @@ int main(int argc, char *argv[])
         //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false);
         B1_cast->Transpose();
         B2_cast->Transpose();
+        
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
+        
         
         
         
