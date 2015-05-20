@@ -25,6 +25,41 @@ void FillColInds4(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, 
 }
 */
 
+template <typename T>
+T* prefixsum(T* in, int size, int nthreads)
+{
+    vector<T> tsum(nthreads+1);
+    tsum[0] = 0;
+    T* out = new T[size+1];
+    out[0] = 0;
+    T* psum = &out[1];
+    
+#pragma omp parallel
+    {
+        int ithread = omp_get_thread_num();
+        T sum = 0;
+#pragma omp for schedule(static)
+        for (int i=0; i<size; i++)
+        {
+            sum += in[i];
+            psum[i] = sum;
+        }
+        tsum[ithread+1] = sum;
+#pragma omp barrier
+        float offset = 0;
+        for(int i=0; i<(ithread+1); i++)
+        {
+            offset += tsum[i];
+        }
+#pragma omp for schedule(static)
+        for (int i=0; i<size; i++)
+        {
+            psum[i] += offset;
+        }
+    }
+    return out;
+}
+
 
 
 // multithreaded
@@ -101,25 +136,30 @@ SpTuples<IT, NTO> * LocalSpGEMM
         numThreads = omp_get_num_threads();
     }
     
-    IT flopsPerThread = flops/numThreads; // amount of work that will be assigned to each thread
     IT colPerThread [numThreads + 1]; // thread i will process columns from colPerThread[i] to colPerThread[i+1]-1
+    colPerThread[0] = 0;
     
+    IT* colStart = prefixsum<IT>(maxnnzc, Bdcsc.nzc, numThreads);
+#pragma omp parallel for
+    for(int i=1; i< numThreads; i++)
+    {
+        IT cur_col = i * (flops/numThreads);
+        IT* it = std::lower_bound (colStart, colStart+Bdcsc.nzc+1, cur_col);
+        colPerThread[i] = it - colStart;
+        if(colPerThread[i]>Bdcsc.nzc) colPerThread[i]=Bdcsc.nzc;
+    }
+    colPerThread[numThreads] = Bdcsc.nzc;
+    
+    
+    /*
     IT* colStart = new IT[Bdcsc.nzc]; //start index in the global array for storing ith column of C
-    IT* colEnd = new IT[Bdcsc.nzc]; //end index in the global array for storing ith column of C
     colStart[0] = 0;
-    colEnd[0] = 0;
-    
-    int curThread = 0;
-    colPerThread[curThread++] = 0;
+    IT flopsPerThread = flops/numThreads; // amount of work that will be assigned to each thread
+    int curThread = 1;
     IT nextflops = flopsPerThread;
-    
-    // TODO: the following prefix sum can be parallelized, e.g., see
-    // http://stackoverflow.com/questions/21352816/prefix-sums-taking-too-long-openmp
-    // not a dominating term at this moment
     for(int i=0; i < (Bdcsc.nzc-1); ++i)
     {
         colStart[i+1] = colStart[i] + maxnnzc[i];
-        colEnd[i+1] = colStart[i+1];
         if(nextflops < colStart[i+1])
         {
             colPerThread[curThread++] = i+1;
@@ -129,8 +169,9 @@ SpTuples<IT, NTO> * LocalSpGEMM
     while(curThread < numThreads)
     colPerThread[curThread++] = Bdcsc.nzc;
     colPerThread[numThreads] = Bdcsc.nzc;
+    */
     
-    IT size = colEnd[Bdcsc.nzc-1] + maxnnzc[Bdcsc.nzc-1];
+    IT size = colStart[Bdcsc.nzc-1] + maxnnzc[Bdcsc.nzc-1];
     tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[size])));
     
     delete [] maxnnzc;
@@ -162,6 +203,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     
     
     double t02 = MPI_Wtime();
+    IT* colEnd = new IT[Bdcsc.nzc]; //end index in the global array for storing ith column of C
     
 #pragma omp parallel
     {
@@ -174,6 +216,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
             
             
             IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
+            colEnd[i] = colStart[i];
             
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
@@ -236,14 +279,24 @@ SpTuples<IT, NTO> * LocalSpGEMM
     delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
     
+    vector<IT> nnzcol(Bdcsc.nzc+1);
+#pragma omp parallel for
+    for(IT i=0; i< Bdcsc.nzc; ++i)
+    {
+        nnzcol[i] = colEnd[i]-colStart[i];
+    }
+    IT* colptrC = prefixsum<IT>(nnzcol.data(), Bdcsc.nzc, numThreads); //parallel
+    
+    /*
     vector<IT> colptrC(Bdcsc.nzc+1);
     colptrC[0] = 0;
-    for(IT i=0; i< Bdcsc.nzc; ++i)  // insignificant
+    for(IT i=0; i< Bdcsc.nzc; ++i)
     {
         colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
     }
-    IT nnzc = colptrC[Bdcsc.nzc];
+    */
     
+    IT nnzc = colptrC[Bdcsc.nzc];
     tuple<IT,IT,NTO> * tuplesOut = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
     
 #pragma omp parallel for
@@ -254,6 +307,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     delete [] tuplesC;
     delete [] colStart;
     delete [] colEnd;
+    delete [] colptrC;
     
     SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, true);
     
