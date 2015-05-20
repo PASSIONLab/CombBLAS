@@ -3,6 +3,8 @@ extern double comm_bcast;
 extern double comm_reduce;
 extern double comp_summa;
 extern double comp_reduce;
+extern double comp_reduce_layer;
+extern double comp_result;
 
 
 typedef struct
