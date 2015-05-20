@@ -37,11 +37,6 @@ void DeleteMatrix(void ** A)
 
 int* findColSplitters(tuple<int32_t,int32_t,double> * & tuples, int ntuples, int ncols, int nsplits)
 {
-    int nthreads;
-#pragma omp parallel
-    {
-        nthreads = omp_get_num_threads();
-    }
     int* splitters = new int[nsplits+1];
     splitters[0] = 0;
     ColLexiCompare<int32_t,double> comp;
@@ -174,7 +169,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	    outputnnz++;
 	  }
         
-    pos[nexti]++;
+    pos[nexti]++;  // it was a bug since it was placed before the if statement
 	}
     MPI_Barrier(MPI_COMM_WORLD);
 	//comp_reduce += (MPI_Wtime() - loc_beg1);
@@ -194,6 +189,8 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<int32_t,int32_t
                              int inputnnz, int & outputnnz, int ncols)
 {
     int fprocs;
+    double comp_begin, comm_begin, comp_time=0, comm_time=0;
+    
     MPI_Comm_size(fibWorld,&fprocs);
     if(fprocs == 1)
     {
@@ -202,61 +199,47 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<int32_t,int32_t
         outputnnz = inputnnz;
         return;
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    double loc_beg1 = MPI_Wtime();
+    //MPI_Barrier(MPI_COMM_WORLD);
+    comp_begin = MPI_Wtime();
     int send_sizes[fprocs];
     int recv_sizes[fprocs];
-    
-    
-    int target = 0;
-    int cols_per_proc = (ncols + fprocs - 1) / fprocs;
-    int split_point = cols_per_proc;
-    int send_offsets[fprocs+1];
-    send_offsets[0] = 0;
-    for( int i = 0; i < inputnnz; i++ )
-    {
-        if( std::get<1>(localmerged[i]) >= split_point )
-        {
-            send_offsets[++target] = i;
-            split_point += cols_per_proc;
-        }
-    }
-    while(target < fprocs) send_offsets[++target] = inputnnz;
-    
-    
-    //int* send_offsets = findColSplitters(localmerged, inputnnz, ncols, fprocs);
+    int* send_offsets = findColSplitters(localmerged, inputnnz, ncols, fprocs);
     for(int i=0; i<fprocs; i++)
     {
         send_sizes[i] = send_offsets[i+1] - send_offsets[i];
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << " splitter time: " << (MPI_Wtime() - loc_beg1) << endl;
-    //comp_reduce += (MPI_Wtime() - loc_beg1);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    comp_time += (MPI_Wtime() - comp_begin);
     
-    double reduce_beg = MPI_Wtime();
+    comm_begin = MPI_Wtime();
     MPI_Alltoall( send_sizes, 1, MPI_INT, recv_sizes, 1, MPI_INT,fibWorld);
-    MPI_Barrier(MPI_COMM_WORLD);
-    comm_reduce += (MPI_Wtime() - reduce_beg);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    comm_time += (MPI_Wtime() - comm_begin);
     
+    
+    comp_begin = MPI_Wtime();
     int recv_count = 0;
     for( int i = 0; i < fprocs; i++ )
-    recv_count += recv_sizes[i];
+    {
+        recv_count += recv_sizes[i];
+    }
     tuple<int32_t,int32_t,double> *recvbuf = (tuple<int32_t,int32_t,double>*) malloc( recv_count * sizeof(tuple<int32_t,int32_t,double>) );
     int recv_offsets[fprocs];
     recv_offsets[0] = 0;
-    for( int i = 1; i < fprocs; i++ ) {
+    for( int i = 1; i < fprocs; i++ )
+    {
         recv_offsets[i] = recv_offsets[i-1]+recv_sizes[i-1];
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    reduce_beg = MPI_Wtime();
+    comp_time += (MPI_Wtime() - comp_begin);
+    
+    
+    comm_begin = MPI_Wtime();
     MPI_Alltoallv( localmerged, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld);
-    MPI_Barrier(MPI_COMM_WORLD);
-    comm_reduce += (MPI_Wtime() - reduce_beg);
-    loc_beg1 = MPI_Wtime();
+    comm_time += (MPI_Wtime() - comm_begin);
     
     
     
-    
+    comp_begin = MPI_Wtime();
     vector<tuple<int32_t, int32_t, double>*> lists;
     vector<int32_t> listSizes;
     for(int i=0; i< fprocs; ++i)
@@ -267,21 +250,18 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<int32_t,int32_t
             listSizes.push_back(recv_sizes[i]);
         }
     }
-    
-    //int outputnnz1 =0;
+    globalmerged = multiwayMerge(lists, listSizes, outputnnz, false);
     MPI_Barrier(MPI_COMM_WORLD);
-    //tuple<int32_t,int32_t,double>* globalmerged1;
-    globalmerged = multiwayMerge(lists, listSizes, outputnnz, false); // multiwayMerge returns sorted list, no need to check if it is already sorted
-     
-     
-    MPI_Barrier(MPI_COMM_WORLD);
-    //comp_reduce += (MPI_Wtime() - loc_beg1);
+    comp_time += (MPI_Wtime() - comp_begin);
     
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    comp_reduce_layer += comp_time;
+    comm_reduce += comm_time;
+    
     free(recvbuf);
     delete [] localmerged;
     localmerged  = NULL;
+    
+    
 }
 
 
@@ -392,44 +372,16 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
 	MPI_Comm_split(MPI_COMM_WORLD, cmg->rankinlayer, cmg->layer_grid, &fibWorld);
 	MPI_Comm_split(MPI_COMM_WORLD, cmg->layer_grid * cmg->GRROWS + cmg->rankinlayer / cmg->GRROWS, cmg->RANKINROW, &rowWorld);
 	MPI_Comm_split(MPI_COMM_WORLD, cmg->layer_grid * cmg->GRCOLS + cmg->rankinlayer % cmg->GRROWS, cmg->RANKINCOL, &colWorld);
-
-	vector<double> all_merge_time;
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
-	if(myrank == 0)
-	{
-		all_merge_time.resize(nprocs);
-#ifdef DEBUG
-		cout << MPI::COMM_WORLD.Get_rank() << "'s tuples: " << endl;
-		for(int i=0; i< localcount; ++i)
-			cout << "Tuple " << i << " has " << static_cast<SPTUPLE*>(C[i])->getnnz() << " nonzeros" << endl;
-#endif
-	}
 	
     
-#ifdef TIMING // BEGIN TIMING
-	double loc_merge_beg = MPI_Wtime();
-#endif
-	vector<SPTUPLE *> alltuples;
-	int C_m = 0;
-	int C_n = 0;
-	for(int i=0; i< localcount; ++i)
-	{
-		if(static_cast<SPTUPLE*>(C[i])->getnnz() > 0)
-		{
-			alltuples.push_back(static_cast<SPTUPLE*>(C[i]));
-			C_m = static_cast<SPTUPLE*>(C[i])->getnrow();
-			C_n = static_cast<SPTUPLE*>(C[i])->getncol();
-		}
-	}
-    
+	int C_m = static_cast<SPTUPLE*>(C[0])->getnrow();
+	int C_n = static_cast<SPTUPLE*>(C[0])->getncol();;
     int64_t totrecv;
 	tuple<int32_t,int32_t,double> * recvdata;
     
-    //MPI_Barrier(MPI_COMM_WORLD);
-	
     double loc_beg1 = MPI_Wtime();
     int32_t localmerged_size;
     tuple<int32_t, int32_t, double>* localmerged;
@@ -444,133 +396,59 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
             listSizes.push_back(static_cast<SPTUPLE*>(C[i])->getnnz());
         }
     }
+    localmerged = multiwayMerge(lists, listSizes, localmerged_size,true);
     
-    localmerged = multiwayMerge(lists, listSizes, localmerged_size,true); // multiwayMerge returns sorted list, no need to check if it is already sorted
-    
-    
-
-    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
-    
-	
-#ifdef TIMING // END TIMING
-	double loc_merge_time = MPI_Wtime() - loc_merge_beg;
-	MPI_Gather(&loc_merge_time, 1, MPI_DOUBLE, SpHelper::p2a(all_merge_time), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	if(myrank== 0)
-	{
-		vector<int> permutation = SpHelper::order(all_merge_time);
-		int smallest = permutation[0];
-		int largest = permutation[nprocs-1];
-		int median = permutation[nprocs/2];
-		cout << "Localmerged has " << localmerged_size << " nonzeros" << endl;
-		cout << "Local Merge MEAN: " << accumulate( all_merge_time.begin(), all_merge_time.end(), 0.0 )/ static_cast<double> (nprocs) << endl;
-		cout << "Local Merge MAX: " << all_merge_time[largest] << endl;
-		cout << "Local Merge MIN: " << all_merge_time[smallest]  << endl;
-		cout << "Local Merge MEDIAN: " << all_merge_time[median] << endl;
-	}
-#endif
-	
-	MPI_Datatype MPI_triple;
+
+    MPI_Datatype MPI_triple;
     MPI_Type_contiguous(sizeof(tuple<int32_t,int32_t,double>), MPI_CHAR, &MPI_triple);
     MPI_Type_commit(&MPI_triple);
     LOC_SPMAT * locret;
-    
-    
-    
 	int pre_glmerge = localmerged_size;
-	
 	
 #ifdef PARALLELREDUCE
 	int outputnnz = 0;
-	//ParallelReduce<PTDD>(fibWorld, localmerged.tuples, MPI_triple, recvdata, (int) localmerged.getnnz(), outputnnz);
-	//ParallelReduce_Alltoall<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
     ParallelReduce_Alltoall_threaded<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
     
-    //time1 = MPI_Wtime();
+    MPI_Barrier(MPI_COMM_WORLD);
     loc_beg1 = MPI_Wtime();
-	//locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
-    
-    double t01 = MPI_Wtime();
     locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
-    cout << " result matrxi constructed in " << MPI_Wtime()-t01 << " seconds" << endl;
-    
-    MPI_Barrier(MPI_COMM_WORLD); //needed
-    comp_reduce += (MPI_Wtime() - loc_beg1); //needed
-    // cout <<  "****** reduce2:  "<< MPI_Wtime() - time1 << endl;
-#else
+    MPI_Barrier(MPI_COMM_WORLD);
+    comp_result += (MPI_Wtime() - loc_beg1);
+    cout << " result matrix constructed in " << MPI_Wtime()-loc_beg1 << " seconds" << endl;
+ 
+
+#else // not multithreaded yet
     int fibsize, fibrank;
     MPI_Comm_size(fibWorld,&fibsize);
     MPI_Comm_rank(fibWorld,&fibrank);
     
-	if(fibrank == 0)	// root of the fibers (i.e. 0th layer)
+	if(fibrank == 0)
 	{
-		
-#ifdef TIMING	// BEGIN TIMING
-		double loc_merge_beg = MPI_Wtime();
-		vector<double> gl_merge_time;
-        
-        int layprocs, layrank;
-        MPI_Comm_size(layWorld,&layprocs);
-        MPI_Comm_rank(layWorld,&layrank);
-        if(layrank == 0)
-			gl_merge_time.resize(layprocs);
-#endif
-
 		int * pst_glmerge = new int[fibsize];	// redundant at non-root
 		MPI_Gather(&pre_glmerge, 1, MPI_INT, pst_glmerge, 1, MPI_INT, 0, fibWorld);
 		int64_t totrecv = std::accumulate(pst_glmerge, pst_glmerge+fibsize, static_cast<int64_t>(0));
 		
-		int * dpls = new int[fibsize]();       // displacements (zero initialized pid)
+		int * dpls = new int[fibsize]();
 		std::partial_sum(pst_glmerge, pst_glmerge+fibsize-1, dpls+1);
 		recvdata = new tuple<int32_t,int32_t,double>[totrecv];
-
-		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-		    MPI_Barrier(MPI_COMM_WORLD);
+        
+        MPI_Barrier(MPI_COMM_WORLD);
 		double reduce_beg = MPI_Wtime();
         MPI_Gatherv(localmerged, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, fibWorld);
 		comm_reduce += (MPI_Wtime() - reduce_beg);
-			
-		// SpTuples<IU,NU> MergeAllContiguous (tuple<IU,IU,NU> * colsortedranges, IU mstar, IU nstar, int hsize, int * nonzeros, int * dpls, bool delarrays)
-		// MergeAllContiguous frees the arrays and LOC_SPMAT constructor does not transpose [in this call]
-		
 		double loc_beg2 = MPI_Wtime();
 		locret = new LOC_SPMAT(MergeAllContiguous<PTDD>( recvdata, C_m, C_n, fibsize, pst_glmerge, dpls, true), false);
 		//comp_reduce += (MPI_Wtime() - loc_beg2);
-
-		
-#ifdef TIMING		// END TIMING
-		double loc_merge_time = MPI_Wtime() - loc_merge_beg;
-		MPI_Gather(&loc_merge_time, 1, MPI_DOUBLE, SpHelper::p2a(gl_merge_time), 1, MPI_DOUBLE, 0, layWorld);
-		
-		int64_t mergednnz = locret->getnnz();
-		int64_t globalnnz = 0;
-		MPI_Reduce(&mergednnz, &globalnnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layWorld);
-		
-		if(layWorld.Get_rank() == 0)
-		{
-			vector<int> permutation = SpHelper::order(gl_merge_time);
-			int smallest = permutation[0];
-			int largest = permutation[layprocs-1];
-			int median = permutation[layprocs/2];
-			cout << "Global Merge MEAN: " << accumulate( gl_merge_time.begin(), gl_merge_time.end(), 0.0 )/ static_cast<double> (layprocs) << endl;
-			cout << "Global Merge MAX: " << gl_merge_time[largest] << endl;
-			cout << "Global Merge MIN: " << gl_merge_time[smallest]  << endl;
-			cout << "Global Merge MEDIAN: " << gl_merge_time[median] << endl;
-			
-			cout << layWorld.Get_rank() << "'s final tuple has " << locret->getnnz() << " local nonzeros" << endl;
-			cout << "While the total number of nonzeros are " << globalnnz << endl;
-		}
-#endif
 	}
 	else 
 	{
-		MPI_Gather(&pre_glmerge, 1, MPI_INT, NULL, 1, MPI_INT, 0, fibWorld); // recvbuf is irrelevant on non-root
+		MPI_Gather(&pre_glmerge, 1, MPI_INT, NULL, 1, MPI_INT, 0, fibWorld);
 		MPI_Gatherv(localmerged, pre_glmerge, MPI_triple, NULL, NULL, NULL, MPI_triple, 0, fibWorld);
 		locret = new LOC_SPMAT(); // other layes don't have the data
 	}
 #endif
-    
-    
     
     MPI_Type_free(&MPI_triple);
     MPI_Comm_free(&fibWorld);
