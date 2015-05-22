@@ -70,6 +70,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
  bool clearA, bool clearB)
 {
     double t01 = MPI_Wtime();
+    double tt1 = MPI_Wtime();
     
     IT mdim = A.getnrow();
     IT ndim = B.getncol();
@@ -85,11 +86,9 @@ SpTuples<IT, NTO> * LocalSpGEMM
     float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
+    Adcsc.ConstructAux(nA, aux);
     
-    
-    Adcsc.ConstructAux(nA, aux); // this is fast
-    
-    
+    double tt2 = MPI_Wtime();
     
     
     // *************** Creating global space to store result, used by all threads *********************
@@ -150,6 +149,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     }
     colPerThread[numThreads] = Bdcsc.nzc;
     
+   
     
     /*
     IT* colStart = new IT[Bdcsc.nzc]; //start index in the global array for storing ith column of C
@@ -176,7 +176,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     
     delete [] maxnnzc;
     // ************************ End Creating global space *************************************
-    
+     double tt3 = MPI_Wtime();
     
     // *************** Creating global heap space to be used by all threads *********************
     IT threadHeapSize[numThreads];
@@ -200,11 +200,10 @@ SpTuples<IT, NTO> * LocalSpGEMM
     //HeapEntry<IT,NT1> * colinds1 = new HeapEntry<IT,NT1>[threadHeapStart[numThreads]];
     
     // ************************ End Creating global heap space *************************************
-    
-    
+   
     double t02 = MPI_Wtime();
     IT* colEnd = new IT[Bdcsc.nzc]; //end index in the global array for storing ith column of C
-    
+    double tt4 = MPI_Wtime();
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
@@ -270,6 +269,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         
     }
     
+    cout << " local SpGEMM " << tt2-tt1 << " + " << tt3-tt2 << " + " << tt4-tt3 << " seconds" << endl;
     cout << " local SpGEMM " << t02-t01 << " + " << MPI_Wtime()-t02 << " seconds" << endl;
     delete [] aux;
     delete [] globalheap;
