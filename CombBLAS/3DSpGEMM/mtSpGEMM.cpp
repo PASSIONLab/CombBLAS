@@ -70,7 +70,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
  bool clearA, bool clearB)
 {
     double t01 = MPI_Wtime();
-    double tt1 = MPI_Wtime();
+  
     
     IT mdim = A.getnrow();
     IT ndim = B.getncol();
@@ -79,41 +79,42 @@ SpTuples<IT, NTO> * LocalSpGEMM
         return new SpTuples<IT, NTO>(0, mdim, ndim);
     }
     
-    Dcsc<IT,NT1> Adcsc = *(A.GetDCSC());
-    Dcsc<IT,NT2> Bdcsc = *(B.GetDCSC());
+    Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
+    Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
+    
     IT nA = A.getncol();
-    IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
-    float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
+    IT cnzmax = Adcsc->nz + Bdcsc->nz;	// estimate on the size of resulting matrix C
+    float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
-    Adcsc.ConstructAux(nA, aux);
+    Adcsc->ConstructAux(nA, aux);
     
-    double tt2 = MPI_Wtime();
+   
     
     
     // *************** Creating global space to store result, used by all threads *********************
     
-    IT* maxnnzc = new IT[Bdcsc.nzc]; // maximum number of nnz in each column of C
+    IT* maxnnzc = new IT[Bdcsc->nzc]; // maximum number of nnz in each column of C
     IT flops = 0; // total flops (multiplication) needed to generate C
 #pragma omp parallel
     {
         IT tflops=0; //thread private flops
 #pragma omp for
-        for(int i=0; i < Bdcsc.nzc; ++i)
+        for(int i=0; i < Bdcsc->nzc; ++i)
         {
             IT locmax = 0;
-            IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
+            IT nnzcol = Bdcsc->cp[i+1] - Bdcsc->cp[i];
             //vector< pair<IT,IT> > colinds(nnzcol);
-            //Adcsc.FillColInds(Bdcsc.ir + Bdcsc.cp[i], nnzcol, colinds, aux, csize);
+            //Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcol, colinds, aux, csize);
             bool found;
-            IT* curptr = Bdcsc.ir + Bdcsc.cp[i];
+            IT* curptr = Bdcsc->ir + Bdcsc->cp[i];
             
             for(IT j = 0; j < nnzcol; ++j)
             {
-                IT pos = Adcsc.AuxIndex(curptr[j], found, aux, csize);
+                IT pos = Adcsc->AuxIndex(curptr[j], found, aux, csize);
                 if(found)
                 {
-                    locmax = locmax + (Adcsc.cp[pos+1] - Adcsc.cp[pos]);
+                    locmax = locmax + (Adcsc->cp[pos+1] - Adcsc->cp[pos]);
                 }
                 //locmax = locmax + (colinds[j].second - colinds[j].first);
                 
@@ -138,26 +139,26 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT colPerThread [numThreads + 1]; // thread i will process columns from colPerThread[i] to colPerThread[i+1]-1
     colPerThread[0] = 0;
     
-    IT* colStart = prefixsum<IT>(maxnnzc, Bdcsc.nzc, numThreads);
+    IT* colStart = prefixsum<IT>(maxnnzc, Bdcsc->nzc, numThreads);
 #pragma omp parallel for
     for(int i=1; i< numThreads; i++)
     {
         IT cur_col = i * (flops/numThreads);
-        IT* it = std::lower_bound (colStart, colStart+Bdcsc.nzc+1, cur_col);
+        IT* it = std::lower_bound (colStart, colStart+Bdcsc->nzc+1, cur_col);
         colPerThread[i] = it - colStart;
-        if(colPerThread[i]>Bdcsc.nzc) colPerThread[i]=Bdcsc.nzc;
+        if(colPerThread[i]>Bdcsc->nzc) colPerThread[i]=Bdcsc->nzc;
     }
-    colPerThread[numThreads] = Bdcsc.nzc;
+    colPerThread[numThreads] = Bdcsc->nzc;
     
    
     
     /*
-    IT* colStart = new IT[Bdcsc.nzc]; //start index in the global array for storing ith column of C
+    IT* colStart = new IT[Bdcsc->nzc]; //start index in the global array for storing ith column of C
     colStart[0] = 0;
     IT flopsPerThread = flops/numThreads; // amount of work that will be assigned to each thread
     int curThread = 1;
     IT nextflops = flopsPerThread;
-    for(int i=0; i < (Bdcsc.nzc-1); ++i)
+    for(int i=0; i < (Bdcsc->nzc-1); ++i)
     {
         colStart[i+1] = colStart[i] + maxnnzc[i];
         if(nextflops < colStart[i+1])
@@ -167,16 +168,15 @@ SpTuples<IT, NTO> * LocalSpGEMM
         }
     }
     while(curThread < numThreads)
-    colPerThread[curThread++] = Bdcsc.nzc;
-    colPerThread[numThreads] = Bdcsc.nzc;
+    colPerThread[curThread++] = Bdcsc->nzc;
+    colPerThread[numThreads] = Bdcsc->nzc;
     */
     
-    IT size = colStart[Bdcsc.nzc-1] + maxnnzc[Bdcsc.nzc-1];
+    IT size = colStart[Bdcsc->nzc-1] + maxnnzc[Bdcsc->nzc-1];
     tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[size])));
     
     delete [] maxnnzc;
     // ************************ End Creating global space *************************************
-     double tt3 = MPI_Wtime();
     
     // *************** Creating global heap space to be used by all threads *********************
     IT threadHeapSize[numThreads];
@@ -186,7 +186,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         IT localmax = -1;
         for(int i=colPerThread[thisThread]; i < colPerThread[thisThread+1]; ++i)
         {
-            IT colnnz = Bdcsc.cp[i+1]-Bdcsc.cp[i];
+            IT colnnz = Bdcsc->cp[i+1]-Bdcsc->cp[i];
             if(colnnz > localmax) localmax = colnnz;
         }
         threadHeapSize[thisThread] = localmax;
@@ -202,8 +202,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     // ************************ End Creating global heap space *************************************
    
     double t02 = MPI_Wtime();
-    IT* colEnd = new IT[Bdcsc.nzc]; //end index in the global array for storing ith column of C
-    double tt4 = MPI_Wtime();
+    IT* colEnd = new IT[Bdcsc->nzc]; //end index in the global array for storing ith column of C
+
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
@@ -214,20 +214,20 @@ SpTuples<IT, NTO> * LocalSpGEMM
         {
             
             
-            IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
+            IT nnzcol = Bdcsc->cp[i+1] - Bdcsc->cp[i];
             colEnd[i] = colStart[i];
             
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
             //vector< pair<IT,IT> > colinds(nnzcol);
-            Adcsc.FillColInds(Bdcsc.ir + Bdcsc.cp[i], nnzcol, colinds, aux, csize); // can be done multithreaded
+            Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcol, colinds, aux, csize); // can be done multithreaded
             IT hsize = 0;
             
             for(IT j = 0; (unsigned)j < nnzcol; ++j)		// create the initial heap
             {
                 if(colinds[j].first != colinds[j].second)	// current != end
                 {
-                    wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
+                    wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc->ir[colinds[j].first], j, Adcsc->numx[colinds[j].first]);
                 }
             }
             make_heap(wset, wset+hsize);
@@ -238,7 +238,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
                 pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
                 IT locb = wset[hsize-1].runr;	// relative location of the nonzero in B's current column
                 
-                NTO mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
+                NTO mrhs = SR::multiply(wset[hsize-1].num, Bdcsc->numx[Bdcsc->cp[i]+locb]);
                 if (!SR::returnedSAID())
                 {
                     if( (colEnd[i] > colStart[i]) && get<0>(tuplesC[colEnd[i]-1]) == wset[hsize-1].key)
@@ -247,7 +247,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
                     }
                     else
                     {
-                        tuplesC[colEnd[i]]= make_tuple(wset[hsize-1].key, Bdcsc.jc[i], mrhs) ;
+                        tuplesC[colEnd[i]]= make_tuple(wset[hsize-1].key, Bdcsc->jc[i], mrhs) ;
                         colEnd[i] ++;
                     }
                     
@@ -256,8 +256,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
                 if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
                 {
                     // runr stays the same !
-                    wset[hsize-1].key = Adcsc.ir[colinds[locb].first];
-                    wset[hsize-1].num = Adcsc.numx[colinds[locb].first];
+                    wset[hsize-1].key = Adcsc->ir[colinds[locb].first];
+                    wset[hsize-1].num = Adcsc->numx[colinds[locb].first];
                     push_heap(wset, wset+hsize);
                 }
                 else
@@ -269,8 +269,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         
     }
     
-    cout << " local SpGEMM " << tt2-tt1 << " + " << tt3-tt2 << " + " << tt4-tt3 << " seconds" << endl;
-    cout << " local SpGEMM " << t02-t01 << " + " << MPI_Wtime()-t02 << " seconds" << endl;
+    double t03 = MPI_Wtime();
     delete [] aux;
     delete [] globalheap;
     if(clearA)
@@ -278,39 +277,46 @@ SpTuples<IT, NTO> * LocalSpGEMM
     if(clearB)
     delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
-    
-    vector<IT> nnzcol(Bdcsc.nzc+1);
+ 
+    vector<IT> nnzcol(Bdcsc->nzc+1);
 #pragma omp parallel for
-    for(IT i=0; i< Bdcsc.nzc; ++i)
+    for(IT i=0; i< Bdcsc->nzc; ++i)
     {
         nnzcol[i] = colEnd[i]-colStart[i];
     }
-    IT* colptrC = prefixsum<IT>(nnzcol.data(), Bdcsc.nzc, numThreads); //parallel
+    IT* colptrC = prefixsum<IT>(nnzcol.data(), Bdcsc->nzc, numThreads); //parallel
     
     /*
-    vector<IT> colptrC(Bdcsc.nzc+1);
+    vector<IT> colptrC(Bdcsc->nzc+1);
     colptrC[0] = 0;
-    for(IT i=0; i< Bdcsc.nzc; ++i)
+    for(IT i=0; i< Bdcsc->nzc; ++i)
     {
         colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
     }
     */
     
-    IT nnzc = colptrC[Bdcsc.nzc];
+
+    
+    IT nnzc = colptrC[Bdcsc->nzc];
     tuple<IT,IT,NTO> * tuplesOut = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
     
+    //double t05 = MPI_Wtime();
 #pragma omp parallel for
-    for(IT i=0; i< Bdcsc.nzc; ++i)
+    for(IT i=0; i< Bdcsc->nzc; ++i)
     {
         copy(&tuplesC[colStart[i]], &tuplesC[colEnd[i]], tuplesOut + colptrC[i]);
     }
-    delete [] tuplesC;
+
+    delete [] tuplesC; // this consumes a significant amout of time on 12 cores e.g., .1s for scale=20
     delete [] colStart;
     delete [] colEnd;
     delete [] colptrC;
     
     SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesOut, true);
     
+    //cout << " last " << t06-t05 << " + " << t07-t06 << " + " << t08-t07 << " + " << " seconds" << endl;
+    
+    //cout << " local SpGEMM " << t02-t01 << " + " << t03-t02 << " + " << MPI_Wtime()-t03 << " seconds" << endl;
     
     return spTuplesC;
 }
@@ -344,7 +350,7 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples
         delete listTuples[i];
     }
     
-    cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
+    //cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
     t01 = MPI_Wtime();
     
     int totThreads;
@@ -418,7 +424,7 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples
     delete [] mergedData1;
     
     mergedListSize = tdisp[totThreads];
-    cout << mergedListSize << " entries reduced in " << t02-t01 << " + " << t03-t02 << " + " << MPI_Wtime()-t03 <<" seconds" << endl;
+    //cout << mergedListSize << " entries reduced in " << t02-t01 << " + " << t03-t02 << " + " << MPI_Wtime()-t03 <<" seconds" << endl;
     return mergedDataOut;
 }
 
