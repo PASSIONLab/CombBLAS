@@ -756,31 +756,36 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			double summa_beg = MPI_Wtime();
             SPTUPLE * C_cont;
             if(threaded)
+            //if(false)
             {
                 C_cont = LocalSpGEMM<PTDD, double>
                 (*ARecv, *BRecv, // parameters themselves
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition
                 
+                
                 /*
                 ColLexiCompare<int32_t, double> collexicogcmp;
                 SpTuples<int32_t, double> tupl(*C_cont);
+                if(!SpHelper::is_sorted(tupl.tuples, tupl.tuples+tupl.getnnz(), collexicogcmp))
+                    cout << "C is not sorted\n";
+                else
+                    cout << "C is sorted\n";
+                
                 SpTuples<int32_t, double> tuplA(*ARecv);
                 SpTuples<int32_t, double> tuplB(*BRecv);
-                //cout << tupl.tuples << endl;
+                
+                cout << tupl.getnnz() << endl;
                 if(!SpHelper::is_sorted(tuplA.tuples, tuplA.tuples+tuplA.getnnz(), collexicogcmp))
-                cout << "A is not sorted\n";
+                    cout << "A is not sorted\n";
                 else
-                cout << "A is sorted\n";
+                    cout << "A is sorted\n";
                 if(!SpHelper::is_sorted(tuplB.tuples, tuplB.tuples+tuplB.getnnz(), collexicogcmp))
-                cout << "B is not sorted\n";
+                    cout << "B is not sorted\n";
                 else
-                cout << "B is sorted\n";
-                if(!SpHelper::is_sorted(tupl.tuples, tupl.tuples+tupl.getnnz(), collexicogcmp))
-                cout << "C is not sorted\n";
-                else
-                cout << "C is sorted\n";
+                    cout << "B is sorted\n";
                  */
+                
             }
             else
             {
@@ -791,7 +796,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  i != Bself);	// 'delete B' condition
             }
 		
-            //MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
             comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;
