@@ -272,10 +272,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
     double t03 = MPI_Wtime();
     delete [] aux;
     delete [] globalheap;
-    if(clearA)
-    delete const_cast<SpDCCols<IT, NT1> *>(&A);
-    if(clearB)
-    delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
  
     vector<IT> nnzcol(Bdcsc->nzc+1);
@@ -307,6 +303,10 @@ SpTuples<IT, NTO> * LocalSpGEMM
         copy(&tuplesC[colStart[i]], &tuplesC[colEnd[i]], tuplesOut + colptrC[i]);
     }
 
+    if(clearA)
+        delete const_cast<SpDCCols<IT, NT1> *>(&A);
+    if(clearB)
+        delete const_cast<SpDCCols<IT, NT2> *>(&B);
     delete [] tuplesC; // this consumes a significant amout of time on 12 cores e.g., .1s for scale=20
     delete [] colStart;
     delete [] colEnd;
