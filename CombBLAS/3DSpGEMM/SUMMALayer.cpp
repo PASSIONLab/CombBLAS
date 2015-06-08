@@ -416,7 +416,7 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
     locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
     MPI_Barrier(MPI_COMM_WORLD);
     comp_result += (MPI_Wtime() - loc_beg1);
-    cout << " result matrix constructed in " << MPI_Wtime()-loc_beg1 << " seconds" << endl;
+    //cout << " result matrix constructed in " << MPI_Wtime()-loc_beg1 << " seconds" << endl;
  
 
 #else // not multithreaded yet
@@ -719,7 +719,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			
 		for(int i = stage_beg; i < stage_end; ++i) 
 		{
-             MPI_Barrier(MPI_COMM_WORLD);
+             //MPI_Barrier(MPI_COMM_WORLD);
 			double bcast_beg = MPI_Wtime();
 			vector<int32_t> ess;	
 			if(i == Aself)
@@ -751,7 +751,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			}
 			SpParHelper::BCastMatrix(colWorld, *BRecv, ess, i);	// then, receive its elements
             
-            MPI_Barrier(MPI_COMM_WORLD);
+            //MPI_Barrier(MPI_COMM_WORLD);
 			comm_bcast += (MPI_Wtime() - bcast_beg);
 			double summa_beg = MPI_Wtime();
             SPTUPLE * C_cont;
@@ -791,7 +791,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  i != Bself);	// 'delete B' condition
             }
 		
-            MPI_Barrier(MPI_COMM_WORLD);
+            //MPI_Barrier(MPI_COMM_WORLD);
             comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;
