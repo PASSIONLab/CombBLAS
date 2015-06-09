@@ -238,15 +238,20 @@ int main(int argc, char *argv[])
 
         
         
-        //multiply_exp(A1, A2, B1, B2, CMG, true);
+        //multiply_exp(A1, A2, B1, B2, CMG, true, false);
         LOC_SPMAT * B1_cast = (LOC_SPMAT *) B1;
         LOC_SPMAT * B2_cast = (LOC_SPMAT *) B2;
         
-        //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false);
+        
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
+        
         B1_cast->Transpose();
         B2_cast->Transpose();
         
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
         
         

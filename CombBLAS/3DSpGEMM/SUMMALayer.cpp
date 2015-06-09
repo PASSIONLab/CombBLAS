@@ -73,7 +73,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	int send_sizes[fprocs];
 	int recv_sizes[fprocs];
 	// this could be made more efficient, either by a binary search or by guessing then correcting
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
 	int target = 0;
 	int cols_per_proc = (ncols + fprocs - 1) / fprocs;
@@ -109,12 +109,12 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	}
 	send_sizes[fprocs-1] = inputnnz - send_offsets[fprocs-1];
      */
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	//comp_reduce += (MPI_Wtime() - loc_beg1);
 
 	double reduce_beg = MPI_Wtime();
 	MPI_Alltoall( send_sizes, 1, MPI_INT, recv_sizes, 1, MPI_INT,fibWorld);
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	comm_reduce += (MPI_Wtime() - reduce_beg);
 
 	int recv_count = 0;
@@ -127,10 +127,10 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	for( int i = 1; i < fprocs; i++ ) {
 	  recv_offsets[i] = recv_offsets[i-1]+recv_sizes[i-1];
 	}
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	reduce_beg = MPI_Wtime();
 	MPI_Alltoallv( localmerged, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld);
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     comm_reduce += (MPI_Wtime() - reduce_beg);
 	loc_beg1 = MPI_Wtime();
 
@@ -171,7 +171,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
         
     pos[nexti]++;  // it was a bug since it was placed before the if statement
 	}
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	//comp_reduce += (MPI_Wtime() - loc_beg1);
 	
 	free(recvbuf);
@@ -251,7 +251,7 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<int32_t,int32_t
         }
     }
     globalmerged = multiwayMerge(lists, listSizes, outputnnz, false);
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     comp_time += (MPI_Wtime() - comp_begin);
     
     comp_reduce_layer += comp_time;
@@ -398,7 +398,7 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
     }
     localmerged = multiwayMerge(lists, listSizes, localmerged_size,true);
     
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
 
     MPI_Datatype MPI_triple;
@@ -411,10 +411,10 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
 	int outputnnz = 0;
     ParallelReduce_Alltoall_threaded<PTDD>(fibWorld, localmerged, MPI_triple, recvdata, (int) localmerged_size, outputnnz, C_n);
     
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     loc_beg1 = MPI_Wtime();
     locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     comp_result += (MPI_Wtime() - loc_beg1);
     //cout << " result matrix constructed in " << MPI_Wtime()-loc_beg1 << " seconds" << endl;
  
@@ -434,7 +434,7 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
 		std::partial_sum(pst_glmerge, pst_glmerge+fibsize-1, dpls+1);
 		recvdata = new tuple<int32_t,int32_t,double>[totrecv];
         
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
 		double reduce_beg = MPI_Wtime();
         MPI_Gatherv(localmerged, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, fibWorld);
 		comm_reduce += (MPI_Wtime() - reduce_beg);
@@ -556,7 +556,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
     //time1 = MPI_Wtime();
     loc_beg1 = MPI_Wtime();
     locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
-    MPI_Barrier(MPI_COMM_WORLD); //needed
+    //MPI_Barrier(MPI_COMM_WORLD); //needed
     //comp_reduce += (MPI_Wtime() - loc_beg1); //needed
     // cout <<  "****** reduce2:  "<< MPI_Wtime() - time1 << endl;
 #else
@@ -587,7 +587,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
         recvdata = new tuple<int32_t,int32_t,double>[totrecv];
         
         // IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
         double reduce_beg = MPI_Wtime();
         MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, fibWorld);
         comm_reduce += (MPI_Wtime() - reduce_beg);
@@ -756,36 +756,11 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			double summa_beg = MPI_Wtime();
             SPTUPLE * C_cont;
             if(threaded)
-            //if(false)
             {
                 C_cont = LocalSpGEMM<PTDD, double>
                 (*ARecv, *BRecv, // parameters themselves
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition
-                
-                
-                /*
-                ColLexiCompare<int32_t, double> collexicogcmp;
-                SpTuples<int32_t, double> tupl(*C_cont);
-                if(!SpHelper::is_sorted(tupl.tuples, tupl.tuples+tupl.getnnz(), collexicogcmp))
-                    cout << "C is not sorted\n";
-                else
-                    cout << "C is sorted\n";
-                
-                SpTuples<int32_t, double> tuplA(*ARecv);
-                SpTuples<int32_t, double> tuplB(*BRecv);
-                
-                cout << tupl.getnnz() << endl;
-                if(!SpHelper::is_sorted(tuplA.tuples, tuplA.tuples+tuplA.getnnz(), collexicogcmp))
-                    cout << "A is not sorted\n";
-                else
-                    cout << "A is sorted\n";
-                if(!SpHelper::is_sorted(tuplB.tuples, tuplB.tuples+tuplB.getnnz(), collexicogcmp))
-                    cout << "B is not sorted\n";
-                else
-                    cout << "B is sorted\n";
-                 */
-                
             }
             else
             {
@@ -796,7 +771,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  i != Bself);	// 'delete B' condition
             }
 		
-            MPI_Barrier(MPI_COMM_WORLD);
+            //MPI_Barrier(MPI_COMM_WORLD);
             comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;
