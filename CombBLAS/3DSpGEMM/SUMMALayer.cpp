@@ -755,6 +755,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			comm_bcast += (MPI_Wtime() - bcast_beg);
 			double summa_beg = MPI_Wtime();
             SPTUPLE * C_cont;
+            
             if(threaded)
             {
                 C_cont = LocalSpGEMM<PTDD, double>
