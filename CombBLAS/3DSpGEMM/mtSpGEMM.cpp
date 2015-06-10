@@ -44,9 +44,10 @@ T* prefixsum(T* in, int size, int nthreads)
             sum += in[i];
             psum[i] = sum;
         }
+        
         tsum[ithread+1] = sum;
 #pragma omp barrier
-        float offset = 0;
+        T offset = 0;
         for(int i=0; i<(ithread+1); i++)
         {
             offset += tsum[i];
@@ -56,9 +57,11 @@ T* prefixsum(T* in, int size, int nthreads)
         {
             psum[i] += offset;
         }
+    
     }
     return out;
 }
+
 
 
 
@@ -69,7 +72,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
  const SpDCCols<IT, NT2> & B,
  bool clearA, bool clearB)
 {
-    double t01 = MPI_Wtime();
+    //double t01 = MPI_Wtime();
   
     
     IT mdim = A.getnrow();
@@ -139,6 +142,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT colPerThread [numThreads + 1]; // thread i will process columns from colPerThread[i] to colPerThread[i+1]-1
     colPerThread[0] = 0;
     
+    
     IT* colStart = prefixsum<IT>(maxnnzc, Bdcsc->nzc, numThreads);
 #pragma omp parallel for
     for(int i=1; i< numThreads; i++)
@@ -172,6 +176,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     colPerThread[numThreads] = Bdcsc->nzc;
     */
     
+    
     IT size = colStart[Bdcsc->nzc-1] + maxnnzc[Bdcsc->nzc-1];
     tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[size])));
     
@@ -201,13 +206,13 @@ SpTuples<IT, NTO> * LocalSpGEMM
     
     // ************************ End Creating global heap space *************************************
    
-    double t02 = MPI_Wtime();
+    //double t02 = MPI_Wtime();
     IT* colEnd = new IT[Bdcsc->nzc]; //end index in the global array for storing ith column of C
 
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
-        vector< pair<IT,IT> > colinds(threadHeapSize[thisThread]);
+        vector< pair<IT,IT> > colinds(threadHeapSize[thisThread]);  //
         HeapEntry<IT,NT1> * wset = globalheap + threadHeapStart[thisThread]; // thread private heap space
         
         for(int i=colPerThread[thisThread]; i < colPerThread[thisThread+1]; ++i)
@@ -269,27 +274,33 @@ SpTuples<IT, NTO> * LocalSpGEMM
         
     }
     
-    double t03 = MPI_Wtime();
+    //double t03 = MPI_Wtime();
     delete [] aux;
     delete [] globalheap;
     
- 
-    vector<IT> nnzcol(Bdcsc->nzc+1);
+    
+    vector<IT> nnzcol(Bdcsc->nzc);
 #pragma omp parallel for
     for(IT i=0; i< Bdcsc->nzc; ++i)
     {
         nnzcol[i] = colEnd[i]-colStart[i];
     }
+    
     IT* colptrC = prefixsum<IT>(nnzcol.data(), Bdcsc->nzc, numThreads); //parallel
     
     /*
-    vector<IT> colptrC(Bdcsc->nzc+1);
+    IT* colptrC = new IT[Bdcsc->nzc+1];
     colptrC[0] = 0;
     for(IT i=0; i< Bdcsc->nzc; ++i)
     {
-        colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
+        colptrC[i+1] = colptrCt[i] +nnzcol[i];
     }
+    
     */
+    
+
+
+    
     
 
     
