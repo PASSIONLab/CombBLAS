@@ -119,15 +119,16 @@ int main(int argc, char *argv[])
 	int THREADS = MPI::COMM_WORLD.Get_size();
 	int MYTHREAD = MPI::COMM_WORLD.Get_rank();
 
-	if(argc < 7)
+	if(argc < 8)
 	{
 		if(MYTHREAD == 0)
 		{
-			printf("Usage: ./mpipspgemm <Scale> <GridRows> <GridCols> <Replicas> <Type> <EDGEFACTOR>\n");
-			printf("Example: ./mpipspgemm 19 4 4 2 ER 16\n");
+			printf("Usage: ./mpipspgemm <Scale> <GridRows> <GridCols> <Replicas> <Type> <EDGEFACTOR> <algo>\n");
+			printf("Example: ./mpipspgemm 19 4 4 2 ER 16 outer\n");
 			printf("Type ER: Erdos-Renyi\n");
 			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
 			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
+            printf("algo: outer | column | threaded | all\n");
 		}
 		return -1;         
 	}
@@ -224,35 +225,51 @@ int main(int argc, char *argv[])
 		VoidRMat(scale, EDGEFACTOR, initiator, CMG->layer_grid, CMG->rankinlayer, &B1, &B2, true); // also transpose before split
 		if(MYTHREAD == 0) printf("RMATs Generated and replicated along layers\n");
 
-        
-        if(MYTHREAD == 0)
-        {
-#pragma omp parallel
-            {
-                int nthreads = omp_get_num_threads();
-                printf ("nthreads = %d\n", nthreads);
-            }
-        }
-        
-        
-
-        
-        
         //multiply_exp(A1, A2, B1, B2, CMG, true, false);
         LOC_SPMAT * B1_cast = (LOC_SPMAT *) B1;
         LOC_SPMAT * B2_cast = (LOC_SPMAT *) B2;
         
         
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
         
-        B1_cast->Transpose();
-        B2_cast->Transpose();
+        if(string(argv[7]) == string("outer"))
+        {
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
+        }
+        else if(string(argv[7]) == string("column"))
+        {
+            B1_cast->Transpose();
+            B2_cast->Transpose();
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
+        }
+        else if(string(argv[7]) == string("all"))
+        {
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false); // outer product
+            
+            B1_cast->Transpose();
+            B2_cast->Transpose();
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        }
+        else // default threaded
+        {
+            B1_cast->Transpose();
+            B2_cast->Transpose();
+            for(int k=0; k<5; k++)
+                multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        }
         
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
+        
+        
+        
+        
+        
+        
+        
         
         
         
