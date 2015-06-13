@@ -186,16 +186,16 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 
 
 /**
- * Constructor for converting tuples matrix -> SpDCCols
+ * Multithreaded Constructor for converting tuples matrix -> SpDCCols
  * @param[in] 	rhs if transpose=true,
  *	\n		then tuples is assumed to be a row sorted list of tuple objects
  *	\n		else tuples is assumed to be a column sorted list of tuple objects
  **/
 
-
+// I used
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples)
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples, bool transpose)
 : m(nRow), n(nCol), nnz(nTuples), splits(0)
 {
     
@@ -286,6 +286,8 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
             dcsc->numx[i] = std::get<2>(tuples[i]);
         }
      }
+    
+    if(transpose) Transpose(); // this is not efficient, think to improve later. We included this parameter anyway to make this constructor different from another constracttor when the fourth argument is passed as 0.
 }
 
 
