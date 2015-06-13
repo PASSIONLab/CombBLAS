@@ -413,7 +413,7 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
     
     //MPI_Barrier(MPI_COMM_WORLD);
     loc_beg1 = MPI_Wtime();
-    locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
+    locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata, false);
     //MPI_Barrier(MPI_COMM_WORLD);
     comp_result += (MPI_Wtime() - loc_beg1);
     //cout << " result matrix constructed in " << MPI_Wtime()-loc_beg1 << " seconds" << endl;
