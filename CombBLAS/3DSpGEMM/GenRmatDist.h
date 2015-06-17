@@ -1,3 +1,6 @@
+#ifndef _GEN_RMAT_DIST_H_
+#define _GEN_RMAT_DIST_H_
+
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
@@ -18,16 +21,7 @@
 #include <stdint.h>
 
 #include "../CombBLAS.h"
-#include "../SpParHelper.h"
-#include "../DistEdgeList.h"
-#include "Glue.h"
-
-
-#ifdef BUPC
-extern "C" void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int layer_grid, int rankinlayer, void ** part1, void ** part2, bool trans);
-#endif
-
-extern void Split_GetEssensials(void * full, void ** part1, void ** part2, SpDCCol_Essentials * sess1, SpDCCol_Essentials * sess2);
+#include "Glue.h"   
 
 
 template <class DER, class DELIT>
@@ -165,12 +159,13 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 
 }
 
-SpDCCols<int32_t, double> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld)
+template<typename IT, typename NT>
+SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld)
 {
 	double t01 = MPI_Wtime();
 	double t02;
 	
-	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(layerworld);
+	DistEdgeList<IT> * DEL = new DistEdgeList<IT>(layerworld);
 
 	ostringstream minfo;
     int nprocs;
@@ -186,148 +181,82 @@ SpDCCols<int32_t, double> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double 
 	tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 	SpParHelper::Print(tinfo.str());
 
-	SpDCCols<int32_t,double> * LocalSpMat;
-	MakeDCSC< SpDCCols<int32_t,double> > (*DEL, false, &LocalSpMat);
+	SpDCCols<IT,NT> * LocalSpMat;
+	MakeDCSC< SpDCCols<IT,NT> > (*DEL, false, &LocalSpMat);
 	delete DEL;     // free memory before symmetricizing
 	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 	return LocalSpMat;
 }
 
-void LocalTranpose(void * matrix)
+/**
+ ** \param[out] splitmat {generated RMAT matrix, split into CMG.GridLayers pieces}
+ **/
+template <typename IT, typename NT>
+void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans)
 {
-	static_cast< SpDCCols<int32_t, double> *>(matrix)->Transpose();
-}
-
-void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int layer_grid, int rankinlayer, void ** part1, void ** part2, bool trans)
-{
-    
-    // MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm)
-    MPI_Comm layerWorld;
-    MPI_Comm fiberWorld;
-    MPI_Comm_split(MPI_COMM_WORLD, layer_grid, rankinlayer,&layerWorld);
-    MPI_Comm_split(MPI_COMM_WORLD, rankinlayer, layer_grid,&fiberWorld);
-
-	
-	typedef SpDCCols<int32_t, double> LOC_SPMAT;
-
-	LOC_SPMAT * localmat;
-    
-    MPI_Datatype esstype;
-    MPI_Type_contiguous(sizeof(SpDCCol_Essentials), MPI_CHAR, &esstype );
-    MPI_Type_commit(&esstype);
-
-	SpDCCol_Essentials * sess1 = malloc(sizeof(SpDCCol_Essentials));	
-	SpDCCol_Essentials * sess2 = malloc(sizeof(SpDCCol_Essentials));	
-
-	LOC_SPMAT *A1, *A2;
-	if(layer_grid == 0)
+    vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
+    vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
+    int nparts = CMG.GridLayers;
+	if(CMG.layer_grid == 0)
 	{
-        int fullrank, layerrank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &fullrank);
-        MPI_Comm_rank(layerWorld, &layerrank);
-
-		#ifdef DEBUG
-		cout << fullrank << " maps to " << layerrank << endl;
-		#endif
-
-		localmat = GenRMat(scale, EDGEFACTOR, initiator, layerWorld);
-		
-		#ifdef DEBUG	
-		if(layerrank == 0)
-		{
-			cout << "Before transpose\n";
-			localmat->PrintInfo();
-			ofstream before("pre_trans.txt");
-			localmat->put(before);
-			before.close();
-		}
-		#endif
+		SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld);
 			
-		// Timer start here
-		if(trans)
-			localmat->Transpose(); // locally transpose
-		
-		#ifdef DEBUG	
-		if(layerrank == 0 && trans)
-		{
-			cout << "After transpose\n";
-			localmat->PrintInfo();
-			ofstream after("post_trans.txt");
-			localmat->put(after);
-			after.close();
-		}
-		#endif
+        double trans_beg = MPI_Wtime();
+        if(trans) localmat->Transpose(); // locally transpose
+        comp_trans += (MPI_Wtime() - trans_beg);
 
-		Split_GetEssensials(localmat, &A1, &A2, sess1, sess2);
-        
-        int64_t local_A1_nnz = A1->getnnz();
-        int64_t local_A2_nnz = A2->getnnz();
-        
-        int64_t global_A1_nnz = 0, global_A2_nnz = 0;
-        MPI_Reduce(&local_A1_nnz, &global_A1_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
-        MPI_Reduce(&local_A2_nnz, &global_A2_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
-        
-		// Timer end here
-		// Reduce timer on layerWorld and report as "local splitting and transposition time"
+        double split_beg = MPI_Wtime();
+        localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
+        for(int i=0; i< nparts; ++i)
+        {
+            vector<IT> ess = partsmat[i].GetEssentials();
+            for(auto itr = ess.begin(); itr != ess.end(); ++itr)
+            {
+                vecEss.push_back(*itr);
+            }
+        }
+        comp_split += (MPI_Wtime() - split_beg);
 	}
-	MPI_Bcast(sess1, 1, esstype, 0, fiberWorld);
-	MPI_Bcast(sess2, 1, esstype, 0, fiberWorld);
-	
-	
-	vector<int32_t> ess1(LOC_SPMAT::esscount);
-	vector<int32_t> ess2(LOC_SPMAT::esscount);
-	
-	if (layer_grid != 0) 
-	{
-		A1 = new LOC_SPMAT();
-		A2 = new LOC_SPMAT();
-		
-		ess1[0] = sess1->nnz;
-		ess1[1] = sess1->m;
-		ess1[2] = sess1->n;
-		ess1[3] = sess1->nzc;
+    
+    double scatter_beg = MPI_Wtime();   // timer on
+    int esscnt = SpDCCols<IT,NT>::esscount; // necessary cast for MPI
+    vector<IT> myess(SpDCCols<IT,NT>::esscount);
+	MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
+    
+    if(CMG.layer_grid == 0) // senders
+    {
+        splitmat = partsmat[0]; // just copy the local split
+        for(int i=1; i< nparts; ++i)    // scatter the others
+        {
+            int tag = 0;
+            Arr<IT,NT> arrinfo = partsmat[i].GetArrays();
+            for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+            {
+                // MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+                MPI_Send(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), i, tag++, CMG.fiberWorld);
+            }
+            for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+            {
+                MPI_Send(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), i, tag++, CMG.fiberWorld);
+            }
+        }
+    }
+    else // receivers
+    {
+        splitmat.Create(myess);		// allocate memory for arrays
+        Arr<IT,NT> arrinfo = splitmat.GetArrays();
 
-		ess2[0] = sess2->nnz;
-		ess2[1] = sess2->m;
-		ess2[2] = sess2->n;
-		ess2[3] = sess2->nzc;
-	}
-    int fprocs, myrank;
-    MPI_Comm_size(fiberWorld,&fprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-
-	if(fprocs > 1 && myrank == 1)
-	{
-		copy(ess1.begin(), ess1.end(), ostream_iterator<int32_t>(cout, " ")); cout << endl;
-		copy(ess2.begin(), ess2.end(), ostream_iterator<int32_t>(cout, " ")); cout << endl;
-	}
-	// Start timer here
-	SpParHelper::BCastMatrix(fiberWorld, *A1, ess1, 0);		// ess is not used at root
-	SpParHelper::BCastMatrix(fiberWorld, *A2, ess2, 0);		// ess is not used at root
-	*part1 = (void*) A1;
-	*part2 = (void*) A2;
-	// Timer end here
-	// Reduce timer on everyone and report as "replication time"
-	
-	if(layer_grid == 0)
-	{
-		int64_t local_A1_nnz = A1->getnnz();
-		int64_t local_A2_nnz = A2->getnnz();
-
-		int64_t global_A1_nnz = 0, global_A2_nnz = 0;
-        MPI_Reduce(&local_A1_nnz, &global_A1_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
-		MPI_Reduce(&local_A2_nnz, &global_A2_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
-	
-        int layerrank;
-        MPI_Comm_rank(layerWorld,&layerrank);
-        
-		if(layerrank == 0)
-		{
-			cout << "Global nonzeros in A1 is " << global_A1_nnz << endl;
-			cout << "Global nonzeros in A2 is " << global_A2_nnz << endl;
-		}
-	}
-	
-	MPI_Comm_free(&layerWorld);
-	MPI_Comm_free(&fiberWorld);
+        int tag = 0;
+        for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+        {
+            MPI_Recv(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), 0, tag++, CMG.fiberWorld, MPI_STATUS_IGNORE);
+        }
+        for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+        {
+            MPI_Recv(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), 0, tag++, CMG.fiberWorld, MPI_STATUS_IGNORE);
+        }
+    }
+    comm_split += (MPI_Wtime() - scatter_beg);
 }
+
+#endif
