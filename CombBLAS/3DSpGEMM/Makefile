@@ -36,6 +36,4 @@ SUMMALayer.o: SUMMALayer.cpp mtSpGEMM.o
 mpipspgemm: mpipspgemm.o mtSpGEMM.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o 
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq -lstdc++
 
-pingpong: gpu_data.o pingpong.o
-	$(LINK) $(LFLAGS) -o $@ $^ $(LIBS)
 
