@@ -93,17 +93,17 @@ int main(int argc, char *argv[])
 
 	if(GRROWS != GRCOLS)
 	{
-		if(myrank == 0)
-			printf("This version of the Combinatorial BLAS only works on a square logical processor grid\n");
-		return -1;
+        SpParHelper::Print("This version of the Combinatorial BLAS only works on a square logical processor grid\n");
+        MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Abort(MPI_COMM_WORLD, 1);
 	}
 
 	int layer_length = GRROWS*GRCOLS;
 	if(layer_length * C_FACTOR != nprocs)
 	{
-		if(myrank == 0)
-			printf("The product of <GridRows> <GridCols> <Replicas> does not match the number of threads\n");
-		return -1;
+		SpParHelper::Print("The product of <GridRows> <GridCols> <Replicas> does not match the number of processes\n");
+        MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Abort(MPI_COMM_WORLD, 1);
 	}
 
     CCGrid CMG(C_FACTOR, GRCOLS);

@@ -206,10 +206,17 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
         comp_trans += (MPI_Wtime() - trans_beg);
 
         double split_beg = MPI_Wtime();
+        SpParHelper::Print("Calling ColSplit\n");
+
         localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
+        SpParHelper::Print("Called ColSplit\n");
+
         for(int i=0; i< nparts; ++i)
         {
             vector<IT> ess = partsmat[i].GetEssentials();
+            if(CMG.myrank  == 0)
+                fprintf(stderr, "nnz: %d, m=%d, n=%d, nzc=%d\n", ess[0], ess[1], ess[2], ess[3]);
+
             for(auto itr = ess.begin(); itr != ess.end(); ++itr)
             {
                 vecEss.push_back(*itr);
