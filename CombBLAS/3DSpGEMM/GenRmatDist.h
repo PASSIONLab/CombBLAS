@@ -206,17 +206,11 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
         comp_trans += (MPI_Wtime() - trans_beg);
 
         double split_beg = MPI_Wtime();
-        SpParHelper::Print("Calling ColSplit\n");
-
         localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
-        SpParHelper::Print("Called ColSplit\n");
 
         for(int i=0; i< nparts; ++i)
         {
             vector<IT> ess = partsmat[i].GetEssentials();
-            if(CMG.myrank  == 0)
-                fprintf(stderr, "nnz: %d, m=%d, n=%d, nzc=%d\n", ess[0], ess[1], ess[2], ess[3]);
-
             for(auto itr = ess.begin(); itr != ess.end(); ++itr)
             {
                 vecEss.push_back(*itr);
@@ -227,24 +221,25 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
     
     double scatter_beg = MPI_Wtime();   // timer on
     int esscnt = SpDCCols<IT,NT>::esscount; // necessary cast for MPI
-    vector<IT> myess(SpDCCols<IT,NT>::esscount);
-	MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
+
+    vector<IT> myess(esscnt);
+    MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
     
     if(CMG.layer_grid == 0) // senders
     {
         splitmat = partsmat[0]; // just copy the local split
-        for(int i=1; i< nparts; ++i)    // scatter the others
+        for(int recipient=1; recipient< nparts; ++recipient)    // scatter the others
         {
             int tag = 0;
-            Arr<IT,NT> arrinfo = partsmat[i].GetArrays();
+            Arr<IT,NT> arrinfo = partsmat[recipient].GetArrays();
             for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
             {
                 // MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
-                MPI_Send(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), i, tag++, CMG.fiberWorld);
+                MPI_Send(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), recipient, tag++, CMG.fiberWorld);
             }
             for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
             {
-                MPI_Send(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), i, tag++, CMG.fiberWorld);
+                MPI_Send(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), recipient, tag++, CMG.fiberWorld);
             }
         }
     }
