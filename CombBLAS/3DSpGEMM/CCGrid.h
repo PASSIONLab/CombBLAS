@@ -16,7 +16,7 @@ public:
         
         // MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm)
         MPI_Comm_split(MPI_COMM_WORLD, layer_grid, RankInLayer, &layerWorld);
-        MPI_Comm_split(MPI_COMM_WORLD, layer_grid, RankInLayer, &fiberWorld);
+        MPI_Comm_split(MPI_COMM_WORLD, RankInLayer, layer_grid, &fiberWorld);
         
         MPI_Comm_split(MPI_COMM_WORLD, layer_grid * GridRows + RankInLayer / GridRows, RankInRow, &rowWorld);
         MPI_Comm_split(MPI_COMM_WORLD, layer_grid * GridCols + RankInLayer % GridRows, RankInCol, &colWorld);
