@@ -146,6 +146,28 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 
 
 template <class IT, class NT>
+pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
+{
+   
+    
+    auto it = min_element(arr.begin(), arr.end());
+    NT localMin = *it;
+    NT globalMin;
+    MPI_Allreduce( &localMin, &globalMin, 1, MPIType<NT>(), MPI_MIN, commGrid->GetWorld());
+    
+    IT localMinIdx = arr.size() + 1;
+    if(globalMin==localMin)
+    {
+        localMinIdx = distance(arr.begin(), it) + LengthUntil(); 
+    }
+    IT globalMinIdx;
+    MPI_Allreduce( &localMinIdx, &globalMinIdx, 1, MPIType<IT>(), MPI_MIN, commGrid->GetWorld()); // it can be MPI_MAX or anything
+
+    return make_pair(globalMinIdx, globalMin);
+}
+
+
+template <class IT, class NT>
 template <typename _BinaryOperation>
 NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity) const
 {

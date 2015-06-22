@@ -222,6 +222,9 @@ public:
 	void DebugPrint();
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
+    pair<IT, NT> MinElement() const; // returns <index, value> pair of global minimum
+    
+    
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity) const;	//! Reduce can be used to implement max_element, for instance
 
