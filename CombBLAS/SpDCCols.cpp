@@ -749,6 +749,7 @@ SpDCCols<IT,NT> * SpDCCols<IT,NT>::TransposeConstPtr() const
   * Splits the matrix into two parts, simply by cutting along the columns
   * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
   * Practically destructs the calling object also (frees most of its memory)
+  * \todo {special case of ColSplit, to be deprecated...}
   */
 template <class IT, class NT>
 void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB) 
@@ -773,6 +774,48 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	
 	// handle destruction through assignment operator
 	*this = SpDCCols<IT, NT>();		
+}
+
+/**
+ * Splits the matrix into "parts", simply by cutting along the columns
+ * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
+ * Practically destructs the calling object also (frees most of its memory)
+ */
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
+{
+    if(parts < 2)
+    {
+        matrices.emplace_back(*this);
+    }
+    else
+    {
+        vector<IT> cuts(parts-1);
+        for(int i=0; i< (parts-1); ++i)
+        {
+            cuts[i] = (i+1) * (n/parts);
+        }
+        if(n < parts)
+        {
+            cout<< "Matrix is too small to be splitted" << endl;
+            return;
+        }
+        vector< Dcsc<IT,NT> * > dcscs(parts, NULL);
+        
+        if(nnz != 0)
+        {
+            dcsc->ColSplit(dcscs, cuts);
+        }
+        
+        for(int i=0; i< (parts-1); ++i)
+        {
+            SpDCCols<IT,NT> matrix = SpDCCols<IT,NT>(m, (n/parts), dcscs[i]);
+            matrices.emplace_back(matrix);
+        }
+        SpDCCols<IT,NT> matrix = SpDCCols<IT,NT>(m, n-cuts[parts-2], dcscs[parts-1]);
+        matrices.emplace_back(matrix);
+    }
+    *this = SpDCCols<IT, NT>();		    // handle destruction through assignment operator
 }
 
 /** 

@@ -868,6 +868,74 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	}
 }
 
+/**
+ ** Split along the cut(s) in terms of column indices
+ ** Should work even when one of the splits have no nonzeros at all
+ ** vector<IT> cuts is of length "size(parts)-1"
+ ** \pre{ size(parts) >= 2}
+ **/
+template<class IT, class NT>
+void Dcsc<IT,NT>::ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts)
+{
+    IT * jcbegin = jc;
+    vector<IT> pos; // pos has "parts-1" entries
+    for(auto cutpoint = cuts.begin(); cutpoint != cuts.end(); ++cutpoint)
+    {
+        IT * itr = lower_bound(jcbegin, jc+nzc, *cutpoint);
+        pos.push_back(itr - jc);
+        jcbegin = itr;  // so that lower_bound searches a smaller vector
+    }
+    
+    if(cp[pos[0]] == 0) // first piece
+    {
+        parts[0] = NULL;
+    }
+    else
+    {
+        parts[0] = new Dcsc<IT,NT>(cp[pos[0]], pos[0]); // Dcsc(nnz, nzc)
+        copy(jc, jc+pos[0], parts[0]->jc);    // std::copy
+        copy(cp, cp+pos[0]+1, parts[0]->cp);
+        copy(ir, ir+cp[pos[0]], parts[0]->ir);
+        copy(numx, numx + cp[pos[0]], parts[0]->numx);	// copy(first, last, result)
+    }
+    int ncuts =  cuts.size(); // all except last piece
+    for(int i=1; i< ncuts; ++i) // treat the first piece differently
+    {
+        if(cp[pos[i]] - cp[pos[i-1]] == 0)
+        {
+            parts[i] =  NULL;
+        }
+        else
+        {
+            parts[i] = new Dcsc<IT,NT>(cp[pos[i]] - cp[pos[i-1]], pos[i] - pos[i-1]); // Dcsc(nnz, nzc)
+            copy(jc+pos[i-1], jc+pos[i], parts[i]->jc);    // std::copy
+            transform(parts[i]->jc, parts[i]->jc + (pos[i]-pos[i-1]), parts[i]->jc, bind2nd(minus<IT>(), cuts[i-1]));  // cuts[i-1] is well defined as i>=1
+
+            copy(cp+pos[i-1], cp+pos[i]+1, parts[i]->cp);
+            transform(parts[i]->cp, parts[i]->cp + (pos[i]-pos[i-1]+1), parts[i]->cp, bind2nd(minus<IT>(), cp[pos[i-1]]));
+
+            copy(ir+cp[pos[i-1]], ir+cp[pos[i]], parts[i]->ir);
+            copy(numx+cp[pos[i-1]], numx + cp[pos[i]], parts[i]->numx);	// copy(first, last, result)
+        }
+    }
+    if(nz - cp[pos[ncuts-1]] == 0)
+    {
+        parts[ncuts] = NULL;
+    }
+    else
+    {
+        parts[ncuts] = new Dcsc<IT,NT>(nz-cp[pos[ncuts-1]], nzc-pos[ncuts-1]);  // ncuts = npieces -1
+        copy(jc+pos[ncuts-1], jc+ nzc, parts[ncuts]->jc);
+        transform(parts[ncuts]->jc, parts[ncuts]->jc + (nzc-pos[ncuts-1]), parts[ncuts]->jc, bind2nd(minus<IT>(), cuts[ncuts-1]));
+        
+        copy(cp+pos[ncuts-1], cp+nzc+1, parts[ncuts]->cp);
+        transform(parts[ncuts]->cp, parts[ncuts]->cp + (nzc-pos[ncuts-1]+1), parts[ncuts]->cp, bind2nd(minus<IT>(), cp[pos[ncuts-1]]));
+        copy(ir+cp[pos[ncuts-1]], ir+nz, parts[ncuts]->ir);
+        copy(numx+cp[pos[ncuts-1]], numx+nz, parts[ncuts]->numx);
+    }
+}
+
+
 // Assumes A and B are not NULL
 // When any is NULL, this function is not called anyway
 template<class IT, class NT>
