@@ -80,7 +80,9 @@ public:
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	
 	void RowSplit(int numsplits);
-	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
+    void ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts);
+
+	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	//! \todo{special case of ColSplit, to be deprecated...}
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
 	IT ConstructAux(IT ndim, IT * & aux) const;

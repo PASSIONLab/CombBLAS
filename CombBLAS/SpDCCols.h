@@ -218,7 +218,8 @@ public:
 	{
 		BooleanRowSplit(*this, numsplits);	// only works with boolean arrays
 	}
-
+    
+    void ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
