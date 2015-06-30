@@ -19,13 +19,23 @@
 #include "mtSpGEMM.h"
 #include "OldReductions.h"
 
+/***************************************************************************
+ * Find column splitters in a list of tuple in parallel.
+ * Inputs:
+ *      tuples: an array of tuples each tuple is (rowid, colid, val)
+ *      ntuples: number of tuples in the array "tuples"
+ *      ncols: number of columns in the matrix that is stored in "tuples"
+ *      nsplits: number of splits requested
+ *  Output:
+ *      splitters: An array of size (nsplits+1) storing the starts and ends of splitted tuples.
+ ***************************************************************************/
 template <typename IT, typename NT>
 int * findColSplitters(tuple<IT,IT,NT> * & tuples, IT ntuples, IT ncols, int nsplits)
 {
-    int* splitters = new int[nsplits+1];  // WARNING: who is deleting this?
+    int* splitters = new int[nsplits+1];
     splitters[0] = 0;
     ColLexiCompare<IT,NT> comp;
-#pragma omp parallel for  //schedule(dynamic)
+#pragma omp parallel for
     for(int i=1; i< nsplits; i++)
     {
         IT cur_col = i * (ncols/nsplits);
@@ -39,8 +49,23 @@ int * findColSplitters(tuple<IT,IT,NT> * & tuples, IT ntuples, IT ncols, int nsp
 }
 
 
-// localmerged is invalidated in all processes after this function (is this true?)
-// globalmerged is valid on all processes upon exit
+/***************************************************************************
+ * Distribute a local m/sqrt(p) x n/sqrt(p) matrix (represented by a list of tupples) across layers
+ * so that a each processor along the third dimension receives m/sqrt(p) x n/(c*sqrt(p)) submatrices.
+ * After receiving c submatrices, they are merged to create one m/sqrt(p) x n/(c*sqrt(p)) matrix.
+ * Inputs:
+ *      fibWorld: Communicator along the third dimension
+ *      localmerged: input array of tuples, which will be distributed across layers
+ *      globalmerged: output array of tuples, after distributing across layers 
+                        and merging locally in the received processor
+ *      MPI_triple: MPI datatype to send/receive tuples
+ *      inputnnz: number of tuples in the input array "localmerged"
+ *      outputnnz: number of tuples in the output array "globalmerged"
+ *      ncols: number of columns in the matrix
+ *  Output: //TODO: return globalmerged list instead os passing it as argument
+ *
+ ***************************************************************************/
+
 template <typename SR, typename IT, typename NT>
 void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & localmerged,
                              MPI_Datatype & MPI_triple, tuple<IT,IT,NT> * & globalmerged,
@@ -58,8 +83,8 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
         return;
     }
     comp_begin = MPI_Wtime();
-    int send_sizes[fprocs];
-    int recv_sizes[fprocs];
+    int* send_sizes = new int[fprocs];
+    int* recv_sizes = new int[fprocs];
     int * send_offsets = findColSplitters(localmerged, inputnnz, ncols, fprocs);
     for(int i=0; i<fprocs; i++)
     {
@@ -79,7 +104,7 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
         recv_count += recv_sizes[i];
     }
     tuple<IT,IT,NT> * recvbuf = new tuple<IT,IT,NT>[recv_count];
-    int recv_offsets[fprocs];   // WARNING: this is probably not standard C++
+    int* recv_offsets = new int[fprocs];
     recv_offsets[0] = 0;
     for( int i = 1; i < fprocs; i++ )
     {
@@ -108,9 +133,12 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
     
     comp_reduce_layer += comp_time;
     comm_reduce += comm_time;
-    
+    delete [] send_sizes;
+    delete [] recv_sizes;
+    delete [] recv_offsets;
     delete [] recvbuf;
     delete [] localmerged;
+    delete [] send_offsets;
     localmerged  = NULL;
 }
 
@@ -148,7 +176,7 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
 	int pre_glmerge = localmerged_size;
     tuple<IT,IT,NT> * recvdata;
 	
-#ifdef PARALLELREDUCE
+
 	IT outputnnz = 0;
     ParallelReduce_Alltoall_threaded<PTDD>(CMG.fiberWorld, localmerged, MPI_triple, recvdata, localmerged_size, outputnnz, C_n);
     
@@ -156,31 +184,7 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
     locret = new SpDCCols<IT,NT>(C_m, C_n, outputnnz, recvdata, false);
     comp_result += (MPI_Wtime() - loc_beg1);
 
-#else // not multithreaded yet
-    int fibsize = CMG.GridLayers;
-	if(CMG.layer_grid == 0) // layer_grid = rankinfiber
-	{
-		int * pst_glmerge = new int[fibsize];	// redundant at non-root
-		MPI_Gather(&pre_glmerge, 1, MPI_INT, pst_glmerge, 1, MPI_INT, 0, CMG.fiberWorld);
-		int64_t totrecv = std::accumulate(pst_glmerge, pst_glmerge+fibsize, static_cast<int64_t>(0));
-		
-		int * dpls = new int[fibsize]();
-		std::partial_sum(pst_glmerge, pst_glmerge+fibsize-1, dpls+1);
-		recvdata = new tuple<IT,IT,NT>[totrecv];
-        
-		double reduce_beg = MPI_Wtime();
-        MPI_Gatherv(localmerged, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, CMG.fiberWorld);
-		comm_reduce += (MPI_Wtime() - reduce_beg);
-		double loc_beg2 = MPI_Wtime();
-		locret = new SpDCCols<IT,NT>(MergeAllContiguous<PTDD>( recvdata, C_m, C_n, fibsize, pst_glmerge, dpls, true), false);
-	}
-	else 
-	{
-		MPI_Gather(&pre_glmerge, 1, MPI_INT, NULL, 1, MPI_INT, 0, CMG.fiberWorld);
-		MPI_Gatherv(localmerged, pre_glmerge, MPI_triple, NULL, NULL, NULL, MPI_triple, 0, CMG.fiberWorld);
-		locret = new SpDCCols<IT,NT>(); // other layes don't have the data
-	}
-#endif
+
     
     MPI_Type_free(&MPI_triple);
 	return locret;
@@ -212,46 +216,12 @@ SpDCCols<IT,NT> * ReduceAll(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CM
     
     int pre_glmerge = localmerged.getnnz(); // WARNING: is this big enought to hold?
     
-#ifdef PARALLELREDUCE
     IT outputnnz = 0;
     ParallelReduce_Alltoall<PTDD>(CMG.fiberWorld, localmerged.tuples, MPI_triple, recvdata, localmerged.getnnz(), outputnnz, C_n);
     loc_beg1 = MPI_Wtime();
     locret = new SpDCCols<IT,NT>(SpTuples<IT,NT>(outputnnz, C_m, C_n, recvdata), false);
     //MPI_Barrier(MPI_COMM_WORLD); //needed
     //comp_reduce += (MPI_Wtime() - loc_beg1); //needed
-#else
-    
-    int fibsize = CMG.GridLayers;
-    if(CMG.layer_grid == 0)	// root of the fibers (i.e. 0th layer)
-    {
-        int * pst_glmerge = new int[fibsize];	// redundant at non-root
-        MPI_Gather(&pre_glmerge, 1, MPI_INT, pst_glmerge, 1, MPI_INT, 0, CMG.fiberWorld);
-        int64_t totrecv = std::accumulate(pst_glmerge, pst_glmerge+fibsize, static_cast<int64_t>(0));
-        
-        int * dpls = new int[fibsize]();       // displacements (zero initialized pid)
-        std::partial_sum(pst_glmerge, pst_glmerge+fibsize-1, dpls+1);
-        recvdata = new tuple<IT,IT,NT>[totrecv];
-        
-        //MPI_Barrier(MPI_COMM_WORLD);
-        double reduce_beg = MPI_Wtime();
-        MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, CMG.fiberWorld);
-        comm_reduce += (MPI_Wtime() - reduce_beg);
-        
-        // SpTuples<IU,NU> MergeAllContiguous (tuple<IU,IU,NU> * colsortedranges, IU mstar, IU nstar, int hsize, int * nonzeros, int * dpls, bool delarrays)
-        // MergeAllContiguous frees the arrays and LOC_SPMAT constructor does not transpose [in this call]
-        
-        double loc_beg2 = MPI_Wtime();
-        locret = new SpDCCols<IT,NT>(MergeAllContiguous<PTDD>( recvdata, C_m, C_n, fibsize, pst_glmerge, dpls, true), false);
-        //comp_reduce += (MPI_Wtime() - loc_beg2);
-        
-    }
-    else 
-    {
-        MPI_Gather(&pre_glmerge, 1, MPI_INT, NULL, 1, MPI_INT, 0, CMG.fiberWorld); // recvbuf is irrelevant on non-root
-        MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, NULL, NULL, NULL, MPI_triple, 0, CMG.fiberWorld);
-        locret = new SpDCCols<IT,NT>(); // other layes don't have the data
-    }
-#endif
     
     MPI_Type_free(&MPI_triple);
     return locret;
