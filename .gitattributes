@@ -319,6 +319,7 @@ CombBLAS/3DSpGEMM/Glue.h -text
 CombBLAS/3DSpGEMM/Makefile -text
 CombBLAS/3DSpGEMM/Multiplier.h -text
 CombBLAS/3DSpGEMM/OldReductions.h -text
+CombBLAS/3DSpGEMM/ReadMatDist.h -text
 CombBLAS/3DSpGEMM/Reductions.h -text
 CombBLAS/3DSpGEMM/SUMMALayer.h -text
 CombBLAS/3DSpGEMM/mpipspgemm.cpp -text
