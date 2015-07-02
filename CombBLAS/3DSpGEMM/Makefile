@@ -1,6 +1,6 @@
 # C++ compiler
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -g -fopenmp -fpermissive -DPARALLELREDUCE #-DDEBUG 
+CXXFLAGS := -std=c++11 -O2 -g -fopenmp -fpermissive -DPARALLELREDUCE #-DDEBUG 
 
 # C compiler
 CC := mpicc
