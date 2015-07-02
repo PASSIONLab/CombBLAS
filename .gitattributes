@@ -316,6 +316,7 @@ BottomUpBFS/psort-1.0/src/sort.timpl.h -text
 CombBLAS/3DSpGEMM/CCGrid.h -text
 CombBLAS/3DSpGEMM/GenRmatDist.h -text
 CombBLAS/3DSpGEMM/Glue.h -text
+CombBLAS/3DSpGEMM/Makefile -text
 CombBLAS/3DSpGEMM/Makefile-edison -text
 CombBLAS/3DSpGEMM/Makefile-mac -text
 CombBLAS/3DSpGEMM/Multiplier.h -text

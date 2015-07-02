@@ -65,7 +65,7 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 	for(LIT s=0; s< stages; ++s)
 	{
 		int64_t n_befor = s*perstage;
-		int64_t n_after= ((s==(stages-1))? DEL.getNumLocalEdges() : ((s+1)*perstage));
+                int64_t n_after= ((s==(stages-1))? DEL.getNumLocalEdges() : ((s+1)*perstage));
 
 		// clear the source vertex by setting it to -1
 		int realedges = 0;	// these are "local" realedges
@@ -136,6 +136,7 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 		// ABAB: Total number of edges received might not be LIT-addressible
 		// However, each edge_id is LIT-addressible
 		int64_t thisrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<int64_t>(0));	// thisrecv = 2*locedges
+
 		LIT * recvbuf = new LIT[thisrecv];
 		totrecv += thisrecv;
 			
@@ -154,9 +155,7 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
   	SpTuples<LIT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
-    
   	*spSeq = new DER(A,false);        // Convert SpTuples to DER
-
 }
 
 template<typename IT, typename NT>

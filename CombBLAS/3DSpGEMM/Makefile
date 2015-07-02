@@ -1,0 +1,39 @@
+# C++ compiler
+CXX := CC
+CXXFLAGS := -std=c++11 -O2 -fopenmp -fpermissive -DPARALLELREDUCE #-DDEBUG 
+
+# C compiler
+CC := cc
+CFLAGS := -Wall -O2
+
+COMBBLAS = ..
+
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
+
+%.o : %.c 
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+%.o : %.cpp 
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+%.o : %.cxx 
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+
+all: mpipspgemm
+
+clean:
+	rm -rf mpipspgemm
+	rm -f *.o
+	rm -rf ../*.o
+	rm -f ./graph500-1.2/generator/*.o
+	rm -f ./graph500-1.2/generator/libgraph_generator_seq.a
+
+SUMMALayer.o: SUMMALayer.cpp mtSpGEMM.o
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+mpipspgemm: mpipspgemm.o mtSpGEMM.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o 
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq -lstdc++
+
+
