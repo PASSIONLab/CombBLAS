@@ -26,7 +26,7 @@
 
 
 /**
- ** \param[out] splitmat {generated RMAT matrix, split into CMG.GridLayers pieces}
+ ** \param[out] splitmat {read matrix market file into layer 0, and split into CMG.GridLayers pieces}
  **/
 template <typename IT, typename NT>
 void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans)
@@ -37,8 +37,9 @@ void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool tran
 	if(CMG.layer_grid == 0)
 	{
 		//SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld);
-        
-        SpParMat < IT, NT, SpDCCols<IT,NT> > *A;
+        shared_ptr<CommGrid> layerGrid;
+        layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
+        SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
         A->ReadDistribute(filename, 0, false);
         SpDCCols<IT, NT> * localmat = &A->seq();
         

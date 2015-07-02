@@ -33,12 +33,15 @@ double comm_split;
 int main(int argc, char *argv[])
 {
     int provided;
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+    /*
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
+     */
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -48,8 +51,10 @@ int main(int argc, char *argv[])
 	{
 		if(myrank == 0)
 		{
-			printf("Usage: ./mpipspgemm <Scale> <GridRows> <GridCols> <Layers> <Type> <EDGEFACTOR> <algo>\n");
+			printf("Usage (random): ./mpipspgemm <Scale> <GridRows> <GridCols> <Layers> <Type> <EDGEFACTOR> <algo>\n");
+            printf("Usage (input): ./mpipspgemm <Scale> <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n"); //TODO:<Scale>  not meaningful here. Need to remove it.  Still there because current scripts execute without error.
 			printf("Example: ./mpipspgemm 19 4 4 2 ER 16 outer\n");
+            printf("Example: ./mpipspgemm 19 4 4 2 Input matA.mtx matB.mtx threaded\n");
 			printf("Type ER: Erdos-Renyi\n");
 			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
 			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
@@ -80,7 +85,7 @@ int main(int argc, char *argv[])
     }
     
 	
-	
+    
     SpDCCols<int64_t, double> splitA, splitB;
     string type;
 	
@@ -130,11 +135,7 @@ int main(int argc, char *argv[])
         type = string(argv[7]);
     }
 	
-	
-
-    
-    
-   
+  
     if(type == string("outer"))
     {
         for(int k=0; k<ITERS; k++)
