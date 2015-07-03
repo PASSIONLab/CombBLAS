@@ -33,15 +33,15 @@ double comm_split;
 int main(int argc, char *argv[])
 {
     int provided;
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
-    /*
+	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-     */
+     
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -87,12 +87,13 @@ int main(int argc, char *argv[])
 	
     
     SpDCCols<int64_t, double> splitA, splitB;
+    SpDCCols<int64_t, double> *splitC;
     string type;
 	
     if(string(argv[5]) == string("input")) // input option
     {
-        string fileA = string(argv[6]);
-        string fileB = string(argv[7]);
+        string fileA(argv[6]);
+        string fileB(argv[7]);
         Reader(fileA, CMG, splitA, false);
         Reader(fileB, CMG, splitB, true);
         type = string(argv[8]);
@@ -139,30 +140,54 @@ int main(int argc, char *argv[])
     if(type == string("outer"))
     {
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, true, false); // outer product
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, true, false); // outer product
+            delete splitC;
+        }
+        
     }
     else if(type == string("column"))
     {
         splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, false, false);
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, false, false);
+            delete splitC;
+        }
+        
     }
     else if(type == string("all"))
     {
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, true, false); // outer product
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, true, false); // outer product
+            delete splitC;
+        }
+        
             
         splitB.Transpose();
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, false, false);
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, false, false);
+            delete splitC;
+        }
+        
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, false, true);
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, false, true);
+            delete splitC;
+        }
+        
     }
     else // default threaded
     {
         splitB.Transpose();
         for(int k=0; k<ITERS; k++)
-            multiply_exp(splitA, splitB, CMG, false, true);
+        {
+            splitC = multiply_exp(splitA, splitB, CMG, false, true);
+            delete splitC;
+        }
+        
     }
     
 	MPI_Finalize();

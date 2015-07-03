@@ -324,9 +324,17 @@ CombBLAS/3DSpGEMM/OldReductions.h -text
 CombBLAS/3DSpGEMM/ReadMatDist.h -text
 CombBLAS/3DSpGEMM/Reductions.h -text
 CombBLAS/3DSpGEMM/SUMMALayer.h -text
+CombBLAS/3DSpGEMM/matlab/A.mtx -text
+CombBLAS/3DSpGEMM/matlab/AA.mtx -text
+CombBLAS/3DSpGEMM/matlab/C.mtx -text
+CombBLAS/3DSpGEMM/matlab/bcsstk01.mtx -text
+CombBLAS/3DSpGEMM/matlab/mmread.m -text
+CombBLAS/3DSpGEMM/matlab/mmwrite.m -text
+CombBLAS/3DSpGEMM/matlab/multwrite.m -text
 CombBLAS/3DSpGEMM/mpipspgemm.cpp -text
 CombBLAS/3DSpGEMM/mtSpGEMM.cpp -text
 CombBLAS/3DSpGEMM/mtSpGEMM.h -text
+CombBLAS/3DSpGEMM/test_mpipspgemm.cpp -text
 CombBLAS/Applications/2DBFS_optimizations.txt -text
 CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BPMaximalMatching.cpp -text

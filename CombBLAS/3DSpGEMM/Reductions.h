@@ -131,6 +131,16 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
     globalmerged = multiwayMerge(lists, listSizes, outputnnz, false);
     comp_time += (MPI_Wtime() - comp_begin);
     
+    /*
+    // update globalmerged column indices
+    int fibrank;
+    MPI_Comm_rank(fibWorld,&fibrank);
+    IT nperp = ncols/fibrank;
+    IT local_n = nperp;
+    if(fibrank==(fprocs-1))
+        local_n = ncols - nperp * (fprocs-1);
+     */
+    
     comp_reduce_layer += comp_time;
     comm_reduce += comm_time;
     delete [] send_sizes;

@@ -7,7 +7,7 @@
 
 
 template <typename IT, typename NT>
-void multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB, CCGrid & CMG, bool isBT, bool threaded)
+SpDCCols<IT, NT>* multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB, CCGrid & CMG, bool isBT, bool threaded)
 {
     comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0, comp_result =0, comp_reduce_layer=0;
     int myrank;
@@ -52,7 +52,7 @@ void multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB, CCGrid &
     }
         
 #endif
-    delete mergedC;
+    //delete mergedC;
     
     if(CMG.myrank == 0)
     {
@@ -67,5 +67,7 @@ void multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB, CCGrid &
         printf(" ----------------------------------------------------------------------------------------------\n");
         printf("%10lf %12lf %10lf %12lf %12lf %12lf %10lf %10lf\n\n", comm_bcast, comm_reduce, comp_summa, comp_reduce, comp_reduce_layer, comp_result, time_other, time_total);
     }
+    
+    return mergedC;
 }
 #endif
