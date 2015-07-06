@@ -22,15 +22,13 @@
 /***************************************************************************
  * Find column splitters in a list of tuple in parallel.
  * Inputs:
- *      tuples: an array of tuples each tuple is (rowid, colid, val)
- *      ntuples: number of tuples in the array "tuples"
- *      ncols: number of columns in the matrix that is stored in "tuples"
+ *      tuples: an array of SpTuples each tuple is (rowid, colid, val)
  *      nsplits: number of splits requested
  *  Output:
  *      splitters: An array of size (nsplits+1) storing the starts and ends of splitted tuples.
  ***************************************************************************/
 template <typename IT, typename NT>
-int * findColSplitters(tuple<IT,IT,NT> * & tuples, IT ntuples, IT ncols, int nsplits)
+int * findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 {
     int* splitters = new int[nsplits+1];
     splitters[0] = 0;
@@ -38,54 +36,45 @@ int * findColSplitters(tuple<IT,IT,NT> * & tuples, IT ntuples, IT ncols, int nsp
 #pragma omp parallel for
     for(int i=1; i< nsplits; i++)
     {
-        IT cur_col = i * (ncols/nsplits);
+        IT cur_col = i * (spTuples->getncol()/nsplits);
         tuple<IT,IT,NT> search_tuple(0, cur_col, 0);
-        tuple<IT,IT,NT>* it = lower_bound (tuples, tuples+ntuples, search_tuple, comp);
-        splitters[i] = (int) (it - tuples);
+        tuple<IT,IT,NT>* it = lower_bound (spTuples->tuples, spTuples->tuples + spTuples->getnnz(), search_tuple, comp);
+        splitters[i] = (int) (it - spTuples->tuples);
     }
-    splitters[nsplits] = ntuples;
+    splitters[nsplits] = spTuples->getnnz();
     
     return splitters;
 }
 
 
 /***************************************************************************
- * Distribute a local m/sqrt(p) x n/sqrt(p) matrix (represented by a list of tupples) across layers
+ * Distribute a local m/sqrt(p) x n/sqrt(p) matrix (represented by a list of tuples) across layers
  * so that a each processor along the third dimension receives m/sqrt(p) x n/(c*sqrt(p)) submatrices.
  * After receiving c submatrices, they are merged to create one m/sqrt(p) x n/(c*sqrt(p)) matrix.
  * Inputs:
  *      fibWorld: Communicator along the third dimension
  *      localmerged: input array of tuples, which will be distributed across layers
- *      globalmerged: output array of tuples, after distributing across layers 
-                        and merging locally in the received processor
- *      MPI_triple: MPI datatype to send/receive tuples
- *      inputnnz: number of tuples in the input array "localmerged"
- *      outputnnz: number of tuples in the output array "globalmerged"
- *      ncols: number of columns in the matrix
- *  Output: //TODO: return globalmerged list instead os passing it as argument
+ *  Output: output array of tuples, after distributing across layers
+            and merging locally in the received processor
  *
  ***************************************************************************/
 
 template <typename SR, typename IT, typename NT>
-void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & localmerged,
-                             MPI_Datatype & MPI_triple, tuple<IT,IT,NT> * & globalmerged,
-                             IT inputnnz, IT & outputnnz, IT ncols)
+SpTuples<IT,NT> * ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, SpTuples<IT,NT> * & localmerged)
 {
-    int fprocs;
-    double comp_begin, comm_begin, comp_time=0, comm_time=0;
     
+    double comp_begin, comm_begin, comp_time=0, comm_time=0;
+    int fprocs;
     MPI_Comm_size(fibWorld,&fprocs);
     if(fprocs == 1)
     {
-        globalmerged = localmerged;
-        localmerged = NULL;
-        outputnnz = inputnnz;
-        return;
+        return localmerged;
     }
+    
     comp_begin = MPI_Wtime();
     int* send_sizes = new int[fprocs];
     int* recv_sizes = new int[fprocs];
-    int * send_offsets = findColSplitters(localmerged, inputnnz, ncols, fprocs);
+    int * send_offsets = findColSplitters(localmerged, fprocs);
     for(int i=0; i<fprocs; i++)
     {
         send_sizes[i] = send_offsets[i+1] - send_offsets[i];
@@ -112,23 +101,27 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
     }
     comp_time += (MPI_Wtime() - comp_begin);
     
+    MPI_Datatype MPI_triple;
+    MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
+    MPI_Type_commit(&MPI_triple);
+    
     comm_begin = MPI_Wtime();
-    MPI_Alltoallv( localmerged, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld); // WARNING: is this big enough?
+    MPI_Alltoallv( localmerged->tuples, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld); // WARNING: is this big enough?
     comm_time += (MPI_Wtime() - comm_begin);
     
     
+    // -------- create vector of SpTuples for multiwayMerge ----------
     comp_begin = MPI_Wtime();
-    vector< tuple<IT,IT,NT>* > lists;
-    vector<IT> listSizes;
+    vector< SpTuples<IT,NT>* > lists;
     for(int i=0; i< fprocs; ++i)
     {
         if(recv_sizes[i] > 0)
         {
-            lists.push_back(&recvbuf[recv_offsets[i]]);
-            listSizes.push_back(recv_sizes[i]);
+            SpTuples<IT, NT>* spTuples = new SpTuples<IT, NT> (recv_sizes[i], localmerged->getnrow(), localmerged->getncol(), &recvbuf[recv_offsets[i]], true);
+            lists.push_back(spTuples);
         }
     }
-    globalmerged = multiwayMerge(lists, listSizes, outputnnz, false);
+    SpTuples<IT,NT> * globalmerged = multiwayMerge(lists, false);
     comp_time += (MPI_Wtime() - comp_begin);
     
     /*
@@ -147,9 +140,10 @@ void ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, tuple<IT,IT,NT> * & l
     delete [] recv_sizes;
     delete [] recv_offsets;
     delete [] recvbuf;
-    delete [] localmerged;
+    delete localmerged;
     delete [] send_offsets;
-    localmerged  = NULL;
+    
+    return  globalmerged;
 }
 
 
@@ -157,47 +151,21 @@ template <typename NT, typename IT>
 SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CMG)
 {
 	typedef PlusTimesSRing<double, double> PTDD;
+	IT mdim = unreducedC[0]->getnrow();
+	IT ndim = unreducedC[0]->getncol();
     
-	IT C_m = unreducedC[0]->getnrow();
-	IT C_n = unreducedC[0]->getncol();
-    
+    // merge list of tuples from n/sqrt(p) stages of SUMMA
     double loc_beg1 = MPI_Wtime();
-    
-    vector<tuple<IT, IT, NT>*> lists;
-    vector<IT> listSizes;
-    int localcount = unreducedC.size();
-    for(int i=0; i< localcount; ++i)
-    {
-        if(unreducedC[i]->getnnz() > 0)
-        {
-            lists.push_back(unreducedC[i]->tuples);
-            listSizes.push_back(unreducedC[i]->getnnz());
-        }
-    }
-    
-    IT localmerged_size;
-    tuple<IT, IT, NT>* localmerged = multiwayMerge(lists, listSizes, localmerged_size,true);
+    SpTuples<IT, NT>* localmerged = multiwayMerge(unreducedC, true);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
 
-    MPI_Datatype MPI_triple;
-    MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
-    MPI_Type_commit(&MPI_triple);
-    SpDCCols<IT,NT> * locret;
-	int pre_glmerge = localmerged_size;
-    tuple<IT,IT,NT> * recvdata;
-	
-
-	IT outputnnz = 0;
-    ParallelReduce_Alltoall_threaded<PTDD>(CMG.fiberWorld, localmerged, MPI_triple, recvdata, localmerged_size, outputnnz, C_n);
+    // scatter local tuples across layers
+    SpTuples<IT,NT> * mergedSpTuples = ParallelReduce_Alltoall_threaded<PTDD>(CMG.fiberWorld, localmerged);
     
     loc_beg1 = MPI_Wtime();
-    locret = new SpDCCols<IT,NT>(C_m, C_n, outputnnz, recvdata, false);
+    SpDCCols<IT,NT> * reducedC = new SpDCCols<IT,NT>(mdim, ndim, mergedSpTuples->getnnz(), mergedSpTuples->tuples, false);
     comp_result += (MPI_Wtime() - loc_beg1);
-
-
-    
-    MPI_Type_free(&MPI_triple);
-	return locret;
+	return reducedC;
 }
 
 
