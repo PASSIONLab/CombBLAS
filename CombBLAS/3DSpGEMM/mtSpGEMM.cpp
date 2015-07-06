@@ -333,83 +333,102 @@ SpTuples<IT, NTO> * LocalSpGEMM
 }
 
 
-template<class IU, class NU>
-tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples, const vector<IU> & listSizes, IU& mergedListSize, bool delarrs = false )
+/***************************************************************************
+ * Merging a list of tuples (multithreaded).
+ * Two steps:   (a) Merge list by keeping duplicate entries
+ *              (b) Reduce the merge list by adding duplicate entries
+ * Inputs:
+ *      listTuples: a vector of SpTuples to be merged
+ *      deltuples: whether listTuples are deleted upon return
+ *  Output:
+ *      An object of SpTuples containing merged tuples.
+ ***************************************************************************/
+
+template<class IT, class NT>
+SpTuples<IT,NT>*  multiwayMerge( const vector< SpTuples<IT,NT>* >& listTuples, bool deltuples = false )
 {
+    
     double t01 = MPI_Wtime();
-    int nlists =  listTuples.size();
-    IU totSize = 0;
+
+    IT mdim = listTuples[0]->getnrow();
+    IT ndim = listTuples[0]->getncol();
+    IT totSize = 0;
     
-    vector<pair<tuple<IU, IU, NU>*, tuple<IU, IU, NU>* > > seqs;
-    
-    for(int i = 0; i < nlists; ++i)
+    // ------- format input for __gnu_parallel::multiway_merge -------
+    vector<pair<tuple<IT, IT, NT>*, tuple<IT, IT, NT>* > > seqs;
+    for(int i = 0; i < listTuples.size(); ++i)
     {
-        seqs.push_back(make_pair(listTuples[i], listTuples[i] + listSizes[i]));
-        totSize += listSizes[i];
+        seqs.push_back(make_pair(listTuples[i]->tuples, listTuples[i]->tuples + listTuples[i]->getnnz()));
+        totSize += listTuples[i]->getnnz();
     }
     
+    // ------- merge lists with __gnu_parallel::multiway_merge -------
+    ColLexiCompare<IT,NT> comp;
+    tuple<IT, IT, NT>* mergedTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[totSize])));
+    __gnu_parallel::multiway_merge(seqs.begin(), seqs.end(), mergedTuples, totSize , comp);
     
     
-    ColLexiCompare<IU,NU> comp;
-    tuple<IU, IU, NU>* mergedData = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[totSize])));
-    __gnu_parallel::multiway_merge(seqs.begin(), seqs.end(), mergedData, totSize , comp);
-    
-    
-    if(delarrs)
+    if(deltuples)
     {
         for(size_t i=0; i<listTuples.size(); ++i)
-        delete listTuples[i];
+            delete listTuples[i];
     }
     
-    //cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
-    t01 = MPI_Wtime();
     
+    // -------------------------------------------------------------------------------------
+    // Parallel reduction.
+    // Each thread is given equal part of the merged (unreduced) list.
+    // Additional reduction might be needed at the first/last entries processed by each thread
+    // -------------------------------------------------------------------------------------
+    
+    t01 = MPI_Wtime();
     int totThreads;
 #pragma omp parallel
     {
         totThreads = omp_get_num_threads();
     }
     
-    vector <IU> tstart(totThreads);
-    vector <IU> tend(totThreads);
-    vector <IU> tdisp(totThreads+1);
-    tuple<IU, IU, NU>* mergedData1 = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[totSize]))); // reduced data , separate memory for thread scaling
+    vector <IT> tstart(totThreads); // start position for each thread
+    vector <IT> tend(totThreads); // end position for each thread
+    vector <IT> tdisp(totThreads+1);
+    tuple<IT, IT, NT>* reducedTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[totSize]))); // separate memory used for better thread scaling
+    //cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
+
 #pragma omp parallel
     {
         int threadID = omp_get_thread_num();
-        IU start = threadID * (totSize / totThreads);
-        IU end = (threadID + 1) * (totSize / totThreads);
+        IT start = threadID * (totSize / totThreads);
+        IT end = (threadID + 1) * (totSize / totThreads);
         if(threadID == (totThreads-1)) end = totSize;
         
-        IU curpos = start;
-        //NU curval;
-        if(end>start) mergedData1[curpos] = mergedData[curpos];
+        IT curpos = start;
+        if(end>start) reducedTuples[curpos] = mergedTuples[curpos];
         
-        for (IU i = start+1; i < end; ++i)
+        for (IT i = start+1; i < end; ++i)
         {
-            if((get<0>(mergedData[i]) == get<0>(mergedData1[curpos])) && (get<1>(mergedData[i]) == get<1>(mergedData1[curpos])))
+            if((get<0>(mergedTuples[i]) == get<0>(reducedTuples[curpos])) && (get<1>(mergedTuples[i]) == get<1>(reducedTuples[curpos])))
             {
-                get<2>(mergedData1[curpos]) += get<2>(mergedData[i]);
+                get<2>(reducedTuples[curpos]) += get<2>(mergedTuples[i]);
             }
             else
             {
-                mergedData1[++curpos] = mergedData[i];
+                reducedTuples[++curpos] = mergedTuples[i];
             }
         }
         tstart[threadID] = start;
         if(end>start) tend[threadID] = curpos+1;
         else tend[threadID] = end; // start=end
     }
-    
     double t02 = MPI_Wtime();
-    // serial
+    // Additional reduce at the first/last entries processed by each thread
+    // serially performed
     for(int t=totThreads-1; t>0; --t)
     {
         if(tend[t] > tstart[t] && tend[t-1] > tstart[t-1])
         {
-            if((get<0>(mergedData1[tstart[t]]) == get<0>(mergedData1[tend[t-1]-1])) && (get<1>(mergedData1[tstart[t]]) == get<1>(mergedData1[tend[t-1]-1])))
+            if((get<0>(reducedTuples[tstart[t]]) == get<0>(reducedTuples[tend[t-1]-1])) && (get<1>(reducedTuples[tstart[t]]) == get<1>(reducedTuples[tend[t-1]-1])))
             {
-                get<2>(mergedData1[tend[t-1]-1]) += get<2>(mergedData1[tstart[t]]);
+                get<2>(reducedTuples[tend[t-1]-1]) += get<2>(reducedTuples[tstart[t]]);
                 tstart[t] ++;
             }
         }
@@ -421,22 +440,23 @@ tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & listTuples
         tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
     }
     
-    
-    mergedListSize = tdisp[totThreads];
-    tuple<IU, IU, NU>* mergedDataOut = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[mergedListSize])));
+    // ------------- Remove gaps between tuples processed by threads ------------
+    IT mergedListSize = tdisp[totThreads];
+    tuple<IT, IT, NT>* shrunkTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedListSize])));
     
 #pragma omp parallel // canot be done in parallel on the same array
     {
         int threadID = omp_get_thread_num();
-        std::copy(mergedData1 + tstart[threadID], mergedData1 + tend[threadID], mergedDataOut + tdisp[threadID]);
+        std::copy(reducedTuples + tstart[threadID], reducedTuples + tend[threadID], shrunkTuples + tdisp[threadID]);
     }
-    double t03 = MPI_Wtime();
-    delete [] mergedData;
-    delete [] mergedData1;
     
-    mergedListSize = tdisp[totThreads];
+    delete [] mergedTuples;
+    delete [] reducedTuples;
+    
+    SpTuples<IT, NT>* mergedSpTuples = new SpTuples<IT, NT> (mergedListSize, mdim, ndim, shrunkTuples, true);
+    return mergedSpTuples;
+    
     //cout << mergedListSize << " entries reduced in " << t02-t01 << " + " << t03-t02 << " + " << MPI_Wtime()-t03 <<" seconds" << endl;
-    return mergedDataOut;
 }
 
 
