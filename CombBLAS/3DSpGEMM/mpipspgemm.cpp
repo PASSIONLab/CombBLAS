@@ -28,20 +28,20 @@ double comp_split;
 double comp_trans;
 double comm_split;
 
-#define ITERS 2
+#define ITERS 2 
 
 int main(int argc, char *argv[])
 {
     int provided;
-	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
     
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    /*MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-     
+     */
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);

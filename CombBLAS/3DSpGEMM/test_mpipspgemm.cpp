@@ -135,7 +135,6 @@ int main(int argc, char *argv[])
                 SpParHelper::Print("Col-heap-threaded multiplication working correctly\n");
             else
                 SpParHelper::Print("ERROR in Col-heap-threaded multiplication, go fix it!\n");
-            //splitC->PrintInfo();
             delete splitC;
         }
     }

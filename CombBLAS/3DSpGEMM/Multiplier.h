@@ -24,7 +24,9 @@ SpDCCols<IT, NT>* multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & spl
     
     SpDCCols<IT,NT> * mergedC;
     if(threaded)
+    {
          mergedC = ReduceAll_threaded(unreducedC, CMG);
+    }
     else
          mergedC = ReduceAll(unreducedC, CMG);
 

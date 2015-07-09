@@ -348,10 +348,11 @@ template<class IT, class NT>
 SpTuples<IT,NT>*  multiwayMerge( const vector< SpTuples<IT,NT>* >& listTuples, bool deltuples = false )
 {
     
+    
     double t01 = MPI_Wtime();
-
     IT mdim = listTuples[0]->getnrow();
     IT ndim = listTuples[0]->getncol();
+    
     IT totSize = 0;
     
     // ------- format input for __gnu_parallel::multiway_merge -------
