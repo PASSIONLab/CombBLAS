@@ -20,12 +20,12 @@
 #include "OldReductions.h"
 
 /***************************************************************************
- * Find column splitters in a list of tuple in parallel.
+ * Find indices of column splitters in a list of tuple in parallel.
  * Inputs:
  *      tuples: an array of SpTuples each tuple is (rowid, colid, val)
  *      nsplits: number of splits requested
  *  Output:
- *      splitters: An array of size (nsplits+1) storing the starts and ends of splitted tuples.
+ *      splitters: An array of size (nsplits+1) storing the starts and ends of split tuples.
  ***************************************************************************/
 template <typename IT, typename NT>
 int * findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
@@ -62,10 +62,11 @@ int * findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 template <typename SR, typename IT, typename NT>
 SpTuples<IT,NT> * ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, SpTuples<IT,NT> * & localmerged)
 {
-    
     double comp_begin, comm_begin, comp_time=0, comm_time=0;
-    int fprocs;
+    int fprocs, fibrank;
     MPI_Comm_size(fibWorld,&fprocs);
+    MPI_Comm_rank(fibWorld,&fibrank);
+    
     if(fprocs == 1)
     {
         return localmerged;
@@ -105,35 +106,43 @@ SpTuples<IT,NT> * ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, SpTuples
     MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
     MPI_Type_commit(&MPI_triple);
     
+    
     comm_begin = MPI_Wtime();
     MPI_Alltoallv( localmerged->tuples, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld); // WARNING: is this big enough?
     comm_time += (MPI_Wtime() - comm_begin);
     
     
-    // -------- create vector of SpTuples for multiwayMerge ----------
+    
     comp_begin = MPI_Wtime();
+    
+    // -------- update column indices of split tuples ----------
+    
+    IT local_ncol = localmerged->getncol()/fprocs;
+    if(fibrank==(fprocs-1))
+        local_ncol = localmerged->getncol() - local_ncol * fibrank;
+    IT coloffset = fibrank * local_ncol;
+#pragma omp parallel for
+    for(int k=0; k<recv_count; k++)
+    {
+        std::get<1>(recvbuf[k]) = std::get<1>(recvbuf[k]) - coloffset;
+    }
+    
+    
+    // -------- create vector of SpTuples for multiwayMerge ----------
     vector< SpTuples<IT,NT>* > lists;
     for(int i=0; i< fprocs; ++i)
     {
-        if(recv_sizes[i] > 0)
+        //if(recv_sizes[i] > 0)
         {
-            SpTuples<IT, NT>* spTuples = new SpTuples<IT, NT> (recv_sizes[i], localmerged->getnrow(), localmerged->getncol(), &recvbuf[recv_offsets[i]], true);
+            SpTuples<IT, NT>* spTuples = new SpTuples<IT, NT> (recv_sizes[i], localmerged->getnrow(), local_ncol, &recvbuf[recv_offsets[i]], true); // if none received, pass an empty object of proper dimension
             lists.push_back(spTuples);
         }
     }
+    
     SpTuples<IT,NT> * globalmerged = multiwayMerge(lists, false);
+    
     comp_time += (MPI_Wtime() - comp_begin);
-    
-    /*
-    // update globalmerged column indices
-    int fibrank;
-    MPI_Comm_rank(fibWorld,&fibrank);
-    IT nperp = ncols/fibrank;
-    IT local_n = nperp;
-    if(fibrank==(fprocs-1))
-        local_n = ncols - nperp * (fprocs-1);
-     */
-    
+ 
     comp_reduce_layer += comp_time;
     comm_reduce += comm_time;
     delete [] send_sizes;
@@ -142,7 +151,6 @@ SpTuples<IT,NT> * ParallelReduce_Alltoall_threaded(MPI_Comm & fibWorld, SpTuples
     delete [] recvbuf;
     delete localmerged;
     delete [] send_offsets;
-    
     return  globalmerged;
 }
 
@@ -151,9 +159,7 @@ template <typename NT, typename IT>
 SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CMG)
 {
 	typedef PlusTimesSRing<double, double> PTDD;
-	IT mdim = unreducedC[0]->getnrow();
-	IT ndim = unreducedC[0]->getncol();
-    
+	
     // merge list of tuples from n/sqrt(p) stages of SUMMA
     double loc_beg1 = MPI_Wtime();
     SpTuples<IT, NT>* localmerged = multiwayMerge(unreducedC, true);
@@ -163,7 +169,7 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
     SpTuples<IT,NT> * mergedSpTuples = ParallelReduce_Alltoall_threaded<PTDD>(CMG.fiberWorld, localmerged);
     
     loc_beg1 = MPI_Wtime();
-    SpDCCols<IT,NT> * reducedC = new SpDCCols<IT,NT>(mdim, ndim, mergedSpTuples->getnnz(), mergedSpTuples->tuples, false);
+    SpDCCols<IT,NT> * reducedC = new SpDCCols<IT,NT>(mergedSpTuples->getnrow(), mergedSpTuples->getncol(), mergedSpTuples->getnnz(), mergedSpTuples->tuples, false);
     comp_result += (MPI_Wtime() - loc_beg1);
 	return reducedC;
 }
