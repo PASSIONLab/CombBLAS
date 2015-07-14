@@ -41,7 +41,7 @@ RT* findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits) // why const not
  */
 
 template<class SR, class IT, class NT>
-SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups)
+SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
 {
     int nlists =  ArrSpTups.size();
     ColLexiCompare<IT,int> heapcomp;
@@ -60,7 +60,7 @@ SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups)
     }
     make_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
     
-    tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[estnnz];
+    //tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[estnnz];
     IT cnz = 0;
     
     while(hsize > 0)
@@ -110,7 +110,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     {
         if(delarrs) // steal data from input, and don't delete input
         {
-            return new SpTuples<IT,NT> (ArrSpTups[0]->getnnz(), mdim, ndim, ArrSpTups[0]->tuples, true);
+            return ArrSpTups[0];
         }
         else // copy input to output
         {
@@ -148,9 +148,25 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         colPtrs[i] = findColSplitters<IT>(ArrSpTups[i], nsplits);
     }
     
+    // estimate memory requirement after merge in each split
+    vector<IT> nnzPerSplit(nsplits);
+    #pragma omp parallel for
+    for(int i=0; i< nsplits; i++)
+    {
+        nnzPerSplit[i] = static_cast<IT>(0);
+        for(int j=0; j< nlists; ++j)
+            nnzPerSplit[i] += colPtrs[j][i+1] - colPtrs[j][i];
+    }
+
+    // allocate memory in a serial region
+    vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
+    for(int i=0; i< nsplits; i++)
+    {
+        mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[nnzPerSplit[i]])));
+    }
     
      // perform merge in parallel
-    vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // allocate it here and pass as parameter
+    vector<SpTuples<IT,NT> *> listMergeTups(nsplits);
     #pragma omp parallel for
     for(int i=0; i< nsplits; i++) // serially merge part by part
     {
@@ -160,7 +176,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
             IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];
             listSplitTups[j] = new SpTuples<IT, NT> (curnnz, mdim, ndim, ArrSpTups[j]->tuples + colPtrs[j][i], true);
         }
-        listMergeTups[i] = SerialMerge<SR>(listSplitTups);
+        listMergeTups[i] = SerialMerge<SR>(listSplitTups, mergeBuf[i]);
     }
 
 
