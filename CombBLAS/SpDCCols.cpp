@@ -192,7 +192,6 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
  *	\n		else tuples is assumed to be a column sorted list of tuple objects
  **/
 
-// I used
 
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples, bool transpose)

@@ -10,11 +10,11 @@
  *      splitters: An array of size (nsplits+1) storing the starts and ends of split tuples.
  *      different type used for output since we might need int or IT
  ***************************************************************************/
+
 template <typename RT, typename IT, typename NT>
-RT* findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits) // why const not working??
+vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 {
-    //vector<IT> splitters(nsplits+1);
-    RT* splitters = new RT[nsplits+1];
+    vector<RT> splitters(nsplits+1);
     splitters[0] = static_cast<RT>(0);
     ColLexiCompare<IT,NT> comp;
 #pragma omp parallel for
@@ -29,6 +29,7 @@ RT* findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits) // why const not
     
     return splitters;
 }
+
 
 
 
@@ -59,8 +60,6 @@ SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple
         
     }
     make_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
-    
-    //tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[estnnz];
     IT cnz = 0;
     
     while(hsize > 0)
@@ -98,7 +97,7 @@ SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IT, class NT>
-SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false ) // why const not working in calling findColSplitters1??
+SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false )
 {
     
     int nlists =  ArrSpTups.size();
@@ -134,30 +133,37 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         }
     }
 
-
+    double t01, t02, t03, t04, t05, t06;
+    t01 = MPI_Wtime();
+    
     int nthreads;
 #pragma omp parallel
     {
         nthreads = omp_get_num_threads();
     }
-    int nsplits = 2*nthreads;
+    int nsplits = 4*nthreads; // oversplit for load balance
     nsplits = min(nsplits, (int)ndim); // we cannot split a column
-    vector<IT*> colPtrs(nlists);
+    vector< vector<IT> > colPtrs;
     for(int i=0; i< nlists; i++)
     {
-        colPtrs[i] = findColSplitters<IT>(ArrSpTups[i], nsplits);
+        colPtrs.push_back(findColSplitters<IT>(ArrSpTups[i], nsplits)); // in parallel
     }
-    
+    t02 = MPI_Wtime();
     // estimate memory requirement after merge in each split
     vector<IT> nnzPerSplit(nsplits);
-    #pragma omp parallel for
+    IT nnzAll = static_cast<IT>(0);
+    //#pragma omp parallel for
     for(int i=0; i< nsplits; i++)
     {
-        nnzPerSplit[i] = static_cast<IT>(0);
+        IT t = static_cast<IT>(0);
         for(int j=0; j< nlists; ++j)
-            nnzPerSplit[i] += colPtrs[j][i+1] - colPtrs[j][i];
+            t += colPtrs[j][i+1] - colPtrs[j][i];
+        nnzPerSplit[i] = t;
+        nnzAll += t;
     }
 
+    
+    
     // allocate memory in a serial region
     vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
     for(int i=0; i< nsplits; i++)
@@ -165,9 +171,11 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[nnzPerSplit[i]])));
     }
     
+    
+    t03 = MPI_Wtime();
      // perform merge in parallel
-    vector<SpTuples<IT,NT> *> listMergeTups(nsplits);
-    #pragma omp parallel for
+    vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
+#pragma omp parallel for schedule(dynamic)
     for(int i=0; i< nsplits; i++) // serially merge part by part
     {
         vector<SpTuples<IT,NT> *> listSplitTups(nlists);
@@ -178,36 +186,44 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         }
         listMergeTups[i] = SerialMerge<SR>(listSplitTups, mergeBuf[i]);
     }
-
-
-    // ------------- concatenate tuples processed by threads ------------
+    t04 = MPI_Wtime();
     
+    // ------------- concatenate merged tuples processed by threads ------------
     vector<IT> tdisp(nsplits+1);
     tdisp[0] = 0;
     for(int i=0; i<nsplits; ++i)
     {
         tdisp[i+1] = tdisp[i] + listMergeTups[i]->getnnz();
     }
-    
-    
 
     IT mergedListSize = tdisp[nsplits];
     tuple<IT, IT, NT>* shrunkTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedListSize])));
     
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for(int i=0; i< nsplits; i++)
     {
         std::copy(listMergeTups[i]->tuples , listMergeTups[i]->tuples + listMergeTups[i]->getnnz(), shrunkTuples + tdisp[i]);
     }
+    
+    t05 = MPI_Wtime();
+    
     for(int i=0; i< nsplits; i++)
     {
-        delete listMergeTups[i];
+        //delete ; // same as deleting mergeBuf
+        //::operator delete(listMergeTups[i]->tuples);
+        ::operator delete(mergeBuf[i]);
     }
-    for(int j=0; j< nlists; j++)
+     
+    //::operator delete(mergeBufAll);
+    
+     t06 = MPI_Wtime();
+    for(int i=0; i< nlists; i++)
     {
-        delete colPtrs[j];
         if(delarrs)
-            delete ArrSpTups[j];
+            delete ArrSpTups[i];
     }
+    double t07 = MPI_Wtime();
+    cout << t02-t01 << " + " << t03-t02 << " + " << t04-t03 << " + " << t05-t04 << " + "
+    << t06-t05 << " + " << t07-t06 << endl;
     return new SpTuples<IT, NT> (mergedListSize, mdim, ndim, shrunkTuples, true);
 }
