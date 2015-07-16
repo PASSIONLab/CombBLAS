@@ -180,8 +180,10 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 	tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 	SpParHelper::Print(tinfo.str());
 
-	SpDCCols<IT,NT> * LocalSpMat;
-	MakeDCSC< SpDCCols<IT,NT> > (*DEL, false, &LocalSpMat);
+	//SpDCCols<IT,NT> * LocalSpMat;
+    SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
+    SpDCCols<IT, NT> * LocalSpMat = &A->seq();
+	//MakeDCSC< SpDCCols<IT,NT> > (*DEL, false, &LocalSpMat);
 	delete DEL;     // free memory before symmetricizing
 	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 	return LocalSpMat;
