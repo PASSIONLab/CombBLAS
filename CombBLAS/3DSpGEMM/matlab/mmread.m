@@ -86,7 +86,7 @@ if ( strcmp(rep,'coordinate')) %  read matrix given in sparse
   rows = sizeinfo(1);
   cols = sizeinfo(2);
   entries = sizeinfo(3);
-  
+  disp(entries);
   if  ( strcmp(field,'real') )               % real valued entries:
   
     [T,count] = fscanf(mmfile,'%f',3);
@@ -99,7 +99,9 @@ if ( strcmp(rep,'coordinate')) %  read matrix given in sparse
        error('Invalid data.');
     end
     T = reshape(T,3,entries)';
-    A = sparse(T(:,1), T(:,2), T(:,3), rows , cols);
+    idx = find(T(:,3)~=0);
+    disp(size(idx));
+    A = sparse(T(idx,1), T(idx,2), T(idx,3)+1, rows , cols);
   
   elseif   ( strcmp(field,'complex'))            % complex valued entries:
   
