@@ -17,7 +17,6 @@
 #include "Glue.h"
 #include "CCGrid.h"
 #include "mtSpGEMM.h"
-#include "OldReductions.h"
 #include "MultiwayMerge.h"
 
 
@@ -156,43 +155,6 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
 	return reducedC;
 }
 
-
-/*
-template <typename NT, typename IT>
-SpDCCols<IT,NT> * ReduceAll(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CMG)
-{
-    typedef PlusTimesSRing<double, double> PTDD;
-    
-    IT C_m = unreducedC[0]->getnrow();
-    IT C_n = unreducedC[0]->getncol();
-    
-    int64_t totrecv;
-    tuple<IT,IT,NT> * recvdata;
-    
-    double loc_beg1 = MPI_Wtime();
-    // MergeAll defined in ../CombBLAS/Friends.h
-    SpTuples<IT,NT> localmerged =  MergeAll<PTDD>(unreducedC, C_m, C_n,true); // delete unreducedC entries
-    comp_reduce += (MPI_Wtime() - loc_beg1);
-    
-    
-    MPI_Datatype MPI_triple;
-    MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
-    MPI_Type_commit(&MPI_triple);
-    SpDCCols<IT,NT> * locret;
-    
-    int pre_glmerge = localmerged.getnnz(); // WARNING: is this big enought to hold?
-    
-    IT outputnnz = 0;
-    ParallelReduce_Alltoall<PTDD>(CMG.fiberWorld, localmerged.tuples, MPI_triple, recvdata, localmerged.getnnz(), outputnnz, C_n);
-    loc_beg1 = MPI_Wtime();
-    locret = new SpDCCols<IT,NT>(SpTuples<IT,NT>(outputnnz, C_m, C_n, recvdata), false);
-    //MPI_Barrier(MPI_COMM_WORLD); //needed
-    //comp_reduce += (MPI_Wtime() - loc_beg1); //needed
-    
-    MPI_Type_free(&MPI_triple);
-    return locret;
-}
-*/
 #endif
 
 

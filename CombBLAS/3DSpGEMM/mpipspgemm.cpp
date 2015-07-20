@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
     int provided;
 	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
     
-    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
+    
     
     
     int nprocs, myrank;
@@ -53,23 +53,29 @@ int main(int argc, char *argv[])
 	{
 		if(myrank == 0)
 		{
-			printf("Usage (random): ./mpipspgemm <Scale> <GridRows> <GridCols> <Layers> <Type> <EDGEFACTOR> <algo>\n");
-            printf("Usage (input): ./mpipspgemm <Scale> <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n"); //TODO:<Scale>  not meaningful here. Need to remove it.  Still there because current scripts execute without error.
+			printf("Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> <algo>\n");
+            printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n"); //TODO:<Scale>  not meaningful here. Need to remove it.  Still there because current scripts execute without error.
 			printf("Example: ./mpipspgemm 19 4 4 2 ER 16 outer\n");
             printf("Example: ./mpipspgemm 19 4 4 2 Input matA.mtx matB.mtx threaded\n");
 			printf("Type ER: Erdos-Renyi\n");
 			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
 			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
-            printf("algo: outer | column | threaded | all\n");
+            printf("algo: outer | column \n");
 		}
 		return -1;         
 	}
 
-	unsigned scale = (unsigned) atoi(argv[1]);
-	unsigned GRROWS = (unsigned) atoi(argv[2]);
-	unsigned GRCOLS = (unsigned) atoi(argv[3]);
-	unsigned C_FACTOR = (unsigned) atoi(argv[4]);
+	
+	unsigned GRROWS = (unsigned) atoi(argv[1]);
+	unsigned GRCOLS = (unsigned) atoi(argv[2]);
+	unsigned C_FACTOR = (unsigned) atoi(argv[3]);
     CCGrid CMG(C_FACTOR, GRCOLS);
+    int nthreads;
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+
     
     if(GRROWS != GRCOLS)
     {
@@ -92,33 +98,33 @@ int main(int argc, char *argv[])
     SpDCCols<int32_t, double> *splitC;
     string type;
 	
-    if(string(argv[5]) == string("input")) // input option
+    if(string(argv[4]) == string("input")) // input option
     {
-        string fileA(argv[6]);
-        string fileB(argv[7]);
+        string fileA(argv[5]);
+        string fileB(argv[6]);
         Reader(fileA, CMG, splitA, false);
         Reader(fileB, CMG, splitB, true);
-        type = string(argv[8]);
+        //type = string(argv[8]);
     }
     else
     {
         
         double initiator[4];
-        if(string(argv[5]) == string("ER"))
+        if(string(argv[4]) == string("ER"))
         {
             initiator[0] = .25;
             initiator[1] = .25;
             initiator[2] = .25;
             initiator[3] = .25;
         }
-        else if(string(argv[5]) == string("SSCA"))
+        else if(string(argv[4]) == string("G500"))
         {
             initiator[0] = .57;
             initiator[1] = .19;
             initiator[2] = .19;
             initiator[3] = .05;
         }
-        else if(string(argv[5]) == string("G500"))
+        else if(string(argv[4]) == string("SSCA"))
         {
             initiator[0] = .6;
             initiator[1] = .4/3;
@@ -131,62 +137,34 @@ int main(int argc, char *argv[])
              MPI_Abort(MPI_COMM_WORLD, 1);
         }
         
+        unsigned scale = (unsigned) atoi(argv[5]);
         unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
         Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false);
         Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true); // also transpose before split
         if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
-        type = string(argv[7]);
+        
     }
 	
-  
+    type = string(argv[7]);
+    if(myrank == 0)
+        printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
+    
     if(type == string("outer"))
     {
         for(int k=0; k<ITERS; k++)
         {
-            splitC = multiply_exp(splitA, splitB, CMG, true, false); // outer product
+            splitC = multiply(splitA, splitB, CMG, true, false); // outer product
             delete splitC;
         }
         
     }
-    else if(type == string("column"))
-    {
-        splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply_exp(splitA, splitB, CMG, false, false);
-            delete splitC;
-        }
-        
-    }
-    else if(type == string("all"))
-    {
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply_exp(splitA, splitB, CMG, true, false); // outer product
-            delete splitC;
-        }
-        
-            
-        splitB.Transpose();
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply_exp(splitA, splitB, CMG, false, false);
-            delete splitC;
-        }
-        
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply_exp(splitA, splitB, CMG, false, true);
-            delete splitC;
-        }
-        
-    }
-    else // default threaded
+
+    else // default column-threaded
     {
         splitB.Transpose();
         for(int k=0; k<ITERS; k++)
         {
-            splitC = multiply_exp(splitA, splitB, CMG, false, true);
+            splitC = multiply(splitA, splitB, CMG, false, true);
             delete splitC;
         }
         
