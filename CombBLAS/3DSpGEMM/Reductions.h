@@ -157,7 +157,7 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
 }
 
 
-
+/*
 template <typename NT, typename IT>
 SpDCCols<IT,NT> * ReduceAll(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CMG)
 {
@@ -192,7 +192,7 @@ SpDCCols<IT,NT> * ReduceAll(vector< SpTuples<IT,NT>* > & unreducedC, CCGrid & CM
     MPI_Type_free(&MPI_triple);
     return locret;
 }
-
+*/
 #endif
 
 

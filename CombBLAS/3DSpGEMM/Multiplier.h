@@ -23,12 +23,12 @@ SpDCCols<IT, NT>* multiply_exp(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & spl
     double time_mid = MPI_Wtime();
     
     SpDCCols<IT,NT> * mergedC;
-    if(threaded)
-    {
+    //if(threaded)
+    //{
          mergedC = ReduceAll_threaded(unreducedC, CMG);
-    }
-    else
-         mergedC = ReduceAll(unreducedC, CMG);
+    //}
+    //else
+    //     mergedC = ReduceAll(unreducedC, CMG);
 
     MPI_Barrier(MPI_COMM_WORLD);
     double time_end = MPI_Wtime();

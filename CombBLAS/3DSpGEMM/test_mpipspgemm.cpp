@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
     
 	
     
-    SpDCCols<int64_t, double> splitA, splitB, controlC;
-    SpDCCols<int64_t, double> *splitC;
+    SpDCCols<int32_t, double> splitA, splitB, controlC;
+    SpDCCols<int32_t, double> *splitC;
     string type;
     
     

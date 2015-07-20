@@ -16,6 +16,7 @@
 #include "GenRmatDist.h"
 #include "ReadMatDist.h"
 
+
 using namespace std;
 
 double comm_bcast;
@@ -87,8 +88,8 @@ int main(int argc, char *argv[])
     
 	
     
-    SpDCCols<int64_t, double> splitA, splitB;
-    SpDCCols<int64_t, double> *splitC;
+    SpDCCols<int32_t, double> splitA, splitB;
+    SpDCCols<int32_t, double> *splitC;
     string type;
 	
     if(string(argv[5]) == string("input")) // input option
@@ -190,7 +191,7 @@ int main(int argc, char *argv[])
         }
         
     }
-    
+   
 	MPI_Finalize();
 	return 0;
 }
