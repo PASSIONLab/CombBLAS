@@ -1,6 +1,6 @@
 # C++ compiler
 CXX := CC
-CXXFLAGS := -std=c++11 -O2 -fopenmp -fpermissive -DPARALLELREDUCE #-DDEBUG 
+CXXFLAGS := -std=c++11 -O2 -fopenmp -fpermissive #-DDEBUG 
 
 # C compiler
 CC := cc

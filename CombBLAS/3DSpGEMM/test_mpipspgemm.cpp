@@ -33,15 +33,15 @@ double comm_split;
 int main(int argc, char *argv[])
 {
     int provided;
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
-    /*
+	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-    */
+    
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 		{
             printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <matA> <matB> <matC> <algo>\n");
             printf("Example: ./mpipspgemm 4 4 2 matA.mtx matB.mtx matB.mtx threaded\n");
-            printf("algo: outer | column | threaded | all\n");
+            printf("algo: outer | column | threaded \n");
 		}
 		return -1;
 	}
@@ -92,20 +92,18 @@ int main(int argc, char *argv[])
     Reader(fileA, CMG, splitA, false);
     Reader(fileB, CMG, splitB, true);
     Reader(fileC, CMG, controlC, false);
-    //splitA.PrintInfo();
-    //controlC.PrintInfo();
+
     type = string(argv[7]);
     
     if(type == string("outer"))
     {
         for(int k=0; k<ITERS; k++)
         {
-            splitC = multiply_exp(splitA, splitB, CMG, true, false); // outer product
+            splitC = multiply(splitA, splitB, CMG, true, false); // outer product
             if (controlC == *splitC)
                 SpParHelper::Print("Outer product multiplication working correctly\n");
             else
                 SpParHelper::Print("ERROR in Outer product multiplication, go fix it!\n");
-            //splitC->PrintInfo();
             delete splitC;
         }
         
@@ -115,7 +113,7 @@ int main(int argc, char *argv[])
         splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
         for(int k=0; k<ITERS; k++)
         {
-            splitC = multiply_exp(splitA, splitB, CMG, false, false);
+            splitC = multiply(splitA, splitB, CMG, false, false);
             if (controlC == *splitC)
                 SpParHelper::Print("Col-heap multiplication working correctly\n");
             else
@@ -130,7 +128,7 @@ int main(int argc, char *argv[])
         splitB.Transpose();
         for(int k=0; k<ITERS; k++)
         {
-            splitC = multiply_exp(splitA, splitB, CMG, false, true);
+            splitC = multiply(splitA, splitB, CMG, false, true);
             if (controlC == *splitC)
                 SpParHelper::Print("Col-heap-threaded multiplication working correctly\n");
             else
