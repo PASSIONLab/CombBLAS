@@ -15,8 +15,9 @@
 #include "../CombBLAS.h"
 #include "Glue.h"
 #include "mtSpGEMM.h"
+#include "CCGrid.h"
 
- 
+
 // SplitB is already locally transposed
 // Returns an array of unmerged lists in C
 template <typename IT, typename NT>

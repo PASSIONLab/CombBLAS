@@ -16,7 +16,6 @@
 #include "../CombBLAS.h"
 #include "Glue.h"
 #include "CCGrid.h"
-#include "mtSpGEMM.h"
 #include "MultiwayMerge.h"
 
 
@@ -147,8 +146,7 @@ SpDCCols<IT,NT> * ReduceAll_threaded(vector< SpTuples<IT,NT>* > & unreducedC, CC
     SpTuples<IT,NT> * mergedSpTuples = ParallelReduce_Alltoall_threaded<PTDD>(CMG.fiberWorld, localmerged);
     
     loc_beg1 = MPI_Wtime();
-    // this is not a good constructor. change it back to SpTuple-based constructor
-    // I will create a insertTuple function instead ****************
+    // TODO: this is not a good constructor. Change it back to SpTuple-based constructor
     SpDCCols<IT,NT> * reducedC = new SpDCCols<IT,NT>(mergedSpTuples->getnrow(), mergedSpTuples->getncol(), mergedSpTuples->getnnz(), mergedSpTuples->tuples, false);
     comp_result += (MPI_Wtime() - loc_beg1);
     delete mergedSpTuples;  // too expensive
