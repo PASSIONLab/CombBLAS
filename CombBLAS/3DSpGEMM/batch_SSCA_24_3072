@@ -1,0 +1,38 @@
+#PBS -q debug
+#PBS -l mppwidth=3072
+#PBS -l walltime=00:30:00
+#PBS -N spGEMMexp_SSCA_24_3072
+#PBS -j oe
+cd $PBS_O_WORKDIR
+
+export OMP_NUM_THREADS=1
+aprun -n 3025 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 55 55 1 SSCA 24 16 column
+aprun -n 3042 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 39 39 2 SSCA 24 16 column
+aprun -n 2916 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 27 27 4 SSCA 24 16 column
+aprun -n 2888 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 19 19 8 SSCA 24 16 column
+aprun -n 3072 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 16 16 12 SSCA 24 16 column
+aprun -n 2704 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 13 13 16 SSCA 24 16 column
+
+export OMP_NUM_THREADS=3
+aprun -n 1024 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 32 32 1 SSCA 24 16 column
+aprun -n 968 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 22 22 2 SSCA 24 16 column
+aprun -n 1024 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 16 16 4 SSCA 24 16 column
+aprun -n 968 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 11 11 8 SSCA 24 16 column
+aprun -n 972 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 9 9 12 SSCA 24 16 column
+aprun -n 1024 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 8 8 16 SSCA 24 16 column
+
+export OMP_NUM_THREADS=6
+aprun -n 484 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 22 22 1 SSCA 24 16 column
+aprun -n 512 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 16 16 2 SSCA 24 16 column
+aprun -n 484 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 11 11 4 SSCA 24 16 column
+aprun -n 512 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 8 8 8 SSCA 24 16 column
+aprun -n 432 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 6 6 12 SSCA 24 16 column
+aprun -n 400 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 5 5 16 SSCA 24 16 column
+
+export OMP_NUM_THREADS=12
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 16 16 1 SSCA 24 16 column
+aprun -n 242 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 11 11 2 SSCA 24 16 column
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 8 8 4 SSCA 24 16 column
+aprun -n 200 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 5 5 8 SSCA 24 16 column
+aprun -n 192 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 4 4 12 SSCA 24 16 column
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 4 4 16 SSCA 24 16 column
