@@ -1,0 +1,38 @@
+#PBS -q debug
+#PBS -l mppwidth=12288
+#PBS -l walltime=00:30:00
+#PBS -N spGEMMexp_12288
+#PBS -j oe
+cd $PBS_O_WORKDIR
+
+export OMP_NUM_THREADS=1
+aprun -n 12100 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 110 110 1 ER 24 16 column
+aprun -n 12168 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 78 78 2 ER 24 16 column
+aprun -n 12100 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 55 55 4 ER 24 16 column
+aprun -n 12168 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 39 39 8 ER 24 16 column
+aprun -n 12288 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 32 32 12 ER 24 16 column
+aprun -n 11664 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 27 27 16 ER 24 16 column
+
+export OMP_NUM_THREADS=3
+aprun -n 4096 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 64 64 1 ER 24 16 column
+aprun -n 4050 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 45 45 2 ER 24 16 column
+aprun -n 4096 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 32 32 4 ER 24 16 column
+aprun -n 3872 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 22 22 8 ER 24 16 column
+aprun -n 3888 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 18 18 12 ER 24 16 column
+aprun -n 4096 -d 3 -N 8 -S 4 -cc depth ./mpipspgemm 16 16 16 ER 24 16 column
+
+export OMP_NUM_THREADS=6
+aprun -n 2025 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 45 45 1 ER 24 16 column
+aprun -n 2048 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 32 32 2 ER 24 16 column
+aprun -n 1936 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 22 22 4 ER 24 16 column
+aprun -n 2048 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 16 16 8 ER 24 16 column
+aprun -n 2028 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 13 13 12 ER 24 16 column
+aprun -n 1936 -d 6 -N 4 -S 2 -cc depth ./mpipspgemm 11 11 16 ER 24 16 column
+
+export OMP_NUM_THREADS=12
+aprun -n 1024 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 32 32 1 ER 24 16 column
+aprun -n 968 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 22 22 2 ER 24 16 column
+aprun -n 1024 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 16 16 4 ER 24 16 column
+aprun -n 968 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 11 11 8 ER 24 16 column
+aprun -n 972 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 9 9 12 ER 24 16 column
+aprun -n 1024 -d 12 -N 2 -S 1 -cc numa_node ./mpipspgemm 8 8 16 ER 24 16 column

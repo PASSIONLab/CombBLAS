@@ -29,7 +29,7 @@ double comp_split;
 double comp_trans;
 double comm_split;
 
-#define ITERS 2 
+#define ITERS 10 
 
 int main(int argc, char *argv[])
 {
@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
 		{
 			printf("Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> <algo>\n");
             printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n"); //TODO:<Scale>  not meaningful here. Need to remove it.  Still there because current scripts execute without error.
-			printf("Example: ./mpipspgemm 19 4 4 2 ER 16 outer\n");
-            printf("Example: ./mpipspgemm 19 4 4 2 Input matA.mtx matB.mtx threaded\n");
+			printf("Example: ./mpipspgemm 4 4 2 ER 19 16 outer\n");
+            printf("Example: ./mpipspgemm 4 4 2 Input matA.mtx matB.mtx threaded\n");
 			printf("Type ER: Erdos-Renyi\n");
 			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
 			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
