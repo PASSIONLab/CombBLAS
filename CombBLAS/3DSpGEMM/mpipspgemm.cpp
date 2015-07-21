@@ -29,7 +29,7 @@ double comp_split;
 double comp_trans;
 double comm_split;
 
-#define ITERS 10 
+#define ITERS 5 
 
 int main(int argc, char *argv[])
 {
