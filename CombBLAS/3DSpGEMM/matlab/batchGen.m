@@ -7,7 +7,7 @@ fileID = fopen(fileName,'w');
 fprintf(fileID,'#PBS -q debug\n');
 fprintf(fileID,'#PBS -l mppwidth=%d\n', maxCore);
 fprintf(fileID,'#PBS -l walltime=00:30:00\n');
-fprintf(fileID,'#PBS -N spGEMMexp_%d\n', maxCore);
+fprintf(fileID,'#PBS -N spGEMMexp_%s_%d_%d\n', class, scale, maxCore);
 fprintf(fileID,'#PBS -j oe\n');
 fprintf(fileID,'cd $PBS_O_WORKDIR\n');
 
