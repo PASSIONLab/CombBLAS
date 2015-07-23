@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     int provided;
 	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
     
+    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
@@ -93,83 +94,88 @@ int main(int argc, char *argv[])
     }
     
 	
+    {
+        SpDCCols<int32_t, double> splitA, splitB;
+        SpDCCols<int32_t, double> *splitC;
+        string type;
+        shared_ptr<CommGrid> layerGrid;
+        layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
+        FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
+        
+        if(string(argv[4]) == string("input")) // input option
+        {
+            string fileA(argv[5]);
+            string fileB(argv[6]);
+            
+            Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
+            Reader(fileB, CMG, splitB, true, true, p); // p used here
+        }
+        else
+        {
+            
+            double initiator[4];
+            if(string(argv[4]) == string("ER"))
+            {
+                initiator[0] = .25;
+                initiator[1] = .25;
+                initiator[2] = .25;
+                initiator[3] = .25;
+            }
+            else if(string(argv[4]) == string("G500"))
+            {
+                initiator[0] = .57;
+                initiator[1] = .19;
+                initiator[2] = .19;
+                initiator[3] = .05;
+            }
+            else if(string(argv[4]) == string("SSCA"))
+            {
+                initiator[0] = .6;
+                initiator[1] = .4/3;
+                initiator[2] = .4/3;
+                initiator[3] = .4/3;
+            }
+            else {
+                if(myrank == 0)
+                    printf("The initiator parameter - %s - is not recognized. Using default ER\n", argv[5]);
+                MPI_Abort(MPI_COMM_WORLD, 1);
+            }
+            
+            unsigned scale = (unsigned) atoi(argv[5]);
+            unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
+            Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false, true, p);
+            Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true, true, p); // also transpose before split
+            if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
+            
+        }
+        
+        
+        type = string(argv[7]);
+        if(myrank == 0)
+            printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
+        
+        if(type == string("outer"))
+        {
+            for(int k=0; k<ITERS; k++)
+            {
+                splitC = multiply(splitA, splitB, CMG, true, false); // outer product
+                delete splitC;
+            }
+            
+        }
+        
+        else // default column-threaded
+        {
+            splitB.Transpose();
+            for(int k=0; k<ITERS; k++)
+            {
+                splitC = multiply(splitA, splitB, CMG, false, true);
+                delete splitC;
+            }
+            
+        }
+    }
     
-    SpDCCols<int32_t, double> splitA, splitB;
-    SpDCCols<int32_t, double> *splitC;
-    string type;
-	
-    if(string(argv[4]) == string("input")) // input option
-    {
-        string fileA(argv[5]);
-        string fileB(argv[6]);
-        Reader(fileA, CMG, splitA, false);
-        Reader(fileB, CMG, splitB, true);
-        //type = string(argv[8]);
-    }
-    else
-    {
-        
-        double initiator[4];
-        if(string(argv[4]) == string("ER"))
-        {
-            initiator[0] = .25;
-            initiator[1] = .25;
-            initiator[2] = .25;
-            initiator[3] = .25;
-        }
-        else if(string(argv[4]) == string("G500"))
-        {
-            initiator[0] = .57;
-            initiator[1] = .19;
-            initiator[2] = .19;
-            initiator[3] = .05;
-        }
-        else if(string(argv[4]) == string("SSCA"))
-        {
-            initiator[0] = .6;
-            initiator[1] = .4/3;
-            initiator[2] = .4/3;
-            initiator[3] = .4/3;
-        }
-        else {
-            if(myrank == 0)
-                printf("The initiator parameter - %s - is not recognized. Using default ER\n", argv[5]);
-             MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-        
-        unsigned scale = (unsigned) atoi(argv[5]);
-        unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
-        Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false);
-        Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true); // also transpose before split
-        if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
-        
-    }
-	
-    type = string(argv[7]);
-    if(myrank == 0)
-        printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
-    
-    if(type == string("outer"))
-    {
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply(splitA, splitB, CMG, true, false); // outer product
-            delete splitC;
-        }
-        
-    }
-
-    else // default column-threaded
-    {
-        splitB.Transpose();
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply(splitA, splitB, CMG, false, true);
-            delete splitC;
-        }
-        
-    }
-   
 	MPI_Finalize();
 	return 0;
 }

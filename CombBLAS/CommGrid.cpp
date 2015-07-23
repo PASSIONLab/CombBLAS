@@ -157,16 +157,21 @@ void CommGrid::OpenDebugFile(string prefix, ofstream & output) const
 
 shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset)
 {
-	if(gridA->grcols != gridB->grrows)
-	{
-		cout << "Grids don't confirm for multiplication" << endl;
-		MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
-	}
+    if(*gridA != *gridB)
+    {
+        cout << "Grids don't confirm for multiplication" << endl;
+        MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
+    }
+    // AA: these parameters are kept for backward compatibility
+    // they should not be used
 	innerdim = gridA->grcols;
 	Aoffset = (gridA->myprocrow + gridA->myproccol) % gridA->grcols;	// get sequences that avoids contention
 	Boffset = (gridB->myprocrow + gridB->myproccol) % gridB->grrows;
 		
-	MPI_Comm world = MPI_COMM_WORLD;
-	return shared_ptr<CommGrid>( new CommGrid(world, gridA->grrows, gridB->grcols) );
+	//MPI_Comm world = MPI_COMM_WORLD;
+	//return shared_ptr<CommGrid>( new CommGrid(world, gridA->grrows, gridB->grcols) );
+    return shared_ptr<CommGrid>( new CommGrid(*gridA) );
 }
+
+
 

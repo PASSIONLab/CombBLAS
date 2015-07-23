@@ -37,7 +37,7 @@ void Symmetricize(PARMAT & A)
  ** \param[out] splitmat {read matrix market file into layer 0, and split into CMG.GridLayers pieces}
  **/
 template <typename IT, typename NT>
-void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans)
+void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool permute, FullyDistVec<IT, IT>& p)
 {
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
@@ -66,11 +66,32 @@ void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool tran
         inf.close();
         
         
+        // random permutations for load balance
+        if(permute)
+        {
+            if(A->getnrow() == A->getncol())
+            {
+                if(p.TotalLength()!=A->getnrow())
+                {
+                    SpParHelper::Print("Generating random permutation vector.\n");
+                    p.iota(A->getnrow(), 0);
+                    p.RandPerm();
+                }
+                (*A)(p,p,true);// in-place permute to save memory
+            }
+            else
+            {
+                 SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
+            }
+        }
+        
+        
         SpDCCols<IT, NT> * localmat = &A->seq();
         double trans_beg = MPI_Wtime();
         if(trans) localmat->Transpose(); // locally transpose
         comp_trans += (MPI_Wtime() - trans_beg);
 
+        
         double split_beg = MPI_Wtime();
         localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
 

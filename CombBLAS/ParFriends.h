@@ -195,10 +195,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	}
 
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
-	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
-
+    
 	UDERA * A1seq = new UDERA();
 	UDERA * A2seq = new UDERA(); 
 	UDERB * B1seq = new UDERB();

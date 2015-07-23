@@ -25,7 +25,7 @@
 
 
 template<typename IT, typename NT>
-SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld)
+SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld, bool permute, FullyDistVec<IT, IT>& p)
 {
 	double t01 = MPI_Wtime();
 	double t02;
@@ -48,10 +48,32 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 
 	//SpDCCols<IT,NT> * LocalSpMat;
     SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
-    SpDCCols<IT, NT> * LocalSpMat = &A->seq();
+    
 	//MakeDCSC< SpDCCols<IT,NT> > (*DEL, false, &LocalSpMat);
-	delete DEL;     // free memory before symmetricizing
+	delete DEL;
 	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
+
+    
+    // random permutations for load balance
+    if(permute)
+    {
+        if(A->getnrow() == A->getncol())
+        {
+            if(p.TotalLength()!=A->getnrow())
+            {
+                SpParHelper::Print("Generating random permutation vector.\n");
+                p.iota(A->getnrow(), 0);
+                p.RandPerm();
+            }
+            (*A)(p,p,true);// in-place permute to save memory
+        }
+        else
+        {
+            SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
+        }
+    }
+    
+    SpDCCols<IT, NT> * LocalSpMat = &A->seq();
 	return LocalSpMat;
 }
 
@@ -59,14 +81,14 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
  ** \param[out] splitmat {generated RMAT matrix, split into CMG.GridLayers pieces}
  **/
 template <typename IT, typename NT>
-void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans)
+void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool permute, FullyDistVec<IT, IT>& p)
 {
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
 	if(CMG.layer_grid == 0)
 	{
-		SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld);
+		SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld, permute, p);
 			
         double trans_beg = MPI_Wtime();
         if(trans) localmat->Transpose(); // locally transpose
