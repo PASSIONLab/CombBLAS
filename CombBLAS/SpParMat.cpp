@@ -755,7 +755,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	DER_IT * PSeq = new DER_IT(); 
 	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
-	SpParMat<IT,NT,DER> PA;
+	SpParMat<IT,NT,DER> PA(commGrid);
 	if(&ri == &ci)	// Symmetric permutation
 	{
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
@@ -777,7 +777,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 
 			P.Transpose();	
        	 		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, P, true, true);	// clear the memory of both *this and P
-			return SpParMat<IT,NT,DER>();	// dummy return to match signature
+			return SpParMat<IT,NT,DER>(commGrid);	// dummy return to match signature
 		}
 		else
 		{
@@ -856,7 +856,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	if(inplace)
 	{
        		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q, true, true);	// clear the memory of both PA and P
-		return SpParMat<IT,NT,DER>();	// dummy return to match signature
+		return SpParMat<IT,NT,DER>(commGrid);	// dummy return to match signature
 	}
 	else
 	{

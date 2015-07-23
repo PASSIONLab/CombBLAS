@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     int provided;
 	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
     
+    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
@@ -89,54 +90,60 @@ int main(int argc, char *argv[])
     string fileA(argv[4]);
     string fileB(argv[5]);
     string fileC(argv[6]);
-    Reader(fileA, CMG, splitA, false);
-    Reader(fileB, CMG, splitB, true);
-    Reader(fileC, CMG, controlC, false);
-
-    type = string(argv[7]);
     
-    if(type == string("outer"))
     {
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply(splitA, splitB, CMG, true, false); // outer product
-            if (controlC == *splitC)
-                SpParHelper::Print("Outer product multiplication working correctly\n");
-            else
-                SpParHelper::Print("ERROR in Outer product multiplication, go fix it!\n");
-            delete splitC;
-        }
+        shared_ptr<CommGrid> layerGrid;
+        layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
+        FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
+        Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
+        Reader(fileB, CMG, splitB, true, true, p); // p used here
+        Reader(fileC, CMG, controlC, false, true, p); // p used here
         
-    }
-    else if(type == string("column"))
-    {
-        splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
-        for(int k=0; k<ITERS; k++)
+        type = string(argv[7]);
+        
+        if(type == string("outer"))
         {
-            splitC = multiply(splitA, splitB, CMG, false, false);
-            if (controlC == *splitC)
-                SpParHelper::Print("Col-heap multiplication working correctly\n");
-            else
-                SpParHelper::Print("ERROR in Col-heap multiplication, go fix it!\n");
+            for(int k=0; k<ITERS; k++)
+            {
+                splitC = multiply(splitA, splitB, CMG, true, false); // outer product
+                if (controlC == *splitC)
+                    SpParHelper::Print("Outer product multiplication working correctly\n");
+                else
+                    SpParHelper::Print("ERROR in Outer product multiplication, go fix it!\n");
+                delete splitC;
+            }
+            
+        }
+        else if(type == string("column"))
+        {
+            splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
+            for(int k=0; k<ITERS; k++)
+            {
+                splitC = multiply(splitA, splitB, CMG, false, false);
+                if (controlC == *splitC)
+                    SpParHelper::Print("Col-heap multiplication working correctly\n");
+                else
+                    SpParHelper::Print("ERROR in Col-heap multiplication, go fix it!\n");
+                
+                delete splitC;
+            }
+            
+        }
+        else // default threaded
+        {
+            splitB.Transpose();
+            for(int k=0; k<ITERS; k++)
+            {
+                splitC = multiply(splitA, splitB, CMG, false, true);
+                if (controlC == *splitC)
+                    SpParHelper::Print("Col-heap-threaded multiplication working correctly\n");
+                else
+                    SpParHelper::Print("ERROR in Col-heap-threaded multiplication, go fix it!\n");
+                delete splitC;
+            }
+        }
+    }
 
-            delete splitC;
-        }
-        
-    }
-    else // default threaded
-    {
-        splitB.Transpose();
-        for(int k=0; k<ITERS; k++)
-        {
-            splitC = multiply(splitA, splitB, CMG, false, true);
-            if (controlC == *splitC)
-                SpParHelper::Print("Col-heap-threaded multiplication working correctly\n");
-            else
-                SpParHelper::Print("ERROR in Col-heap-threaded multiplication, go fix it!\n");
-            delete splitC;
-        }
-    }
-    
 	MPI_Finalize();
 	return 0;
 }
