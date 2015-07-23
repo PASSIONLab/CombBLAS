@@ -1,7 +1,7 @@
-#PBS -q debug
+#PBS -q regular
 #PBS -l mppwidth=12288
-#PBS -l walltime=00:30:00
-#PBS -N spGEMMexp_12288
+#PBS -l walltime=03:30:00
+#PBS -N spGEMMexp_G500_24_12288
 #PBS -j oe
 cd $PBS_O_WORKDIR
 
