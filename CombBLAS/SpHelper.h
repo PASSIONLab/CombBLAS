@@ -46,6 +46,23 @@ class Dcsc;
 class SpHelper
 {
 public:
+    
+    template <typename IT1, typename NT1, typename IT2, typename NT2>
+    void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric)
+    {
+        ii--;  /* adjust from 1-based to 0-based */
+        jj--;
+        rows.push_back(ii);
+        cols.push_back(jj);
+        vals.push_back(vv);
+        if(symmetric)
+        {
+            rows.push_back(jj);
+            cols.push_back(ii);
+            vals.push_back(vv);
+        }
+    }
+
 	template <typename T>
 	static const T * p2a (const std::vector<T> & v)   // pointer to array
 	{
