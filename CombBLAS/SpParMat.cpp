@@ -31,6 +31,7 @@
 #include "ParFriends.h"
 #include "Operations.h"
 #include "FileHeader.h"
+#include "mmio.h"
 
 #include <mpi.h>
 #include <fstream>
@@ -1856,6 +1857,101 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 		}
 	} // end_for all processor columns
 }
+
+//! Handles all sorts of orderings as long as there are no duplicates
+//! Requires proper matrix market banner at the moment
+//! Might replace ReadDistribute in the long term
+template <class IT, class NT, class DER>
+template <class HANDLER>
+void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, int master, bool nonum)
+{
+    int32_t type = -1;
+    int32_t symmetric = 0;
+    int64_t M, N, nz;
+    int64_t linesread = 0;
+    
+    if(commGrid->GetRank() == master)
+    {
+        FILE *f;
+        MM_typecode matcode;
+        if ((f = fopen(filename.c_str(), "r")) == NULL)
+        {
+            printf("COMBBLAS: Matrix-market file can not be found\n");
+            MPI_Abort(MPI_COMM_WORLD, NOFILE);
+        }
+        if (mm_read_banner(f, &matcode) != 0)
+        {
+            printf("Could not process Matrix Market banner.\n");
+            exit(1);
+        }
+        linesread++;
+        
+        if (mm_is_complex(matcode))
+        {
+            printf("Sorry, this application does not support complext types");
+            printf("Market Market type: [%s]\n", mm_typecode_to_str(matcode));
+        }
+        else if(mm_is_real(matcode))
+        {
+            type = 0;
+        }
+        else if(mm_is_integer(matcode))
+        {
+            type = 1;
+        }
+        else if(mm_is_pattern(matcode))
+        {
+            type = 2;
+        }
+        if(mm_is_symmetric(matcode))
+        {
+            symmetric = 1;
+        }
+        int ret_code;
+        if ((ret_code = mm_read_mtx_crd_size(f, &M, &N, &nz, &linesread)) !=0)  // ABAB: mm_read_mtx_crd_size made 64-bit friendly
+            exit(1);
+    }
+    MPI_Bcast(&type, 1, MPI_INT, master, commGrid->commWorld);
+    MPI_Bcast(&symmetric, 1, MPI_INT, master, commGrid->commWorld);
+    
+    if(type == 0)   // real
+    {
+        for (i=0; i<nz; i++)
+        {
+            fscanf(f, "%d %d %lg\n", &I[i], &J[i], &val[i]);
+            I[i]--;  /* adjust from 1-based to 0-based */
+            J[i]--;
+        }
+    }
+    else if(type == 1) // integer
+    {
+        for (i=0; i<nz; i++)
+        {
+            fscanf(f, "%d %d %d\n", &I[i], &J[i], &val[i]);
+            I[i]--;  /* adjust from 1-based to 0-based */
+            J[i]--;
+        }
+    }
+    else if(type == 2) // pattern
+    {
+        for (i=0; i<nz; i++)
+        {
+            fscanf(f, "%d %d\n", &I[i], &J[i]);
+            I[i]--;  /* adjust from 1-based to 0-based */
+            J[i]--;
+        }
+    }
+    if(symmetric)
+    {
+        
+    }
+    else
+    {
+        SpParHelper::Print("COMBBLAS: Unrecognized matrix market scalar type\n");
+    }
+    
+}
+
 
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
