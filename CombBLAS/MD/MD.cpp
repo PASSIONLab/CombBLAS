@@ -124,9 +124,9 @@ int main(int argc, char* argv[])
         
         if(string(argv[1]) == string("input")) // input option
         {
-            string filename = string(argv[2]);
+            string filename(argv[2]);
             ifstream inf;
-            inf.open(filename, ios::in);
+            inf.open(filename.c_str(), ios::in);
             string header;
             getline(inf,header);
             bool isSymmetric = header.find("symmetric");
