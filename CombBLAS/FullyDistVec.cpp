@@ -155,7 +155,7 @@ pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
     NT globalMin;
     MPI_Allreduce( &localMin, &globalMin, 1, MPIType<NT>(), MPI_MIN, commGrid->GetWorld());
     
-    IT localMinIdx = arr.size() + 1;
+    IT localMinIdx = TotalLength();
     if(globalMin==localMin)
     {
         localMinIdx = distance(arr.begin(), it) + LengthUntil(); 
