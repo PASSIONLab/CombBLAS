@@ -69,7 +69,7 @@ void Symmetricize(PARMAT & A)
 
 
 // This one is used for maximal matching
-struct SelectMinSRing1
+struct SelectMinSR
 {
     typedef int64_t T_promote;
     static T_promote id(){ return -1; };
@@ -110,10 +110,10 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./BPMaximalMatching <rmat|er|input> <scale|filename> <w|uw> " << endl;
-            cout << "Example: mpirun -np 4 ./BPMaximalMatching rmat 20" << endl;
-            cout << "Example: mpirun -np 4 ./BPMaximalMatching er 20" << endl;
-            cout << "Example: mpirun -np 4 ./BPMaximalMatching input a.mtx uw sym" << endl;
+            cout << "Usage: ./md <rmat|er|input> <scale|filename>" << endl;
+            cout << "Example: mpirun -np 4 ./md rmat 20" << endl;
+            cout << "Example: mpirun -np 4 ./md er 20" << endl;
+            cout << "Example: mpirun -np 4 ./md input a.mtx" << endl;
             
         }
         MPI_Finalize();
@@ -124,15 +124,20 @@ int main(int argc, char* argv[])
         
         if(string(argv[1]) == string("input")) // input option
         {
+            string filename(argv[2]);
+            ifstream inf;
+            inf.open(filename, ios::in);
+            string header;
+            getline(inf,header);
+            bool isSymmetric = header.find("symmetric");
+            bool isUnweighted = header.find("pattern");
+            inf.close();
+            
             ABool = new PSpMat_Bool();
-            if(argc>=4 && string(argv[3]) == string("uw"))
-                ABool->ReadDistribute(string(argv[2]), 0, true);	// unweighted
-            else
-                ABool->ReadDistribute(string(argv[2]), 0, false);	// weighted
-            if(argc>=5 && string(argv[4]) == string("sym"))
+            ABool->ReadDistribute(filename, 0, isUnweighted);	// unweighted
+            if(isSymmetric)
                 Symmetricize(*ABool);
             SpParHelper::Print("Read input\n");
-            
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -171,12 +176,7 @@ int main(int argc, char* argv[])
         PSpMat_Int64  A = *ABool;
         
         MD(A);
-        
-        
         double tstart = MPI_Wtime();
-        
-        
-        
         
     }
     MPI_Finalize();
@@ -196,10 +196,9 @@ FullyDistSpVec<int64_t, int64_t> getReach(int64_t source, PSpMat_Int64 & A, Full
     visited.SetElement(source, 1);
     while(x.getnnz() > 0)
     {
-        SpMV<SelectMinSRing1>(A, x, nx, false);
+        SpMV<SelectMinSR>(A, x, nx, false);
         nx.Select(visited, [](int64_t visit){return visit==0;});
         visited.Set(nx);
-        // newly visited snodes
         nx.Select(enodes, [](int64_t ev){return ev!=0;}); // newly visited enodes
         x = nx;
     }
@@ -214,15 +213,13 @@ FullyDistSpVec<int64_t, int64_t> getReach(int64_t source, PSpMat_Int64 & A, Full
 // assume that source is an enode
 FullyDistSpVec<int64_t, int64_t> getReachesSPMM(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
 {
-    FullyDistSpVec<int64_t, int64_t> degrees(sources); // same memory used by two vector?? no problem here
+    FullyDistSpVec<int64_t, int64_t> degrees(sources);
     for(int64_t i=0; i<sources.TotalLength(); i++)
     {
         int64_t s = sources[i];
         if(sources.WasFound())
         {
             FullyDistSpVec<int64_t, int64_t> reach = getReach(i, A, enodes);
-            //cout << "source: " << i << endl;
-            //reach.DebugPrint();
             degrees.SetElement(i, reach.getnnz());
         }
     }
@@ -241,8 +238,6 @@ FullyDistSpVec<int64_t, int64_t> getReachesSPMV(FullyDistSpVec<int64_t, int64_t>
         if(sources.WasFound())
         {
             FullyDistSpVec<int64_t, int64_t> reach = getReach(i, A, enodes);
-            //cout << "source: " << i << endl;
-            //reach.DebugPrint();
             degrees.SetElement(i, reach.getnnz());
         }
     }
@@ -253,12 +248,18 @@ FullyDistSpVec<int64_t, int64_t> getReachesSPMV(FullyDistSpVec<int64_t, int64_t>
 
 void MD(PSpMat_Int64 & A)
 {
-    A.PrintInfo();
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
     FullyDistVec<int64_t, int64_t> enodes (A.getcommgrid(), A.getnrow(), (int64_t) 0);
     FullyDistVec<int64_t, int64_t> mdOrder (A.getcommgrid(), A.getnrow(), (int64_t) 0);
     A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
     degrees.Apply([](int64_t x){return x-1;}); // magic
+    
+    FullyDistVec<int64_t, double> treach (A.getcommgrid(), A.getnrow(), (double) 0);
+    FullyDistVec<int64_t, double> treaches (A.getcommgrid(), A.getnrow(), (double) 0);
+    FullyDistVec<int64_t, int64_t> nreach (A.getcommgrid(), A.getnrow(), (int64_t) 0);
+    
+    
+    double time_beg = MPI_Wtime();
     
     for(int64_t i=0; i<A.getnrow(); i++)
     {
@@ -267,13 +268,40 @@ void MD(PSpMat_Int64 & A)
         enodes.SetElement(s, i+1);
         mdOrder.SetElement(i, s+1);
         
+        double time1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> reach = getReach(s, A, enodes);
+        double time2 = MPI_Wtime();
+        treach.SetElement(i, time2 - time1);
+        nreach.SetElement(i, reach.getnnz());
         FullyDistSpVec<int64_t, int64_t> updatedDeg = getReachesSPMV(reach, A, enodes);
+        treaches.SetElement(i, MPI_Wtime() - time2);
 
         degrees.Set(updatedDeg);
         degrees.SetElement(s, A.getnrow()); // set degree to infinite
     }
+    
+    
+    double time_end = MPI_Wtime();
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    if(myrank==0)
+        cout << " Total time: " << time_end - time_beg << endl;
+    
     //mdOrder.DebugPrint();
+    nreach.DebugPrint();
+    
+    
+    ofstream outf_nreach;
+    outf_nreach.open("nreach.txt", ios::out);
+    nreach.SaveGathered(outf_nreach, 0);
+    
+    ofstream outf_treach;
+    outf_treach.open("treach.txt", ios::out);
+    treach.SaveGathered(outf_treach, 0);
+    
+    ofstream outf_treaches;
+    outf_treaches.open("treaches.txt", ios::out);
+    treaches.SaveGathered(outf_treaches, 0);
 }
 
 
