@@ -31,7 +31,11 @@
 #include "ParFriends.h"
 #include "Operations.h"
 #include "FileHeader.h"
+extern "C" {
 #include "mmio.h"
+}
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <mpi.h>
 #include <fstream>
@@ -1865,7 +1869,6 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! Requires proper matrix market banner at the moment
 //! Might replace ReadDistribute in the long term
 template <class IT, class NT, class DER>
-template <class HANDLER>
 void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
 {
     int32_t type = -1;
@@ -1874,8 +1877,10 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     int64_t linesread = 0;
     
     FILE *f;
-    if(commGrid->GetRank() == 0)
-    
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    if(myrank == 0)
+    {
         MM_typecode matcode;
         if ((f = fopen(filename.c_str(), "r")) == NULL)
         {
@@ -1913,6 +1918,9 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
         int ret_code;
         if ((ret_code = mm_read_mtx_crd_size(f, &nrows, &ncols, &nonzeros, &linesread)) !=0)  // ABAB: mm_read_mtx_crd_size made 64-bit friendly
             exit(1);
+    
+        cout << "Total number of nonzeros expected across all processors is " << nonzeros << endl;
+
     }
     MPI_Bcast(&type, 1, MPI_INT, 0, commGrid->commWorld);
     MPI_Bcast(&symmetric, 1, MPI_INT, 0, commGrid->commWorld);
@@ -1926,77 +1934,77 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     {
         MPI_Abort(MPI_COMM_WORLD, NOFILE);
     }
-    file_size = st.st_size;
+    int64_t file_size = st.st_size;
     MPI_Offset fpos, end_fpos;
-    if(commGrid->GetRank() == 0)
+    if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
     {
         fpos = ftell(f);
     }
     else
     {
-        // the offset needs to be for this rank
-        fpos = myrank * file_size / num_ranks;
-        if(myrank != (num_ranks-1)) end_fpos = (myrank + 1) * file_size / num_ranks;
-            else end_fpos = file_size;
+        fpos = myrank * file_size / nprocs;
     }
+    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    else end_fpos = file_size;
+    fclose(f);
 
-    size_t bytes2fetch = (end_fpos-fpos);
-    char * buf = (char*) malloc(bytes2fetch+1); // first byte is to check whether we started at the beginning of a line
-    MPI_Status status;
-    int bytes_read;
-    MPI_File_read_at(infile, fpos-1, buf, bytes2fetch+1, MPI_CHAR, &status) ;   // ABAB: check the returned "status"
-    MPI_Get_count(&status, MPI_CHAR, &bytes_read);  // MPI_Get_Count can only return 32-bit integers, so do this in a loop.
-    check_newline(&bytes_read, bytes2fetch, buf);
-    if(buf[0] == '\n')
-    {
-        // we (luckily) begin with a newline
-    }
-    else
-    {
-        // skip to the next line and let the preceeding processor take care of this partial line
-    }
+    MPI_File mpi_fh;
+    MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
-    // MPI_Reduce to make sure correct number of entries are read
-    
     // ABAB: It is the user's job that NT is compatible with "type" and IT is compatible with int64_t
     vector<IT> rows;
     vector<IT> cols;
     vector<NT> vals;
 
-    if(type == 0)   // real
+    vector<string> lines;
+    SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines);
+    int64_t entriesread = 0;
+
+    while(!lines.empty())
     {
-        int64_t ii, jj;
-        double vv;
-        for (i=0; i<nz; i++)
+        entriesread += lines.size();
+        if(type == 0)   // real
         {
-            fscanf(f, "%lld %lld %lg\n", &ii, &jj, &vv);
-            SpHelper::fill_to_vector(rows, cols, vals, ii, jj, vv, symmetric);
+            int64_t ii, jj;
+            double vv;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
+                sscanf(itr->c_str(), "%lld %lld %lg\n", &ii, &jj, &vv);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+            }
         }
-    }
-    else if(type == 1) // integer
-    {
-        int64_t ii, jj, vv;
-        for (i=0; i<nz; i++)
+        else if(type == 1) // integer
         {
-            fscanf(f, "%lld %lld %lld\n", &ii, &jj, &vv);
-            SpHelper::fill_to_vector(rows, cols, vals, ii, jj, vv, symmetric);
+            int64_t ii, jj, vv;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                fscanf(f, "%lld %lld %lld\n", &ii, &jj, &vv);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+            }
         }
-    }
-    else if(type == 2) // pattern
-    {
-        int64_t ii, jj;
-        for (i=0; i<nz; i++)
+        else if(type == 2) // pattern
         {
-            fscanf(f, "%lld %lld\n", &ii, &jj);
-            SpHelper::fill_to_vector(rows, cols, vals, ii, jj, 1, symmetric);
+            int64_t ii, jj;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                fscanf(f, "%lld %lld\n", &ii, &jj);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric);
+            }
         }
+        else
+        {
+            SpParHelper::Print("COMBBLAS: Unrecognized matrix market scalar type\n");
+        }
+        vector<string>().swap(lines);
+        SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines);
     }
-    else
+    int64_t allentriesread;
+    MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+    if(myrank == 0)
     {
-        SpParHelper::Print("COMBBLAS: Unrecognized matrix market scalar type\n");
+        cout << "Total number of entries read across all processors is " << allentriesread << endl;
     }
-    
-    
 }
 
 

@@ -559,7 +559,7 @@ void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MP
 inline void SpParHelper::PrintFile(const string & s, const string & filename)
 {
 	int myrank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank); // ABAB: potential bug, should accept "CommGrid"
 	if(myrank == 0)
 	{
 		ofstream out(filename.c_str(), std::ofstream::app);
@@ -572,12 +572,77 @@ inline void SpParHelper::PrintFile(const string & s, const string & filename)
 inline void SpParHelper::Print(const string & s)
 {
 	int myrank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank); // ABAB: potential bug, should accept "CommGrid"
 	if(myrank == 0)
 	{
 		cout << s;
 	}
 }
+
+
+inline void SpParHelper::check_newline(int *bytes_read, int bytes_requested, char *buf)
+{
+    if ((*bytes_read) < bytes_requested) {
+        // fewer bytes than expected, this means EOF
+        if (buf[(*bytes_read) - 1] != '\n') {
+            // doesn't terminate with a newline, add one to prevent infinite loop later
+            buf[(*bytes_read) - 1] = '\n';
+            cout << "Error in Matrix Market format, appending missing newline at end of file" << endl;
+            (*bytes_read)++;
+        }
+    }
+}
+
+
+inline void SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines)
+{
+    size_t bytes2fetch = ONEMILLION;    // we might read more than needed but no problem as we won't process them
+    if(firstcall)
+    {
+        bytes2fetch += 1;   // first byte is to check whether we started at the beginning of a line
+        curpos -= 1;
+    }
+    char * buf = new char[bytes2fetch];
+    MPI_Status status;
+    int bytes_read;
+    // size_t fread ( void * ptr, size_t size, size_t count, FILE * stream );
+    // The position indicator of the stream is advanced by the total amount of bytes read.
+    // The total amount of bytes read if successful is (size*count).
+    
+    MPI_File_read_at(infile, curpos, buf, bytes2fetch, MPI_CHAR, &status) ;
+    MPI_Get_count(&status, MPI_CHAR, &bytes_read);  // MPI_Get_Count can only return 32-bit integers
+    SpParHelper::check_newline(&bytes_read, bytes2fetch, buf);
+    if(firstcall)
+    {
+        if(buf[0] == '\n')  // we got super lucky and hit the line break
+        {
+            buf += 1;
+        }
+        else    // skip to the next line and let the preceeding processor take care of this partial line
+        {
+            char *c = (char*)memchr(buf, '\n', MAXLINELENGTH); //  return a pointer to the matching byte or NULL if the character does not occur
+            if (c == NULL) {
+                cout << "Unexpected line without a break" << endl;
+            }
+            buf = c+1;
+        }
+    }
+    while(bytes_read > 0 && curpos < end_fpos)  // this will also finish the last line
+    {
+        char *c = (char*)memchr(buf, '\n', bytes_read); //  return a pointer to the matching byte or NULL if the character does not occur
+        if (c == NULL) {
+            break;  // if bytes_read stops in the middle of a line, that line will be re-read next time since curpos has not been moved forward yet
+        }
+        int n = c - buf + 1;
+        // string constructor from char * buffer: copies the first n characters from the array of characters pointed by s
+        lines.push_back(string(buf, n-1));  // no need to copy the newline character
+        bytes_read -= n;   // reduce remaining bytes
+        buf += n;   // move forward the buffer
+        curpos += n;
+    }
+    delete [] buf;
+}
+
 
 inline void SpParHelper::WaitNFree(vector<MPI_Win> & arrwin)
 {
