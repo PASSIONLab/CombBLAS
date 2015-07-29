@@ -238,9 +238,9 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 	
 		for(IT i=1; i< nnz; ++i)
         	{
-			if((get<0>(summed.back()) == get<0>(tuples[i])) && (get<1>(summed.back()) == get<1>(tuples[i])))
+                if((joker::get<0>(summed.back()) == joker::get<0>(tuples[i])) && (joker::get<1>(summed.back()) == joker::get<1>(tuples[i])))
 			{
-				get<2>(summed.back()) = BinOp(get<2>(summed.back()), get<2>(tuples[i]));
+				joker::get<2>(summed.back()) = BinOp(joker::get<2>(summed.back()), joker::get<2>(tuples[i]));
 			}
 			else
 			{
