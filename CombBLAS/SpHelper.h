@@ -55,7 +55,7 @@ public:
         rows.push_back(ii);
         cols.push_back(jj);
         vals.push_back(vv);
-        if(symmetric)
+        if(symmetric && ii != jj)
         {
             rows.push_back(jj);
             cols.push_back(ii);
