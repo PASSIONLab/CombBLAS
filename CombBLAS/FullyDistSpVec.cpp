@@ -165,7 +165,7 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> &
     MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
     
     
-    // ----- compute send and receive displaceents --------
+    // ----- compute send and receive displacements --------
     
     sdispls[0] = 0;
     rdispls[0] = 0;
