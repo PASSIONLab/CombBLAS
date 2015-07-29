@@ -78,6 +78,8 @@ public:
     template <typename _UnaryOperation>
     FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop);
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
+    FullyDistSpVec (IT globalsize, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates = false);
+
     FullyDistSpVec<IT,NT> Invert (IT globallen);
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
     FullyDistSpVec<IT,NT> Compose (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
@@ -251,11 +253,13 @@ public:
 	void Reset();
 	NT GetLocalElement(IT indx);
 	void BulkSet(IT inds[], int count);
+    vector<IT> GetLocalInd (){vector<IT> rind = ind; return rind;};
+    vector<NT> GetLocalNum (){vector<NT> rnum = num; return rnum;};
 
 protected:
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
-
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid;
+    
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
