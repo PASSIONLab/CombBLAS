@@ -1869,7 +1869,8 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! Requires proper matrix market banner at the moment
 //! Might replace ReadDistribute in the long term
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
+void SpParMat< IT,NT,DER >::ls -alrth
+dMM (const string & filename)
 {
     int32_t type = -1;
     int32_t symmetric = 0;
