@@ -113,6 +113,131 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT
 	return *this;
 }
 
+
+/************************************************************************
+ * Create a sparse vector from index and value vectors (dense vectors)
+ * FullyDistSpVec v(globalsize, inds, vals):
+ *      nnz(v) = size(inds) = size(vals)
+ *      size(v) = globallen
+ *      if inds has duplicate entries and SumDuplicates is true then we sum 
+ *      the values of duplicate indices. Otherwise, only the first entry is kept.
+ ************************************************************************/
+template <class IT, class NT>
+FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates)
+{
+    if(*(inds.commGrid) != *(vals.commGrid))
+    {
+        SpParHelper::Print("Grids are not comparable, FullyDistSpVec() fails !");
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    if(inds.TotalLength() != vals.TotalLength())
+    {
+        SpParHelper::Print("Index and value vectors have different sizes, FullyDistSpVec() fails !");
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+    commGrid = inds.commGrid;
+    glen = globallen;
+    
+    IT maxind = inds.Reduce(maximum<IT>(), (IT) 0);
+    if(maxind>=globallen)
+    {
+        SpParHelper::Print("At least one index is greater than globallen, FullyDistSpVec() fails !");
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+    
+
+    
+    MPI_Comm World = commGrid->GetWorld();
+    int nprocs = commGrid->GetSize();
+    int * rdispls = new int[nprocs];
+    int * recvcnt = new int[nprocs];
+    int * sendcnt = new int[nprocs](); // initialize to 0
+    int * sdispls = new int[nprocs];
+    
+    // ----- share count --------
+    IT locsize = inds.LocArrSize();
+    for(IT i=0; i<locsize; ++i)
+    {
+        IT locind;
+        int owner = Owner(inds.arr[i], locind);
+        sendcnt[owner]++;
+    }
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+    
+    
+    // ----- compute send and receive displaceents --------
+    
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+
+    
+    // ----- prepare data to be sent --------
+    
+    NT * datbuf = new NT[locsize];
+    IT * indbuf = new IT[locsize];
+    int *count = new int[nprocs](); //current position
+    for(IT i=0; i < locsize; ++i)
+    {
+        IT locind;
+        int owner = Owner(inds.arr[i], locind);
+        int id = sdispls[owner] + count[owner];
+        datbuf[id] = vals.arr[i];
+        indbuf[id] = locind;
+        count[owner]++;
+    }
+    delete [] count;
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    
+    
+    // ----- Send and receive indices and values --------
+    
+    NT * recvdatbuf = new NT[totrecv];
+    MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    
+    // ------ merge and sort received data ----------
+    
+    vector< pair<IT,NT> > tosort;
+    tosort.resize(totrecv);
+    for(int i=0; i<totrecv; ++i)
+    {
+        tosort[i] = make_pair(recvindbuf[i], recvdatbuf[i]);
+    }
+    DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    std::sort(tosort.begin(), tosort.end());
+    
+    
+    // ------ create local sparse vector ----------
+    
+    ind.reserve(totrecv);
+    num.reserve(totrecv);
+    IT lastIndex=-1;
+    for(auto itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        if(lastIndex!=itr->first) //if SumDuplicates=false, keep only the first one
+        {
+            ind.push_back(itr->first);
+            num.push_back(itr->second);
+            lastIndex = itr->first;
+        }
+        else if(SumDuplicates)
+        {
+            num.back() += itr->second;
+        }
+    }
+}
+
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {
