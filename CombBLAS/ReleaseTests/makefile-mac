@@ -39,7 +39,7 @@ VectorIndexing.o: VectorIndexing.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp .
 VectorIOPermute.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIOPermute.o VectorIOPermute.cpp
 
-ParIOTest.o: ParIOTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+ParIOTest.o: ParIOTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h  ../SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ParIOTest.o ParIOTest.cpp
 
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o mmio.o

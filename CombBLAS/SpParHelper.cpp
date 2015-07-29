@@ -594,29 +594,34 @@ inline void SpParHelper::check_newline(int *bytes_read, int bytes_requested, cha
 }
 
 
-inline void SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines)
+inline bool SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines, int myrank)
 {
     size_t bytes2fetch = ONEMILLION;    // we might read more than needed but no problem as we won't process them
-    if(firstcall)
-    {
-        bytes2fetch += 1;   // first byte is to check whether we started at the beginning of a line
-        curpos -= 1;
-    }
     char * buf = new char[bytes2fetch];
+    char * originalbuf = buf;   // so that we can delete it later because "buf" will move
     MPI_Status status;
     int bytes_read;
-    // size_t fread ( void * ptr, size_t size, size_t count, FILE * stream );
-    // The position indicator of the stream is advanced by the total amount of bytes read.
-    // The total amount of bytes read if successful is (size*count).
+    if(firstcall)
+    {
+        curpos -= 1;    // first byte is to check whether we started at the beginning of a line
+        bytes2fetch += 1;
+    }
     
-    MPI_File_read_at(infile, curpos, buf, bytes2fetch, MPI_CHAR, &status) ;
+    MPI_File_read_at(infile, curpos, buf, bytes2fetch, MPI_CHAR, &status);
     MPI_Get_count(&status, MPI_CHAR, &bytes_read);  // MPI_Get_Count can only return 32-bit integers
+    if(!bytes_read)
+    {
+        delete [] originalbuf;
+        return true;    // done
+    }
     SpParHelper::check_newline(&bytes_read, bytes2fetch, buf);
     if(firstcall)
     {
         if(buf[0] == '\n')  // we got super lucky and hit the line break
         {
             buf += 1;
+            bytes_read -= 1;
+            curpos += 1;
         }
         else    // skip to the next line and let the preceeding processor take care of this partial line
         {
@@ -624,23 +629,30 @@ inline void SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_
             if (c == NULL) {
                 cout << "Unexpected line without a break" << endl;
             }
-            buf = c+1;
+            int n = c - buf + 1;
+            bytes_read -= n;
+            buf += n;
+            curpos += n;
         }
     }
     while(bytes_read > 0 && curpos < end_fpos)  // this will also finish the last line
     {
         char *c = (char*)memchr(buf, '\n', bytes_read); //  return a pointer to the matching byte or NULL if the character does not occur
         if (c == NULL) {
-            break;  // if bytes_read stops in the middle of a line, that line will be re-read next time since curpos has not been moved forward yet
+            delete [] originalbuf;
+            return false;  // if bytes_read stops in the middle of a line, that line will be re-read next time since curpos has not been moved forward yet
         }
         int n = c - buf + 1;
+        
         // string constructor from char * buffer: copies the first n characters from the array of characters pointed by s
         lines.push_back(string(buf, n-1));  // no need to copy the newline character
         bytes_read -= n;   // reduce remaining bytes
         buf += n;   // move forward the buffer
         curpos += n;
     }
-    delete [] buf;
+    delete [] originalbuf;
+    if (curpos >= end_fpos) return true;  // don't call it again, nothing left to read
+    else    return false;
 }
 
 
