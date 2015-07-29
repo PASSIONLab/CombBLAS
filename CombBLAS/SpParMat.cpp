@@ -31,6 +31,11 @@
 #include "ParFriends.h"
 #include "Operations.h"
 #include "FileHeader.h"
+extern "C" {
+#include "mmio.h"
+}
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <mpi.h>
 #include <fstream>
@@ -1856,6 +1861,138 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 		}
 	} // end_for all processor columns
 }
+
+
+
+
+//! Handles all sorts of orderings as long as there are no duplicates
+//! Requires proper matrix market banner at the moment
+//! Might replace ReadDistribute in the long term
+template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
+{
+    int32_t type = -1;
+    int32_t symmetric = 0;
+    int64_t nrows, ncols, nonzeros;
+    int64_t linesread = 0;
+    
+    FILE *f;
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    if(myrank == 0)
+    {
+        MM_typecode matcode;
+        if ((f = fopen(filename.c_str(), "r")) == NULL)
+        {
+            printf("COMBBLAS: Matrix-market file can not be found\n");
+            MPI_Abort(MPI_COMM_WORLD, NOFILE);
+        }
+        if (mm_read_banner(f, &matcode) != 0)
+        {
+            printf("Could not process Matrix Market banner.\n");
+            exit(1);
+        }
+        linesread++;
+        
+        if (mm_is_complex(matcode))
+        {
+            printf("Sorry, this application does not support complext types");
+            printf("Market Market type: [%s]\n", mm_typecode_to_str(matcode));
+        }
+        else if(mm_is_real(matcode))
+        {
+            cout << "Matrix is Float" << endl;
+            type = 0;
+        }
+        else if(mm_is_integer(matcode))
+        {
+            cout << "Matrix is Integer" << endl;
+            type = 1;
+        }
+        else if(mm_is_pattern(matcode))
+        {
+            cout << "Matrix is Boolean" << endl;
+            type = 2;
+        }
+        if(mm_is_symmetric(matcode))
+        {
+            cout << "Matrix is symmetric" << endl;
+            symmetric = 1;
+        }
+        int ret_code;
+        if ((ret_code = mm_read_mtx_crd_size(f, &nrows, &ncols, &nonzeros, &linesread)) !=0)  // ABAB: mm_read_mtx_crd_size made 64-bit friendly
+            exit(1);
+    
+        cout << "Total number of nonzeros expected across all processors is " << nonzeros << endl;
+
+    }
+    MPI_Bcast(&type, 1, MPI_INT, 0, commGrid->commWorld);
+    MPI_Bcast(&symmetric, 1, MPI_INT, 0, commGrid->commWorld);
+    MPI_Bcast(&nrows, 1, MPIType<int64_t>(), 0, commGrid->commWorld);
+    MPI_Bcast(&ncols, 1, MPIType<int64_t>(), 0, commGrid->commWorld);
+    MPI_Bcast(&nonzeros, 1, MPIType<int64_t>(), 0, commGrid->commWorld);
+
+    // Use fseek again to go backwards two bytes and check that byte with fgetc
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(MPI_COMM_WORLD, NOFILE);
+    }
+    int64_t file_size = st.st_size;
+    MPI_Offset fpos, end_fpos;
+    if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
+    {
+        cout << "File is " << file_size << " bytes" << endl;
+        fpos = ftell(f);
+        fclose(f);
+    }
+    else
+    {
+        fpos = myrank * file_size / nprocs;
+
+    }
+    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    else end_fpos = file_size;
+
+    MPI_File mpi_fh;
+    MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
+
+    // ABAB: It is the user's job that NT is compatible with "type" and IT is compatible with int64_t
+    vector<IT> rows;
+    vector<IT> cols;
+    vector<NT> vals;
+
+    vector<string> lines;
+    bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    int64_t entriesread = lines.size();
+    SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
+    MPI_Barrier(commGrid->commWorld);
+
+    while(!finished)
+    {
+        finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
+        entriesread += lines.size();
+        SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
+    }
+    int64_t allentriesread;
+    MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+    if(myrank == 0)
+    {
+        cout << "Total number of entries read across all processors is " << allentriesread << endl;
+    }
+    
+    vector< vector < tuple<IT,IT,NT> > > data(nprocs);
+    
+    IT locsize = rows.size();
+    for(IT i=0; i<locsize; ++i)
+    {
+        IT lrow, lcol;
+        int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
+        data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
+    }
+    SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
+}
+
 
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)

@@ -46,6 +46,63 @@ class Dcsc;
 class SpHelper
 {
 public:
+    
+    template <typename IT1, typename NT1, typename IT2, typename NT2>
+    static void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric)
+    {
+        ii--;  /* adjust from 1-based to 0-based */
+        jj--;
+        rows.push_back(ii);
+        cols.push_back(jj);
+        vals.push_back(vv);
+        if(symmetric)
+        {
+            rows.push_back(jj);
+            cols.push_back(ii);
+            vals.push_back(vv);
+        }
+    }
+    
+    template <typename IT1, typename NT1>
+    static void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, int symmetric, int type)
+    {
+        if(type == 0)   // real
+        {
+            int64_t ii, jj;
+            double vv;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
+                sscanf(itr->c_str(), "%lld %lld %lg", &ii, &jj, &vv);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+            }
+        }
+        else if(type == 1) // integer
+        {
+            int64_t ii, jj, vv;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                sscanf(itr->c_str(), "%lld %lld %lld", &ii, &jj, &vv);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+            }
+        }
+        else if(type == 2) // pattern
+        {
+            int64_t ii, jj;
+            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+            {
+                sscanf(itr->c_str(), "%lld %lld", &ii, &jj);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric);
+            }
+        }
+        else
+        {
+            cout << "COMBBLAS: Unrecognized matrix market scalar type" << endl;
+        }
+        vector<string>().swap(lines);
+    }
+
+
 	template <typename T>
 	static const T * p2a (const std::vector<T> & v)   // pointer to array
 	{
