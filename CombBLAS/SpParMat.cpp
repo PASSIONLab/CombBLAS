@@ -1901,18 +1901,22 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
         }
         else if(mm_is_real(matcode))
         {
+            cout << "Matrix is Float" << endl;
             type = 0;
         }
         else if(mm_is_integer(matcode))
         {
+            cout << "Matrix is Integer" << endl;
             type = 1;
         }
         else if(mm_is_pattern(matcode))
         {
+            cout << "Matrix is Boolean" << endl;
             type = 2;
         }
         if(mm_is_symmetric(matcode))
         {
+            cout << "Matrix is symmetric" << endl;
             symmetric = 1;
         }
         int ret_code;
@@ -1938,15 +1942,17 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     MPI_Offset fpos, end_fpos;
     if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
     {
+        cout << "File is " << file_size << " bytes" << endl;
         fpos = ftell(f);
+        fclose(f);
     }
     else
     {
         fpos = myrank * file_size / nprocs;
+
     }
     if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
     else end_fpos = file_size;
-    fclose(f);
 
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
@@ -1957,47 +1963,16 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     vector<NT> vals;
 
     vector<string> lines;
-    SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines);
-    int64_t entriesread = 0;
+    bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    int64_t entriesread = lines.size();
+    SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
+    MPI_Barrier(commGrid->commWorld);
 
-    while(!lines.empty())
+    while(!finished)
     {
+        finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
         entriesread += lines.size();
-        if(type == 0)   // real
-        {
-            int64_t ii, jj;
-            double vv;
-            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
-            {
-                // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
-                sscanf(itr->c_str(), "%lld %lld %lg\n", &ii, &jj, &vv);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
-            }
-        }
-        else if(type == 1) // integer
-        {
-            int64_t ii, jj, vv;
-            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
-            {
-                fscanf(f, "%lld %lld %lld\n", &ii, &jj, &vv);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
-            }
-        }
-        else if(type == 2) // pattern
-        {
-            int64_t ii, jj;
-            for (auto itr=lines.begin(); itr != lines.end(); ++itr)
-            {
-                fscanf(f, "%lld %lld\n", &ii, &jj);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric);
-            }
-        }
-        else
-        {
-            SpParHelper::Print("COMBBLAS: Unrecognized matrix market scalar type\n");
-        }
-        vector<string>().swap(lines);
-        SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines);
+        SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
     }
     int64_t allentriesread;
     MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
@@ -2005,6 +1980,17 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     {
         cout << "Total number of entries read across all processors is " << allentriesread << endl;
     }
+    
+    vector< vector < tuple<IT,IT,NT> > > data(nprocs);
+    
+    IT locsize = rows.size();
+    for(IT i=0; i<locsize; ++i)
+    {
+        IT lrow, lcol;
+        int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
+        data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
+    }
+    SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
 }
 
 
