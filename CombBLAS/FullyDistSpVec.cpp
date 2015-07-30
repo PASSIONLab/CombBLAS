@@ -238,6 +238,136 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> &
     }
 }
 
+
+//! Returns a dense vector of nonzero values
+//! for which the predicate is satisfied on values
+template <class IT, class NT>
+template <typename _Predicate>
+FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::FindVals(_Predicate pred) const
+{
+    FullyDistVec<IT,NT> found(commGrid);
+    MPI_Comm World = commGrid->GetWorld();
+    int nprocs = commGrid->GetSize();
+    int rank = commGrid->GetRank();
+    
+    IT sizelocal = getlocnnz();
+    for(IT i=0; i<sizelocal; ++i)
+    {
+        if(pred(num[i]))
+        {
+            found.arr.push_back(num[i]);
+        }
+    }
+    IT * dist = new IT[nprocs];
+    IT nsize = found.arr.size();
+    dist[rank] = nsize;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+    IT lengthuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
+    found.glen = accumulate(dist, dist+nprocs, static_cast<IT>(0));
+    
+    // Although the found vector is not reshuffled yet, its glen and commGrid are set
+    // We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
+    
+    // rebalance/redistribute
+    int * sendcnt = new int[nprocs];
+    fill(sendcnt, sendcnt+nprocs, 0);
+    for(IT i=0; i<nsize; ++i)
+    {
+        IT locind;
+        int owner = found.Owner(i+lengthuntil, locind);
+        ++sendcnt[owner];
+    }
+    int * recvcnt = new int[nprocs];
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
+    
+    int * sdispls = new int[nprocs];
+    int * rdispls = new int[nprocs];
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    vector<NT> recvbuf(totrecv);
+    
+    // data is already in the right order in found.arr
+    MPI_Alltoallv(found.arr.data(), sendcnt, sdispls, MPIType<NT>(), recvbuf.data(), recvcnt, rdispls, MPIType<NT>(), World);
+    found.arr.swap(recvbuf);
+    delete [] dist;
+    DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+    
+    return found;
+}
+
+
+
+//! Returns a dense vector of nonzero global indices
+//! for which the predicate is satisfied on values
+template <class IT, class NT>
+template <typename _Predicate>
+FullyDistVec<IT,IT> FullyDistSpVec<IT,NT>::FindInds(_Predicate pred) const
+{
+    FullyDistVec<IT,IT> found(commGrid);
+    MPI_Comm World = commGrid->GetWorld();
+    int nprocs = commGrid->GetSize();
+    int rank = commGrid->GetRank();
+    
+    IT sizelocal = getlocnnz();
+    IT sizesofar = LengthUntil();
+    for(IT i=0; i<sizelocal; ++i)
+    {
+        if(pred(num[i]))
+        {
+            found.arr.push_back(ind[i]+sizesofar);
+        }
+    }
+    IT * dist = new IT[nprocs];
+    IT nsize = found.arr.size();
+    dist[rank] = nsize;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+    IT lengthuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
+    found.glen = accumulate(dist, dist+nprocs, static_cast<IT>(0));
+    
+    // Although the found vector is not reshuffled yet, its glen and commGrid are set
+    // We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
+    
+    // rebalance/redistribute
+    int * sendcnt = new int[nprocs];
+    fill(sendcnt, sendcnt+nprocs, 0);
+    for(IT i=0; i<nsize; ++i)
+    {
+        IT locind;
+        int owner = found.Owner(i+lengthuntil, locind);
+        ++sendcnt[owner];
+    }
+    int * recvcnt = new int[nprocs];
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
+    
+    int * sdispls = new int[nprocs];
+    int * rdispls = new int[nprocs];
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    vector<IT> recvbuf(totrecv);
+    
+    // data is already in the right order in found.arr
+    MPI_Alltoallv(found.arr.data(), sendcnt, sdispls, MPIType<IT>(), recvbuf.data(), recvcnt, rdispls, MPIType<IT>(), World);
+    found.arr.swap(recvbuf);
+    delete [] dist;
+    DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+    
+    return found;
+}
+
+
+
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {

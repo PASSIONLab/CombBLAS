@@ -255,6 +255,12 @@ public:
 	void BulkSet(IT inds[], int count);
     vector<IT> GetLocalInd (){vector<IT> rind = ind; return rind;};
     vector<NT> GetLocalNum (){vector<NT> rnum = num; return rnum;};
+    
+    template <typename _Predicate>
+    FullyDistVec<IT,IT> FindInds(_Predicate pred) const;
+    template <typename _Predicate>
+    FullyDistVec<IT,NT> FindVals(_Predicate pred) const;
+
 
 protected:
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
