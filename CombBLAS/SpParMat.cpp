@@ -1161,12 +1161,12 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	typedef typename DER::LocalIT LIT;
 
 	int nprocs = commGrid->GetSize();
-	int r = commGrid->GetGridRows();
-	int s = commGrid->GetGridCols();
+	int gridrows = commGrid->GetGridRows();
+	int gridcols = commGrid->GetGridCols();
 	vector< vector<LIT> > data(nprocs);	// enties are pre-converted to local indices before getting pushed into "data"
 
-	LIT m_perproc = DEL.getGlobalV() / r;
-	LIT n_perproc = DEL.getGlobalV() / s;
+	LIT m_perproc = DEL.getGlobalV() / gridrows;
+	LIT n_perproc = DEL.getGlobalV() / gridcols;
 
 	if(sizeof(LIT) < sizeof(DELIT))
 	{
@@ -1176,16 +1176,13 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 		SpParHelper::Print(outs.str());
 	}	
 	
-	// to lower memory consumption, form sparse matrix in stages
-	LIT stages = MEM_EFFICIENT_STAGES;	
+    LIT stages = MEM_EFFICIENT_STAGES;		// to lower memory consumption, form sparse matrix in stages
 	
 	// even if local indices (LIT) are 32-bits, we should work with 64-bits for global info
 	int64_t perstage = DEL.nedges / stages;
 	LIT totrecv = 0;
 	vector<LIT> alledges;
-
-	int maxr = r-1;
-	int maxs = s-1;	
+    
 	for(LIT s=0; s< stages; ++s)
 	{
 		int64_t n_befor = s*perstage;
@@ -1203,13 +1200,10 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 
 				if(fr >= 0 && to >= 0)	// otherwise skip
 				{
-					int rowowner = min(static_cast<int>(fr / m_perproc), maxr);
-					int colowner = min(static_cast<int>(to / n_perproc), maxs); 
-					int owner = commGrid->GetRank(rowowner, colowner);
-					LIT rowid = fr - (rowowner * m_perproc);	
-					LIT colid = to - (colowner * n_perproc);
-					data[owner].push_back(rowid);	// row_id
-					data[owner].push_back(colid);	// col_id
+                    IT lrow, lcol;
+                    int owner = Owner(DEL.getGlobalV(), DEL.getGlobalV(), fr, to, lrow, lcol);
+					data[owner].push_back(lrow);	// row_id
+					data[owner].push_back(lcol);	// col_id
 					++realedges;
 				}
 			}
@@ -1220,13 +1214,10 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 			{
 				if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
 				{
-					int rowowner = min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), maxr);
-					int colowner = min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), maxs); 
-					int owner = commGrid->GetRank(rowowner, colowner);
-					LIT rowid = DEL.edges[2*i+0]- (rowowner * m_perproc);
-					LIT colid = DEL.edges[2*i+1]- (colowner * n_perproc);
-					data[owner].push_back(rowid);	
-					data[owner].push_back(colid);
+                    IT lrow, lcol;
+                    int owner = Owner(DEL.getGlobalV(), DEL.getGlobalV(), DEL.edges[2*i+0], DEL.edges[2*i+1], lrow, lcol);
+					data[owner].push_back(lrow);
+					data[owner].push_back(lcol);
 					++realedges;
 				}
 			}
@@ -1271,9 +1262,9 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	int myprocrow = commGrid->GetRankInProcCol();
 	int myproccol = commGrid->GetRankInProcRow();
 	LIT locrows, loccols; 
-	if(myprocrow != r-1)	locrows = m_perproc;
+	if(myprocrow != gridrows-1)	locrows = m_perproc;
 	else 	locrows = DEL.getGlobalV() - myprocrow * m_perproc;
-	if(myproccol != s-1)	loccols = n_perproc;
+	if(myproccol != gridcols-1)	loccols = n_perproc;
 	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
   	SpTuples<LIT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
