@@ -382,7 +382,7 @@ SpParMat<IT, bool, DER> PermMat1 (const FullyDistSpVec<IT,NT> & ri, const IT nco
         {
             IT rowrec = (n_perproccol!=0) ? std::min(val / n_perproccol, procsPerRow-1) : (procsPerRow-1);
             // ri's numerical values give the colids and its local indices give rowids
-            rowid[rowrec].push_back( i + roffset);
+            rowid[rowrec].push_back( i + roffset); // ************************************ this is not right, it should be (ri.ind[i]+offset)
             colid[rowrec].push_back(val - (rowrec * n_perproccol));
         }
     }

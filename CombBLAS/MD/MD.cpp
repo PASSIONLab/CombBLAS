@@ -175,7 +175,22 @@ int main(int argc, char* argv[])
         Symmetricize(*ABool);
         PSpMat_Int64  A = *ABool;
         
+        
+        //FullyDistVec<int64_t, int64_t> degrees(A.getcommgrid(), 20, 0);
+        //sources.setNumToInd();
+        //FullyDistVec<int64_t, int64_t> ri(sources);
+        
+        /*
+        FullyDistVec<int64_t, int64_t> idx(A.getcommgrid());
+        idx.iota(10, 0);
+        idx.SetElement(1,0);
+        FullyDistVec<int64_t, int64_t> val(A.getcommgrid());
+        val.iota(10, 0);    
+        FullyDistSpVec<int64_t, int64_t> test(10, idx, val, true);
+        test.DebugPrint();
+         */
         MD(A);
+        
         double tstart = MPI_Wtime();
         
     }
@@ -210,28 +225,151 @@ FullyDistSpVec<int64_t, int64_t> getReach(int64_t source, PSpMat_Int64 & A, Full
 }
 
 
+
+template <class IT, class NT>
+class Dist
+{
+public:
+    typedef SpDCCols < IT, NT > DCCols;
+    typedef SpParMat < IT, NT, DCCols > PSpMat;
+};
+
+
 // assume that source is an enode
 FullyDistSpVec<int64_t, int64_t> getReachesSPMM(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
 {
-    FullyDistSpVec<int64_t, int64_t> degrees(sources);
-    for(int64_t i=0; i<sources.TotalLength(); i++)
+    FullyDistVec<int64_t, int64_t> degrees(A.getcommgrid(), sources.TotalLength(), 0);
+    sources.setNumToInd();
+    FullyDistVec<int64_t, int64_t> ri(sources);
+    FullyDistVec<int64_t, int64_t> ci(A.getcommgrid());
+    ci.iota(ri.TotalLength(), 0);
+    typedef PlusTimesSRing<int64_t, int64_t> PTDD;
+    
+    //typedef PlusTimesSRing<bool, int> PTBOOLINT;
+    
+    PSpMat_Int64  fringe(A.getnrow(), ri.TotalLength(), ri, ci, (int64_t) 1, false);
+    PSpMat_Int64  visited(A.getnrow(), ri.TotalLength(), ri, ci, (int64_t) 1, false);
+    
+    
+    FullyDistVec<int64_t, int64_t> ri1 = enodes.FindInds([](int64_t val){return val!=0;});
+    FullyDistVec<int64_t, int64_t> ci1(A.getcommgrid(), ri1.TotalLength(), 1);
+    FullyDistVec<int64_t, int64_t> ri2(A.getcommgrid(), ri.TotalLength(), 1);
+    PSpMat_Int64  C(A.getnrow(), 1, ri1, ci1, (int64_t) 1, false);
+    PSpMat_Int64  R(1, ri.TotalLength(), ri2, ci, (int64_t) 1, false);
+    
+    PSpMat_Int64  menodes = PSpGEMM<PTDD>(C, R);
+    
+    
+    while( fringe.getnnz() > 0 )
     {
-        int64_t s = sources[i];
-        if(sources.WasFound())
-        {
-            FullyDistSpVec<int64_t, int64_t> reach = getReach(i, A, enodes);
-            degrees.SetElement(i, reach.getnnz());
-        }
+        fringe = PSpGEMM<PTDD>(A, fringe);
+        fringe = EWiseMult(fringe, visited, true);
+        visited += fringe;
+        fringe = EWiseMult(fringe, menodes, false);
+        
+        
+        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+        fringe.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        degrees += *ColSums;
+        delete ColSums;
     }
     
-    return degrees;
+    
+    //return degrees;
+}
+
+
+
+// assume that source is an enode
+FullyDistSpVec<int64_t, int64_t> getReachesSPMM1(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
+{
+    sources.setNumToInd();
+    FullyDistVec<int64_t, int64_t> ri(sources);
+    FullyDistVec<int64_t, int64_t> ci(A.getcommgrid());
+    ci.iota(ri.TotalLength(), 0);
+    typedef PlusTimesSRing<int64_t, int64_t> PTDD;
+    
+    PSpMat_Int64  R(A.getncol(), ri.TotalLength(), ri, ci, (int64_t) 1, false);
+    PSpMat_Int64  visited(A.getncol(), ri.TotalLength(), ri, ci, (int64_t) 1, false);
+    
+    while(R.getnnz() > 0)
+    {
+        PSpMat_Int64 L = Mult_AnXBn_DoubleBuff<PTDD, int64_t, SpDCCols<int64_t,int64_t>>(A, R, false, false);
+        //EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect, const bool useExtendedBinOp);
+        
+        /*
+         L = EWiseApply<int64_t, SpDCCols<int64_t,int64_t>>(L, visited,
+         [](int64_t x, int64_t y){ return x;},
+         [](int64_t x, int64_t y){return true;},
+         false, true, (int64_t) 0, (int64_t) 0, false, false);
+         
+         
+         visited = EWiseApply<int64_t, SpDCCols<int64_t,int64_t>>(visited, L,
+         [](int64_t x, int64_t y){ return (int64_t)1;},
+         [](int64_t x, int64_t y){return true;},
+         true, true, (int64_t) 0, (int64_t) 0, true, false);
+         // only keep enodes ... change
+         L = EWiseApply<int64_t, SpDCCols<int64_t,int64_t>>(L, visited,
+         [](int64_t x, int64_t y){ return x;},
+         [](int64_t x, int64_t y){return true;},
+         false, true, (int64_t) 0, (int64_t) 0, false, false);
+         */
+    }
+    /*
+     for(int64_t i=0; i<sources.TotalLength(); i++)
+     {
+     int64_t s = sources[i];
+     if(sources.WasFound())
+     {
+     FullyDistSpVec<int64_t, int64_t> reach = getReach(i, A, enodes);
+     degrees.SetElement(i, reach.getnnz());
+     }
+     }
+     */
+    
+    //return degrees;
 }
 
 
 // assume that source is an enode
 FullyDistSpVec<int64_t, int64_t> getReachesSPMV(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
 {
-    FullyDistSpVec<int64_t, int64_t> degrees(sources); // same memory used by two vector?? no problem here
+    //sources.DebugPrint();
+    int nprocs = sources.getcommgrid()->GetSize();
+    int myrank = sources.getcommgrid()->GetRank();
+    
+    FullyDistSpVec<int64_t, int64_t> degrees = sources;
+    //FullyDistSpVec<int64_t, int64_t> degrees(sources.getcommgrid(), sources.TotalLength()); // same memory used by two vector?? no problem here
+    
+    vector<int64_t> locvals = sources.GetLocalInd();
+    int64_t j = 0;
+    
+    for(int i=0; i<nprocs; )
+    {
+        int64_t s = -1;
+        if(myrank==i && j<sources.getlocnnz())
+        {
+            s = locvals[j++];
+        }
+        MPI_Bcast(&s, 1, MPIType<int64_t>(), i, sources.getcommgrid()->GetWorld());
+        if(s!=-1)
+        {
+            FullyDistSpVec<int64_t, int64_t> reach = getReach(s, A, enodes);
+            degrees.SetElement(s, reach.getnnz());
+        }
+        else i++;
+    }
+    //degrees.DebugPrint();
+    return degrees;
+}
+
+/*
+// assume that source is an enode
+FullyDistSpVec<int64_t, int64_t> getReachesSPMV(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
+{
+    
+    FullyDistVec<int64_t, int64_t> degrees(sources.getcommgrid(), sources.getnnz(), (int64_t) 0);
+    //FullyDistSpVec<int64_t, int64_t> degrees(sources); // same memory used by two vector?? no problem here
     for(int64_t i=0; i<sources.TotalLength(); i++)
     {
         int64_t s = sources[i];
@@ -244,7 +382,7 @@ FullyDistSpVec<int64_t, int64_t> getReachesSPMV(FullyDistSpVec<int64_t, int64_t>
     
     return degrees;
 }
-
+*/
 
 void MD(PSpMat_Int64 & A)
 {
@@ -258,7 +396,8 @@ void MD(PSpMat_Int64 & A)
     FullyDistVec<int64_t, double> treaches (A.getcommgrid(), A.getnrow(), (double) 0);
     FullyDistVec<int64_t, int64_t> nreach (A.getcommgrid(), A.getnrow(), (int64_t) 0);
     
-    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     double time_beg = MPI_Wtime();
     
     for(int64_t i=0; i<A.getnrow(); i++)
@@ -270,25 +409,36 @@ void MD(PSpMat_Int64 & A)
         
         double time1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> reach = getReach(s, A, enodes);
+        reach.DebugPrint();
+        FullyDistSpVec<int64_t, int64_t> reachInd = reach.FindInds([](int64_t x){return true;});
+        reachInd.DebugPrint();
+        FullyDistSpVec<int64_t, int64_t> reachVal = reach.FindVals([](int64_t x){return true;});
+        reachVal.DebugPrint();
         double time2 = MPI_Wtime();
-        treach.SetElement(i, time2 - time1);
-        nreach.SetElement(i, reach.getnnz());
+        //treach.SetElement(i, time2 - time1);
+        //nreach.SetElement(i, reach.getnnz());
         FullyDistSpVec<int64_t, int64_t> updatedDeg = getReachesSPMV(reach, A, enodes);
-        treaches.SetElement(i, MPI_Wtime() - time2);
+        //treaches.SetElement(i, MPI_Wtime() - time2);
 
+        
         degrees.Set(updatedDeg);
         degrees.SetElement(s, A.getnrow()); // set degree to infinite
+        
+        if(myrank==0)
+        {
+            if(i%10==0) cout << i << " \n";
+        }
     }
     
     
     double time_end = MPI_Wtime();
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    
+    
     if(myrank==0)
         cout << " Total time: " << time_end - time_beg << endl;
     
     //mdOrder.DebugPrint();
-    nreach.DebugPrint();
+    //nreach.DebugPrint();
     
     
     ofstream outf_nreach;
@@ -311,7 +461,7 @@ void MD(PSpMat_Int64 & A)
  * Create a boolean matrix A
  * Input: ri: a sparse vector of row indices
  * Output: a boolean matrix A with m=size(ri) and n=ncol
- * Let ri[k] contains the kth nonzero in ri, then A[j,k]=1
+ * Let ri[k] contain the kth nonzero in ri, then A[j,k]=1
  */
 
 template <class IT, class NT, class DER, typename _UnaryOperation>
