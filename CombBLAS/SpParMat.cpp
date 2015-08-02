@@ -390,7 +390,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 {
 	if(*rvec.commGrid != *commGrid)
 	{
-		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !"); 
+		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails!", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 	}
 	switch(dim)
@@ -546,12 +546,12 @@ void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOper
 		ostringstream outs;
 		outs << "SpParMat::Reduce(): Return vector's zero is different than set id"  << endl;
 		outs << "Setting rvec.zero to id (" << id << ") instead" << endl;
-		SpParHelper::Print(outs.str());
+		SpParHelper::Print(outs.str(), commGrid->GetWorld());
 		rvec.zero = id;
 	}
 	if(*rvec.commGrid != *commGrid)
 	{
-		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !"); 
+		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	switch(dim)
@@ -765,13 +765,13 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	{
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 		#ifdef SPREFDEBUG
-		SpParHelper::Print("Symmetric permutation\n");
+		SpParHelper::Print("Symmetric permutation\n", commGrid->GetWorld());
 		#endif
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 		if(inplace) 
 		{
 			#ifdef SPREFDEBUG	
-			SpParHelper::Print("In place multiplication\n");
+			SpParHelper::Print("In place multiplication\n", commGrid->GetWorld());
 			#endif
         		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
 
@@ -877,7 +877,7 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	
 	if((*(ri.commGrid) != *(B.commGrid)) || (*(ci.commGrid) != *(B.commGrid)))
 	{
-		SpParHelper::Print("Grids are not comparable, SpAsgn fails !"); 
+		SpParHelper::Print("Grids are not comparable, SpAsgn fails !", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	IT total_m_A = getnrow();
@@ -887,12 +887,12 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	
 	if(total_m_B != ri.TotalLength())
 	{
-		SpParHelper::Print("First dimension of B does NOT match the length of ri, SpAsgn fails !"); 
+		SpParHelper::Print("First dimension of B does NOT match the length of ri, SpAsgn fails !", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	if(total_n_B != ci.TotalLength())
 	{
-		SpParHelper::Print("Second dimension of B does NOT match the length of ci, SpAsgn fails !"); 
+		SpParHelper::Print("Second dimension of B does NOT match the length of ci, SpAsgn fails !", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	Prune(ri, ci);	// make a hole	
@@ -920,7 +920,7 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
-		SpParHelper::Print("Grids are not comparable, Prune fails !"); 
+		SpParHelper::Print("Grids are not comparable, Prune fails!\n", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 
@@ -1100,12 +1100,12 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) || (*(distcols.commGrid) != *(distvals.commGrid)))
 	{
-		SpParHelper::Print("Grids are not comparable, Sparse() fails !"); 
+		SpParHelper::Print("Grids are not comparable, Sparse() fails!\n");  // commGrid is not initialized yet
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	if((distrows.TotalLength() != distcols.TotalLength()) || (distcols.TotalLength() != distvals.TotalLength()))
 	{
-		SpParHelper::Print("Vectors have different sizes, Sparse() fails !");
+		SpParHelper::Print("Vectors have different sizes, Sparse() fails!");
 		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 
@@ -1131,12 +1131,12 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) )
 	{
-		SpParHelper::Print("Grids are not comparable, Sparse() fails !"); 
+		SpParHelper::Print("Grids are not comparable, Sparse() fails!\n");
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	if((distrows.TotalLength() != distcols.TotalLength()) )
 	{
-		SpParHelper::Print("Vectors have different sizes, Sparse() fails !");
+		SpParHelper::Print("Vectors have different sizes, Sparse() fails!\n");
 		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	commGrid = distrows.commGrid;
@@ -1173,7 +1173,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 		ostringstream outs;
 		outs << "Warning: Using smaller indices for the matrix than DistEdgeList\n";
 		outs << "Local matrices are " << m_perproc << "-by-" << n_perproc << endl;
-		SpParHelper::Print(outs.str());
+		SpParHelper::Print(outs.str(), commGrid->GetWorld());   // commgrid initialized
 	}	
 	
     LIT stages = MEM_EFFICIENT_STAGES;		// to lower memory consumption, form sparse matrix in stages
@@ -1298,7 +1298,7 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 {
 	if(spSeq->getnsplit() > 0)
 	{
-		SpParHelper::Print("Can not declare preallocated buffers for multithreaded execution");
+		SpParHelper::Print("Can not declare preallocated buffers for multithreaded execution\n", commGrid->GetWorld());
 		return;
     }
 
@@ -1390,7 +1390,7 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 			}
 		}
 	}
-	SpParHelper::Print("Optimization buffers set\n");
+	SpParHelper::Print("Optimization buffers set\n", commGrid->GetWorld());
 	optbuf.Set(maxlens,mA);
 }
 
@@ -2023,7 +2023,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 		// in order not to overflow
 		buffpercolneigh /= colneighs; 
 		if(seeklength == 0)
-			SpParHelper::Print("COMBBLAS: Parallel I/O requested but binary header is corrupted\n");
+			SpParHelper::Print("COMBBLAS: Parallel I/O requested but binary header is corrupted\n", commGrid->GetWorld());
 	}
 
 	// make sure that buffperrowneigh >= buffpercolneigh to cover for this patological case:
@@ -2032,7 +2032,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 	buffperrowneigh = std::max(buffperrowneigh, buffpercolneigh);
 	if(std::max(buffpercolneigh * colneighs, buffperrowneigh * rowneighs) > numeric_limits<int>::max())
 	{  
-		SpParHelper::Print("COMBBLAS: MPI doesn't support sending int64_t send/recv counts or displacements\n");
+		SpParHelper::Print("COMBBLAS: MPI doesn't support sending int64_t send/recv counts or displacements\n", commGrid->GetWorld());
 	}
  
 	int * cdispls = new int[colneighs];
@@ -2055,14 +2055,14 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 	{		
 		if( !hfile.fileexists )
 		{
-			SpParHelper::Print( "COMBBLAS: Input file doesn't exist\n");
+			SpParHelper::Print( "COMBBLAS: Input file doesn't exist\n", commGrid->GetWorld());
 			total_n = 0; total_m = 0;	
 			BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 			return;
 		}
 		if (hfile.headerexists && hfile.format == 1) 
 		{
-			SpParHelper::Print("COMBBLAS: Ascii input with binary headers is not supported");
+			SpParHelper::Print("COMBBLAS: Ascii input with binary headers is not supported\n", commGrid->GetWorld());
 			total_n = 0; total_m = 0;	
 			BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 			return;
@@ -2081,7 +2081,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			ss >> total_m >> total_n >> total_nnz;
 			if(pario)
 			{
-				SpParHelper::Print("COMBBLAS: Trying to read binary headerless file in parallel, aborting\n");
+				SpParHelper::Print("COMBBLAS: Trying to read binary headerless file in parallel, aborting\n", commGrid->GetWorld());
 				total_n = 0; total_m = 0;	
 				BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 				return;				
@@ -2534,7 +2534,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) || (*(distcols.commGrid) != *(distvals.commGrid)))
 	{
-		SpParHelper::Print("Grids are not comparable, Find() fails !"); 
+		SpParHelper::Print("Grids are not comparable, Find() fails!", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	IT globallen = getnnz();
@@ -2612,7 +2612,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) )
 	{
-		SpParHelper::Print("Grids are not comparable, Find() fails !"); 
+		SpParHelper::Print("Grids are not comparable, Find() fails!", commGrid->GetWorld());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	IT globallen = getnnz();
