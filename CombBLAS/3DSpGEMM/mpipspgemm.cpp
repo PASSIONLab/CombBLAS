@@ -143,8 +143,11 @@ int main(int argc, char *argv[])
             
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false, true, p);
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true, true, p); // also transpose before split
+            // void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4],
+            //              CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool scramble)
+
+            Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false, true);
+            Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true, true); // also transpose before split
             if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
             
         }
