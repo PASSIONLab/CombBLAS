@@ -231,7 +231,7 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 
 	if(packed)
 	{
-		RefGen21::make_graph (log_numverts, globaledges, &nedges, (packed_edge**)(&pedges));
+		RefGen21::make_graph (log_numverts, globaledges, &nedges, (packed_edge**)(&pedges), commGrid->GetWorld());
 	}
 	else
 	{

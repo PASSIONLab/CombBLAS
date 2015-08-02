@@ -265,7 +265,7 @@ public:
   		*end_idx = (rankc + 1) * (M / sizec) + (rankc + 1 < (M % sizec) ? rankc + 1 : (M % sizec));
 	}
 
-	static inline void make_graph(int log_numverts, int64_t M, int64_t* nedges_ptr, packed_edge** result_ptr) 
+	static inline void make_graph(int log_numverts, int64_t M, int64_t* nedges_ptr, packed_edge** result_ptr, MPI_Comm & world)
 	{
   		int rank, size;
 #ifdef DETERMINISTIC
@@ -278,8 +278,8 @@ public:
   		uint_fast32_t seed[5];
   		make_mrg_seed(userseed1, userseed1, seed);
 
-  		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  		MPI_Comm_size(MPI_COMM_WORLD, &size);
+  		MPI_Comm_rank(world, &rank);
+  		MPI_Comm_size(world, &size);
 
   		int64_t start_idx, end_idx;
   		compute_edge_range(rank, size, M, &start_idx, &end_idx);
