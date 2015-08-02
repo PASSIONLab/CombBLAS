@@ -88,7 +88,9 @@ public:
 	static void UnlockWindows(int ownind, vector<MPI_Win> & arrwin);
 
 	static void Print(const string & s);
+    static void Print(const string & s, MPI_Comm & world);
 	static void PrintFile(const string & s, const string & filename);
+    static void PrintFile(const string & s, const string & filename, MPI_Comm & world);
     static void check_newline(int *bytes_read, int bytes_requested, char *buf);
     static bool FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines, int myrank);
     

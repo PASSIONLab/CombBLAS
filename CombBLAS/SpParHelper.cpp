@@ -559,7 +559,7 @@ void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MP
 inline void SpParHelper::PrintFile(const string & s, const string & filename)
 {
 	int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank); // ABAB: potential bug, should accept "CommGrid"
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	if(myrank == 0)
 	{
 		ofstream out(filename.c_str(), std::ofstream::app);
@@ -568,15 +568,37 @@ inline void SpParHelper::PrintFile(const string & s, const string & filename)
 	}
 }
 
+inline void SpParHelper::PrintFile(const string & s, const string & filename, MPI_Comm & world)
+{
+    int myrank;
+    MPI_Comm_rank(world, &myrank);
+    if(myrank == 0)
+    {
+        ofstream out(filename.c_str(), std::ofstream::app);
+        out << s;
+        out.close();
+    }
+}
+
 
 inline void SpParHelper::Print(const string & s)
 {
 	int myrank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank); // ABAB: potential bug, should accept "CommGrid"
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	if(myrank == 0)
 	{
 		cout << s;
 	}
+}
+
+inline void SpParHelper::Print(const string & s, MPI_Comm & world)
+{
+    int myrank;
+    MPI_Comm_rank(world, &myrank);
+    if(myrank == 0)
+    {
+        cout << s;
+    }
 }
 
 
