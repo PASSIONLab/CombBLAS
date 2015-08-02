@@ -250,6 +250,7 @@ public:
 	typename DER::LocalIT getlocalcols() const { return spSeq->getncol();} 
 	typename DER::LocalIT getlocalnnz() const { return spSeq->getnnz(); }
 	DER & seq() { return (*spSeq); }
+	DER * seqptr() { return spSeq; }
 
 	//! Friend declarations
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
