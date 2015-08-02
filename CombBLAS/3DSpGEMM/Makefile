@@ -1,5 +1,5 @@
 # C++ compiler
-CXX := CC
+CXX := mpicxx
 CXXFLAGS := -std=c++11 -O2 -fopenmp -fpermissive #-DDEBUG 
 
 # C compiler
