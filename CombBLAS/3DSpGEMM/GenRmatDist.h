@@ -33,48 +33,45 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(layerworld);
 
 	ostringstream minfo;
-    int nprocs;
-    MPI_Comm_size(DEL->commGrid->GetWorld(),&nprocs);
+	int nprocs = DEL->commGrid->GetSize();
 	minfo << "Started Generation of scale "<< scale << endl;
 	minfo << "Using " << nprocs << " MPI processes" << endl;
 	SpParHelper::Print(minfo.str());
 
-	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );	// don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
+	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
+	// don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
+	
 	SpParHelper::Print("Generated renamed edge lists\n");
 	ostringstream tinfo;
-    t02 = MPI_Wtime();
+   	t02 = MPI_Wtime();
 	tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 	SpParHelper::Print(tinfo.str());
 
-	//SpDCCols<IT,NT> * LocalSpMat;
-    SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
+    	SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
     
-	//MakeDCSC< SpDCCols<IT,NT> > (*DEL, false, &LocalSpMat);
 	delete DEL;
-	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
+	SpParHelper::Print("Created Sparse Matrix\n");
 
     
-    // random permutations for load balance
-    if(permute)
-    {
-        if(A->getnrow() == A->getncol())
-        {
-            if(p.TotalLength()!=A->getnrow())
-            {
-                SpParHelper::Print("Generating random permutation vector.\n");
-                p.iota(A->getnrow(), 0);
-                p.RandPerm();
-            }
-            (*A)(p,p,true);// in-place permute to save memory
-        }
-        else
-        {
-            SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
-        }
-    }
-    
-    SpDCCols<IT, NT> * LocalSpMat = &A->seq();
-	return LocalSpMat;
+    	// random permutations for load balance
+    	if(permute)
+    	{
+        	if(A->getnrow() == A->getncol())
+        	{
+            		if(p.TotalLength()!=A->getnrow())
+            		{
+                		SpParHelper::Print("Generating random permutation vector.\n");
+                		p.iota(A->getnrow(), 0);
+                		p.RandPerm();
+            		}
+            		(*A)(p,p,true);// in-place permute to save memory
+        	}
+        	else
+        	{
+            		SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
+        	}
+    	}
+	return A->seqptr();
 }
 
 /**
