@@ -25,7 +25,7 @@
 
 
 template<typename IT, typename NT>
-SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld, bool permute, FullyDistVec<IT, IT>& p)
+SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld, bool scramble)
 {
 	double t01 = MPI_Wtime();
 	double t02;
@@ -38,7 +38,7 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 	minfo << "Using " << nprocs << " MPI processes" << endl;
 	SpParHelper::Print(minfo.str());
 
-	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
+	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, false );
 	// don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
 	
 	SpParHelper::Print("Generated renamed edge lists\n");
@@ -47,30 +47,16 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 	tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 	SpParHelper::Print(tinfo.str());
 
-    	SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
+    SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
     
 	delete DEL;
 	SpParHelper::Print("Created Sparse Matrix\n");
 
+    float balance = A->LoadImbalance();
+    ostringstream outs;
+    outs << "Load balance: " << balance << endl;
+    SpParHelper::Print(outs.str());
     
-    	// random permutations for load balance
-    	if(permute)
-    	{
-        	if(A->getnrow() == A->getncol())
-        	{
-            		if(p.TotalLength()!=A->getnrow())
-            		{
-                		SpParHelper::Print("Generating random permutation vector.\n");
-                		p.iota(A->getnrow(), 0);
-                		p.RandPerm();
-            		}
-            		(*A)(p,p,true);// in-place permute to save memory
-        	}
-        	else
-        	{
-            		SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
-        	}
-    	}
 	return A->seqptr();
 }
 
@@ -78,14 +64,14 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
  ** \param[out] splitmat {generated RMAT matrix, split into CMG.GridLayers pieces}
  **/
 template <typename IT, typename NT>
-void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool permute, FullyDistVec<IT, IT>& p)
+void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool scramble)
 {
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
 	if(CMG.layer_grid == 0)
 	{
-		SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld, permute, p);
+		SpDCCols<IT, NT> * localmat = GenRMat<IT,NT>(scale, EDGEFACTOR, initiator, CMG.layerWorld, scramble);
 			
         double trans_beg = MPI_Wtime();
         if(trans) localmat->Transpose(); // locally transpose
