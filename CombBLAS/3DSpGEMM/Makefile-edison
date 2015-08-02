@@ -38,5 +38,5 @@ mpipspgemm: mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h  SUMMALayer.h $
 
 
 test_mpipspgemm: test_mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o
-        $(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
