@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
             string fileA(argv[5]);
             string fileB(argv[6]);
             
-            SpDCCols<IT,NT> *A = ReadMat(fileA, CMG, false, true, p);
-            SpDCCols<IT,NT> *B = ReadMat(fileB, CMG, true, true, p);
+            SpDCCols<int32_t, double> *A = ReadMat(fileA, CMG, false, true, p);
+            SpDCCols<int32_t, double> *B = ReadMat(fileB, CMG, true, true, p);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             
-            SpDCCols<IT,NT> *A = GenMat(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<IT,NT> *B = GenMat(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int32_t, double> *A = GenMat(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<int32_t, double> *B = GenMat(CMG, scale, EDGEFACTOR, initiator, true, true);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
