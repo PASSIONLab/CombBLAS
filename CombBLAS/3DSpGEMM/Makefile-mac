@@ -1,5 +1,5 @@
 # C++ compiler
-CXX := mpicxx
+CXX := /usr/mpich/bin/mpicxx
 CXXFLAGS := -std=c++11 -O2 -g -fopenmp -fpermissive -DDEBUG 
 
 # C compiler
@@ -41,7 +41,7 @@ test_mpipspgemm: test_mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMA
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 
-MIS: MIS.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o 
+RestrictionOp: RestrictionOp.o RestrictionOp.h SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o 
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 
