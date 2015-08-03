@@ -71,7 +71,7 @@ void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool tran
         }
         
         
-        SpDCCols<IT, NT> * localmat = &A->seq();
+        SpDCCols<IT, NT> * localmat = A->seqptr();
         double trans_beg = MPI_Wtime();
         if(trans) localmat->Transpose(); // locally transpose
         comp_trans += (MPI_Wtime() - trans_beg);

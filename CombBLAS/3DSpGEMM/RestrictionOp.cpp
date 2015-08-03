@@ -149,8 +149,10 @@ int main(int argc, char *argv[])
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             
             double t01 = MPI_Wtime();
-            SpDCCols<int32_t, double> *A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<int32_t, double> *B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int32_t, double>* A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<int32_t, double>* B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            
+            SpDCCols<int32_t, double>* R RestrictionOp( CMG, A);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
