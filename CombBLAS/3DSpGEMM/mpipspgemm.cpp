@@ -13,8 +13,7 @@
 #include "CCGrid.h"
 #include "Reductions.h"
 #include "Multiplier.h"
-#include "GenRmatDist.h"
-#include "ReadMatDist.h"
+#include "SplitMatDist.h"
 
 
 using namespace std;
@@ -107,8 +106,12 @@ int main(int argc, char *argv[])
             string fileA(argv[5]);
             string fileB(argv[6]);
             
-            Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
-            Reader(fileB, CMG, splitB, true, true, p); // p used here
+            double t01 = MPI_Wtime();
+            SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
+            SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
+            SplitMat(CMG, A, splitA);
+            SplitMat(CMG, B, splitB);
+            if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
         }
         else
         {
@@ -143,12 +146,14 @@ int main(int argc, char *argv[])
             
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
-            // void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4],
-            //              CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool scramble)
-
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false, true);
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true, true); // also transpose before split
-            if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
+            
+            double t01 = MPI_Wtime();
+            SpDCCols<int32_t, double> *A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<int32_t, double> *B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            
+            SplitMat(CMG, A, splitA);
+            SplitMat(CMG, B, splitB);
+            if(myrank == 0) cout << "RMATs Generated and replicated along layers : time " << MPI_Wtime() - t01 << endl;
             
         }
         

@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
             string fileA(argv[5]);
             string fileB(argv[6]);
             
+            double t01 = MPI_Wtime();
             SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
             SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
-            
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
-            if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
+            if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
         }
         else
         {
@@ -148,12 +148,13 @@ int main(int argc, char *argv[])
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             
+            double t01 = MPI_Wtime();
             SpDCCols<int32_t, double> *A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
             SpDCCols<int32_t, double> *B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
-            if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
+            if(myrank == 0) cout << "RMATs Generated and replicated along layers : time " << MPI_Wtime() - t01 << endl;
             
         }
         

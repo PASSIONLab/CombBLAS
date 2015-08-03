@@ -116,11 +116,15 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         SpParHelper::Print("Created Sparse Matrix\n");
         
         double trans_beg = MPI_Wtime();
-        if(trans) A->Transpose(); // locally transpose
+        if(trans)
+        {
+            A->Transpose(); // locally transpose
+            ostringstream tinfo2;
+            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
+            SpParHelper::Print(tinfo2.str());
+        }
         comp_trans += (MPI_Wtime() - trans_beg);
-       	ostringstream tinfo2;
-        tinfo2 << "Local transpose took " << comp_trans << " seconds" << endl;
-        SpParHelper::Print(tinfo2.str());
+       
  
         float balance = A->LoadImbalance();
         ostringstream outs;
@@ -139,6 +143,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
 template <typename IT, typename NT>
 void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & splitmat)
 {
+    t01 = MPI_Wtime();
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
@@ -198,6 +203,10 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
         }
     }
     comm_split += (MPI_Wtime() - scatter_beg);
+    ostringstream tinfo;
+    tinfo << "Matrix split and distributed along layers: time " << MPI_Wtime()-t01 << " seconds" << endl;
+    SpParHelper::Print(tinfo.str());
+
 }
 
 #endif
