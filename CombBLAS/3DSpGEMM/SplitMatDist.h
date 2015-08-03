@@ -88,10 +88,10 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
 
     if(CMG.layer_grid == 0)
     {
-         shared_ptr<CommGrid> layerGrid;
-        layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
+        // shared_ptr<CommGrid> layerGrid;
+        //layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         
-        DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(layerworld);
+        DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(CMG.layerWorld);
         
         ostringstream minfo;
         int nprocs = DEL->commGrid->GetSize();
