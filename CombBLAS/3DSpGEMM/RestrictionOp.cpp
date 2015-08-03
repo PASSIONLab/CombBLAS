@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
             string fileA(argv[5]);
             string fileB(argv[6]);
             
-            SpDCCols<int32_t, double> *A = ReadMat(fileA, CMG, false, true, p);
-            SpDCCols<int32_t, double> *B = ReadMat(fileB, CMG, true, true, p);
+            SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
+            SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
