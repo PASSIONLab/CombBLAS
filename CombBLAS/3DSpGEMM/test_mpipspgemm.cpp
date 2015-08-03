@@ -13,8 +13,6 @@
 #include "CCGrid.h"
 #include "Reductions.h"
 #include "Multiplier.h"
-//#include "GenRmatDist.h"
-//#include "ReadMatDist.h"
 #include "SplitMatDist.h"
 
 using namespace std;
@@ -97,21 +95,18 @@ int main(int argc, char *argv[])
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
         
-/*
-	Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
-        Reader(fileB, CMG, splitB, true, true, p); // p used here
-        Reader(fileC, CMG, controlC, false, true, p); // p used here
+        double t01 = MPI_Wtime();
         
-*/
-///*	
-	SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
+        SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
         SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
-	SpDCCols<int32_t, double> *C = ReadMat<double>(fileC, CMG, false, true, p);
+        SpDCCols<int32_t, double> *C = ReadMat<double>(fileC, CMG, false, true, p);
         
-	SplitMat(CMG, A, splitA);
+        SplitMat(CMG, A, splitA);
         SplitMat(CMG, B, splitB);
-	SplitMat(CMG, C, controlC);
-//*/
+        SplitMat(CMG, C, controlC);
+        
+        if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
+
         type = string(argv[7]);
         
         if(type == string("outer"))
