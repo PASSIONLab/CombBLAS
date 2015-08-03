@@ -52,7 +52,7 @@ SpDCCols<IT, NT>* multiply(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB,
         //printf(" ----------------------------------------------------------------------------------------------\n");
         
         //printf("%10lf %12lf %12lf %10lf %12lf %12lf %12lf %10lf\n\n", comm_bcast, comm_reduce, comp_summa, comp_reduce, comp_reduce_layer, comp_result, time_other, time_total);
-        printf("%4d %4d %4d %4d %10lf %12lf %12lf %10lf %12lf %12lf %12lf %10lf\n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads, comm_bcast, comm_reduce, comp_summa, comp_reduce, comp_reduce_layer, comp_result, time_other, time_total);
+        printf("%4d %4d %5d %6d %10lf %12lf %12lf %10lf %12lf %12lf %12lf %10lf\n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads, comm_bcast, comm_reduce, comp_summa, comp_reduce, comp_reduce_layer, comp_result, time_other, time_total);
     }
     
     return mergedC;

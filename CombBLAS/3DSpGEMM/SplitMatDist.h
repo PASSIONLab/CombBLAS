@@ -143,7 +143,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
 template <typename IT, typename NT>
 void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & splitmat)
 {
-    t01 = MPI_Wtime();
+    double t01 = MPI_Wtime();
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;

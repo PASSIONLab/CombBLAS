@@ -160,8 +160,10 @@ int main(int argc, char *argv[])
         
         type = string(argv[7]);
         if(myrank == 0)
-            printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
-        
+	{
+           	printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
+		printf(" prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total\n");      
+	} 
         if(type == string("outer"))
         {
             for(int k=0; k<ITERS; k++)
