@@ -107,8 +107,12 @@ int main(int argc, char *argv[])
             string fileA(argv[5]);
             string fileB(argv[6]);
             
-            Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
-            Reader(fileB, CMG, splitB, true, true, p); // p used here
+            SpDCCols<IT,NT> *A = ReadMat(fileA, CMG, false, true, p);
+            SpDCCols<IT,NT> *B = ReadMat(fileB, CMG, true, true, p);
+            
+            SplitMat(CMG, A, splitA);
+            SplitMat(CMG, B, splitB);
+            if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
         }
         else
         {
@@ -143,8 +147,12 @@ int main(int argc, char *argv[])
             
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitA, false, true, p);
-            Generator(scale, EDGEFACTOR, initiator, CMG, splitB, true, true, p); // also transpose before split
+            
+            SpDCCols<IT,NT> *A = GenMat(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<IT,NT> *B = GenMat(CMG, scale, EDGEFACTOR, initiator, true, true);
+            
+            SplitMat(CMG, A, splitA);
+            SplitMat(CMG, B, splitB);
             if(myrank == 0) printf("RMATs Generated and replicated along layers\n");
             
         }

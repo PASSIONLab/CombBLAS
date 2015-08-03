@@ -25,7 +25,7 @@
 
 
 template <typename IT, typename NT>
-SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool permute, FullyDistVec<IT, IT>& p)
+SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permute, FullyDistVec<IT, IT>& p)
 {
     double t01 = MPI_Wtime();
     double t02;
