@@ -113,28 +113,32 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
 }
 
 
-template <typename ONT, typename IT, typename LIT, typename NT>
-SpParMat < IT, ONT, SpDCCols < LIT, ONT >> RestrictionOp( SpParMat < IT, NT, SpDCCols < LIT, NT >> A)
+template <typename IT, typename NT>
+SpDCCols<IT, NT>* RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat)
 {
-    
-    SpParMat < IT, bool, SpDCCols < LIT, bool >> B = SpParMat < IT, bool, SpDCCols < LIT, bool >> (A);
-    B.RemoveLoops();
-    SpParMat < IT, bool, SpDCCols < LIT, bool >> BT = B;
-    BT.Transpose();
-    B += BT;
-    
-    // ------------ compute MIS-2 ----------------------------
-    FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
-    mis2 = MIS2<IT>(B);
-    
-    // ------------ Obtain restriction matric from mis2 ----
-    FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
-    FullyDistVec<IT, IT> ci(A.getcommgrid());
-    ci.iota(mis2.getnnz(), (IT)0);
-    SpParMat < IT, ONT, SpDCCols < LIT, ONT >> M(A.getnrow(), ci.TotalLength(), ri, ci, (ONT) 1, false);
-    SpParMat < IT, ONT, SpDCCols < LIT, ONT >> R = PSpGEMM<PlusTimesSRing<bool, ONT>>(B,M);
-    R += M;
-
-    return R;
-    
+    if(CMG.layer_grid == 0)
+    {
+        SpDCCols<IT, bool> *A = new SpDCCols<IT, bool>(*localmat);
+        SpParMat < int64_t, bool, SpDCCols < IT, bool >> B (A, CMG.layerWorld);
+        B.RemoveLoops();
+        SpParMat < int64_t, bool, SpDCCols < IT, bool >> BT = B;
+        BT.Transpose();
+        B += BT;
+        
+        // ------------ compute MIS-2 ----------------------------
+        FullyDistSpVec<int64_t, int64_t> mis2 (B.getcommgrid(), B.getncol());
+        mis2 = MIS2<int64_t>(B);
+        
+        // ------------ Obtain restriction matrix from mis2 ----
+        FullyDistVec<int64_t, int64_t> ri = mis2.FindInds([](int64_t x){return true;});
+        FullyDistVec<int64_t, int64_t> ci(A.getcommgrid());
+        ci.iota(mis2.getnnz(), (int64_t)0);
+        SpParMat < int64_t, NT, SpDCCols < IT, NT >> M(A.getnrow(), ci.TotalLength(), ri, ci, 1, false);
+        SpParMat < int64_t, NT, SpDCCols < IT, NT >> R = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
+        R += M;
+        
+        return R.seqptr();
+    }
+    else
+        return new SpDCCols<IT,NT>();
 }
