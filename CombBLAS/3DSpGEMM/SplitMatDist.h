@@ -80,7 +80,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         return new SpDCCols<IT,NT>();
 }
 
-template<typename NT, typename IT>
+template<typename IT, typename NT>
 SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, double initiator[4], bool trans, bool scramble)
 {
     double t01 = MPI_Wtime();
