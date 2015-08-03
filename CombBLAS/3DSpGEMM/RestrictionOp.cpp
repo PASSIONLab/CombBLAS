@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
             unsigned scale = (unsigned) atoi(argv[5]);
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             
-            SpDCCols<int32_t, double> *A = GenMat(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<int32_t, double> *B = GenMat(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int32_t, double> *A = GenMat<double>(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<int32_t, double> *B = GenMat<double>(CMG, scale, EDGEFACTOR, initiator, true, true);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
