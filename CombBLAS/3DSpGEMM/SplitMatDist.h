@@ -22,7 +22,7 @@
 
 #include "../CombBLAS.h"
 #include "Glue.h"   
-
+#include "CCGrid.h"
 
 template <typename NT, typename IT>
 SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permute, FullyDistVec<IT, IT>& p)
@@ -35,7 +35,8 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
         A->ReadDistribute(filename, 0, false);
-        
+       	//A->ParallelReadMM(filename);
+ 
         SpParHelper::Print("Read input file\n");
         ostringstream tinfo;
         t02 = MPI_Wtime();

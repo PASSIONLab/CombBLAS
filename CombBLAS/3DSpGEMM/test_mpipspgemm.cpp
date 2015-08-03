@@ -15,6 +15,7 @@
 #include "Multiplier.h"
 #include "GenRmatDist.h"
 #include "ReadMatDist.h"
+//#include "SplitMatDist.h"
 
 using namespace std;
 
@@ -95,10 +96,22 @@ int main(int argc, char *argv[])
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
-        Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
+        
+///*
+	Reader(fileA, CMG, splitA, false, true, p); // p generated and used here
         Reader(fileB, CMG, splitB, true, true, p); // p used here
         Reader(fileC, CMG, controlC, false, true, p); // p used here
         
+//*/
+/*	
+	SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, false, p);
+        SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, false, p);
+	SpDCCols<int32_t, double> *C = ReadMat<double>(fileC, CMG, false, false, p);
+        
+	SplitMat(CMG, A, splitA);
+        SplitMat(CMG, B, splitB);
+	SplitMat(CMG, C, controlC);
+*/
         type = string(argv[7]);
         
         if(type == string("outer"))
