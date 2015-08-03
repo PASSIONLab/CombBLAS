@@ -24,7 +24,7 @@
 #include "Glue.h"   
 
 
-template <typename IT, typename NT>
+template <typename NT, typename IT>
 SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permute, FullyDistVec<IT, IT>& p)
 {
     double t01 = MPI_Wtime();
