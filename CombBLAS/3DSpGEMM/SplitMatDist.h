@@ -1,5 +1,5 @@
-#ifndef _GEN_RMAT_DIST_H_
-#define _GEN_RMAT_DIST_H_
+#ifndef _SPLIT_MAT_DIST_H_
+#define _SPLIT_MAT_DIST_H_
 
 #include <mpi.h>
 #include <sys/time.h> 
@@ -34,11 +34,11 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
-        A->ReadDistribute(filename, 0, false);
-       	//A->ParallelReadMM(filename);
  
-        SpParHelper::Print("Read input file\n");
-        ostringstream tinfo;
+        SpParHelper::Print("Reading input file....\n");
+	A->ParallelReadMM(filename);
+        
+	ostringstream tinfo;
         t02 = MPI_Wtime();
         tinfo << "Reader took " << t02-t01 << " seconds" << endl;
         SpParHelper::Print(tinfo.str());
@@ -55,6 +55,9 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
                     p.RandPerm();
                 }
                 (*A)(p,p,true);// in-place permute to save memory
+		ostringstream tinfo1;
+		tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+		SpParHelper::Print(tinfo1.str());
             }
             else
             {
@@ -62,19 +65,21 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
             }
         }
         
-        
-
-        double trans_beg = MPI_Wtime();
-        if(trans) A->Transpose(); // locally transpose
-        comp_trans += (MPI_Wtime() - trans_beg);
-        
-        float balance = A->LoadImbalance();
+       	float balance = A->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
+
+
+	SpDCCols<IT, NT> * localmat = A	->seqptr();
+        double trans_beg = MPI_Wtime();
+        if(trans) localmat->Transpose(); // locally transpose
+        comp_trans += (MPI_Wtime() - trans_beg); 
+	ostringstream tinfo2;
+        tinfo2 << "Local transpose took " << comp_trans << " seconds" << endl;
+        SpParHelper::Print(tinfo2.str());
         
-        
-        return A->seqptr();
+        return localmat;
 
     }
     else
@@ -89,9 +94,6 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
 
     if(CMG.layer_grid == 0)
     {
-        // shared_ptr<CommGrid> layerGrid;
-        //layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
-        
         DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(CMG.layerWorld);
         
         ostringstream minfo;
@@ -101,7 +103,6 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         SpParHelper::Print(minfo.str());
         
         DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, false );
-        // don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
         
         SpParHelper::Print("Generated renamed edge lists\n");
         ostringstream tinfo;
@@ -117,7 +118,10 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         double trans_beg = MPI_Wtime();
         if(trans) A->Transpose(); // locally transpose
         comp_trans += (MPI_Wtime() - trans_beg);
-        
+       	ostringstream tinfo2;
+        tinfo2 << "Local transpose took " << comp_trans << " seconds" << endl;
+        SpParHelper::Print(tinfo2.str());
+ 
         float balance = A->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
