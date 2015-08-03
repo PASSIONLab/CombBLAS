@@ -3,7 +3,7 @@ CXX := CC
 CXXFLAGS := -std=c++11 -O2 -g -fopenmp -fpermissive #-DDEBUG 
 
 # C compiler
-CC := mpicc
+CC := cc
 CFLAGS := -Wall -O2
 
 COMBBLAS = ..
@@ -33,10 +33,14 @@ clean:
 SUMMALayer.o: SUMMALayer.cpp mtSpGEMM.o
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-mpipspgemm: mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h  SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o 
+mpipspgemm: mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h  SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o 
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
-test_mpipspgemm: test_mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o
+test_mpipspgemm: test_mpipspgemm.o mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+RestrictionOp: RestrictionOp.o SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o 
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
 

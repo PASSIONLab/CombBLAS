@@ -48,23 +48,8 @@ void Reader(string filename, CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool tran
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
-        A->ReadDistribute(filename, 0, false);
-        
-        // check for symmetry and Symmetricize if needed
-        ifstream inf;
-        inf.open(filename, ios::in);
-        string header;
-        getline(inf,header);
-        size_t found1, found2, found3;
-        found1 = header.find("symmetric");
-        found2 = header.find("hermitian");
-        found3 = header.find("skew-symmetric");
-        if (found1 != string::npos || found2 != string::npos || found3 != string::npos)
-        {
-            Symmetricize(*A);
-        }
-        inf.close();
-        
+        //A->ReadDistribute(filename, 0, false);
+	A->ParallelReadMM(filename);        
         
         // random permutations for load balance
         if(permute)
