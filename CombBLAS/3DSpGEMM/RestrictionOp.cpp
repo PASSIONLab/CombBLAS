@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
     
 	
     {
-        SpDCCols<int32_t, double> splitA, splitB;
-        SpDCCols<int32_t, double> *splitC;
+        SpDCCols<int64_t, double> splitA, splitR, splitRT, splitB;
+        SpDCCols<int64_t, double> *splitC;
         string type;
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
-        FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
+        FullyDistVec<int64_t, int64_t> p(layerGrid); // permutation vector defined on layers
         
         if(string(argv[4]) == string("input")) // input option
         {
@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
             string fileB(argv[6]);
             
             double t01 = MPI_Wtime();
-            SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
-            SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
+            SpDCCols<int64_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
+            SpDCCols<int64_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
             if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
@@ -149,18 +149,25 @@ int main(int argc, char *argv[])
             unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             
             double t01 = MPI_Wtime();
-            SpDCCols<int32_t, double>* A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<int32_t, double>* B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int64_t, double>* A = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
+            //SpDCCols<int32_t, double>* B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+           
+
+		SpParMat < int64_t, double, SpDCCols<int64_t,double> > BB (A,CMG.layerWorld); 
+		SpParMat < int64_t, double, SpDCCols<int64_t,double> > R = RestrictionOp<int64_t>(BB);
+            //SpDCCols<int64_t, double>* R = RestrictionOp( CMG, A);
+	    
+	    //SpDCCols<int64_t, double> RT = *R;
+	    //RT->Transpose();
             
-            SpDCCols<int32_t, double>* R RestrictionOp( CMG, A);
-            
-            SplitMat(CMG, A, splitA);
-            SplitMat(CMG, B, splitB);
+            //SplitMat(CMG, A, splitA);
+            //SplitMat(CMG, R, splitR);
+ 	    //SplitMat(CMG, RT, splitRT);
             if(myrank == 0) cout << "RMATs Generated and replicated along layers : time " << MPI_Wtime() - t01 << endl;
             
         }
         
-        
+        /*
         type = string(argv[7]);
         if(myrank == 0)
             printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
@@ -180,11 +187,12 @@ int main(int argc, char *argv[])
             splitB.Transpose();
             for(int k=0; k<ITERS; k++)
             {
-                splitC = multiply(splitA, splitB, CMG, false, true);
+                splitC = multiply(splitA, splitR, CMG, false, true);
                 delete splitC;
             }
             
         }
+	*/
     }
     
 	MPI_Finalize();
