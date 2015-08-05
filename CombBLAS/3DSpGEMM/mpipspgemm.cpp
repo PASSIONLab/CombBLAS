@@ -32,7 +32,7 @@ double comm_split;
 
 int main(int argc, char *argv[])
 {
-    int provided;    
+    int provided;
     
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
 		if(myrank == 0)
 		{
 			printf("Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> <algo>\n");
-            printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n"); //TODO:<Scale>  not meaningful here. Need to remove it.  Still there because current scripts execute without error.
-			printf("Example: ./mpipspgemm 4 4 2 ER 19 16 outer\n");
-            printf("Example: ./mpipspgemm 4 4 2 Input matA.mtx matB.mtx threaded\n");
+            printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n");
+            printf("Example: ./mpipspgemm 4 4 2 ER 19 16 outer\n");
+            printf("Example: ./mpipspgemm 4 4 2 Input matA.mtx matB.mtx column\n");
 			printf("Type ER: Erdos-Renyi\n");
 			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
 			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
@@ -113,7 +113,8 @@ int main(int argc, char *argv[])
         }
         else
         {
-            
+            unsigned scale = (unsigned) atoi(argv[5]);
+            unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
             double initiator[4];
             if(string(argv[4]) == string("ER"))
             {
@@ -128,6 +129,7 @@ int main(int argc, char *argv[])
                 initiator[1] = .19;
                 initiator[2] = .19;
                 initiator[3] = .05;
+                EDGEFACTOR  = 16;
             }
             else if(string(argv[4]) == string("SSCA"))
             {
@@ -135,16 +137,15 @@ int main(int argc, char *argv[])
                 initiator[1] = .4/3;
                 initiator[2] = .4/3;
                 initiator[3] = .4/3;
+                EDGEFACTOR  = 8;
             }
             else {
                 if(myrank == 0)
-                    printf("The initiator parameter - %s - is not recognized. Using default ER\n", argv[5]);
+                    printf("The initiator parameter - %s - is not recognized.\n", argv[5]);
                 MPI_Abort(MPI_COMM_WORLD, 1);
             }
             
-            unsigned scale = (unsigned) atoi(argv[5]);
-            unsigned EDGEFACTOR = (unsigned) atoi(argv[6]);
-            
+ 
             double t01 = MPI_Wtime();
             SpDCCols<int32_t, double> *A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
             SpDCCols<int32_t, double> *B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);

@@ -89,7 +89,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
 }
 
 template<typename IT, typename NT>
-SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, double initiator[4], bool trans, bool scramble)
+SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, double initiator[4], bool trans, bool permute)
 {
     double t01 = MPI_Wtime();
     double t02;
@@ -104,7 +104,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         minfo << "Using " << nprocs << " MPI processes" << endl;
         SpParHelper::Print(minfo.str());
         
-        DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, false );
+        DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
         
         SpParHelper::Print("Generated renamed edge lists\n");
         ostringstream tinfo;
@@ -117,12 +117,28 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         delete DEL;
         SpParHelper::Print("Created Sparse Matrix\n");
         
+        
+        // random permutations for load balance
+        if(permute)
+        {
+            shared_ptr<CommGrid> layerGrid;
+            layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
+            FullyDistVec<IT, IT> p(layerGrid); // permutation vector defined on layers
+            p.iota(A->getnrow(), 0);
+            p.RandPerm();
+            (*A)(p,p,true);// in-place permute to save memory
+            ostringstream tinfo1;
+            tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+            SpParHelper::Print(tinfo1.str());
+        }
+        
+        
         float balance = A->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
         
-        SpDCCols<IT, NT> * localmat = A	->seqptr();
+        SpDCCols<IT, NT> * localmat = A->seqptr();
         double trans_beg = MPI_Wtime();
         if(trans)
         {
