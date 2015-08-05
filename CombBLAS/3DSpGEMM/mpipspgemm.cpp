@@ -28,13 +28,11 @@ double comp_split;
 double comp_trans;
 double comm_split;
 
-#define ITERS 5 
+#define ITERS 5
 
 int main(int argc, char *argv[])
 {
-    int provided;
-	//MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
-    
+    int provided;    
     
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
