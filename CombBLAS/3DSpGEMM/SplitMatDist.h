@@ -2,7 +2,7 @@
 #define _SPLIT_MAT_DIST_H_
 
 #include <mpi.h>
-#include <sys/time.h> 
+#include <sys/time.h>
 #include <iostream>
 #include <iomanip>
 #include <functional>
@@ -21,7 +21,7 @@
 #include <stdint.h>
 
 #include "../CombBLAS.h"
-#include "Glue.h"   
+#include "Glue.h"
 #include "CCGrid.h"
 
 template <typename NT, typename IT>
@@ -34,11 +34,11 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
- 
-        SpParHelper::Print("Reading input file....\n");
-	A->ParallelReadMM(filename);
         
-	ostringstream tinfo;
+        SpParHelper::Print("Reading input file....\n");
+        A->ParallelReadMM(filename);
+        
+        ostringstream tinfo;
         t02 = MPI_Wtime();
         tinfo << "Reader took " << t02-t01 << " seconds" << endl;
         SpParHelper::Print(tinfo.str());
@@ -55,9 +55,9 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
                     p.RandPerm();
                 }
                 (*A)(p,p,true);// in-place permute to save memory
-		ostringstream tinfo1;
-		tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
-		SpParHelper::Print(tinfo1.str());
+                ostringstream tinfo1;
+                tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+                SpParHelper::Print(tinfo1.str());
             }
             else
             {
@@ -69,18 +69,20 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
-
-
-	SpDCCols<IT, NT> * localmat = A	->seqptr();
-        double trans_beg = MPI_Wtime();
-        if(trans) localmat->Transpose(); // locally transpose
-        comp_trans += (MPI_Wtime() - trans_beg); 
-	ostringstream tinfo2;
-        tinfo2 << "Local transpose took " << comp_trans << " seconds" << endl;
-        SpParHelper::Print(tinfo2.str());
         
+        
+        
+        SpDCCols<IT, NT> * localmat = A	->seqptr();
+        double trans_beg = MPI_Wtime();
+        if(trans)
+        {
+            localmat->Transpose(); // locally transpose
+            ostringstream tinfo2;
+            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
+            SpParHelper::Print(tinfo2.str());
+        }
+        comp_trans += (MPI_Wtime() - trans_beg);
         return localmat;
-
     }
     else
         return new SpDCCols<IT,NT>();
@@ -91,7 +93,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
 {
     double t01 = MPI_Wtime();
     double t02;
-
+    
     if(CMG.layer_grid == 0)
     {
         DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(CMG.layerWorld);
@@ -115,23 +117,23 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         delete DEL;
         SpParHelper::Print("Created Sparse Matrix\n");
         
-        double trans_beg = MPI_Wtime();
-        if(trans)
-        {
-            A->Transpose(); // locally transpose
-            ostringstream tinfo2;
-            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
-            SpParHelper::Print(tinfo2.str());
-        }
-        comp_trans += (MPI_Wtime() - trans_beg);
-       
- 
         float balance = A->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
         
-        return A->seqptr();
+        SpDCCols<IT, NT> * localmat = A	->seqptr();
+        double trans_beg = MPI_Wtime();
+        if(trans)
+        {
+            localmat->Transpose(); // locally transpose
+            ostringstream tinfo2;
+            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
+            SpParHelper::Print(tinfo2.str());
+        }
+        comp_trans += (MPI_Wtime() - trans_beg);
+        
+        return localmat;
     }
     else
         return new SpDCCols<IT,NT>();
@@ -147,11 +149,11 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
     vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
-	if(CMG.layer_grid == 0)
-	{
+    if(CMG.layer_grid == 0)
+    {
         double split_beg = MPI_Wtime();
         localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
-
+        
         for(int i=0; i< nparts; ++i)
         {
             vector<IT> ess = partsmat[i].GetEssentials();
@@ -161,11 +163,11 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
             }
         }
         comp_split += (MPI_Wtime() - split_beg);
-	}
+    }
     
     double scatter_beg = MPI_Wtime();   // timer on
     int esscnt = SpDCCols<IT,NT>::esscount; // necessary cast for MPI
-
+    
     vector<IT> myess(esscnt);
     MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
     
@@ -191,7 +193,7 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     {
         splitmat.Create(myess);		// allocate memory for arrays
         Arr<IT,NT> arrinfo = splitmat.GetArrays();
-
+        
         int tag = 0;
         for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
         {
@@ -206,7 +208,7 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     ostringstream tinfo;
     tinfo << "Matrix split and distributed along layers: time " << MPI_Wtime()-t01 << " seconds" << endl;
     SpParHelper::Print(tinfo.str());
-
+    
 }
 
 #endif
