@@ -46,34 +46,34 @@ int main(int argc, char *argv[])
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-
-	if(argc < 8)
-	{
-		if(myrank == 0)
-		{
-			printf("Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> <algo>\n");
+    
+    if(argc < 8)
+    {
+        if(myrank == 0)
+        {
+            printf("Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> <algo>\n");
             printf("Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> <matB> <algo>\n");
             printf("Example: ./mpipspgemm 4 4 2 ER 19 16 outer\n");
             printf("Example: ./mpipspgemm 4 4 2 Input matA.mtx matB.mtx column\n");
-			printf("Type ER: Erdos-Renyi\n");
-			printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
-			printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
+            printf("Type ER: Erdos-Renyi\n");
+            printf("Type SSCA: R-MAT with SSCA benchmark parameters\n");
+            printf("Type G500: R-MAT with Graph500 benchmark parameters\n");
             printf("algo: outer | column \n");
-		}
-		return -1;         
-	}
-
-	
-	unsigned GRROWS = (unsigned) atoi(argv[1]);
-	unsigned GRCOLS = (unsigned) atoi(argv[2]);
-	unsigned C_FACTOR = (unsigned) atoi(argv[3]);
+        }
+        return -1;
+    }
+    
+    
+    unsigned GRROWS = (unsigned) atoi(argv[1]);
+    unsigned GRCOLS = (unsigned) atoi(argv[2]);
+    unsigned C_FACTOR = (unsigned) atoi(argv[3]);
     CCGrid CMG(C_FACTOR, GRCOLS);
     int nthreads;
 #pragma omp parallel
     {
         nthreads = omp_get_num_threads();
     }
-
+    
     
     if(GRROWS != GRCOLS)
     {
@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     
-	
+    
     {
-        SpDCCols<int32_t, double> splitA, splitB;
-        SpDCCols<int32_t, double> *splitC;
+        SpDCCols<int64_t, double> splitA, splitB;
+        SpDCCols<int64_t, double> *splitC;
         string type;
         shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
-        FullyDistVec<int32_t, int32_t> p(layerGrid); // permutation vector defined on layers
+        FullyDistVec<int64_t, int64_t> p(layerGrid); // permutation vector defined on layers
         
         if(string(argv[4]) == string("input")) // input option
         {
@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
             string fileB(argv[6]);
             
             double t01 = MPI_Wtime();
-            SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
-            SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
+            SpDCCols<int64_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
+            SpDCCols<int64_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
             if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
                 MPI_Abort(MPI_COMM_WORLD, 1);
             }
             
- 
+            
             double t01 = MPI_Wtime();
-            SpDCCols<int32_t, double> *A = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<int32_t, double> *B = GenMat<int32_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int64_t, double> *A = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
+            SpDCCols<int64_t, double> *B = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
             
             SplitMat(CMG, A, splitA);
             SplitMat(CMG, B, splitB);
@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
         
         type = string(argv[7]);
         if(myrank == 0)
-	{
+        {
            	printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
-		printf(" prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total\n");      
-	} 
+            printf(" prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total\n");
+        }
         if(type == string("outer"))
         {
             for(int k=0; k<ITERS; k++)
@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
         }
     }
     
-	MPI_Finalize();
-	return 0;
+    MPI_Finalize();
+    return 0;
 }
-	
+
 
