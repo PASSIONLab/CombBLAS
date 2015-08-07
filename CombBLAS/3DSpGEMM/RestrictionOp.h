@@ -54,17 +54,21 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
     //# the final result set. S[i] exists and is 1 if vertex i is in the MIS
     FullyDistSpVec<IT, ONT> mis ( A.getcommgrid(), nvert);
     
-    
+
     //# the candidate set. initially all vertices are candidates.
     //# If cand[i] exists, then i is a candidate. The value cand[i] is i's random number for this iteration.
-    FullyDistVec<IT, double> dcand( A.getcommgrid(), nvert, 1.0);
-    FullyDistSpVec<IT, double> cand (dcand);
+    FullyDistSpVec<IT, double> cand(A.getcommgrid());
+    cand.iota(nvert, 1.0); // any value is fine since we randomize it later
     FullyDistSpVec<IT, double> min_neighbor_r ( A.getcommgrid(), nvert);
     FullyDistSpVec<IT, double> min_neighbor2_r ( A.getcommgrid(), nvert);
+    
+    
     
     FullyDistSpVec<IT, ONT> new_S_members ( A.getcommgrid(), nvert);
     FullyDistSpVec<IT, ONT> new_S_neighbors ( A.getcommgrid(), nvert);
     FullyDistSpVec<IT, ONT> new_S_neighbors2 ( A.getcommgrid(), nvert);
+    
+    
     
     while (cand.getnnz() > 0)
     {
@@ -112,17 +116,19 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
     return mis;
 }
 
-/*
+
+
 template <typename IT, typename NT>
-SpDCCols<IT, NT>* RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat)
+void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> *& R, SpDCCols<IT, NT> *& RT)
 {
-    //if(CMG.layer_grid == 0)
+    if(CMG.layer_grid == 0)
     {
         SpDCCols<IT, bool> *A = new SpDCCols<IT, bool>(*localmat);
+        
         SpParMat < IT, bool, SpDCCols < IT, bool >> B (A, CMG.layerWorld);
-
-	B.RemoveLoops();
-
+        
+        B.RemoveLoops();
+        
         SpParMat < IT, bool, SpDCCols < IT, bool >> BT = B;
         BT.Transpose();
         B += BT;
@@ -130,46 +136,56 @@ SpDCCols<IT, NT>* RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat)
         // ------------ compute MIS-2 ----------------------------
         FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
         mis2 = MIS2<IT>(B);
-       	mis2.DebugPrint(); 
+       	mis2.DebugPrint();
         // ------------ Obtain restriction matrix from mis2 ----
         FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
         FullyDistVec<IT, IT> ci(B.getcommgrid());
         ci.iota(mis2.getnnz(), (IT)0);
         SpParMat < IT, NT, SpDCCols < IT, NT >> M(B.getnrow(), ci.TotalLength(), ri, ci, (NT)1, false);
-        SpParMat < IT, NT, SpDCCols < IT, NT >> R = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
-        R += M;
+        SpParMat < IT, NT, SpDCCols < IT, NT >> Rop = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
+        Rop += M;
         
-        return R.seqptr();
-
+        
+        SpParMat < IT, NT, SpDCCols < IT, NT >> RopT = Rop;
+        RopT.Transpose();
+        
+        R = new SpDCCols<IT, NT>(Rop.seq()); // deep copy
+        RT = new SpDCCols<IT, NT>(RopT.seq()); // deep copy
+        
     }
-    //else
-      //  return new SpDCCols<IT,NT>();
 }
-*/
 
-template <typename ONT, typename IT, typename LIT, typename NT>
-SpParMat < IT, ONT, SpDCCols < LIT, ONT >> RestrictionOp( SpParMat < IT, NT, SpDCCols < LIT, NT >> A)
+
+
+/*
+template <typename IT, typename NT, typename DER>
+SpParMat < IT, NT, DER> RestrictionOp( SpParMat < IT, NT, DER> A)
 {
     
-    SpParMat < IT, bool, SpDCCols < LIT, bool >> B = SpParMat < IT, bool, SpDCCols < LIT, bool >> (A);
+    SpParMat < IT, bool, SpDCCols < IT, bool >> B = SpParMat < IT, bool, SpDCCols < IT, bool >> (A);
     B.RemoveLoops();
-    SpParMat < IT, bool, SpDCCols < LIT, bool >> BT = B;
+    SpParMat < IT, bool, SpDCCols < IT, bool >> BT = B;
     BT.Transpose();
     B += BT;
     
     // ------------ compute MIS-2 ----------------------------
     FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
     mis2 = MIS2<IT>(B);
-	mis2.DebugPrint();    
+    mis2.DebugPrint();
+    
     // ------------ Obtain restriction matric from mis2 ----
     FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
     FullyDistVec<IT, IT> ci(A.getcommgrid());
     ci.iota(mis2.getnnz(), (IT)0);
-    SpParMat < IT, ONT, SpDCCols < LIT, ONT >> M(A.getnrow(), ci.TotalLength(), ri, ci, (ONT) 1, false);
-    SpParMat < IT, ONT, SpDCCols < LIT, ONT >> R = PSpGEMM<PlusTimesSRing<bool, ONT>>(B,M);
+    SpParMat < IT, NT, DER> M(A.getnrow(), ci.TotalLength(), ri, ci, (NT) 1, false);
+    SpParMat < IT, NT, DER> R = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
     R += M;
-
+    
     return R;
     
 }
+*/
+
+
+
 

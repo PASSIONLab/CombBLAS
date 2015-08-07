@@ -97,13 +97,13 @@ int main(int argc, char *argv[])
         
         double t01 = MPI_Wtime();
         
-        SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
-        SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
-        SpDCCols<int32_t, double> *C = ReadMat<double>(fileC, CMG, false, true, p);
+        SpDCCols<int32_t, double> *A = ReadMat<double>(fileA, CMG, true, p);
+        SpDCCols<int32_t, double> *B = ReadMat<double>(fileB, CMG, true, p);
+        SpDCCols<int32_t, double> *C = ReadMat<double>(fileC, CMG, true, p);
         
-        SplitMat(CMG, A, splitA);
-        SplitMat(CMG, B, splitB);
-        SplitMat(CMG, C, controlC);
+        SplitMat(CMG, A, splitA, false);
+        SplitMat(CMG, B, splitB, true);
+        SplitMat(CMG, C, controlC, false);
         
         if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
 
@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
         {
             for(int k=0; k<ITERS; k++)
             {
+                splitB.Transpose(); // locally "transpose" [ABAB: check correctness]
                 splitC = multiply(splitA, splitB, CMG, true, false); // outer product
                 if (controlC == *splitC)
                     SpParHelper::Print("Outer product multiplication working correctly\n");
@@ -124,7 +125,7 @@ int main(int argc, char *argv[])
         }
         else if(type == string("column"))
         {
-            splitB.Transpose(); // locally "untranspose" [ABAB: check correctness]
+            
             for(int k=0; k<ITERS; k++)
             {
                 splitC = multiply(splitA, splitB, CMG, false, false);
@@ -139,7 +140,6 @@ int main(int argc, char *argv[])
         }
         else // default threaded
         {
-            splitB.Transpose();
             for(int k=0; k<ITERS; k++)
             {
                 splitC = multiply(splitA, splitB, CMG, false, true);

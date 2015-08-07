@@ -27,8 +27,8 @@ clean:
 	rm -rf mpipspgemm
 	rm -f *.o
 	rm -rf ../*.o
-	rm -f ./graph500-1.2/generator/*.o
-	rm -f ./graph500-1.2/generator/libgraph_generator_seq.a
+	rm -f ../graph500-1.2/generator/*.o
+	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
 
 SUMMALayer.o: SUMMALayer.cpp mtSpGEMM.o
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
