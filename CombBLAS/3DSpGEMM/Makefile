@@ -1,10 +1,10 @@
 # C++ compiler
 CXX := CC
-CXXFLAGS := -std=c++11 -O2 -g -fopenmp -fpermissive #-DDEBUG 
+CXXFLAGS := -std=c++11 -O2 -DNDEBUG -fopenmp #-DDEBUG 
 
 # C compiler
 CC := cc
-CFLAGS := -Wall -O2
+CFLAGS := -O2
 
 COMBBLAS = ..
 

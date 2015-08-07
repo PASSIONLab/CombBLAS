@@ -140,7 +140,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
-        IT localmax = -1;
+        IT localmax = 0;
         for(int i=colPerThread[thisThread]; i < colPerThread[thisThread+1]; ++i)
         {
             IT colnnz = Bdcsc->cp[i+1]-Bdcsc->cp[i];
