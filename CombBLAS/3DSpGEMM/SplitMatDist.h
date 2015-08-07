@@ -25,7 +25,7 @@
 #include "CCGrid.h"
 
 template <typename NT, typename IT>
-SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permute, FullyDistVec<IT, IT>& p)
+SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDistVec<IT, IT>& p)
 {
     double t01 = MPI_Wtime();
     double t02;
@@ -69,27 +69,15 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool trans, bool permut
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
-        
-        
-        
-        SpDCCols<IT, NT> * localmat = A	->seqptr();
-        double trans_beg = MPI_Wtime();
-        if(trans)
-        {
-            localmat->Transpose(); // locally transpose
-            ostringstream tinfo2;
-            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
-            SpParHelper::Print(tinfo2.str());
-        }
-        comp_trans += (MPI_Wtime() - trans_beg);
-        return localmat;
+       
+        return  A->seqptr();
     }
     else
         return new SpDCCols<IT,NT>();
 }
 
 template<typename IT, typename NT>
-SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, double initiator[4], bool trans, bool permute)
+SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, double initiator[4], bool permute)
 {
     double t01 = MPI_Wtime();
     double t02;
@@ -117,7 +105,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         delete DEL;
         SpParHelper::Print("Created Sparse Matrix\n");
         
-        
+        /*
         // random permutations for load balance
         if(permute)
         {
@@ -131,6 +119,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
             tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
             SpParHelper::Print(tinfo1.str());
         }
+         */
         
         
         float balance = A->LoadImbalance();
@@ -138,28 +127,18 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
         
-        SpDCCols<IT, NT> * localmat = A->seqptr();
-        double trans_beg = MPI_Wtime();
-        if(trans)
-        {
-            localmat->Transpose(); // locally transpose
-            ostringstream tinfo2;
-            tinfo2 << "Locally transposed: time " << MPI_Wtime() - trans_beg << " seconds" << endl;
-            SpParHelper::Print(tinfo2.str());
-        }
-        comp_trans += (MPI_Wtime() - trans_beg);
-        
-        return localmat;
+        return A->seqptr();
     }
     else
         return new SpDCCols<IT,NT>();
 }
 
 /**
+ ** \param[in] rowsplit {split along the row? true for B matrix}
  ** \param[out] splitmat {split a matrix from layer 0 into CMG.GridLayers pieces}
  **/
 template <typename IT, typename NT>
-void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & splitmat)
+void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & splitmat, bool rowsplit=false)
 {
     double t01 = MPI_Wtime();
     vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
@@ -168,6 +147,7 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     if(CMG.layer_grid == 0)
     {
         double split_beg = MPI_Wtime();
+        if(rowsplit && nparts>1) localmat->Transpose(); // local rowsplit is performaned local transpose and ColSplit
         localmat->ColSplit(nparts, partsmat);     // split matrices are emplaced-back into partsmat vector, localmat destroyed
         
         for(int i=0; i< nparts; ++i)
@@ -221,6 +201,8 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
         }
     }
     comm_split += (MPI_Wtime() - scatter_beg);
+    
+    if(rowsplit && nparts>1) splitmat.Transpose(); //transpose back after row-splitting
     ostringstream tinfo;
     tinfo << "Matrix split and distributed along layers: time " << MPI_Wtime()-t01 << " seconds" << endl;
     SpParHelper::Print(tinfo.str());

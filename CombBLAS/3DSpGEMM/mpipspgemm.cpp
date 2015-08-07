@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
             string fileB(argv[6]);
             
             double t01 = MPI_Wtime();
-            SpDCCols<int64_t, double> *A = ReadMat<double>(fileA, CMG, false, true, p);
-            SpDCCols<int64_t, double> *B = ReadMat<double>(fileB, CMG, true, true, p);
-            SplitMat(CMG, A, splitA);
-            SplitMat(CMG, B, splitB);
+            SpDCCols<int64_t, double> *A = ReadMat<double>(fileA, CMG, true, p);
+            SpDCCols<int64_t, double> *B = ReadMat<double>(fileB, CMG, true, p);
+            SplitMat(CMG, A, splitA, false);
+            SplitMat(CMG, B, splitB, true); //row-split
             if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
         }
         else
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
             
             
             double t01 = MPI_Wtime();
-            SpDCCols<int64_t, double> *A = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, false, true);
-            SpDCCols<int64_t, double> *B = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, true, true);
+            SpDCCols<int64_t, double> *A = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, true);
+            SpDCCols<int64_t, double> *B = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, true);
             
-            SplitMat(CMG, A, splitA);
-            SplitMat(CMG, B, splitB);
+            SplitMat(CMG, A, splitA, false);
+            SplitMat(CMG, B, splitB, true); //row-split
             if(myrank == 0) cout << "RMATs Generated and replicated along layers : time " << MPI_Wtime() - t01 << endl;
             
         }
@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
         }
         if(type == string("outer"))
         {
+            splitB.Transpose(); //locally transpose for outer product
             for(int k=0; k<ITERS; k++)
             {
                 splitC = multiply(splitA, splitB, CMG, true, false); // outer product
@@ -175,7 +176,6 @@ int main(int argc, char *argv[])
         
         else // default column-threaded
         {
-            splitB.Transpose();
             for(int k=0; k<ITERS; k++)
             {
                 splitC = multiply(splitA, splitB, CMG, false, true);
