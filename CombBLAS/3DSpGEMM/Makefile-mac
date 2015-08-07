@@ -1,10 +1,10 @@
 # C++ compiler
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -O2 -g -fopenmp -fpermissive -DDEBUG 
+CXXFLAGS := -std=c++11 -O2 -DNDEBUG -fopenmp #-DDEBUG 
 
 # C compiler
 CC := mpicc
-CFLAGS := -Wall -O2
+CFLAGS := -O2
 
 COMBBLAS = ..
 
@@ -21,7 +21,7 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 
-all: mpipspgemm test_mpipspgemm
+all: mpipspgemm test_mpipspgemm RestrictionOp
 
 clean:
 	rm -rf mpipspgemm

@@ -136,7 +136,7 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         // ------------ compute MIS-2 ----------------------------
         FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
         mis2 = MIS2<IT>(B);
-       	mis2.DebugPrint();
+       	//mis2.DebugPrint();
         // ------------ Obtain restriction matrix from mis2 ----
         FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
         FullyDistVec<IT, IT> ci(B.getcommgrid());
