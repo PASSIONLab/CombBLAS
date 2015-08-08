@@ -2,7 +2,7 @@
 #PBS -A CSC103
 #PBS -q debug
 #PBS -l nodes=512
-#PBS -l walltime=00:59:00
+#PBS -l walltime=00:05:00
 #PBS -N spGEMMexp_G500_24_8192
 #PBS -j oe
 cd $MEMBERWORK/csc103
