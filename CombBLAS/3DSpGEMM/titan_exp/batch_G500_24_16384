@@ -1,6 +1,5 @@
 #!/bin/bash
 #PBS -A CSC103
-#PBS -q debug
 #PBS -l nodes=1024
 #PBS -l walltime=00:59:00
 #PBS -N spGEMMexp_G500_24_16384
