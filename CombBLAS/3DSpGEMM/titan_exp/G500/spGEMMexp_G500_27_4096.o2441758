@@ -1,0 +1,979 @@
+Started Generation of scale 27
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 1.04318 seconds
+Created Sparse Matrix
+Load balance: 1.04124
+Started Generation of scale 27
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 1.04596 seconds
+Created Sparse Matrix
+Load balance: 1.0529
+Matrix split and distributed along layers: time 0.0234289 seconds
+Matrix split and distributed along layers: time 0.0226371 seconds
+RMATs Generated and replicated along layers : time 9.63609
+
+ Processor Grid (row x col x layers x threads): 64x64x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  64   64     1      1  42.455714     0.000000     9.148617   1.925209     0.000000     0.357095     0.928710  54.815345
+  64   64     1      1  41.006968     0.000000     9.303457   1.906377     0.000000     0.355277     0.998781  53.570860
+  64   64     1      1  41.451248     0.000000     9.030358   1.885553     0.000000     0.353681     0.945545  53.666385
+  64   64     1      1  41.787597     0.000000     8.931762   1.897200     0.000000     0.359483     0.984463  53.960505
+  64   64     1      1  41.914716     0.000000     8.897989   1.886454     0.000000     0.352535     0.960346  54.012040
+Application 8986423 resources: utime ~1128788s, stime ~44155s, Rss ~675520, inblocks ~11047535, outblocks ~7604566
+Started Generation of scale 27
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 2.0496 seconds
+Created Sparse Matrix
+Load balance: 1.11879
+Started Generation of scale 27
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 2.05263 seconds
+Created Sparse Matrix
+Load balance: 1.03845
+Matrix split and distributed along layers: time 0.0546141 seconds
+Matrix split and distributed along layers: time 0.49504 seconds
+RMATs Generated and replicated along layers : time 9.39017
+
+ Processor Grid (row x col x layers x threads): 45x45x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     2      1  21.355941     0.552698     6.680928   1.947182     1.249886     0.338421     1.990508  34.115563
+  45   45     2      1  23.923688     0.555467     6.381988   1.942690     1.253580     0.345176     1.015930  35.418519
+  45   45     2      1  21.519682     0.555141     6.497889   1.944222     1.250788     0.355149     0.918665  33.041536
+  45   45     2      1  22.300910     0.549958     6.481781   1.941472     1.258989     0.337444     0.925429  33.795982
+  45   45     2      1  21.469436     0.556266     6.622499   1.940518     1.243412     0.355220     0.903939  33.091290
+Application 8986429 resources: utime ~692894s, stime ~58482s, Rss ~1073484, inblocks ~6368838, outblocks ~7380310
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 4.00786 seconds
+Created Sparse Matrix
+Load balance: 1.04927
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 4.01458 seconds
+Created Sparse Matrix
+Load balance: 1.0239
+Matrix split and distributed along layers: time 0.209853 seconds
+Matrix split and distributed along layers: time 0.835631 seconds
+RMATs Generated and replicated along layers : time 13.5417
+
+ Processor Grid (row x col x layers x threads): 32x32x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     4      1  12.598186     0.684453     4.788239   1.667438     1.303914     0.343236     1.602773  22.988240
+  32   32     4      1  10.722033     0.676633     4.749423   1.678418     1.312204     0.339483     2.603992  22.082186
+  32   32     4      1  12.474217     0.645853     4.911110   1.678522     1.311530     0.344523     1.367933  22.733689
+  32   32     4      1  13.161746     0.676028     4.681203   1.659428     1.265039     0.351006     2.121369  23.915818
+  32   32     4      1  13.211728     0.673417     4.599230   1.656824     1.270463     0.340838     1.048527  22.801027
+Application 8986437 resources: utime ~493038s, stime ~58774s, Rss ~976500, inblocks ~5331690, outblocks ~7364965
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 8.44037 seconds
+Created Sparse Matrix
+Load balance: 1.01992
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 8.44401 seconds
+Created Sparse Matrix
+Load balance: 1.02115
+Matrix split and distributed along layers: time 0.411601 seconds
+Matrix split and distributed along layers: time 1.85554 seconds
+RMATs Generated and replicated along layers : time 26.5797
+
+ Processor Grid (row x col x layers x threads): 22x22x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     8      1   8.443199     0.879131     3.488369   1.486194     1.488324     0.249457     3.449946  19.484619
+  22   22     8      1   8.331711     0.861317     3.535703   1.484508     1.511541     0.324304     3.163583  19.212667
+  22   22     8      1   9.355064     0.863461     3.572597   1.470524     1.509276     0.299953     1.725321  18.796196
+  22   22     8      1   8.293061     0.848473     3.544711   1.487791     1.509435     0.286377     3.449229  19.419077
+  22   22     8      1   7.416588     0.851198     3.466607   1.482868     1.512014     0.297190     4.098356  19.124821
+Application 8986445 resources: utime ~441558s, stime ~59760s, Rss ~1095584, inblocks ~4963681, outblocks ~8889859
+Started Generation of scale 27
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 12.6481 seconds
+Created Sparse Matrix
+Load balance: 1.01322
+Started Generation of scale 27
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 12.6651 seconds
+Created Sparse Matrix
+Load balance: 1.01785
+Matrix split and distributed along layers: time 0.664753 seconds
+Matrix split and distributed along layers: time 2.95546 seconds
+RMATs Generated and replicated along layers : time 38.3153
+
+ Processor Grid (row x col x layers x threads): 18x18x12x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  18   18    12      1   7.422694     0.759705     2.993234   1.593962     1.424486     0.282653     3.731282  18.208016
+  18   18    12      1   6.914727     0.752596     3.011262   1.614765     1.505071     0.275592     3.713753  17.787767
+  18   18    12      1   8.695936     0.782852     3.118450   1.605917     1.585256     0.317485     1.604216  17.710112
+  18   18    12      1   8.389534     0.749328     3.041984   1.607583     1.510243     0.275716     2.210695  17.785084
+  18   18    12      1   9.787294     0.760486     3.182865   1.598343     1.509811     0.275239     1.183748  18.297786
+Application 8986449 resources: utime ~466945s, stime ~57668s, Rss ~999424, inblocks ~5118942, outblocks ~8296119
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 15.9033 seconds
+Created Sparse Matrix
+Load balance: 1.00757
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 15.9246 seconds
+Created Sparse Matrix
+Load balance: 1.00843
+Matrix split and distributed along layers: time 0.779805 seconds
+Matrix split and distributed along layers: time 3.25823 seconds
+RMATs Generated and replicated along layers : time 47.2868
+
+ Processor Grid (row x col x layers x threads): 16x16x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16    16      1   4.396912     0.785774     2.620942   1.563887     1.418854     0.295655     2.664889  13.746913
+  16   16    16      1   5.088029     0.782397     2.702430   1.558435     1.486750     0.283702     1.807588  13.709330
+  16   16    16      1   4.729553     0.770379     2.692575   1.565395     1.477488     0.280753     2.307234  13.823377
+  16   16    16      1   4.754465     0.776458     2.647120   1.561768     1.482585     0.284690     2.272234  13.779321
+  16   16    16      1   4.773717     0.770514     2.644514   1.565008     1.491464     0.281853     1.938723  13.465793
+Application 8986455 resources: utime ~439924s, stime ~63084s, Rss ~992952, inblocks ~5749299, outblocks ~7978133
+Started Generation of scale 27
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 1.81247 seconds
+Created Sparse Matrix
+Load balance: 1.03336
+Started Generation of scale 27
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 1.81014 seconds
+Created Sparse Matrix
+Load balance: 1.04247
+Matrix split and distributed along layers: time 0.019114 seconds
+Matrix split and distributed along layers: time 0.0189521 seconds
+RMATs Generated and replicated along layers : time 7.47343
+
+ Processor Grid (row x col x layers x threads): 45x45x1x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     1      2  32.118037     0.000000     7.916033   1.781520     0.000000     0.331398     0.932902  43.079889
+  45   45     1      2  31.481511     0.000000     7.806938   1.759542     0.000000     0.317931     0.984840  42.350763
+  45   45     1      2  31.550504     0.000000     7.730856   1.771770     0.000000     0.320809     0.973175  42.347114
+  45   45     1      2  31.730271     0.000000     7.759342   1.769774     0.000000     0.324663     0.805687  42.389737
+  45   45     1      2  31.663753     0.000000     7.737979   1.766590     0.000000     0.325080     1.006641  42.500043
+Application 8986458 resources: utime ~529940s, stime ~23976s, Rss ~1395184, inblocks ~5473946, outblocks ~7248565
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 3.56654 seconds
+Created Sparse Matrix
+Load balance: 1.01961
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 3.56212 seconds
+Created Sparse Matrix
+Load balance: 1.09572
+Matrix split and distributed along layers: time 0.215952 seconds
+Matrix split and distributed along layers: time 0.848574 seconds
+RMATs Generated and replicated along layers : time 12.0682
+
+ Processor Grid (row x col x layers x threads): 32x32x2x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     2      2  14.351082     1.106526     5.820459   1.852746     1.089599     0.337657     2.292228  26.850297
+  32   32     2      2  14.295676     1.097491     5.592592   1.851395     1.003844     0.333223     2.994262  27.168482
+  32   32     2      2  15.361052     1.111638     5.587648   1.840347     1.072742     0.348430     2.889431  28.211287
+  32   32     2      2  14.728628     1.112247     5.547234   1.839924     1.032854     0.345405     2.891314  27.497606
+  32   32     2      2  14.562896     1.110961     5.566526   1.834629     1.047812     0.342179     1.900808  26.365811
+Application 8986469 resources: utime ~361262s, stime ~41068s, Rss ~2050940, inblocks ~4907898, outblocks ~7424951
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.53229 seconds
+Created Sparse Matrix
+Load balance: 1.02378
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.53018 seconds
+Created Sparse Matrix
+Load balance: 1.02345
+Matrix split and distributed along layers: time 0.448233 seconds
+Matrix split and distributed along layers: time 1.55613 seconds
+RMATs Generated and replicated along layers : time 23.5094
+
+ Processor Grid (row x col x layers x threads): 22x22x4x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     4      2   9.744096     1.257126     4.198867   1.586764     1.388008     0.359130     1.953180  20.487171
+  22   22     4      2   9.752324     1.258996     4.229362   1.585782     1.393936     0.347812     3.056884  21.625095
+  22   22     4      2  10.006934     1.267050     4.238422   1.586828     1.404030     0.348497     2.606472  21.458234
+  22   22     4      2   9.789567     1.251853     4.226959   1.588895     1.396733     0.345782     2.178919  20.778707
+  22   22     4      2   9.399536     1.295818     4.220614   1.586112     1.347441     0.330171     2.331410  20.511102
+Application 8986471 resources: utime ~287311s, stime ~36835s, Rss ~1961316, inblocks ~4111003, outblocks ~8852357
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.2217 seconds
+Created Sparse Matrix
+Load balance: 1.02626
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.1996 seconds
+Created Sparse Matrix
+Load balance: 1.18562
+Matrix split and distributed along layers: time 0.820615 seconds
+Matrix split and distributed along layers: time 3.708 seconds
+RMATs Generated and replicated along layers : time 44.911
+
+ Processor Grid (row x col x layers x threads): 16x16x8x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     8      2   5.541517     1.275645     3.091612   1.441863     1.481005     0.330167     2.157982  15.319791
+  16   16     8      2   7.032589     1.288992     2.995390   1.442842     1.381075     0.323966     1.256312  15.721166
+  16   16     8      2   6.874882     1.288401     2.907305   1.433999     1.376673     0.320663     1.043711  15.245635
+  16   16     8      2   6.175022     1.284552     2.937926   1.453884     1.415615     0.317550     1.066159  14.650708
+  16   16     8      2   6.769059     1.286565     2.982409   1.456534     1.419141     0.322926     1.161770  15.398404
+Application 8986475 resources: utime ~276762s, stime ~39095s, Rss ~2039700, inblocks ~4249383, outblocks ~7989982
+Started Generation of scale 27
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 21.5286 seconds
+Created Sparse Matrix
+Load balance: 1.01185
+Started Generation of scale 27
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 21.5128 seconds
+Created Sparse Matrix
+Load balance: 1.00815
+Matrix split and distributed along layers: time 1.15185 seconds
+Matrix split and distributed along layers: time 4.83971 seconds
+RMATs Generated and replicated along layers : time 62.7279
+
+ Processor Grid (row x col x layers x threads): 13x13x12x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  13   13    12      2   5.624517     1.656204     2.818439   1.651459     1.396695     0.318663     1.963480  15.429457
+  13   13    12      2   5.881270     1.657182     2.770291   1.658579     1.402147     0.308337     1.106785  14.784591
+  13   13    12      2   6.153445     1.656806     2.775226   1.661643     1.374080     0.289949     0.743209  14.654358
+  13   13    12      2   5.874114     1.663400     2.809793   1.661188     1.394464     0.303788     0.645576  14.352323
+  13   13    12      2   5.478484     1.663516     2.771428   1.662821     1.392058     0.300500     1.639525  14.908332
+Application 8986484 resources: utime ~303488s, stime ~36901s, Rss ~1994476, inblocks ~4180258, outblocks ~8320281
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 30.0256 seconds
+Created Sparse Matrix
+Load balance: 1.00711
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.9672 seconds
+Created Sparse Matrix
+Load balance: 1.00868
+Matrix split and distributed along layers: time 1.44078 seconds
+Matrix split and distributed along layers: time 6.68008 seconds
+RMATs Generated and replicated along layers : time 88.6949
+
+ Processor Grid (row x col x layers x threads): 11x11x16x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11    16      2   5.194031     1.508404     2.622255   1.657330     1.634144     0.330061     2.305838  15.252063
+  11   11    16      2   5.989642     1.528497     2.566921   1.672594     1.579960     0.309066     1.737919  15.384599
+  11   11    16      2   6.856743     1.586494     2.656769   1.659436     1.660795     0.333631     0.600090  15.353958
+  11   11    16      2   6.339458     1.529397     2.694620   1.650811     1.574531     0.309471     1.115938  15.214227
+  11   11    16      2   7.180125     1.525104     2.658985   1.662063     1.641733     0.324354     0.667077  15.659441
+Application 8986490 resources: utime ~343352s, stime ~38319s, Rss ~2162304, inblocks ~4161603, outblocks ~7939084
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 3.52562 seconds
+Created Sparse Matrix
+Load balance: 1.02689
+Started Generation of scale 27
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 3.52622 seconds
+Created Sparse Matrix
+Load balance: 1.71201
+Matrix split and distributed along layers: time 0.0926018 seconds
+Matrix split and distributed along layers: time 0.0907919 seconds
+RMATs Generated and replicated along layers : time 12.0464
+
+ Processor Grid (row x col x layers x threads): 32x32x1x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     1      4  25.711205     0.000000     6.825500   1.855488     0.000000     0.337495     1.018398  35.748086
+  32   32     1      4  24.528135     0.000000     6.750397   1.845410     0.000000     0.318257     1.078846  34.521046
+  32   32     1      4  24.485510     0.000000     6.742955   1.858891     0.000000     0.322134     1.056070  34.465560
+  32   32     1      4  24.098138     0.000000     6.707888   1.841668     0.000000     0.322788     1.058266  34.028748
+  32   32     1      4  24.258604     0.000000     6.732028   1.868749     0.000000     0.324345     1.038856  34.222581
+Application 8986503 resources: utime ~301522s, stime ~18673s, Rss ~2864308, inblocks ~4448413, outblocks ~7383113
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.44277 seconds
+Created Sparse Matrix
+Load balance: 1.01998
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.44348 seconds
+Created Sparse Matrix
+Load balance: 1.01787
+Matrix split and distributed along layers: time 0.579841 seconds
+Matrix split and distributed along layers: time 2.01301 seconds
+RMATs Generated and replicated along layers : time 24.0186
+
+ Processor Grid (row x col x layers x threads): 22x22x2x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     2      4  12.096481     1.727142     4.602356   1.683041     1.243747     0.343892     1.789380  23.486038
+  22   22     2      4  17.258461     1.716141     4.937759   1.684988     1.224072     0.334902     0.770505  27.926829
+  22   22     2      4  12.547083     1.731754     4.625414   1.695612     1.242370     0.328910     1.234345  23.405488
+  22   22     2      4  12.458223     1.733558     4.634208   1.693773     1.238447     0.331795     1.155120  23.245124
+  22   22     2      4  17.381173     1.720596     4.966060   1.701344     1.226884     0.327508     0.774267  28.097833
+Application 8986553 resources: utime ~225374s, stime ~32513s, Rss ~3545092, inblocks ~3967665, outblocks ~8432525
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0526 seconds
+Created Sparse Matrix
+Load balance: 1.00947
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0457 seconds
+Created Sparse Matrix
+Load balance: 1.04176
+Matrix split and distributed along layers: time 0.835743 seconds
+Matrix split and distributed along layers: time 3.06729 seconds
+RMATs Generated and replicated along layers : time 42.1862
+
+ Processor Grid (row x col x layers x threads): 16x16x4x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     4      4   5.849759     2.440974     3.762831   1.533130     1.500287     0.366184     2.380425  17.833590
+  16   16     4      4   6.614175     2.436398     3.787403   1.547708     1.498747     0.354111     3.113004  19.351545
+  16   16     4      4   6.675634     2.444847     3.763763   1.531026     1.501870     0.367104     3.287332  19.571576
+  16   16     4      4   6.370283     2.479515     3.848463   1.537531     1.478558     0.352978     3.289424  19.356752
+  16   16     4      4   8.023833     2.440270     3.947420   1.530349     1.475868     0.355032     2.046528  19.819300
+Application 8986581 resources: utime ~206720s, stime ~41985s, Rss ~3367808, inblocks ~5337743, outblocks ~8006525
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.6987 seconds
+Created Sparse Matrix
+Load balance: 1.01442
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.6814 seconds
+Created Sparse Matrix
+Load balance: 1.03224
+Matrix split and distributed along layers: time 1.54498 seconds
+Matrix split and distributed along layers: time 7.02002 seconds
+RMATs Generated and replicated along layers : time 88.4793
+
+ Processor Grid (row x col x layers x threads): 11x11x8x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     8      4   4.952020     2.785293     3.006099   1.677530     1.645044     0.362737     2.760677  17.189400
+  11   11     8      4   6.942696     2.798140     3.072091   1.686886     1.648979     0.364325     1.586388  18.099504
+  11   11     8      4   5.240755     2.820014     2.983015   1.677512     1.648789     0.364545     2.582916  17.317546
+  11   11     8      4   5.004617     2.781830     3.002151   1.684056     1.645290     0.361784     3.146901  17.626629
+  11   11     8      4   5.043568     2.790209     3.085802   1.687588     1.644569     0.364799     3.123385  17.739920
+Application 8986587 resources: utime ~225794s, stime ~39228s, Rss ~3696880, inblocks ~4506418, outblocks ~7841714
+Started Generation of scale 27
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 44.3164 seconds
+Created Sparse Matrix
+Load balance: 1.01232
+Started Generation of scale 27
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 44.3202 seconds
+Created Sparse Matrix
+Load balance: 1.00675
+Matrix split and distributed along layers: time 2.23473 seconds
+Matrix split and distributed along layers: time 9.06026 seconds
+RMATs Generated and replicated along layers : time 128.343
+
+ Processor Grid (row x col x layers x threads): 9x9x12x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   9    9    12      4   5.724990     2.863578     2.427776   1.561348     1.658603     0.323839     2.728018  17.288152
+   9    9    12      4   6.129203     2.857723     2.708197   1.583442     1.661703     0.329504     2.016292  17.286065
+   9    9    12      4   6.595064     2.847181     2.715993   1.592482     1.653696     0.332202     1.311878  17.048497
+   9    9    12      4   6.687735     2.847151     2.740558   1.583383     1.658551     0.332394     1.617496  17.467268
+   9    9    12      4   5.834475     2.847983     2.696765   1.588332     1.661245     0.332668     1.957965  16.919433
+Application 8986591 resources: utime ~259763s, stime ~39020s, Rss ~3828500, inblocks ~4165021, outblocks ~8080425
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0377 seconds
+Created Sparse Matrix
+Load balance: 1.0031
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0381 seconds
+Created Sparse Matrix
+Load balance: 1.00415
+Matrix split and distributed along layers: time 2.61267 seconds
+Matrix split and distributed along layers: time 12.6104 seconds
+RMATs Generated and replicated along layers : time 165.093
+
+ Processor Grid (row x col x layers x threads): 8x8x16x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8    16      4   2.975125     2.360296     1.997588   1.422297     1.378996     0.292908     2.966520  13.393730
+   8    8    16      4   4.759780     2.360621     2.038914   1.427507     1.379886     0.294802     1.369098  13.630608
+   8    8    16      4   4.696954     2.370159     2.033258   1.427510     1.383240     0.289126     1.507098  13.707346
+   8    8    16      4   4.403823     2.368822     1.971841   1.427353     1.382848     0.289195     1.631087  13.474969
+   8    8    16      4   4.833883     2.372685     1.984320   1.429438     1.378078     0.282338     1.374819  13.655560
+Application 8986603 resources: utime ~285446s, stime ~37469s, Rss ~3732104, inblocks ~4233875, outblocks ~8462143
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.44274 seconds
+Created Sparse Matrix
+Load balance: 1.01483
+Started Generation of scale 27
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 7.44196 seconds
+Created Sparse Matrix
+Load balance: 1.0281
+Matrix split and distributed along layers: time 0.277574 seconds
+Matrix split and distributed along layers: time 0.278201 seconds
+RMATs Generated and replicated along layers : time 21.9192
+
+ Processor Grid (row x col x layers x threads): 22x22x1x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     1      8  26.651205     0.000000     6.305246   1.899446     0.000000     0.375828     0.518305  35.750029
+  22   22     1      8  24.941128     0.000000     6.311735   1.901907     0.000000     0.377692     0.538803  34.071266
+  22   22     1      8  24.950875     0.000000     6.328547   1.891572     0.000000     0.369661     0.508581  34.049236
+  22   22     1      8  25.031262     0.000000     6.310733   1.900997     0.000000     0.375357     0.554693  34.173041
+  22   22     1      8  24.823946     0.000000     6.330829   1.920460     0.000000     0.376002     0.566555  34.017792
+Application 8986610 resources: utime ~193345s, stime ~32131s, Rss ~4702508, inblocks ~5245566, outblocks ~8373596
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0591 seconds
+Created Sparse Matrix
+Load balance: 1.03504
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0556 seconds
+Created Sparse Matrix
+Load balance: 1.01427
+Matrix split and distributed along layers: time 1.05639 seconds
+Matrix split and distributed along layers: time 3.61767 seconds
+RMATs Generated and replicated along layers : time 42.9086
+
+ Processor Grid (row x col x layers x threads): 16x16x2x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     2      8   8.980136     3.498142     4.522534   1.774676     1.324904     0.375096     3.384643  23.860132
+  16   16     2      8  12.154287     3.502958     4.472643   1.759218     1.312641     0.357018     1.595915  25.154679
+  16   16     2      8  12.326926     3.524761     4.486665   1.759063     1.331305     0.364537     1.589457  25.382714
+  16   16     2      8  11.039734     3.504886     4.446226   1.760788     1.408066     0.361179     1.488478  24.009357
+  16   16     2      8  11.085348     3.521666     4.513381   1.763212     1.306630     0.363801     1.621569  24.175607
+Application 8986637 resources: utime ~174884s, stime ~39964s, Rss ~6602896, inblocks ~4295058, outblocks ~7822633
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.691 seconds
+Created Sparse Matrix
+Load balance: 1.02055
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.6901 seconds
+Created Sparse Matrix
+Load balance: 1.00803
+Matrix split and distributed along layers: time 2.11238 seconds
+Matrix split and distributed along layers: time 8.01804 seconds
+RMATs Generated and replicated along layers : time 89.808
+
+ Processor Grid (row x col x layers x threads): 11x11x4x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     4      8  10.855967     4.061047     3.881004   2.022301     1.650282     0.386225     1.580673  24.437499
+  11   11     4      8   9.707423     4.065880     3.877583   2.165034     1.752689     0.380141     0.921204  22.869954
+  11   11     4      8   9.695687     4.054885     3.918841   1.972029     1.592364     0.380030     1.308867  22.922703
+  11   11     4      8  10.070251     4.049486     3.876181   1.972866     1.614203     0.375951     1.228892  23.187829
+  11   11     4      8  10.171106     4.054213     3.874892   1.979765     1.623351     0.380573     1.289414  23.373313
+Application 8986672 resources: utime ~175144s, stime ~41133s, Rss ~6579892, inblocks ~4121705, outblocks ~7746698
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0974 seconds
+Created Sparse Matrix
+Load balance: 1.00743
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0914 seconds
+Created Sparse Matrix
+Load balance: 1.0138
+Matrix split and distributed along layers: time 2.49579 seconds
+Matrix split and distributed along layers: time 11.518 seconds
+RMATs Generated and replicated along layers : time 164.257
+
+ Processor Grid (row x col x layers x threads): 8x8x8x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     8      8   3.289439     4.619443     2.606245   1.651765     1.715838     0.394442     4.054161  18.331333
+   8    8     8      8   3.903133     4.674562     2.776900   1.557675     1.811539     0.388962     3.461916  18.574687
+   8    8     8      8   4.798923     4.591583     2.689539   1.555320     1.808520     0.394896     2.411182  18.249963
+   8    8     8      8   5.687232     4.581381     2.710553   1.563005     1.813172     0.388500     1.635613  18.379457
+   8    8     8      8   4.064797     4.567755     2.690556   1.553523     1.798734     0.392858     3.006576  18.074799
+Application 8986701 resources: utime ~202108s, stime ~41572s, Rss ~7416972, inblocks ~3695357, outblocks ~8526088
+Started Generation of scale 27
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 99.4697 seconds
+Created Sparse Matrix
+Load balance: 1.01293
+Started Generation of scale 27
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 99.4542 seconds
+Created Sparse Matrix
+Load balance: 1.00472
+Matrix split and distributed along layers: time 7.60803 seconds
+Matrix split and distributed along layers: time 26.3052 seconds
+RMATs Generated and replicated along layers : time 299.894
+
+ Processor Grid (row x col x layers x threads): 6x6x12x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   6    6    12      8   3.327788     4.166905     2.780369   1.787427     2.028216     0.411686     3.493526  17.995917
+   6    6    12      8   3.867692     4.185913     2.890312   1.769002     2.040092     0.423789     3.588315  18.765115
+   6    6    12      8   4.168217     4.203653     2.773696   1.740531     2.013019     0.422334     3.356588  18.678038
+   6    6    12      8   3.769913     4.196978     2.791870   1.747651     2.028334     0.419763     3.601982  18.556491
+   6    6    12      8   3.953964     4.190106     2.778882   1.744431     2.026773     0.420475     3.429001  18.543632
+Application 8986725 resources: utime ~227667s, stime ~38753s, Rss ~7356540, inblocks ~3086311, outblocks ~7424051
+Started Generation of scale 27
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 142.849 seconds
+Created Sparse Matrix
+Load balance: 1.01248
+Started Generation of scale 27
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 142.822 seconds
+Created Sparse Matrix
+Load balance: 1.01168
+Matrix split and distributed along layers: time 9.75358 seconds
+Matrix split and distributed along layers: time 36.7541 seconds
+RMATs Generated and replicated along layers : time 431.496
+
+ Processor Grid (row x col x layers x threads): 5x5x16x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   5    5    16      8   4.526822     5.067002     2.813914   2.007962     2.435612     0.474428     2.338254  19.663995
+   5    5    16      8   4.722877     5.019661     2.791119   1.985438     2.429186     0.485817     1.951180  19.385278
+   5    5    16      8   5.325836     5.015969     2.896187   1.981980     2.436859     0.486588     1.493967  19.637385
+   5    5    16      8   5.213848     4.921579     2.904527   2.059004     2.425194     0.482282     1.546690  19.553124
+   5    5    16      8   5.456764     4.993053     2.917858   2.002880     2.430168     0.483591     1.283831  19.568145
+Application 8986739 resources: utime ~271589s, stime ~40514s, Rss ~8447676, inblocks ~2768063, outblocks ~7139516
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0601 seconds
+Created Sparse Matrix
+Load balance: 1.01902
+Started Generation of scale 27
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 14.0532 seconds
+Created Sparse Matrix
+Load balance: 1.00564
+Matrix split and distributed along layers: time 0.549481 seconds
+Matrix split and distributed along layers: time 0.518247 seconds
+RMATs Generated and replicated along layers : time 39.1895
+
+ Processor Grid (row x col x layers x threads): 16x16x1x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     1     16  19.689519     0.000000     6.869066   2.632742     0.000000     0.666247     1.038967  30.896541
+  16   16     1     16  19.784328     0.000000     6.889671   2.646853     0.000000     0.660667     1.065749  31.047268
+  16   16     1     16  19.538963     0.000000     6.932787   2.648607     0.000000     0.668886     0.950390  30.739633
+  16   16     1     16  19.912326     0.000000     6.867668   2.644946     0.000000     0.667934     1.095328  31.188202
+  16   16     1     16  19.500550     0.000000     6.968555   2.654835     0.000000     0.668533     1.007040  30.799513
+Application 8986809 resources: utime ~152920s, stime ~47815s, Rss ~9551596, inblocks ~4194651, outblocks ~7886265
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.7074 seconds
+Created Sparse Matrix
+Load balance: 1.01008
+Started Generation of scale 27
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 29.7023 seconds
+Created Sparse Matrix
+Load balance: 1.00852
+Matrix split and distributed along layers: time 1.96266 seconds
+Matrix split and distributed along layers: time 9.39281 seconds
+RMATs Generated and replicated along layers : time 91.0737
+
+ Processor Grid (row x col x layers x threads): 11x11x2x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     2     16  13.574197     5.605599     5.650857   3.017059     2.467030     0.707417     1.682606  32.704765
+  11   11     2     16  13.932026     5.653612     5.669477   2.965278     2.476280     0.713333     1.525129  32.935135
+  11   11     2     16  14.019284     5.610397     5.631739   2.961755     2.490884     0.714465     1.684976  33.113501
+  11   11     2     16  13.758367     5.651321     5.621088   2.954047     2.469915     0.716647     1.639022  32.810406
+  11   11     2     16  14.002138     5.649574     5.619239   3.068488     2.432740     0.713059     1.500858  32.986096
+Application 8986811 resources: utime ~153930s, stime ~67613s, Rss ~13146284, inblocks ~3590130, outblocks ~7832279
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0861 seconds
+Created Sparse Matrix
+Load balance: 1.00409
+Started Generation of scale 27
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 56.0714 seconds
+Created Sparse Matrix
+Load balance: 1.00688
+Matrix split and distributed along layers: time 3.70104 seconds
+Matrix split and distributed along layers: time 15.2447 seconds
+RMATs Generated and replicated along layers : time 169.041
+
+ Processor Grid (row x col x layers x threads): 8x8x4x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     4     16   6.614665     4.551614     4.136728   2.483233     2.437790     0.645968     2.954977  23.824975
+   8    8     4     16   6.974360     4.691661     4.158567   2.426974     2.386024     0.642018     2.808778  24.088381
+   8    8     4     16   6.963502     4.504087     4.133586   2.511814     2.443292     0.642740     2.766570  23.965592
+   8    8     4     16   9.011040     4.678086     4.156281   2.366866     2.384027     0.642526     1.433296  24.672121
+   8    8     4     16   9.041178     4.628738     4.223769   2.374177     2.422951     0.642859     1.520592  24.854265
+Application 8986817 resources: utime ~154128s, stime ~64347s, Rss ~12073868, inblocks ~3530418, outblocks ~8470780
+Started Generation of scale 27
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 142.9 seconds
+Created Sparse Matrix
+Load balance: 1.01217
+Started Generation of scale 27
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 142.893 seconds
+Created Sparse Matrix
+Load balance: 1.0065
+Matrix split and distributed along layers: time 9.58979 seconds
+Matrix split and distributed along layers: time 38.2574 seconds
+RMATs Generated and replicated along layers : time 431.62
+
+ Processor Grid (row x col x layers x threads): 5x5x8x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   5    5     8     16   6.872384     6.353476     4.081657   2.958907     3.211202     0.780373     1.598171  25.856170
+   5    5     8     16   6.835816     6.326911     4.138480   2.971400     3.131268     0.783681     1.696094  25.883651
+   5    5     8     16   6.783631     6.498397     4.148321   2.932271     3.219380     0.782443     1.396177  25.760620
+   5    5     8     16   7.124723     6.450578     4.116787   2.929593     3.218150     0.785355     1.340904  25.966090
+   5    5     8     16   7.297807     6.439484     4.143467   2.876929     3.269721     0.780172     1.419841  26.227421
+Application 8986822 resources: utime ~179502s, stime ~60370s, Rss ~14980084, inblocks ~2595193, outblocks ~7041149
+Started Generation of scale 27
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 222.702 seconds
+Created Sparse Matrix
+Load balance: 1.00097
+Started Generation of scale 27
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 222.655 seconds
+Created Sparse Matrix
+Load balance: 1.00274
+Matrix split and distributed along layers: time 16.2805 seconds
+Matrix split and distributed along layers: time 59.5772 seconds
+RMATs Generated and replicated along layers : time 688.882
+
+ Processor Grid (row x col x layers x threads): 4x4x12x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   4    4    12     16   4.659506     6.841633     4.268048   3.433909     3.523710     0.865277     4.145440  27.737523
+   4    4    12     16   4.828389     6.767377     4.282603   3.516691     3.572008     0.878637     4.058597  27.904302
+   4    4    12     16   4.845680     6.867407     4.232577   3.447556     3.504558     0.879594     4.234985  28.012357
+   4    4    12     16   4.875410     6.819397     4.294811   3.452367     3.533443     0.880989     4.158737  28.015154
+   4    4    12     16   4.688771     6.817997     4.265782   3.427962     3.551674     0.878450     4.058977  27.689614
+Application 8986833 resources: utime ~224105s, stime ~65033s, Rss ~16968136, inblocks ~2438762, outblocks ~6990603
+Started Generation of scale 27
+Using 16 MPI processes
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+/var/spool/torque/mom_priv/jobs/2441758.SC: line 47:  3912 Terminated              aprun -n 256 -d 16 -N 1 ./mpipspgemm 4 4 16 G500 27 16 column
+=>> PBS: job killed: walltime 7175 exceeded limit 7140
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 12797] [c17-5c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 47 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11299] [c21-5c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 33 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09182] [c22-0c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 138 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12832] [c17-5c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 42 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09277] [c24-0c2s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 129 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07612] [c18-0c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 92 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09262] [c24-0c2s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 233 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07704] [c20-0c1s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 76 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07776] [c20-2c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 251 exit signal Terminated
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 07630] [c18-0c2s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 209 exit signal Terminated
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 09315] [c24-2c2s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 242 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09160] [c22-0c2s4n2] [Sat Aug  8 09:44:38 2015] PE RANK 183 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07610] [c18-0c1s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 90 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07750] [c20-0c1s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 78 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07638] [c18-0c2s4n0] [Sat Aug  8 09:44:38 2015] PE RANK 193 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11249] [c21-5c1s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 15 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09168] [c22-0c2s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 223 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07743] [c20-0c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 142 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09172] [c22-0c2s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 179 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09185] [c22-0c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 113 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09191] [c22-0c1s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 75 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07748] [c20-0c1s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 88 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12834] [c17-5c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 44 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07611] [c18-0c1s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 91 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07726] [c20-0c2s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 213 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09118] [c22-2c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 249 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07745] [c20-0c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 101 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09181] [c22-0c2s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 133 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07730] [c20-0c2s6n2] [Sat Aug  8 09:44:38 2015] PE RANK 217 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09404] [c24-2c2s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 239 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07655] [c18-0c1s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 83 exit signal Terminated
+aprun: Apid 8986887: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 07628] [c18-0c2s6n2] [Sat Aug  8 09:44:38 2015] PE RANK 203 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07722] [c20-0c2s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 197 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07613] [c18-0c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 93 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07751] [c20-0c1s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 79 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09190] [c22-0c1s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 74 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07654] [c18-0c1s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 82 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11773] [c19-5c0s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 59 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09171] [c22-0c2s6n1] [Sat Aug  8 09:44:38 2015] PE RANK 222 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11248] [c21-5c1s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 14 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07631] [c18-0c2s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 210 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07744] [c20-0c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 100 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07747] [c20-0c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 107 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16565] [c7-6c0s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09280] [c24-0c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 116 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07716] [c20-0c2s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 155 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09253] [c24-0c2s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 168 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07614] [c18-0c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 98 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09254] [c24-0c2s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 169 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07721] [c20-0c2s4n1] [Sat Aug  8 09:44:38 2015] PE RANK 188 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11778] [c19-5c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 36 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07651] [c18-0c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 95 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07736] [c20-0c2s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 151 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09117] [c22-2c2s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 244 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09188] [c22-0c1s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 68 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16566] [c7-6c0s4n0] [Sat Aug  8 09:44:38 2015] PE RANK 2 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10193] [c23-5c1s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 19 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07705] [c20-0c1s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 77 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07714] [c20-0c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 149 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11772] [c19-5c0s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 58 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09278] [c24-0c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 126 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12799] [c17-5c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 49 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09260] [c24-0c2s6n0] [Sat Aug  8 09:44:38 2015] PE RANK 231 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09186] [c22-0c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 110 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07635] [c18-0c2s6n1] [Sat Aug  8 09:44:38 2015] PE RANK 206 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07725] [c20-0c2s6n1] [Sat Aug  8 09:44:38 2015] PE RANK 216 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07632] [c18-0c2s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 207 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07723] [c20-0c2s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 198 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11296] [c21-5c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 26 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11262] [c21-5c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 28 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11743] [c19-5c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 41 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09242] [c24-0c1s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 66 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09163] [c22-0c2s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 182 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07737] [c20-0c2s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 152 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07706] [c20-0c1s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 86 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09147] [c22-0c1s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 71 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09283] [c24-0c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 119 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09314] [c24-2c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 241 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07742] [c20-0c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 141 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07738] [c20-0c2s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 157 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07623] [c18-0c2s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 150 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09187] [c22-0c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 111 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07734] [c20-0c2s4n2] [Sat Aug  8 09:44:38 2015] PE RANK 189 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09144] [c22-0c1s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 72 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09119] [c22-2c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 250 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11297] [c21-5c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 27 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09252] [c24-0c2s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 167 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09268] [c24-0c2s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 175 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09243] [c24-0c1s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 67 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07746] [c20-0c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 106 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09274] [c24-0c2s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 165 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07712] [c20-0c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 139 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11776] [c19-5c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 38 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09246] [c24-0c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 122 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11260] [c21-5c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 30 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07647] [c18-0c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 146 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09161] [c22-0c2s4n3] [Sat Aug  8 09:44:38 2015] PE RANK 184 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09158] [c22-0c2s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 161 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09176] [c22-0c2s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 159 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09275] [c24-0c2s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 166 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09175] [c22-0c2s4n1] [Sat Aug  8 09:44:38 2015] PE RANK 186 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09149] [c22-0c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 109 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07739] [c20-0c2s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 158 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09407] [c24-2c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 238 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09248] [c24-0c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 124 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09189] [c22-0c1s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 69 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09279] [c24-0c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 127 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07644] [c18-0c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 147 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09312] [c24-2c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 235 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07717] [c20-0c2s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 156 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07645] [c18-0c2s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 148 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09247] [c24-0c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 123 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07646] [c18-0c2s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 145 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09146] [c22-0c1s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 70 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09245] [c24-0c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 121 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07735] [c20-0c2s4n3] [Sat Aug  8 09:44:38 2015] PE RANK 190 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09285] [c24-0c1s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 65 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07870] [c20-2c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 253 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09152] [c22-0c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 136 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09155] [c22-0c2s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 135 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07719] [c20-0c2s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 154 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09271] [c24-0c2s4n3] [Sat Aug  8 09:44:38 2015] PE RANK 174 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09174] [c22-0c2s4n0] [Sat Aug  8 09:44:38 2015] PE RANK 185 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09257] [c24-0c2s4n1] [Sat Aug  8 09:44:38 2015] PE RANK 172 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09255] [c24-0c2s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 170 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09270] [c24-0c2s4n2] [Sat Aug  8 09:44:38 2015] PE RANK 173 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09170] [c22-0c2s6n0] [Sat Aug  8 09:44:38 2015] PE RANK 221 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11261] [c21-5c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 31 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11263] [c21-5c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 29 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09273] [c24-0c2s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 164 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12833] [c17-5c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 43 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09256] [c24-0c2s4n0] [Sat Aug  8 09:44:38 2015] PE RANK 171 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07624] [c18-0c2s4n2] [Sat Aug  8 09:44:38 2015] PE RANK 191 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09148] [c22-0c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 108 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09249] [c24-0c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 125 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07709] [c20-0c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 105 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09159] [c22-0c2s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 162 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07718] [c20-0c2s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 153 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10207] [c23-5c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07720] [c20-0c2s4n0] [Sat Aug  8 09:44:38 2015] PE RANK 187 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09272] [c24-0c2s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 163 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 15701] [c9-6c0s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 13 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07649] [c18-0c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 97 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07749] [c20-0c1s2n3] [Sat Aug  8 09:44:38 2015] PE RANK 89 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09145] [c22-0c1s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 73 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11745] [c19-5c0s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 63 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10255] [c23-5c1s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 21 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 15691] [c9-6c0s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 11 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16569] [c7-6c0s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 1 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16564] [c7-6c0s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 8 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 15690] [c9-6c0s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 10 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11311] [c21-5c1s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 17 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11747] [c19-5c0s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 61 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07650] [c18-0c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 94 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07711] [c20-0c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 103 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07710] [c20-0c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 102 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11744] [c19-5c0s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 62 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10206] [c23-5c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 24 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 15700] [c9-6c0s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 12 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16554] [c7-6c0s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 6 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16567] [c7-6c0s4n1] [Sat Aug  8 09:44:38 2015] PE RANK 3 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10252] [c23-5c1s6n0] [Sat Aug  8 09:44:38 2015] PE RANK 22 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11746] [c19-5c0s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 60 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07708] [c20-0c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 104 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07615] [c18-0c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 99 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12803] [c17-5c0s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 57 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10254] [c23-5c1s7n0] [Sat Aug  8 09:44:38 2015] PE RANK 20 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16555] [c7-6c0s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 7 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16553] [c7-6c0s4n3] [Sat Aug  8 09:44:38 2015] PE RANK 5 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10192] [c23-5c1s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 18 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 10253] [c23-5c1s6n1] [Sat Aug  8 09:44:38 2015] PE RANK 23 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16552] [c7-6c0s4n2] [Sat Aug  8 09:44:38 2015] PE RANK 4 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12802] [c17-5c0s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 56 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09024] [c22-2c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 247 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09265] [c24-0c2s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 228 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07727] [c20-0c2s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 214 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07634] [c18-0c2s6n0] [Sat Aug  8 09:44:38 2015] PE RANK 205 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07733] [c20-0c2s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 200 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09150] [c22-0c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 114 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07707] [c20-0c1s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 87 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12828] [c17-5c0s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 54 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12831] [c17-5c0s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 53 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07653] [c18-0c1s2n1] [Sat Aug  8 09:44:38 2015] PE RANK 85 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09282] [c24-0c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 118 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07637] [c18-0c2s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 196 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07627] [c18-0c2s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 202 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07724] [c20-0c2s6n0] [Sat Aug  8 09:44:38 2015] PE RANK 215 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09267] [c24-0c2s6n3] [Sat Aug  8 09:44:38 2015] PE RANK 230 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09027] [c22-2c2s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 246 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09026] [c22-2c2s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 245 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09264] [c24-0c2s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 227 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07729] [c20-0c2s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 212 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07629] [c18-0c2s6n3] [Sat Aug  8 09:44:38 2015] PE RANK 204 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07636] [c18-0c2s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 195 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09281] [c24-0c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 117 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07652] [c18-0c1s2n0] [Sat Aug  8 09:44:38 2015] PE RANK 84 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12830] [c17-5c0s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 52 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12801] [c17-5c0s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 51 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07609] [c18-0c1s3n3] [Sat Aug  8 09:44:38 2015] PE RANK 81 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09244] [c24-0c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 120 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07639] [c18-0c2s4n1] [Sat Aug  8 09:44:38 2015] PE RANK 194 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07626] [c18-0c2s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 201 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07728] [c20-0c2s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 211 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09261] [c24-0c2s6n1] [Sat Aug  8 09:44:38 2015] PE RANK 232 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09116] [c22-2c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 243 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09025] [c22-2c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 248 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09266] [c24-0c2s6n2] [Sat Aug  8 09:44:38 2015] PE RANK 229 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07732] [c20-0c2s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 199 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09151] [c22-0c1s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 115 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12800] [c17-5c0s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 50 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12829] [c17-5c0s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 55 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09167] [c22-0c2s7n3] [Sat Aug  8 09:44:38 2015] PE RANK 226 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09166] [c22-0c2s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 225 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09153] [c22-0c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 137 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07871] [c20-2c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 254 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09173] [c22-0c2s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 180 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07616] [c18-0c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 143 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09154] [c22-0c2s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 134 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11742] [c19-5c1s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 40 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11777] [c19-5c1s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 39 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09180] [c22-0c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 132 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07713] [c20-0c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 140 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09162] [c22-0c2s5n2] [Sat Aug  8 09:44:38 2015] PE RANK 181 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09263] [c24-0c2s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 234 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07777] [c20-2c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 252 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07488] [c18-2c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 255 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09313] [c24-2c2s0n1] [Sat Aug  8 09:44:38 2015] PE RANK 236 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09259] [c24-0c2s5n1] [Sat Aug  8 09:44:38 2015] PE RANK 178 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09251] [c24-0c2s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 131 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11779] [c19-5c1s1n1] [Sat Aug  8 09:44:38 2015] PE RANK 37 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11740] [c19-5c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 34 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09250] [c24-0c2s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 130 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09258] [c24-0c2s5n0] [Sat Aug  8 09:44:38 2015] PE RANK 177 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09406] [c24-2c2s0n2] [Sat Aug  8 09:44:38 2015] PE RANK 237 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11741] [c19-5c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 35 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09165] [c22-0c2s6n3] [Sat Aug  8 09:44:38 2015] PE RANK 220 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07731] [c20-0c2s6n3] [Sat Aug  8 09:44:38 2015] PE RANK 218 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09164] [c22-0c2s6n2] [Sat Aug  8 09:44:38 2015] PE RANK 219 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12835] [c17-5c1s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 45 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12796] [c17-5c1s1n0] [Sat Aug  8 09:44:38 2015] PE RANK 46 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07608] [c18-0c1s3n2] [Sat Aug  8 09:44:38 2015] PE RANK 80 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09405] [c24-2c2s1n3] [Sat Aug  8 09:44:38 2015] PE RANK 240 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11310] [c21-5c1s7n2] [Sat Aug  8 09:44:38 2015] PE RANK 16 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 12798] [c17-5c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 48 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09276] [c24-0c2s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 128 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09177] [c22-0c2s3n1] [Sat Aug  8 09:44:38 2015] PE RANK 160 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07648] [c18-0c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 96 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 11298] [c21-5c1s1n2] [Sat Aug  8 09:44:38 2015] PE RANK 32 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07633] [c18-0c2s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 208 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09269] [c24-0c2s5n3] [Sat Aug  8 09:44:38 2015] PE RANK 176 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09184] [c22-0c1s0n0] [Sat Aug  8 09:44:38 2015] PE RANK 112 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09284] [c24-0c1s2n2] [Sat Aug  8 09:44:38 2015] PE RANK 64 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09169] [c22-0c2s7n1] [Sat Aug  8 09:44:38 2015] PE RANK 224 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07625] [c18-0c2s4n3] [Sat Aug  8 09:44:38 2015] PE RANK 192 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 07617] [c18-0c2s0n3] [Sat Aug  8 09:44:38 2015] PE RANK 144 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 16568] [c7-6c0s3n0] [Sat Aug  8 09:44:38 2015] PE RANK 0 exit signal Terminated
+Application 8986887 exit codes: 143
+Application 8986887 resources: utime ~4583s, stime ~272s, Rss ~2105080, inblocks ~2944838, outblocks ~6717184

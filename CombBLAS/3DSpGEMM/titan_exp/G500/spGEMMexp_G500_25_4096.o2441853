@@ -1,0 +1,720 @@
+Started Generation of scale 25
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.252657 seconds
+Created Sparse Matrix
+Load balance: 1.10851
+Started Generation of scale 25
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.25274 seconds
+Created Sparse Matrix
+Load balance: 1.27519
+Matrix split and distributed along layers: time 0.00839591 seconds
+Matrix split and distributed along layers: time 0.00814104 seconds
+RMATs Generated and replicated along layers : time 6.41425
+
+ Processor Grid (row x col x layers x threads): 64x64x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  64   64     1      1   9.103488     0.000000     1.845238   0.439947     0.000000     0.060912     0.131818  11.581403
+  64   64     1      1   8.954536     0.000000     1.819524   0.437644     0.000000     0.075916     0.132445  11.420065
+  64   64     1      1   9.022250     0.000000     1.821944   0.440371     0.000000     0.076377     0.106099  11.467042
+  64   64     1      1   8.858583     0.000000     1.816505   0.439714     0.000000     0.075867     0.113682  11.304351
+  64   64     1      1   8.969250     0.000000     1.820514   0.441434     0.000000     0.078296     0.107145  11.416639
+Application 8987836 resources: utime ~262221s, stime ~24122s, Rss ~178448, inblocks ~7385980, outblocks ~6898187
+Started Generation of scale 25
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.492883 seconds
+Created Sparse Matrix
+Load balance: 1.05222
+Started Generation of scale 25
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.492914 seconds
+Created Sparse Matrix
+Load balance: 1.06077
+Matrix split and distributed along layers: time 0.0168531 seconds
+Matrix split and distributed along layers: time 0.118054 seconds
+RMATs Generated and replicated along layers : time 3.67655
+
+ Processor Grid (row x col x layers x threads): 45x45x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     2      1   5.052465     0.122685     1.363521   0.439463     0.282916     0.077056     0.364645   7.702751
+  45   45     2      1   5.060096     0.121848     1.359773   0.434974     0.280315     0.080768     0.179120   7.516895
+  45   45     2      1   5.208838     0.123453     1.343592   0.441188     0.275286     0.081061     0.239024   7.712441
+  45   45     2      1   4.865558     0.119848     1.347453   0.431807     0.264801     0.075797     0.363765   7.469030
+  45   45     2      1   4.787437     0.120412     1.349184   0.429096     0.263655     0.078900     0.282055   7.310739
+Application 8987847 resources: utime ~166842s, stime ~26202s, Rss ~254348, inblocks ~4831824, outblocks ~6815786
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.957565 seconds
+Created Sparse Matrix
+Load balance: 1.07715
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.955039 seconds
+Created Sparse Matrix
+Load balance: 1.03972
+Matrix split and distributed along layers: time 0.029356 seconds
+Matrix split and distributed along layers: time 0.184453 seconds
+RMATs Generated and replicated along layers : time 4.21631
+
+ Processor Grid (row x col x layers x threads): 32x32x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     4      1   3.048401     0.184171     0.995280   0.368272     0.282292     0.075478     0.582834   5.536728
+  32   32     4      1   3.189034     0.177897     1.009092   0.372169     0.284954     0.065957     0.432947   5.532050
+  32   32     4      1   3.358865     0.177378     1.005041   0.372355     0.285154     0.068803     0.189968   5.457564
+  32   32     4      1   3.549243     0.179906     1.006796   0.370826     0.284167     0.068666     0.202687   5.662291
+  32   32     4      1   3.424714     0.185320     1.004099   0.369750     0.279403     0.074409     0.131629   5.469324
+Application 8987863 resources: utime ~130892s, stime ~25822s, Rss ~244024, inblocks ~4635981, outblocks ~6851166
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.99823 seconds
+Created Sparse Matrix
+Load balance: 1.08686
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.99994 seconds
+Created Sparse Matrix
+Load balance: 1.03523
+Matrix split and distributed along layers: time 0.058423 seconds
+Matrix split and distributed along layers: time 0.347234 seconds
+RMATs Generated and replicated along layers : time 6.58951
+
+ Processor Grid (row x col x layers x threads): 22x22x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     8      1   2.063475     0.166310     0.806152   0.406566     0.351820     0.060850     0.755274   4.610447
+  22   22     8      1   2.186977     0.169743     0.762701   0.407623     0.351320     0.058278     0.731951   4.668593
+  22   22     8      1   2.165879     0.170190     0.765045   0.408342     0.349643     0.058714     0.625581   4.543394
+  22   22     8      1   2.187634     0.171308     0.766998   0.407488     0.351382     0.062913     0.467666   4.415389
+  22   22     8      1   2.527501     0.170508     0.762092   0.408121     0.352205     0.067568     0.474265   4.762261
+Application 8987880 resources: utime ~98699s, stime ~24835s, Rss ~307576, inblocks ~4295525, outblocks ~6472194
+Started Generation of scale 25
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 2.99488 seconds
+Created Sparse Matrix
+Load balance: 1.01768
+Started Generation of scale 25
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 2.99691 seconds
+Created Sparse Matrix
+Load balance: 1.03155
+Matrix split and distributed along layers: time 0.101323 seconds
+Matrix split and distributed along layers: time 0.556781 seconds
+RMATs Generated and replicated along layers : time 9.08695
+
+ Processor Grid (row x col x layers x threads): 18x18x12x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  18   18    12      1   1.923447     0.471617     0.656805   0.375460     0.372980     0.060597     1.089310   4.950216
+  18   18    12      1   2.730890     0.478856     0.656653   0.381249     0.378725     0.070840     0.295595   4.992808
+  18   18    12      1   2.333297     0.473447     0.661600   0.365179     0.391906     0.059177     0.657993   4.942599
+  18   18    12      1   2.626431     0.468276     0.663424   0.371552     0.390985     0.073316     0.455765   5.049748
+  18   18    12      1   2.395427     0.454572     0.658714   0.381982     0.394867     0.067510     0.595020   4.948092
+Application 8987895 resources: utime ~131669s, stime ~25928s, Rss ~358360, inblocks ~4400533, outblocks ~6576373
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.76512 seconds
+Created Sparse Matrix
+Load balance: 1.10868
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.77909 seconds
+Created Sparse Matrix
+Load balance: 1.02131
+Matrix split and distributed along layers: time 0.136101 seconds
+Matrix split and distributed along layers: time 0.705502 seconds
+RMATs Generated and replicated along layers : time 11.8856
+
+ Processor Grid (row x col x layers x threads): 16x16x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16    16      1   1.732877     0.237570     0.532412   0.254550     0.285448     0.048057     0.630994   3.721907
+  16   16    16      1   1.562028     0.251416     0.532944   0.244401     0.288044     0.043450     0.791559   3.713843
+  16   16    16      1   1.646229     0.251264     0.531341   0.242978     0.288173     0.043751     0.695341   3.699077
+  16   16    16      1   1.572715     0.251477     0.532622   0.243680     0.289009     0.043497     0.741787   3.674787
+  16   16    16      1   1.585847     0.251313     0.536869   0.242830     0.288434     0.043489     0.844709   3.793491
+Application 8987912 resources: utime ~124838s, stime ~26222s, Rss ~284900, inblocks ~4850224, outblocks ~7087999
+Started Generation of scale 25
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.432817 seconds
+Created Sparse Matrix
+Load balance: 1.07865
+Started Generation of scale 25
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.432872 seconds
+Created Sparse Matrix
+Load balance: 1.1111
+Matrix split and distributed along layers: time 0.0054059 seconds
+Matrix split and distributed along layers: time 0.00570297 seconds
+RMATs Generated and replicated along layers : time 3.0927
+
+ Processor Grid (row x col x layers x threads): 45x45x1x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     1      2   6.974660     0.000000     1.502926   0.503011     0.000000     0.091387     0.127240   9.199224
+  45   45     1      2   6.705382     0.000000     1.494913   0.504004     0.000000     0.089768     0.130715   8.924781
+  45   45     1      2   6.704366     0.000000     1.487370   0.500082     0.000000     0.093076     0.106738   8.891632
+  45   45     1      2   6.596591     0.000000     1.490308   0.498986     0.000000     0.092049     0.119827   8.797761
+  45   45     1      2   6.763961     0.000000     1.490884   0.500469     0.000000     0.092467     0.120966   8.968746
+Application 8987917 resources: utime ~113943s, stime ~9271s, Rss ~450736, inblocks ~4118997, outblocks ~6782980
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.8493 seconds
+Created Sparse Matrix
+Load balance: 1.05979
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.843005 seconds
+Created Sparse Matrix
+Load balance: 1.03182
+Matrix split and distributed along layers: time 0.0186698 seconds
+Matrix split and distributed along layers: time 0.167564 seconds
+RMATs Generated and replicated along layers : time 3.56689
+
+ Processor Grid (row x col x layers x threads): 32x32x2x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     2      2   3.809071     0.250627     1.082113   0.424751     0.271518     0.080943     0.219248   6.138271
+  32   32     2      2   3.738336     0.248817     1.087980   0.426026     0.275237     0.077708     0.230800   6.084903
+  32   32     2      2   3.750383     0.251899     1.082659   0.426795     0.275391     0.078126     0.234974   6.100227
+  32   32     2      2   3.861907     0.251734     1.077600   0.427563     0.274552     0.079233     0.115121   6.087710
+  32   32     2      2   3.831513     0.252760     1.085284   0.426022     0.279085     0.076593     0.108677   6.059935
+Application 8987926 resources: utime ~81366s, stime ~11589s, Rss ~519596, inblocks ~3775599, outblocks ~6815116
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.7787 seconds
+Created Sparse Matrix
+Load balance: 1.02817
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.77883 seconds
+Created Sparse Matrix
+Load balance: 1.12923
+Matrix split and distributed along layers: time 0.043062 seconds
+Matrix split and distributed along layers: time 0.305152 seconds
+RMATs Generated and replicated along layers : time 5.77562
+
+ Processor Grid (row x col x layers x threads): 22x22x4x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     4      2   2.647518     0.292201     0.885823   0.481719     0.325012     0.086163     0.250280   4.968715
+  22   22     4      2   2.993624     0.295745     0.849643   0.479541     0.309821     0.085759     0.190860   5.204994
+  22   22     4      2   2.837896     0.298969     0.867016   0.479883     0.311420     0.089517     0.463113   5.347813
+  22   22     4      2   2.817757     0.291366     0.869066   0.479542     0.314224     0.086294     0.370228   5.228478
+  22   22     4      2   2.526255     0.295871     0.873544   0.478932     0.312661     0.086461     0.529950   5.103674
+Application 8987932 resources: utime ~69505s, stime ~11953s, Rss ~739988, inblocks ~3493283, outblocks ~6447490
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.35629 seconds
+Created Sparse Matrix
+Load balance: 1.03752
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.34621 seconds
+Created Sparse Matrix
+Load balance: 1.01548
+Matrix split and distributed along layers: time 0.183944 seconds
+Matrix split and distributed along layers: time 0.61651 seconds
+RMATs Generated and replicated along layers : time 10.494
+
+ Processor Grid (row x col x layers x threads): 16x16x8x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     8      2   2.046698     0.334635     0.600422   0.343397     0.337440     0.082995     0.344337   4.089924
+  16   16     8      2   1.810123     0.336634     0.600804   0.341719     0.318056     0.074915     0.429511   3.911762
+  16   16     8      2   1.729864     0.336190     0.606492   0.338217     0.315152     0.074947     0.512354   3.913217
+  16   16     8      2   1.753461     0.339048     0.606287   0.338718     0.319513     0.073768     0.734000   4.164794
+  16   16     8      2   2.074060     0.342689     0.613988   0.337984     0.315738     0.073598     0.166641   3.924697
+Application 8987939 resources: utime ~68506s, stime ~12288s, Rss ~598276, inblocks ~3751360, outblocks ~6997572
+Started Generation of scale 25
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 5.07628 seconds
+Created Sparse Matrix
+Load balance: 1.03388
+Started Generation of scale 25
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 5.07725 seconds
+Created Sparse Matrix
+Load balance: 1.05812
+Matrix split and distributed along layers: time 0.280464 seconds
+Matrix split and distributed along layers: time 1.08834 seconds
+RMATs Generated and replicated along layers : time 15.4675
+
+ Processor Grid (row x col x layers x threads): 13x13x12x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  13   13    12      2   1.656558     0.787173     0.555604   0.410781     0.380871     0.079177     0.272206   4.142370
+  13   13    12      2   1.788883     0.783106     0.547907   0.406224     0.376119     0.070359     0.271451   4.244049
+  13   13    12      2   1.789515     0.776068     0.561254   0.411843     0.376433     0.070364     0.257956   4.243434
+  13   13    12      2   1.789583     0.765540     0.562139   0.411767     0.383735     0.071554     0.293939   4.278258
+  13   13    12      2   1.788327     0.735575     0.561158   0.411299     0.367852     0.067625     0.334131   4.265967
+Application 8987944 resources: utime ~80040s, stime ~12910s, Rss ~830240, inblocks ~3755818, outblocks ~7104433
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.08049 seconds
+Created Sparse Matrix
+Load balance: 1.02425
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.08643 seconds
+Created Sparse Matrix
+Load balance: 1.01424
+Matrix split and distributed along layers: time 0.356423 seconds
+Matrix split and distributed along layers: time 1.39247 seconds
+RMATs Generated and replicated along layers : time 20.9937
+
+ Processor Grid (row x col x layers x threads): 11x11x16x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11    16      2   1.546593     0.518271     0.461840   0.313963     0.325103     0.080503     0.451891   3.698164
+  11   11    16      2   1.769711     0.520560     0.480503   0.314246     0.324329     0.079852     0.186519   3.675720
+  11   11    16      2   1.778136     0.516963     0.473086   0.317166     0.324543     0.079947     0.209050   3.698891
+  11   11    16      2   1.670115     0.513971     0.474122   0.317112     0.325037     0.080025     0.382474   3.762857
+  11   11    16      2   1.726646     0.516593     0.480822   0.315832     0.324038     0.079336     0.309053   3.752320
+Application 8987951 resources: utime ~81680s, stime ~11688s, Rss ~680888, inblocks ~3628806, outblocks ~6683026
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.837891 seconds
+Created Sparse Matrix
+Load balance: 1.03364
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.832896 seconds
+Created Sparse Matrix
+Load balance: 1.04909
+Matrix split and distributed along layers: time 0.005831 seconds
+Matrix split and distributed along layers: time 0.00571203 seconds
+RMATs Generated and replicated along layers : time 3.15787
+
+ Processor Grid (row x col x layers x threads): 32x32x1x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     1      4   5.522227     0.000000     1.264019   0.396832     0.000000     0.067317     0.177746   7.428140
+  32   32     1      4   5.379206     0.000000     1.217170   0.375857     0.000000     0.070870     0.166905   7.210008
+  32   32     1      4   5.308530     0.000000     1.232604   0.378147     0.000000     0.075961     0.175517   7.170759
+  32   32     1      4   5.284153     0.000000     1.211616   0.380987     0.000000     0.076042     0.166698   7.119496
+  32   32     1      4   5.202405     0.000000     1.217997   0.380250     0.000000     0.076357     0.156616   7.033626
+Application 8987957 resources: utime ~65874s, stime ~4026s, Rss ~1024408, inblocks ~3432856, outblocks ~6810702
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.75954 seconds
+Created Sparse Matrix
+Load balance: 1.08317
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.75857 seconds
+Created Sparse Matrix
+Load balance: 1.06207
+Matrix split and distributed along layers: time 0.0489008 seconds
+Matrix split and distributed along layers: time 0.37608 seconds
+RMATs Generated and replicated along layers : time 5.74459
+
+ Processor Grid (row x col x layers x threads): 22x22x2x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     2      4   3.756449     0.466893     0.926824   0.424899     0.293038     0.084413     0.346876   6.299392
+  22   22     2      4   4.147460     0.461310     0.940720   0.399336     0.252305     0.090467     0.390962   6.682560
+  22   22     2      4   3.313288     0.457249     0.904488   0.374019     0.257296     0.082926     0.351185   5.740451
+  22   22     2      4   3.671700     0.466385     0.894387   0.361798     0.252960     0.078288     0.333266   6.058785
+  22   22     2      4   3.485230     0.464798     0.893612   0.362247     0.255142     0.077556     0.358777   5.897362
+Application 8987966 resources: utime ~55317s, stime ~6942s, Rss ~1449456, inblocks ~3138174, outblocks ~6453056
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.3179 seconds
+Created Sparse Matrix
+Load balance: 1.01444
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.31272 seconds
+Created Sparse Matrix
+Load balance: 1.01439
+Matrix split and distributed along layers: time 0.18521 seconds
+Matrix split and distributed along layers: time 0.651147 seconds
+RMATs Generated and replicated along layers : time 10.2666
+
+ Processor Grid (row x col x layers x threads): 16x16x4x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     4      4   1.966827     0.549893     0.680082   0.361529     0.302526     0.076507     0.561696   4.499061
+  16   16     4      4   2.463757     0.551095     0.641275   0.354526     0.289850     0.084484     0.274484   4.659471
+  16   16     4      4   2.593500     0.575018     0.638758   0.336255     0.299540     0.089595     0.252011   4.784677
+  16   16     4      4   2.374603     0.572222     0.637424   0.333880     0.292865     0.086057     0.246924   4.543975
+  16   16     4      4   1.958881     0.571759     0.646560   0.336943     0.295103     0.088395     0.350819   4.248460
+Application 8987977 resources: utime ~50684s, stime ~7570s, Rss ~1404952, inblocks ~3353844, outblocks ~6935165
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 6.99896 seconds
+Created Sparse Matrix
+Load balance: 1.03943
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 6.99858 seconds
+Created Sparse Matrix
+Load balance: 1.05781
+Matrix split and distributed along layers: time 0.343746 seconds
+Matrix split and distributed along layers: time 1.64605 seconds
+RMATs Generated and replicated along layers : time 21.3696
+
+ Processor Grid (row x col x layers x threads): 11x11x8x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     8      4   1.438714     0.681551     0.549560   0.363898     0.370033     0.080328     0.590164   4.074247
+  11   11     8      4   1.259105     0.701658     0.525812   0.348235     0.333731     0.064507     0.756380   3.989428
+  11   11     8      4   1.449802     0.707449     0.516029   0.338246     0.333989     0.066061     0.681715   4.093291
+  11   11     8      4   1.477821     0.693916     0.515865   0.338562     0.331939     0.064736     0.464579   3.887418
+  11   11     8      4   1.523652     0.695485     0.526958   0.342858     0.330777     0.064622     0.502034   3.986386
+Application 8987983 resources: utime ~54734s, stime ~7394s, Rss ~1462024, inblocks ~3212501, outblocks ~6678888
+Started Generation of scale 25
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 10.4407 seconds
+Created Sparse Matrix
+Load balance: 1.01042
+Started Generation of scale 25
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 10.4371 seconds
+Created Sparse Matrix
+Load balance: 1.02413
+Matrix split and distributed along layers: time 0.534446 seconds
+Matrix split and distributed along layers: time 2.36063 seconds
+RMATs Generated and replicated along layers : time 30.6524
+
+ Processor Grid (row x col x layers x threads): 9x9x12x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   9    9    12      4   1.429253     0.942260     0.523377   0.337021     0.368167     0.082419     0.472035   4.154531
+   9    9    12      4   1.360694     0.889023     0.445422   0.337456     0.362196     0.083075     0.703216   4.181082
+   9    9    12      4   1.495717     0.869012     0.445015   0.320038     0.365384     0.087381     0.566654   4.149201
+   9    9    12      4   1.446423     0.843479     0.439506   0.320720     0.364676     0.087932     0.790395   4.293131
+   9    9    12      4   1.645630     0.847743     0.449224   0.320834     0.363547     0.085693     0.544406   4.257077
+Application 8987991 resources: utime ~63812s, stime ~7532s, Rss ~1527392, inblocks ~3211890, outblocks ~6746964
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2201 seconds
+Created Sparse Matrix
+Load balance: 1.00596
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2138 seconds
+Created Sparse Matrix
+Load balance: 1.01919
+Matrix split and distributed along layers: time 0.607003 seconds
+Matrix split and distributed along layers: time 2.64075 seconds
+RMATs Generated and replicated along layers : time 38.6876
+
+ Processor Grid (row x col x layers x threads): 8x8x16x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8    16      4   0.752783     0.580390     0.432849   0.321949     0.338677     0.076038     0.745213   3.247899
+   8    8    16      4   0.945062     0.552258     0.429744   0.319139     0.347270     0.079360     0.792221   3.465053
+   8    8    16      4   1.088967     0.563581     0.434992   0.319277     0.350339     0.078928     0.669593   3.505677
+   8    8    16      4   1.003236     0.559543     0.429199   0.319834     0.347396     0.077845     0.659804   3.396857
+   8    8    16      4   0.851320     0.558328     0.442060   0.321100     0.347709     0.079499     0.756537   3.356553
+Application 8987999 resources: utime ~70426s, stime ~7438s, Rss ~1366924, inblocks ~3382798, outblocks ~7083038
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.76002 seconds
+Created Sparse Matrix
+Load balance: 1.02933
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.75995 seconds
+Created Sparse Matrix
+Load balance: 1.02457
+Matrix split and distributed along layers: time 0.00795889 seconds
+Matrix split and distributed along layers: time 0.00801802 seconds
+RMATs Generated and replicated along layers : time 5.15977
+
+ Processor Grid (row x col x layers x threads): 22x22x1x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     1      8   4.875772     0.000000     1.150123   0.431324     0.000000     0.095786     0.132556   6.685561
+  22   22     1      8   4.738555     0.000000     1.197186   0.413736     0.000000     0.092678     0.171015   6.613170
+  22   22     1      8   4.577357     0.000000     1.144607   0.413649     0.000000     0.092349     0.172099   6.400061
+  22   22     1      8   4.572963     0.000000     1.127092   0.410340     0.000000     0.094976     0.186724   6.392095
+  22   22     1      8   4.619287     0.000000     1.143340   0.418334     0.000000     0.094617     0.197648   6.473226
+Application 8988009 resources: utime ~43580s, stime ~4657s, Rss ~4364088, inblocks ~3742285, outblocks ~6530342
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.32091 seconds
+Created Sparse Matrix
+Load balance: 1.05799
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.31605 seconds
+Created Sparse Matrix
+Load balance: 1.03123
+Matrix split and distributed along layers: time 0.185406 seconds
+Matrix split and distributed along layers: time 0.771968 seconds
+RMATs Generated and replicated along layers : time 10.5429
+
+ Processor Grid (row x col x layers x threads): 16x16x2x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     2      8   3.140685     0.877140     0.870445   0.399301     0.253430     0.088276     0.396365   6.025643
+  16   16     2      8   2.844889     0.871555     0.832161   0.382355     0.256427     0.088381     0.410279   5.686047
+  16   16     2      8   3.238385     0.883008     0.830279   0.412650     0.307916     0.085926     0.273203   6.031367
+  16   16     2      8   2.510963     0.877677     0.826697   0.381579     0.249796     0.087079     0.413635   5.347427
+  16   16     2      8   3.512247     0.887740     0.800647   0.361653     0.249103     0.087811     0.383714   6.282916
+Application 8988019 resources: utime ~43071s, stime ~7438s, Rss ~4825452, inblocks ~3458509, outblocks ~6990500
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 6.99989 seconds
+Created Sparse Matrix
+Load balance: 1.02293
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 6.99673 seconds
+Created Sparse Matrix
+Load balance: 1.03633
+Matrix split and distributed along layers: time 0.351586 seconds
+Matrix split and distributed along layers: time 1.50186 seconds
+RMATs Generated and replicated along layers : time 21.0789
+
+ Processor Grid (row x col x layers x threads): 11x11x4x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     4      8   1.654881     0.928679     0.735044   0.435512     0.368885     0.091513     0.587161   4.801675
+  11   11     4      8   1.768805     1.004938     0.739239   0.397254     0.368476     0.092176     0.493345   4.864233
+  11   11     4      8   1.909231     1.008813     0.687535   0.379196     0.309362     0.090177     0.585532   4.969846
+  11   11     4      8   1.795527     0.992150     0.639660   0.356604     0.317031     0.091341     0.633579   4.825892
+  11   11     4      8   1.600867     0.966356     0.634942   0.351732     0.311023     0.092323     0.748414   4.705657
+Application 8988023 resources: utime ~41266s, stime ~7436s, Rss ~3893068, inblocks ~3194357, outblocks ~6692713
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2208 seconds
+Created Sparse Matrix
+Load balance: 1.02141
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.225 seconds
+Created Sparse Matrix
+Load balance: 1.00891
+Matrix split and distributed along layers: time 0.59156 seconds
+Matrix split and distributed along layers: time 2.68496 seconds
+RMATs Generated and replicated along layers : time 38.7009
+
+ Processor Grid (row x col x layers x threads): 8x8x8x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     8      8   1.051576     0.878280     0.568070   0.417864     0.375665     0.087260     0.599675   3.978391
+   8    8     8      8   1.313564     0.854936     0.703073   0.425044     0.341760     0.087596     0.589695   4.315668
+   8    8     8      8   1.226545     0.849434     0.557036   0.386309     0.333668     0.084939     0.706536   4.144467
+   8    8     8      8   1.229517     0.872535     0.550098   0.373445     0.336152     0.085558     0.685775   4.133080
+   8    8     8      8   1.216768     0.895639     0.558025   0.375179     0.335658     0.087454     0.639514   4.108237
+Application 8988032 resources: utime ~48120s, stime ~8229s, Rss ~3714168, inblocks ~3404400, outblocks ~7062184
+Started Generation of scale 25
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 23.4722 seconds
+Created Sparse Matrix
+Load balance: 1.00884
+Started Generation of scale 25
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 23.4658 seconds
+Created Sparse Matrix
+Load balance: 1.01239
+Matrix split and distributed along layers: time 1.13353 seconds
+Matrix split and distributed along layers: time 5.53812 seconds
+RMATs Generated and replicated along layers : time 68.939
+
+ Processor Grid (row x col x layers x threads): 6x6x12x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   6    6    12      8   1.163372     1.321105     0.478872   0.337373     0.490949     0.105541     0.651952   4.549163
+   6    6    12      8   1.400507     1.253704     0.625282   0.342659     0.478972     0.105311     0.527629   4.734063
+   6    6    12      8   1.306333     1.175360     0.618891   0.347704     0.458501     0.105479     0.780717   4.792984
+   6    6    12      8   1.330851     1.319167     0.496002   0.300985     0.450964     0.105779     0.641613   4.645361
+   6    6    12      8   1.362153     1.224726     0.496369   0.301339     0.459453     0.106568     0.691541   4.642149
+Application 8988042 resources: utime ~55281s, stime ~8735s, Rss ~3916144, inblocks ~2893157, outblocks ~6043355
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.745 seconds
+Created Sparse Matrix
+Load balance: 1.00749
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.7293 seconds
+Created Sparse Matrix
+Load balance: 1.01256
+Matrix split and distributed along layers: time 1.495 seconds
+Matrix split and distributed along layers: time 7.63909 seconds
+RMATs Generated and replicated along layers : time 98.9268
+
+ Processor Grid (row x col x layers x threads): 5x5x16x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   5    5    16      8   0.661160     1.116158     0.691064   0.490010     0.551021     0.112142     0.973946   4.595501
+   5    5    16      8   0.983525     1.091899     0.701057   0.483213     0.496439     0.114207     1.015397   4.885737
+   5    5    16      8   0.817283     1.062943     0.665592   0.454915     0.492059     0.114337     1.157027   4.764155
+   5    5    16      8   0.818182     1.109677     0.669889   0.445996     0.500186     0.114871     1.040717   4.699519
+   5    5    16      8   0.946905     1.112158     0.702277   0.487276     0.494627     0.114173     0.914433   4.771848
+Application 8988063 resources: utime ~64061s, stime ~8800s, Rss ~4400900, inblocks ~2673409, outblocks ~5630618
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.31868 seconds
+Created Sparse Matrix
+Load balance: 1.04448
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.31469 seconds
+Created Sparse Matrix
+Load balance: 1.02996
+Matrix split and distributed along layers: time 0.079603 seconds
+Matrix split and distributed along layers: time 0.0790079 seconds
+RMATs Generated and replicated along layers : time 9.72266
+
+ Processor Grid (row x col x layers x threads): 16x16x1x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     1     16   4.759373     0.000000     1.402844   0.579190     0.000000     0.166691     0.336986   7.245084
+  16   16     1     16   4.733993     0.000000     1.325837   0.562910     0.000000     0.165621     0.286893   7.075254
+  16   16     1     16   4.591682     0.000000     1.402179   0.577533     0.000000     0.166382     0.290522   7.028298
+  16   16     1     16   4.882025     0.000000     1.182513   0.519010     0.000000     0.163393     0.309480   7.056421
+  16   16     1     16   4.795973     0.000000     1.217669   0.604007     0.000000     0.174574     0.173406   6.965630
+Application 8988107 resources: utime ~33057s, stime ~10517s, Rss ~5100728, inblocks ~3919731, outblocks ~7035748
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.0003 seconds
+Created Sparse Matrix
+Load balance: 1.02437
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.00047 seconds
+Created Sparse Matrix
+Load balance: 1.01744
+Matrix split and distributed along layers: time 0.484379 seconds
+Matrix split and distributed along layers: time 1.81906 seconds
+RMATs Generated and replicated along layers : time 21.3386
+
+ Processor Grid (row x col x layers x threads): 11x11x2x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     2     16   2.301652     1.396643     1.116913   0.666370     0.530988     0.173734     0.689620   6.875920
+  11   11     2     16   2.994081     1.399539     1.155201   0.717256     0.579122     0.176946     0.366606   7.388752
+  11   11     2     16   3.184666     1.386287     1.018927   0.726182     0.537006     0.175560     0.479425   7.508053
+  11   11     2     16   2.969542     1.387824     1.202197   0.648198     0.483657     0.174647     0.553797   7.419862
+  11   11     2     16   2.864177     1.422463     1.106662   0.618628     0.462747     0.173932     0.587110   7.235719
+Application 8988123 resources: utime ~34978s, stime ~15346s, Rss ~8025880, inblocks ~3401166, outblocks ~6753648
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.214 seconds
+Created Sparse Matrix
+Load balance: 1.00477
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2175 seconds
+Created Sparse Matrix
+Load balance: 1.00772
+Matrix split and distributed along layers: time 0.618304 seconds
+Matrix split and distributed along layers: time 2.86364 seconds
+RMATs Generated and replicated along layers : time 38.8664
+
+ Processor Grid (row x col x layers x threads): 8x8x4x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     4     16   1.307794     1.148213     0.864416   0.548892     0.528015     0.156776     0.957520   5.511626
+   8    8     4     16   1.672448     1.124680     0.892263   0.564496     0.505623     0.153292     0.744852   5.657654
+   8    8     4     16   1.526613     1.205818     0.857701   0.491150     0.524901     0.155709     0.994196   5.756088
+   8    8     4     16   1.569185     1.115665     0.847664   0.577129     0.556805     0.154519     0.753922   5.574889
+   8    8     4     16   1.732271     1.158835     0.850393   0.581651     0.547551     0.154930     0.565086   5.590717
+Application 8988152 resources: utime ~35048s, stime ~14377s, Rss ~7091912, inblocks ~3424767, outblocks ~7125979
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.7613 seconds
+Created Sparse Matrix
+Load balance: 1.00601
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.7421 seconds
+Created Sparse Matrix
+Load balance: 1.021
+Matrix split and distributed along layers: time 1.53768 seconds
+Matrix split and distributed along layers: time 7.3652 seconds
+RMATs Generated and replicated along layers : time 99.114
+
+ Processor Grid (row x col x layers x threads): 5x5x8x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   5    5     8     16   0.857188     1.666475     0.884142   0.732082     0.724225     0.199356     1.301117   6.364585
+   5    5     8     16   1.290045     1.609771     0.916746   0.691159     0.745098     0.204599     0.941894   6.399312
+   5    5     8     16   1.218070     1.685651     0.937728   0.706977     0.679995     0.202301     1.350888   6.781610
+   5    5     8     16   1.232395     1.715221     0.901070   0.728851     0.732173     0.199777     1.239074   6.748561
+   5    5     8     16   1.106936     1.659741     0.916413   0.690151     0.683189     0.200105     1.141976   6.398512
+Application 8988174 resources: utime ~42650s, stime ~14477s, Rss ~9055708, inblocks ~2602903, outblocks ~5676221
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.6323 seconds
+Created Sparse Matrix
+Load balance: 1.00513
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.6171 seconds
+Created Sparse Matrix
+Load balance: 1.00231
+Matrix split and distributed along layers: time 2.53062 seconds
+Matrix split and distributed along layers: time 11.6896 seconds
+RMATs Generated and replicated along layers : time 157.694
+
+ Processor Grid (row x col x layers x threads): 4x4x12x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   4    4    12     16   0.756752     1.791969     0.889967   0.736109     0.730087     0.203785     1.437593   6.546263
+   4    4    12     16   1.102659     1.807755     0.955845   0.767232     0.712825     0.204797     1.316251   6.867364
+   4    4    12     16   1.096852     1.814600     0.977134   0.762718     0.754262     0.205012     0.992970   6.603548
+   4    4    12     16   1.072617     1.917775     0.917063   0.678138     0.669838     0.202187     1.307049   6.764667
+   4    4    12     16   1.005417     1.818181     0.954488   0.696525     0.734007     0.202814     1.081515   6.492947
+Application 8988218 resources: utime ~51606s, stime ~14443s, Rss ~9948772, inblocks ~2449308, outblocks ~5469901
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.6343 seconds
+Created Sparse Matrix
+Load balance: 1.01204
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.6187 seconds
+Created Sparse Matrix
+Load balance: 1.00484
+Matrix split and distributed along layers: time 2.26373 seconds
+Matrix split and distributed along layers: time 12.3516 seconds
+RMATs Generated and replicated along layers : time 158.312
+
+ Processor Grid (row x col x layers x threads): 4x4x16x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   4    4    16     16   0.538250     1.307423     0.549804   0.571558     0.579827     0.154372     1.079827   4.781061
+   4    4    16     16   0.904792     1.250427     0.717293   0.581385     0.598119     0.154278     0.728420   4.934714
+   4    4    16     16   0.893609     1.279153     0.717552   0.553920     0.560966     0.151965     0.711882   4.869048
+   4    4    16     16   0.776742     1.253059     0.684147   0.566059     0.578518     0.152275     0.942279   4.953079
+   4    4    16     16   0.917805     1.258603     0.549110   0.574402     0.597594     0.154685     0.831047   4.883246
+Application 8988275 resources: utime ~61901s, stime ~14763s, Rss ~7508540, inblocks ~3273806, outblocks ~7149644

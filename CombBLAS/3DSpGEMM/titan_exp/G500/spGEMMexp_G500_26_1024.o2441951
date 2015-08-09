@@ -1,0 +1,957 @@
+Started Generation of scale 26
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 2.01612 seconds
+Created Sparse Matrix
+Load balance: 1.04239
+Started Generation of scale 26
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 2.01572 seconds
+Created Sparse Matrix
+Load balance: 1.04237
+Matrix split and distributed along layers: time 0.041117 seconds
+Matrix split and distributed along layers: time 0.0685098 seconds
+RMATs Generated and replicated along layers : time 6.84802
+
+ Processor Grid (row x col x layers x threads): 32x32x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     1      1  17.178345     0.000000    12.320400   3.240379     0.000000     0.659072     0.389542  33.787737
+  32   32     1      1  16.365876     0.000000    12.262790   3.212073     0.000000     0.648410     0.422644  32.911793
+  32   32     1      1  16.036305     0.000000    12.171139   3.231894     0.000000     0.660355     0.409377  32.509071
+  32   32     1      1  16.160114     0.000000    12.178785   3.213530     0.000000     0.667566     0.423286  32.643281
+  32   32     1      1  16.434018     0.000000    12.207048   3.217716     0.000000     0.669032     0.394552  32.922366
+Application 8989152 resources: utime ~162018s, stime ~16397s, Rss ~1235404, inblocks ~1405001, outblocks ~2028514
+Started Generation of scale 26
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 4.15707 seconds
+Created Sparse Matrix
+Load balance: 1.02464
+Started Generation of scale 26
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 4.16544 seconds
+Created Sparse Matrix
+Load balance: 1.02638
+Matrix split and distributed along layers: time 0.247747 seconds
+Matrix split and distributed along layers: time 1.26286 seconds
+RMATs Generated and replicated along layers : time 13.3593
+
+ Processor Grid (row x col x layers x threads): 22x22x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     2      1   6.271176     1.105089     9.087881   3.344318     2.478329     0.702865     1.537210  24.526868
+  22   22     2      1   7.100249     1.103106     9.264671   3.346294     2.466988     0.647114     1.570637  25.499059
+  22   22     2      1   6.643599     1.074198     8.782375   3.353431     2.438668     0.635259     1.430327  24.357857
+  22   22     2      1   6.799227     1.090149     8.750717   3.352075     2.420604     0.641420     1.427073  24.481265
+  22   22     2      1   7.069326     1.080338     8.786253   3.354557     2.431437     0.644462     1.460938  24.827311
+Application 8989160 resources: utime ~114324s, stime ~24872s, Rss ~2121684, inblocks ~1194212, outblocks ~1930394
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 7.79129 seconds
+Created Sparse Matrix
+Load balance: 1.01831
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 7.80603 seconds
+Created Sparse Matrix
+Load balance: 1.01653
+Matrix split and distributed along layers: time 0.416059 seconds
+Matrix split and distributed along layers: time 1.81993 seconds
+RMATs Generated and replicated along layers : time 24.3346
+
+ Processor Grid (row x col x layers x threads): 16x16x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     4      1   3.464227     1.195720     6.515486   2.784859     2.513376     0.634456     2.492312  19.600436
+  16   16     4      1   2.928365     1.194520     6.703923   2.796897     2.499768     0.624648     1.692004  18.440126
+  16   16     4      1   3.172678     1.160916     6.565996   2.805305     2.527126     0.613313     1.711581  18.556915
+  16   16     4      1   3.516539     1.180283     6.621580   2.789336     2.508482     0.632362     1.309176  18.557759
+  16   16     4      1   3.677296     1.164340     6.489191   2.798259     2.530485     0.623437     1.005093  18.288102
+Application 8989169 resources: utime ~103603s, stime ~24048s, Rss ~1975508, inblocks ~1259451, outblocks ~2482874
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 16.4023 seconds
+Created Sparse Matrix
+Load balance: 1.00801
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 16.4127 seconds
+Created Sparse Matrix
+Load balance: 1.03076
+Matrix split and distributed along layers: time 0.81834 seconds
+Matrix split and distributed along layers: time 3.69018 seconds
+RMATs Generated and replicated along layers : time 49.234
+
+ Processor Grid (row x col x layers x threads): 11x11x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     8      1   1.982701     1.833351     5.178428   2.695347     3.109976     0.691196     2.047421  17.538420
+  11   11     8      1   1.672497     1.829135     5.341566   2.698329     3.101558     0.690792     2.111994  17.445871
+  11   11     8      1   1.733839     1.837374     5.272391   2.713772     3.088873     0.690622     2.103090  17.439960
+  11   11     8      1   1.555524     1.843402     5.292184   2.691000     3.107451     0.692315     2.143837  17.325714
+  11   11     8      1   1.540650     1.835186     5.303268   2.703718     3.082787     0.658922     2.227253  17.351783
+Application 8989178 resources: utime ~112538s, stime ~26170s, Rss ~1837304, inblocks ~1311295, outblocks ~1978118
+Started Generation of scale 26
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 24.4692 seconds
+Created Sparse Matrix
+Load balance: 1.01632
+Started Generation of scale 26
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 24.5426 seconds
+Created Sparse Matrix
+Load balance: 1.00987
+Matrix split and distributed along layers: time 1.26107 seconds
+Matrix split and distributed along layers: time 5.98387 seconds
+RMATs Generated and replicated along layers : time 73.1218
+
+ Processor Grid (row x col x layers x threads): 9x9x12x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   9    9    12      1   1.643883     2.167261     4.506445   2.782989     2.983514     0.583002     2.472389  17.139483
+   9    9    12      1   1.674103     2.183050     4.726171   2.776230     2.931789     0.571331     2.117560  16.980234
+   9    9    12      1   1.526345     2.188712     4.589213   2.761853     2.963253     0.577148     2.353890  16.960415
+   9    9    12      1   1.663407     2.222758     4.565336   2.793298     2.951650     0.567054     2.415199  17.178702
+   9    9    12      1   1.533548     2.154507     4.481711   2.783972     2.915263     0.566598     2.565872  17.001471
+Application 8989187 resources: utime ~134589s, stime ~26192s, Rss ~1854592, inblocks ~1425671, outblocks ~2090360
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 30.9541 seconds
+Created Sparse Matrix
+Load balance: 1.01202
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 30.981 seconds
+Created Sparse Matrix
+Load balance: 1.00478
+Matrix split and distributed along layers: time 1.5178 seconds
+Matrix split and distributed along layers: time 7.103 seconds
+RMATs Generated and replicated along layers : time 92.2428
+
+ Processor Grid (row x col x layers x threads): 8x8x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8    16      1   1.502113     3.542908     3.903513   2.417046     3.656232     0.760989     3.712858  19.495659
+   8    8    16      1   1.764280     3.636393     3.850614   2.412013     3.566275     0.744970     3.294891  19.269436
+   8    8    16      1   1.754230     3.659256     3.876928   2.405024     3.551680     0.743385     3.611398  19.601901
+   8    8    16      1   1.927869     3.535684     3.818019   2.423404     3.697733     0.765860     3.592754  19.761323
+   8    8    16      1   1.819971     3.555457     3.857821   2.421419     3.696047     0.775242     3.217241  19.343198
+Application 8989201 resources: utime ~169887s, stime ~31701s, Rss ~2407072, inblocks ~1574275, outblocks ~1947669
+Started Generation of scale 26
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 3.6523 seconds
+Created Sparse Matrix
+Load balance: 1.05024
+Started Generation of scale 26
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 3.65298 seconds
+Created Sparse Matrix
+Load balance: 1.02789
+Matrix split and distributed along layers: time 0.183936 seconds
+Matrix split and distributed along layers: time 0.162795 seconds
+RMATs Generated and replicated along layers : time 10.8459
+
+ Processor Grid (row x col x layers x threads): 22x22x1x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     1      2  11.988489     0.000000    11.178951   3.344372     0.000000     0.703675     0.490609  27.706097
+  22   22     1      2  11.046833     0.000000    11.096897   3.320320     0.000000     0.700750     0.495912  26.660712
+  22   22     1      2  10.860587     0.000000    11.076675   3.311982     0.000000     0.697267     0.505798  26.452310
+  22   22     1      2  10.728079     0.000000    11.059150   3.330115     0.000000     0.706467     0.475470  26.299281
+  22   22     1      2  10.716847     0.000000    11.045351   3.321219     0.000000     0.697503     0.499537  26.280457
+Application 8989214 resources: utime ~94678s, stime ~11424s, Rss ~2699868, inblocks ~1299582, outblocks ~1988377
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 6.88661 seconds
+Created Sparse Matrix
+Load balance: 1.02318
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 6.88234 seconds
+Created Sparse Matrix
+Load balance: 1.02044
+Matrix split and distributed along layers: time 0.375361 seconds
+Matrix split and distributed along layers: time 1.95951 seconds
+RMATs Generated and replicated along layers : time 21.6245
+
+ Processor Grid (row x col x layers x threads): 16x16x2x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     2      2   6.520773     2.224395     7.592755   3.121735     2.189660     0.654264     2.117995  24.421577
+  16   16     2      2   6.225881     2.220372     7.601455   3.127559     2.191106     0.658131     2.178467  24.202972
+  16   16     2      2   6.359218     2.196185     7.557716   3.118325     2.188767     0.642256     2.140451  24.202918
+  16   16     2      2   6.094653     2.207469     7.589229   3.121182     2.195012     0.650889     2.240435  24.098869
+  16   16     2      2   6.034237     2.237458     7.588064   3.122771     2.189319     0.636937     2.318627  24.127413
+Application 8989224 resources: utime ~88301s, stime ~20798s, Rss ~3224492, inblocks ~1706098, outblocks ~2454073
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.5438 seconds
+Created Sparse Matrix
+Load balance: 1.0183
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.541 seconds
+Created Sparse Matrix
+Load balance: 1.01003
+Matrix split and distributed along layers: time 1.02421 seconds
+Matrix split and distributed along layers: time 3.79005 seconds
+RMATs Generated and replicated along layers : time 43.8805
+
+ Processor Grid (row x col x layers x threads): 11x11x4x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     4      2   3.108467     2.144916     6.461292   3.059397     2.600278     0.648123     2.947675  20.970149
+  11   11     4      2   3.231266     2.168388     6.466853   3.054142     2.594845     0.649206     2.439936  20.604635
+  11   11     4      2   3.039754     2.186168     6.502848   3.053185     2.581204     0.645619     2.270602  20.279381
+  11   11     4      2   3.111129     2.148666     6.545852   3.048160     2.584500     0.649018     2.171849  20.259174
+  11   11     4      2   3.018559     2.195686     6.537052   3.045913     2.631414     0.640667     2.283773  20.353063
+Application 8989233 resources: utime ~81413s, stime ~20538s, Rss ~3322508, inblocks ~1353086, outblocks ~1956231
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.4878 seconds
+Created Sparse Matrix
+Load balance: 1.00811
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.4623 seconds
+Created Sparse Matrix
+Load balance: 1.00954
+Matrix split and distributed along layers: time 1.61265 seconds
+Matrix split and distributed along layers: time 6.68004 seconds
+RMATs Generated and replicated along layers : time 82.1595
+
+ Processor Grid (row x col x layers x threads): 8x8x8x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     8      2   1.959288     3.016203     4.456259   2.498064     2.935680     0.644803     2.606769  18.117065
+   8    8     8      2   1.935442     3.012091     4.456020   2.502517     2.963085     0.632140     2.517907  18.019202
+   8    8     8      2   1.826636     3.036377     4.459104   2.493647     2.955360     0.635870     2.771626  18.178620
+   8    8     8      2   1.821165     3.027228     4.438643   2.491210     2.949496     0.637448     2.553438  17.918628
+   8    8     8      2   1.960851     3.041779     4.443981   2.496152     2.951884     0.631370     2.588562  18.114579
+Application 8989242 resources: utime ~95547s, stime ~21843s, Rss ~3342820, inblocks ~1391103, outblocks ~1949948
+Started Generation of scale 26
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 48.5904 seconds
+Created Sparse Matrix
+Load balance: 1.02021
+Started Generation of scale 26
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 48.5582 seconds
+Created Sparse Matrix
+Load balance: 1.00466
+Matrix split and distributed along layers: time 2.71776 seconds
+Matrix split and distributed along layers: time 11.7557 seconds
+RMATs Generated and replicated along layers : time 143.85
+
+ Processor Grid (row x col x layers x threads): 6x6x12x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   6    6    12      2   1.474048     4.138935     4.904140   2.950351     3.380830     0.728635     2.731829  20.308768
+   6    6    12      2   2.099551     4.175188     4.889024   2.930678     3.383387     0.727815     2.604274  20.809917
+   6    6    12      2   2.513905     4.326434     4.968865   2.946353     3.515575     0.732233     2.077178  21.080543
+   6    6    12      2   2.145030     4.315764     4.899782   2.957805     3.514539     0.735906     2.348529  20.917354
+   6    6    12      2   2.328262     4.146353     4.880197   2.942804     3.363970     0.722321     2.579635  20.963542
+Application 8989256 resources: utime ~113884s, stime ~19261s, Rss ~4092236, inblocks ~999461, outblocks ~2001060
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.9462 seconds
+Created Sparse Matrix
+Load balance: 1.01364
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.9262 seconds
+Created Sparse Matrix
+Load balance: 1.0038
+Matrix split and distributed along layers: time 4.2674 seconds
+Matrix split and distributed along layers: time 15.7977 seconds
+RMATs Generated and replicated along layers : time 207.809
+
+ Processor Grid (row x col x layers x threads): 5x5x16x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+[NID 02275] 2015-08-08 17:03:21 Apid 8989291: initiated application termination
+[NID 02275] 2015-08-08 17:03:23 Apid 8989291: OOM killer terminated this process.
+[NID 02370] 2015-08-08 17:03:25 Apid 8989291: OOM killer terminated this process.
+[NID 02333] 2015-08-08 17:03:25 Apid 8989291: OOM killer terminated this process.
+[NID 00795] 2015-08-08 17:03:31 Apid 8989291: OOM killer terminated this process.
+[NID 00799] 2015-08-08 17:03:34 Apid 8989291: OOM killer terminated this process.
+[NID 02276] 2015-08-08 17:03:41 Apid 8989291: OOM killer terminated this process.
+[NID 02235] 2015-08-08 17:03:42 Apid 8989291: OOM killer terminated this process.
+MPICH2 ERROR [Rank 96] [job id 8989291] [Sat Aug  8 17:03:33 2015] [c6-1c1s3n0] [nid02374] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+MPICH2 ERROR [Rank 96] [job id 8989291] [Sat Aug  8 17:03:43 2015] [c6-1c1s3n0] [nid02374] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+[NID 02329] 2015-08-08 17:03:46 Apid 8989291: OOM killer terminated this process.
+Application 8989291 exit signals: Killed
+Application 8989291 resources: utime ~0s, stime ~50s, Rss ~11728, inblocks ~499750, outblocks ~1311950
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 6.81373 seconds
+Created Sparse Matrix
+Load balance: 1.07245
+Started Generation of scale 26
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 6.80691 seconds
+Created Sparse Matrix
+Load balance: 1.23669
+Matrix split and distributed along layers: time 0.234764 seconds
+Matrix split and distributed along layers: time 0.303696 seconds
+RMATs Generated and replicated along layers : time 21.3056
+
+ Processor Grid (row x col x layers x threads): 16x16x1x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     1      4  14.520671     0.000000     9.077807   3.219187     0.000000     0.668645     0.778614  28.264925
+  16   16     1      4  13.782640     0.000000     9.100269   3.217529     0.000000     0.667354     0.791633  27.559425
+  16   16     1      4  13.824083     0.000000     9.130856   3.218025     0.000000     0.670862     0.841070  27.684895
+  16   16     1      4  13.815929     0.000000     9.152093   3.208967     0.000000     0.671451     0.855397  27.703837
+  16   16     1      4  13.861124     0.000000     9.134404   3.191623     0.000000     0.658005     0.897601  27.742757
+Application 8989379 resources: utime ~73794s, stime ~14165s, Rss ~4946756, inblocks ~1507094, outblocks ~2241146
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.3881 seconds
+Created Sparse Matrix
+Load balance: 1.01766
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.3795 seconds
+Created Sparse Matrix
+Load balance: 1.01455
+Matrix split and distributed along layers: time 1.09737 seconds
+Matrix split and distributed along layers: time 4.67412 seconds
+RMATs Generated and replicated along layers : time 44.7106
+
+ Processor Grid (row x col x layers x threads): 11x11x2x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     2      4   8.369544     3.984845     6.905991   3.090835     2.599535     0.706009     2.043918  27.700677
+  11   11     2      4   8.104208     3.994472     6.947809   3.093569     2.608446     0.718461     1.837609  27.304574
+  11   11     2      4   8.237054     3.999731     6.964186   3.106505     2.602169     0.718600     1.860089  27.488334
+  11   11     2      4   8.147187     3.998528     6.931977   3.100277     2.593138     0.728942     1.944475  27.444524
+  11   11     2      4   8.152687     3.972969     6.928858   3.097943     2.608939     0.714972     1.910149  27.386517
+Application 8989428 resources: utime ~70880s, stime ~20153s, Rss ~6270016, inblocks ~1172287, outblocks ~1887425
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.1609 seconds
+Created Sparse Matrix
+Load balance: 1.00825
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.1647 seconds
+Created Sparse Matrix
+Load balance: 1.03273
+Matrix split and distributed along layers: time 1.97662 seconds
+Matrix split and distributed along layers: time 7.02441 seconds
+RMATs Generated and replicated along layers : time 82.276
+
+ Processor Grid (row x col x layers x threads): 8x8x4x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     4      4   2.496852     4.273080     5.440220   2.951788     2.772455     0.648465     3.053960  21.636821
+   8    8     4      4   2.853468     4.268909     5.347675   2.964645     2.750298     0.657989     2.817515  21.660499
+   8    8     4      4   2.575068     4.275534     5.404938   2.967962     2.758854     0.641966     2.903612  21.527934
+   8    8     4      4   2.595845     4.230096     5.320712   2.939734     2.756346     0.640206     3.089841  21.572780
+   8    8     4      4   2.904855     4.280340     5.274435   2.955470     2.782481     0.665878     2.794384  21.657843
+Application 8989484 resources: utime ~72131s, stime ~20280s, Rss ~6708804, inblocks ~1001291, outblocks ~1889722
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.3092 seconds
+Created Sparse Matrix
+Load balance: 1.00945
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.2852 seconds
+Created Sparse Matrix
+Load balance: 1.00464
+Matrix split and distributed along layers: time 5.30425 seconds
+Matrix split and distributed along layers: time 19.2096 seconds
+RMATs Generated and replicated along layers : time 210.265
+
+ Processor Grid (row x col x layers x threads): 5x5x8x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+[NID 02277] 2015-08-08 17:17:09 Apid 8989530: initiated application termination
+[NID 02277] 2015-08-08 17:17:10 Apid 8989530: OOM killer terminated this process.
+Application 8989530 exit signals: Killed
+Application 8989530 resources: utime ~0s, stime ~0s, Rss ~11728, inblocks ~499550, outblocks ~1311950
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.1 seconds
+Created Sparse Matrix
+Load balance: 1.00867
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.082 seconds
+Created Sparse Matrix
+Load balance: 1.00105
+Matrix split and distributed along layers: time 8.66671 seconds
+Matrix split and distributed along layers: time 30.533 seconds
+RMATs Generated and replicated along layers : time 336.983
+
+ Processor Grid (row x col x layers x threads): 4x4x12x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 02273] 2015-08-08 17:23:20 Apid 8989587: initiated application termination
+[NID 02273] 2015-08-08 17:23:21 Apid 8989587: OOM killer terminated this process.
+Application 8989587 exit signals: Killed
+Application 8989587 resources: utime ~0s, stime ~0s, Rss ~11724, inblocks ~479568, outblocks ~1259472
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.093 seconds
+Created Sparse Matrix
+Load balance: 1.00209
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.003 seconds
+Created Sparse Matrix
+Load balance: 1.00519
+Matrix split and distributed along layers: time 6.10044 seconds
+Matrix split and distributed along layers: time 24.7084 seconds
+RMATs Generated and replicated along layers : time 328.251
+
+ Processor Grid (row x col x layers x threads): 4x4x16x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   4    4    16      4   1.512875     5.387973     3.162181   2.406785     3.272262     0.620887     2.845356  19.208319
+   4    4    16      4   1.621268     5.174332     3.856735   2.595179     3.290762     0.614322     2.089321  19.241919
+   4    4    16      4   1.648547     5.246000     3.835236   2.592610     3.294656     0.622785     1.998657  19.238490
+   4    4    16      4   1.591846     5.171334     3.811472   2.592430     3.298022     0.624022     2.273201  19.362327
+   4    4    16      4   1.623818     5.184864     3.798883   2.594324     3.289567     0.622975     2.254418  19.368849
+Application 8989647 resources: utime ~127782s, stime ~18552s, Rss ~7144744, inblocks ~845675, outblocks ~2479384
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.3904 seconds
+Created Sparse Matrix
+Load balance: 1.07801
+Started Generation of scale 26
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 14.3853 seconds
+Created Sparse Matrix
+Load balance: 1.01932
+Matrix split and distributed along layers: time 0.58132 seconds
+Matrix split and distributed along layers: time 0.545837 seconds
+RMATs Generated and replicated along layers : time 40.791
+
+ Processor Grid (row x col x layers x threads): 11x11x1x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     1      8  15.316852     0.000000     8.421442   3.798033     0.000000     0.770449     0.990000  29.296776
+  11   11     1      8  14.169755     0.000000     8.366786   3.793416     0.000000     0.775292     0.889234  27.994483
+  11   11     1      8  14.212245     0.000000     8.356249   3.788638     0.000000     0.778511     0.985670  28.121313
+  11   11     1      8  14.165771     0.000000     8.363176   3.952436     0.000000     0.771047     0.792225  28.044655
+  11   11     1      8  14.137817     0.000000     8.350495   3.783768     0.000000     0.769541     0.752365  27.793986
+Application 8989664 resources: utime ~56642s, stime ~13294s, Rss ~9687852, inblocks ~964277, outblocks ~1881350
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.164 seconds
+Created Sparse Matrix
+Load balance: 1.00998
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.1554 seconds
+Created Sparse Matrix
+Load balance: 1.01709
+Matrix split and distributed along layers: time 2.06792 seconds
+Matrix split and distributed along layers: time 9.01191 seconds
+RMATs Generated and replicated along layers : time 84.153
+
+ Processor Grid (row x col x layers x threads): 8x8x2x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     2      8   5.949846     7.503547     6.463651   3.527566     2.785982     0.751315     2.221201  29.203108
+   8    8     2      8   5.690768     7.478274     6.489666   3.518274     2.773366     0.749770     2.273354  28.973472
+   8    8     2      8   5.591948     7.519020     6.503565   3.530320     2.783285     0.755454     2.224065  28.907657
+   8    8     2      8   5.674207     7.464235     6.480850   3.528159     2.756469     0.753485     2.214310  28.871715
+   8    8     2      8   5.664704     7.455891     6.469377   3.509896     2.760786     0.756282     2.205089  28.822025
+Application 8989672 resources: utime ~61927s, stime ~21372s, Rss ~12564272, inblocks ~946844, outblocks ~1885075
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.327 seconds
+Created Sparse Matrix
+Load balance: 1.04036
+Started Generation of scale 26
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 69.3177 seconds
+Created Sparse Matrix
+Load balance: 1.00599
+Matrix split and distributed along layers: time 4.8033 seconds
+Matrix split and distributed along layers: time 20.4521 seconds
+RMATs Generated and replicated along layers : time 214.167
+
+ Processor Grid (row x col x layers x threads): 5x5x4x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 03814] [c8-1c1s3n2] [Sat Aug  8 17:41:55 2015] PE RANK 1 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03815] [c8-1c1s3n3] [Sat Aug  8 17:41:55 2015] PE RANK 2 exit signal Aborted
+[NID 03814] 2015-08-08 17:41:55 Apid 8989682: initiated application termination
+Application 8989682 exit codes: 134
+Application 8989682 exit signals: Killed
+Application 8989682 resources: utime ~592s, stime ~61s, Rss ~12014332, inblocks ~500568, outblocks ~1314191
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.069 seconds
+Created Sparse Matrix
+Load balance: 1.00362
+Started Generation of scale 26
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 108.009 seconds
+Created Sparse Matrix
+Load balance: 1.00174
+Matrix split and distributed along layers: time 7.73521 seconds
+Matrix split and distributed along layers: time 29.1905 seconds
+RMATs Generated and replicated along layers : time 334.609
+
+ Processor Grid (row x col x layers x threads): 4x4x8x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   4    4     8      8   2.162581     6.941428     4.282712   2.939385     3.236415     0.676437     2.203987  22.442945
+   4    4     8      8   2.349705     6.857883     4.348640   3.016616     3.200308     0.684103     2.104117  22.561372
+   4    4     8      8   2.383496     6.876281     4.347042   2.933447     3.169907     0.675228     2.513003  22.898404
+   4    4     8      8   2.330276     6.889844     4.335969   2.942534     3.164556     0.677794     2.502512  22.843485
+   4    4     8      8   2.312665     6.983995     4.339931   2.943184     3.171952     0.677932     2.088061  22.517720
+Application 8989697 resources: utime ~82716s, stime ~18108s, Rss ~11457972, inblocks ~802192, outblocks ~2421323
+Started Generation of scale 26
+Using 9 MPI processes
+Generated renamed edge lists
+Generation took 191.192 seconds
+Created Sparse Matrix
+Load balance: 1.00172
+Started Generation of scale 26
+Using 9 MPI processes
+Generated renamed edge lists
+Generation took 191.238 seconds
+Created Sparse Matrix
+Load balance: 1.01144
+Matrix split and distributed along layers: time 14.7474 seconds
+Matrix split and distributed along layers: time 53.5826 seconds
+RMATs Generated and replicated along layers : time 588.204
+
+ Processor Grid (row x col x layers x threads): 3x3x12x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 02233] [c4-1c1s3n1] [Sat Aug  8 18:00:00 2015] PE RANK 31 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02279] [c4-1c1s3n3] [Sat Aug  8 18:00:02 2015] PE RANK 34 exit signal Aborted
+[NID 00838] 2015-08-08 18:00:14 Apid 8989718: initiated application termination
+MPICH2 ERROR [Rank 44] [job id 8989718] [Sat Aug  8 18:00:12 2015] [c2-1c1s2n0] [nid00836] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+_pmiu_daemon(SIGCHLD): [NID 00837] [c2-1c1s2n1] [Sat Aug  8 18:00:01 2015] PE RANK 46 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02277] [c4-1c1s2n3] [Sat Aug  8 18:00:01 2015] PE RANK 55 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00795] [c2-1c1s2n3] [Sat Aug  8 18:00:01 2015] PE RANK 58 exit signal Aborted
+MPICH2 ERROR [Rank 68] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c2-1c1s0n0] [nid00832] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+_pmiu_daemon(SIGCHLD): [NID 00833] [c2-1c1s0n1] [Sat Aug  8 18:00:02 2015] PE RANK 70 exit signal Aborted
+MPICH2 ERROR [Rank 80] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c4-1c1s0n0] [nid02238] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+_pmiu_daemon(SIGCHLD): [NID 02239] [c4-1c1s0n1] [Sat Aug  8 18:00:02 2015] PE RANK 82 exit signal Aborted
+MPICH2 ERROR [Rank 92] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c6-1c1s1n2] [nid02332] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+_pmiu_daemon(SIGCHLD): [NID 02333] [c6-1c1s1n3] [Sat Aug  8 18:00:02 2015] PE RANK 94 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02369] [c6-1c1s0n1] [Sat Aug  8 18:00:01 2015] PE RANK 103 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02335] [c6-1c1s0n3] [Sat Aug  8 18:00:01 2015] PE RANK 106 exit signal Aborted
+[NID 00834] 2015-08-08 18:00:04 Apid 8989718: OOM killer terminated this process.
+[NID 02276] 2015-08-08 18:00:09 Apid 8989718: OOM killer terminated this process.
+[NID 00838] 2015-08-08 18:00:03 Apid 8989718: OOM killer terminated this process.
+_pmiu_daemon(SIGCHLD): [NID 02329] [c6-1c1s3n3] [Sat Aug  8 18:00:01 2015] PE RANK 22 exit signal Aborted
+MPICH2 ERROR [Rank 20] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c6-1c1s3n2] [nid02328] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+_pmiu_daemon(SIGCHLD): [NID 03771] [c8-1c1s2n1] [Sat Aug  8 18:00:01 2015] PE RANK 10 exit signal Aborted
+MPICH2 ERROR [Rank 8] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c8-1c1s2n0] [nid03770] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+[NID 03812] 2015-08-08 18:00:04 Apid 8989718: OOM killer terminated this process.
+MPICH2 ERROR [Rank 26] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c6-1c1s3n1] [nid02375] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+MPICH2 ERROR [Rank 32] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c4-1c1s3n2] [nid02278] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+[NID 02235] 2015-08-08 18:00:10 Apid 8989718: OOM killer terminated this process.
+MPICH2 ERROR [Rank 56] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c2-1c1s2n2] [nid00794] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+MPICH2 ERROR [Rank 104] [job id 8989718] [Sat Aug  8 18:00:13 2015] [c6-1c1s0n2] [nid02334] - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_SMSG had error (SOURCE_SSID_DREQ:MDD_INV)
+[NID 02370] 2015-08-08 18:00:11 Apid 8989718: OOM killer terminated this process.
+[NID 00798] 2015-08-08 18:00:08 Apid 8989718: OOM killer terminated this process.
+[NID 00796] 2015-08-08 18:00:03 Apid 8989718: OOM killer terminated this process.
+[NID 02234] 2015-08-08 18:00:05 Apid 8989718: OOM killer terminated this process.
+[NID 00792] 2015-08-08 18:00:10 Apid 8989718: OOM killer terminated this process.
+[NID 02232] 2015-08-08 18:00:14 Apid 8989718: OOM killer terminated this process.
+[NID 02274] 2015-08-08 18:00:15 Apid 8989718: OOM killer terminated this process.
+[NID 02368] 2015-08-08 18:00:17 Apid 8989718: OOM killer terminated this process.
+[NID 02236] 2015-08-08 18:00:19 Apid 8989718: OOM killer terminated this process.
+[NID 02272] 2015-08-08 18:00:20 Apid 8989718: OOM killer terminated this process.
+[NID 02330] 2015-08-08 18:00:27 Apid 8989718: OOM killer terminated this process.
+[NID 02373] 2015-08-08 18:00:27 Apid 8989718: OOM killer terminated this process.
+[NID 03814] 2015-08-08 18:00:27 Apid 8989718: OOM killer terminated this process.
+Application 8989718 exit codes: 134
+Application 8989718 exit signals: Killed
+Application 8989718 resources: utime ~8078s, stime ~516s, Rss ~19128128, inblocks ~546676, outblocks ~1441545
+Started Generation of scale 26
+Using 4 MPI processes
+Generated renamed edge lists
+Generation took 426.649 seconds
+Created Sparse Matrix
+Load balance: 1.00066
+Started Generation of scale 26
+Using 4 MPI processes
+Generated renamed edge lists
+Generation took 426.593 seconds
+Created Sparse Matrix
+Load balance: 1.00693
+Matrix split and distributed along layers: time 29.8194 seconds
+Matrix split and distributed along layers: time 117.991 seconds
+RMATs Generated and replicated along layers : time 1352.79
+
+ Processor Grid (row x col x layers x threads): 2x2x16x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 02372] [c6-1c1s2n0] [Sat Aug  8 18:23:23 2015] PE RANK 12 exit signal Aborted
+[NID 02372] 2015-08-08 18:23:23 Apid 8989750: initiated application termination
+Application 8989750 exit codes: 134
+Application 8989750 exit signals: Killed
+Application 8989750 resources: utime ~1401s, stime ~28s, Rss ~11416624, inblocks ~320340, outblocks ~839908
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.1796 seconds
+Created Sparse Matrix
+Load balance: 1.1853
+Started Generation of scale 26
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 27.1855 seconds
+Created Sparse Matrix
+Load balance: 1.03047
+Matrix split and distributed along layers: time 1.01711 seconds
+Matrix split and distributed along layers: time 1.01329 seconds
+RMATs Generated and replicated along layers : time 78.5903
+
+ Processor Grid (row x col x layers x threads): 8x8x1x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     1     16  11.143833     0.000000     9.248025   4.715689     0.000000     1.273463     2.278887  28.659897
+   8    8     1     16  11.171444     0.000000     9.256965   4.635077     0.000000     1.243984     2.311046  28.618516
+   8    8     1     16  11.172327     0.000000     9.209810   4.735739     0.000000     1.246380     2.226097  28.590353
+   8    8     1     16  11.175458     0.000000     9.202802   4.774146     0.000000     1.241161     2.171186  28.564753
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+/var/spool/torque/mom_priv/jobs/2441951.SC: line 42:  2940 Terminated              aprun -n 64 -d 16 -N 1 ./mpipspgemm 8 8 1 G500 26 16 column
+=>> PBS: job killed: walltime 7161 exceeded limit 7140
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+aprun: Apid 8989806: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 00793] [c2-1c1s3n3] [Sat Aug  8 18:26:52 2015] PE RANK 19 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02279] [c4-1c1s3n3] [Sat Aug  8 18:26:52 2015] PE RANK 17 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03808] [c8-1c1s0n2] [Sat Aug  8 18:26:52 2015] PE RANK 54 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00839] [c2-1c1s3n1] [Sat Aug  8 18:26:53 2015] PE RANK 21 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02371] [c6-1c1s1n1] [Sat Aug  8 18:26:53 2015] PE RANK 49 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00837] [c2-1c1s2n1] [Sat Aug  8 18:26:53 2015] PE RANK 23 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03802] [c8-1c0s2n2] [Sat Aug  8 18:26:53 2015] PE RANK 62 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00835] [c2-1c1s1n1] [Sat Aug  8 18:26:53 2015] PE RANK 33 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02236] [c4-1c1s1n0] [Sat Aug  8 18:26:53 2015] PE RANK 42 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02275] [c4-1c1s1n3] [Sat Aug  8 18:26:53 2015] PE RANK 45 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03811] [c8-1c1s1n3] [Sat Aug  8 18:26:53 2015] PE RANK 57 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02334] [c6-1c1s0n2] [Sat Aug  8 18:26:53 2015] PE RANK 52 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02335] [c6-1c1s0n3] [Sat Aug  8 18:26:53 2015] PE RANK 53 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02375] [c6-1c1s3n1] [Sat Aug  8 18:26:53 2015] PE RANK 13 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02331] [c6-1c1s2n3] [Sat Aug  8 18:26:53 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02233] [c4-1c1s3n1] [Sat Aug  8 18:26:53 2015] PE RANK 15 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03809] [c8-1c1s0n3] [Sat Aug  8 18:26:53 2015] PE RANK 55 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02276] [c4-1c1s2n2] [Sat Aug  8 18:26:53 2015] PE RANK 26 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02237] [c4-1c1s1n1] [Sat Aug  8 18:26:53 2015] PE RANK 43 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00794] [c2-1c1s2n2] [Sat Aug  8 18:26:53 2015] PE RANK 28 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00838] [c2-1c1s3n0] [Sat Aug  8 18:26:53 2015] PE RANK 20 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03772] [c8-1c1s1n0] [Sat Aug  8 18:26:53 2015] PE RANK 58 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03810] [c8-1c1s1n2] [Sat Aug  8 18:26:53 2015] PE RANK 56 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00797] [c2-1c1s1n3] [Sat Aug  8 18:26:53 2015] PE RANK 31 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02370] [c6-1c1s1n0] [Sat Aug  8 18:26:53 2015] PE RANK 48 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03815] [c8-1c1s3n3] [Sat Aug  8 18:26:53 2015] PE RANK 1 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02328] [c6-1c1s3n2] [Sat Aug  8 18:26:53 2015] PE RANK 10 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00796] [c2-1c1s1n2] [Sat Aug  8 18:26:53 2015] PE RANK 30 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00792] [c2-1c1s3n2] [Sat Aug  8 18:26:53 2015] PE RANK 18 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03773] [c8-1c1s1n1] [Sat Aug  8 18:26:53 2015] PE RANK 59 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02278] [c4-1c1s3n2] [Sat Aug  8 18:26:53 2015] PE RANK 16 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03812] [c8-1c1s2n2] [Sat Aug  8 18:26:53 2015] PE RANK 2 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03803] [c8-1c0s2n3] [Sat Aug  8 18:26:53 2015] PE RANK 63 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00833] [c2-1c1s0n1] [Sat Aug  8 18:26:53 2015] PE RANK 35 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03814] [c8-1c1s3n2] [Sat Aug  8 18:26:53 2015] PE RANK 0 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02369] [c6-1c1s0n1] [Sat Aug  8 18:26:53 2015] PE RANK 51 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02368] [c6-1c1s0n0] [Sat Aug  8 18:26:53 2015] PE RANK 50 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02273] [c4-1c1s0n3] [Sat Aug  8 18:26:53 2015] PE RANK 39 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00799] [c2-1c1s0n3] [Sat Aug  8 18:26:53 2015] PE RANK 37 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00836] [c2-1c1s2n0] [Sat Aug  8 18:26:53 2015] PE RANK 22 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03771] [c8-1c1s2n1] [Sat Aug  8 18:26:53 2015] PE RANK 5 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03770] [c8-1c1s2n0] [Sat Aug  8 18:26:53 2015] PE RANK 4 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02373] [c6-1c1s2n1] [Sat Aug  8 18:26:53 2015] PE RANK 7 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03801] [c8-1c0s3n3] [Sat Aug  8 18:26:53 2015] PE RANK 61 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02332] [c6-1c1s1n2] [Sat Aug  8 18:26:53 2015] PE RANK 46 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02239] [c4-1c1s0n1] [Sat Aug  8 18:26:53 2015] PE RANK 41 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02238] [c4-1c1s0n0] [Sat Aug  8 18:26:53 2015] PE RANK 40 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02329] [c6-1c1s3n3] [Sat Aug  8 18:26:53 2015] PE RANK 11 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02372] [c6-1c1s2n0] [Sat Aug  8 18:26:53 2015] PE RANK 6 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02232] [c4-1c1s3n0] [Sat Aug  8 18:26:53 2015] PE RANK 14 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02235] [c4-1c1s2n1] [Sat Aug  8 18:26:53 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02234] [c4-1c1s2n0] [Sat Aug  8 18:26:53 2015] PE RANK 24 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02274] [c4-1c1s1n2] [Sat Aug  8 18:26:53 2015] PE RANK 44 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00834] [c2-1c1s1n0] [Sat Aug  8 18:26:53 2015] PE RANK 32 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02333] [c6-1c1s1n3] [Sat Aug  8 18:26:53 2015] PE RANK 47 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00832] [c2-1c1s0n0] [Sat Aug  8 18:26:53 2015] PE RANK 34 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02277] [c4-1c1s2n3] [Sat Aug  8 18:26:53 2015] PE RANK 27 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00795] [c2-1c1s2n3] [Sat Aug  8 18:26:53 2015] PE RANK 29 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03774] [c8-1c1s0n0] [Sat Aug  8 18:26:53 2015] PE RANK 60 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00798] [c2-1c1s0n2] [Sat Aug  8 18:26:53 2015] PE RANK 36 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03813] [c8-1c1s2n3] [Sat Aug  8 18:26:53 2015] PE RANK 3 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02272] [c4-1c1s0n2] [Sat Aug  8 18:26:53 2015] PE RANK 38 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02374] [c6-1c1s3n0] [Sat Aug  8 18:26:53 2015] PE RANK 12 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02330] [c6-1c1s2n2] [Sat Aug  8 18:26:53 2015] PE RANK 8 exit signal Terminated
+Application 8989806 exit codes: 143
+Application 8989806 resources: utime ~42557s, stime ~17767s, Rss ~20284116, inblocks ~812862, outblocks ~1879194

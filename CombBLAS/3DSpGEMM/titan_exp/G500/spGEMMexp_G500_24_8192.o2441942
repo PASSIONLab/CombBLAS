@@ -1,0 +1,1224 @@
+Started Generation of scale 24
+Using 8100 MPI processes
+Generated renamed edge lists
+Generation took 0.067188 seconds
+Created Sparse Matrix
+Load balance: 1.13763
+Started Generation of scale 24
+Using 8100 MPI processes
+Generated renamed edge lists
+Generation took 0.0684102 seconds
+Created Sparse Matrix
+Load balance: 1.18598
+Matrix split and distributed along layers: time 0.00166917 seconds
+Matrix split and distributed along layers: time 0.00194192 seconds
+RMATs Generated and replicated along layers : time 11.7283
+
+ Processor Grid (row x col x layers x threads): 90x90x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  90   90     1      1   3.180857     0.000000     0.614452   0.121674     0.000000     0.021320     0.021295   3.959598
+  90   90     1      1   3.053110     0.000000     0.602477   0.119438     0.000000     0.017018     0.017991   3.810034
+  90   90     1      1   3.298752     0.000000     0.609541   0.119595     0.000000     0.017042     0.025272   4.070202
+  90   90     1      1   3.262350     0.000000     0.607374   0.119895     0.000000     0.019394     0.034153   4.043165
+  90   90     1      1   3.074871     0.000000     0.602547   0.119925     0.000000     0.019852     0.028763   3.845958
+Application 8988778 resources: utime ~268690s, stime ~40111s, Rss ~71520, inblocks ~11728207, outblocks ~13586245
+Started Generation of scale 24
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.126313 seconds
+Created Sparse Matrix
+Load balance: 1.08282
+Started Generation of scale 24
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.12384 seconds
+Created Sparse Matrix
+Load balance: 1.06771
+Matrix split and distributed along layers: time 0.00325203 seconds
+Matrix split and distributed along layers: time 0.0225229 seconds
+RMATs Generated and replicated along layers : time 4.30555
+
+ Processor Grid (row x col x layers x threads): 64x64x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  64   64     2      1   1.734092     0.031236     0.439050   0.114242     0.059712     0.013787     0.223288   2.615406
+  64   64     2      1   1.780783     0.016524     0.430527   0.106597     0.064025     0.015662     0.098579   2.512697
+  64   64     2      1   1.905407     0.018321     0.429381   0.098907     0.061186     0.017873     0.109669   2.640744
+  64   64     2      1   1.913681     0.017183     0.431310   0.100552     0.061257     0.017675     0.130272   2.671930
+  64   64     2      1   1.848020     0.018783     0.430298   0.101253     0.061109     0.018292     0.046144   2.523899
+Application 8988785 resources: utime ~158130s, stime ~37153s, Rss ~87048, inblocks ~8612397, outblocks ~13659490
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.240672 seconds
+Created Sparse Matrix
+Load balance: 1.08349
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.239295 seconds
+Created Sparse Matrix
+Load balance: 1.17696
+Matrix split and distributed along layers: time 0.00690794 seconds
+Matrix split and distributed along layers: time 0.0395429 seconds
+RMATs Generated and replicated along layers : time 2.00869
+
+ Processor Grid (row x col x layers x threads): 45x45x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     4      1   1.025935     0.096058     0.331312   0.103168     0.088984     0.021804     0.330811   1.998071
+  45   45     4      1   1.102662     0.100922     0.318957   0.093628     0.074410     0.013191     0.086384   1.790154
+  45   45     4      1   1.049987     0.098252     0.317757   0.091852     0.074765     0.013012     0.197662   1.843287
+  45   45     4      1   1.004482     0.077957     0.318629   0.092561     0.089088     0.018097     0.127413   1.728227
+  45   45     4      1   1.032833     0.097240     0.319769   0.089115     0.075304     0.014034     0.320927   1.949222
+Application 8988789 resources: utime ~109391s, stime ~35278s, Rss ~106888, inblocks ~8085427, outblocks ~13521253
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.46463 seconds
+Created Sparse Matrix
+Load balance: 1.08795
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.463378 seconds
+Created Sparse Matrix
+Load balance: 1.04866
+Matrix split and distributed along layers: time 0.013448 seconds
+Matrix split and distributed along layers: time 0.079951 seconds
+RMATs Generated and replicated along layers : time 2.16893
+
+ Processor Grid (row x col x layers x threads): 32x32x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     8      1   0.806425     0.037387     0.228972   0.083562     0.068407     0.011389     0.297392   1.533534
+  32   32     8      1   1.085116     0.052601     0.228888   0.071090     0.070755     0.013903     0.066600   1.588953
+  32   32     8      1   0.995018     0.032387     0.229424   0.082117     0.082602     0.017593     0.067633   1.506774
+  32   32     8      1   0.979670     0.038860     0.227928   0.077260     0.081321     0.015724     0.178054   1.598818
+  32   32     8      1   1.014403     0.035983     0.228461   0.077593     0.083566     0.014206     0.130474   1.584686
+Application 8988792 resources: utime ~101622s, stime ~34932s, Rss ~84404, inblocks ~8084952, outblocks ~13616999
+Started Generation of scale 24
+Using 676 MPI processes
+Generated renamed edge lists
+Generation took 0.700133 seconds
+Created Sparse Matrix
+Load balance: 1.11773
+Started Generation of scale 24
+Using 676 MPI processes
+Generated renamed edge lists
+Generation took 0.702823 seconds
+Created Sparse Matrix
+Load balance: 1.14302
+Matrix split and distributed along layers: time 0.021389 seconds
+Matrix split and distributed along layers: time 0.122854 seconds
+RMATs Generated and replicated along layers : time 2.56554
+
+ Processor Grid (row x col x layers x threads): 26x26x12x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  26   26    12      1   0.667734     0.049892     0.195123   0.088710     0.082431     0.011649     0.241263   1.336803
+  26   26    12      1   0.847703     0.047679     0.193995   0.087566     0.090019     0.011070     0.082313   1.360346
+  26   26    12      1   0.835839     0.040529     0.194038   0.091475     0.093015     0.011728     0.106217   1.372841
+  26   26    12      1   0.860700     0.040075     0.193629   0.089764     0.093335     0.013212     0.062635   1.353350
+  26   26    12      1   0.824739     0.039299     0.193817   0.089616     0.093357     0.013721     0.112223   1.366772
+Application 8988796 resources: utime ~94324s, stime ~34046s, Rss ~96372, inblocks ~8578693, outblocks ~13513672
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.978895 seconds
+Created Sparse Matrix
+Load balance: 1.06807
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.968323 seconds
+Created Sparse Matrix
+Load balance: 1.03744
+Matrix split and distributed along layers: time 0.0281999 seconds
+Matrix split and distributed along layers: time 0.163576 seconds
+RMATs Generated and replicated along layers : time 3.17478
+
+ Processor Grid (row x col x layers x threads): 22x22x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22    16      1   0.606575     0.076585     0.167323   0.055489     0.066190     0.007001     0.291387   1.270549
+  22   22    16      1   0.681585     0.067667     0.166606   0.056119     0.067013     0.009355     0.220659   1.269004
+  22   22    16      1   0.772601     0.068542     0.165805   0.056391     0.063854     0.008645     0.121361   1.257199
+  22   22    16      1   0.771772     0.065650     0.166182   0.056674     0.067473     0.009952     0.156575   1.294278
+  22   22    16      1   0.694867     0.068001     0.165914   0.056534     0.067276     0.011027     0.249759   1.313378
+Application 8988797 resources: utime ~91808s, stime ~32837s, Rss ~89232, inblocks ~7812822, outblocks ~12873802
+Started Generation of scale 24
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.107509 seconds
+Created Sparse Matrix
+Load balance: 1.12219
+Started Generation of scale 24
+Using 4096 MPI processes
+Generated renamed edge lists
+Generation took 0.108394 seconds
+Created Sparse Matrix
+Load balance: 1.12403
+Matrix split and distributed along layers: time 0.00149488 seconds
+Matrix split and distributed along layers: time 0.00110388 seconds
+RMATs Generated and replicated along layers : time 3.24195
+
+ Processor Grid (row x col x layers x threads): 64x64x1x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  64   64     1      2   2.579114     0.000000     0.481800   0.120915     0.000000     0.021510     0.073997   3.277336
+  64   64     1      2   2.381056     0.000000     0.472838   0.114696     0.000000     0.017312     0.079542   3.065445
+  64   64     1      2   2.384064     0.000000     0.468579   0.114613     0.000000     0.017083     0.080624   3.064962
+  64   64     1      2   2.535801     0.000000     0.468637   0.115068     0.000000     0.019752     0.113802   3.253059
+  64   64     1      2   2.384596     0.000000     0.469098   0.115158     0.000000     0.019607     0.091112   3.079571
+Application 8988800 resources: utime ~93179s, stime ~11909s, Rss ~112064, inblocks ~8959879, outblocks ~13575036
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.232607 seconds
+Created Sparse Matrix
+Load balance: 1.0755
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.211552 seconds
+Created Sparse Matrix
+Load balance: 1.17569
+Matrix split and distributed along layers: time 0.00528002 seconds
+Matrix split and distributed along layers: time 0.0437691 seconds
+RMATs Generated and replicated along layers : time 1.80157
+
+ Processor Grid (row x col x layers x threads): 45x45x2x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     2      2   1.337897     0.080598     0.336875   0.114312     0.069437     0.019922     0.166374   2.125415
+  45   45     2      2   1.313440     0.033084     0.324602   0.109244     0.064526     0.019302     0.216948   2.081146
+  45   45     2      2   1.322050     0.031843     0.324370   0.109509     0.065128     0.019618     0.152965   2.025483
+  45   45     2      2   1.369362     0.032919     0.324858   0.109128     0.068947     0.018203     0.220585   2.144002
+  45   45     2      2   1.387814     0.032778     0.323568   0.109517     0.068113     0.018668     0.159536   2.099994
+Application 8988804 resources: utime ~60951s, stime ~11818s, Rss ~147664, inblocks ~7569824, outblocks ~13420995
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.415507 seconds
+Created Sparse Matrix
+Load balance: 1.06896
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.413886 seconds
+Created Sparse Matrix
+Load balance: 1.06896
+Matrix split and distributed along layers: time 0.010525 seconds
+Matrix split and distributed along layers: time 0.065938 seconds
+RMATs Generated and replicated along layers : time 1.69599
+
+ Processor Grid (row x col x layers x threads): 32x32x4x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+[NID 17732] 2015-08-08 15:54:20 Apid 8988806: initiated application termination
+[NID 01287] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15459] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15401] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13900] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15343] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15443] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 13821] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13916] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17732] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17733] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 00736] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 19149] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 16895] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15363] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13731] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13819] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16887] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15373] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16881] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13747] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13897] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15319] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13879] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13776] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 01305] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 01286] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15456] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13773] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13769] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15317] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13847] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13745] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15377] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16817] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15277] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13742] 2015-08-08 15:54:21 Apid 8988806: OOM killer terminated this process.
+[NID 16891] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13733] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15265] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15454] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16894] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17612] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 19141] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17700] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 17698] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 17633] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17593] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 17592] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17728] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 19132] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 19167] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17724] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 17604] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 00708] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17614] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 19152] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 16892] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13918] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13830] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16806] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 13741] 2015-08-08 15:54:21 Apid 8988806: OOM killer terminated this process.
+[NID 15344] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15440] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15342] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15283] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13801] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13768] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13777] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15551] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 01785] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15458] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15314] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13782] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15403] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13800] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15341] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 16813] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15346] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13808] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16890] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 13913] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15264] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 16803] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 19153] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 17616] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 19161] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17605] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 17727] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 19139] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17692] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 17637] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 19128] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 19129] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17632] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 19171] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 00735] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17696] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17721] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 00729] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 19154] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 00720] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15453] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 13825] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13732] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16809] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13835] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13907] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 16815] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15436] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13840] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13843] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15402] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13878] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13781] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16851] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 01304] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15262] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16706] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13779] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13783] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15414] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13750] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13901] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15439] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16883] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15279] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13905] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16807] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13827] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13730] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15362] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 00723] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 17714] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 19143] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17722] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17697] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00707] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 00737] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17635] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17688] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 17689] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17599] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 17731] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 19165] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 17631] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17606] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 00711] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17715] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 00722] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16893] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13734] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15367] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13810] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 16878] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15376] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15281] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13802] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15412] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13867] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13775] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16797] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 01285] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 01306] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15549] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13872] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15316] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13749] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13746] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15438] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16879] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13812] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13816] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 19151] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 19142] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17723] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17602] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00705] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 19168] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17636] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17595] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 19133] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 19164] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17720] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16801] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13838] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15441] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13871] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 16796] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16849] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13772] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 16814] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13839] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00716] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17624] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 19136] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 19169] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17638] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00706] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00719] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 13809] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15375] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16848] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13778] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15318] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13811] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17701] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13866] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 00702] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 19138] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15548] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17702] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15378] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 00703] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17601] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 19166] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13805] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13903] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13837] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17598] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13804] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17628] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17703] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17600] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13917] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13865] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13909] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 16808] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13908] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13739] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17693] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13736] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13911] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15275] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15272] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15273] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13910] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13833] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 16805] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17709] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17729] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16804] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 13807] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16889] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16841] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 16843] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 13737] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16842] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 16840] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 16855] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 13774] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16854] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16858] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 16820] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 16839] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 16836] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 16859] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 16856] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 00728] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 17597] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 19135] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15357] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13822] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17735] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 16888] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13876] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17694] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 16816] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17613] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13912] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13841] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 01284] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13751] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 00732] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17596] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15449] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13824] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17708] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 00734] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 19137] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15340] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 01283] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13870] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17615] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13877] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15379] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 00733] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15413] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13743] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17617] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17607] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 00704] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 16853] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15372] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 16812] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 01784] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13820] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13770] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13815] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17619] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 01282] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17695] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 13813] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17639] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 00721] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17634] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 13832] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15400] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15455] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17625] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 00730] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 13896] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 13744] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 16819] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 00718] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15432] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15383] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15382] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 13904] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15381] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15435] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15336] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15337] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15286] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15287] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 00717] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17626] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15284] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15285] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15276] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15434] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 13818] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15380] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17603] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 19163] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17630] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 13823] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17594] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15359] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 00709] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15415] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15550] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 13729] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15305] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 16850] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 16823] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15339] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17691] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 19170] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15278] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17699] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 13873] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 16876] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15345] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17690] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 17734] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 13846] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 15358] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 13919] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 16857] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 13803] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 00710] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 15280] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 19134] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 15263] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 16800] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 13806] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 16877] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 17730] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 19150] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 15315] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 01307] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 13780] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 15457] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 19155] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 13814] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 15442] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 16886] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 13902] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 19175] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15282] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 19140] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 13740] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 19174] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 13834] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 13738] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 19160] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15360] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 13864] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15274] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15307] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 16882] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 16880] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15369] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15349] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15348] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15351] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15350] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 15447] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 16811] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 16884] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 16885] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15370] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15371] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 15444] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15445] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15446] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17725] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15374] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 00731] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 17726] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 19162] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 13735] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 13817] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 13826] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 15433] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 15338] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 16837] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 15306] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 16822] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 16852] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 16707] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 15452] 2015-08-08 15:54:38 Apid 8988806: OOM killer terminated this process.
+[NID 16845] 2015-08-08 15:54:38 Apid 8988806: OOM killer terminated this process.
+[NID 15356] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 15267] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 15347] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 16802] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 15437] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 16818] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 19145] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 19159] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 19158] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 19147] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 00713] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 00726] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 00727] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 00724] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 00725] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 00714] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 00715] 2015-08-08 15:54:36 Apid 8988806: OOM killer terminated this process.
+[NID 19146] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 19156] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15266] 2015-08-08 15:54:40 Apid 8988806: OOM killer terminated this process.
+[NID 13771] 2015-08-08 15:54:41 Apid 8988806: OOM killer terminated this process.
+[NID 15304] 2015-08-08 15:54:41 Apid 8988806: OOM killer terminated this process.
+[NID 17621] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17620] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17707] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17706] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17717] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 17716] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 17611] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17609] 2015-08-08 15:54:21 Apid 8988806: OOM killer terminated this process.
+[NID 17719] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 17704] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 17705] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 17622] 2015-08-08 15:54:37 Apid 8988806: OOM killer terminated this process.
+[NID 17623] 2015-08-08 15:54:22 Apid 8988806: OOM killer terminated this process.
+[NID 17608] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 17610] 2015-08-08 15:54:39 Apid 8988806: OOM killer terminated this process.
+[NID 13836] 2015-08-08 15:54:41 Apid 8988806: OOM killer terminated this process.
+[NID 13906] 2015-08-08 15:54:41 Apid 8988806: OOM killer terminated this process.
+[NID 15365] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15364] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15451] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15450] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15269] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15268] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15271] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13915] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 13828] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 13829] 2015-08-08 15:54:33 Apid 8988806: OOM killer terminated this process.
+[NID 15354] 2015-08-08 15:54:23 Apid 8988806: OOM killer terminated this process.
+[NID 15355] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15352] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15353] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15270] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 17718] 2015-08-08 15:54:42 Apid 8988806: OOM killer terminated this process.
+[NID 15448] 2015-08-08 15:54:42 Apid 8988806: OOM killer terminated this process.
+[NID 15366] 2015-08-08 15:54:43 Apid 8988806: OOM killer terminated this process.
+[NID 13914] 2015-08-08 15:54:43 Apid 8988806: OOM killer terminated this process.
+[NID 15368] 2015-08-08 15:54:44 Apid 8988806: OOM killer terminated this process.
+[NID 16810] 2015-08-08 15:54:44 Apid 8988806: OOM killer terminated this process.
+[NID 19157] 2015-08-08 15:54:45 Apid 8988806: OOM killer terminated this process.
+[NID 19144] 2015-08-08 15:54:45 Apid 8988806: OOM killer terminated this process.
+[NID 00712] 2015-08-08 15:54:45 Apid 8988806: OOM killer terminated this process.
+[NID 13748] 2015-08-08 15:54:46 Apid 8988806: OOM killer terminated this process.
+[NID 13842] 2015-08-08 15:54:46 Apid 8988806: OOM killer terminated this process.
+[NID 15409] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 16844] 2015-08-08 15:54:34 Apid 8988806: OOM killer terminated this process.
+[NID 16847] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 16846] 2015-08-08 15:54:31 Apid 8988806: OOM killer terminated this process.
+[NID 15408] 2015-08-08 15:54:35 Apid 8988806: OOM killer terminated this process.
+[NID 15407] 2015-08-08 15:54:32 Apid 8988806: OOM killer terminated this process.
+[NID 15406] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15311] 2015-08-08 15:54:24 Apid 8988806: OOM killer terminated this process.
+[NID 15313] 2015-08-08 15:54:25 Apid 8988806: OOM killer terminated this process.
+[NID 15310] 2015-08-08 15:54:28 Apid 8988806: OOM killer terminated this process.
+[NID 15309] 2015-08-08 15:54:29 Apid 8988806: OOM killer terminated this process.
+[NID 15410] 2015-08-08 15:54:30 Apid 8988806: OOM killer terminated this process.
+[NID 15411] 2015-08-08 15:54:26 Apid 8988806: OOM killer terminated this process.
+[NID 15404] 2015-08-08 15:54:27 Apid 8988806: OOM killer terminated this process.
+[NID 15405] 2015-08-08 15:54:48 Apid 8988806: OOM killer terminated this process.
+[NID 15312] 2015-08-08 15:54:48 Apid 8988806: OOM killer terminated this process.
+[NID 19148] 2015-08-08 15:54:52 Apid 8988806: OOM killer terminated this process.
+[NID 17618] 2015-08-08 15:54:52 Apid 8988806: OOM killer terminated this process.
+[NID 19173] 2015-08-08 15:54:52 Apid 8988806: OOM killer terminated this process.
+Application 8988806 exit signals: Killed
+Application 8988806 resources: utime ~0s, stime ~512s, Rss ~12356, inblocks ~5117440, outblocks ~13434368
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.864805 seconds
+Created Sparse Matrix
+Load balance: 1.07921
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.857624 seconds
+Created Sparse Matrix
+Load balance: 1.04037
+Matrix split and distributed along layers: time 0.025239 seconds
+Matrix split and distributed along layers: time 0.15614 seconds
+RMATs Generated and replicated along layers : time 2.78032
+
+ Processor Grid (row x col x layers x threads): 22x22x8x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     8      2   0.697768     0.181136     0.190233   0.104210     0.105874     0.020307     0.179152   1.478680
+  22   22     8      2   0.781723     0.157157     0.191551   0.090661     0.097562     0.018742     0.086741   1.424137
+  22   22     8      2   0.742298     0.164595     0.189856   0.089145     0.097943     0.018389     0.101751   1.403977
+  22   22     8      2   0.799351     0.171916     0.190335   0.087747     0.097230     0.018253     0.058318   1.423150
+  22   22     8      2   0.775404     0.170544     0.189947   0.087965     0.097288     0.018696     0.107867   1.447711
+Application 8988810 resources: utime ~44173s, stime ~11787s, Rss ~234908, inblocks ~6935530, outblocks ~12797576
+Started Generation of scale 24
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 1.28622 seconds
+Created Sparse Matrix
+Load balance: 1.04444
+Started Generation of scale 24
+Using 324 MPI processes
+Generated renamed edge lists
+Generation took 1.28498 seconds
+Created Sparse Matrix
+Load balance: 1.03778
+Matrix split and distributed along layers: time 0.0364051 seconds
+Matrix split and distributed along layers: time 0.20341 seconds
+RMATs Generated and replicated along layers : time 3.82545
+
+ Processor Grid (row x col x layers x threads): 18x18x12x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  18   18    12      2   0.519730     0.116994     0.159938   0.070552     0.082015     0.012089     0.216569   1.177886
+  18   18    12      2   0.661943     0.086084     0.158544   0.069605     0.074448     0.023194     0.078865   1.152683
+  18   18    12      2   0.660655     0.084241     0.159261   0.073768     0.073758     0.022792     0.060883   1.135358
+  18   18    12      2   0.642438     0.081191     0.159948   0.072756     0.083453     0.016867     0.058493   1.115146
+  18   18    12      2   0.655916     0.075662     0.158484   0.079420     0.083857     0.017485     0.101082   1.171906
+Application 8988812 resources: utime ~43555s, stime ~10992s, Rss ~200056, inblocks ~7212071, outblocks ~12896464
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.62318 seconds
+Created Sparse Matrix
+Load balance: 1.0163
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.62553 seconds
+Created Sparse Matrix
+Load balance: 1.01386
+Matrix split and distributed along layers: time 0.043175 seconds
+Matrix split and distributed along layers: time 0.260986 seconds
+RMATs Generated and replicated along layers : time 4.75774
+
+ Processor Grid (row x col x layers x threads): 16x16x16x2 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16    16      2   0.531810     0.084399     0.148615   0.085362     0.075894     0.011251     0.211594   1.148925
+  16   16    16      2   0.615119     0.050595     0.146067   0.084332     0.077667     0.014215     0.128252   1.116247
+  16   16    16      2   0.661589     0.049801     0.147023   0.084303     0.078155     0.014401     0.051798   1.087071
+  16   16    16      2   0.613478     0.049323     0.146730   0.084159     0.078206     0.014340     0.050063   1.036299
+  16   16    16      2   0.563323     0.049258     0.146373   0.083675     0.077921     0.014080     0.098630   1.033259
+Application 8988816 resources: utime ~46144s, stime ~11544s, Rss ~209124, inblocks ~7630895, outblocks ~13586470
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.209917 seconds
+Created Sparse Matrix
+Load balance: 1.08996
+Started Generation of scale 24
+Using 2025 MPI processes
+Generated renamed edge lists
+Generation took 0.210405 seconds
+Created Sparse Matrix
+Load balance: 1.12315
+Matrix split and distributed along layers: time 0.00190902 seconds
+Matrix split and distributed along layers: time 0.00179601 seconds
+RMATs Generated and replicated along layers : time 1.64937
+
+ Processor Grid (row x col x layers x threads): 45x45x1x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  45   45     1      4   2.232415     0.000000     0.369992   0.103866     0.000000     0.016746     0.054866   2.777885
+  45   45     1      4   1.986999     0.000000     0.354804   0.103022     0.000000     0.018431     0.048720   2.511976
+  45   45     1      4   2.063681     0.000000     0.366321   0.102791     0.000000     0.018512     0.055287   2.606592
+  45   45     1      4   2.091453     0.000000     0.374687   0.103018     0.000000     0.018478     0.048509   2.636146
+  45   45     1      4   2.002542     0.000000     0.354394   0.103492     0.000000     0.018384     0.051526   2.530338
+Application 8988817 resources: utime ~52305s, stime ~4014s, Rss ~248048, inblocks ~7293280, outblocks ~13395529
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.409503 seconds
+Created Sparse Matrix
+Load balance: 1.08797
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.406933 seconds
+Created Sparse Matrix
+Load balance: 1.03995
+Matrix split and distributed along layers: time 0.00892806 seconds
+Matrix split and distributed along layers: time 0.073941 seconds
+RMATs Generated and replicated along layers : time 1.64951
+
+ Processor Grid (row x col x layers x threads): 32x32x2x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     2      4   1.106592     0.096760     0.278305   0.109127     0.060974     0.019900     0.164986   1.836644
+  32   32     2      4   1.257530     0.106861     0.261905   0.111828     0.061421     0.018926     0.104262   1.922732
+  32   32     2      4   1.492682     0.106475     0.267515   0.111616     0.060606     0.018525     0.093053   2.150472
+  32   32     2      4   1.436068     0.106703     0.266168   0.111985     0.061223     0.021827     0.083899   2.087873
+  32   32     2      4   1.199228     0.106677     0.262398   0.111528     0.060524     0.021528     0.104892   1.866774
+Application 8988819 resources: utime ~42094s, stime ~5478s, Rss ~309092, inblocks ~7060347, outblocks ~13516365
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.855262 seconds
+Created Sparse Matrix
+Load balance: 1.06994
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.849988 seconds
+Created Sparse Matrix
+Load balance: 1.08162
+Matrix split and distributed along layers: time 0.0219419 seconds
+Matrix split and distributed along layers: time 0.143178 seconds
+RMATs Generated and replicated along layers : time 2.7426
+
+ Processor Grid (row x col x layers x threads): 22x22x4x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     4      4   0.768296     0.126551     0.209166   0.108885     0.074687     0.021068     0.314943   1.623596
+  22   22     4      4   0.712833     0.127026     0.212381   0.112016     0.082183     0.022117     0.283351   1.551907
+  22   22     4      4   0.902343     0.128370     0.211081   0.112111     0.083423     0.021853     0.075090   1.534271
+  22   22     4      4   1.006200     0.128311     0.216030   0.111845     0.082491     0.021264     0.098278   1.664419
+  22   22     4      4   1.030241     0.137367     0.211624   0.111452     0.078779     0.020118     0.117556   1.707138
+Application 8988820 resources: utime ~35213s, stime ~5394s, Rss ~364856, inblocks ~6544700, outblocks ~12790283
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.60816 seconds
+Created Sparse Matrix
+Load balance: 1.02936
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.60588 seconds
+Created Sparse Matrix
+Load balance: 1.05433
+Matrix split and distributed along layers: time 0.038511 seconds
+Matrix split and distributed along layers: time 0.264135 seconds
+RMATs Generated and replicated along layers : time 4.7351
+
+ Processor Grid (row x col x layers x threads): 16x16x8x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     8      4   0.399072     0.190335     0.148008   0.077721     0.073119     0.018437     0.293271   1.199963
+  16   16     8      4   0.441699     0.177039     0.146959   0.081449     0.082571     0.015489     0.311243   1.256449
+  16   16     8      4   0.472225     0.178029     0.144207   0.072791     0.082061     0.015560     0.258436   1.223309
+  16   16     8      4   0.637389     0.177604     0.143683   0.073175     0.082564     0.015554     0.196042   1.326011
+  16   16     8      4   0.453361     0.177497     0.146576   0.073005     0.082349     0.015530     0.261888   1.210206
+Application 8988823 resources: utime ~35240s, stime ~5494s, Rss ~413628, inblocks ~6983603, outblocks ~13586023
+Started Generation of scale 24
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 2.42952 seconds
+Created Sparse Matrix
+Load balance: 1.04011
+Started Generation of scale 24
+Using 169 MPI processes
+Generated renamed edge lists
+Generation took 2.43558 seconds
+Created Sparse Matrix
+Load balance: 1.01793
+Matrix split and distributed along layers: time 0.070514 seconds
+Matrix split and distributed along layers: time 0.453616 seconds
+RMATs Generated and replicated along layers : time 7.25241
+
+ Processor Grid (row x col x layers x threads): 13x13x12x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  13   13    12      4   0.418284     0.138405     0.159663   0.098049     0.095000     0.015685     0.159682   1.084768
+  13   13    12      4   0.453278     0.128713     0.138391   0.097873     0.084018     0.018690     0.168267   1.089229
+  13   13    12      4   0.446352     0.125599     0.133584   0.099608     0.084305     0.018393     0.183138   1.090979
+  13   13    12      4   0.437895     0.127016     0.130261   0.098387     0.084372     0.018414     0.154679   1.051024
+  13   13    12      4   0.358733     0.132928     0.131871   0.098431     0.084253     0.018442     0.226228   1.050886
+Application 8988825 resources: utime ~36612s, stime ~5080s, Rss ~384028, inblocks ~6865565, outblocks ~13517045
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.38821 seconds
+Created Sparse Matrix
+Load balance: 1.08847
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.38616 seconds
+Created Sparse Matrix
+Load balance: 1.02268
+Matrix split and distributed along layers: time 0.114713 seconds
+Matrix split and distributed along layers: time 0.682009 seconds
+RMATs Generated and replicated along layers : time 10.2559
+
+ Processor Grid (row x col x layers x threads): 11x11x16x4 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11    16      4   0.398756     0.251535     0.122096   0.096192     0.105407     0.021337     0.225983   1.221306
+  11   11    16      4   0.356202     0.259236     0.132179   0.090073     0.092749     0.014838     0.268385   1.213662
+  11   11    16      4   0.394509     0.257228     0.120413   0.089222     0.093637     0.017457     0.218651   1.191117
+  11   11    16      4   0.374811     0.257087     0.118499   0.089620     0.093060     0.020756     0.206549   1.160382
+  11   11    16      4   0.393185     0.284292     0.116341   0.090061     0.094369     0.016983     0.200640   1.195871
+Application 8988828 resources: utime ~41294s, stime ~5111s, Rss ~521676, inblocks ~6536041, outblocks ~12916488
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.408217 seconds
+Created Sparse Matrix
+Load balance: 1.24778
+Started Generation of scale 24
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.409143 seconds
+Created Sparse Matrix
+Load balance: 1.13655
+Matrix split and distributed along layers: time 0.00240397 seconds
+Matrix split and distributed along layers: time 0.00254083 seconds
+RMATs Generated and replicated along layers : time 1.69446
+
+ Processor Grid (row x col x layers x threads): 32x32x1x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  32   32     1      8   1.917573     0.000000     0.326319   0.105178     0.000000     0.021147     0.069012   2.439229
+  32   32     1      8   1.738696     0.000000     0.326251   0.104276     0.000000     0.021490     0.064833   2.255547
+  32   32     1      8   1.924264     0.000000     0.314657   0.106157     0.000000     0.019153     0.061879   2.426111
+  32   32     1      8   1.705463     0.000000     0.322372   0.103581     0.000000     0.021357     0.056728   2.209501
+  32   32     1      8   1.938719     0.000000     0.320051   0.106814     0.000000     0.021284     0.070654   2.457522
+Application 8988830 resources: utime ~35396s, stime ~2841s, Rss ~994964, inblocks ~7778048, outblocks ~13567712
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.855523 seconds
+Created Sparse Matrix
+Load balance: 1.04524
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.849635 seconds
+Created Sparse Matrix
+Load balance: 1.08735
+Matrix split and distributed along layers: time 0.0176308 seconds
+Matrix split and distributed along layers: time 0.166509 seconds
+RMATs Generated and replicated along layers : time 2.71745
+
+ Processor Grid (row x col x layers x threads): 22x22x2x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     2      8   0.967078     0.226443     0.253942   0.126214     0.081503     0.023028     0.203124   1.881332
+  22   22     2      8   1.025547     0.241897     0.248738   0.106686     0.069515     0.020578     0.118268   1.831229
+  22   22     2      8   1.018308     0.235807     0.240279   0.100629     0.090018     0.022908     0.097630   1.805579
+  22   22     2      8   1.032523     0.229436     0.247747   0.106810     0.082879     0.023247     0.108886   1.831528
+  22   22     2      8   1.032284     0.228609     0.256732   0.115995     0.074984     0.023078     0.061740   1.793422
+Application 8988831 resources: utime ~28822s, stime ~3979s, Rss ~1266896, inblocks ~6628918, outblocks ~12830303
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.60701 seconds
+Created Sparse Matrix
+Load balance: 1.1045
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.60642 seconds
+Created Sparse Matrix
+Load balance: 1.03155
+Matrix split and distributed along layers: time 0.0309739 seconds
+Matrix split and distributed along layers: time 0.285301 seconds
+RMATs Generated and replicated along layers : time 4.82836
+
+ Processor Grid (row x col x layers x threads): 16x16x4x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     4      8   0.500402     0.251255     0.188436   0.103491     0.082268     0.020732     0.321387   1.467971
+  16   16     4      8   0.878074     0.251080     0.172027   0.098516     0.083531     0.020720     0.124383   1.628331
+  16   16     4      8   0.655715     0.241562     0.176705   0.105181     0.091669     0.023153     0.275631   1.569616
+  16   16     4      8   0.737091     0.270596     0.177962   0.097589     0.079666     0.019910     0.129455   1.512268
+  16   16     4      8   0.715515     0.270736     0.171970   0.090603     0.081105     0.020706     0.189170   1.539805
+Application 8988834 resources: utime ~28430s, stime ~4132s, Rss ~1282968, inblocks ~6992467, outblocks ~13614287
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.39707 seconds
+Created Sparse Matrix
+Load balance: 1.02088
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.38943 seconds
+Created Sparse Matrix
+Load balance: 1.01609
+Matrix split and distributed along layers: time 0.162964 seconds
+Matrix split and distributed along layers: time 0.774318 seconds
+RMATs Generated and replicated along layers : time 10.2399
+
+ Processor Grid (row x col x layers x threads): 11x11x8x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     8      8   0.533151     0.273805     0.158166   0.106312     0.089662     0.023267     0.172153   1.356517
+  11   11     8      8   0.469884     0.261043     0.162006   0.107579     0.100268     0.020777     0.154715   1.276272
+  11   11     8      8   0.418444     0.276643     0.154593   0.096437     0.089743     0.019690     0.219827   1.275377
+  11   11     8      8   0.423131     0.269182     0.146092   0.092517     0.088836     0.019801     0.208670   1.248229
+  11   11     8      8   0.504617     0.272301     0.145426   0.088290     0.089412     0.020121     0.160313   1.280480
+Application 8988836 resources: utime ~29225s, stime ~3941s, Rss ~1348424, inblocks ~6414063, outblocks ~12919155
+Started Generation of scale 24
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 5.05764 seconds
+Created Sparse Matrix
+Load balance: 1.00831
+Started Generation of scale 24
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 5.05174 seconds
+Created Sparse Matrix
+Load balance: 1.03232
+Matrix split and distributed along layers: time 0.257065 seconds
+Matrix split and distributed along layers: time 1.00534 seconds
+RMATs Generated and replicated along layers : time 14.8585
+
+ Processor Grid (row x col x layers x threads): 9x9x12x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   9    9    12      8   0.417097     0.194967     0.134329   0.093247     0.101372     0.020842     0.155307   1.117161
+   9    9    12      8   0.358616     0.180271     0.125036   0.088997     0.104998     0.020934     0.216966   1.095818
+   9    9    12      8   0.407470     0.192840     0.132457   0.084906     0.097356     0.020733     0.141385   1.077147
+   9    9    12      8   0.337306     0.191175     0.123858   0.084795     0.087166     0.018792     0.243107   1.086199
+   9    9    12      8   0.422799     0.196184     0.120069   0.082301     0.088028     0.018861     0.140863   1.069105
+Application 8988839 resources: utime ~31613s, stime ~3750s, Rss ~1139340, inblocks ~6413558, outblocks ~12947719
+Started Generation of scale 24
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 6.39488 seconds
+Created Sparse Matrix
+Load balance: 1.11272
+Started Generation of scale 24
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 6.38891 seconds
+Created Sparse Matrix
+Load balance: 1.01172
+Matrix split and distributed along layers: time 0.237092 seconds
+Matrix split and distributed along layers: time 1.23856 seconds
+RMATs Generated and replicated along layers : time 19.1292
+
+ Processor Grid (row x col x layers x threads): 8x8x16x8 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8    16      8   0.284438     0.183756     0.109153   0.077927     0.085162     0.019131     0.286156   1.045722
+   8    8    16      8   0.366492     0.172065     0.105285   0.077939     0.082907     0.018890     0.236979   1.060558
+   8    8    16      8   0.345981     0.173726     0.108298   0.077097     0.092539     0.018861     0.199381   1.015883
+   8    8    16      8   0.345986     0.160350     0.110529   0.088274     0.092942     0.019182     0.218231   1.035494
+   8    8    16      8   0.392815     0.165732     0.109786   0.078513     0.093836     0.019188     0.209485   1.069355
+Application 8988841 resources: utime ~36614s, stime ~3866s, Rss ~1187380, inblocks ~6731023, outblocks ~13617647
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.856195 seconds
+Created Sparse Matrix
+Load balance: 1.04264
+Started Generation of scale 24
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 0.849595 seconds
+Created Sparse Matrix
+Load balance: 1.06956
+Matrix split and distributed along layers: time 0.00456905 seconds
+Matrix split and distributed along layers: time 0.00476694 seconds
+RMATs Generated and replicated along layers : time 2.50316
+
+ Processor Grid (row x col x layers x threads): 22x22x1x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  22   22     1     16   1.664516     0.000000     0.380944   0.172586     0.000000     0.050322     0.078133   2.346501
+  22   22     1     16   1.663727     0.000000     0.333319   0.159229     0.000000     0.049628     0.090697   2.296599
+  22   22     1     16   1.600649     0.000000     0.366176   0.162869     0.000000     0.049370     0.089283   2.268347
+  22   22     1     16   1.621249     0.000000     0.358005   0.165158     0.000000     0.049710     0.083449   2.277570
+  22   22     1     16   1.694955     0.000000     0.329829   0.157050     0.000000     0.049292     0.082696   2.313821
+Application 8988844 resources: utime ~19355s, stime ~5417s, Rss ~2097260, inblocks ~6485860, outblocks ~12835453
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.60905 seconds
+Created Sparse Matrix
+Load balance: 1.01572
+Started Generation of scale 24
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 1.6083 seconds
+Created Sparse Matrix
+Load balance: 1.04495
+Matrix split and distributed along layers: time 0.0306759 seconds
+Matrix split and distributed along layers: time 0.332955 seconds
+RMATs Generated and replicated along layers : time 4.7096
+
+ Processor Grid (row x col x layers x threads): 16x16x2x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  16   16     2     16   0.866328     0.293850     0.262330   0.129418     0.132917     0.040137     0.166130   1.891110
+  16   16     2     16   1.239697     0.287701     0.257501   0.127837     0.124418     0.039171     0.126513   2.202838
+  16   16     2     16   1.235142     0.321332     0.252114   0.130173     0.104278     0.028843     0.406073   2.477955
+  16   16     2     16   1.237010     0.306539     0.236232   0.119493     0.120456     0.039410     0.125695   2.184835
+  16   16     2     16   0.979015     0.298647     0.246513   0.130338     0.105356     0.028104     0.168127   1.956100
+Application 8988845 resources: utime ~19434s, stime ~6366s, Rss ~2426740, inblocks ~6733019, outblocks ~13598495
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.38998 seconds
+Created Sparse Matrix
+Load balance: 1.01094
+Started Generation of scale 24
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 3.38695 seconds
+Created Sparse Matrix
+Load balance: 1.02832
+Matrix split and distributed along layers: time 0.163759 seconds
+Matrix split and distributed along layers: time 0.693793 seconds
+RMATs Generated and replicated along layers : time 10.2375
+
+ Processor Grid (row x col x layers x threads): 11x11x4x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+  11   11     4     16   0.523357     0.274923     0.217627   0.131570     0.122121     0.041410     0.297008   1.608016
+  11   11     4     16   0.581271     0.285572     0.204441   0.111309     0.135639     0.040122     0.272180   1.630534
+  11   11     4     16   0.592629     0.290426     0.211090   0.113343     0.119860     0.028222     0.309318   1.664887
+  11   11     4     16   0.578635     0.316369     0.198400   0.119209     0.117128     0.029459     0.288429   1.647629
+  11   11     4     16   0.711913     0.295284     0.173465   0.105018     0.137006     0.039723     0.219100   1.681510
+Application 8988847 resources: utime ~18814s, stime ~6213s, Rss ~2460712, inblocks ~6341406, outblocks ~12916046
+Started Generation of scale 24
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 6.39582 seconds
+Created Sparse Matrix
+Load balance: 1.02127
+Started Generation of scale 24
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 6.39382 seconds
+Created Sparse Matrix
+Load balance: 1.03607
+Matrix split and distributed along layers: time 0.291561 seconds
+Matrix split and distributed along layers: time 1.43968 seconds
+RMATs Generated and replicated along layers : time 19.079
+
+ Processor Grid (row x col x layers x threads): 8x8x8x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   8    8     8     16   0.360326     0.277392     0.145324   0.104202     0.114616     0.036325     0.312007   1.350192
+   8    8     8     16   0.605618     0.258916     0.182521   0.094697     0.113218     0.036452     0.230406   1.521828
+   8    8     8     16   0.630506     0.275148     0.150796   0.095450     0.115605     0.036430     0.170520   1.474455
+   8    8     8     16   0.611346     0.245715     0.154690   0.110777     0.115965     0.036233     0.170794   1.445520
+   8    8     8     16   0.468863     0.291301     0.150709   0.095004     0.124378     0.035781     0.264503   1.430538
+Application 8988849 resources: utime ~22261s, stime ~6276s, Rss ~2259052, inblocks ~6666850, outblocks ~13613757
+Started Generation of scale 24
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 11.3386 seconds
+Created Sparse Matrix
+Load balance: 1.03155
+Started Generation of scale 24
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 11.3448 seconds
+Created Sparse Matrix
+Load balance: 1.01023
+Matrix split and distributed along layers: time 0.519403 seconds
+Matrix split and distributed along layers: time 2.65746 seconds
+RMATs Generated and replicated along layers : time 33.2637
+
+ Processor Grid (row x col x layers x threads): 6x6x12x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   6    6    12     16   0.375642     0.353761     0.207074   0.165948     0.165476     0.044164     0.229844   1.541909
+   6    6    12     16   0.524337     0.337036     0.219669   0.149740     0.165520     0.045094     0.164298   1.605694
+   6    6    12     16   0.497100     0.328335     0.234854   0.146514     0.165445     0.043788     0.152102   1.568139
+   6    6    12     16   0.525694     0.345292     0.156195   0.139480     0.165620     0.032025     0.214003   1.578308
+   6    6    12     16   0.488940     0.332650     0.203500   0.145135     0.167717     0.043914     0.243055   1.624911
+Application 8988855 resources: utime ~25710s, stime ~6564s, Rss ~2324252, inblocks ~5653915, outblocks ~11492610
+Started Generation of scale 24
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 16.313 seconds
+Created Sparse Matrix
+Load balance: 1.00534
+Started Generation of scale 24
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 16.3085 seconds
+Created Sparse Matrix
+Load balance: 1.02198
+Matrix split and distributed along layers: time 0.725736 seconds
+Matrix split and distributed along layers: time 3.64186 seconds
+RMATs Generated and replicated along layers : time 47.3744
+
+ Processor Grid (row x col x layers x threads): 5x5x16x16 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+   5    5    16     16   0.350271     0.408171     0.226070   0.208569     0.222600     0.050303     0.133814   1.599798
+   5    5    16     16   0.509172     0.370116     0.224961   0.207207     0.221386     0.050394     0.180105   1.763341
+   5    5    16     16   0.486439     0.427523     0.238270   0.190135     0.198809     0.051910     0.166104   1.759190
+   5    5    16     16   0.496971     0.405838     0.239740   0.182839     0.186806     0.050548     0.162117   1.724859
+   5    5    16     16   0.511208     0.413565     0.182920   0.169349     0.209861     0.049378     0.209771   1.746052
+Application 8988858 resources: utime ~30442s, stime ~7135s, Rss ~2823564, inblocks ~5196543, outblocks ~10648318

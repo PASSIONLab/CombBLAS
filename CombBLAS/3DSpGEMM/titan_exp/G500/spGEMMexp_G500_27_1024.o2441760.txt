@@ -1,0 +1,110 @@
+[NID 11783] 2015-08-08 08:13:46 Apid 8986478: initiated application termination
+[NID 11783] 2015-08-08 08:13:46 Apid 8986478: initiated application termination
+[NID 11783] 2015-08-08 08:13:46 Apid 8986478: initiated application termination
+[NID 11783] 2015-08-08 08:13:46 Apid 8986478: initiated application termination
+[NID 11783] 2015-08-08 08:13:46 Apid 8986478: initiated application termination
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+[NID 10199] 2015-08-08 08:50:00 Apid 8986648: initiated application termination
+[NID 10199] 2015-08-08 08:50:00 Apid 8986648: initiated application termination
+[NID 10199] 2015-08-08 08:50:00 Apid 8986648: initiated application termination
+[NID 10199] 2015-08-08 08:50:00 Apid 8986648: initiated application termination
+[NID 10199] 2015-08-08 08:50:00 Apid 8986648: initiated application termination
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+[NID 12787] 2015-08-08 09:06:02 Apid 8986738: initiated application termination
+[NID 12787] 2015-08-08 09:06:02 Apid 8986738: initiated application termination
+[NID 12787] 2015-08-08 09:06:02 Apid 8986738: initiated application termination
+[NID 12787] 2015-08-08 09:06:02 Apid 8986738: initiated application termination
+[NID 12787] 2015-08-08 09:06:02 Apid 8986738: initiated application termination
+[NID 12841] 2015-08-08 09:18:35 Apid 8986807: initiated application termination
+[NID 12841] 2015-08-08 09:18:35 Apid 8986807: initiated application termination
+[NID 12841] 2015-08-08 09:18:35 Apid 8986807: initiated application termination
+[NID 12841] 2015-08-08 09:18:35 Apid 8986807: initiated application termination
+[NID 12841] 2015-08-08 09:18:35 Apid 8986807: initiated application termination
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+[NID 10248] 2015-08-08 09:44:54 Apid 8986843: initiated application termination
+[NID 10248] 2015-08-08 09:44:54 Apid 8986843: initiated application termination
+[NID 10248] 2015-08-08 09:44:54 Apid 8986843: initiated application termination
+[NID 10248] 2015-08-08 09:44:54 Apid 8986843: initiated application termination
+[NID 10248] 2015-08-08 09:44:54 Apid 8986843: initiated application termination
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
