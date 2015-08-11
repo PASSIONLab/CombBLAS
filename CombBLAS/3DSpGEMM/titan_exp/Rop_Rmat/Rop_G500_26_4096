@@ -1,0 +1,47 @@
+#!/bin/bash
+#PBS -A CSC103
+#PBS -l nodes=256
+#PBS -l walltime=01:59:00
+#PBS -N RestrictionOp_G500_26_4096
+#PBS -j oe
+cd $MEMBERWORK/csc103
+
+export OMP_NUM_THREADS=1
+aprun -n 4096 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 64 64 1 G500 26 16 
+aprun -n 4050 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 45 45 2 G500 26 16 
+aprun -n 4096 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 32 32 4 G500 26 16 
+aprun -n 3872 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 22 22 8 G500 26 16 
+aprun -n 3888 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 18 18 12 G500 26 16 
+aprun -n 4096 -d 1 -N 16 -S 8 -cc depth ./RestrictionOp 16 16 16 G500 26 16 
+
+export OMP_NUM_THREADS=2
+aprun -n 2025 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 45 45 1 G500 26 16 
+aprun -n 2048 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 32 32 2 G500 26 16 
+aprun -n 1936 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 22 22 4 G500 26 16 
+aprun -n 2048 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 16 16 8 G500 26 16 
+aprun -n 2028 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 13 13 12 G500 26 16 
+aprun -n 1936 -d 2 -N 8 -S 4 -cc depth ./RestrictionOp 11 11 16 G500 26 16 
+
+export OMP_NUM_THREADS=4
+aprun -n 1024 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 32 32 1 G500 26 16 
+aprun -n 968 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 22 22 2 G500 26 16 
+aprun -n 1024 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 16 16 4 G500 26 16 
+aprun -n 968 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 11 11 8 G500 26 16 
+aprun -n 972 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 9 9 12 G500 26 16 
+aprun -n 1024 -d 4 -N 4 -S 2 -cc depth ./RestrictionOp 8 8 16 G500 26 16 
+
+export OMP_NUM_THREADS=8
+aprun -n 484 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 22 22 1 G500 26 16 
+aprun -n 512 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 16 16 2 G500 26 16 
+aprun -n 484 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 11 11 4 G500 26 16 
+aprun -n 512 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 8 8 8 G500 26 16 
+aprun -n 432 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 6 6 12 G500 26 16 
+aprun -n 400 -d 8 -N 2 -S 1 -cc numa_node ./RestrictionOp 5 5 16 G500 26 16 
+
+export OMP_NUM_THREADS=16
+aprun -n 256 -d 16 -N 1 ./RestrictionOp 16 16 1 G500 26 16
+aprun -n 242 -d 16 -N 1 ./RestrictionOp 11 11 2 G500 26 16
+aprun -n 256 -d 16 -N 1 ./RestrictionOp 8 8 4 G500 26 16
+aprun -n 200 -d 16 -N 1 ./RestrictionOp 5 5 8 G500 26 16
+aprun -n 192 -d 16 -N 1 ./RestrictionOp 4 4 12 G500 26 16
+aprun -n 256 -d 16 -N 1 ./RestrictionOp 4 4 16 G500 26 16
