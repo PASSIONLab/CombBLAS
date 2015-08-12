@@ -159,8 +159,11 @@ int main(int argc, char *argv[])
         //SpParMat < int64_t, double, SpDCCols<int64_t,double> > R = RestrictionOp(BB);
         SpDCCols<int64_t, double>* R;
         SpDCCols<int64_t, double>* RT;
-        RestrictionOp( CMG, A, R, RT);
         
+	double t01 = MPI_Wtime();
+	RestrictionOp( CMG, A, R, RT);
+        
+	if(myrank == 0) cout << "Restriction Op computed : time " << MPI_Wtime() - t01 << endl;
         SpDCCols<int64_t, double> splitA, splitR, splitRT;
         SpDCCols<int64_t, double> *splitC1;
         SpDCCols<int64_t, double> *splitC2;
@@ -172,6 +175,11 @@ int main(int argc, char *argv[])
         
         
         splitC1 = multiply(splitRT, splitA, CMG, false, true);
+        splitC2 = multiply(*splitC1, splitR, CMG, false, true);
+        delete splitC1;
+        delete splitC2;
+
+	splitC1 = multiply(splitRT, splitA, CMG, false, true);
         splitC2 = multiply(*splitC1, splitR, CMG, false, true);
         delete splitC1;
         delete splitC2;

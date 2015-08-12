@@ -1,7 +1,8 @@
 #!/bin/bash
 #PBS -A CSC103
+#PBS -q debug
 #PBS -l nodes=64
-#PBS -l walltime=01:59:00
+#PBS -l walltime=00:59:00
 #PBS -N RestrictionOp_G500_24_1024
 #PBS -j oe
 cd $MEMBERWORK/csc103
