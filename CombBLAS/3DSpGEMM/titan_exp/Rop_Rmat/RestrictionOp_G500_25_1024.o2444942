@@ -1,0 +1,512 @@
+Started Generation of scale 25
+Using 1024 MPI processes
+Generated renamed edge lists
+Generation took 0.985784 seconds
+Created Sparse Matrix
+Load balance: 1.03899
+RMATs Generated and replicated along layers : time 2.17825
+Restriction Op computed : time 7.72524
+Matrix split and distributed along layers: time 0.00483298 seconds
+Matrix split and distributed along layers: time 0.00740695 seconds
+Matrix split and distributed along layers: time 0.045321 seconds
+  32   32     1      1  10.092873     0.000000     2.779275   0.098582     0.000000     0.010030     0.120288  13.101048
+  32   32     1      1   6.471213     0.000000     0.192075   0.050141     0.000000     0.011504     0.174807   6.899741
+  32   32     1      1   8.881750     0.000000     2.762843   0.087110     0.000000     0.019234     0.123295  11.874232
+  32   32     1      1   6.160935     0.000000     0.193043   0.049894     0.000000     0.011744     0.166198   6.581814
+Application 9002756 resources: utime ~50157s, stime ~5710s, Rss ~146696, inblocks ~1702700, outblocks ~1795457
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 2.0757 seconds
+Created Sparse Matrix
+Load balance: 1.06022
+RMATs Generated and replicated along layers : time 3.16723
+Restriction Op computed : time 9.43667
+Matrix split and distributed along layers: time 0.446845 seconds
+Matrix split and distributed along layers: time 0.339536 seconds
+Matrix split and distributed along layers: time 0.0418632 seconds
+  22   22     2      1   6.060728     0.015419     2.086879   0.095298     0.046759     0.017329     0.449730   8.772142
+  22   22     2      1   2.826812     0.007749     0.141693   0.043937     0.018093     0.004788     0.645106   3.688177
+  22   22     2      1   7.041299     0.016996     2.118385   0.084161     0.048659     0.019661     0.425878   9.755038
+  22   22     2      1   2.527449     0.006012     0.140060   0.045065     0.018005     0.004856     0.805482   3.546929
+Application 9002762 resources: utime ~35044s, stime ~4858s, Rss ~227816, inblocks ~937709, outblocks ~1685793
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.90507 seconds
+Created Sparse Matrix
+Load balance: 1.01671
+RMATs Generated and replicated along layers : time 5.7194
+Restriction Op computed : time 15.3251
+Matrix split and distributed along layers: time 0.76291 seconds
+Matrix split and distributed along layers: time 0.433166 seconds
+Matrix split and distributed along layers: time 0.0763431 seconds
+  16   16     4      1   2.575917     0.034151     1.438491   0.075840     0.063592     0.019292     0.185454   4.392736
+  16   16     4      1   1.325433     0.020980     0.098938   0.046165     0.035298     0.010072     0.342730   1.879616
+  16   16     4      1   1.988667     0.035060     1.441102   0.075661     0.060018     0.018630     0.787049   4.406187
+  16   16     4      1   1.220433     0.025851     0.099452   0.044989     0.037874     0.010228     0.373843   1.812670
+Application 9002768 resources: utime ~36844s, stime ~5165s, Rss ~354372, inblocks ~1016506, outblocks ~1865266
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 8.27091 seconds
+Created Sparse Matrix
+Load balance: 1.14479
+RMATs Generated and replicated along layers : time 12.0406
+Restriction Op computed : time 28.3119
+Matrix split and distributed along layers: time 1.70895 seconds
+Matrix split and distributed along layers: time 0.545335 seconds
+Matrix split and distributed along layers: time 0.0857081 seconds
+  11   11     8      1   2.199600     0.037604     1.183389   0.089236     0.091091     0.021675     0.232370   3.854965
+  11   11     8      1   0.772393     0.020270     0.077306   0.046588     0.034683     0.009335     0.352939   1.313514
+  11   11     8      1   2.071030     0.034777     1.192433   0.089419     0.085111     0.019866     0.273183   3.765819
+  11   11     8      1   0.675594     0.018896     0.078491   0.045165     0.037537     0.009721     0.413660   1.279063
+Application 9002771 resources: utime ~48577s, stime ~5086s, Rss ~652028, inblocks ~951941, outblocks ~1734438
+Started Generation of scale 25
+Using 81 MPI processes
+Generated renamed edge lists
+Generation took 12.3291 seconds
+Created Sparse Matrix
+Load balance: 1.01161
+RMATs Generated and replicated along layers : time 16.5795
+Restriction Op computed : time 37.5475
+Matrix split and distributed along layers: time 2.46355 seconds
+Matrix split and distributed along layers: time 0.631493 seconds
+Matrix split and distributed along layers: time 0.108521 seconds
+   9    9    12      1   1.219187     0.045780     0.936748   0.067319     0.079168     0.015137     1.121083   3.484422
+   9    9    12      1   0.633021     0.027797     0.061598   0.041975     0.041887     0.011500     0.252362   1.070141
+   9    9    12      1   1.101896     0.040280     0.913094   0.069121     0.080837     0.016610     1.019328   3.241166
+   9    9    12      1   0.528690     0.034023     0.060176   0.040545     0.042137     0.011848     0.342700   1.060119
+Application 9002777 resources: utime ~65191s, stime ~5214s, Rss ~896400, inblocks ~957198, outblocks ~1715199
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 15.6199 seconds
+Created Sparse Matrix
+Load balance: 1.01939
+RMATs Generated and replicated along layers : time 21.2458
+Restriction Op computed : time 39.6414
+Matrix split and distributed along layers: time 3.22605 seconds
+Matrix split and distributed along layers: time 0.694427 seconds
+Matrix split and distributed along layers: time 0.161874 seconds
+   8    8    16      1   1.567486     0.043642     0.802068   0.063749     0.085393     0.019134     0.568079   3.149551
+   8    8    16      1   0.517215     0.029434     0.052119   0.034922     0.045000     0.011919     0.207149   0.897758
+   8    8    16      1   0.968117     0.038645     0.781632   0.064246     0.085456     0.016863     1.125828   3.080786
+   8    8    16      1   0.431022     0.026577     0.053097   0.034849     0.041345     0.010144     0.286762   0.883796
+Application 9002789 resources: utime ~76519s, stime ~5546s, Rss ~1091068, inblocks ~1011814, outblocks ~1783577
+Started Generation of scale 25
+Using 484 MPI processes
+Generated renamed edge lists
+Generation took 1.78093 seconds
+Created Sparse Matrix
+Load balance: 1.08014
+RMATs Generated and replicated along layers : time 2.73726
+Restriction Op computed : time 8.23455
+Matrix split and distributed along layers: time 0.00883007 seconds
+Matrix split and distributed along layers: time 0.010061 seconds
+Matrix split and distributed along layers: time 0.0684531 seconds
+  22   22     1      2   7.309108     0.000000     2.139746   0.095982     0.000000     0.014497     0.446486  10.005819
+  22   22     1      2   4.997516     0.000000     0.174787   0.051007     0.000000     0.012121     0.192153   5.427584
+  22   22     1      2   7.122293     0.000000     2.134036   0.089752     0.000000     0.020392     0.437282   9.803754
+  22   22     1      2   4.510324     0.000000     0.173791   0.050971     0.000000     0.011949     0.152549   4.899584
+Application 9002794 resources: utime ~21373s, stime ~1868s, Rss ~291804, inblocks ~1316715, outblocks ~1690970
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.41073 seconds
+Created Sparse Matrix
+Load balance: 1.01896
+RMATs Generated and replicated along layers : time 4.86094
+Restriction Op computed : time 11.7484
+Matrix split and distributed along layers: time 0.750207 seconds
+Matrix split and distributed along layers: time 0.422908 seconds
+Matrix split and distributed along layers: time 0.0433321 seconds
+  16   16     2      2   3.388500     0.023856     1.499214   0.081528     0.051174     0.020096     0.346149   5.410516
+  16   16     2      2   2.506686     0.051327     0.130544   0.045944     0.030637     0.008454     0.282369   3.055962
+  16   16     2      2   3.225692     0.023541     1.509022   0.082086     0.049850     0.019362     0.364888   5.274442
+  16   16     2      2   2.323127     0.047835     0.128140   0.047918     0.031076     0.008489     0.177450   2.764036
+Application 9002797 resources: utime ~18564s, stime ~1859s, Rss ~385588, inblocks ~1008201, outblocks ~1836931
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.27142 seconds
+Created Sparse Matrix
+Load balance: 1.01882
+RMATs Generated and replicated along layers : time 9.86611
+Restriction Op computed : time 23.687
+Matrix split and distributed along layers: time 1.52993 seconds
+Matrix split and distributed along layers: time 0.536195 seconds
+Matrix split and distributed along layers: time 0.0804038 seconds
+  11   11     4      2   3.219003     0.027114     1.170893   0.086341     0.074063     0.021733     0.647203   5.246350
+  11   11     4      2   1.331862     0.041873     0.108357   0.042012     0.030044     0.007645     0.271535   1.833328
+  11   11     4      2   3.284257     0.028717     1.177611   0.081237     0.080427     0.017158     0.315696   4.985102
+  11   11     4      2   1.326350     0.035095     0.117761   0.048340     0.035661     0.008664     0.181888   1.753759
+Application 9002801 resources: utime ~24692s, stime ~1869s, Rss ~659204, inblocks ~850088, outblocks ~1718309
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.8221 seconds
+Created Sparse Matrix
+Load balance: 1.02316
+RMATs Generated and replicated along layers : time 18.5613
+Restriction Op computed : time 33.3959
+Matrix split and distributed along layers: time 2.89099 seconds
+Matrix split and distributed along layers: time 0.662982 seconds
+Matrix split and distributed along layers: time 0.118782 seconds
+   8    8     8      2   1.652559     0.065475     0.841221   0.075826     0.089944     0.016733     0.866631   3.608388
+   8    8     8      2   0.696985     0.020635     0.092143   0.047711     0.046531     0.010781     0.086917   1.001703
+   8    8     8      2   2.046251     0.042539     0.851019   0.070723     0.086268     0.018022     0.143868   3.258691
+   8    8     8      2   0.596031     0.041292     0.076973   0.039693     0.049188     0.010376     0.174680   0.988233
+Application 9002803 resources: utime ~33416s, stime ~1925s, Rss ~1079896, inblocks ~841251, outblocks ~1769974
+Started Generation of scale 25
+Using 36 MPI processes
+Generated renamed edge lists
+Generation took 24.5436 seconds
+Created Sparse Matrix
+Load balance: 1.01164
+RMATs Generated and replicated along layers : time 32.7443
+Restriction Op computed : time 54.3855
+Matrix split and distributed along layers: time 5.05084 seconds
+Matrix split and distributed along layers: time 0.789509 seconds
+Matrix split and distributed along layers: time 0.206003 seconds
+   6    6    12      2   1.852337     0.057986     0.779394   0.074039     0.105581     0.020576     0.741691   3.631604
+   6    6    12      2   0.647592     0.069811     0.087906   0.045039     0.055009     0.010610     0.209769   1.125736
+   6    6    12      2   2.015914     0.062396     0.793080   0.075484     0.103269     0.021451     0.349763   3.421357
+   6    6    12      2   0.563704     0.074205     0.071184   0.037322     0.051240     0.012332     0.260747   1.070734
+Application 9002808 resources: utime ~44408s, stime ~1748s, Rss ~1881928, inblocks ~717310, outblocks ~1503692
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 35.3168 seconds
+Created Sparse Matrix
+Load balance: 1.00957
+RMATs Generated and replicated along layers : time 46.8872
+Restriction Op computed : time 73.8013
+Matrix split and distributed along layers: time 7.61967 seconds
+Matrix split and distributed along layers: time 0.91098 seconds
+Matrix split and distributed along layers: time 0.18824 seconds
+   5    5    16      2   1.686121     0.073762     0.747819   0.080987     0.120757     0.022771     0.556427   3.288644
+   5    5    16      2   0.437121     0.067690     0.072525   0.050793     0.067936     0.013004     0.272279   0.981348
+   5    5    16      2   1.866812     0.073769     0.722743   0.084642     0.103501     0.025775     0.322427   3.199669
+   5    5    16      2   0.435050     0.067520     0.064213   0.050085     0.066838     0.012774     0.290526   0.987006
+Application 9002811 resources: utime ~55322s, stime ~1726s, Rss ~2584652, inblocks ~660846, outblocks ~1391137
+Started Generation of scale 25
+Using 256 MPI processes
+Generated renamed edge lists
+Generation took 3.32143 seconds
+Created Sparse Matrix
+Load balance: 1.01685
+RMATs Generated and replicated along layers : time 4.76265
+Restriction Op computed : time 11.2908
+Matrix split and distributed along layers: time 0.0144539 seconds
+Matrix split and distributed along layers: time 0.0131769 seconds
+Matrix split and distributed along layers: time 0.0130959 seconds
+  16   16     1      4   5.620091     0.000000     1.557287   0.089230     0.000000     0.021183     0.136993   7.424785
+  16   16     1      4   4.165849     0.000000     0.228980   0.057261     0.000000     0.008775     0.160885   4.621750
+  16   16     1      4   4.985539     0.000000     1.549378   0.088832     0.000000     0.021278     0.128748   6.773776
+  16   16     1      4   4.022764     0.000000     0.170550   0.053859     0.000000     0.009386     0.155641   4.412200
+Application 9002817 resources: utime ~12552s, stime ~975s, Rss ~525384, inblocks ~1083409, outblocks ~1806363
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.00948 seconds
+Created Sparse Matrix
+Load balance: 1.01151
+RMATs Generated and replicated along layers : time 9.51232
+Restriction Op computed : time 23.3112
+Matrix split and distributed along layers: time 1.67051 seconds
+Matrix split and distributed along layers: time 0.546328 seconds
+Matrix split and distributed along layers: time 0.0943172 seconds
+  11   11     2      4   3.947826     0.100650     1.182825   0.094222     0.077590     0.019481     0.341314   5.763909
+  11   11     2      4   2.488148     0.078737     0.155950   0.057006     0.044987     0.016277     0.144850   2.985955
+  11   11     2      4   3.935450     0.034666     1.187405   0.086190     0.061767     0.022784     0.403078   5.731340
+  11   11     2      4   2.322367     0.075173     0.136897   0.046509     0.036790     0.012052     0.167754   2.797542
+Application 9002818 resources: utime ~14607s, stime ~1001s, Rss ~654064, inblocks ~850894, outblocks ~1707089
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2417 seconds
+Created Sparse Matrix
+Load balance: 1.01765
+RMATs Generated and replicated along layers : time 17.7779
+Restriction Op computed : time 31.5898
+Matrix split and distributed along layers: time 2.89701 seconds
+Matrix split and distributed along layers: time 0.649102 seconds
+Matrix split and distributed along layers: time 0.137769 seconds
+   8    8     4      4   2.535427     0.053917     0.877798   0.079420     0.067640     0.019768     0.287114   3.921084
+   8    8     4      4   1.056992     0.062109     0.115908   0.045842     0.041827     0.010306     0.172285   1.505269
+   8    8     4      4   2.166365     0.054938     0.853131   0.077227     0.070326     0.016389     0.266279   3.504654
+   8    8     4      4   0.954749     0.071701     0.130658   0.044877     0.047481     0.013848     0.130450   1.393763
+Application 9002822 resources: utime ~17795s, stime ~963s, Rss ~1072368, inblocks ~820621, outblocks ~1764460
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.8234 seconds
+Created Sparse Matrix
+Load balance: 1.01177
+RMATs Generated and replicated along layers : time 45.0449
+Restriction Op computed : time 71.9918
+Matrix split and distributed along layers: time 7.23948 seconds
+Matrix split and distributed along layers: time 0.922749 seconds
+Matrix split and distributed along layers: time 0.15511 seconds
+   5    5     8      4   1.162145     0.147999     0.715541   0.085367     0.088125     0.020775     1.182221   3.402173
+   5    5     8      4   0.706727     0.148242     0.138719   0.044613     0.045192     0.012552     0.227955   1.324000
+   5    5     8      4   1.987999     0.124474     0.745887   0.074081     0.088512     0.021106     0.479091   3.521151
+   5    5     8      4   0.710387     0.139889     0.103095   0.044782     0.046674     0.012209     0.222460   1.279496
+Application 9002826 resources: utime ~28181s, stime ~884s, Rss ~2566388, inblocks ~617420, outblocks ~1381954
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.7306 seconds
+Created Sparse Matrix
+Load balance: 1.00174
+RMATs Generated and replicated along layers : time 72.0753
+Restriction Op computed : time 104.194
+Matrix split and distributed along layers: time 12.8428 seconds
+Matrix split and distributed along layers: time 1.16311 seconds
+Matrix split and distributed along layers: time 0.213598 seconds
+   4    4    12      4   0.731159     0.174367     0.684835   0.092823     0.118825     0.020989     0.941219   2.764217
+   4    4    12      4   0.671542     0.176430     0.103575   0.061579     0.064691     0.018592     0.133602   1.230010
+   4    4    12      4   1.400808     0.187073     0.715518   0.093614     0.133669     0.022253     0.174149   2.727084
+   4    4    12      4   0.580920     0.161321     0.111197   0.060501     0.059900     0.018227     0.135876   1.127942
+Application 9002832 resources: utime ~38968s, stime ~931s, Rss ~3982028, inblocks ~582609, outblocks ~1324580
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.7132 seconds
+Created Sparse Matrix
+Load balance: 1.00188
+RMATs Generated and replicated along layers : time 71.9061
+Restriction Op computed : time 107.006
+Matrix split and distributed along layers: time 12.332 seconds
+Matrix split and distributed along layers: time 1.10136 seconds
+Matrix split and distributed along layers: time 0.20207 seconds
+   4    4    16      4   0.562455     0.148934     0.468270   0.052185     0.081283     0.014275     0.754587   2.081989
+   4    4    16      4   0.401177     0.090574     0.075991   0.033737     0.051012     0.011652     0.184615   0.848758
+   4    4    16      4   0.724261     0.122949     0.476462   0.052509     0.081771     0.016558     0.616469   2.090978
+   4    4    16      4   0.388186     0.060953     0.091834   0.033745     0.050542     0.011456     0.183758   0.820475
+Application 9002845 resources: utime ~52108s, stime ~1064s, Rss ~3966040, inblocks ~772549, outblocks ~1751244
+Started Generation of scale 25
+Using 121 MPI processes
+Generated renamed edge lists
+Generation took 7.00774 seconds
+Created Sparse Matrix
+Load balance: 1.0229
+RMATs Generated and replicated along layers : time 9.53531
+Restriction Op computed : time 23.103
+Matrix split and distributed along layers: time 0.0372281 seconds
+Matrix split and distributed along layers: time 0.0189888 seconds
+Matrix split and distributed along layers: time 0.024893 seconds
+  11   11     1      8   5.520392     0.000000     1.301445   0.102275     0.000000     0.028678     0.369843   7.322632
+  11   11     1      8   4.529880     0.000000     0.216697   0.058200     0.000000     0.016761     0.203292   5.024831
+  11   11     1      8   4.861835     0.000000     1.310137   0.101181     0.000000     0.025631     0.341730   6.640514
+  11   11     1      8   4.140202     0.000000     0.207124   0.052063     0.000000     0.014845     0.206064   4.620298
+Application 9002848 resources: utime ~9112s, stime ~828s, Rss ~940580, inblocks ~870899, outblocks ~1707905
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2396 seconds
+Created Sparse Matrix
+Load balance: 1.01271
+RMATs Generated and replicated along layers : time 17.7557
+Restriction Op computed : time 31.2656
+Matrix split and distributed along layers: time 3.44248 seconds
+Matrix split and distributed along layers: time 0.742242 seconds
+Matrix split and distributed along layers: time 0.06392 seconds
+   8    8     2      8   2.807931     0.197040     0.964563   0.105192     0.076994     0.024512     0.253515   4.429746
+   8    8     2      8   1.371108     0.151392     0.142765   0.055667     0.044087     0.016052     0.139850   1.920921
+   8    8     2      8   2.283576     0.198065     0.923953   0.098447     0.071313     0.024372     0.422268   4.021994
+   8    8     2      8   1.263833     0.153120     0.149410   0.054105     0.047194     0.014509     0.238578   1.920749
+Application 9002851 resources: utime ~10427s, stime ~772s, Rss ~1152756, inblocks ~794978, outblocks ~1764477
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.8105 seconds
+Created Sparse Matrix
+Load balance: 1.00452
+RMATs Generated and replicated along layers : time 45.4363
+Restriction Op computed : time 71.2777
+Matrix split and distributed along layers: time 8.23921 seconds
+Matrix split and distributed along layers: time 0.94004 seconds
+Matrix split and distributed along layers: time 0.176667 seconds
+   5    5     4      8   1.575607     0.289569     0.859902   0.105259     0.095033     0.032099     0.881148   3.838617
+   5    5     4      8   1.097613     0.228863     0.180611   0.067150     0.050573     0.013793     0.330374   1.968977
+   5    5     4      8   2.182558     0.283231     0.862945   0.112579     0.093213     0.025628     0.405499   3.965653
+   5    5     4      8   1.028676     0.237050     0.151293   0.049903     0.046846     0.013970     0.328317   1.856055
+Application 9002852 resources: utime ~15218s, stime ~791s, Rss ~2578844, inblocks ~609151, outblocks ~1372048
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.6977 seconds
+Created Sparse Matrix
+Load balance: 1.00466
+RMATs Generated and replicated along layers : time 72.3075
+Restriction Op computed : time 107.165
+Matrix split and distributed along layers: time 12.3364 seconds
+Matrix split and distributed along layers: time 1.13663 seconds
+Matrix split and distributed along layers: time 0.161111 seconds
+   4    4     8      8   0.615630     0.232120     0.532653   0.059901     0.087528     0.023397     0.743576   2.294805
+   4    4     8      8   0.466341     0.130017     0.136349   0.048500     0.064351     0.014126     0.254138   1.113822
+   4    4     8      8   1.273711     0.222216     0.546188   0.072355     0.086199     0.020359     0.257437   2.478465
+   4    4     8      8   0.456668     0.138674     0.118389   0.048473     0.058943     0.013798     0.284412   1.119357
+Application 9002855 resources: utime ~27085s, stime ~784s, Rss ~3992232, inblocks ~743699, outblocks ~1748396
+Started Generation of scale 25
+Using 9 MPI processes
+Generated renamed edge lists
+Generation took 93.3575 seconds
+Created Sparse Matrix
+Load balance: 1.01009
+RMATs Generated and replicated along layers : time 127.075
+Restriction Op computed : time 176.026
+Matrix split and distributed along layers: time 25.2162 seconds
+Matrix split and distributed along layers: time 2.15495 seconds
+Matrix split and distributed along layers: time 0.390787 seconds
+   3    3    12      8   1.030443     0.258259     0.521159   0.079040     0.106659     0.022324     0.358626   2.376510
+   3    3    12      8   0.375308     0.212095     0.147721   0.060118     0.060445     0.014641     0.293910   1.164238
+   3    3    12      8   1.059228     0.254121     0.530719   0.073685     0.117746     0.026782     0.303375   2.365656
+   3    3    12      8   0.417505     0.235487     0.131570   0.051765     0.060303     0.016423     0.219688   1.132741
+Application 9002860 resources: utime ~37635s, stime ~889s, Rss ~6901044, inblocks ~625829, outblocks ~1472805
+Started Generation of scale 25
+Using 4 MPI processes
+Generated renamed edge lists
+Generation took 208.282 seconds
+Created Sparse Matrix
+Load balance: 1.00767
+RMATs Generated and replicated along layers : time 292.676
+Restriction Op computed : time 395.345
+Matrix split and distributed along layers: time 56.8882 seconds
+Matrix split and distributed along layers: time 3.8746 seconds
+Matrix split and distributed along layers: time 0.657653 seconds
+   2    2    16      8   0.300345     0.419815     0.740358   0.149514     0.204365     0.045018     0.872023   2.731438
+   2    2    16      8   0.312340     0.284485     0.245336   0.109523     0.128611     0.030160     0.375812   1.486267
+   2    2    16      8   0.519210     0.375455     0.777191   0.168264     0.205725     0.046585     0.659054   2.751483
+   2    2    16      8   0.356995     0.276239     0.221307   0.108703     0.138510     0.030316     0.322560   1.454630
+Application 9002873 resources: utime ~49427s, stime ~949s, Rss ~15075492, inblocks ~369170, outblocks ~880335
+Started Generation of scale 25
+Using 64 MPI processes
+Generated renamed edge lists
+Generation took 13.2314 seconds
+Created Sparse Matrix
+Load balance: 1.01145
+RMATs Generated and replicated along layers : time 17.7661
+Restriction Op computed : time 30.9117
+Matrix split and distributed along layers: time 0.180453 seconds
+Matrix split and distributed along layers: time 0.0267751 seconds
+Matrix split and distributed along layers: time 0.0325141 seconds
+   8    8     1     16   4.203428     0.000000     1.137464   0.137891     0.000000     0.041059     0.241580   5.761422
+   8    8     1     16   2.598512     0.000000     0.245047   0.076686     0.000000     0.028163     0.205727   3.154135
+   8    8     1     16   4.039070     0.000000     1.101593   0.125639     0.000000     0.039714     0.274358   5.580374
+   8    8     1     16   2.574686     0.000000     0.249631   0.073817     0.000000     0.019726     0.207539   3.125399
+Application 9002936 resources: utime ~5985s, stime ~813s, Rss ~1626396, inblocks ~794500, outblocks ~1764352
+Started Generation of scale 25
+Using 25 MPI processes
+Generated renamed edge lists
+Generation took 33.7983 seconds
+Created Sparse Matrix
+Load balance: 1.0207
+RMATs Generated and replicated along layers : time 45.4517
+Restriction Op computed : time 70.2979
+Matrix split and distributed along layers: time 9.51245 seconds
+Matrix split and distributed along layers: time 1.14385 seconds
+Matrix split and distributed along layers: time 0.164714 seconds
+   5    5     2     16   2.630815     0.358547     1.099706   0.163863     0.142086     0.055112     0.580805   5.030934
+   5    5     2     16   1.993985     0.263395     0.211396   0.092223     0.113358     0.036537     0.245418   2.956312
+   5    5     2     16   3.171621     0.379769     1.020085   0.145082     0.156572     0.049714     0.409005   5.331849
+   5    5     2     16   1.795364     0.261210     0.231997   0.097274     0.113350     0.037092     0.178192   2.714479
+Application 9002937 resources: utime ~8462s, stime ~969s, Rss ~2586648, inblocks ~594184, outblocks ~1373286
+Started Generation of scale 25
+Using 16 MPI processes
+Generated renamed edge lists
+Generation took 52.717 seconds
+Created Sparse Matrix
+Load balance: 1.00775
+RMATs Generated and replicated along layers : time 72.0278
+-bash: line 1:   366 Terminated              /var/spool/torque/mom_priv/jobs/2444942.SC
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 3576 exceeded limit 3540
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+aprun: Apid 9002944: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 02175] [c4-3c2s0n3] [Wed Aug 12 12:50:19 2015] PE RANK 59 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03889] [c10-1c0s7n1] [Wed Aug 12 12:50:19 2015] PE RANK 3 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02420] [c6-3c1s5n2] [Wed Aug 12 12:50:19 2015] PE RANK 27 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02474] [c6-3c1s5n0] [Wed Aug 12 12:50:19 2015] PE RANK 29 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05329] [c12-1c0s7n3] [Wed Aug 12 12:50:19 2015] PE RANK 7 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02433] [c6-3c2s0n3] [Wed Aug 12 12:50:19 2015] PE RANK 53 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02423] [c6-3c1s4n3] [Wed Aug 12 12:50:19 2015] PE RANK 34 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03723] [c8-3c1s5n3] [Wed Aug 12 12:50:19 2015] PE RANK 38 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05425] [c14-1c0s7n1] [Wed Aug 12 12:50:19 2015] PE RANK 19 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05325] [c12-1c0s6n1] [Wed Aug 12 12:50:19 2015] PE RANK 11 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02463] [c6-3c2s0n1] [Wed Aug 12 12:50:19 2015] PE RANK 55 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03720] [c8-3c1s4n2] [Wed Aug 12 12:50:19 2015] PE RANK 35 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03891] [c10-1c0s6n1] [Wed Aug 12 12:50:19 2015] PE RANK 1 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02461] [c6-3c2s1n1] [Wed Aug 12 12:50:19 2015] PE RANK 49 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03671] [c8-3c1s4n1] [Wed Aug 12 12:50:19 2015] PE RANK 42 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02132] [c4-3c1s5n0] [Wed Aug 12 12:50:19 2015] PE RANK 23 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03683] [c8-3c2s1n1] [Wed Aug 12 12:50:19 2015] PE RANK 47 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05327] [c12-1c0s7n1] [Wed Aug 12 12:50:19 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05420] [c14-1c0s6n2] [Wed Aug 12 12:50:19 2015] PE RANK 14 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02135] [c4-3c1s4n1] [Wed Aug 12 12:50:19 2015] PE RANK 22 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03682] [c8-3c2s1n0] [Wed Aug 12 12:50:19 2015] PE RANK 46 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02146] [c4-3c2s1n0] [Wed Aug 12 12:50:19 2015] PE RANK 63 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05421] [c14-1c0s6n3] [Wed Aug 12 12:50:19 2015] PE RANK 15 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05424] [c14-1c0s7n0] [Wed Aug 12 12:50:19 2015] PE RANK 18 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03722] [c8-3c1s5n2] [Wed Aug 12 12:50:19 2015] PE RANK 37 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02472] [c6-3c1s4n0] [Wed Aug 12 12:50:19 2015] PE RANK 31 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02422] [c6-3c1s4n2] [Wed Aug 12 12:50:19 2015] PE RANK 33 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02434] [c6-3c2s1n2] [Wed Aug 12 12:50:19 2015] PE RANK 50 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00897] [c2-3c2s0n3] [Wed Aug 12 12:50:19 2015] PE RANK 61 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02174] [c4-3c2s0n2] [Wed Aug 12 12:50:19 2015] PE RANK 58 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03668] [c8-3c1s5n0] [Wed Aug 12 12:50:19 2015] PE RANK 39 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02462] [c6-3c2s0n0] [Wed Aug 12 12:50:19 2015] PE RANK 54 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05328] [c12-1c0s7n2] [Wed Aug 12 12:50:19 2015] PE RANK 6 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03672] [c8-3c1s3n0] [Wed Aug 12 12:50:19 2015] PE RANK 43 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02134] [c4-3c1s4n0] [Wed Aug 12 12:50:19 2015] PE RANK 21 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03887] [c10-1c0s7n3] [Wed Aug 12 12:50:19 2015] PE RANK 5 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02187] [c4-3c1s5n3] [Wed Aug 12 12:50:19 2015] PE RANK 26 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02475] [c6-3c1s5n1] [Wed Aug 12 12:50:19 2015] PE RANK 30 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02435] [c6-3c2s1n3] [Wed Aug 12 12:50:19 2015] PE RANK 51 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03888] [c10-1c0s7n0] [Wed Aug 12 12:50:19 2015] PE RANK 2 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02186] [c4-3c1s5n2] [Wed Aug 12 12:50:19 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02145] [c4-3c2s0n1] [Wed Aug 12 12:50:19 2015] PE RANK 57 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03670] [c8-3c1s4n0] [Wed Aug 12 12:50:19 2015] PE RANK 41 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00926] [c2-3c2s0n0] [Wed Aug 12 12:50:19 2015] PE RANK 62 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05324] [c12-1c0s6n0] [Wed Aug 12 12:50:19 2015] PE RANK 10 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05331] [c12-1c0s6n3] [Wed Aug 12 12:50:19 2015] PE RANK 13 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05427] [c14-1c0s6n1] [Wed Aug 12 12:50:19 2015] PE RANK 17 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03718] [c8-3c1s3n2] [Wed Aug 12 12:50:19 2015] PE RANK 45 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02421] [c6-3c1s5n3] [Wed Aug 12 12:50:20 2015] PE RANK 28 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05330] [c12-1c0s6n2] [Wed Aug 12 12:50:20 2015] PE RANK 12 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03673] [c8-3c1s3n1] [Wed Aug 12 12:50:20 2015] PE RANK 44 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02473] [c6-3c1s4n1] [Wed Aug 12 12:50:20 2015] PE RANK 32 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02133] [c4-3c1s5n1] [Wed Aug 12 12:50:20 2015] PE RANK 24 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03721] [c8-3c1s4n3] [Wed Aug 12 12:50:20 2015] PE RANK 36 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00896] [c2-3c2s0n2] [Wed Aug 12 12:50:20 2015] PE RANK 60 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02460] [c6-3c2s1n0] [Wed Aug 12 12:50:20 2015] PE RANK 48 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02144] [c4-3c2s0n0] [Wed Aug 12 12:50:20 2015] PE RANK 56 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05422] [c14-1c0s7n2] [Wed Aug 12 12:50:20 2015] PE RANK 20 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03669] [c8-3c1s5n1] [Wed Aug 12 12:50:20 2015] PE RANK 40 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05326] [c12-1c0s7n0] [Wed Aug 12 12:50:20 2015] PE RANK 8 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03886] [c10-1c0s7n2] [Wed Aug 12 12:50:20 2015] PE RANK 4 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03890] [c10-1c0s6n0] [Wed Aug 12 12:50:20 2015] PE RANK 0 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05426] [c14-1c0s6n0] [Wed Aug 12 12:50:20 2015] PE RANK 16 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02432] [c6-3c2s0n2] [Wed Aug 12 12:50:20 2015] PE RANK 52 exit signal Terminated
+Application 9002944 exit codes: 143
+Application 9002944 resources: utime ~6910s, stime ~209s, Rss ~3357220, inblocks ~692246, outblocks ~1706212
