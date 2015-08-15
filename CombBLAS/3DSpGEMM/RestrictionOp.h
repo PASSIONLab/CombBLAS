@@ -145,6 +145,7 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         SpParMat < IT, NT, SpDCCols < IT, NT >> Rop = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
         Rop += M;
         
+        Rop.PrintInfo();
         
         SpParMat < IT, NT, SpDCCols < IT, NT >> RopT = Rop;
         RopT.Transpose();

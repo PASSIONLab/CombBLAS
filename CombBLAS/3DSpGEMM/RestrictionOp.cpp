@@ -102,7 +102,6 @@ int main(int argc, char *argv[])
         if(string(argv[4]) == string("input")) // input option
         {
             string fileA(argv[5]);
-            string fileB(argv[6]);
             
             double t01 = MPI_Wtime();
             A = ReadMat<double>(fileA, CMG, true, p);
@@ -164,23 +163,43 @@ int main(int argc, char *argv[])
 	RestrictionOp( CMG, A, R, RT);
         
 	if(myrank == 0) cout << "Restriction Op computed : time " << MPI_Wtime() - t01 << endl;
-        SpDCCols<int64_t, double> splitA, splitR, splitRT;
+        SpDCCols<int64_t, double> *B = new SpDCCols<int64_t, double>(*A); // just a deep copy of A
+        SpDCCols<int64_t, double> splitA, splitB, splitR, splitRT;
         SpDCCols<int64_t, double> *splitC1;
         SpDCCols<int64_t, double> *splitC2;
+        SpDCCols<int64_t, double> *splitC;
         
         
         SplitMat(CMG, A, splitA, true);
+        SplitMat(CMG, B, splitB, false);
         SplitMat(CMG, R, splitR, true);
         SplitMat(CMG, RT, splitRT, false);
         
-        
+        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
         splitC1 = multiply(splitRT, splitA, CMG, false, true);
         splitC2 = multiply(*splitC1, splitR, CMG, false, true);
+        delete splitC;
         delete splitC1;
         delete splitC2;
 
-	splitC1 = multiply(splitRT, splitA, CMG, false, true);
+        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
+        splitC1 = multiply(splitRT, splitA, CMG, false, true);
         splitC2 = multiply(*splitC1, splitR, CMG, false, true);
+        
+        // count nnz in C's
+        int64_t nnzA=0, nnzC=0, nnzC1=0, nnzC2=0;
+        int64_t localnnzA = splitA.getnnz();
+        int64_t localnnzC = splitC->getnnz();
+        int64_t localnnzC1 = splitC1->getnnz();
+        int64_t localnnzC2 = splitC2->getnnz();
+        MPI_Allreduce( &localnnzA, &nnzA, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzC, &nnzC, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzC1, &nnzC1, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzC2, &nnzC2, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        if(myrank == 0) cout << "nnzA= " << nnzA << " nnzC= " << nnzC << " nnzC1= " << nnzC1 << " nnzC2= " << nnzC2 << endl;
+        
+    
+        delete splitC;
         delete splitC1;
         delete splitC2;
         

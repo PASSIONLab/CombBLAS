@@ -234,6 +234,33 @@ public:
     typedef SpParMat < IT, NT, DCCols > PSpMat;
 };
 
+/*
+void RepMat()
+{
+    [inds, vals] = x.find(); // inds and vals are FullyDistVec
+    
+    vector< FullyDistVec<IT,IT> > allrows;
+    vector< FullyDistVec<IT,IT> > allcols;
+    vector< FullyDistVec<IT,NT> > allvals;
+    
+    for(int i=0; i< k; ++i)
+    {
+        
+        allrows.push_back(inds);
+        
+        allcols.push_back(FullyDistVec(k, i)); // constructor FullyDistVec(IT globallen, NT initval);
+        allvals.push_back(vals);
+        
+    }
+    
+    FullyDistVec<IT,IT> rowsmerged = Concatenate (allrows);
+    FullyDistVec<IT,IT> colsmerged = Concatenate (allcols);
+    FullyDistVec<IT,IT> valsmerged = Concatenate (allvals);
+    A = sparse(n, k, rowsmerged, colsmerged, valsmerged);
+    
+    Overkill?
+}
+*/
 
 // assume that source is an enode
 FullyDistSpVec<int64_t, int64_t> getReachesSPMM(FullyDistSpVec<int64_t, int64_t>& sources, PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& enodes)
