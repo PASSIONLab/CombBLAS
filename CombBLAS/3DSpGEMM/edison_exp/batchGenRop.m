@@ -9,9 +9,9 @@ mtxname = nameParts{1};
 
 fileName = sprintf('batchRop_%s_%d', mtxname, maxCore);
 fileID = fopen(fileName,'w');
-fprintf(fileID,'#PBS -q debug\n');
+fprintf(fileID,'#PBS -q regular\n');
 fprintf(fileID,'#PBS -l mppwidth=%d\n', maxCore);
-fprintf(fileID,'#PBS -l walltime=00:30:00\n');
+fprintf(fileID,'#PBS -l walltime=02:30:00\n');
 fprintf(fileID,'#PBS -N Rop_%s_%d\n', mtxname, maxCore);
 fprintf(fileID,'#PBS -j oe\n\n');
 
