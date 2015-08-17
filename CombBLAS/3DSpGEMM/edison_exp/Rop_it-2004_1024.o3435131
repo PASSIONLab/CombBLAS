@@ -1,0 +1,1051 @@
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 130.203 seconds
+Generating random permutation vector.
+Permutation took 72.3566 seconds
+Load balance: 1.09305
+Matrices read and replicated along layers : time 202.611
+As a whole: 41291594 rows and 1897649 columns and 8731783 nonzeros
+Restriction Op computed : time 5.28979
+Matrix split and distributed along layers: time 0.0319002 seconds
+Matrix split and distributed along layers: time 0.016644 seconds
+Matrix split and distributed along layers: time 0.00157118 seconds
+Matrix split and distributed along layers: time 0.00148082 seconds
+  32   32     1      1  11.293525     0.000000    19.368722   5.787531     0.000000     0.193899     0.455761  37.099439
+  32   32     1      1   9.196020     0.000000     2.681733   0.029378     0.000000     0.000875     0.118444  12.026450
+  32   32     1      1   0.514954     0.000000     0.056044   0.017769     0.000000     0.000701     0.013817   0.603285
+  32   32     1      1  11.249286     0.000000    19.605323   5.829835     0.000000     0.199163     0.449246  37.332853
+  32   32     1      1   9.168736     0.000000     2.679608   0.028363     0.000000     0.000869     0.080904  11.958480
+  32   32     1      1   0.509352     0.000000     0.055911   0.017819     0.000000     0.000648     0.010297   0.594027
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 58016897 nnzC2= 12814716
+Application 14770835 resources: utime ~256804s, stime ~8136s, Rss ~5346328, inblocks ~46561940, outblocks ~1419218
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 244.745 seconds
+Generating random permutation vector.
+Permutation took 82.9791 seconds
+Load balance: 1.04102
+Matrices read and replicated along layers : time 327.799
+As a whole: 41291594 rows and 1898273 columns and 8759469 nonzeros
+Restriction Op computed : time 8.41923
+Matrix split and distributed along layers: time 0.819665 seconds
+Matrix split and distributed along layers: time 0.0729821 seconds
+Matrix split and distributed along layers: time 0.0193908 seconds
+Matrix split and distributed along layers: time 0.00181103 seconds
+  22   22     2      1   6.204189     0.476336    17.888258   5.550924     1.241286     0.227000     0.858486  32.446480
+  22   22     2      1   7.051496     0.001023     1.959217   0.021255     0.005966     0.000701     0.154968   9.194626
+  22   22     2      1   0.250796     0.000467     0.043846   0.012367     0.003174     0.000449     0.008350   0.319449
+  22   22     2      1   6.103601     0.492313    18.044212   5.558650     1.241611     0.225436     0.886344  32.552167
+  22   22     2      1   6.986827     0.001140     1.960871   0.021226     0.005884     0.000773     0.184843   9.161564
+  22   22     2      1   0.256941     0.000336     0.043624   0.012360     0.003195     0.000440     0.010383   0.327278
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57989365 nnzC2= 12836149
+Application 14770920 resources: utime ~320613s, stime ~10438s, Rss ~7309644, inblocks ~42249310, outblocks ~1289799
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 202.367 seconds
+Generating random permutation vector.
+Permutation took 86.2235 seconds
+Load balance: 1.03332
+Matrices read and replicated along layers : time 288.651
+As a whole: 41291594 rows and 1893194 columns and 8737672 nonzeros
+Restriction Op computed : time 12.2146
+Matrix split and distributed along layers: time 1.36401 seconds
+Matrix split and distributed along layers: time 0.119817 seconds
+Matrix split and distributed along layers: time 0.0265341 seconds
+Matrix split and distributed along layers: time 0.003479 seconds
+  16   16     4      1   3.009512     0.760695    15.001897   5.656056     1.643323     0.204507     1.906291  28.182281
+  16   16     4      1   4.224328     0.002283     1.372797   0.018989     0.007488     0.000640     0.019714   5.646239
+  16   16     4      1   0.139058     0.000608     0.030498   0.008789     0.003670     0.000377     0.005886   0.188886
+  16   16     4      1   3.022215     0.742916    15.069225   5.671240     1.649316     0.208027     1.754595  28.117534
+  16   16     4      1   3.130905     0.002068     1.372576   0.019011     0.007523     0.000620     0.569179   5.101882
+  16   16     4      1   0.134856     0.000546     0.030194   0.008714     0.003663     0.000383     0.010214   0.188571
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57276118 nnzC2= 12573493
+Application 14771060 resources: utime ~337972s, stime ~11259s, Rss ~6744712, inblocks ~41561321, outblocks ~1315677
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 128.259 seconds
+Generating random permutation vector.
+Permutation took 97.0175 seconds
+Load balance: 1.03785
+Matrices read and replicated along layers : time 225.327
+As a whole: 41291594 rows and 1895117 columns and 8772741 nonzeros
+Restriction Op computed : time 20.7061
+Matrix split and distributed along layers: time 2.85876 seconds
+Matrix split and distributed along layers: time 0.260702 seconds
+Matrix split and distributed along layers: time 0.0396459 seconds
+Matrix split and distributed along layers: time 0.00611711 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 02679] 2015-08-17 09:51:54 Apid 14771243: initiated application termination
+[NID 02679] 2015-08-17 09:51:56 Apid 14771243: OOM killer terminated this process.
+[NID 02662] 2015-08-17 09:51:58 Apid 14771243: OOM killer terminated this process.
+[NID 02661] 2015-08-17 09:52:02 Apid 14771243: OOM killer terminated this process.
+Application 14771243 exit signals: Killed
+Application 14771243 resources: utime ~0s, stime ~36s, Rss ~4228, inblocks ~462980, outblocks ~1215197
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 114.405 seconds
+Generating random permutation vector.
+Permutation took 113.132 seconds
+Load balance: 1.03341
+Matrices read and replicated along layers : time 227.74
+As a whole: 41291594 rows and 1889137 columns and 8755815 nonzeros
+Restriction Op computed : time 33.5101
+Matrix split and distributed along layers: time 5.07461 seconds
+Matrix split and distributed along layers: time 0.525682 seconds
+Matrix split and distributed along layers: time 0.0628419 seconds
+Matrix split and distributed along layers: time 0.01016 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc  what():  '
+std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 02685] [c5-1c2s15n1] [Mon Aug 17 09:56:58 2015] PE RANK 946 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 02685] 2015-08-17 09:56:58 Apid 14771340: initiated application termination
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+Application 14771340 exit codes: 134
+Application 14771340 exit signals: Killed
+Application 14771340 resources: utime ~284s, stime ~45s, Rss ~2518232, inblocks ~485803, outblocks ~1274480
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 154.306 seconds
+Generating random permutation vector.
+Permutation took 92.0089 seconds
+Load balance: 1.04817
+Matrices read and replicated along layers : time 246.36
+As a whole: 41291594 rows and 1896136 columns and 8729040 nonzeros
+Restriction Op computed : time 10.2837
+Matrix split and distributed along layers: time 0.0557661 seconds
+Matrix split and distributed along layers: time 0.033953 seconds
+Matrix split and distributed along layers: time 0.00109291 seconds
+Matrix split and distributed along layers: time 0.00119996 seconds
+  18   18     1      3   7.972224     0.000000    20.024709   4.149428     0.000000     0.205946     0.362564  32.714871
+  18   18     1      3   6.109554     0.000000     1.875627   0.021782     0.000000     0.000846     0.162902   8.170710
+  18   18     1      3   0.394604     0.000000     0.047072   0.009774     0.000000     0.000570     0.009124   0.461144
+  18   18     1      3   7.458874     0.000000    20.182029   4.153634     0.000000     0.205575     0.346868  32.346980
+  18   18     1      3   6.028619     0.000000     1.877704   0.021841     0.000000     0.000843     0.156964   8.085971
+  18   18     1      3   0.337154     0.000000     0.047050   0.009720     0.000000     0.000554     0.011339   0.405817
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57693584 nnzC2= 12679968
+Application 14771455 resources: utime ~120253s, stime ~6900s, Rss ~10302240, inblocks ~42139949, outblocks ~1259586
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 109.466 seconds
+Generating random permutation vector.
+Permutation took 96.3409 seconds
+Load balance: 1.02549
+Matrices read and replicated along layers : time 205.896
+As a whole: 41291594 rows and 1896635 columns and 8725287 nonzeros
+Restriction Op computed : time 15.5699
+Matrix split and distributed along layers: time 2.45916 seconds
+Matrix split and distributed along layers: time 0.208665 seconds
+Matrix split and distributed along layers: time 0.0377121 seconds
+Matrix split and distributed along layers: time 0.00296402 seconds
+  13   13     2      3   5.035054     0.986073    14.678981   4.007502     1.245042     0.199985     1.338194  27.490831
+  13   13     2      3   3.346801     0.007327     1.261974   0.015958     0.004966     0.000717     0.167804   4.805546
+  13   13     2      3   0.138221     0.000741     0.033790   0.006983     0.002176     0.000361     0.037027   0.219299
+  13   13     2      3   4.653693     0.988979    14.683676   4.037112     1.247995     0.200656     1.188646  27.000757
+  13   13     2      3   3.322014     0.006964     1.267089   0.016340     0.004873     0.000729     0.168618   4.786627
+  13   13     2      3   0.133444     0.000712     0.033878   0.007001     0.002185     0.000359     0.026319   0.203898
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57672438 nnzC2= 12637738
+Application 14771668 resources: utime ~122975s, stime ~7479s, Rss ~10563932, inblocks ~40793686, outblocks ~1303705
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 77.6247 seconds
+Generating random permutation vector.
+Permutation took 117.178 seconds
+Load balance: 1.02024
+Matrices read and replicated along layers : time 194.91
+As a whole: 41291594 rows and 1896570 columns and 8758524 nonzeros
+Restriction Op computed : time 26.4985
+Matrix split and distributed along layers: time 4.49968 seconds
+Matrix split and distributed along layers: time 0.40363 seconds
+Matrix split and distributed along layers: time 0.055932 seconds
+Matrix split and distributed along layers: time 0.00679684 seconds
+   9    9     4      3   2.608014     1.655551    15.343417   4.625159     1.875215     0.236064     2.210678  28.554098
+   9    9     4      3   1.200128     0.004400     0.942644   0.015629     0.007637     0.001169     0.986170   3.157777
+   9    9     4      3   0.086647     0.001191     0.025688   0.005647     0.002811     0.000309     0.062610   0.184903
+   9    9     4      3   1.861521     1.355493    15.273752   4.782530     1.864354     0.241644     2.228621  27.607915
+   9    9     4      3   1.821167     0.003784     0.942782   0.015618     0.007525     0.001155     0.782952   3.574983
+   9    9     4      3   0.079416     0.001116     0.025957   0.005610     0.002795     0.000319     0.066613   0.181826
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57592841 nnzC2= 13114279
+Application 14771843 resources: utime ~120067s, stime ~7730s, Rss ~13170900, inblocks ~40429256, outblocks ~1238100
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 184.624 seconds
+Generating random permutation vector.
+Permutation took 134.03 seconds
+Load balance: 1.02354
+Matrices read and replicated along layers : time 318.738
+As a whole: 41291594 rows and 1894608 columns and 8750684 nonzeros
+Restriction Op computed : time 47.5819
+Matrix split and distributed along layers: time 9.4773 seconds
+Matrix split and distributed along layers: time 0.998673 seconds
+Matrix split and distributed along layers: time 0.098917 seconds
+Matrix split and distributed along layers: time 0.0140049 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 02675] 2015-08-17 10:19:34 Apid 14772008: initiated application termination
+[NID 02675] 2015-08-17 10:19:35 Apid 14772008: OOM killer terminated this process.
+[NID 02656] 2015-08-17 10:19:38 Apid 14772008: OOM killer terminated this process.
+[NID 02655] 2015-08-17 10:19:38 Apid 14772008: OOM killer terminated this process.
+[NID 02677] 2015-08-17 10:19:39 Apid 14772008: OOM killer terminated this process.
+[NID 02648] 2015-08-17 10:19:43 Apid 14772008: OOM killer terminated this process.
+[NID 02647] 2015-08-17 10:19:43 Apid 14772008: OOM killer terminated this process.
+[NID 02680] 2015-08-17 10:19:47 Apid 14772008: OOM killer terminated this process.
+[NID 02670] 2015-08-17 10:19:48 Apid 14772008: OOM killer terminated this process.
+[NID 02666] 2015-08-17 10:19:49 Apid 14772008: OOM killer terminated this process.
+[NID 02665] 2015-08-17 10:19:49 Apid 14772008: OOM killer terminated this process.
+Application 14772008 exit signals: Killed
+Application 14772008 resources: utime ~0s, stime ~0s, Rss ~4228, inblocks ~405360, outblocks ~1066932
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 163.789 seconds
+Generating random permutation vector.
+Permutation took 181.984 seconds
+Load balance: 1.00457
+Matrices read and replicated along layers : time 346.209
+As a whole: 41291594 rows and 1893017 columns and 8767138 nonzeros
+Restriction Op computed : time 101.437
+Matrix split and distributed along layers: time 21.7927 seconds
+Matrix split and distributed along layers: time 2.96125 seconds
+Matrix split and distributed along layers: time 0.228849 seconds
+Matrix split and distributed along layers: time 0.027189 seconds
+[NID 02662] 2015-08-17 10:28:13 Apid 14772227: initiated application termination
+[NID 02662] 2015-08-17 10:28:14 Apid 14772227: OOM killer terminated this process.
+[NID 02649] 2015-08-17 10:28:15 Apid 14772227: OOM killer terminated this process.
+[NID 02676] 2015-08-17 10:28:15 Apid 14772227: OOM killer terminated this process.
+[NID 02648] 2015-08-17 10:28:15 Apid 14772227: OOM killer terminated this process.
+[NID 02661] 2015-08-17 10:28:15 Apid 14772227: OOM killer terminated this process.
+[NID 02664] 2015-08-17 10:28:16 Apid 14772227: OOM killer terminated this process.
+[NID 02654] 2015-08-17 10:28:16 Apid 14772227: OOM killer terminated this process.
+[NID 02653] 2015-08-17 10:28:16 Apid 14772227: OOM killer terminated this process.
+[NID 02668] 2015-08-17 10:28:16 Apid 14772227: OOM killer terminated this process.
+[NID 02655] 2015-08-17 10:28:17 Apid 14772227: OOM killer terminated this process.
+[NID 02671] 2015-08-17 10:28:17 Apid 14772227: OOM killer terminated this process.
+[NID 02673] 2015-08-17 10:28:17 Apid 14772227: OOM killer terminated this process.
+[NID 02656] 2015-08-17 10:28:17 Apid 14772227: OOM killer terminated this process.
+[NID 02658] 2015-08-17 10:28:19 Apid 14772227: OOM killer terminated this process.
+[NID 02657] 2015-08-17 10:28:20 Apid 14772227: OOM killer terminated this process.
+[NID 02665] 2015-08-17 10:28:21 Apid 14772227: OOM killer terminated this process.
+[NID 02672] 2015-08-17 10:28:21 Apid 14772227: OOM killer terminated this process.
+[NID 02666] 2015-08-17 10:28:22 Apid 14772227: OOM killer terminated this process.
+[NID 02650] 2015-08-17 10:28:23 Apid 14772227: OOM killer terminated this process.
+[NID 02646] 2015-08-17 10:28:23 Apid 14772227: OOM killer terminated this process.
+Application 14772227 exit signals: Killed
+Application 14772227 resources: utime ~0s, stime ~0s, Rss ~4228, inblocks ~360320, outblocks ~948384
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 79.6789 seconds
+Generating random permutation vector.
+Permutation took 91.7321 seconds
+Load balance: 1.03072
+Matrices read and replicated along layers : time 171.492
+As a whole: 41291594 rows and 1896111 columns and 8685166 nonzeros
+Restriction Op computed : time 14.876
+Matrix split and distributed along layers: time 0.143884 seconds
+Matrix split and distributed along layers: time 0.125641 seconds
+Matrix split and distributed along layers: time 0.00147915 seconds
+Matrix split and distributed along layers: time 0.00193095 seconds
+  13   13     1      6   8.060984     0.000000    17.083039   3.277462     0.000000     0.235375     0.881402  29.538262
+  13   13     1      6   4.419866     0.000000     1.388798   0.013794     0.000000     0.000871     0.179168   6.002497
+  13   13     1      6   0.316803     0.000000     0.043455   0.006550     0.000000     0.000448     0.010032   0.377288
+  13   13     1      6   7.715799     0.000000    17.107898   3.306032     0.000000     0.232146     0.543335  28.905210
+  13   13     1      6   4.421801     0.000000     1.383304   0.013786     0.000000     0.000923     0.180619   6.000433
+  13   13     1      6   0.312377     0.000000     0.043381   0.006530     0.000000     0.000428     0.011608   0.374324
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57774855 nnzC2= 12704494
+Application 14772364 resources: utime ~80982s, stime ~5688s, Rss ~10565240, inblocks ~40837650, outblocks ~1307675
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 99.1533 seconds
+Generating random permutation vector.
+Permutation took 111.424 seconds
+Load balance: 1.02146
+Matrices read and replicated along layers : time 210.753
+As a whole: 41291594 rows and 1896245 columns and 8721484 nonzeros
+Restriction Op computed : time 25.1221
+Matrix split and distributed along layers: time 5.04664 seconds
+Matrix split and distributed along layers: time 0.524572 seconds
+Matrix split and distributed along layers: time 0.0608358 seconds
+Matrix split and distributed along layers: time 0.005584 seconds
+   9    9     2      6   7.377763     1.849666    15.131061   3.695655     1.489312     0.248567     2.483635  32.275659
+   9    9     2      6   3.389223     0.007932     1.041369   0.013927     0.005454     0.001255     0.086349   4.545509
+   9    9     2      6   0.265581     0.001661     0.034667   0.005404     0.001926     0.000400     0.014239   0.323878
+   9    9     2      6   7.220829     1.885746    15.137456   3.696651     1.507300     0.265089     1.452400  31.165471
+   9    9     2      6   3.356712     0.011789     1.043347   0.013903     0.005558     0.001406     0.093775   4.526490
+   9    9     2      6   0.236095     0.001553     0.034373   0.005446     0.002018     0.000423     0.033184   0.313092
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57303445 nnzC2= 12437829
+Application 14772475 resources: utime ~87534s, stime ~6564s, Rss ~13170568, inblocks ~40384263, outblocks ~1238545
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 120.636 seconds
+Generating random permutation vector.
+Permutation took 127.28 seconds
+Load balance: 1.01587
+Matrices read and replicated along layers : time 248.025
+As a whole: 41291594 rows and 1896599 columns and 8738527 nonzeros
+Restriction Op computed : time 45.5364
+Matrix split and distributed along layers: time 10.1352 seconds
+Matrix split and distributed along layers: time 1.22791 seconds
+Matrix split and distributed along layers: time 0.0984111 seconds
+Matrix split and distributed along layers: time 0.0124581 seconds
+   6    6     4      6   2.417518     3.269735    16.834940   4.493997     2.131881     0.314662     2.071773  31.534506
+   6    6     4      6   1.500488     0.013242     0.815426   0.015006     0.008584     0.000973     0.280936   2.634655
+   6    6     4      6   0.164796     0.002876     0.024463   0.003661     0.002594     0.000310     0.014313   0.213012
+   6    6     4      6   3.055592     3.474584    16.470071   3.887361     2.213678     0.297485     2.343391  31.742162
+   6    6     4      6   1.960127     0.010493     0.834637   0.015556     0.008619     0.001768     0.026184   2.857384
+   6    6     4      6   0.141563     0.002446     0.024031   0.003616     0.002532     0.000288     0.033446   0.207922
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57619575 nnzC2= 12684877
+Application 14772548 resources: utime ~84425s, stime ~6747s, Rss ~20127116, inblocks ~40197440, outblocks ~1085506
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 84.8736 seconds
+Generating random permutation vector.
+Permutation took 171.166 seconds
+Load balance: 1.02147
+Matrices read and replicated along layers : time 256.584
+As a whole: 41291594 rows and 1897254 columns and 8808163 nonzeros
+Restriction Op computed : time 96.165
+Matrix split and distributed along layers: time 21.1917 seconds
+Matrix split and distributed along layers: time 2.81464 seconds
+Matrix split and distributed along layers: time 0.223728 seconds
+Matrix split and distributed along layers: time 0.023623 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 02671] 2015-08-17 10:51:26 Apid 14772737: initiated application termination
+[NID 02671] 2015-08-17 10:51:28 Apid 14772737: OOM killer terminated this process.
+Application 14772737 exit signals: Killed
+Application 14772737 resources: utime ~0s, stime ~0s, Rss ~4228, inblocks ~360064, outblocks ~948384
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 120.848 seconds
+Generating random permutation vector.
+Rank 16 [Mon Aug 17 10:56:00 2015] [c5-1c2s6n2] Fatal error in MPIR_CRAY_Bcast_Tree: Other MPI error, error stack:
+MPIR_CRAY_Bcast_Tree(352): message sizes do not match across processes in the collective routine: Received -32766 but expected -2011438352
+Rank 112 [Mon Aug 17 10:56:00 2015] [c5-1c2s12n2] Fatal error in MPIR_CRAY_Bcast_Tree: Other MPI error, error stack:
+MPIR_CRAY_Bcast_Tree(352): message sizes do not match across processes in the collective routine: Received -32766 but expected -2011438352
+_pmiu_daemon(SIGCHLD): [NID 02650] [c5-1c2s6n2] [Mon Aug 17 10:56:01 2015] PE RANK 16 exit signal Aborted
+[NID 02650] 2015-08-17 10:56:01 Apid 14772888: initiated application termination
+Application 14772888 exit codes: 134
+Application 14772888 exit signals: Killed
+Application 14772888 resources: utime ~250s, stime ~15s, Rss ~9443136, inblocks ~4800457, outblocks ~1067072
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 62.1227 seconds
+Generating random permutation vector.
+Permutation took 108.632 seconds
+Load balance: 1.01625
+Matrices read and replicated along layers : time 170.894
+As a whole: 41291594 rows and 1895838 columns and 8770011 nonzeros
+Restriction Op computed : time 24.6075
+Matrix split and distributed along layers: time 0.290742 seconds
+Matrix split and distributed along layers: time 0.249956 seconds
+Matrix split and distributed along layers: time 0.00232196 seconds
+Matrix split and distributed along layers: time 0.00284791 seconds
+   9    9     1     12   9.615195     0.000000    18.900454   3.659205     0.000000     0.270980     0.888584  33.334418
+   9    9     1     12   3.732203     0.000000     1.145907   0.017342     0.000000     0.002151     0.097039   4.994642
+   9    9     1     12   0.381488     0.000000     0.046103   0.006141     0.000000     0.000982     0.007523   0.442237
+   9    9     1     12   8.840012     0.000000    19.004575   3.224435     0.000000     0.275947     1.176195  32.521163
+   9    9     1     12   3.665090     0.000000     1.178974   0.014213     0.000000     0.002178     0.098754   4.959209
+   9    9     1     12   0.364162     0.000000     0.045967   0.005093     0.000000     0.000371     0.007918   0.423511
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57850201 nnzC2= 12826062
+Application 14772940 resources: utime ~65373s, stime ~4642s, Rss ~17056664, inblocks ~40309880, outblocks ~1238406
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 69.9705 seconds
+Generating random permutation vector.
+Permutation took 125.295 seconds
+Load balance: 1.03033
+Matrices read and replicated along layers : time 195.412
+As a whole: 41291594 rows and 1896817 columns and 8778761 nonzeros
+Restriction Op computed : time 44.5046
+Matrix split and distributed along layers: time 11.3816 seconds
+Matrix split and distributed along layers: time 1.20939 seconds
+Matrix split and distributed along layers: time 0.108728 seconds
+Matrix split and distributed along layers: time 0.00948501 seconds
+   6    6     2     12   5.853317     4.063791    16.996912   3.857801     2.053570     0.316285     2.530008  35.671684
+   6    6     2     12   2.265455     0.019572     0.881056   0.017402     0.007692     0.002612     0.028641   3.222430
+   6    6     2     12   0.178631     0.003465     0.036044   0.003739     0.001745     0.000284     0.011317   0.235225
+   6    6     2     12   5.929445     4.098399    17.095115   3.881339     1.909468     0.321401     2.042531  35.277698
+   6    6     2     12   2.234802     0.021858     0.876923   0.018499     0.007144     0.002033     0.040077   3.201336
+   6    6     2     12   0.174326     0.003353     0.040080   0.004267     0.001807     0.000335     0.010605   0.234773
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57802076 nnzC2= 12643723
+Application 14772991 resources: utime ~62258s, stime ~5697s, Rss ~22504536, inblocks ~40136273, outblocks ~1085229
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 93.4727 seconds
+Generating random permutation vector.
+Permutation took 168.478 seconds
+Load balance: 1.01312
+Matrices read and replicated along layers : time 262.424
+As a whole: 41291594 rows and 1896077 columns and 8737640 nonzeros
+Restriction Op computed : time 93.3949
+Matrix split and distributed along layers: time 23.1157 seconds
+Matrix split and distributed along layers: time 2.95153 seconds
+Matrix split and distributed along layers: time 0.235097 seconds
+Matrix split and distributed along layers: time 0.0197201 seconds
+   4    4     4     12   2.667651     4.378463    18.907785   5.012213     2.971936     0.343805     2.100200  36.382054
+   4    4     4     12   2.121107     0.053116     0.698133   0.017023     0.011125     0.002563     0.235200   3.138267
+   4    4     4     12   0.065131     0.006648     0.026794   0.003420     0.003407     0.000360     0.007289   0.113049
+   4    4     4     12   3.151708     4.433641    18.868387   4.590652     2.746301     0.344958     2.311140  36.446787
+   4    4     4     12   2.157208     0.048499     0.695445   0.015366     0.010543     0.002346     0.251325   3.180732
+   4    4     4     12   0.063126     0.006296     0.025161   0.003485     0.003414     0.000367     0.015012   0.116861
+nnzA= 1135718909 nnzC= 14002895344 nnzC1= 57808474 nnzC2= 12810413
+Application 14773099 resources: utime ~63797s, stime ~5830s, Rss ~29762648, inblocks ~40038019, outblocks ~984331
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 117.664 seconds
+Generating random permutation vector.
+Rank 8 [Mon Aug 17 11:19:37 2015] [c5-1c2s6n2] Fatal error in MPIR_CRAY_Bcast_Tree: Other MPI error, error stack:
+MPIR_CRAY_Bcast_Tree(352): message sizes do not match across processes in the collective routine: Received -32766 but expected -2011438352
+Rank 56 [Mon Aug 17 11:19:37 2015] [c5-1c2s12n2] Fatal error in MPIR_CRAY_Bcast_Tree: Other MPI error, error stack:
+MPIR_CRAY_Bcast_Tree(352): message sizes do not match across processes in the collective routine: Received -32766 but expected -2011438352
+_pmiu_daemon(SIGCHLD): [NID 02650] [c5-1c2s6n2] [Mon Aug 17 11:19:38 2015] PE RANK 8 exit signal Aborted
+[NID 02650] 2015-08-17 11:19:38 Apid 14773216: initiated application termination
+Application 14773216 exit codes: 134
+Application 14773216 exit signals: Killed
+Application 14773216 resources: utime ~247s, stime ~14s, Rss ~9438420, inblocks ~4800304, outblocks ~1067071
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+Reader took 219.215 seconds
+Generating random permutation vector.
+Rank 16 [Mon Aug 17 11:26:29 2015] [c5-1c2s7n2] Fatal error in MPIR_CRAY_Bcast_Tree: Other MPI error, error stack:
+MPIR_CRAY_Bcast_Tree(352): message sizes do not match across processes in the collective routine: Received -32766 but expected -1353375736
+_pmiu_daemon(SIGCHLD): [NID 02654] [c5-1c2s7n2] [Mon Aug 17 11:26:30 2015] PE RANK 16 exit signal Aborted
+[NID 02654] 2015-08-17 11:26:30 Apid 14773360: initiated application termination
+Application 14773360 exit codes: 134
+Application 14773360 exit signals: Killed
+Application 14773360 resources: utime ~379s, stime ~26s, Rss ~19838060, inblocks ~10245471, outblocks ~948584
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_it-2004_1024
+ +          Job Id: 3435131.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 09:27:54 2015
+ +      Start Time: Mon Aug 17 09:28:09 2015
+ + Completion Time: Mon Aug 17 11:26:33 2015
+ +            User: azad
+ +        MOM Host: nid01283
+ +           Queue: reg_small
+ +  Req. Resources: mppnodect=43,mppnppn=24,mppwidth=1024,walltime=03:30:00
+ +  Used Resources: cput=00:00:08,energy_used=0,mem=33996kb,vmem=159768kb,walltime=01:58:04
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp
+ +     Submit Args: batchRop_it-2004_1024
+ + --------------------------------------------------------------------------
+
