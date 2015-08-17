@@ -9,9 +9,9 @@ mtxname = nameParts{1};
 
 fileName = sprintf('batchRop_%s_%d', mtxname, maxCore);
 fileID = fopen(fileName,'w');
-fprintf(fileID,'#PBS -q regular\n');
+fprintf(fileID,'#PBS -q debug\n');
 fprintf(fileID,'#PBS -l mppwidth=%d\n', maxCore);
-fprintf(fileID,'#PBS -l walltime=02:30:00\n');
+fprintf(fileID,'#PBS -l walltime=00:30:00\n');
 fprintf(fileID,'#PBS -N Rop_%s_%d\n', mtxname, maxCore);
 fprintf(fileID,'#PBS -j oe\n\n');
 
@@ -39,13 +39,15 @@ for t = threads
         dim2 = dim1;
         ncores = dim1*dim2*c*t;
         nprocs = dim1*dim2*c;
-        N = coresPerNode/t;
-        S = coresPerSocket/t;
-        if(t<=coresPerSocket)
-            fprintf(fileID,'aprun -n %d -d %d -N %d -S %d -cc %s ../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, S, cc, dim1, dim2, c);
-        else
-            fprintf(fileID,'aprun -n %d -d %d -N %d ../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, dim1, dim2, c);
+        N = min(ncores, coresPerNode/t);
+        S = min(ncores, coresPerSocket/t);
+        if(dim1>=1)
+            if(t<=coresPerSocket)
+                fprintf(fileID,'aprun -n %d -d %d -N %d -S %d -cc %s ../../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, S, cc, dim1, dim2, c);
+            else
+                fprintf(fileID,'aprun -n %d -d %d -N %d ../../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, dim1, dim2, c);
         %fprintf(fileID,'%d\t %d\t %d\t %d\t %d\t %d\t\n', ncores, nprocs, dim1, dim2, c, t);
+            end
         end
     end
 end
