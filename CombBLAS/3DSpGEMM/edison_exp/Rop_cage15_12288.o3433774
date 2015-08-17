@@ -1,0 +1,238 @@
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 00654] 2015-08-17 00:02:22 Apid 14759852: initiated application termination
+Application 14759852 exit codes: 255
+Application 14759852 exit signals: Killed
+Application 14759852 resources: utime ~0s, stime ~424s, Rss ~31180, inblocks ~5703988, outblocks ~14967697
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01646] 2015-08-17 00:02:37 Apid 14759853: initiated application termination
+Application 14759853 exit codes: 255
+Application 14759853 exit signals: Killed
+Application 14759853 resources: utime ~0s, stime ~398s, Rss ~31296, inblocks ~5731252, outblocks ~15026984
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01615] 2015-08-17 00:02:51 Apid 14759885: initiated application termination
+Application 14759885 exit codes: 255
+Application 14759885 exit signals: Killed
+Application 14759885 resources: utime ~0s, stime ~388s, Rss ~31180, inblocks ~5705733, outblocks ~14967703
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01337] 2015-08-17 00:03:06 Apid 14759886: initiated application termination
+Application 14759886 exit codes: 255
+Application 14759886 exit signals: Killed
+Application 14759886 resources: utime ~0s, stime ~395s, Rss ~31300, inblocks ~5726370, outblocks ~15026976
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01574] 2015-08-17 00:03:21 Apid 14759894: initiated application termination
+Application 14759894 exit codes: 255
+Application 14759894 exit signals: Killed
+Application 14759894 resources: utime ~0s, stime ~377s, Rss ~30468, inblocks ~5491083, outblocks ~14404563
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01391] 2015-08-17 00:03:35 Apid 14759907: initiated application termination
+Application 14759907 exit codes: 255
+Application 14759907 exit signals: Killed
+Application 14759907 resources: utime ~0s, stime ~0s, Rss ~17292, inblocks ~5770560, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01456] 2015-08-17 00:03:49 Apid 14759930: initiated application termination
+Application 14759930 exit codes: 255
+Application 14759930 exit signals: Killed
+Application 14759930 resources: utime ~0s, stime ~0s, Rss ~10504, inblocks ~5708865, outblocks ~15025959
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01114] 2015-08-17 00:04:04 Apid 14759934: initiated application termination
+Application 14759934 exit codes: 255
+Application 14759934 exit signals: Killed
+Application 14759934 resources: utime ~0s, stime ~0s, Rss ~17260, inblocks ~5771694, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01643] 2015-08-17 00:04:19 Apid 14759940: initiated application termination
+Application 14759940 exit codes: 255
+Application 14759940 exit signals: Killed
+Application 14759940 resources: utime ~0s, stime ~0s, Rss ~16872, inblocks ~5449972, outblocks ~14344308
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01447] 2015-08-17 00:04:31 Apid 14759942: initiated application termination
+Application 14759942 exit codes: 255
+Application 14759942 exit signals: Killed
+Application 14759942 resources: utime ~0s, stime ~0s, Rss ~17264, inblocks ~5773325, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01366] 2015-08-17 00:04:46 Apid 14759944: initiated application termination
+Application 14759944 exit codes: 255
+Application 14759944 exit signals: Killed
+Application 14759944 resources: utime ~0s, stime ~2s, Rss ~12712, inblocks ~5705608, outblocks ~15025959
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 03115] 2015-08-17 00:05:00 Apid 14759947: initiated application termination
+Application 14759947 exit codes: 255
+Application 14759947 exit signals: Killed
+Application 14759947 resources: utime ~0s, stime ~0s, Rss ~12728, inblocks ~5761209, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 00075] 2015-08-17 00:05:15 Apid 14759949: initiated application termination
+Application 14759949 exit codes: 255
+Application 14759949 exit signals: Killed
+Application 14759949 resources: utime ~0s, stime ~0s, Rss ~12548, inblocks ~5446308, outblocks ~14344308
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01423] 2015-08-17 00:05:30 Apid 14759957: initiated application termination
+Application 14759957 exit codes: 255
+Application 14759957 exit signals: Killed
+Application 14759957 resources: utime ~0s, stime ~0s, Rss ~12728, inblocks ~5761232, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01387] 2015-08-17 00:05:44 Apid 14759966: initiated application termination
+Application 14759966 exit codes: 255
+Application 14759966 exit signals: Killed
+Application 14759966 resources: utime ~0s, stime ~0s, Rss ~13540, inblocks ~5446722, outblocks ~14344308
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 03129] 2015-08-17 00:05:59 Apid 14759972: initiated application termination
+Application 14759972 exit codes: 255
+Application 14759972 exit signals: Killed
+Application 14759972 resources: utime ~0s, stime ~0s, Rss ~10928, inblocks ~5760872, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01453] 2015-08-17 00:06:13 Apid 14759976: initiated application termination
+Application 14759976 exit codes: 255
+Application 14759976 exit signals: Killed
+Application 14759976 resources: utime ~0s, stime ~0s, Rss ~10820, inblocks ~5444799, outblocks ~14344308
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01634] 2015-08-17 00:06:27 Apid 14759981: initiated application termination
+Application 14759981 exit codes: 255
+Application 14759981 exit signals: Killed
+Application 14759981 resources: utime ~0s, stime ~0s, Rss ~11920, inblocks ~5760042, outblocks ~15174144
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 01438] 2015-08-17 00:06:42 Apid 14759988: initiated application termination
+Application 14759988 exit codes: 255
+Application 14759988 exit signals: Killed
+Application 14759988 resources: utime ~0s, stime ~0s, Rss ~10820, inblocks ~5444798, outblocks ~14344308
+Usage (random): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type> <Scale> <EDGEFACTOR> 
+Usage (input): ./mpipspgemm <GridRows> <GridCols> <Layers> <Type=input> <matA> 
+Example: ./RestrictionOp 4 4 2 ER 19 16 
+Example: ./RestrictionOp 4 4 2 Input matA.mtx
+Type ER: Erdos-Renyi
+Type SSCA: R-MAT with SSCA benchmark parameters
+Type G500: R-MAT with Graph500 benchmark parameters
+[NID 00227] 2015-08-17 00:06:56 Apid 14759992: initiated application termination
+Application 14759992 exit codes: 255
+Application 14759992 exit signals: Killed
+Application 14759992 resources: utime ~0s, stime ~0s, Rss ~10924, inblocks ~5759074, outblocks ~15174144
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_cage15_12288
+ +          Job Id: 3433774.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 00:01:49 2015
+ +      Start Time: Mon Aug 17 00:02:15 2015
+ + Completion Time: Mon Aug 17 00:06:57 2015
+ +            User: azad
+ +        MOM Host: nid01282
+ +           Queue: debug
+ +  Req. Resources: mppnodect=512,mppnppn=24,mppwidth=12288,walltime=00:30:00
+ +  Used Resources: cput=00:00:07,energy_used=0,mem=10824kb,vmem=159364kb,walltime=00:04:44
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp
+ +     Submit Args: batchRop_cage15_12288
+ + --------------------------------------------------------------------------
+

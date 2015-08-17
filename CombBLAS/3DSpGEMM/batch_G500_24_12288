@@ -1,9 +1,10 @@
-#PBS -q regular
+#PBS -q debug
 #PBS -l mppwidth=12288
-#PBS -l walltime=03:30:00
+#PBS -l walltime=00:30:00
 #PBS -N spGEMMexp_G500_24_12288
 #PBS -j oe
 cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
 
 export OMP_NUM_THREADS=1
 aprun -n 12100 -d 1 -N 24 -S 12 -cc depth ./mpipspgemm 110 110 1 G500 24 16 column

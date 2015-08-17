@@ -37,7 +37,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
         
         SpParHelper::Print("Reading input file....\n");
         A->ParallelReadMM(filename);
-        
+        A->RemoveLoops(); 
         ostringstream tinfo;
         t02 = MPI_Wtime();
         tinfo << "Reader took " << t02-t01 << " seconds" << endl;
@@ -105,7 +105,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         delete DEL;
         SpParHelper::Print("Created Sparse Matrix\n");
         
-        /*
+        ///*
         // random permutations for load balance
         if(permute)
         {
@@ -119,7 +119,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
             tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
             SpParHelper::Print(tinfo1.str());
         }
-         */
+         //*/
         
         
         float balance = A->LoadImbalance();
