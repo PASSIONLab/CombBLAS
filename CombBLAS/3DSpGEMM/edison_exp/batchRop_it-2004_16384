@@ -1,0 +1,37 @@
+#PBS -q regular
+#PBS -l mppwidth=16384
+#PBS -l walltime=01:30:00
+#PBS -N Rop_it-2004_16384
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/it-2004.mtx
+
+export OMP_NUM_THREADS=1
+aprun -n 16384 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 128 128 1 input $IN
+aprun -n 16200 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 90 90 2 input $IN
+aprun -n 16384 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 64 64 4 input $IN
+aprun -n 16200 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 45 45 8 input $IN
+aprun -n 16384 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 32 32 16 input $IN
+
+export OMP_NUM_THREADS=3
+aprun -n 5329 -d 3 -N 8 -S 4 -cc depth ../RestrictionOp 73 73 1 input $IN
+aprun -n 5408 -d 3 -N 8 -S 4 -cc depth ../RestrictionOp 52 52 2 input $IN
+aprun -n 5184 -d 3 -N 8 -S 4 -cc depth ../RestrictionOp 36 36 4 input $IN
+aprun -n 5408 -d 3 -N 8 -S 4 -cc depth ../RestrictionOp 26 26 8 input $IN
+aprun -n 5184 -d 3 -N 8 -S 4 -cc depth ../RestrictionOp 18 18 16 input $IN
+
+export OMP_NUM_THREADS=6
+aprun -n 2704 -d 6 -N 4 -S 2 -cc depth ../RestrictionOp 52 52 1 input $IN
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../RestrictionOp 36 36 2 input $IN
+aprun -n 2704 -d 6 -N 4 -S 2 -cc depth ../RestrictionOp 26 26 4 input $IN
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../RestrictionOp 18 18 8 input $IN
+aprun -n 2704 -d 6 -N 4 -S 2 -cc depth ../RestrictionOp 13 13 16 input $IN
+
+export OMP_NUM_THREADS=12
+aprun -n 1296 -d 12 -N 2 -S 1 -cc numa_node ../RestrictionOp 36 36 1 input $IN
+aprun -n 1352 -d 12 -N 2 -S 1 -cc numa_node ../RestrictionOp 26 26 2 input $IN
+aprun -n 1296 -d 12 -N 2 -S 1 -cc numa_node ../RestrictionOp 18 18 4 input $IN
+aprun -n 1352 -d 12 -N 2 -S 1 -cc numa_node ../RestrictionOp 13 13 8 input $IN
+aprun -n 1296 -d 12 -N 2 -S 1 -cc numa_node ../RestrictionOp 9 9 16 input $IN
