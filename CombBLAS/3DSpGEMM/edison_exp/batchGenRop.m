@@ -42,9 +42,9 @@ for t = threads
         N = coresPerNode/t;
         S = coresPerSocket/t;
         if(t<=coresPerSocket)
-            fprintf(fileID,'aprun -n %d -d %d -N %d -S %d -cc %s ./RestrictionOp %d %d %d $IN\n', nprocs, t, N, S, cc, dim1, dim2, c);
+            fprintf(fileID,'aprun -n %d -d %d -N %d -S %d -cc %s ../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, S, cc, dim1, dim2, c);
         else
-            fprintf(fileID,'aprun -n %d -d %d -N %d ./RestrictionOp %d %d %d $IN\n', nprocs, t, N, dim1, dim2, c);
+            fprintf(fileID,'aprun -n %d -d %d -N %d ../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, dim1, dim2, c);
         %fprintf(fileID,'%d\t %d\t %d\t %d\t %d\t %d\t\n', ncores, nprocs, dim1, dim2, c, t);
         end
     end
