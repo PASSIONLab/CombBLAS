@@ -1,12 +1,12 @@
-#PBS -q debug
+#PBS -q regular
 #PBS -l mppwidth=12288
-#PBS -l walltime=00:30:00
-#PBS -N Rop_cage15_12288
+#PBS -l walltime=02:30:00
+#PBS -N Rop_it-2004_12288
 #PBS -j oe
 
 cd $PBS_O_WORKDIR
 export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
-IN=/scratch2/scratchdirs/azad/spGEMM_matrices/cage15.mtx
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/it-2004.mtx
 
 export OMP_NUM_THREADS=1
 aprun -n 12100 -d 1 -N 24 -S 12 -cc depth ../RestrictionOp 110 110 1 input $IN
