@@ -1,0 +1,29 @@
+#PBS -q debug
+#PBS -l mppwidth=24
+#PBS -l walltime=00:30:00
+#PBS -N tscaling_ER_20
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+
+
+export OMP_NUM_THREADS=1
+aprun -n 1 -d 1 -N 1 -S 1 -cc depth ../../RestrictionOp 1 1 1 ER 20 16 column
+
+export OMP_NUM_THREADS=3
+aprun -n 1 -d 3 -N 3 -S 3 -cc depth ../../RestrictionOp 1 1 1 ER 20 16 column
+
+
+export OMP_NUM_THREADS=6
+aprun -n 1 -d 6 -N 6 -S 6 -cc depth ../../RestrictionOp 1 1 1 ER 20 16 column
+
+
+export OMP_NUM_THREADS=12
+aprun -n 1 -d 12 -N 12 -S 12 -cc numa_node ../../RestrictionOp 1 1 1 ER 20 16 column
+
+
+export OMP_NUM_THREADS=24
+aprun -n 1 -d 24 -N 24 -S 12 -cc numa_node ../../RestrictionOp 1 1 1 ER 20 16 column
+
+
