@@ -1,0 +1,21 @@
+#PBS -q debug
+#PBS -l mppwidth=4
+#PBS -l walltime=00:30:00
+#PBS -N Rop_ldoor_4
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/ldoor.mtx
+
+export OMP_NUM_THREADS=1
+aprun -n 4 -d 1 -N 4 -S 4 -cc depth ../../RestrictionOp 2 2 1 input $IN
+aprun -n 2 -d 1 -N 2 -S 2 -cc depth ../../RestrictionOp 1 1 2 input $IN
+aprun -n 4 -d 1 -N 4 -S 4 -cc depth ../../RestrictionOp 1 1 4 input $IN
+
+export OMP_NUM_THREADS=3
+aprun -n 1 -d 3 -N 3 -S 3 -cc depth ../../RestrictionOp 1 1 1 input $IN
+
+export OMP_NUM_THREADS=6
+
+export OMP_NUM_THREADS=12

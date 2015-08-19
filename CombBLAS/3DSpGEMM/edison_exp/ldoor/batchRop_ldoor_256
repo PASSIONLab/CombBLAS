@@ -1,0 +1,37 @@
+#PBS -q debug
+#PBS -l mppwidth=256
+#PBS -l walltime=00:30:00
+#PBS -N Rop_ldoor_256
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/ldoor.mtx
+
+export OMP_NUM_THREADS=1
+aprun -n 256 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 16 16 1 input $IN
+aprun -n 242 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 11 11 2 input $IN
+aprun -n 256 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 8 8 4 input $IN
+aprun -n 200 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 5 5 8 input $IN
+aprun -n 256 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 4 4 16 input $IN
+
+export OMP_NUM_THREADS=3
+aprun -n 81 -d 3 -N 8 -S 4 -cc depth ../../RestrictionOp 9 9 1 input $IN
+aprun -n 72 -d 3 -N 8 -S 4 -cc depth ../../RestrictionOp 6 6 2 input $IN
+aprun -n 64 -d 3 -N 8 -S 4 -cc depth ../../RestrictionOp 4 4 4 input $IN
+aprun -n 72 -d 3 -N 8 -S 4 -cc depth ../../RestrictionOp 3 3 8 input $IN
+aprun -n 64 -d 3 -N 8 -S 4 -cc depth ../../RestrictionOp 2 2 16 input $IN
+
+export OMP_NUM_THREADS=6
+aprun -n 36 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 6 6 1 input $IN
+aprun -n 32 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 4 4 2 input $IN
+aprun -n 36 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 3 3 4 input $IN
+aprun -n 32 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 2 2 8 input $IN
+aprun -n 16 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 1 1 16 input $IN
+
+export OMP_NUM_THREADS=12
+aprun -n 16 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 4 4 1 input $IN
+aprun -n 18 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 3 3 2 input $IN
+aprun -n 16 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 2 2 4 input $IN
+aprun -n 8 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 1 1 8 input $IN
+aprun -n 16 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 1 1 16 input $IN
