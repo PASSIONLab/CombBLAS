@@ -43,6 +43,30 @@ struct Select2ndMinSR
     }
 };
 
+template <typename T1, typename T2>
+struct MIS2verifySR // identical to Select2ndMinSR except for the printout in add()
+{
+    static T2 id(){ return T2(); };
+    static bool returnedSAID() { return false; }
+    static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static T2 add(const T2 & arg1, const T2 & arg2)
+    {
+        cout << "This should have never been executed for MIS-2 to be correct" << endl;
+        return std::min(arg1, arg2);
+    }
+    
+    static T2 multiply(const T1 & arg1, const T2 & arg2)
+    {
+        return arg2;
+    }
+    
+    static void axpy(const T1 a, const T2 & x, T2 & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
+
 
 
 // second hop MIS (i.e., MIS on A^2)
@@ -141,7 +165,7 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         FullyDistVec<IT,IT> ri = mis2.FindInds([](IT x){return true;});
         
         // find the vertices that are not covered by mis2 AND its one hop neighborhood
-        FullyDistSpVec<IT,IT> mis2neigh = SpMV<Select2ndMinSR<bool, IT>>(B, mis2, false);
+        FullyDistSpVec<IT,IT> mis2neigh = SpMV<MIS2verifySR<bool, IT>>(B, mis2, false);
         mis2neigh.PrintInfo("MIS neighbors");
         
         // ABAB: mis2 and mis2neigh should be independent, because B doesn't have any loops.
