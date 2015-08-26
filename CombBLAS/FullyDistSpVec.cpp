@@ -95,7 +95,8 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOp
 
 
 
-
+// ABAB: This function probably operates differently than a user would immediately expect
+// ABAB: Write a well-posed description for it
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
@@ -2858,7 +2859,7 @@ void FullyDistSpVec<IT,NT>::Select (const FullyDistVec<IT,NT1> & denseVec, _Unar
 }
 
 
-
+// \todo: Shouldn't this wrap EWiseApply for code maintanence instead?
 template <typename IT, typename NT>
 template <typename NT1>
 void FullyDistSpVec<IT,NT>::Setminus (const FullyDistSpVec<IT,NT1> & other)
