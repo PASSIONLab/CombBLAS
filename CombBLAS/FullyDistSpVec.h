@@ -100,10 +100,8 @@ public:
     template <typename NT1>
     void Setminus (const FullyDistSpVec<IT,NT1> & other);
 
-    
     //template <typename NT1, typename _UnaryOperation>
     //void Set (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
-
 
     template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
     void SelectApply (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop);
@@ -356,10 +354,6 @@ private:
     
     template <class IU, class NU, class DER, typename _UnaryOperation>
     friend SpParMat<IU, bool, DER> PermMat1 (const FullyDistSpVec<IU,NU> & ri, const IU ncol, _UnaryOperation __unop);
-
-    
-
-
 };
 
 #include "FullyDistSpVec.cpp"

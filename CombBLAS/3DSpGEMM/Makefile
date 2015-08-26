@@ -1,5 +1,5 @@
 # C++ compiler
-CXX := CC
+CXX := mpicxx
 CXXFLAGS := -std=c++11 -O2 -DNDEBUG -fopenmp #-DDEBUG 
 
 # C compiler
@@ -14,7 +14,7 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 %.o : %.c 
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-%.o : %.cpp 
+%.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 %.o : %.cxx 

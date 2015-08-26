@@ -134,18 +134,60 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         B += BT;
         
         // ------------ compute MIS-2 ----------------------------
-        FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
+        FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol()); // values of the mis2 vector are just "ones"
         mis2 = MIS2<IT>(B);
-       	//mis2.DebugPrint();
+       	mis2.PrintInfo("MIS original");
         // ------------ Obtain restriction matrix from mis2 ----
-        FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
+        FullyDistVec<IT,IT> ri = mis2.FindInds([](IT x){return true;});
+        
+        // find the vertices that are not covered by mis2 AND its one hop neighborhood
+        FullyDistSpVec<IT,IT> mis2neigh = SpMV<Select2ndMinSR<bool, IT>>(B, mis2, false);
+        mis2neigh.PrintInfo("MIS neighbors");
+        
+        // ABAB: mis2 and mis2neigh should be independent, because B doesn't have any loops.
+        FullyDistSpVec<IT,IT> isection = EWiseApply<IT>(mis2neigh, mis2,
+                                                        [](IT x, IT y){return x;},
+                                                        [](IT x, IT y){return true;},
+                                                        false, false, (IT) 1, (IT) 1, true);  /// allowVNulls and allowWNulls are both false
+        isection.PrintInfo("intersection of mis2neigh and mis2");
+        
+        
+        // find the union of mis2neigh and mis2 (ABAB: this function to be wrapped & called "SetUnion")
+        mis2neigh = EWiseApply<IT>(mis2neigh, mis2,
+                              [](IT x, IT y){return x;},
+                              [](IT x, IT y){return true;},
+                              true, true, (IT) 1, (IT) 1, true);
+        mis2neigh.PrintInfo("MIS original+neighbors");
+
+
+        FullyDistVec<IT, IT> denseones(B.getncol(), 1);
+        FullyDistSpVec<IT,IT> spones (denseones);
+        // subtract the entries of mis2neigh from all vertices (ABAB: this function to be wrapped & called "SetDiff")
+        spones = EWiseApply<IT>(spones, mis2neigh,
+                                  [](IT x, IT y){return x;},   // binop
+                                  [](IT x, IT y){return true;}, // doop
+                                  false, true, (IT) 1, (IT) 1, false);  // allowintersect=false (all joint entries are removed)
+        
+        spones.PrintInfo("Leftovers (singletons)");
+        
+        
         FullyDistVec<IT, IT> ci(B.getcommgrid());
         ci.iota(mis2.getnnz(), (IT)0);
         SpParMat < IT, NT, SpDCCols < IT, NT >> M(B.getnrow(), ci.TotalLength(), ri, ci, (NT)1, false);
+        
+        SpParHelper::Print("M matrix... ");
+        M.PrintInfo();
+        
         SpParMat < IT, NT, SpDCCols < IT, NT >> Rop = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
+        
+        SpParHelper::Print("R (minus M) matrix... ");
+        Rop.PrintInfo();
+        
         Rop += M;
         
+        SpParHelper::Print("R without singletons... ");
         Rop.PrintInfo();
+        
         
         SpParMat < IT, NT, SpDCCols < IT, NT >> RopT = Rop;
         RopT.Transpose();
