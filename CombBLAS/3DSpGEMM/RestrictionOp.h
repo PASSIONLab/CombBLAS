@@ -69,7 +69,7 @@ struct MIS2verifySR // identical to Select2ndMinSR except for the printout in ad
 
 
 
-// second hop MIS (i.e., MIS on A^2)
+// second hop MIS (i.e., MIS on A \Union A^2)
 template <typename ONT, typename IT, typename INT, typename DER>
 FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
 {
@@ -87,28 +87,31 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
     FullyDistSpVec<IT, double> min_neighbor2_r ( A.getcommgrid(), nvert);
     
     
-    
     FullyDistSpVec<IT, ONT> new_S_members ( A.getcommgrid(), nvert);
     FullyDistSpVec<IT, ONT> new_S_neighbors ( A.getcommgrid(), nvert);
     FullyDistSpVec<IT, ONT> new_S_neighbors2 ( A.getcommgrid(), nvert);
     
     
-    
     while (cand.getnnz() > 0)
     {
         
-        //# label each vertex in cand with a random value
+        //# label each vertex in cand with a random value (in what range, [0,1]?)
         cand.Apply([](const double & ignore){return (double) GlobalMT.rand();});
         
-        //# find the smallest random value among a vertex's neighbors
+        //# find the smallest random value among a vertex's 1 and 2-hop neighbors
         SpMV<Select2ndMinSR<INT, double>>(A, cand, min_neighbor_r, false);
         SpMV<Select2ndMinSR<INT, double>>(A, min_neighbor_r, min_neighbor2_r, false);
         
+        FullyDistSpVec<IT, double> min_neighbor_r_union = EWiseApply<double>(min_neighbor2_r, min_neighbor_r,
+                                        [](double x, double y){return std::min(x,y);},
+                                        [](double x, double y){return true;},   // do_op is totalogy
+                                        true, true, 2.0,  2.0, true);   // we allow nulls for both V and W
+        
         
         //# The vertices to be added to S this iteration are those whose random value is
-        //# smaller than those of all its neighbors:
+        //# smaller than those of all its 1-hop and 2-hop neighbors:
         // **** if cand has isolated vertices, they will be included in new_S_members ******
-        new_S_members = EWiseApply<ONT>(min_neighbor2_r, cand,
+        new_S_members = EWiseApply<ONT>(min_neighbor_r_union, cand,
                                         [](double x, double y){return (ONT)1;},
                                         [](double x, double y){return y<=x;}, // equality is for back edges since we are operating on A^2
                                         true, false, 2.0,  2.0, true);
@@ -119,13 +122,18 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
                                   [](double x, ONT y){return true;},
                                   false, true, 0.0, (ONT) 0, false);
         
-        //# find 2-hop neighbors of new_S_members
+        //# find 1-hop and 2-hop neighbors of new_S_members
         SpMV<Select2ndMinSR<INT, ONT>>(A, new_S_members, new_S_neighbors, false);
         SpMV<Select2ndMinSR<INT, ONT>>(A, new_S_neighbors, new_S_neighbors2, false);
         
+        FullyDistSpVec<IT, ONT> new_S_neighbors_union = EWiseApply<ONT>(new_S_neighbors, new_S_neighbors2,
+                                                                          [](ONT x, ONT y){return x;},  // in case of intersection, doesn't matter which one to propagate
+                                                                          [](ONT x, ONT y){return true;},
+                                                                          true, true, (ONT) 1, (ONT) 1, true);
+
         
-        //# remove neighbors of new_S_members from cand, because they cannot be part of the MIS anymore
-        cand = EWiseApply<double>(cand, new_S_neighbors2,
+        //# remove 1-hop and 2-hop neighbors of new_S_members from cand, because they cannot be part of the MIS anymore
+        cand = EWiseApply<double>(cand, new_S_neighbors_union,
                                   [](double x, ONT y){return x;},
                                   [](double x, ONT y){return true;},
                                   false, true, 0.0, (ONT) 0, false);
