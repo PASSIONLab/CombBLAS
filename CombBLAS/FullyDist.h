@@ -58,14 +58,17 @@ template <class IT, class NT>
 class FullyDist<IT, NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 {
 public:
-	FullyDist():glen(0)
+	explicit FullyDist():glen(0)
 	{
+        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
-	FullyDist(IT globallen): glen(globallen) 
+	explicit FullyDist(IT globallen): glen(globallen)
 	{
+        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
+    
 	FullyDist( shared_ptr<CommGrid> grid):glen(0)
 	{
 		commGrid = grid;
