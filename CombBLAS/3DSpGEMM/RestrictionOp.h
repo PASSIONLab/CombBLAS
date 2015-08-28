@@ -192,8 +192,12 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         mis2neigh.PrintInfo("MIS original+neighbors");
 
 
-        FullyDistVec<IT, IT> denseones(B.getncol(), 1);
+        // FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval)
+        //       : FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid,globallen)
+        
+        FullyDistVec<IT, IT> denseones(mis2neigh.getcommgrid(), B.getncol(), 1);    // calls the default constructor... why?
         FullyDistSpVec<IT,IT> spones (denseones);
+        
         // subtract the entries of mis2neigh from all vertices (ABAB: this function to be wrapped & called "SetDiff")
         spones = EWiseApply<IT>(spones, mis2neigh,
                                   [](IT x, IT y){return x;},   // binop
@@ -205,12 +209,12 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         
         FullyDistVec<IT, IT> ci(B.getcommgrid());
         ci.iota(mis2.getnnz(), (IT)0);
-        SpParMat < IT, NT, SpDCCols < IT, NT >> M(B.getnrow(), ci.TotalLength(), ri, ci, (NT)1, false);
+        SpParMat<IT,NT,SpDCCols<IT,NT>> M(B.getnrow(), ci.TotalLength(), ri, ci, (NT)1, false);
         
         SpParHelper::Print("M matrix... ");
         M.PrintInfo();
         
-        SpParMat < IT, NT, SpDCCols < IT, NT >> Rop = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
+        SpParMat<IT,NT,SpDCCols<IT,NT>> Rop = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
         
         SpParHelper::Print("R (minus M) matrix... ");
         Rop.PrintInfo();
@@ -220,12 +224,29 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         SpParHelper::Print("R without singletons... ");
         Rop.PrintInfo();
         
+        FullyDistVec<IT,IT> rrow(Rop.getcommgrid());
+        FullyDistVec<IT,IT> rcol(Rop.getcommgrid());
+        FullyDistVec<IT,NT> rval(Rop.getcommgrid());
+        Rop.Find(rrow, rcol, rval);
         
-        SpParMat < IT, NT, SpDCCols < IT, NT >> RopT = Rop;
+        FullyDistVec<IT, IT> extracols(Rop.getcommgrid());
+        extracols.iota(spones.getnnz(), ci.TotalLength()); // one column per singleton
+        
+        // Returns a dense vector of nonzero global indices for which the predicate is satisfied on values
+        FullyDistVec<IT,IT> extrarows = spones.FindInds([](IT x){return true;});   // dense leftovers array is the extra rows
+        
+        // Resize Rop
+        SpParMat<IT,NT,SpDCCols<IT,NT>> RopFull1(Rop.getnrow(), Rop.getncol() +extracols.TotalLength(), rrow, rcol, rval, false);
+
+        SpParHelper::Print("RopFull1... ");
+        RopFull1.PrintInfo();
+        
+        
+        SpParMat<IT,NT,SpDCCols<IT,NT>> RopT = Rop;
         RopT.Transpose();
         
-        R = new SpDCCols<IT, NT>(Rop.seq()); // deep copy
-        RT = new SpDCCols<IT, NT>(RopT.seq()); // deep copy
+        R = new SpDCCols<IT,NT>(Rop.seq()); // deep copy
+        RT = new SpDCCols<IT,NT>(RopT.seq()); // deep copy
         
     }
 }
