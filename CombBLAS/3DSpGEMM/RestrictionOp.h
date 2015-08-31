@@ -241,11 +241,38 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         SpParHelper::Print("RopFull1... ");
         RopFull1.PrintInfo();
         
+        SpParMat<IT,NT,SpDCCols<IT,NT>> RopFull2(Rop.getnrow(), Rop.getncol() +extracols.TotalLength(), extrarows, extracols, (NT)1, false);
+
+        SpParHelper::Print("RopFull2... ");
+        RopFull2.PrintInfo();
         
-        SpParMat<IT,NT,SpDCCols<IT,NT>> RopT = Rop;
+        RopFull1 += RopFull2;
+        
+        SpParHelper::Print("RopFull final (before normalization)... ");
+        RopFull1.PrintInfo();
+        
+        float balance_before = RopFull1.LoadImbalance();
+        
+        FullyDistVec<IT, IT> perm_row(RopFull1.getcommgrid()); // permutation vector defined on layers
+        FullyDistVec<IT, IT> perm_col(RopFull1.getcommgrid()); // permutation vector defined on layers
+
+        perm_row.iota(RopFull1.getnrow(), 0);   // don't permute rows because they represent the IDs of "fine" vertices
+        perm_col.iota(RopFull1.getncol(), 0);   // CAN permute columns because they define the IDs of new aggregates
+        perm_col.RandPerm();    // permuting columns for load balance
+        
+        RopFull1(perm_row, perm_col, true); // in place permute
+        float balance_after = RopFull1.LoadImbalance();
+
+        ostringstream outs;
+        outs << "Load balance (before): " << balance_before << endl;
+        outs << "Load balance (after): " << balance_after << endl;
+        SpParHelper::Print(outs.str());        
+       
+        
+        SpParMat<IT,NT,SpDCCols<IT,NT>> RopT = RopFull1;
         RopT.Transpose();
         
-        R = new SpDCCols<IT,NT>(Rop.seq()); // deep copy
+        R = new SpDCCols<IT,NT>(RopFull1.seq()); // deep copy
         RT = new SpDCCols<IT,NT>(RopT.seq()); // deep copy
         
     }
