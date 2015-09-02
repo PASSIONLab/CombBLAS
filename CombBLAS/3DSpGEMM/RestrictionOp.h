@@ -43,6 +43,48 @@ struct Select2ndMinSR
     }
 };
 
+template <typename T>
+struct VertexType
+{
+public:
+    VertexType(){parent=-1; prob=0.0;};
+    VertexType(T pa, double pr){parent=pa; prob=pr;};
+    friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
+    friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent<vtx2.parent;};
+    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.prob << ")"; return os;};
+    VertexType(T pa){parent=pa; prob=0.0;};
+    T parent;
+    double prob;
+};
+
+
+
+template <typename T1, typename T2>
+struct Select2ndRandSR
+{
+    static VertexType<T2> id(){ return VertexType<T2>(); };
+    static bool returnedSAID() { return false; }
+    //static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static VertexType<T2> add(const VertexType<T2> & arg1, const VertexType<T2> & arg2)
+    {
+        if((arg1.prob) < (arg2.prob)) return arg1;
+        else return arg2;
+    }
+    static VertexType<T2> multiply(const T1 & arg1, const VertexType<T2> & arg2)
+    {
+        return arg2;
+    }
+    
+    static void axpy(T1 a, const VertexType<T2> & x, VertexType<T2> & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
+
+
+
+
 template <typename T1, typename T2>
 struct MIS2verifySR // identical to Select2ndMinSR except for the printout in add()
 {
@@ -66,6 +108,7 @@ struct MIS2verifySR // identical to Select2ndMinSR except for the printout in ad
         y = add(y, multiply(a, x));
     }
 };
+
 
 
 
@@ -95,7 +138,7 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
     while (cand.getnnz() > 0)
     {
         
-        //# label each vertex in cand with a random value (in what range, [0,1]?)
+        //# label each vertex in cand with a random value (in what range, [0,1])
         cand.Apply([](const double & ignore){return (double) GlobalMT.rand();});
         
         //# find the smallest random value among a vertex's 1 and 2-hop neighbors
@@ -149,7 +192,105 @@ FullyDistSpVec<IT, ONT> MIS2(SpParMat < IT, INT, DER> A)
 }
 
 
+template <typename IT, typename NT>
+void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> *& R, SpDCCols<IT, NT> *& RT)
+{
+    if(CMG.layer_grid == 0)
+    {
+        SpDCCols<IT, bool> *A = new SpDCCols<IT, bool>(*localmat);
+        
+        SpParMat < IT, bool, SpDCCols < IT, bool >> B (A, CMG.layerWorld);
+        
+        B.RemoveLoops();
+        
+        SpParMat < IT, bool, SpDCCols < IT, bool >> BT = B;
+        BT.Transpose();
+        B += BT;
+        B.PrintInfo();
+        
+        
+        FullyDistSpVec<IT,IT>mis2 = MIS2<IT>(B);
+        mis2.setNumToInd();
+        mis2.PrintInfo("mis2");
+        FullyDistSpVec<IT,IT> mis2neigh = SpMV<MIS2verifySR<bool, IT>>(B, mis2, false);
+        
+        //  union of mis2 and mis2neigh
+        mis2neigh = EWiseApply<IT>(mis2neigh, mis2,
+                                   [](IT x, IT y){return x==-1?y:x;},
+                                   [](IT x, IT y){return true;},
+                                   true, true, (IT) -1, (IT) -1, true);
+        
+        // mis2neigh with a probability
+        FullyDistSpVec<IT, VertexType<IT>> mis2neigh_p(mis2neigh.getcommgrid(), mis2neigh.TotalLength());
+        mis2neigh_p = EWiseApply<VertexType<IT>>(mis2neigh, mis2neigh_p,
+                                                 [](IT x, VertexType<IT> y){return VertexType<IT>(x,GlobalMT.rand());},
+                                                 [](IT x, VertexType<IT> y){return true;},
+                                                 false, true, (IT) -1, VertexType<IT>(), false);
+        
+        // mis2neigh2 with a probability
+        FullyDistSpVec<IT, VertexType<IT>> mis2neigh2_p(mis2neigh.getcommgrid(), mis2neigh.TotalLength());
+        SpMV<Select2ndRandSR<bool, IT>>(B, mis2neigh_p, mis2neigh2_p, false);
+        
+        // mis2neigh2 without probability
+        FullyDistSpVec<IT,IT> mis2neigh2(mis2neigh.getcommgrid(), mis2neigh.TotalLength());
+        mis2neigh2 = EWiseApply<IT>(mis2neigh2, mis2neigh2_p,
+                                                 [](IT x, VertexType<IT> y){return y.parent;},
+                                                 [](IT x, VertexType<IT> y){return true;},
+                                                 true, false, (IT) -1, VertexType<IT>(), false);
+        
+        
+        //  union of mis2 and mis2neigh and mis2neigh2
+        FullyDistSpVec<IT,IT> mis2neighUnion = EWiseApply<IT>(mis2neigh, mis2neigh2,
+                                                              [](IT x, IT y){return x==-1?y:x;},
+                                                              [](IT x, IT y){return true;},
+                                                              true, true, (IT) -1, (IT) -1, true);
+        
+        mis2neighUnion.PrintInfo("mis2neighUnion");
+        if(mis2neighUnion.getnnz() != mis2neighUnion.TotalLength())
+        {
+            SpParHelper::Print(" !!!! Error: mis2neighUnion does not include all rows/columns.  !!!! ");
+        }
+        
+        // At first, create nxn matrix
+        FullyDistVec<IT, IT> ci = mis2neighUnion;
+        FullyDistVec<IT,IT> ri = mis2neighUnion.FindInds([](IT x){return true;}); // this should be equivalent to iota
+        SpParMat<IT,NT,SpDCCols<IT,NT>> Rop(B.getnrow(), ci.TotalLength(), ri, ci, (NT)1, false);
+        
+        // next, select nonempty columns
+        FullyDistVec<IT, IT> cimis2 = mis2.FindInds([](IT x){return true;}); // nonzero columns
+        Rop(ri,cimis2,true);
+        SpParHelper::Print("Rop final (before normalization)... ");
+        Rop.PrintInfo();
+        
+        // permute for load balance
+        float balance_before = Rop.LoadImbalance();
+        FullyDistVec<IT, IT> perm_row(Rop.getcommgrid()); // permutation vector defined on layers
+        FullyDistVec<IT, IT> perm_col(Rop.getcommgrid()); // permutation vector defined on layers
+        
+        perm_row.iota(Rop.getnrow(), 0);   // don't permute rows because they represent the IDs of "fine" vertices
+        perm_col.iota(Rop.getncol(), 0);   // CAN permute columns because they define the IDs of new aggregates
+        perm_col.RandPerm();    // permuting columns for load balance
+        
+        Rop(perm_row, perm_col, true); // in place permute
+        float balance_after = Rop.LoadImbalance();
+        
+        ostringstream outs;
+        outs << "Load balance (before): " << balance_before << endl;
+        outs << "Load balance (after): " << balance_after << endl;
+        SpParHelper::Print(outs.str());
+        
+        
+        SpParMat<IT,NT,SpDCCols<IT,NT>> RopT = Rop;
+        RopT.Transpose();
+        
+        R = new SpDCCols<IT,NT>(Rop.seq()); // deep copy
+        RT = new SpDCCols<IT,NT>(RopT.seq()); // deep copy
+        
+    }
+}
 
+// with added column
+/*
 template <typename IT, typename NT>
 void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> *& R, SpDCCols<IT, NT> *& RT)
 {
@@ -277,38 +418,6 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         
     }
 }
-
-
-
-/*
-template <typename IT, typename NT, typename DER>
-SpParMat < IT, NT, DER> RestrictionOp( SpParMat < IT, NT, DER> A)
-{
-    
-    SpParMat < IT, bool, SpDCCols < IT, bool >> B = SpParMat < IT, bool, SpDCCols < IT, bool >> (A);
-    B.RemoveLoops();
-    SpParMat < IT, bool, SpDCCols < IT, bool >> BT = B;
-    BT.Transpose();
-    B += BT;
-    
-    // ------------ compute MIS-2 ----------------------------
-    FullyDistSpVec<IT, IT> mis2 (B.getcommgrid(), B.getncol());
-    mis2 = MIS2<IT>(B);
-    mis2.DebugPrint();
-    
-    // ------------ Obtain restriction matric from mis2 ----
-    FullyDistVec<IT, IT> ri = mis2.FindInds([](IT x){return true;});
-    FullyDistVec<IT, IT> ci(A.getcommgrid());
-    ci.iota(mis2.getnnz(), (IT)0);
-    SpParMat < IT, NT, DER> M(A.getnrow(), ci.TotalLength(), ri, ci, (NT) 1, false);
-    SpParMat < IT, NT, DER> R = PSpGEMM<PlusTimesSRing<bool, NT>>(B,M);
-    R += M;
-    
-    return R;
-    
-}
 */
-
-
 
 

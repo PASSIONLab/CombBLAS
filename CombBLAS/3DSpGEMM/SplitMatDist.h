@@ -37,7 +37,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
         
         SpParHelper::Print("Reading input file....\n");
         A->ParallelReadMM(filename);
-        A->RemoveLoops(); 
+        A->PrintInfo();
         ostringstream tinfo;
         t02 = MPI_Wtime();
         tinfo << "Reader took " << t02-t01 << " seconds" << endl;
@@ -54,6 +54,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
                     p.iota(A->getnrow(), 0);
                     p.RandPerm();
                 }
+                SpParHelper::Print("Perfoming random permuation of matrix.\n");
                 (*A)(p,p,true);// in-place permute to save memory
                 ostringstream tinfo1;
                 tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
@@ -67,7 +68,7 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
         
        	float balance = A->LoadImbalance();
         ostringstream outs;
-        outs << "Load balance: " << balance << endl;
+        outs << "Input load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
        
         return  A->seqptr();
@@ -101,14 +102,14 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         SpParHelper::Print(tinfo.str());
         
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
-        
         delete DEL;
         SpParHelper::Print("Created Sparse Matrix\n");
+        A->PrintInfo();
         
-        ///*
-        // random permutations for load balance
+        
         if(permute)
         {
+            SpParHelper::Print("Perfoming random permuation of matrix.\n");
             shared_ptr<CommGrid> layerGrid;
             layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
             FullyDistVec<IT, IT> p(layerGrid); // permutation vector defined on layers
@@ -119,7 +120,7 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
             tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
             SpParHelper::Print(tinfo1.str());
         }
-         //*/
+         
         
         
         float balance = A->LoadImbalance();

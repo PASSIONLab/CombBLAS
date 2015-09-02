@@ -156,6 +156,14 @@ int main(int argc, char *argv[])
             
         }
         
+        int64_t  globalnnzA=0, globalnnzB=0;
+        int64_t localnnzA = splitA.getnnz();
+        int64_t localnnzB = splitB.getnnz();
+        MPI_Allreduce( &localnnzA, &globalnnzA, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzB, &globalnnzB, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        if(myrank == 0) cout << "After split: nnzA= " << globalnnzA << " & nnzB= " << globalnnzB;
+
+        
         
         type = string(argv[7]);
         if(myrank == 0)
@@ -171,16 +179,21 @@ int main(int argc, char *argv[])
                 splitC = multiply(splitA, splitB, CMG, true, false); // outer product
                 delete splitC;
             }
-            
         }
         
         else // default column-threaded
         {
-            for(int k=0; k<ITERS; k++)
+            for(int k=0; ITERS>0 && k<ITERS-1; k++)
             {
                 splitC = multiply(splitA, splitB, CMG, false, true);
                 delete splitC;
             }
+            splitC = multiply(splitA, splitB, CMG, false, true);
+            int64_t  nnzC=0;
+            int64_t localnnzC = splitC->getnnz();
+            MPI_Allreduce( &localnnzC, &nnzC, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+            if(myrank == 0) cout << "\n After multiplication: nnzC= " << nnzC << endl << endl;
+            delete splitC;
             
         }
     }
