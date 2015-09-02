@@ -423,7 +423,7 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 				else
 				{
 					temp.ir[curnz] = ir[ii];
-					temp.numx[curnz++] = numx[ii++] + rhs.numx[jj++];	// might include zeros
+                    temp.numx[curnz++] = numx[ii++] + rhs.numx[jj++];       // might include zeros
 				}
 			}
 			while (ii < cp[i+1])

@@ -39,8 +39,8 @@ for t = threads
         dim2 = dim1;
         ncores = dim1*dim2*c*t;
         nprocs = dim1*dim2*c;
-        N = min(ncores, coresPerNode/t);
-        S = min(ncores, coresPerSocket/t);
+        N = min(nprocs, coresPerNode/t);
+        S = min(nprocs, coresPerSocket/t);
         if(dim1>=1)
             if(t<=coresPerSocket)
                 fprintf(fileID,'aprun -n %d -d %d -N %d -S %d -cc %s ../../RestrictionOp %d %d %d input $IN\n', nprocs, t, N, S, cc, dim1, dim2, c);

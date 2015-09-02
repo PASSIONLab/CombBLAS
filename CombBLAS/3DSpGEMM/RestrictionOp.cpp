@@ -105,9 +105,9 @@ int main(int argc, char *argv[])
             
             double t01 = MPI_Wtime();
             A = ReadMat<double>(fileA, CMG, true, p);
-
-
-            if(myrank == 0) cout << "Matrices read and replicated along layers : time " << MPI_Wtime() - t01 << endl;
+            
+            
+            if(myrank == 0) cout << "Input matrix read : time " << MPI_Wtime() - t01 << endl;
         }
         else
         {
@@ -146,27 +146,25 @@ int main(int argc, char *argv[])
             
             double t01 = MPI_Wtime();
             A = GenMat<int64_t,double>(CMG, scale, EDGEFACTOR, initiator, true);
-
-            if(myrank == 0) cout << "RMATs Generated and replicated along layers : time " << MPI_Wtime() - t01 << endl;
+            
+            if(myrank == 0) cout << "RMATs Generated : time " << MPI_Wtime() - t01 << endl;
             
         }
         
         
         
-        //SpParMat < int64_t, double, SpDCCols<int64_t,double> > BB (A,CMG.layerWorld);
-        //SpParMat < int64_t, double, SpDCCols<int64_t,double> > R = RestrictionOp<int64_t>(BB);
-        //SpParMat < int64_t, double, SpDCCols<int64_t,double> > R = RestrictionOp(BB);
         SpDCCols<int64_t, double>* R;
         SpDCCols<int64_t, double>* RT;
         
-	double t01 = MPI_Wtime();
-	RestrictionOp( CMG, A, R, RT);
+        if(myrank == 0) cout << "Computing restriction matrix \n";
+        double t01 = MPI_Wtime();
+        RestrictionOp( CMG, A, R, RT);
         
-	if(myrank == 0) cout << "Restriction Op computed : time " << MPI_Wtime() - t01 << endl;
+        if(myrank == 0) cout << "Restriction Op computed : time " << MPI_Wtime() - t01 << endl;
         SpDCCols<int64_t, double> *B = new SpDCCols<int64_t, double>(*A); // just a deep copy of A
         SpDCCols<int64_t, double> splitA, splitB, splitR, splitRT;
-        SpDCCols<int64_t, double> *splitC1;
-        SpDCCols<int64_t, double> *splitC2;
+        SpDCCols<int64_t, double> *splitRTA;
+        SpDCCols<int64_t, double> *splitRTAR;
         SpDCCols<int64_t, double> *splitC;
         
         
@@ -175,33 +173,55 @@ int main(int argc, char *argv[])
         SplitMat(CMG, R, splitR, true);
         SplitMat(CMG, RT, splitRT, false);
         
-        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
-        splitC1 = multiply(splitRT, splitA, CMG, false, true);
-        splitC2 = multiply(*splitC1, splitR, CMG, false, true);
-        delete splitC;
-        delete splitC1;
-        delete splitC2;
-
-        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
-        splitC1 = multiply(splitRT, splitA, CMG, false, true);
-        splitC2 = multiply(*splitC1, splitR, CMG, false, true);
+        if(myrank == 0)
+        {
+           	printf("\n Processor Grid (row x col x layers x threads): %dx%dx%dx%d \n", CMG.GridRows, CMG.GridCols, CMG.GridLayers, nthreads);
+            printf(" prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total\n");
+        }
+        SpParHelper::Print("Computing A square\n");
         
-        // count nnz in C's
-        int64_t nnzA=0, nnzC=0, nnzC1=0, nnzC2=0;
+        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
+        delete splitC;
+        splitC = multiply(splitB, splitA, CMG, false, true); // A^2
+        
+        SpParHelper::Print("Computing RTA\n");
+        splitRTA = multiply(splitRT, splitA, CMG, false, true);
+        delete splitRTA;
+        splitRTA = multiply(splitRT, splitA, CMG, false, true);
+        
+        SpParHelper::Print("Computing RTAR\n");
+        splitRTAR = multiply(*splitRTA, splitR, CMG, false, true);
+        delete splitRTAR;
+        splitRTAR = multiply(*splitRTA, splitR, CMG, false, true);
+        
+        // count nnz
+        int64_t nnzA=0, nnzR=0, nnzC=0, nnzRTA=0, nnzRTAR=0;
         int64_t localnnzA = splitA.getnnz();
+        int64_t localnnzR = splitR.getnnz();
         int64_t localnnzC = splitC->getnnz();
-        int64_t localnnzC1 = splitC1->getnnz();
-        int64_t localnnzC2 = splitC2->getnnz();
+        int64_t localnnzRTA = splitRTA->getnnz();
+        int64_t localnnzRTAR = splitRTAR->getnnz();
         MPI_Allreduce( &localnnzA, &nnzA, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzR, &nnzR, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce( &localnnzC, &nnzC, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
-        MPI_Allreduce( &localnnzC1, &nnzC1, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
-        MPI_Allreduce( &localnnzC2, &nnzC2, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
-        if(myrank == 0) cout << "nnzA= " << nnzA << " nnzC= " << nnzC << " nnzC1= " << nnzC1 << " nnzC2= " << nnzC2 << endl;
+        MPI_Allreduce( &localnnzRTA, &nnzRTA, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce( &localnnzRTAR, &nnzRTAR, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+        if(myrank == 0)
+        {
+            cout << "----------------------------\n";
+            cout << " nnz(A)= " << nnzA << endl;
+            cout << " nnz(R)= " << nnzR << endl;
+            cout << " nnz(A^2)= " << nnzC << endl;
+            cout << " nnz(RTA)= " << nnzRTA << endl;
+            cout << " nnz(RTAR)= " << nnzRTAR << endl;
+            cout << "----------------------------\n";
+        }
+
         
-    
+        
         delete splitC;
-        delete splitC1;
-        delete splitC2;
+        delete splitRTA;
+        delete splitRTAR;
         
     }
     

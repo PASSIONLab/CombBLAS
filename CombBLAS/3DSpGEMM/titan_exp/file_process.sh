@@ -1,6 +1,7 @@
 #pass foldername as argument
 search_dir=$1
-for entry in "$search_dir"/*
+pattern="scaling*.*"
+for entry in "$search_dir"/$pattern
 do
   echo "$entry"
   sed -n '/prow pcol/{n;p;n;p;n;p;n;p;n;p}' $entry >> $entry.txt

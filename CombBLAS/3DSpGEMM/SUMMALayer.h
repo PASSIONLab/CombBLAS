@@ -74,7 +74,7 @@ void SUMMALayer (SpDCCols<IT,NT> & SplitA, SpDCCols<IT,NT> & SplitB, vector< SpT
         SpTuples<IT,NT> * C_cont;
         if(threaded)
         {
-            C_cont = LocalSpGEMM<PTDD, NT>
+                C_cont = LocalSpGEMM<PTDD, NT>
                 (*ARecv, *BRecv, // parameters themselves
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition

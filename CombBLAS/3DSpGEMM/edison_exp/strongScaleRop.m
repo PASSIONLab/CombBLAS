@@ -73,7 +73,8 @@ else
     aux_title = '(R''A)R';
 end
     
-title(sprintf('%s (%s)', folder , aux_title));
+%title(sprintf('%s (%s)', folder , aux_title));
+title(sprintf('%s x %s (on Edison)', folder , folder));
 
 
 

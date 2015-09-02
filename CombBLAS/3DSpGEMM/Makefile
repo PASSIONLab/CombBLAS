@@ -40,7 +40,7 @@ mpipspgemm: mpipspgemm.o SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h 
 test_mpipspgemm: test_mpipspgemm.o SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
-RestrictionOp: RestrictionOp.o SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o 
+RestrictionOp: RestrictionOp.o SplitMatDist.h mtSpGEMM.h MultiwayMerge.h Reductions.h SUMMALayer.h $(COMBBLAS)/MPIType.o  $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(COMBBLAS)/mmio.o 
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 
