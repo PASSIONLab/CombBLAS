@@ -7,7 +7,7 @@ nameParts = strsplit(mtxfile, '/');
 nameParts = strsplit(nameParts{end},'.');
 mtxname = nameParts{1};
 
-fileName = sprintf('batchRop_%s_%d', mtxname, maxCore);
+fileName = sprintf('%s/batchRop_%s_%d',mtxname, mtxname, maxCore);
 fileID = fopen(fileName,'w');
 fprintf(fileID,'#PBS -q debug\n');
 fprintf(fileID,'#PBS -l mppwidth=%d\n', maxCore);
@@ -53,4 +53,10 @@ for t = threads
 end
 
 fclose(fileID);
+
+%cores = 0:15;
+%cores = 2.^cores;
+%for core = cores
+%    batchGenRop(core, '/scratch2/scratchdirs/azad/spGEMM_matrices/nlpkkt160.mtx');
+%end
     
