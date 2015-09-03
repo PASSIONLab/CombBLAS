@@ -1,0 +1,64 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 114.534 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 130.912 seconds
+Input load balance: 1
+Input matrix read : time 245.446
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159913 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159913 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 266.898
+Matrix split and distributed along layers: time 4.82384 seconds
+Matrix split and distributed along layers: time 4.84885 seconds
+Matrix split and distributed along layers: time 0.170957 seconds
+Matrix split and distributed along layers: time 0.339857 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   1    1     1      1   0.000002     0.000000   830.388474   0.000005     0.000000    14.658591     1.335511 846.382583
+   1    1     1      1   0.000003     0.000000   830.053616   0.000001     0.000000    14.617361     1.323966 845.994947
+Computing RTA
+   1    1     1      1   0.000003     0.000000   101.303572   0.000000     0.000000     0.627165     0.046051 101.976791
+   1    1     1      1   0.000003     0.000000   101.296012   0.000001     0.000000     0.626098     0.046068 101.968182
+Computing RTAR
+   1    1     1      1   0.000003     0.000000     9.562346   0.000000     0.000000     0.038975     0.003798   9.605122
+   1    1     1      1   0.000003     0.000000     9.485206   0.000001     0.000000     0.038712     0.003764   9.527686
+----------------------------
+ nnz(A)= 229518112
+ nnz(R)= 8345600
+ nnz(A^2)= 1241294184
+ nnz(RTA)= 45178160
+ nnz(RTAR)= 3649483
+----------------------------
+Application 15457388 resources: utime ~2274s, stime ~166s, Rss ~56655140, inblocks ~4546703, outblocks ~28388
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt160_1
+ +          Job Id: 3525925.edique02
+ +          System: edison
+ +     Queued Time: Wed Sep  2 16:43:45 2015
+ +      Start Time: Wed Sep  2 18:33:48 2015
+ + Completion Time: Wed Sep  2 19:14:36 2015
+ +            User: azad
+ +        MOM Host: nid02051
+ +           Queue: reg_small
+ +  Req. Resources: mppnodect=1,mppnppn=1,mppwidth=1,walltime=02:00:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10652kb,vmem=159364kb,walltime=00:40:51
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt160
+ +     Submit Args: batchRop_nlpkkt160_1
+ + --------------------------------------------------------------------------
+

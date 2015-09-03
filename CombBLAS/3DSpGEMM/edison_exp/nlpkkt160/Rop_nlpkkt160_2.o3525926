@@ -1,0 +1,102 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 114.553 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 130.855 seconds
+Input load balance: 1
+Input matrix read : time 245.408
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159797 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159797 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 267.075
+Matrix split and distributed along layers: time 4.82059 seconds
+Matrix split and distributed along layers: time 4.91771 seconds
+Matrix split and distributed along layers: time 0.169775 seconds
+Matrix split and distributed along layers: time 0.338885 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   1    1     1      1   0.000003     0.000000   829.789779   0.000006     0.000000    14.836548     1.533141 846.159477
+   1    1     1      1   0.000003     0.000000   829.598668   0.000001     0.000000    14.712410     1.494801 845.805883
+Computing RTA
+   1    1     1      1   0.000003     0.000000   101.047080   0.000000     0.000000     0.626011     0.046042 101.719136
+   1    1     1      1   0.000002     0.000000   101.112365   0.000000     0.000000     0.666230     0.046237 101.824834
+Computing RTAR
+   1    1     1      1   0.000003     0.000000     9.486845   0.000000     0.000000     0.039499     0.003766   9.530113
+   1    1     1      1   0.000003     0.000000     9.487232   0.000000     0.000000     0.039557     0.003762   9.530554
+----------------------------
+ nnz(A)= 229518112
+ nnz(R)= 8345600
+ nnz(A^2)= 1241294184
+ nnz(RTA)= 45161706
+ nnz(RTAR)= 3644929
+----------------------------
+Application 15457457 resources: utime ~2273s, stime ~166s, Rss ~56650196, inblocks ~4546703, outblocks ~28388
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 118.496 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 134.683 seconds
+Input load balance: 1
+Input matrix read : time 253.18
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159797 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159797 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 274.411
+Matrix split and distributed along layers: time 70.1249 seconds
+Matrix split and distributed along layers: time 9.14751 seconds
+Matrix split and distributed along layers: time 2.388 seconds
+Matrix split and distributed along layers: time 0.449148 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'std::bad_allocterminate called after throwing an instance of ''
+  what():  std::bad_alloc
+std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 05852] [c6-3c1s7n0] [Wed Sep  2 19:34:25 2015] PE RANK 1 exit signal Aborted
+[NID 05852] 2015-09-02 19:34:26 Apid 15457837: initiated application termination
+Application 15457837 exit codes: 134
+Application 15457837 resources: utime ~994s, stime ~35s, Rss ~31099508, inblocks ~10761, outblocks ~28382
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt160_2
+ +          Job Id: 3525926.edique02
+ +          System: edison
+ +     Queued Time: Wed Sep  2 16:43:53 2015
+ +      Start Time: Wed Sep  2 18:36:24 2015
+ + Completion Time: Wed Sep  2 19:34:26 2015
+ +            User: azad
+ +        MOM Host: nid00896
+ +           Queue: reg_small
+ +  Req. Resources: mppnodect=1,mppnppn=2,mppwidth=2,walltime=02:00:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10812kb,vmem=94224kb,walltime=00:58:04
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt160
+ +     Submit Args: batchRop_nlpkkt160_2
+ + --------------------------------------------------------------------------
+
