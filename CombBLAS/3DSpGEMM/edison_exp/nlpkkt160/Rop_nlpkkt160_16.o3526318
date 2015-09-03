@@ -1,0 +1,120 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 116.329 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 131.557 seconds
+Input load balance: 1
+Input matrix read : time 247.886
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159703 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159703 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 267.237
+Matrix split and distributed along layers: time 4.89777 seconds
+Matrix split and distributed along layers: time 4.9971 seconds
+Matrix split and distributed along layers: time 0.173606 seconds
+Matrix split and distributed along layers: time 0.342525 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x1x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   1    1     1      6   0.000003     0.000000   160.485605   0.000007     0.000000     3.503904     1.688807 165.678326
+   1    1     1      6   0.000003     0.000000   160.095407   0.000000     0.000000     3.441166     1.688778 165.225354
+Computing RTA
+   1    1     1      6   0.000002     0.000000    19.413191   0.000000     0.000000     0.140989     0.049573  19.603755
+   1    1     1      6   0.000002     0.000000    19.476280   0.000000     0.000000     0.141086     0.049779  19.667147
+Computing RTAR
+   1    1     1      6   0.000003     0.000000     2.679178   0.000000     0.000000     0.008732     0.004244   2.692157
+   1    1     1      6   0.000002     0.000000     2.632892   0.000000     0.000000     0.008736     0.004232   2.645862
+----------------------------
+ nnz(A)= 229518112
+ nnz(R)= 8345600
+ nnz(A^2)= 1241294184
+ nnz(RTA)= 45146325
+ nnz(RTAR)= 3640781
+----------------------------
+Application 15458408 resources: utime ~2517s, stime ~176s, Rss ~56653036, inblocks ~4546703, outblocks ~28388
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 119.883 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 135.139 seconds
+Input load balance: 1
+Input matrix read : time 255.022
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159876 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159876 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 275.265
+Matrix split and distributed along layers: time 70.4334 seconds
+Matrix split and distributed along layers: time 9.26628 seconds
+Matrix split and distributed along layers: time 2.38189 seconds
+Matrix split and distributed along layers: time 0.455823 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x2x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'terminate called after throwing an instance of 'std::bad_allocstd::bad_alloc'
+'
+  what():    what():  std::bad_allocstd::bad_alloc
+
+_pmiu_daemon(SIGCHLD): [NID 00158] [c0-0c2s7n2] [Wed Sep  2 21:07:49 2015] PE RANK 1 exit signal Aborted
+[NID 00158] 2015-09-02 21:07:49 Apid 15458589: initiated application termination
+Application 15458589 exit codes: 134
+Application 15458589 resources: utime ~1041s, stime ~30s, Rss ~31099072, inblocks ~10761, outblocks ~28382
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 116.405 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+aprun: Apid 15458794: Caught signal Terminated, sending to application
+aprun: Apid 15458794: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 1814 exceeded limit 1800
+aprun: Apid 15458794: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 00158] [c0-0c2s7n2] [Wed Sep  2 21:11:06 2015] PE RANK 0 exit signal Terminated
+aprun: Apid 15458794: Caught signal Terminated, sending to application
+Application 15458794 exit codes: 143
+Application 15458794 resources: utime ~155s, stime ~38s, Rss ~17055144, inblocks ~4546700, outblocks ~28383
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt160_16
+ +          Job Id: 3526318.edique02
+ +          System: edison
+ +     Queued Time: Wed Sep  2 20:26:23 2015
+ +      Start Time: Wed Sep  2 20:40:53 2015
+ + Completion Time: Wed Sep  2 21:11:07 2015
+ +            User: azad
+ +        MOM Host: nid02433
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=16,mppwidth=16,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10808kb,vmem=159764kb,walltime=00:30:15
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt160
+ +     Submit Args: batchRop_nlpkkt160_16
+ + --------------------------------------------------------------------------
+
