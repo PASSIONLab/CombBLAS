@@ -1,0 +1,68 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 23737339
+File is 663855459 bytes
+Total number of entries read across all processors is 23737339
+Reader took 51.1485 seconds
+Generating random permutation vector.
+Permutation took 26.953 seconds
+Load balance: 1
+Matrices read and replicated along layers : time 78.1015
+As a whole: 952203 rows and 12394 columns and 562825 nonzeros
+Restriction Op computed : time 37.2803
+Matrix split and distributed along layers: time 0.94131 seconds
+Matrix split and distributed along layers: time 0.953556 seconds
+Matrix split and distributed along layers: time 0.00275803 seconds
+Matrix split and distributed along layers: time 0.00575495 seconds
+   1    1     1      1   0.000003     0.000000   126.598020   0.000006     0.000000     1.461683     0.150239 128.209951
+   1    1     1      1   0.000003     0.000000     6.750128   0.000001     0.000000     0.028366     0.001895   6.780393
+   1    1     1      1   0.000003     0.000000     0.128406   0.000001     0.000000     0.000346     0.000021   0.128777
+   1    1     1      1   0.000003     0.000000   126.641329   0.000001     0.000000     1.440467     0.148148 128.229948
+   1    1     1      1   0.000003     0.000000     6.750592   0.000001     0.000000     0.028559     0.001903   6.781058
+   1    1     1      1   0.000003     0.000000     0.128774   0.000001     0.000000     0.000346     0.000022   0.129146
+nnzA= 45570272 nnzC= 145422935 nnzC1= 1800750 nnzC2= 53406
+Application 14807978 resources: utime ~337s, stime ~31s, Rss ~12178572, inblocks ~1316164, outblocks ~29641
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 23737339
+File is 663855459 bytes
+Total number of entries read across all processors is 23737339
+Reader took 41.809 seconds
+Generating random permutation vector.
+Permutation took 28.0465 seconds
+Load balance: 1
+Matrices read and replicated along layers : time 69.8556
+As a whole: 952203 rows and 12455 columns and 564137 nonzeros
+Restriction Op computed : time 38.573
+Matrix split and distributed along layers: time 17.2009 seconds
+Matrix split and distributed along layers: time 1.77004 seconds
+Matrix split and distributed along layers: time 0.144234 seconds
+Matrix split and distributed along layers: time 0.0143409 seconds
+   1    1     2      1   0.000003     2.198141    66.672778   0.000004     6.767805     0.796623     0.614811  77.050165
+   1    1     2      1   0.000003     0.029209     3.401246   0.000001     0.080555     0.008846     0.093057   3.612917
+   1    1     2      1   0.000003     0.003336     0.065676   0.000000     0.012260     0.001321     0.021677   0.104273
+   1    1     2      1   0.000003     2.211380    66.650321   0.000001     6.736321     0.791969     0.596833  76.986828
+   1    1     2      1   0.000003     0.029089     3.412593   0.000001     0.081780     0.009233     0.024920   3.557619
+   1    1     2      1   0.000003     0.003336     0.068414   0.000000     0.012212     0.001388     0.013099   0.098452
+nnzA= 45570272 nnzC= 145422935 nnzC1= 1805475 nnzC2= 587222
+Application 14808164 resources: utime ~507s, stime ~62s, Rss ~11436312, inblocks ~1316231, outblocks ~29641
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_ldoor_2
+ +          Job Id: 3443470.edique02
+ +          System: edison
+ +     Queued Time: Tue Aug 18 18:24:04 2015
+ +      Start Time: Tue Aug 18 18:36:50 2015
+ + Completion Time: Tue Aug 18 18:48:18 2015
+ +            User: azad
+ +        MOM Host: nid01283
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=2,mppwidth=2,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=11868kb,vmem=159760kb,walltime=00:11:30
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/ldoor
+ +     Submit Args: batchRop_ldoor_2
+ + --------------------------------------------------------------------------
+

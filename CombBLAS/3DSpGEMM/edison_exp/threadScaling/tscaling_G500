@@ -1,0 +1,33 @@
+#PBS -q debug
+#PBS -l mppwidth=768
+#PBS -l walltime=00:30:00
+#PBS -N tscaling_G500
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+
+
+export OMP_NUM_THREADS=1
+aprun -n 1 -d 1 -N 1 -S 1 -cc depth ../../mpipspgemm 1 1 1 G500 20 16 column
+aprun -n 16 -d 1 -N 2 -S 1 -cc depth ../../mpipspgemm 4 4 1 G500 22 16 column
+aprun -n 64 -d 1 -N 2 -S 1 -cc depth ../../mpipspgemm 8 8 1 G500 24 16 column
+
+export OMP_NUM_THREADS=3
+aprun -n 1 -d 3 -N 1 -S 1 -cc depth ../../mpipspgemm 1 1 1 G500 20 16 column
+aprun -n 16 -d 3 -N 2 -S 1 -cc depth ../../mpipspgemm 4 4 1 G500 22 16 column
+aprun -n 64 -d 3 -N 2 -S 1 -cc depth ../../mpipspgemm 8 8 1 G500 24 16 column
+
+
+export OMP_NUM_THREADS=6
+aprun -n 1 -d 6 -N 1 -S 1 -cc depth ../../mpipspgemm 1 1 1 G500 20 16 column
+aprun -n 16 -d 6 -N 2 -S 1 -cc depth ../../mpipspgemm 4 4 1 G500 22 16 column
+aprun -n 64 -d 6 -N 2 -S 1 -cc depth ../../mpipspgemm 8 8 1 G500 24 16 column
+
+
+export OMP_NUM_THREADS=12
+aprun -n 1 -d 12 -N 1 -S 1 -cc numa_node ../../mpipspgemm 1 1 1 G500 20 16 column
+aprun -n 16 -d 12 -N 2 -S 1 -cc numa_node ../../mpipspgemm 4 4 1 G500 22 16 column
+aprun -n 64 -d 12 -N 2 -S 1 -cc numa_node ../../mpipspgemm 8 8 1 G500 24 16 column
+
+

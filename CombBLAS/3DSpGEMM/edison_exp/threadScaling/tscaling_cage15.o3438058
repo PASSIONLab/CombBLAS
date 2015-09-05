@@ -1,0 +1,43 @@
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 99199551
+File is 2627728707 bytes
+Total number of entries read across all processors is 99199551
+Reader took 77.5118 seconds
+Generating random permutation vector.
+Permutation took 70.2881 seconds
+Load balance: 1
+Matrices read and replicated along layers : time 147.8
+As a whole: 5154859 rows and 138534 columns and 2229747 nonzeros
+Restriction Op computed : time 108.916
+Matrix split and distributed along layers: time 2.01096 seconds
+Matrix split and distributed along layers: time 2.086 seconds
+Matrix split and distributed along layers: time 0.014632 seconds
+Matrix split and distributed along layers: time 0.0274129 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 04556] [c7-2c2s3n0] [Mon Aug 17 19:19:34 2015] PE RANK 0 exit signal Aborted
+Application 14780750 exit codes: 134
+Application 14780750 resources: utime ~354s, stime ~64s, Rss ~41576984, inblocks ~5151901, outblocks ~29638
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+
+ + --------------------------------------------------------------------------
+ +        Job name: tscaling_cage15
+ +          Job Id: 3438058.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 18:07:34 2015
+ +      Start Time: Mon Aug 17 19:12:32 2015
+ + Completion Time: Mon Aug 17 19:19:38 2015
+ +            User: azad
+ +        MOM Host: nid02817
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=24,mppwidth=24,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10624kb,vmem=159496kb,walltime=00:07:09
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/threadScaling
+ +     Submit Args: tscaling_cage15
+ + --------------------------------------------------------------------------
+

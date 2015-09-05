@@ -1,0 +1,44 @@
+Started Generation of scale 20
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 11.1364 seconds
+Created Sparse Matrix
+Permutation took 20.2498 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 31.3863
+As a whole: 1048576 rows and 7898 columns and 228916 nonzeros
+Restriction Op computed : time 35.461
+Matrix split and distributed along layers: time 0.32164 seconds
+Matrix split and distributed along layers: time 0.32202 seconds
+Matrix split and distributed along layers: time 0.00120187 seconds
+Matrix split and distributed along layers: time 0.00213289 seconds
+   1    1     1      1   0.000003     0.000000    18.257358   0.000007     0.000000     1.785187     0.183044  20.225599
+   1    1     1      1   0.000003     0.000000     1.848692   0.000000     0.000000     0.050704     0.003781   1.903180
+   1    1     1      1   0.000003     0.000000     0.103993   0.000000     0.000000     0.003280     0.000022   0.107298
+   1    1     1      1   0.000003     0.000000    18.215663   0.000001     0.000000     1.818457     0.185904  20.220028
+   1    1     1      1   0.000004     0.000000     1.856032   0.000001     0.000000     0.050936     0.003781   1.910754
+   1    1     1      1   0.000004     0.000000     0.104567   0.000001     0.000000     0.004922     0.000021   0.109515
+nnzA= 16776934 nnzC= 179059547 nnzC1= 3647853 nnzC2= 746548
+Application 14780871 resources: utime ~96s, stime ~17s, Rss ~9032888, inblocks ~11363, outblocks ~29640
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+
+ + --------------------------------------------------------------------------
+ +        Job name: tscaling_ER_20
+ +          Job Id: 3438060.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 18:07:46 2015
+ +      Start Time: Mon Aug 17 19:21:18 2015
+ + Completion Time: Mon Aug 17 19:23:17 2015
+ +            User: azad
+ +        MOM Host: nid02819
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=24,mppwidth=24,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10664kb,vmem=159392kb,walltime=00:02:01
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/threadScaling
+ +     Submit Args: tscaling_ER_20
+ + --------------------------------------------------------------------------
+

@@ -1,0 +1,25 @@
+#PBS -q regular
+#PBS -l mppwidth=16384
+#PBS -l walltime=00:30:00
+#PBS -N Rop_combine_16384
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN1=/scratch2/scratchdirs/azad/spGEMM_matrices/cage15.mtx
+IN2=/scratch2/scratchdirs/azad/spGEMM_matrices/delaunay_n24.mtx
+IN3=/scratch2/scratchdirs/azad/spGEMM_matrices/dielFilterV3real.mtx
+IN4=/scratch2/scratchdirs/azad/spGEMM_matrices/ldoor.mtx
+IN5=/scratch2/scratchdirs/azad/spGEMM_matrices/HV15R.mtx
+IN6=/scratch2/scratchdirs/azad/spGEMM_matrices/mouse_gene.mtx
+IN7=/scratch2/scratchdirs/azad/spGEMM_matrices/it-2004.mtx
+
+export OMP_NUM_THREADS=6
+
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN1
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN2
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN3
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN4
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN5
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN6
+aprun -n 2592 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 8 input $IN7

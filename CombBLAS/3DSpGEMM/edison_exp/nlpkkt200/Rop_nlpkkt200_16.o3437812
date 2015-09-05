@@ -1,0 +1,117 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 44.3697 seconds
+Generating random permutation vector.
+Permutation took 80.7838 seconds
+Load balance: 1.00024
+Matrices read and replicated along layers : time 125.196
+As a whole: 16240000 rows and 344123 columns and 9411413 nonzeros
+Restriction Op computed : time 40.607
+Matrix split and distributed along layers: time 0.843751 seconds
+Matrix split and distributed along layers: time 0.820658 seconds
+Matrix split and distributed along layers: time 0.005867 seconds
+Matrix split and distributed along layers: time 0.0341048 seconds
+[NID 05520] 2015-08-17 17:39:45 Apid 14779204: initiated application termination
+[NID 05520] 2015-08-17 17:39:47 Apid 14779204: OOM killer terminated this process.
+Application 14779204 exit signals: Killed
+Application 14779204 resources: utime ~0s, stime ~1s, Rss ~5792, inblocks ~11277, outblocks ~29638
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 100.679 seconds
+Generating random permutation vector.
+Permutation took 148.051 seconds
+Load balance: 1.0001
+Matrices read and replicated along layers : time 248.92
+As a whole: 16240000 rows and 344234 columns and 9416806 nonzeros
+Restriction Op computed : time 144.451
+Matrix split and distributed along layers: time 49.3415 seconds
+Matrix split and distributed along layers: time 5.12914 seconds
+Matrix split and distributed along layers: time 0.851854 seconds
+Matrix split and distributed along layers: time 0.0873559 seconds
+[NID 05520] 2015-08-17 17:47:54 Apid 14779304: initiated application termination
+[NID 05520] 2015-08-17 17:47:56 Apid 14779304: OOM killer terminated this process.
+Application 14779304 exit signals: Killed
+Application 14779304 resources: utime ~0s, stime ~0s, Rss ~5792, inblocks ~11260, outblocks ~29637
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 99.4414 seconds
+Generating random permutation vector.
+Permutation took 146.84 seconds
+Load balance: 1.00004
+Matrices read and replicated along layers : time 246.302
+As a whole: 16240000 rows and 344380 columns and 9417509 nonzeros
+Restriction Op computed : time 142.455
+Matrix split and distributed along layers: time 42.5001 seconds
+Matrix split and distributed along layers: time 5.53359 seconds
+Matrix split and distributed along layers: time 0.68762 seconds
+Matrix split and distributed along layers: time 0.0965331 seconds
+[NID 05520] 2015-08-17 17:55:45 Apid 14779552: initiated application termination
+[NID 05520] 2015-08-17 17:55:46 Apid 14779552: OOM killer terminated this process.
+Application 14779552 exit signals: Killed
+Application 14779552 resources: utime ~0s, stime ~1s, Rss ~5792, inblocks ~11277, outblocks ~29638
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 302.971 seconds
+Generating random permutation vector.
+Permutation took 328.248 seconds
+Load balance: 1
+Matrices read and replicated along layers : time 631.219
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 1834 exceeded limit 1800
+_pmiu_daemon(SIGCHLD): [NID 05520] [c4-3c2s4n0] [Mon Aug 17 18:07:04 2015] PE RANK 2 exit signal Terminated
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+aprun: Apid 14779677: Caught signal Terminated, sending to application
+Application 14779677 exit codes: 143
+Application 14779677 resources: utime ~660s, stime ~12s, Rss ~5792, inblocks ~11330, outblocks ~29638
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt200_16
+ +          Job Id: 3437812.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 16:53:18 2015
+ +      Start Time: Mon Aug 17 17:36:32 2015
+ + Completion Time: Mon Aug 17 18:07:14 2015
+ +            User: azad
+ +        MOM Host: nid02819
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=16,mppwidth=16,walltime=00:30:00
+ +  Used Resources: cput=00:00:01,energy_used=0,mem=10808kb,vmem=159364kb,walltime=00:30:45
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt200
+ +     Submit Args: batchRop_nlpkkt200_16
+ + --------------------------------------------------------------------------
+

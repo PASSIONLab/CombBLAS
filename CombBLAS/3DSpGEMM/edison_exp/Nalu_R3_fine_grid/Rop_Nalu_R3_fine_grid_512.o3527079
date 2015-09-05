@@ -1,0 +1,913 @@
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 78.0882 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 24.9609 seconds
+Input load balance: 1.80247
+Input matrix read : time 103.049
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367635 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367635 columns and 17598889 nonzeros
+Load balance (before): 1.44577
+Load balance (after): 1.01531
+Restriction Op computed : time 4.72362
+Matrix split and distributed along layers: time 0.0552709 seconds
+Matrix split and distributed along layers: time 0.0271051 seconds
+Matrix split and distributed along layers: time 0.000329018 seconds
+Matrix split and distributed along layers: time 0.000365019 seconds
+
+ Processor Grid (row x col x layers x threads): 22x22x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  22   22     1      1   9.044194     0.000000    14.315038   2.740570     0.000000     0.082667     0.167834  26.350303
+  22   22     1      1   8.849790     0.000000    14.272976   2.730619     0.000000     0.082372     0.166647  26.102403
+Computing RTA
+  22   22     1      1   6.403462     0.000000     2.993878   0.057477     0.000000     0.005180     0.010962   9.470960
+  22   22     1      1   6.258425     0.000000     2.977095   0.057890     0.000000     0.004886     0.008640   9.306937
+Computing RTAR
+  22   22     1      1   0.350331     0.000000     0.434512   0.023981     0.000000     0.000311     0.001011   0.810145
+  22   22     1      1   0.264247     0.000000     0.435205   0.023822     0.000000     0.000310     0.001660   0.725245
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77251402
+ nnz(RTAR)= 6679789
+----------------------------
+Application 15461301 resources: utime ~55573s, stime ~1526s, Rss ~1291732, inblocks ~39712771, outblocks ~640920
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 53.9906 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 24.8914 seconds
+Input load balance: 1.56111
+Input matrix read : time 78.8822
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367853 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367853 columns and 17598889 nonzeros
+Load balance (before): 1.31598
+Load balance (after): 1.00881
+Restriction Op computed : time 5.2414
+Matrix split and distributed along layers: time 0.751667 seconds
+Matrix split and distributed along layers: time 0.0914521 seconds
+Matrix split and distributed along layers: time 0.0124269 seconds
+Matrix split and distributed along layers: time 0.000976086 seconds
+
+ Processor Grid (row x col x layers x threads): 16x16x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  16   16     2      1   4.360766     0.185092    10.637782   2.579055     0.329954     0.037783     0.371215  18.501647
+  16   16     2      1   4.114205     0.178022    10.658234   2.568193     0.330073     0.037996     0.402916  18.289638
+Computing RTA
+  16   16     2      1   4.719172     0.004980     2.193787   0.057885     0.010706     0.004717     0.041842   7.033089
+  16   16     2      1   4.908215     0.003891     2.187511   0.058067     0.008766     0.003119     0.036272   7.205841
+Computing RTAR
+  16   16     2      1   0.203324     0.000425     0.287915   0.023699     0.001532     0.000252     0.000674   0.517821
+  16   16     2      1   0.190741     0.000377     0.314474   0.023585     0.001506     0.000248     0.000577   0.531507
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77268597
+ nnz(RTAR)= 9081991
+----------------------------
+Application 15461323 resources: utime ~60286s, stime ~1955s, Rss ~1473392, inblocks ~39159802, outblocks ~650667
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 60.1982 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 26.6274 seconds
+Input load balance: 1.37641
+Input matrix read : time 86.8337
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367546 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367546 columns and 17598889 nonzeros
+Load balance (before): 1.21444
+Load balance (after): 1.00564
+Restriction Op computed : time 7.74788
+Matrix split and distributed along layers: time 1.29085 seconds
+Matrix split and distributed along layers: time 0.204884 seconds
+Matrix split and distributed along layers: time 0.0237901 seconds
+Matrix split and distributed along layers: time 0.00311995 seconds
+
+ Processor Grid (row x col x layers x threads): 11x11x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  11   11     4      1   2.959433     0.313919     7.805227   2.521132     0.675866     0.052028     1.046610  15.374215
+  11   11     4      1   3.049708     0.319616     7.825524   2.524587     0.675243     0.051671     0.834705  15.281054
+Computing RTA
+  11   11     4      1   2.599034     0.009749     1.675638   0.060935     0.022928     0.004035     0.114993   4.487313
+  11   11     4      1   2.966312     0.009188     1.683331   0.060781     0.021385     0.004055     0.378266   5.123317
+Computing RTAR
+  11   11     4      1   0.129256     0.001414     0.232472   0.021848     0.003755     0.000386     0.001514   0.390645
+  11   11     4      1   0.127205     0.001220     0.244163   0.021807     0.003754     0.000385     0.002173   0.400707
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77248311
+ nnz(RTAR)= 25820450
+----------------------------
+Application 15461336 resources: utime ~59440s, stime ~2135s, Rss ~2573576, inblocks ~39041133, outblocks ~614617
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 60.602 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 33.3899 seconds
+Input load balance: 1.262
+Input matrix read : time 94.0121
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367232 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367232 columns and 17598889 nonzeros
+Load balance (before): 1.1506
+Load balance (after): 1.00319
+Restriction Op computed : time 13.5922
+Matrix split and distributed along layers: time 2.11526 seconds
+Matrix split and distributed along layers: time 0.35711 seconds
+Matrix split and distributed along layers: time 0.0438468 seconds
+Matrix split and distributed along layers: time 0.00708294 seconds
+
+ Processor Grid (row x col x layers x threads): 8x8x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   8    8     8      1   1.509629     0.514788     5.634851   2.035267     1.116001     0.036330     1.334189  12.181055
+   8    8     8      1   1.143712     0.504559     5.823302   2.034241     1.146120     0.037444     1.451755  12.141132
+Computing RTA
+   8    8     8      1   0.847498     0.012381     1.198559   0.054463     0.035889     0.003532     0.897882   3.050204
+   8    8     8      1   0.690324     0.012068     1.202461   0.054380     0.036935     0.004499     0.822569   2.823236
+Computing RTAR
+   8    8     8      1   0.082348     0.001917     0.171264   0.017468     0.005703     0.000248     0.007157   0.286104
+   8    8     8      1   0.090891     0.001445     0.164722   0.017396     0.005683     0.000242     0.027151   0.307530
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77211363
+ nnz(RTAR)= 16246065
+----------------------------
+Application 15461351 resources: utime ~67934s, stime ~2550s, Rss ~2989068, inblocks ~38992633, outblocks ~637144
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 65.7598 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 47.1488 seconds
+Input load balance: 1.1493
+Input matrix read : time 112.924
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367356 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367356 columns and 17598889 nonzeros
+Load balance (before): 1.08515
+Load balance (after): 1.00251
+Restriction Op computed : time 29.8121
+Matrix split and distributed along layers: time 4.87465 seconds
+Matrix split and distributed along layers: time 0.750321 seconds
+Matrix split and distributed along layers: time 0.115777 seconds
+Matrix split and distributed along layers: time 0.0212409 seconds
+
+ Processor Grid (row x col x layers x threads): 5x5x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   5    5    16      1   1.234207     0.828844     5.070042   2.318274     2.120022     0.036073     1.955679  13.563141
+   5    5    16      1   2.133372     0.872672     4.701616   2.314003     2.095646     0.036892     2.106117  14.260318
+Computing RTA
+   5    5    16      1   1.448470     0.025684     1.043117   0.062348     0.068601     0.002693     0.788214   3.439127
+   5    5    16      1   0.387064     0.022341     1.069771   0.065139     0.070605     0.002427     0.927743   2.545090
+Computing RTAR
+   5    5    16      1   0.077784     0.004349     0.134133   0.017354     0.012746     0.000263     0.099648   0.346277
+   5    5    16      1   0.131771     0.004185     0.151679   0.017397     0.012503     0.000238     0.007701   0.325474
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77225562
+ nnz(RTAR)= 11463308
+----------------------------
+Application 15461370 resources: utime ~70227s, stime ~2774s, Rss ~5547344, inblocks ~38826317, outblocks ~494314
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 47.3035 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 24.9432 seconds
+Input load balance: 1.44782
+Input matrix read : time 72.31
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367009 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367009 columns and 17598889 nonzeros
+Load balance (before): 1.25462
+Load balance (after): 1.00734
+Restriction Op computed : time 6.20858
+Matrix split and distributed along layers: time 0.0920529 seconds
+Matrix split and distributed along layers: time 0.088351 seconds
+Matrix split and distributed along layers: time 0.0012219 seconds
+Matrix split and distributed along layers: time 0.00203395 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x1x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     1      3   6.652744     0.000000     9.494207   1.679332     0.000000     0.077903     0.575195  18.479380
+  13   13     1      3   6.317363     0.000000     9.526305   1.639801     0.000000     0.075974     0.328181  17.887624
+Computing RTA
+  13   13     1      3   3.502250     0.000000     1.771323   0.043018     0.000000     0.002904     0.125477   5.444972
+  13   13     1      3   3.568964     0.000000     1.766148   0.042937     0.000000     0.004989     0.137761   5.520798
+Computing RTAR
+  13   13     1      3   0.405108     0.000000     0.312883   0.009155     0.000000     0.000215     0.008499   0.735860
+  13   13     1      3   0.235188     0.000000     0.303110   0.009170     0.000000     0.000213     0.006233   0.553913
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77207808
+ nnz(RTAR)= 6668081
+----------------------------
+Application 15461382 resources: utime ~21973s, stime ~1628s, Rss ~2728300, inblocks ~39680628, outblocks ~642872
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 37.2349 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 29.8548 seconds
+Input load balance: 1.30107
+Input matrix read : time 67.2004
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367715 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367715 columns and 17598889 nonzeros
+Load balance (before): 1.16989
+Load balance (after): 1.00528
+Restriction Op computed : time 10.9631
+Matrix split and distributed along layers: time 2.05908 seconds
+Matrix split and distributed along layers: time 0.218754 seconds
+Matrix split and distributed along layers: time 0.0445261 seconds
+Matrix split and distributed along layers: time 0.00711703 seconds
+
+ Processor Grid (row x col x layers x threads): 9x9x2x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   9    9     2      3   3.480461     0.503041     6.966717   1.891374     0.399659     0.066546     1.384968  14.692766
+   9    9     2      3   3.900972     0.490867     6.972825   1.868782     0.407599     0.066889     0.810138  14.518071
+Computing RTA
+   9    9     2      3   2.715185     0.008964     1.405970   0.050290     0.010483     0.004130     0.033730   4.228752
+   9    9     2      3   2.678289     0.007682     1.402303   0.050150     0.010700     0.004112     0.048539   4.201775
+Computing RTAR
+   9    9     2      3   0.244836     0.002145     0.226293   0.010366     0.001515     0.000224     0.015927   0.501306
+   9    9     2      3   0.183245     0.001472     0.225772   0.010390     0.001503     0.000254     0.013662   0.436298
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77250174
+ nnz(RTAR)= 10940998
+----------------------------
+Application 15461391 resources: utime ~22645s, stime ~1463s, Rss ~3645436, inblocks ~38911381, outblocks ~608287
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 71.078 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 38.9742 seconds
+Input load balance: 1.18651
+Input matrix read : time 110.137
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367498 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367498 columns and 17598889 nonzeros
+Load balance (before): 1.10685
+Load balance (after): 1.00381
+Restriction Op computed : time 20.7158
+Matrix split and distributed along layers: time 3.71386 seconds
+Matrix split and distributed along layers: time 0.513551 seconds
+Matrix split and distributed along layers: time 0.0901971 seconds
+Matrix split and distributed along layers: time 0.018091 seconds
+
+ Processor Grid (row x col x layers x threads): 6x6x4x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   6    6     4      3   1.562767     1.061126     5.862593   2.068347     0.860803     0.081023     1.963955  13.460614
+   6    6     4      3   1.609493     0.889232     5.848022   1.955223     0.866933     0.087882     1.646166  12.902951
+Computing RTA
+   6    6     4      3   1.009086     0.025911     1.146577   0.049203     0.022114     0.004029     0.600354   2.857274
+   6    6     4      3   1.525177     0.026616     1.157510   0.049886     0.023712     0.003290     0.253601   3.039792
+Computing RTAR
+   6    6     4      3   0.130937     0.003605     0.168489   0.010257     0.003107     0.000248     0.042906   0.359549
+   6    6     4      3   0.127064     0.002350     0.184184   0.010201     0.002978     0.000230     0.007729   0.334736
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77248904
+ nnz(RTAR)= 9873387
+----------------------------
+Application 15461407 resources: utime ~26792s, stime ~1651s, Rss ~5098464, inblocks ~38794913, outblocks ~518999
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 57.4931 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 54.5098 seconds
+Input load balance: 1.11161
+Input matrix read : time 112.157
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367563 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367563 columns and 17598889 nonzeros
+Load balance (before): 1.06455
+Load balance (after): 1.00088
+Restriction Op computed : time 42.9524
+Matrix split and distributed along layers: time 7.70858 seconds
+Matrix split and distributed along layers: time 1.13094 seconds
+Matrix split and distributed along layers: time 0.201094 seconds
+Matrix split and distributed along layers: time 0.0446169 seconds
+
+ Processor Grid (row x col x layers x threads): 4x4x8x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   4    4     8      3   0.899503     1.911908     4.747455   2.219528     1.468188     0.087924     2.297755  13.632261
+   4    4     8      3   0.915416     1.820431     5.109032   2.153073     1.508052     0.088998     1.199679  12.794682
+Computing RTA
+   4    4     8      3   0.424304     0.043682     0.973308   0.061181     0.044385     0.002809     0.529907   2.079576
+   4    4     8      3   0.349751     0.044303     0.981247   0.060822     0.044273     0.002772     0.598803   2.081971
+Computing RTAR
+   4    4     8      3   0.070654     0.006418     0.122064   0.010680     0.006607     0.000418     0.068575   0.285416
+   4    4     8      3   0.119856     0.004329     0.129375   0.010596     0.006586     0.000311     0.011592   0.282645
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77247058
+ nnz(RTAR)= 16259346
+----------------------------
+Application 15461428 resources: utime ~27840s, stime ~1818s, Rss ~6712328, inblocks ~38662240, outblocks ~460321
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 89.0302 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 70.0438 seconds
+Input load balance: 1.07433
+Input matrix read : time 159.383
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367491 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367491 columns and 17598889 nonzeros
+Load balance (before): 1.04316
+Load balance (after): 1.00132
+Restriction Op computed : time 73.6088
+Matrix split and distributed along layers: time 12.5244 seconds
+Matrix split and distributed along layers: time 1.98784 seconds
+Matrix split and distributed along layers: time 0.377625 seconds
+Matrix split and distributed along layers: time 0.0785961 seconds
+
+ Processor Grid (row x col x layers x threads): 3x3x16x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   3    3    16      3   0.547690     2.582116     3.386231   1.946365     2.011465     0.060902     1.629179  12.163948
+   3    3    16      3   1.495280     2.007147     3.484773   1.866819     1.973030     0.059127     1.504980  12.391156
+Computing RTA
+   3    3    16      3   1.137401     0.087407     0.696525   0.049685     0.067612     0.002151     0.308139   2.348920
+   3    3    16      3   0.165674     0.090142     0.688155   0.045074     0.066685     0.002151     0.500733   1.558614
+Computing RTAR
+   3    3    16      3   0.036866     0.009073     0.075832   0.009664     0.009768     0.000199     0.085087   0.226489
+   3    3    16      3   0.072027     0.009624     0.082142   0.009636     0.009621     0.000203     0.016210   0.199463
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77241065
+ nnz(RTAR)= 11469414
+----------------------------
+Application 15461446 resources: utime ~42387s, stime ~2016s, Rss ~10713308, inblocks ~38692932, outblocks ~524010
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 38.8599 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 28.3608 seconds
+Input load balance: 1.29969
+Input matrix read : time 67.2765
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367882 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367882 columns and 17598889 nonzeros
+Load balance (before): 1.17376
+Load balance (after): 1.00521
+Restriction Op computed : time 10.4645
+Matrix split and distributed along layers: time 0.193424 seconds
+Matrix split and distributed along layers: time 0.16569 seconds
+Matrix split and distributed along layers: time 0.00222802 seconds
+Matrix split and distributed along layers: time 0.0106988 seconds
+
+ Processor Grid (row x col x layers x threads): 9x9x1x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   9    9     1      6   6.200215     0.000000     8.186951   1.698994     0.000000     0.075563     0.556272  16.717995
+   9    9     1      6   5.863803     0.000000     8.178341   1.689026     0.000000     0.076414     0.358357  16.165941
+Computing RTA
+   9    9     1      6   2.778162     0.000000     1.377139   0.055254     0.000000     0.005496     0.045773   4.261824
+   9    9     1      6   2.575238     0.000000     1.407668   0.043435     0.000000     0.003748     0.060029   4.090118
+Computing RTAR
+   9    9     1      6   0.533282     0.000000     0.363508   0.006106     0.000000     0.000216     0.019072   0.922184
+   9    9     1      6   0.387798     0.000000     0.384503   0.006008     0.000000     0.000209     0.014863   0.793381
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77266055
+ nnz(RTAR)= 6683768
+----------------------------
+Application 15461494 resources: utime ~14185s, stime ~1240s, Rss ~4588664, inblocks ~39007807, outblocks ~608747
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 40.3074 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 36.8182 seconds
+Input load balance: 1.1865
+Input matrix read : time 77.1939
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367575 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367575 columns and 17598889 nonzeros
+Load balance (before): 1.10607
+Load balance (after): 1.00369
+Restriction Op computed : time 19.8272
+Matrix split and distributed along layers: time 4.10741 seconds
+Matrix split and distributed along layers: time 0.685388 seconds
+Matrix split and distributed along layers: time 0.0947869 seconds
+Matrix split and distributed along layers: time 0.015856 seconds
+
+ Processor Grid (row x col x layers x threads): 6x6x2x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   6    6     2      6   2.718210     1.054417     6.906349   1.966755     0.624481     0.096940     1.519340  14.886492
+   6    6     2      6   2.730075     0.910840     6.902060   1.712830     0.608537     0.099438     1.620955  14.584736
+Computing RTA
+   6    6     2      6   1.735289     0.029875     1.168208   0.058056     0.019124     0.004981     0.131118   3.146650
+   6    6     2      6   1.736893     0.035176     1.172266   0.045793     0.013205     0.003331     0.109491   3.116155
+Computing RTAR
+   6    6     2      6   0.386456     0.005524     0.214145   0.006289     0.002137     0.000268     0.026175   0.640994
+   6    6     2      6   0.289598     0.005819     0.212209   0.006198     0.002046     0.000353     0.030336   0.546559
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77239786
+ nnz(RTAR)= 13067774
+----------------------------
+Application 15461527 resources: utime ~14446s, stime ~1329s, Rss ~6770636, inblocks ~38801247, outblocks ~518623
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 47.4885 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 51.4446 seconds
+Input load balance: 1.11169
+Input matrix read : time 99.0372
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367225 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367225 columns and 17598889 nonzeros
+Load balance (before): 1.06262
+Load balance (after): 1.00161
+Restriction Op computed : time 40.3946
+Matrix split and distributed along layers: time 8.00505 seconds
+Matrix split and distributed along layers: time 1.32179 seconds
+Matrix split and distributed along layers: time 0.201647 seconds
+Matrix split and distributed along layers: time 0.0372419 seconds
+
+ Processor Grid (row x col x layers x threads): 4x4x4x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   4    4     4      6   1.224659     2.327053     5.561627   2.209762     1.131561     0.109494     1.946596  14.510752
+   4    4     4      6   1.543243     2.282830     5.634007   2.020699     1.023238     0.105288     1.905831  14.515136
+Computing RTA
+   4    4     4      6   0.831645     0.080284     1.015093   0.058084     0.025838     0.003629     0.339262   2.353835
+   4    4     4      6   0.935384     0.077178     0.976911   0.052445     0.032135     0.003679     0.317077   2.394809
+Computing RTAR
+   4    4     4      6   0.195660     0.016442     0.141862   0.006954     0.005274     0.000502     0.049150   0.415845
+   4    4     4      6   0.154631     0.007337     0.144035   0.007040     0.005211     0.000597     0.053977   0.372828
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77206094
+ nnz(RTAR)= 25799528
+----------------------------
+Application 15461555 resources: utime ~15794s, stime ~1451s, Rss ~9448236, inblocks ~38652036, outblocks ~460083
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 76.5353 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 66.1238 seconds
+Input load balance: 1.07443
+Input matrix read : time 142.659
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367354 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367354 columns and 17598889 nonzeros
+Load balance (before): 1.04147
+Load balance (after): 1.00139
+Restriction Op computed : time 69.2005
+Matrix split and distributed along layers: time 12.962 seconds
+Matrix split and distributed along layers: time 2.40588 seconds
+Matrix split and distributed along layers: time 0.365548 seconds
+Matrix split and distributed along layers: time 0.075211 seconds
+
+ Processor Grid (row x col x layers x threads): 3x3x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   3    3     8      6   0.702348     2.670418     4.039320   2.450749     1.621971     0.095605     1.506530  13.086942
+   3    3     8      6   1.343588     2.406288     4.088324   1.942866     1.553625     0.073240     1.574359  12.982290
+Computing RTA
+   3    3     8      6   1.101115     0.105387     0.713670   0.048801     0.044596     0.003252     0.207066   2.223887
+   3    3     8      6   0.698978     0.101254     0.710172   0.049023     0.046350     0.005255     0.144065   1.755098
+Computing RTAR
+   3    3     8      6   0.073159     0.011085     0.141916   0.007254     0.005182     0.000188     0.031048   0.269832
+   3    3     8      6   0.149956     0.006549     0.129193   0.007339     0.005195     0.000192     0.010267   0.308691
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77225490
+ nnz(RTAR)= 9866904
+----------------------------
+Application 15461591 resources: utime ~22444s, stime ~1625s, Rss ~10689516, inblocks ~38673353, outblocks ~521798
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 207.562 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 111.331 seconds
+Input load balance: 1.03717
+Input matrix read : time 318.893
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367467 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367467 columns and 17598889 nonzeros
+Load balance (before): 1.02085
+Load balance (after): 1.00089
+Restriction Op computed : time 155.183
+Matrix split and distributed along layers: time 27.4917 seconds
+Matrix split and distributed along layers: time 5.38621 seconds
+Matrix split and distributed along layers: time 0.914928 seconds
+Matrix split and distributed along layers: time 0.172268 seconds
+
+ Processor Grid (row x col x layers x threads): 2x2x16x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   2    2    16      6   0.291971     3.618061     3.573511   2.125099     2.349339     0.101806     1.311813  13.371600
+   2    2    16      6   1.120948     3.067864     3.523299   2.385291     2.251253     0.093552     1.542834  13.985041
+Computing RTA
+   2    2    16      6   1.084684     0.143021     0.677861   0.079201     0.084214     0.005644     0.231464   2.306089
+   2    2    16      6   0.302251     0.128547     0.638371   0.068601     0.081145     0.003647     0.126588   1.349150
+Computing RTAR
+   2    2    16      6   0.090908     0.018608     0.071378   0.007777     0.010526     0.000252     0.028560   0.228009
+   2    2    16      6   0.032644     0.026848     0.069454   0.007744     0.010283     0.000233     0.024868   0.172074
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77232015
+ nnz(RTAR)= 11463564
+----------------------------
+Application 15461618 resources: utime ~37665s, stime ~1739s, Rss ~13941180, inblocks ~38630933, outblocks ~472988
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 52.1806 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 36.5453 seconds
+Input load balance: 1.1866
+Input matrix read : time 88.7275
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367342 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367342 columns and 17598889 nonzeros
+Load balance (before): 1.10533
+Load balance (after): 1.003
+Restriction Op computed : time 19.2551
+Matrix split and distributed along layers: time 0.363172 seconds
+Matrix split and distributed along layers: time 0.361824 seconds
+Matrix split and distributed along layers: time 0.00422001 seconds
+Matrix split and distributed along layers: time 0.00728512 seconds
+
+ Processor Grid (row x col x layers x threads): 6x6x1x12 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   6    6     1     12   5.341147     0.000000     8.201634   1.630294     0.000000     0.102030     0.505990  15.781095
+   6    6     1     12   5.315485     0.000000     7.968648   1.501949     0.000000     0.100109     0.613495  15.499686
+Computing RTA
+   6    6     1     12   2.073715     0.000000     1.113074   0.044662     0.000000     0.005656     0.118170   3.355277
+   6    6     1     12   1.988718     0.000000     1.109235   0.041621     0.000000     0.006546     0.124903   3.271023
+Computing RTAR
+   6    6     1     12   0.523165     0.000000     0.529239   0.005033     0.000000     0.000211     0.013318   1.070966
+   6    6     1     12   0.512853     0.000000     0.456753   0.004404     0.000000     0.000556     0.019682   0.994248
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77228842
+ nnz(RTAR)= 6671826
+----------------------------
+Application 15461666 resources: utime ~10350s, stime ~922s, Rss ~8906672, inblocks ~38783963, outblocks ~518203
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 57.5553 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 50.5674 seconds
+Input load balance: 1.11218
+Input matrix read : time 108.261
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367131 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367131 columns and 17598889 nonzeros
+Load balance (before): 1.06369
+Load balance (after): 1.00137
+Restriction Op computed : time 39.6893
+Matrix split and distributed along layers: time 9.26442 seconds
+Matrix split and distributed along layers: time 1.38692 seconds
+Matrix split and distributed along layers: time 0.2228 seconds
+Matrix split and distributed along layers: time 0.034481 seconds
+
+ Processor Grid (row x col x layers x threads): 4x4x2x12 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   4    4     2     12   2.666323     2.377592     6.791575   1.979899     0.852121     0.125782     0.979203  15.772495
+   4    4     2     12   2.875347     2.317640     6.305721   1.951866     0.720130     0.110296     1.467581  15.748581
+Computing RTA
+   4    4     2     12   1.401919     0.071351     0.944818   0.042878     0.024473     0.006066     0.259285   2.750790
+   4    4     2     12   1.379071     0.082753     0.957412   0.055932     0.024650     0.007322     0.218713   2.725853
+Computing RTAR
+   4    4     2     12   0.249223     0.018995     0.347576   0.007993     0.005947     0.000825     0.027154   0.657713
+   4    4     2     12   0.186248     0.009330     0.387897   0.010261     0.004630     0.000854     0.013147   0.612367
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77225625
+ nnz(RTAR)= 16250164
+----------------------------
+Application 15461685 resources: utime ~10980s, stime ~1176s, Rss ~13789276, inblocks ~38638616, outblocks ~459796
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 94.3374 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 65.3944 seconds
+Input load balance: 1.07431
+Input matrix read : time 159.792
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367554 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367554 columns and 17598889 nonzeros
+Load balance (before): 1.0421
+Load balance (after): 1.00127
+Restriction Op computed : time 67.6438
+Matrix split and distributed along layers: time 13.7068 seconds
+Matrix split and distributed along layers: time 2.46728 seconds
+Matrix split and distributed along layers: time 0.377888 seconds
+Matrix split and distributed along layers: time 0.0707071 seconds
+
+ Processor Grid (row x col x layers x threads): 3x3x4x12 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   3    3     4     12   1.169238     2.500453     4.926060   2.390930     1.209085     0.105296     1.463458  13.764520
+   3    3     4     12   1.848794     2.776927     4.932457   2.038176     1.127284     0.098680     1.570122  14.392440
+Computing RTA
+   3    3     4     12   1.086482     0.101923     0.775159   0.079918     0.031938     0.006215     0.119982   2.201617
+   3    3     4     12   0.661061     0.096530     0.766435   0.063163     0.031147     0.005810     0.107307   1.731452
+Computing RTAR
+   3    3     4     12   0.167884     0.015205     0.166469   0.007044     0.005267     0.000571     0.021813   0.384253
+   3    3     4     12   0.099342     0.021230     0.237731   0.006837     0.003979     0.000284     0.009765   0.379168
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77243045
+ nnz(RTAR)= 13070010
+----------------------------
+Application 15461714 resources: utime ~14326s, stime ~1332s, Rss ~15502692, inblocks ~38660446, outblocks ~520756
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 164.444 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 109.287 seconds
+Input load balance: 1.0372
+Input matrix read : time 273.841
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367462 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367462 columns and 17598889 nonzeros
+Load balance (before): 1.02092
+Load balance (after): 1.00008
+Restriction Op computed : time 151.608
+Matrix split and distributed along layers: time 28.3803 seconds
+Matrix split and distributed along layers: time 5.31768 seconds
+Matrix split and distributed along layers: time 0.959949 seconds
+Matrix split and distributed along layers: time 0.162548 seconds
+
+ Processor Grid (row x col x layers x threads): 2x2x8x12 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   2    2     8     12   0.598849     3.465167     4.494049   2.478102     1.960254     0.108962     1.875654  14.981037
+   2    2     8     12   1.159187     3.279897     4.472186   2.589563     1.992297     0.108492     1.681528  15.283150
+Computing RTA
+   2    2     8     12   0.948949     0.135880     0.667728   0.093195     0.062205     0.006603     0.105064   2.019624
+   2    2     8     12   0.498463     0.130539     0.666086   0.082791     0.064618     0.006286     0.084718   1.533501
+Computing RTAR
+   2    2     8     12   0.111553     0.024328     0.175338   0.009170     0.007360     0.000441     0.009494   0.337684
+   2    2     8     12   0.057137     0.024777     0.166476   0.011713     0.008815     0.000759     0.022708   0.292385
+----------------------------
+ nnz(A)= 473712505
+ nnz(R)= 17598889
+ nnz(A^2)= 2187662967
+ nnz(RTA)= 77231409
+ nnz(RTAR)= 16255459
+----------------------------
+Application 15461729 resources: utime ~19730s, stime ~1484s, Rss ~20890808, inblocks ~38621860, outblocks ~472228
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 473712505
+File is 19662469672 bytes
+Total number of entries read across all processors is 473712505
+As a whole: 17598889 rows and 17598889 columns and 473712505 nonzeros
+Reader took 513.538 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 281.989 seconds
+Input load balance: 1
+Input matrix read : time 795.527
+Computing restriction matrix 
+As a whole: 17598889 rows and 17598889 columns and 456113616 nonzeros
+As a whole, mis2 has: 367410 nonzeros and length 17598889
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 17598889 nonzeros and length 17598889
+Rop final (before normalization)... As a whole: 17598889 rows and 367410 columns and 17598889 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 577.849
+Matrix split and distributed along layers: time 107.791 seconds
+Matrix split and distributed along layers: time 19.6778 seconds
+Matrix split and distributed along layers: time 4.21622 seconds
+Matrix split and distributed along layers: time 0.988449 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x16x12 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 05778] 2015-09-03 03:40:08 Apid 15461746: initiated application termination
+[NID 05781] 2015-09-03 03:40:11 Apid 15461746: OOM killer terminated this process.
+[NID 05780] 2015-09-03 03:40:13 Apid 15461746: OOM killer terminated this process.
+[NID 05778] 2015-09-03 03:40:13 Apid 15461746: OOM killer terminated this process.
+[NID 05791] 2015-09-03 03:40:14 Apid 15461746: OOM killer terminated this process.
+[NID 05767] 2015-09-03 03:40:14 Apid 15461746: OOM killer terminated this process.
+[NID 05779] 2015-09-03 03:40:14 Apid 15461746: OOM killer terminated this process.
+[NID 05704] 2015-09-03 03:40:15 Apid 15461746: OOM killer terminated this process.
+[NID 05703] 2015-09-03 03:40:15 Apid 15461746: OOM killer terminated this process.
+Application 15461746 exit signals: Killed
+Application 15461746 resources: utime ~0s, stime ~0s, Rss ~5548, inblocks ~85752, outblocks ~227056
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_Nalu_R3_fine_grid_512
+ +          Job Id: 3527079.edique02
+ +          System: edison
+ +     Queued Time: Thu Sep  3 01:57:27 2015
+ +      Start Time: Thu Sep  3 02:04:57 2015
+ + Completion Time: Thu Sep  3 03:40:16 2015
+ +            User: azad
+ +        MOM Host: nid02051
+ +           Queue: reg_small
+ +  Req. Resources: mppnodect=22,mppnppn=24,mppwidth=512,walltime=02:30:00
+ +  Used Resources: cput=00:00:07,energy_used=0,mem=10832kb,vmem=159628kb,walltime=01:35:22
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/Nalu_R3_fine_grid
+ +     Submit Args: batchRop_Nalu_R3_fine_grid_512
+ + --------------------------------------------------------------------------
+

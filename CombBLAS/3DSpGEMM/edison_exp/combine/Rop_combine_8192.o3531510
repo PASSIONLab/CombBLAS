@@ -1,0 +1,736 @@
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 99199551
+File is 2627728707 bytes
+Total number of entries read across all processors is 99199551
+As a whole: 5154859 rows and 5154859 columns and 99199551 nonzeros
+Reader took 10.1327 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 5.5462 seconds
+Input load balance: 1.63061
+Input matrix read : time 15.6815
+Computing restriction matrix 
+As a whole: 5154859 rows and 5154859 columns and 94044692 nonzeros
+As a whole, mis2 has: 138373 nonzeros and length 5154859
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 5154859 nonzeros and length 5154859
+Rop final (before normalization)... As a whole: 5154859 rows and 138373 columns and 5154859 nonzeros
+Load balance (before): 1.32568
+Load balance (after): 1.01973
+Restriction Op computed : time 1.14014
+Matrix split and distributed along layers: time 0.141514 seconds
+Matrix split and distributed along layers: time 0.0263801 seconds
+Matrix split and distributed along layers: time 0.00453687 seconds
+Matrix split and distributed along layers: time 0.0024538 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.105641     0.039928     0.057096   0.034465     0.020349     0.001060     0.101727   0.360265
+  13   13     8      6   0.150147     0.041777     0.057046   0.030728     0.022787     0.002107     0.038613   0.343205
+Computing RTA
+  13   13     8      6   0.095059     0.001379     0.022342   0.000927     0.000770     0.000064     0.013862   0.134403
+  13   13     8      6   0.095371     0.001703     0.021857   0.000897     0.000758     0.000066     0.031873   0.152525
+Computing RTAR
+  13   13     8      6   0.035888     0.000778     0.008003   0.001001     0.000440     0.000029     0.009665   0.055804
+  13   13     8      6   0.079072     0.000763     0.007947   0.000992     0.000446     0.000031     0.003479   0.092730
+----------------------------
+ nnz(A)= 99199551
+ nnz(R)= 5154859
+ nnz(A^2)= 929023247
+ nnz(RTA)= 46993307
+ nnz(RTAR)= 17373370
+----------------------------
+Application 15479891 resources: utime ~26567s, stime ~504s, Rss ~681020, inblocks ~9933199, outblocks ~9630730
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 59524291
+File is 2164750677 bytes
+Total number of entries read across all processors is 59524291
+As a whole: 5558326 rows and 5558326 columns and 59524291 nonzeros
+Reader took 8.57864 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 4.07491 seconds
+Input load balance: 3.37411
+Input matrix read : time 12.6723
+Computing restriction matrix 
+As a whole: 5558326 rows and 5558326 columns and 53967852 nonzeros
+As a whole, mis2 has: 6425 nonzeros and length 5558326
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 5558326 nonzeros and length 5558326
+Rop final (before normalization)... As a whole: 5558326 rows and 6425 columns and 5558326 nonzeros
+Load balance (before): 3.56132
+Load balance (after): 3.09372
+Restriction Op computed : time 1.12254
+Matrix split and distributed along layers: time 0.113732 seconds
+Matrix split and distributed along layers: time 0.0244021 seconds
+Matrix split and distributed along layers: time 0.00189996 seconds
+Matrix split and distributed along layers: time 0.00236106 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00696] [c3-0c1s14n0] [Fri Sep  4 01:59:29 2015] PE RANK 1082 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 05877] [c6-3c1s13n1] [Fri Sep  4 01:59:29 2015] PE RANK 250 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05958] [c7-3c0s1n2] [Fri Sep  4 01:59:29 2015] PE RANK 282 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00566] [c2-0c2s13n2] [Fri Sep  4 01:59:29 2015] PE RANK 906 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00456] [c2-0c1s2n0] [Fri Sep  4 01:59:29 2015] PE RANK 698 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02052] [c2-1c2s1n0] [Fri Sep  4 01:59:29 2015] PE RANK 1290 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05744] [c5-3c2s12n0] [Fri Sep  4 01:59:29 2015] PE RANK 146 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00227] [c1-0c0s8n3] [Fri Sep  4 01:59:29 2015] PE RANK 458 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00704] [c3-0c2s0n0] [Fri Sep  4 01:59:29 2015] PE RANK 1114 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05759] [c5-3c2s15n3] [Fri Sep  4 01:59:29 2015] PE RANK 178 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05931] [c6-3c2s10n3] [Fri Sep  4 01:59:29 2015] PE RANK 274 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05883] [c6-3c1s14n3] [Fri Sep  4 01:59:29 2015] PE RANK 258 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05746] [c5-3c2s12n2] [Fri Sep  4 01:59:29 2015] PE RANK 154 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00200] [c1-0c0s2n0] [Fri Sep  4 01:59:29 2015] PE RANK 354 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00233] [c1-0c0s10n1] [Fri Sep  4 01:59:29 2015] PE RANK 482 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00269] [c1-0c1s3n1] [Fri Sep  4 01:59:29 2015] PE RANK 594 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00229] [c1-0c0s9n1] [Fri Sep  4 01:59:29 2015] PE RANK 466 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00558] [c2-0c2s11n2] [Fri Sep  4 01:59:29 2015] PE RANK 874 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00294] [c1-0c1s9n2] [Fri Sep  4 01:59:29 2015] PE RANK 642 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00474] [c2-0c1s6n2] [Fri Sep  4 01:59:29 2015] PE RANK 722 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00560] [c2-0c2s12n0] [Fri Sep  4 01:59:29 2015] PE RANK 882 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02054] [c2-1c2s1n2] [Fri Sep  4 01:59:29 2015] PE RANK 1298 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00728] [c3-0c2s6n0] [Fri Sep  4 01:59:29 2015] PE RANK 1186 exit signal Aborted
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00529] [c2-0c2s4n1] [Fri Sep  4 01:59:29 2015] PE RANK 770 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00450] [c2-0c1s0n2] [Fri Sep  4 01:59:29 2015] PE RANK 690 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05991] [c7-3c0s9n3] [Fri Sep  4 01:59:29 2015] PE RANK 306 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00872] [c4-0c1s10n0] [Fri Sep  4 01:59:29 2015] PE RANK 1266 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00655] [c3-0c1s3n3] [Fri Sep  4 01:59:29 2015] PE RANK 1042 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00694] [c3-0c1s13n2] [Fri Sep  4 01:59:29 2015] PE RANK 1074 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00539] [c2-0c2s6n3] [Fri Sep  4 01:59:29 2015] PE RANK 802 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00221] [c1-0c0s7n1] [Fri Sep  4 01:59:29 2015] PE RANK 434 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05875] [c6-3c1s12n3] [Fri Sep  4 01:59:29 2015] PE RANK 242 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00208] [c1-0c0s4n0] [Fri Sep  4 01:59:29 2015] PE RANK 386 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00690] [c3-0c1s12n2] [Fri Sep  4 01:59:29 2015] PE RANK 1058 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00303] [c1-0c1s11n3] [Fri Sep  4 01:59:29 2015] PE RANK 658 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00290] [c1-0c1s8n2] [Fri Sep  4 01:59:29 2015] PE RANK 626 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05757] [c5-3c2s15n1] [Fri Sep  4 01:59:29 2015] PE RANK 170 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00255] [c1-0c0s15n3] [Fri Sep  4 01:59:29 2015] PE RANK 570 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00217] [c1-0c0s6n1] [Fri Sep  4 01:59:29 2015] PE RANK 418 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00616] [c3-0c0s10n0] [Fri Sep  4 01:59:29 2015] PE RANK 986 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00292] [c1-0c1s9n0] [Fri Sep  4 01:59:29 2015] PE RANK 634 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00237] [c1-0c0s11n1] [Fri Sep  4 01:59:29 2015] PE RANK 498 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05960] [c7-3c0s2n0] [Fri Sep  4 01:59:29 2015] PE RANK 290 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00555] [c2-0c2s10n3] [Fri Sep  4 01:59:29 2015] PE RANK 866 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00711] [c3-0c2s1n3] [Fri Sep  4 01:59:29 2015] PE RANK 1138 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00476] [c2-0c1s7n0] [Fri Sep  4 01:59:29 2015] PE RANK 730 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00860] [c4-0c1s7n0] [Fri Sep  4 01:59:29 2015] PE RANK 1218 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00247] [c1-0c0s13n3] [Fri Sep  4 01:59:29 2015] PE RANK 538 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05738] [c5-3c2s10n2] [Fri Sep  4 01:59:29 2015] PE RANK 122 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00576] [c3-0c0s0n0] [Fri Sep  4 01:59:29 2015] PE RANK 914 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 06143] [c7-3c2s15n3] [Fri Sep  4 01:59:29 2015] PE RANK 346 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00458] [c2-0c1s2n2] [Fri Sep  4 01:59:29 2015] PE RANK 706 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00717] [c3-0c2s3n1] [Fri Sep  4 01:59:29 2015] PE RANK 1162 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00537] [c2-0c2s6n1] [Fri Sep  4 01:59:29 2015] PE RANK 794 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00251] [c1-0c0s14n3] [Fri Sep  4 01:59:29 2015] PE RANK 554 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05709] [c5-3c2s3n1] [Fri Sep  4 01:59:29 2015] PE RANK 42 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05767] [c6-3c0s1n3] [Fri Sep  4 01:59:29 2015] PE RANK 186 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00210] [c1-0c0s4n2] [Fri Sep  4 01:59:29 2015] PE RANK 394 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00858] [c4-0c1s6n2] [Fri Sep  4 01:59:29 2015] PE RANK 1210 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02062] [c2-1c2s3n2] [Fri Sep  4 01:59:29 2015] PE RANK 1330 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00653] [c3-0c1s3n1] [Fri Sep  4 01:59:29 2015] PE RANK 1034 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00243] [c1-0c0s12n3] [Fri Sep  4 01:59:29 2015] PE RANK 522 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05771] [c6-3c0s2n3] [Fri Sep  4 01:59:29 2015] PE RANK 202 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+_pmiu_daemon(SIGCHLD): [NID 00596] [c3-0c0s5n0] [Fri Sep  4 01:59:29 2015] PE RANK 978 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00594] [c3-0c0s4n2] [Fri Sep  4 01:59:29 2015] PE RANK 970 exit signal Aborted
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00235] [c1-0c0s10n3] [Fri Sep  4 01:59:29 2015] PE RANK 490 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00866] [c4-0c1s8n2] [Fri Sep  4 01:59:29 2015] PE RANK 1242 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00545] [c2-0c2s8n1] [Fri Sep  4 01:59:29 2015] PE RANK 826 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00202] [c1-0c0s2n2] [Fri Sep  4 01:59:29 2015] PE RANK 362 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00527] [c2-0c2s3n3] [Fri Sep  4 01:59:29 2015] PE RANK 762 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00275] [c1-0c1s4n3] [Fri Sep  4 01:59:29 2015] PE RANK 618 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00715] [c3-0c2s2n3] [Fri Sep  4 01:59:29 2015] PE RANK 1154 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00721] [c3-0c2s4n1] [Fri Sep  4 01:59:29 2015] PE RANK 1178 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00541] [c2-0c2s7n1] [Fri Sep  4 01:59:29 2015] PE RANK 810 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00215] [c1-0c0s5n3] [Fri Sep  4 01:59:29 2015] PE RANK 410 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 00531] [c2-0c2s4n3] [Fri Sep  4 01:59:29 2015] PE RANK 778 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00706] [c3-0c2s0n2] [Fri Sep  4 01:59:29 2015] PE RANK 1122 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00206] [c1-0c0s3n2] [Fri Sep  4 01:59:29 2015] PE RANK 378 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05742] [c5-3c2s11n2] [Fri Sep  4 01:59:29 2015] PE RANK 138 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05732] [c5-3c2s9n0] [Fri Sep  4 01:59:29 2015] PE RANK 98 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05773] [c6-3c0s3n1] [Fri Sep  4 01:59:29 2015] PE RANK 210 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00549] [c2-0c2s9n1] [Fri Sep  4 01:59:29 2015] PE RANK 842 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00478] [c2-0c1s7n2] [Fri Sep  4 01:59:29 2015] PE RANK 738 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00480] [c2-0c1s8n0] [Fri Sep  4 01:59:29 2015] PE RANK 746 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05702] [c5-3c2s1n2] [Fri Sep  4 01:59:29 2015] PE RANK 18 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02066] [c2-1c2s4n2] [Fri Sep  4 01:59:29 2015] PE RANK 1346 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 00239] [c1-0c0s11n3] [Fri Sep  4 01:59:29 2015] PE RANK 506 exit signal Aborted
+[NID 00235] 2015-09-04 01:59:29 Apid 15479899: initiated application termination
+_pmiu_daemon(SIGCHLD): [NID 00245] [c1-0c0s13n1] [Fri Sep  4 01:59:29 2015] PE RANK 530 exit signal Aborted
+Application 15479899 exit codes: 134
+Application 15479899 exit signals: Killed
+Application 15479899 resources: utime ~5642s, stime ~0s, Rss ~61172, inblocks ~3641334, outblocks ~9593294
+Reading input file....
+Matrix is Boolean
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 50331601
+File is 839313191 bytes
+Total number of entries read across all processors is 50331601
+As a whole: 16777216 rows and 16777216 columns and 100663202 nonzeros
+Reader took 3.13367 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 4.14562 seconds
+Input load balance: 1.01086
+Input matrix read : time 7.29349
+Computing restriction matrix 
+As a whole: 16777216 rows and 16777216 columns and 100663202 nonzeros
+As a whole, mis2 has: 1648835 nonzeros and length 16777216
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16777216 nonzeros and length 16777216
+Rop final (before normalization)... As a whole: 16777216 rows and 1648835 columns and 16777216 nonzeros
+Load balance (before): 2.18932
+Load balance (after): 1.00945
+Restriction Op computed : time 2.66932
+Matrix split and distributed along layers: time 0.0969899 seconds
+Matrix split and distributed along layers: time 0.022814 seconds
+Matrix split and distributed along layers: time 0.015795 seconds
+Matrix split and distributed along layers: time 0.00482297 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.063407     0.029841     0.060671   0.016939     0.013433     0.001496     0.069711   0.255498
+  13   13     8      6   0.113909     0.022714     0.073255   0.018385     0.012120     0.000667     0.024554   0.265604
+Computing RTA
+  13   13     8      6   0.056850     0.001606     0.027066   0.000928     0.000750     0.000057     0.017103   0.104361
+  13   13     8      6   0.095561     0.001361     0.026871   0.000878     0.000721     0.000055     0.005104   0.130551
+Computing RTAR
+  13   13     8      6   0.041493     0.001739     0.015116   0.002284     0.001031     0.000077     0.003061   0.064801
+  13   13     8      6   0.060526     0.001466     0.015064   0.002308     0.001004     0.000067     0.006664   0.087099
+----------------------------
+ nnz(A)= 100663202
+ nnz(R)= 16777216
+ nnz(A^2)= 347322258
+ nnz(RTA)= 41190077
+ nnz(RTAR)= 16341029
+----------------------------
+Application 15479914 resources: utime ~17349s, stime ~349s, Rss ~411212, inblocks ~6254185, outblocks ~9632644
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 45204422
+File is 1581474573 bytes
+Total number of entries read across all processors is 45204422
+As a whole: 1102824 rows and 1102824 columns and 89306020 nonzeros
+Reader took 5.5462 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 2.10458 seconds
+Input load balance: 1.16789
+Input matrix read : time 7.65101
+Computing restriction matrix 
+As a whole: 1102824 rows and 1102824 columns and 88203196 nonzeros
+As a whole, mis2 has: 6220 nonzeros and length 1102824
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 1102824 nonzeros and length 1102824
+Rop final (before normalization)... As a whole: 1102824 rows and 6220 columns and 1102824 nonzeros
+Load balance (before): 1.12557
+Load balance (after): 1.04696
+Restriction Op computed : time 1.03611
+Matrix split and distributed along layers: time 0.0929091 seconds
+Matrix split and distributed along layers: time 0.016896 seconds
+Matrix split and distributed along layers: time 0.000715971 seconds
+Matrix split and distributed along layers: time 0.000231981 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.099390     0.047386     0.084692   0.099783     0.025810     0.001461     0.090460   0.448983
+  13   13     8      6   0.210177     0.048647     0.098688   0.080867     0.022832     0.001260     0.160782   0.623253
+Computing RTA
+  13   13     8      6   0.164780     0.002135     0.018002   0.000808     0.000348     0.000018     0.019799   0.205890
+  13   13     8      6   0.104181     0.001245     0.017900   0.000773     0.000222     0.000017     0.015058   0.139395
+Computing RTAR
+  13   13     8      6   0.025970     0.000616     0.001523   0.000270     0.000071     0.000011     0.004604   0.033065
+  13   13     8      6   0.071924     0.000211     0.001944   0.000210     0.000072     0.000011     0.025253   0.099625
+----------------------------
+ nnz(A)= 89306020
+ nnz(R)= 1102824
+ nnz(A^2)= 688649400
+ nnz(RTA)= 4325448
+ nnz(RTAR)= 100754
+----------------------------
+Application 15479921 resources: utime ~17102s, stime ~676s, Rss ~389068, inblocks ~7927757, outblocks ~9623399
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 23737339
+File is 663855459 bytes
+Total number of entries read across all processors is 23737339
+As a whole: 952203 rows and 952203 columns and 46522475 nonzeros
+Reader took 2.24527 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 1.8856 seconds
+Input load balance: 1.2711
+Input matrix read : time 4.13517
+Computing restriction matrix 
+As a whole: 952203 rows and 952203 columns and 45570272 nonzeros
+As a whole, mis2 has: 12340 nonzeros and length 952203
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 952203 nonzeros and length 952203
+Rop final (before normalization)... As a whole: 952203 rows and 12340 columns and 952203 nonzeros
+Load balance (before): 1.18062
+Load balance (after): 1.04839
+Restriction Op computed : time 0.311668
+Matrix split and distributed along layers: time 0.0462449 seconds
+Matrix split and distributed along layers: time 0.00677013 seconds
+Matrix split and distributed along layers: time 0.000649929 seconds
+Matrix split and distributed along layers: time 0.000175953 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.031333     0.020934     0.029606   0.026809     0.007599     0.000185     0.079351   0.195817
+  13   13     8      6   0.054663     0.018475     0.029088   0.026810     0.006771     0.000350     0.015920   0.152077
+Computing RTA
+  13   13     8      6   0.035607     0.000637     0.010007   0.000476     0.000158     0.000014     0.006942   0.053842
+  13   13     8      6   0.042742     0.000600     0.010071   0.000440     0.000164     0.000015     0.003409   0.057441
+Computing RTAR
+  13   13     8      6   0.006557     0.000058     0.000978   0.000163     0.000080     0.000013     0.001022   0.008871
+  13   13     8      6   0.002198     0.000045     0.000978   0.000192     0.000080     0.000012     0.002170   0.005675
+----------------------------
+ nnz(A)= 46522475
+ nnz(R)= 952203
+ nnz(A^2)= 145422935
+ nnz(RTA)= 2308703
+ nnz(RTAR)= 372839
+----------------------------
+Application 15479933 resources: utime ~8615s, stime ~338s, Rss ~212576, inblocks ~5922462, outblocks ~9621596
+Reading input file....
+Matrix is Float
+Total number of nonzeros expected across all processors is 283073458
+File is 10095089342 bytes
+Total number of entries read across all processors is 283073458
+As a whole: 2017169 rows and 2017169 columns and 283073458 nonzeros
+Reader took 29.0879 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 14.25 seconds
+Input load balance: 1.10376
+Input matrix read : time 43.3465
+Computing restriction matrix 
+As a whole: 2017169 rows and 2017169 columns and 324715138 nonzeros
+As a whole, mis2 has: 7064 nonzeros and length 2017169
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 2017169 nonzeros and length 2017169
+Rop final (before normalization)... As a whole: 2017169 rows and 7064 columns and 2017169 nonzeros
+Load balance (before): 1.06762
+Load balance (after): 1.04517
+Restriction Op computed : time 2.17586
+Matrix split and distributed along layers: time 0.325719 seconds
+Matrix split and distributed along layers: time 0.0417719 seconds
+Matrix split and distributed along layers: time 0.00210619 seconds
+Matrix split and distributed along layers: time 0.00111699 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.235319     0.183884     0.425784   0.414956     0.095776     0.003431     0.118808   1.477957
+  13   13     8      6   0.413227     0.148999     0.484092   0.401322     0.085201     0.002990     0.127676   1.663506
+Computing RTA
+  13   13     8      6   0.267366     0.001433     0.052636   0.002124     0.000734     0.000035     0.023532   0.347860
+  13   13     8      6   0.184904     0.001414     0.053560   0.002086     0.000429     0.000026     0.037614   0.280033
+Computing RTAR
+  13   13     8      6   0.055072     0.000138     0.003213   0.000232     0.000094     0.000014     0.051533   0.110296
+  13   13     8      6   0.074119     0.000164     0.003202   0.000225     0.000091     0.000013     0.013912   0.091726
+----------------------------
+ nnz(A)= 283073458
+ nnz(R)= 2017169
+ nnz(A^2)= 1768066720
+ nnz(RTA)= 10267709
+ nnz(RTAR)= 1401688
+----------------------------
+Application 15479939 resources: utime ~75677s, stime ~2505s, Rss ~1355168, inblocks ~24300413, outblocks ~9632921
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 14506196
+File is 447387587 bytes
+Total number of entries read across all processors is 14506196
+As a whole: 45101 rows and 45101 columns and 28967291 nonzeros
+Reader took 1.80375 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 0.434462 seconds
+Input load balance: 1.09894
+Input matrix read : time 2.2424
+Computing restriction matrix 
+As a whole: 45101 rows and 45101 columns and 28922190 nonzeros
+As a whole, mis2 has: 4047 nonzeros and length 45101
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 45101 nonzeros and length 45101
+Rop final (before normalization)... As a whole: 45101 rows and 4047 columns and 45101 nonzeros
+Load balance (before): 3.84082
+Load balance (after): 2.91903
+Restriction Op computed : time 0.346522
+Matrix split and distributed along layers: time 0.0238008 seconds
+Matrix split and distributed along layers: time 0.020231 seconds
+Matrix split and distributed along layers: time 8.41618e-05 seconds
+Matrix split and distributed along layers: time 8.60691e-05 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   0.197696     0.060617     0.699982   0.122218     0.019076     0.000964     0.111631   1.212184
+  13   13     8      6   0.190103     0.053890     0.704458   0.109565     0.017756     0.000900     0.087315   1.163987
+Computing RTA
+  13   13     8      6   0.063811     0.000805     0.007554   0.000179     0.000175     0.000015     0.097837   0.170376
+  13   13     8      6   0.078377     0.000686     0.007273   0.000169     0.000091     0.000014     0.009186   0.095796
+Computing RTAR
+  13   13     8      6   0.010306     0.000301     0.000453   0.000116     0.000051     0.000012     0.005978   0.017216
+  13   13     8      6   0.006143     0.000046     0.000435   0.000167     0.000053     0.000012     0.007361   0.014217
+----------------------------
+ nnz(A)= 28967291
+ nnz(R)= 45101
+ nnz(A^2)= 482594045
+ nnz(RTA)= 2236933
+ nnz(RTAR)= 275944
+----------------------------
+Application 15479958 resources: utime ~18688s, stime ~846s, Rss ~466404, inblocks ~5812263, outblocks ~9619262
+Reading input file....
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+As a whole: 41291594 rows and 41291594 columns and 1150725436 nonzeros
+Reader took 58.3622 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 80.9732 seconds
+Input load balance: 1.20223
+Input matrix read : time 139.383
+Computing restriction matrix 
+As a whole: 41291594 rows and 41291594 columns and 2054949894 nonzeros
+As a whole, mis2 has: 1789652 nonzeros and length 41291594
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 41291594 nonzeros and length 41291594
+Rop final (before normalization)... As a whole: 41291594 rows and 1789652 columns and 41291594 nonzeros
+Load balance (before): 1.69868
+Load balance (after): 1.21859
+Restriction Op computed : time 14.1896
+Matrix split and distributed along layers: time 1.64433 seconds
+Matrix split and distributed along layers: time 0.270317 seconds
+Matrix split and distributed along layers: time 0.0473678 seconds
+Matrix split and distributed along layers: time 0.00870895 seconds
+
+ Processor Grid (row x col x layers x threads): 13x13x8x6 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+  13   13     8      6   1.613609     0.424237     2.318233   0.706042     0.245798     0.030091     0.973184   6.311194
+  13   13     8      6   1.857584     0.432193     2.558146   0.634322     0.249967     0.031538     0.432063   6.195813
+Computing RTA
+  13   13     8      6   0.718107     0.003523     0.239316   0.003778     0.002098     0.000106     0.073916   1.040844
+  13   13     8      6   0.583599     0.002593     0.246150   0.003561     0.001518     0.000108     0.058334   0.895863
+Computing RTAR
+  13   13     8      6   0.090161     0.001254     0.029779   0.001897     0.000912     0.000067     0.006681   0.130751
+  13   13     8      6   0.077945     0.000973     0.029310   0.001940     0.000913     0.000067     0.012407   0.123555
+----------------------------
+ nnz(A)= 1150725436
+ nnz(R)= 41291594
+ nnz(A^2)= 14045664641
+ nnz(RTA)= 90269344
+ nnz(RTAR)= 27215732
+----------------------------
+Application 15479960 resources: utime ~260797s, stime ~7142s, Rss ~10566164, inblocks ~44813930, outblocks ~9675226
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_combine_8192
+ +          Job Id: 3531510.edique02
+ +          System: edison
+ +     Queued Time: Fri Sep  4 01:57:39 2015
+ +      Start Time: Fri Sep  4 01:58:33 2015
+ + Completion Time: Fri Sep  4 02:04:46 2015
+ +            User: azad
+ +        MOM Host: nid02434
+ +           Queue: debug
+ +  Req. Resources: mppnodect=342,mppnppn=24,mppwidth=8192,walltime=00:30:00
+ +  Used Resources: cput=00:00:02,energy_used=0,mem=10680kb,vmem=159364kb,walltime=00:06:16
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/combine
+ +     Submit Args: batchRop_combine_8096
+ + --------------------------------------------------------------------------
+
