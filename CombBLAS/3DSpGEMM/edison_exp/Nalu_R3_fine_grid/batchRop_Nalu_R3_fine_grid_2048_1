@@ -1,0 +1,16 @@
+#PBS -q debug
+#PBS -l mppwidth=2048
+#PBS -l walltime=00:30:00
+#PBS -N Rop_Nalu_R3_fine_grid_2048_1
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/Nalu_R3_fine_grid.m
+
+
+export OMP_NUM_THREADS=12
+aprun -n 162 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 9 9 2 input $IN
+aprun -n 144 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 6 6 4 input $IN
+aprun -n 128 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 4 4 8 input $IN
+aprun -n 144 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 3 3 16 input $IN

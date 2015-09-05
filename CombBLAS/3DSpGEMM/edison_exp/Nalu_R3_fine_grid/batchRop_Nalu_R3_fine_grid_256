@@ -1,6 +1,6 @@
-#PBS -q regular
+#PBS -q debug
 #PBS -l mppwidth=256
-#PBS -l walltime=02:30:00
+#PBS -l walltime=00:30:00
 #PBS -N Rop_Nalu_R3_fine_grid_256
 #PBS -j oe
 

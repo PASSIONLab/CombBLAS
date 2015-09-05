@@ -1,0 +1,40 @@
+#PBS -q debug
+#PBS -l mppwidth=3072
+#PBS -l walltime=00:30:00
+#PBS -N tscaling_G500_3072
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+
+
+export OMP_NUM_THREADS=1
+aprun -n 256 -d 1 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 24 16 column
+aprun -n 256 -d 1 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 26 16 column
+aprun -n 256 -d 1 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 24 16 16 1 G500 16 threaded
+aprun -n 256 -d 1 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 26 16 16 1 G500 16 threaded
+
+
+export OMP_NUM_THREADS=3
+aprun -n 256 -d 3 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 24 16 column
+aprun -n 256 -d 3 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 26 16 column
+aprun -n 256 -d 3 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 24 16 16 1 G500 16 threaded
+aprun -n 256 -d 3 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 26 16 16 1 G500 16 threaded
+
+
+export OMP_NUM_THREADS=6
+aprun -n 256 -d 6 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 24 16 column
+aprun -n 256 -d 6 -N 2 -S 1 -cc depth ../../mpipspgemm 16 16 1 G500 26 16 column
+aprun -n 256 -d 6 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 24 16 16 1 G500 16 threaded
+aprun -n 256 -d 6 -N 2 -S 1 -cc depth ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 26 16 16 1 G500 16 threaded
+
+
+
+export OMP_NUM_THREADS=12
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ../../mpipspgemm 16 16 1 G500 24 16 column
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ../../mpipspgemm 16 16 1 G500 26 16 column
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 24 16 16 1 G500 16 threaded
+aprun -n 256 -d 12 -N 2 -S 1 -cc numa_node ~/CombBLAS0000000000000/3DSpGEMM/mpipspgemm 26 16 16 1 G500 16 threaded
+
+
+

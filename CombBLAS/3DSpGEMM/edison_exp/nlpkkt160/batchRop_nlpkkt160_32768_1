@@ -1,0 +1,25 @@
+#PBS -q regular
+#PBS -l mppwidth=32768
+#PBS -l walltime=00:30:00
+#PBS -N Rop_nlpkkt160_32768_1
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+IN=/scratch2/scratchdirs/azad/spGEMM_matrices/nlpkkt160.mtx
+
+export OMP_NUM_THREADS=1
+aprun -n 32761 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 181 181 1 input $IN
+aprun -n 32768 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 64 64 8 input $IN
+aprun -n 32400 -d 1 -N 24 -S 12 -cc depth ../../RestrictionOp 45 45 16 input $IN
+
+
+export OMP_NUM_THREADS=6
+aprun -n 5329 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 73 73 1 input $IN
+aprun -n 5408 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 26 26 8 input $IN
+aprun -n 5184 -d 6 -N 4 -S 2 -cc depth ../../RestrictionOp 18 18 16 input $IN
+
+export OMP_NUM_THREADS=12
+aprun -n 2704 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 52 52 1 input $IN
+aprun -n 2592 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 18 18 8 input $IN
+aprun -n 2704 -d 12 -N 2 -S 1 -cc numa_node ../../RestrictionOp 13 13 16 input $IN

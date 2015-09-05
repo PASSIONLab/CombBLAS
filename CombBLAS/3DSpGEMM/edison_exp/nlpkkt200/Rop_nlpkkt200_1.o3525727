@@ -1,0 +1,67 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 118931856
+File is 2318163524 bytes
+Total number of entries read across all processors is 118931856
+As a whole: 8345600 rows and 8345600 columns and 229518112 nonzeros
+Reader took 115.383 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 132.873 seconds
+Input load balance: 1
+Input matrix read : time 248.256
+Computing restriction matrix 
+As a whole: 8345600 rows and 8345600 columns and 221172512 nonzeros
+As a whole, mis2 has: 159731 nonzeros and length 8345600
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 8345600 nonzeros and length 8345600
+Rop final (before normalization)... As a whole: 8345600 rows and 159731 columns and 8345600 nonzeros
+Load balance (before): 1
+Load balance (after): 1
+Restriction Op computed : time 268.624
+Matrix split and distributed along layers: time 4.89152 seconds
+Matrix split and distributed along layers: time 4.90849 seconds
+Matrix split and distributed along layers: time 0.173627 seconds
+Matrix split and distributed along layers: time 0.344264 seconds
+
+ Processor Grid (row x col x layers x threads): 1x1x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+   1    1     1      1   0.000003     0.000000   838.473739   0.000017     0.000000    14.882997     1.388558 854.745314
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 1805 exceeded limit 1800
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+aprun: Apid 15455618: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 05648] [c5-3c1s4n0] [Wed Sep  2 16:10:18 2015] PE RANK 0 exit signal Terminated
+Application 15455618 exit codes: 143
+Application 15455618 resources: utime ~1668s, stime ~130s, Rss ~56655900, inblocks ~4546700, outblocks ~28385
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt200_1
+ +          Job Id: 3525727.edique02
+ +          System: edison
+ +     Queued Time: Wed Sep  2 15:39:20 2015
+ +      Start Time: Wed Sep  2 15:40:14 2015
+ + Completion Time: Wed Sep  2 16:10:28 2015
+ +            User: azad
+ +        MOM Host: nid01667
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=1,mppwidth=1,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=11860kb,vmem=143764kb,walltime=00:30:16
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt200
+ +     Submit Args: batchRop_nlpkkt200_1
+ + --------------------------------------------------------------------------
+

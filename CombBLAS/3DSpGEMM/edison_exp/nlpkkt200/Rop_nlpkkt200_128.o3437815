@@ -1,0 +1,289 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 15.7109 seconds
+Generating random permutation vector.
+Permutation took 37.9333 seconds
+Load balance: 1.00186
+Matrices read and replicated along layers : time 53.6938
+As a whole: 16240000 rows and 344185 columns and 9413576 nonzeros
+Restriction Op computed : time 7.1187
+Matrix split and distributed along layers: time 0.138456 seconds
+Matrix split and distributed along layers: time 0.0756001 seconds
+Matrix split and distributed along layers: time 0.00149393 seconds
+Matrix split and distributed along layers: time 0.0023818 seconds
+  11   11     1      1   5.352204     0.000000    24.437583   7.503835     0.000000     0.253868     0.520874  38.068364
+  11   11     1      1   3.345350     0.000000     5.019718   0.158261     0.000000     0.007541     0.162125   8.692994
+  11   11     1      1   0.327600     0.000000     0.336793   0.030776     0.000000     0.000501     0.000582   0.696252
+  11   11     1      1   4.951057     0.000000    24.214326   7.493999     0.000000     0.253528     0.622284  37.535195
+  11   11     1      1   3.414981     0.000000     4.918346   0.158142     0.000000     0.007929     0.140836   8.640234
+  11   11     1      1   0.305083     0.000000     0.339080   0.030855     0.000000     0.000506     0.000866   0.676390
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50851899 nnzC2= 2728551
+Application 14780329 resources: utime ~16179s, stime ~1882s, Rss ~3160556, inblocks ~9822088, outblocks ~187113
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 26.7398 seconds
+Generating random permutation vector.
+Permutation took 46.234 seconds
+Load balance: 1.00076
+Matrices read and replicated along layers : time 73.0262
+As a whole: 16240000 rows and 344380 columns and 9419181 nonzeros
+Restriction Op computed : time 11.6625
+Matrix split and distributed along layers: time 2.7904 seconds
+Matrix split and distributed along layers: time 0.231561 seconds
+Matrix split and distributed along layers: time 0.049608 seconds
+Matrix split and distributed along layers: time 0.00359893 seconds
+[NID 05432] 2015-08-17 18:43:54 Apid 14780352: initiated application termination
+[NID 05432] 2015-08-17 18:43:55 Apid 14780352: OOM killer terminated this process.
+Application 14780352 exit signals: Killed
+Application 14780352 resources: utime ~0s, stime ~5s, Rss ~5796, inblocks ~67725, outblocks ~177832
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 29.1264 seconds
+Generating random permutation vector.
+Permutation took 52.4194 seconds
+Load balance: 1.0002
+Matrices read and replicated along layers : time 81.602
+As a whole: 16240000 rows and 344517 columns and 9422059 nonzeros
+Restriction Op computed : time 25.7481
+Matrix split and distributed along layers: time 6.23347 seconds
+Matrix split and distributed along layers: time 0.785276 seconds
+Matrix split and distributed along layers: time 0.109479 seconds
+Matrix split and distributed along layers: time 0.0129781 seconds
+[NID 05521] 2015-08-17 18:46:18 Apid 14780368: initiated application termination
+[NID 05521] 2015-08-17 18:46:20 Apid 14780368: OOM killer terminated this process.
+[NID 05523] 2015-08-17 18:46:20 Apid 14780368: OOM killer terminated this process.
+[NID 05432] 2015-08-17 18:46:21 Apid 14780368: OOM killer terminated this process.
+Application 14780368 exit signals: Killed
+Application 14780368 resources: utime ~0s, stime ~4s, Rss ~5796, inblocks ~56424, outblocks ~148193
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 38.5825 seconds
+Generating random permutation vector.
+Permutation took 68.4813 seconds
+Load balance: 1.00022
+Matrices read and replicated along layers : time 107.226
+As a whole: 16240000 rows and 344401 columns and 9419453 nonzeros
+Restriction Op computed : time 37.5271
+Matrix split and distributed along layers: time 8.57925 seconds
+Matrix split and distributed along layers: time 0.850581 seconds
+Matrix split and distributed along layers: time 0.150839 seconds
+Matrix split and distributed along layers: time 0.0189881 seconds
+[NID 05523] 2015-08-17 18:49:19 Apid 14780384: initiated application termination
+[NID 05523] 2015-08-17 18:49:20 Apid 14780384: OOM killer terminated this process.
+Application 14780384 exit signals: Killed
+Application 14780384 resources: utime ~0s, stime ~5s, Rss ~5796, inblocks ~67725, outblocks ~177832
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 99.2244 seconds
+Generating random permutation vector.
+Permutation took 137.93 seconds
+Load balance: 1.00015
+Matrices read and replicated along layers : time 237.572
+As a whole: 16240000 rows and 344370 columns and 9415260 nonzeros
+Restriction Op computed : time 140.443
+Matrix split and distributed along layers: time 35.3318 seconds
+Matrix split and distributed along layers: time 4.66954 seconds
+Matrix split and distributed along layers: time 0.59142 seconds
+Matrix split and distributed along layers: time 0.106435 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 05432] [c4-3c0s14n0] [Mon Aug 17 18:56:36 2015] PE RANK 11 exit signal Aborted
+[NID 05432] 2015-08-17 18:56:36 Apid 14780410: initiated application termination
+Application 14780410 exit codes: 134
+Application 14780410 exit signals: Killed
+Application 14780410 resources: utime ~427s, stime ~5s, Rss ~2659492, inblocks ~33966, outblocks ~88920
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 27.556 seconds
+Generating random permutation vector.
+Permutation took 52.1025 seconds
+Load balance: 1.00056
+Matrices read and replicated along layers : time 79.6743
+As a whole: 16240000 rows and 344177 columns and 9411969 nonzeros
+Restriction Op computed : time 18.2282
+Matrix split and distributed along layers: time 0.322307 seconds
+Matrix split and distributed along layers: time 0.309651 seconds
+Matrix split and distributed along layers: time 0.00173783 seconds
+Matrix split and distributed along layers: time 0.00286007 seconds
+   6    6     1      3   6.340213     0.000000    18.919008   5.186123     0.000000     0.288384     0.533732  31.267460
+   6    6     1      3   3.115972     0.000000     3.435403   0.130237     0.000000     0.006179     0.167027   6.854818
+   6    6     1      3   0.554364     0.000000     0.243608   0.011915     0.000000     0.000418     0.001753   0.812058
+   6    6     1      3   5.651109     0.000000    19.027362   5.203115     0.000000     0.280133     0.523677  30.685396
+   6    6     1      3   2.995869     0.000000     3.444210   0.129924     0.000000     0.006101     0.151531   6.727635
+   6    6     1      3   0.493510     0.000000     0.243676   0.011892     0.000000     0.000436     0.001036   0.750550
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50844057 nnzC2= 2728059
+Application 14780482 resources: utime ~9335s, stime ~1259s, Rss ~8152688, inblocks ~9441848, outblocks ~152531
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 37.8306 seconds
+Generating random permutation vector.
+Permutation took 66.5255 seconds
+Load balance: 1.00019
+Matrices read and replicated along layers : time 104.451
+As a whole: 16240000 rows and 344286 columns and 9416201 nonzeros
+Restriction Op computed : time 36.2527
+Matrix split and distributed along layers: time 11.0184 seconds
+Matrix split and distributed along layers: time 1.11328 seconds
+Matrix split and distributed along layers: time 0.185097 seconds
+Matrix split and distributed along layers: time 0.016824 seconds
+[NID 05432] 2015-08-17 19:02:48 Apid 14780546: initiated application termination
+[NID 05521] 2015-08-17 19:02:55 Apid 14780546: OOM killer terminated this process.
+[NID 05522] 2015-08-17 19:02:56 Apid 14780546: OOM killer terminated this process.
+[NID 05432] 2015-08-17 19:02:56 Apid 14780546: OOM killer terminated this process.
+Application 14780546 exit signals: Killed
+Application 14780546 resources: utime ~0s, stime ~0s, Rss ~5796, inblocks ~45040, outblocks ~118548
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 37.8568 seconds
+Generating random permutation vector.
+Permutation took 69.5469 seconds
+Load balance: 1.00011
+Matrices read and replicated along layers : time 107.685
+As a whole: 16240000 rows and 344340 columns and 9417128 nonzeros
+Restriction Op computed : time 62.0526
+Matrix split and distributed along layers: time 17.0801 seconds
+Matrix split and distributed along layers: time 2.1914 seconds
+Matrix split and distributed along layers: time 0.283252 seconds
+Matrix split and distributed along layers: time 0.03338 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 05522] 2015-08-17 19:06:27 Apid 14780594: initiated application termination
+[NID 05522] 2015-08-17 19:06:29 Apid 14780594: OOM killer terminated this process.
+Application 14780594 exit signals: Killed
+Application 14780594 resources: utime ~0s, stime ~0s, Rss ~5796, inblocks ~56292, outblocks ~148185
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 94.3182 seconds
+Generating random permutation vector.
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 1803 exceeded limit 1800
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+aprun: Apid 14780659: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 05521] [c4-3c2s4n1] [Mon Aug 17 19:09:12 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05523] [c4-3c2s4n3] [Mon Aug 17 19:09:12 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05432] [c4-3c0s14n0] [Mon Aug 17 19:09:12 2015] PE RANK 2 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05522] [c4-3c2s4n2] [Mon Aug 17 19:09:12 2015] PE RANK 18 exit signal Terminated
+Application 14780659 exit codes: 143
+Application 14780659 resources: utime ~629s, stime ~4s, Rss ~10384, inblocks ~45388, outblocks ~118552
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt200_128
+ +          Job Id: 3437815.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 16:53:31 2015
+ +      Start Time: Mon Aug 17 18:39:11 2015
+ + Completion Time: Mon Aug 17 19:09:22 2015
+ +            User: azad
+ +        MOM Host: nid00896
+ +           Queue: debug
+ +  Req. Resources: mppnodect=6,mppnppn=24,mppwidth=128,walltime=00:30:00
+ +  Used Resources: cput=00:00:03,energy_used=0,mem=10820kb,vmem=159764kb,walltime=00:30:13
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt200
+ +     Submit Args: batchRop_nlpkkt200_128
+ + --------------------------------------------------------------------------
+

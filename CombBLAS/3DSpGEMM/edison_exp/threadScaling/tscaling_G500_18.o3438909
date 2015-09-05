@@ -1,0 +1,128 @@
+Started Generation of scale 18
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 2.45774 seconds
+Created Sparse Matrix
+Permutation took 3.81764 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 6.27544
+As a whole: 262144 rows and 101750 columns and 122291 nonzeros
+Restriction Op computed : time 4.33556
+Matrix split and distributed along layers: time 0.047729 seconds
+Matrix split and distributed along layers: time 0.0473981 seconds
+Matrix split and distributed along layers: time 0.000901937 seconds
+Matrix split and distributed along layers: time 0.000987053 seconds
+   1    1     1      1   0.000003     0.000000    84.035138   0.000006     0.000000     4.178313     0.435741  88.649201
+   1    1     1      1   0.000004     0.000000     0.609052   0.000001     0.000000     0.031867     0.003052   0.643976
+   1    1     1      1   0.000003     0.000000     0.110922   0.000000     0.000000     0.013295     0.001789   0.126009
+   1    1     1      1   0.000003     0.000000    84.009305   0.000001     0.000000     4.224556     0.435519  88.669384
+   1    1     1      1   0.000003     0.000000     0.608802   0.000001     0.000000     0.031161     0.003057   0.643024
+   1    1     1      1   0.000003     0.000000     0.097500   0.000001     0.000000     0.013159     0.001790   0.112453
+nnzA= 3826916 nnzC= 427452693 nnzC1= 2949344 nnzC2= 1705327
+Application 14784075 resources: utime ~165s, stime ~25s, Rss ~20615768, inblocks ~11362, outblocks ~29640
+Started Generation of scale 18
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 2.48328 seconds
+Created Sparse Matrix
+Permutation took 3.86273 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 6.34607
+As a whole: 262144 rows and 101722 columns and 122599 nonzeros
+Restriction Op computed : time 4.55048
+Matrix split and distributed along layers: time 0.0466251 seconds
+Matrix split and distributed along layers: time 0.046958 seconds
+Matrix split and distributed along layers: time 0.000864029 seconds
+Matrix split and distributed along layers: time 0.00099802 seconds
+   1    1     1      3   0.000003     0.000000    29.824765   0.000005     0.000000     1.624685     0.493047  31.942505
+   1    1     1      3   0.000003     0.000000     0.224222   0.000001     0.000000     0.012607     0.003384   0.240217
+   1    1     1      3   0.000003     0.000000     0.043165   0.000001     0.000000     0.005258     0.001951   0.050378
+   1    1     1      3   0.000003     0.000000    29.811533   0.000001     0.000000     1.622667     0.495660  31.929864
+   1    1     1      3   0.000003     0.000000     0.223590   0.000001     0.000000     0.012255     0.003363   0.239212
+   1    1     1      3   0.000003     0.000000     0.039118   0.000001     0.000000     0.005155     0.001939   0.046216
+nnzA= 3825293 nnzC= 425623095 nnzC1= 2940309 nnzC2= 1701040
+Application 14784113 resources: utime ~177s, stime ~29s, Rss ~20522000, inblocks ~11362, outblocks ~29640
+Started Generation of scale 18
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 2.47775 seconds
+Created Sparse Matrix
+Permutation took 3.86083 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 6.33863
+As a whole: 262144 rows and 101690 columns and 122602 nonzeros
+Restriction Op computed : time 4.63667
+Matrix split and distributed along layers: time 0.0481229 seconds
+Matrix split and distributed along layers: time 0.0464211 seconds
+Matrix split and distributed along layers: time 0.00106812 seconds
+Matrix split and distributed along layers: time 0.000994921 seconds
+   1    1     1      6   0.000003     0.000000    20.214905   0.000007     0.000000     0.919564     0.541541  21.676020
+   1    1     1      6   0.000004     0.000000     0.125456   0.000000     0.000000     0.007473     0.003835   0.136768
+   1    1     1      6   0.000004     0.000000     0.025541   0.000001     0.000000     0.003367     0.002162   0.031075
+   1    1     1      6   0.000003     0.000000    16.690196   0.000001     0.000000     0.922312     0.525382  18.137894
+   1    1     1      6   0.000003     0.000000     0.124066   0.000001     0.000000     0.007348     0.003701   0.135119
+   1    1     1      6   0.000003     0.000000     0.022341   0.000001     0.000000     0.003378     0.002154   0.027877
+nnzA= 3826069 nnzC= 423837696 nnzC1= 2960385 nnzC2= 1722578
+Application 14784133 resources: utime ~200s, stime ~30s, Rss ~20445500, inblocks ~11362, outblocks ~29640
+Started Generation of scale 18
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 2.51312 seconds
+Created Sparse Matrix
+Permutation took 3.81643 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 6.32961
+As a whole: 262144 rows and 102057 columns and 122880 nonzeros
+Restriction Op computed : time 4.27534
+Matrix split and distributed along layers: time 0.0471301 seconds
+Matrix split and distributed along layers: time 0.0465028 seconds
+Matrix split and distributed along layers: time 0.0010829 seconds
+Matrix split and distributed along layers: time 0.000920057 seconds
+   1    1     1     12   0.000018     0.000000     8.786019   0.000005     0.000000     0.619564     0.554288   9.959894
+   1    1     1     12   0.000004     0.000000     0.065043   0.000001     0.000000     0.004843     0.003642   0.073533
+   1    1     1     12   0.000003     0.000000     0.014337   0.000001     0.000000     0.002686     0.002069   0.019096
+   1    1     1     12   0.000003     0.000000     8.832732   0.000001     0.000000     0.619936     0.579670  10.032342
+   1    1     1     12   0.000004     0.000000     0.065124   0.000001     0.000000     0.004859     0.003771   0.073759
+   1    1     1     12   0.000004     0.000000     0.013165   0.000001     0.000000     0.002538     0.002145   0.017853
+nnzA= 3825725 nnzC= 424731033 nnzC1= 2855848 nnzC2= 1641250
+Application 14784146 resources: utime ~219s, stime ~33s, Rss ~20479588, inblocks ~11362, outblocks ~29640
+Started Generation of scale 18
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 2.46252 seconds
+Created Sparse Matrix
+Permutation took 3.82622 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 6.2888
+As a whole: 262144 rows and 101880 columns and 122675 nonzeros
+Restriction Op computed : time 4.45033
+Matrix split and distributed along layers: time 0.0477991 seconds
+Matrix split and distributed along layers: time 0.0462031 seconds
+Matrix split and distributed along layers: time 0.00104594 seconds
+Matrix split and distributed along layers: time 0.000939846 seconds
+   1    1     1     24   0.000016     0.000000     9.110162   0.000007     0.000000     0.632258     0.509538  10.251981
+   1    1     1     24   0.000004     0.000000     0.088903   0.000001     0.000000     0.006357     0.003351   0.098616
+   1    1     1     24   0.000003     0.000000     0.018592   0.000001     0.000000     0.003060     0.002115   0.023771
+   1    1     1     24   0.000003     0.000000     8.851826   0.000001     0.000000     0.642479     0.511673  10.005982
+   1    1     1     24   0.000004     0.000000     0.092257   0.000001     0.000000     0.006677     0.003535   0.102474
+   1    1     1     24   0.000003     0.000000     0.019684   0.000001     0.000000     0.003549     0.002074   0.025311
+nnzA= 3827715 nnzC= 425723130 nnzC1= 2953219 nnzC2= 1724667
+Application 14784162 resources: utime ~188s, stime ~31s, Rss ~20495324, inblocks ~11362, outblocks ~29640
+
+ + --------------------------------------------------------------------------
+ +        Job name: tscaling_G500_18
+ +          Job Id: 3438909.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 22:02:07 2015
+ +      Start Time: Mon Aug 17 22:02:38 2015
+ + Completion Time: Mon Aug 17 22:10:24 2015
+ +            User: azad
+ +        MOM Host: nid02435
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=24,mppwidth=24,walltime=00:30:00
+ +  Used Resources: cput=00:00:02,energy_used=0,mem=19196kb,vmem=270344kb,walltime=00:07:47
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/threadScaling
+ +     Submit Args: tscaling_G500_18
+ + --------------------------------------------------------------------------
+

@@ -1,0 +1,344 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 20.0545 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 36.4089 seconds
+Input load balance: 1.36351
+Input matrix read : time 56.4635
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 309036 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 309036 columns and 16240000 nonzeros
+Load balance (before): 1.19604
+Load balance (after): 1.00818
+Restriction Op computed : time 8.90958
+Matrix split and distributed along layers: time 0.186009 seconds
+Matrix split and distributed along layers: time 0.127223 seconds
+Matrix split and distributed along layers: time 0.00154614 seconds
+Matrix split and distributed along layers: time 0.00218821 seconds
+
+ Processor Grid (row x col x layers x threads): 11x11x1x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 00397] 2015-09-02 16:13:03 Apid 15456055: initiated application termination
+[NID 05628] 2015-09-02 16:13:04 Apid 15456055: OOM killer terminated this process.
+[NID 00397] 2015-09-02 16:13:04 Apid 15456055: OOM killer terminated this process.
+[NID 05505] 2015-09-02 16:13:04 Apid 15456055: OOM killer terminated this process.
+[NID 05648] 2015-09-02 16:13:06 Apid 15456055: OOM killer terminated this process.
+[NID 00159] 2015-09-02 16:13:06 Apid 15456055: OOM killer terminated this process.
+Application 15456055 exit signals: Killed
+Application 15456055 resources: utime ~0s, stime ~5s, Rss ~4364, inblocks ~64537, outblocks ~170302
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 25.0128 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 43.2552 seconds
+Input load balance: 1.25448
+Input matrix read : time 68.2682
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 308796 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 308796 columns and 16240000 nonzeros
+Load balance (before): 1.13562
+Load balance (after): 1.0044
+Restriction Op computed : time 13.4793
+Matrix split and distributed along layers: time 2.84603 seconds
+Matrix split and distributed along layers: time 0.389882 seconds
+Matrix split and distributed along layers: time 0.052418 seconds
+Matrix split and distributed along layers: time 0.00767589 seconds
+
+ Processor Grid (row x col x layers x threads): 8x8x2x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 00397] 2015-09-02 16:15:12 Apid 15456098: initiated application termination
+[NID 00397] 2015-09-02 16:15:13 Apid 15456098: OOM killer terminated this process.
+[NID 05505] 2015-09-02 16:15:14 Apid 15456098: OOM killer terminated this process.
+[NID 05648] 2015-09-02 16:15:19 Apid 15456098: OOM killer terminated this process.
+[NID 05628] 2015-09-02 16:15:18 Apid 15456098: OOM killer terminated this process.
+[NID 00159] 2015-09-02 16:15:19 Apid 15456098: OOM killer terminated this process.
+Application 15456098 exit signals: Killed
+Application 15456098 resources: utime ~0s, stime ~5s, Rss ~4364, inblocks ~64551, outblocks ~170302
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 20.7991 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 49.4342 seconds
+Input load balance: 1.14575
+Input matrix read : time 70.279
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 308743 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 308743 columns and 16240000 nonzeros
+Load balance (before): 1.07831
+Load balance (after): 1.00246
+Restriction Op computed : time 29.0814
+Matrix split and distributed along layers: time 5.56429 seconds
+Matrix split and distributed along layers: time 0.825177 seconds
+Matrix split and distributed along layers: time 0.123322 seconds
+Matrix split and distributed along layers: time 0.0244482 seconds
+
+ Processor Grid (row x col x layers x threads): 5x5x4x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 05628] [c5-3c0s15n0] [Wed Sep  2 16:17:36 2015] PE RANK 69 exit signal Aborted
+[NID 05628] 2015-09-02 16:17:36 Apid 15456132: initiated application termination
+Application 15456132 exit codes: 134
+Application 15456132 exit signals: Killed
+Application 15456132 resources: utime ~129s, stime ~7s, Rss ~2505380, inblocks ~53840, outblocks ~141918
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 32.3279 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 62.7232 seconds
+Input load balance: 1.10902
+Input matrix read : time 95.2036
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 309080 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 309080 columns and 16240000 nonzeros
+Load balance (before): 1.05828
+Load balance (after): 1.00135
+Restriction Op computed : time 42.4877
+Matrix split and distributed along layers: time 7.37367 seconds
+Matrix split and distributed along layers: time 1.14343 seconds
+Matrix split and distributed along layers: time 0.186723 seconds
+Matrix split and distributed along layers: time 0.0422668 seconds
+
+ Processor Grid (row x col x layers x threads): 4x4x8x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 05628] 2015-09-02 16:20:33 Apid 15456161: initiated application termination
+[NID 05628] 2015-09-02 16:20:34 Apid 15456161: OOM killer terminated this process.
+[NID 05648] 2015-09-02 16:20:35 Apid 15456161: OOM killer terminated this process.
+[NID 00159] 2015-09-02 16:20:35 Apid 15456161: OOM killer terminated this process.
+Application 15456161 exit signals: Killed
+Application 15456161 resources: utime ~0s, stime ~5s, Rss ~4364, inblocks ~64551, outblocks ~170302
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 95.4166 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 121.237 seconds
+Input load balance: 1.03625
+Input matrix read : time 216.802
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 308927 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 308927 columns and 16240000 nonzeros
+Load balance (before): 1.01926
+Load balance (after): 1.00046
+Restriction Op computed : time 158.227
+Matrix split and distributed along layers: time 28.7583 seconds
+Matrix split and distributed along layers: time 5.2778 seconds
+Matrix split and distributed along layers: time 0.791079 seconds
+Matrix split and distributed along layers: time 0.186212 seconds
+
+ Processor Grid (row x col x layers x threads): 2x2x16x1 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 00159] 2015-09-02 16:27:47 Apid 15456174: initiated application termination
+[NID 00159] 2015-09-02 16:27:49 Apid 15456174: OOM killer terminated this process.
+Application 15456174 exit signals: Killed
+Application 15456174 resources: utime ~0s, stime ~2s, Rss ~4364, inblocks ~32276, outblocks ~85151
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 23.7917 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 48.2321 seconds
+Input load balance: 1.18183
+Input matrix read : time 72.0519
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 309258 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 309258 columns and 16240000 nonzeros
+Load balance (before): 1.09859
+Load balance (after): 1.00355
+Restriction Op computed : time 20.8519
+Matrix split and distributed along layers: time 0.402281 seconds
+Matrix split and distributed along layers: time 0.40339 seconds
+Matrix split and distributed along layers: time 0.00509787 seconds
+Matrix split and distributed along layers: time 0.00907016 seconds
+
+ Processor Grid (row x col x layers x threads): 6x6x1x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+[NID 05628] 2015-09-02 16:30:10 Apid 15456225: initiated application termination
+[NID 05628] 2015-09-02 16:30:11 Apid 15456225: OOM killer terminated this process.
+[NID 05505] 2015-09-02 16:30:15 Apid 15456225: OOM killer terminated this process.
+Application 15456225 exit signals: Killed
+Application 15456225 resources: utime ~0s, stime ~0s, Rss ~4364, inblocks ~53647, outblocks ~141910
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 34.593 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 60.6337 seconds
+Input load balance: 1.10865
+Input matrix read : time 95.2409
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 309124 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 309124 columns and 16240000 nonzeros
+Load balance (before): 1.05913
+Load balance (after): 1.00183
+Restriction Op computed : time 41.7676
+Matrix split and distributed along layers: time 9.44426 seconds
+Matrix split and distributed along layers: time 1.33476 seconds
+Matrix split and distributed along layers: time 0.228839 seconds
+Matrix split and distributed along layers: time 0.035125 seconds
+
+ Processor Grid (row x col x layers x threads): 4x4x2x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 05505] 2015-09-02 16:33:23 Apid 15456249: initiated application termination
+[NID 05505] 2015-09-02 16:33:24 Apid 15456249: OOM killer terminated this process.
+[NID 05648] 2015-09-02 16:33:24 Apid 15456249: OOM killer terminated this process.
+[NID 05628] 2015-09-02 16:33:30 Apid 15456249: OOM killer terminated this process.
+[NID 00159] 2015-09-02 16:33:31 Apid 15456249: OOM killer terminated this process.
+Application 15456249 exit signals: Killed
+Application 15456249 resources: utime ~0s, stime ~0s, Rss ~4364, inblocks ~42924, outblocks ~113528
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 33.8563 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 65.1027 seconds
+Input load balance: 1.07252
+Input matrix read : time 98.9858
+Computing restriction matrix 
+As a whole: 16240000 rows and 16240000 columns and 431985632 nonzeros
+As a whole, mis2 has: 308860 nonzeros and length 16240000
+Creating a new MPI data type for 10VertexTypeIlE
+As a whole, mis2neighUnion has: 16240000 nonzeros and length 16240000
+Rop final (before normalization)... As a whole: 16240000 rows and 308860 columns and 16240000 nonzeros
+Load balance (before): 1.03823
+Load balance (after): 1.00134
+Restriction Op computed : time 70.5315
+Matrix split and distributed along layers: time 14.2191 seconds
+Matrix split and distributed along layers: time 2.47268 seconds
+Matrix split and distributed along layers: time 0.361987 seconds
+Matrix split and distributed along layers: time 0.0775459 seconds
+
+ Processor Grid (row x col x layers x threads): 3x3x4x3 
+ prow pcol layer thread comm_bcast   comm_scatter comp_summa comp_merge  comp_scatter  comp_result     other      total
+Computing A square
+[NID 00159] 2015-09-02 16:37:08 Apid 15456276: initiated application termination
+[NID 05628] 2015-09-02 16:37:10 Apid 15456276: OOM killer terminated this process.
+[NID 00159] 2015-09-02 16:37:12 Apid 15456276: OOM killer terminated this process.
+Application 15456276 exit signals: Killed
+Application 15456276 resources: utime ~0s, stime ~0s, Rss ~4364, inblocks ~53647, outblocks ~141910
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+As a whole: 16240000 rows and 16240000 columns and 448225632 nonzeros
+Reader took 92.4717 seconds
+Generating random permutation vector.
+Perfoming random permuation of matrix.
+Permutation took 131.167 seconds
+Input load balance: 1.03622
+Input matrix read : time 223.841
+Computing restriction matrix 
+aprun: Apid 15456311: Caught signal Terminated, sending to application
+aprun: Apid 15456311: Caught signal Terminated, sending to application
+=>> PBS: job killed: walltime 1806 exceeded limit 1800
+_pmiu_daemon(SIGCHLD): [NID 05648] [c5-3c1s4n0] [Wed Sep  2 16:41:02 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05628] [c5-3c0s15n0] [Wed Sep  2 16:41:02 2015] PE RANK 18 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05505] [c4-3c2s0n1] [Wed Sep  2 16:41:02 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00159] [c0-0c2s7n3] [Wed Sep  2 16:41:02 2015] PE RANK 1 exit signal Terminated
+aprun: Apid 15456311: Caught signal Terminated, sending to application
+Application 15456311 exit codes: 143
+Application 15456311 resources: utime ~892s, stime ~4s, Rss ~9708, inblocks ~43164, outblocks ~113532
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt200_128_new
+ +          Job Id: 3525754.edique02
+ +          System: edison
+ +     Queued Time: Wed Sep  2 15:47:54 2015
+ +      Start Time: Wed Sep  2 16:10:58 2015
+ + Completion Time: Wed Sep  2 16:41:04 2015
+ +            User: azad
+ +        MOM Host: nid00897
+ +           Queue: debug
+ +  Req. Resources: mppnodect=6,mppnppn=24,mppwidth=128,walltime=00:30:00
+ +  Used Resources: cput=00:00:02,energy_used=0,mem=10820kb,vmem=159764kb,walltime=00:30:07
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt200
+ +     Submit Args: batchRop_nlpkkt200_128
+ + --------------------------------------------------------------------------
+

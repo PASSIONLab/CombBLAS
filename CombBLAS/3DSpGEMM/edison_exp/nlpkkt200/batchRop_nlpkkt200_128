@@ -1,7 +1,7 @@
 #PBS -q debug
 #PBS -l mppwidth=128
 #PBS -l walltime=00:30:00
-#PBS -N Rop_nlpkkt200_128
+#PBS -N Rop_nlpkkt200_128_new
 #PBS -j oe
 
 cd $PBS_O_WORKDIR

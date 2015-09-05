@@ -1,0 +1,41 @@
+Started Generation of scale 20
+Using 1 MPI processes
+Generated renamed edge lists
+Generation took 10.8615 seconds
+Created Sparse Matrix
+Permutation took 17.8163 seconds
+Load balance: 1
+RMATs Generated and replicated along layers : time 28.6779
+As a whole: 1048576 rows and 451838 columns and 524400 nonzeros
+Restriction Op computed : time 21.1577
+Matrix split and distributed along layers: time 0.314885 seconds
+Matrix split and distributed along layers: time 0.315417 seconds
+Matrix split and distributed along layers: time 0.00515199 seconds
+Matrix split and distributed along layers: time 0.00537586 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmiu_daemon(SIGCHLD): [NID 04484] [c7-2c1s1n0] [Mon Aug 17 19:28:21 2015] PE RANK 0 exit signal Aborted
+Application 14780946 exit codes: 134
+Application 14780946 resources: utime ~45s, stime ~6s, Rss ~1561928, inblocks ~11362, outblocks ~29638
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+
+ + --------------------------------------------------------------------------
+ +        Job name: tscaling_G500_20
+ +          Job Id: 3438062.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 18:07:57 2015
+ +      Start Time: Mon Aug 17 19:27:26 2015
+ + Completion Time: Mon Aug 17 19:28:24 2015
+ +            User: azad
+ +        MOM Host: nid02051
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=24,mppwidth=24,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10808kb,vmem=94252kb,walltime=00:01:00
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/threadScaling
+ +     Submit Args: tscaling_G500_20
+ + --------------------------------------------------------------------------
+

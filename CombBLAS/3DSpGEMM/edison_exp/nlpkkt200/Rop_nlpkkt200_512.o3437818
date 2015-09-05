@@ -1,0 +1,402 @@
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 15.2949 seconds
+Generating random permutation vector.
+Permutation took 28.7875 seconds
+Load balance: 1.00249
+Matrices read and replicated along layers : time 44.0905
+As a whole: 16240000 rows and 344105 columns and 9412423 nonzeros
+Restriction Op computed : time 2.60171
+Matrix split and distributed along layers: time 0.036433 seconds
+Matrix split and distributed along layers: time 0.0306649 seconds
+Matrix split and distributed along layers: time 0.000360966 seconds
+Matrix split and distributed along layers: time 0.000408888 seconds
+  22   22     1      1   5.402149     0.000000    10.178254   3.338950     0.000000     0.074239     0.126173  19.119766
+  22   22     1      1   5.051883     0.000000     2.214378   0.064730     0.000000     0.000962     0.014105   7.346057
+  22   22     1      1   0.243130     0.000000     0.120758   0.025651     0.000000     0.000195     0.002256   0.391990
+  22   22     1      1   5.387711     0.000000     9.791735   3.327018     0.000000     0.037690     0.231024  18.775178
+  22   22     1      1   4.962487     0.000000     2.203458   0.064617     0.000000     0.000984     0.010520   7.242066
+  22   22     1      1   0.228754     0.000000     0.120750   0.025539     0.000000     0.000192     0.002701   0.377936
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50842306 nnzC2= 2729609
+Application 14780698 resources: utime ~43243s, stime ~1513s, Rss ~1289552, inblocks ~10510122, outblocks ~655811
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 16.4601 seconds
+Generating random permutation vector.
+Permutation took 28.6188 seconds
+Load balance: 1.00234
+Matrices read and replicated along layers : time 45.0815
+As a whole: 16240000 rows and 344159 columns and 9412304 nonzeros
+Restriction Op computed : time 3.88325
+Matrix split and distributed along layers: time 0.625679 seconds
+Matrix split and distributed along layers: time 0.0578618 seconds
+Matrix split and distributed along layers: time 0.013747 seconds
+Matrix split and distributed along layers: time 0.00102997 seconds
+  16   16     2      1   2.540530     0.137431     7.378131   3.155097     0.415370     0.059290     0.344038  14.029888
+  16   16     2      1   3.291715     0.001553     1.593499   0.059255     0.008134     0.001021     0.013894   4.969071
+  16   16     2      1   0.115375     0.000255     0.089915   0.021998     0.001302     0.000135     0.001112   0.230092
+  16   16     2      1   2.214250     0.138557     7.476084   3.144210     0.415260     0.059613     0.374213  13.822187
+  16   16     2      1   3.131124     0.001251     1.588290   0.059239     0.008124     0.001016     0.012829   4.801873
+  16   16     2      1   0.119117     0.000289     0.090585   0.021882     0.001342     0.000147     0.003295   0.236657
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50848101 nnzC2= 2726369
+Application 14780738 resources: utime ~41447s, stime ~1696s, Rss ~1505088, inblocks ~10169764, outblocks ~673612
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 14.2546 seconds
+Generating random permutation vector.
+Permutation took 28.4388 seconds
+Load balance: 1.00134
+Matrices read and replicated along layers : time 42.7099
+As a whole: 16240000 rows and 344476 columns and 9420765 nonzeros
+Restriction Op computed : time 6.35342
+Matrix split and distributed along layers: time 1.12611 seconds
+Matrix split and distributed along layers: time 0.107777 seconds
+Matrix split and distributed along layers: time 0.0228782 seconds
+Matrix split and distributed along layers: time 0.00248718 seconds
+  11   11     4      1   1.456485     0.280732     5.799583   3.065765     0.817262     0.034414     1.143853  12.598094
+  11   11     4      1   1.149957     0.003860     1.203044   0.055907     0.017411     0.001084     0.798094   3.229357
+  11   11     4      1   0.090556     0.000841     0.068680   0.018017     0.002919     0.000219     0.004864   0.186096
+  11   11     4      1   1.080619     0.286396     5.953118   3.085957     0.830820     0.033665     1.154845  12.425420
+  11   11     4      1   2.053868     0.003688     1.211463   0.055932     0.017469     0.001118     0.064540   3.408078
+  11   11     4      1   0.091073     0.000642     0.070576   0.018015     0.002933     0.000223     0.001920   0.185381
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50886784 nnzC2= 10076983
+Application 14780757 resources: utime ~37206s, stime ~2106s, Rss ~1590620, inblocks ~10031047, outblocks ~638476
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 24.2847 seconds
+Generating random permutation vector.
+Permutation took 38.6429 seconds
+Load balance: 1.00096
+Matrices read and replicated along layers : time 62.9668
+As a whole: 16240000 rows and 344500 columns and 9419684 nonzeros
+Restriction Op computed : time 10.9295
+Matrix split and distributed along layers: time 2.01284 seconds
+Matrix split and distributed along layers: time 0.239706 seconds
+Matrix split and distributed along layers: time 0.03792 seconds
+Matrix split and distributed along layers: time 0.00482297 seconds
+   8    8     8      1   0.762582     0.412578     4.477181   2.611460     1.409096     0.046291     1.226992  10.946180
+   8    8     8      1   0.570035     0.006763     0.862689   0.048549     0.031091     0.002034     0.603509   2.124669
+   8    8     8      1   0.081480     0.001101     0.050526   0.013148     0.004429     0.000109     0.005250   0.156043
+   8    8     8      1   0.670689     0.406148     4.583046   2.612961     1.386558     0.032337     0.976924  10.668663
+   8    8     8      1   1.309514     0.006295     0.873194   0.048070     0.031083     0.002031     0.058593   2.328780
+   8    8     8      1   0.082453     0.001043     0.050900   0.013168     0.004412     0.000106     0.003975   0.156057
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50883882 nnzC2= 2731592
+Application 14780785 resources: utime ~49758s, stime ~2503s, Rss ~3025076, inblocks ~9770781, outblocks ~663570
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 21.0343 seconds
+Generating random permutation vector.
+Permutation took 46.0108 seconds
+Load balance: 1.00037
+Matrices read and replicated along layers : time 67.1798
+As a whole: 16240000 rows and 343985 columns and 9408117 nonzeros
+Restriction Op computed : time 24.5592
+Matrix split and distributed along layers: time 5.00787 seconds
+Matrix split and distributed along layers: time 0.521692 seconds
+Matrix split and distributed along layers: time 0.0924799 seconds
+Matrix split and distributed along layers: time 0.012676 seconds
+   5    5    16      1   0.624440     0.901014     3.988589   2.803266     2.594342     0.039738     1.950595  12.901984
+   5    5    16      1   1.776084     0.017085     0.761245   0.055047     0.060878     0.003581     0.068126   2.742046
+   5    5    16      1   0.072284     0.002362     0.039335   0.012311     0.009272     0.000107     0.017000   0.152671
+   5    5    16      1   0.659411     0.906112     3.972354   2.816339     2.576505     0.038603     1.949224  12.918548
+   5    5    16      1   1.833299     0.012254     0.761812   0.054745     0.060833     0.003353     0.092292   2.818588
+   5    5    16      1   0.071219     0.002342     0.042947   0.012276     0.009255     0.000117     0.019312   0.157468
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50819927 nnzC2= 2728163
+Application 14780813 resources: utime ~49108s, stime ~2755s, Rss ~3113692, inblocks ~9685730, outblocks ~515219
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 13.5572 seconds
+Generating random permutation vector.
+Permutation took 27.0524 seconds
+Load balance: 1.00172
+Matrices read and replicated along layers : time 40.6471
+As a whole: 16240000 rows and 344367 columns and 9418049 nonzeros
+Restriction Op computed : time 4.99399
+Matrix split and distributed along layers: time 0.046572 seconds
+Matrix split and distributed along layers: time 0.024545 seconds
+Matrix split and distributed along layers: time 0.000616074 seconds
+Matrix split and distributed along layers: time 0.000669003 seconds
+  13   13     1      3   4.580635     0.000000     6.457894   2.062404     0.000000     0.067381     0.190613  13.358927
+  13   13     1      3   2.847065     0.000000     1.312204   0.047614     0.000000     0.001113     0.115844   4.323840
+  13   13     1      3   0.283271     0.000000     0.088737   0.009542     0.000000     0.000169     0.001015   0.382734
+  13   13     1      3   4.257289     0.000000     6.507151   2.068321     0.000000     0.068629     0.149184  13.050575
+  13   13     1      3   2.828902     0.000000     1.314484   0.047749     0.000000     0.001133     0.121665   4.313933
+  13   13     1      3   0.267280     0.000000     0.088725   0.009553     0.000000     0.000172     0.004896   0.370626
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50871795 nnzC2= 2731209
+Application 14780842 resources: utime ~22060s, stime ~1727s, Rss ~2431792, inblocks ~10412126, outblocks ~666252
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 15.6456 seconds
+Generating random permutation vector.
+Permutation took 30.8509 seconds
+Load balance: 1.00116
+Matrices read and replicated along layers : time 46.5652
+As a whole: 16240000 rows and 344465 columns and 9421394 nonzeros
+Restriction Op computed : time 8.96533
+Matrix split and distributed along layers: time 1.95813 seconds
+Matrix split and distributed along layers: time 0.115126 seconds
+Matrix split and distributed along layers: time 0.0372651 seconds
+Matrix split and distributed along layers: time 0.00241399 seconds
+   9    9     2      3   1.830234     0.538348     5.095591   2.314112     0.471035     0.064609     0.909615  11.223544
+   9    9     2      3   2.126745     0.008803     1.019042   0.045202     0.010024     0.001737     0.042892   3.254445
+   9    9     2      3   0.119605     0.000557     0.066079   0.009993     0.000992     0.000128     0.042034   0.239388
+   9    9     2      3   1.541285     0.439691     5.105418   2.324764     0.483494     0.065375     0.808253  10.768280
+   9    9     2      3   2.157482     0.010023     1.015582   0.045127     0.009560     0.001684     0.033007   3.272465
+   9    9     2      3   0.108950     0.000464     0.066540   0.009888     0.001003     0.000137     0.050443   0.237425
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50893464 nnzC2= 2735059
+Application 14780853 resources: utime ~20933s, stime ~1679s, Rss ~3147460, inblocks ~9800444, outblocks ~633734
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 26.7668 seconds
+Generating random permutation vector.
+Permutation took 45.7008 seconds
+Load balance: 1.00061
+Matrices read and replicated along layers : time 72.554
+As a whole: 16240000 rows and 344216 columns and 9414515 nonzeros
+Restriction Op computed : time 17.0224
+Matrix split and distributed along layers: time 3.81243 seconds
+Matrix split and distributed along layers: time 0.305856 seconds
+Matrix split and distributed along layers: time 0.0692849 seconds
+Matrix split and distributed along layers: time 0.00685 seconds
+   6    6     4      3   0.871761     1.060747     4.612541   2.413760     1.015609     0.070721     1.436481  11.481621
+   6    6     4      3   0.521652     0.017326     0.824356   0.044073     0.021871     0.003290     0.616358   2.048926
+   6    6     4      3   0.072033     0.001486     0.052197   0.008238     0.002737     0.000254     0.044218   0.181163
+   6    6     4      3   1.082824     0.831447     4.654046   2.288051     1.001760     0.070330     1.070802  10.999260
+   6    6     4      3   0.573969     0.017652     0.818637   0.043997     0.022262     0.002085     0.579268   2.057870
+   6    6     4      3   0.065738     0.001593     0.052274   0.008262     0.002848     0.000205     0.043587   0.174507
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50854232 nnzC2= 10075844
+Application 14780877 resources: utime ~22655s, stime ~1793s, Rss ~5172392, inblocks ~9617405, outblocks ~540569
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 36.7634 seconds
+Generating random permutation vector.
+Permutation took 63.4365 seconds
+Load balance: 1.00046
+Matrices read and replicated along layers : time 100.333
+As a whole: 16240000 rows and 344237 columns and 9416183 nonzeros
+Restriction Op computed : time 34.2792
+Matrix split and distributed along layers: time 8.13464 seconds
+Matrix split and distributed along layers: time 0.841137 seconds
+Matrix split and distributed along layers: time 0.144199 seconds
+Matrix split and distributed along layers: time 0.0187931 seconds
+   4    4     8      3   0.676362     1.653698     4.023505   2.483269     1.837171     0.079274     1.570613  12.323892
+   4    4     8      3   0.137852     0.037874     0.673959   0.045272     0.038853     0.002080     0.638581   1.574471
+   4    4     8      3   0.033227     0.003081     0.036620   0.007632     0.004146     0.000108     0.075165   0.159979
+   4    4     8      3   0.438219     1.644393     4.109789   2.492542     1.867168     0.079229     1.506562  12.137902
+   4    4     8      3   0.152610     0.033585     0.671187   0.045744     0.038028     0.001446     0.544282   1.486882
+   4    4     8      3   0.026133     0.002854     0.035640   0.007636     0.004152     0.000119     0.082202   0.158736
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50857135 nnzC2= 2731089
+Application 14780887 resources: utime ~26195s, stime ~1984s, Rss ~6380448, inblocks ~9522540, outblocks ~479880
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 37.5192 seconds
+Generating random permutation vector.
+Permutation took 66.106 seconds
+Load balance: 1.00015
+Matrices read and replicated along layers : time 103.676
+As a whole: 16240000 rows and 344597 columns and 9423738 nonzeros
+Restriction Op computed : time 59.6297
+Matrix split and distributed along layers: time 14.1796 seconds
+Matrix split and distributed along layers: time 1.23068 seconds
+Matrix split and distributed along layers: time 0.249904 seconds
+Matrix split and distributed along layers: time 0.032495 seconds
+   3    3    16      3   0.294990     2.470958     3.122370   2.086021     2.362300     0.034965     1.336366  11.707970
+   3    3    16      3   1.185473     0.040531     0.478417   0.038846     0.050368     0.001288     0.273238   2.068161
+   3    3    16      3   0.050051     0.003743     0.024781   0.006404     0.006849     0.000111     0.028418   0.120357
+   3    3    16      3   0.502550     2.127223     3.165700   2.095154     2.366080     0.034486     0.996286  11.287479
+   3    3    16      3   1.223764     0.041634     0.477228   0.038781     0.051380     0.001306     0.211014   2.045107
+   3    3    16      3   0.034146     0.003789     0.024971   0.006404     0.006874     0.000107     0.035014   0.111305
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50909617 nnzC2= 4580579
+Application 14780935 resources: utime ~34005s, stime ~2137s, Rss ~6207016, inblocks ~9580893, outblocks ~545808
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 14.6909 seconds
+Generating random permutation vector.
+Permutation took 29.2555 seconds
+Load balance: 1.0011
+Matrices read and replicated along layers : time 43.9989
+As a whole: 16240000 rows and 344344 columns and 9416342 nonzeros
+Restriction Op computed : time 8.51158
+Matrix split and distributed along layers: time 0.119172 seconds
+Matrix split and distributed along layers: time 0.10238 seconds
+Matrix split and distributed along layers: time 0.000990868 seconds
+Matrix split and distributed along layers: time 0.00114512 seconds
+   9    9     1      6   4.449352     0.000000     5.297959   1.829959     0.000000     0.071242     0.429996  12.078508
+   9    9     1      6   2.054154     0.000000     1.031085   0.047903     0.000000     0.003433     0.066298   3.202873
+   9    9     1      6   0.319174     0.000000     0.093773   0.006498     0.000000     0.000129     0.005018   0.424592
+   9    9     1      6   3.958833     0.000000     5.304815   1.781234     0.000000     0.071675     0.195707  11.312264
+   9    9     1      6   2.067337     0.000000     1.035211   0.045071     0.000000     0.003439     0.056144   3.207202
+   9    9     1      6   0.326979     0.000000     0.093374   0.006456     0.000000     0.000131     0.006722   0.433662
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50863739 nnzC2= 2729390
+Application 14780982 resources: utime ~15592s, stime ~1451s, Rss ~4149564, inblocks ~9848257, outblocks ~634099
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 25.6898 seconds
+Generating random permutation vector.
+Permutation took 43.393 seconds
+Load balance: 1.00055
+Matrices read and replicated along layers : time 69.1511
+As a whole: 16240000 rows and 344323 columns and 9418127 nonzeros
+Restriction Op computed : time 16.0103
+Matrix split and distributed along layers: time 4.41273 seconds
+Matrix split and distributed along layers: time 0.432733 seconds
+Matrix split and distributed along layers: time 0.0752611 seconds
+Matrix split and distributed along layers: time 0.00551105 seconds
+   6    6     2      6   2.464515     0.838837     4.778418   2.266422     0.612289     0.088539     0.574324  11.623344
+   6    6     2      6   1.271569     0.018495     0.858356   0.038471     0.011329     0.002925     0.086764   2.287909
+   6    6     2      6   0.208638     0.003714     0.062166   0.005338     0.000925     0.000120     0.001835   0.282736
+   6    6     2      6   2.144931     0.865353     4.744262   1.942189     0.610709     0.090965     0.396754  10.795162
+   6    6     2      6   1.417526     0.023683     0.812613   0.036757     0.011696     0.002543     0.028789   2.333607
+   6    6     2      6   0.176118     0.002043     0.059754   0.005388     0.000937     0.000121     0.012462   0.256823
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50869743 nnzC2= 2731827
+Application 14780995 resources: utime ~15640s, stime ~1555s, Rss ~6253944, inblocks ~9616790, outblocks ~540150
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 34.42 seconds
+Generating random permutation vector.
+Permutation took 59.8314 seconds
+Load balance: 1.00043
+Matrices read and replicated along layers : time 94.5076
+As a whole: 16240000 rows and 344534 columns and 9422175 nonzeros
+Restriction Op computed : time 32.5394
+Matrix split and distributed along layers: time 8.72081 seconds
+Matrix split and distributed along layers: time 0.97435 seconds
+Matrix split and distributed along layers: time 0.147797 seconds
+Matrix split and distributed along layers: time 0.015022 seconds
+   4    4     4      6   0.898854     2.158478     4.325978   2.275380     1.066384     0.087548     1.701976  12.514598
+   4    4     4      6   0.609696     0.036376     0.730018   0.048904     0.022072     0.002449     0.246362   1.695877
+   4    4     4      6   0.090454     0.004884     0.044830   0.005355     0.001973     0.000113     0.040230   0.187839
+   4    4     4      6   1.079899     1.923671     4.399460   2.275451     1.090395     0.083547     1.210651  12.063074
+   4    4     4      6   0.986930     0.053536     0.695376   0.040584     0.021952     0.002451     0.284738   2.085567
+   4    4     4      6   0.094768     0.004219     0.045739   0.005368     0.001957     0.000107     0.069019   0.221177
+nnzA= 431985632 nnzC= 1993952072 nnzC1= 50896159 nnzC2= 2733176
+Application 14781019 resources: utime ~16388s, stime ~1672s, Rss ~8565028, inblocks ~9505905, outblocks ~479510
+Reading input file....
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 232232816
+File is 4735690648 bytes
+Total number of entries read across all processors is 232232816
+Reader took 35.0917 seconds
+Generating random permutation vector.
+Permutation took 62.3062 seconds
+Load balance: 1.0001
+Matrices read and replicated along layers : time 97.3999
+As a whole: 16240000 rows and 344391 columns and 9419130 nonzeros
+Restriction Op computed : time 56.3276
+Matrix split and distributed along layers: time 14.6477 seconds
+Matrix split and distributed along layers: time 1.94615 seconds
+Matrix split and distributed along layers: time 0.269657 seconds
+Matrix split and distributed along layers: time 0.029191 seconds
+=>> PBS: job killed: walltime 1803 exceeded limit 1800
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+aprun: Apid 14781066: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 04214] [c5-2c2s13n2] [Mon Aug 17 19:39:57 2015] PE RANK 55 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04207] [c5-2c2s11n3] [Mon Aug 17 19:39:57 2015] PE RANK 49 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04117] [c5-2c1s5n1] [Mon Aug 17 19:39:57 2015] PE RANK 5 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04148] [c5-2c1s13n0] [Mon Aug 17 19:39:57 2015] PE RANK 25 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04125] [c5-2c1s7n1] [Mon Aug 17 19:39:57 2015] PE RANK 17 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04123] [c5-2c1s6n3] [Mon Aug 17 19:39:57 2015] PE RANK 9 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04124] [c5-2c1s7n0] [Mon Aug 17 19:39:57 2015] PE RANK 13 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04223] [c5-2c2s15n3] [Mon Aug 17 19:39:57 2015] PE RANK 65 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04174] [c5-2c2s3n2] [Mon Aug 17 19:39:57 2015] PE RANK 42 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04222] [c5-2c2s15n2] [Mon Aug 17 19:39:57 2015] PE RANK 61 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04173] [c5-2c2s3n1] [Mon Aug 17 19:39:57 2015] PE RANK 38 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04146] [c5-2c1s12n2] [Mon Aug 17 19:39:57 2015] PE RANK 21 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04149] [c5-2c1s13n1] [Mon Aug 17 19:39:57 2015] PE RANK 28 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04203] [c5-2c2s10n3] [Mon Aug 17 19:39:57 2015] PE RANK 45 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04172] [c5-2c2s3n0] [Mon Aug 17 19:39:57 2015] PE RANK 33 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04221] [c5-2c2s15n1] [Mon Aug 17 19:39:57 2015] PE RANK 59 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04228] [c6-2c0s1n0] [Mon Aug 17 19:39:57 2015] PE RANK 68 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04116] [c5-2c1s5n0] [Mon Aug 17 19:39:57 2015] PE RANK 1 exit signal Terminated
+Application 14781066 exit codes: 143
+Application 14781066 resources: utime ~3132s, stime ~21s, Rss ~993008, inblocks ~206505, outblocks ~533569
+
+ + --------------------------------------------------------------------------
+ +        Job name: Rop_nlpkkt200_512
+ +          Job Id: 3437818.edique02
+ +          System: edison
+ +     Queued Time: Mon Aug 17 16:53:42 2015
+ +      Start Time: Mon Aug 17 19:09:56 2015
+ + Completion Time: Mon Aug 17 19:40:07 2015
+ +            User: azad
+ +        MOM Host: nid00897
+ +           Queue: debug
+ +  Req. Resources: mppnodect=22,mppnppn=24,mppwidth=512,walltime=00:30:00
+ +  Used Resources: cput=00:00:06,energy_used=0,mem=10832kb,vmem=159760kb,walltime=00:30:13
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/3DSpGEMM/edison_exp/nlpkkt200
+ +     Submit Args: batchRop_nlpkkt200_512
+ + --------------------------------------------------------------------------
+
