@@ -8,7 +8,7 @@ INCADD = -I$(INCDIR)
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++0x -fopenmp
+COMPILER = mpicxx -std=c++11 -fopenmp
 FLAGS = $(OPT)
 COMBBLAS = ..
 
@@ -70,6 +70,21 @@ fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/g
 fmis:	MemoryPool.o CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
+BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
+
+
+BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
+BPMaximumMatching.o:  BPMaximumMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
+
+
+BPMaximumMatching:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o BPMaximumMatching BPMaximumMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
 
 clean:
 	rm -f betwcent
@@ -80,6 +95,7 @@ clean:
 	rm -f dobfs
 	rm -f tdbfs
 	rm -f *.o
+	rm -f BPMaximumMatching
 	rm -f ../graph500-1.2/generator/*.o
 	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
 

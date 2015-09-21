@@ -1,4 +1,4 @@
-function [hf] = plotBarStackGroups(stackData, groupLabels, class, cores)
+function [hf] = plotBarStackGroups(stackData, groupLabels, barLabels, class, cores)
 %% Plot a set of stacked bars, but group them according to labels provided.
 %%
 %% Params: 
@@ -30,19 +30,23 @@ for i=1:NumStacksPerGroup
     groupDrawPos = (internalPosCount)* groupOffset + groupBins;
     
     h(i,:) = bar(Y, 'stacked');
-    set(h(i,2),'facecolor',[135/255,206/255,255/255],'edgecolor','k');
     set(h(i,1),'facecolor',[0/255,50/255,255/255],'edgecolor','k');
-    set(h(i,5),'facecolor',[200/255,0/255,0/255],'edgecolor','k');
+    set(h(i,2),'facecolor',[135/255,206/255,255/255],'edgecolor','k');
     set(h(i,3),'facecolor',[0/255,128/255,0/255],'edgecolor','k');
     set(h(i,4),'facecolor',[255/255,210/255,0/255],'edgecolor','k');
+    set(h(i,5),'facecolor',[200/255,0/255,0/255],'edgecolor','k');
     
     set(h(i,:),'BarWidth',groupOffset*1);
     set(h(i,:),'XData',groupDrawPos);
+    rsum = sum(Y,2);
+    
+    h1 = text(groupDrawPos,rsum+.2, barLabels(i));
+    set(h1, 'rotation', 90);
 end
-legend_txt = {'Broadcast','Scatter','Local Multiply','Merge Layer','Other'};
+legend_txt = {'Broadcast','Scatter','Local Multiply','Merge Layer','Merge Fiber','Other'};
 legend(legend_txt, 'Location', 'Northeast');
 ylabel('Time (sec)');
-tl = sprintf('%s (approx. %d cores)', class, cores);
+tl = sprintf('%s (on %d cores of Edison)', class, cores);
 title(tl);
 hold off;
 set(gca,'XTickMode','manual');
