@@ -435,6 +435,32 @@ int main(int argc, char* argv[])
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
+            
+            /*
+            // random permutations for load balance
+            if(permute)
+            {
+                if(A->getnrow() == A->getncol())
+                {
+                    if(p.TotalLength()!=A->getnrow())
+                    {
+                        SpParHelper::Print("Generating random permutation vector.\n");
+                        p.iota(A->getnrow(), 0);
+                        p.RandPerm();
+                    }
+                    SpParHelper::Print("Perfoming random permuation of matrix.\n");
+                    (*A)(p,p,true);// in-place permute to save memory
+                    ostringstream tinfo1;
+                    tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+                    SpParHelper::Print(tinfo1.str());
+                }
+                else
+                {
+                    SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
+                }
+            }
+             */
+
         }
         else if(argc < 4)
         {
@@ -594,100 +620,6 @@ int main(int argc, char* argv[])
 	MPI_Finalize();
 	return 0;
 }
-
-
-
-
-
-template<typename T>
-struct unmatched_unary : public std::unary_function<T, bool>
-{
-    bool operator()(const T& x) const
-    {
-        return (x==-1);
-    }
-};
-
-
-
-template<typename T1, typename T2>
-struct unmatched_binary: public std::binary_function<T1, T2, bool>
-{
-    bool operator()(const T1& x, const T2 & y) const
-    {
-        return (y==-1);
-    }
-};
-
-
-// an unary operator would suffice. But the EWiseApply function takes a binary predicate
-// this function when used as a predicate select the matched entried
-template<typename T1, typename T2>
-struct matched_binary: public std::binary_function<T1, T2, bool>
-{
-    bool operator()(const T1& x, const T2 & y) const
-    {
-        return (y!=-1);
-    }
-};
-
-
-template<typename T1, typename T2>
-struct select1st: public std::binary_function<T1, T2, bool>
-{
-    const T1& operator()(const T1& x, const T2 & y) const
-    {
-        return x;
-    }
-};
-
-
-// returns the second argument
-template<typename T1, typename T2>
-struct select2nd: public std::binary_function<T1, T2, bool>
-{
-    const T2& operator()(const T1& x, const T2 & y) const
-    {
-        cout << y << "....\n";
-        return y;
-    }
-};
-
-
-
-// init
-template<typename T1, typename T2>
-struct init: public std::binary_function<T1, T2, bool>
-{
-    const T1 operator()(const T1& x, const T2 & y) const
-    {
-        return T1(y,y);
-    }
-};
-
-
-
-// init
-template<typename T>
-struct binopInd: public std::binary_function<VertexType, T, T>
-{
-    const T operator()(const VertexType& vtx, const T & index) const
-    {
-        return vtx.parent;
-    }
-};
-
-
-
-// init
-template<typename T>
-struct binopVal: public std::binary_function<VertexType, T, VertexType>
-{
-    const VertexType operator()(const VertexType& vtx, const T & index) const
-    {
-        return VertexType(index, vtx.root);
-    }
-};
 
 
 
@@ -861,8 +793,12 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), nrow, (int64_t) -1); // just for test
         
         FullyDistSpVec<int64_t, VertexType> fringeCol(A.getcommgrid(), ncol);
-        fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(),
-                                            unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
+        
+        
+        fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row,
+                                            [](VertexType vtx, int64_t mate){return vtx;},
+                                            [](VertexType vtx, int64_t mate){return mate==-1;},
+                                            true, VertexType()); // root & parent both =-1
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
         //fringeCol.DebugPrint();
         
