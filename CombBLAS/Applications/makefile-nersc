@@ -36,6 +36,9 @@ COMBBLAS = ..
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
+mmio.o: ../mmio.c
+	cc $(INCADD) $(FLAGS) -c -o mmio.o ../mmio.c
+
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
 
@@ -106,8 +109,8 @@ BPMaximumMatching.o:  BPMaximumMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHel
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
-BPMaximumMatching:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o BPMaximumMatching BPMaximumMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 clean:
 	rm -f betwcent
@@ -118,6 +121,7 @@ clean:
 	rm -f apowers
 	rm -f dobfs
 	rm -f tdbfs
+	rm -f BPMaximumMatching
 	rm -f *.o
 	rm -f ../graph500-1.2/generator/*.o
 	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
