@@ -1,4 +1,3 @@
-#define DETERMINISTIC
 #include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
@@ -19,11 +18,7 @@
 #endif
 
 
-double cblas_alltoalltime;
-double cblas_allgathertime;
-double cblas_mergeconttime;
-double cblas_transvectime;
-double cblas_localspmvtime;
+
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads(); 
 #else
@@ -445,10 +440,20 @@ void RandPermMat(PSpMat_Int64 & A)
 
 int main(int argc, char* argv[])
 {
+    // ------------ initialize MPI ---------------
+    int provided;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
+    {
+        printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    
 	int nprocs, myrank;
-	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    // ------------ Process input arguments ---------------
 	if(argc < 3)
 	{
 		if(myrank == 0)
