@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "BPMaximalMatching.h"
 
 #ifdef THREADED
 	#ifndef _OPENMP
@@ -20,7 +21,7 @@
 using namespace std;
 
 
-MTRand GlobalMT(123); // for reproducable result
+
 
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
@@ -33,14 +34,14 @@ void Symmetricize(PARMAT & A)
 }
 
 
-
+/*
 struct VertexType
 {
 public:
-	VertexType(){parent=-1; root = -1; prob = 1;};
-    VertexType(int64_t p){parent=p; root=-1; prob = 1;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
-	VertexType(int64_t p, int64_t r){parent=p; root = r; prob = 1;};
-    VertexType(int64_t p, int64_t r, int16_t pr){parent=p; root = r; prob = pr;};
+    //VertexType(){parent=-1; root = -1; degree=0; prob = 0;};
+    //VertexType(int64_t p){parent=p; root=-1; degree=0; prob = 0;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
+	//VertexType(int64_t p, int64_t r){parent=p; root = r; degree=0; prob = 0;};
+    VertexType(int64_t p=-1, int64_t r=-1, int64_t deg=0, int16_t pr=0){parent=p; root = r; degree=deg; prob = pr;};
     
     friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent<vtx2.parent;};
     friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
@@ -48,6 +49,7 @@ public:
     //private:
     int64_t parent;
     int64_t root;
+    int64_t degree;
     int16_t prob; // probability of selecting an edge
 
 };
@@ -75,7 +77,7 @@ struct Select2ndMinSR
         y = add(y, multiply(a, x));
     }
 };
-
+*/
 
 
 
@@ -83,7 +85,7 @@ typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
-void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void greedyMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                     FullyDistVec<int64_t, int64_t>& mateCol2Row);
 void maximumMatching(PSpMat_Bool & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row);
@@ -395,6 +397,31 @@ void ShowUsage()
     }
 }
 
+void GetOptions(char* argv[], int argc, int & init, bool & diropt, bool & prune, bool & graft)
+{
+    string allArg="";
+    for(int i=0; i<argc; i++)
+    {
+        allArg += string(argv[i]);
+    }
+    if(allArg.find("diropt")!=string::npos)
+        diropt = true;
+    if(allArg.find("prune")!=string::npos)
+        prune = true;
+    if(allArg.find("graft")!=string::npos)
+        graft = true;
+    if(allArg.find("greedy")!=string::npos)
+        init = GREEDY;
+    else if(allArg.find("ks")!=string::npos)
+        init = KARP_SIPSER;
+    else if(allArg.find("dmd")!=string::npos)
+        init = DMD;
+    else
+        init = NO_INIT;
+    
+}
+
+
 int main(int argc, char* argv[])
 {
 	
@@ -416,6 +443,9 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    int init = NO_INIT;
+    bool diropt=false, prune=false, graft=false;
+    
     // ------------ Process input arguments and build matrix ---------------
 	{
         
@@ -459,6 +489,8 @@ int main(int argc, char* argv[])
                 }
             }
              */
+            
+            GetOptions(argv+3, argc-3, init, diropt, prune, graft);
 
         }
         else if(argc < 4)
@@ -515,6 +547,9 @@ int main(int argc, char* argv[])
             Symmetricize(*ABool);
             SpParHelper::Print("Generated matrix symmetricized....\n");
             ABool->PrintInfo();
+            
+            GetOptions(argv+4, argc-4, init, diropt, prune, graft);
+
         }
 
         
@@ -528,7 +563,6 @@ int main(int argc, char* argv[])
        
         // remove isolated vertice if necessary
         
-        //RandomParentBFS(*ABool);
         //greedyMatching(*ABool);
         // maximumMatching(*ABool);
         //maximumMatchingSimple(*ABool);
@@ -574,16 +608,18 @@ int main(int argc, char* argv[])
         
      
         PSpMat_Bool A = *ABool;
+        PSpMat_Bool AT = A;
+        AT.Transpose();
         
 #ifdef _OPENMP
 #pragma omp parallel
         {
-            cblas_splits = omp_get_num_threads();
+            cblas_splits = omp_get_num_threads()*1;
         }
         tinfo.str("");
         tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
         SpParHelper::Print(tinfo.str());
-        A.ActivateThreading(cblas_splits);
+        //A.ActivateThreading(cblas_splits);
 #endif
 
 
@@ -592,25 +628,42 @@ int main(int argc, char* argv[])
         //if(argc>=4 && static_cast<unsigned>(atoi(argv[3]))==1)
         //    removeIsolated(A);
         
+        tinfo.str("");
+        tinfo << "\n---------------------------------\n";
+        tinfo << "Calling maximum-cardinality matching with options: " << endl;
+        tinfo << " init: ";
+        if(init == NO_INIT) tinfo << " no-init ";
+        if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
+        if(init == DMD) tinfo << " dynamic mindegree, ";
+        if(init == GREEDY) tinfo << " greedy, ";
+        if(diropt) tinfo << " direction-optimized BFS, ";
+        if(prune) tinfo << " tree pruning, ";
+        if(graft) tinfo << " tree grafting ";
+        tinfo << "\n---------------------------------\n\n";
+        SpParHelper::Print(tinfo.str());
+        
         
         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
         //if(argc>=3 && static_cast<unsigned>(atoi(argv[2]))==1)
-        //    greedyMatching(A, mateRow2Col, mateCol2Row);
+        //greedyMatching(A, mateRow2Col, mateCol2Row);
         
-
-        //A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
+        
+        hybrid(A, AT, mateRow2Col, mateCol2Row, init, true);
+        //KS(A, AT, mateRow2Col, mateCol2Row);
         
         
         //A1.Transpose();
         //varify_matching(*ABool);
+        
+        
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
         int64_t ncols=A.getncol();
         int64_t matched = mateCol2Row.Count([](int64_t mate){return mate!=-1;});
         if(myrank==0)
         {
-            cout << "matched %cols time\n";
+            cout << "matched %cols\n";
             printf("%lld %lf \n",matched, 100*(double)matched/(ncols));
         }
         //mateRow2Col.DebugPrint();
@@ -618,7 +671,6 @@ int main(int argc, char* argv[])
 	MPI_Finalize();
 	return 0;
 }
-
 
 
 
@@ -891,42 +943,21 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
             
             if(fringeRow.getnnz() > 0)
             {
-                //fringeRow.DebugPrint();
-                // looks like we need fringeCol sorted!!
-                
-                /*
-                 FullyDistSpVec<int64_t, VertexType> fringeCol1(fringeCol);
-                 FullyDistSpVec<int64_t, VertexType> fringeCol2(fringeCol);
-                 
-                 double t2 = MPI_Wtime();
-                 
-                 fringeCol1 = fringeRow.Compose(ncol,
-                 [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
-                 [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
-                 
-                 test1 = MPI_Wtime()-t2;
-                 t2 = MPI_Wtime();
-                 */
+
                 // it is faster than compose and composeRMA
                 SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol, false);
-                //if(fringeCol.getnnz() > 0) fringeCol.DebugPrint();
-                //if(fringeCol1.getnnz() > 0) fringeCol1.DebugPrint();
-                //if(fringeRow.getnnz() > 0) fringeRow.DebugPrint();
+             
                 /*
-                 test2 = MPI_Wtime()-t2;
-                 t2 = MPI_Wtime();
-                 
-                 //MPI_Abort(MPI_COMM_WORLD,-1);
-                 
-                 fringeCol2 = fringeRow.ComposeRMA(ncol,
+                 // looks like we need fringeCol sorted. I don't know why I said this before
+                 // option2: invert
+                 fringeCol = fringeRow.Compose(ncol,
                  [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                  [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                  
-                 
-                 test3 = MPI_Wtime()-t2;
-                 ostringstream tinfo;
-                 tinfo << fringeRow.getnnz() << " " << test1 << "  " << test2 << "  " << test3 << "\n";
-                 SpParHelper::Print(tinfo.str());
+                 //option2: invert with RMA
+                 fringeCol = fringeRow.ComposeRMA(ncol,
+                 [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
+                 [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                  */
                 
                 
@@ -960,19 +991,11 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
         //tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " ::: "  << test1 << " , " << test2 << "\n";
         //tinfo << test1 << "  " << test2 << "\n";
         //SpParHelper::Print(tinfo.str());
-        //if(phase==2)break;
         totalLayer += layer;
         
     }
     
-    
-    
-    
-    //mateCol2Row.DebugPrint();
-    //mateRow2Col.DebugPrint();
-    
-    
-    
+      
     //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
     //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
     
@@ -1022,7 +1045,7 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
 
 
 
-void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void greedyMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                     FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
     
@@ -1074,7 +1097,7 @@ void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
         double t1 = MPI_Wtime();
         // step1: Find adjacent row vertices (col vertices parent, row vertices child)
         
-        SpMV<Select2ndMinSR<int64_t, int64_t>>(A, unmatchedCol, fringeRow, false);
+        SpMV<Select2ndMinSR<bool, int64_t>>(A, unmatchedCol, fringeRow, false);
         
         // step2: Remove matched row vertices
         fringeRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
