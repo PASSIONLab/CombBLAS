@@ -1,3 +1,5 @@
+#include "../CombBLAS.h"
+
 /*
  * Serial: Check the validity of the matching solution;
  we need a better solution using invert

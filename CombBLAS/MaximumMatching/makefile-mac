@@ -39,7 +39,7 @@ BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBB
 	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
-BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 

@@ -92,7 +92,8 @@ class BitMapCarousel {
     bm->set_bit(index - rotlenuntil + curr_subword_disp);
   }
 
-  void LoadVec(FullyDistVec<IT,NT> & x) {
+  template <class NT1>
+  void LoadVec(FullyDistVec<IT,NT1> & x) {
     bm->reset();
     local_size = x.LocArrSize();
     for (DenseVectorLocalIterator<IT,NT> it(x); it.HasNext(); it.Next())
