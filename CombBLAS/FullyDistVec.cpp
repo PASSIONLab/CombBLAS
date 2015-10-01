@@ -696,6 +696,9 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	}
 }	
 
+
+// Note (Ariful): multithreded implemented only when applyNulls=false.
+// TODO: employ multithreding when applyNulls=true
 template <class IT, class NT>
 template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
 void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue, const bool useExtendedBinOp)
@@ -732,12 +735,13 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			}
 			else // scan the sparse vector only
 			{
-				while (otherInd < other.ind.end())
+#ifdef _OPENMP
+#pragma OMP for
+#endif
+                for(; otherInd < other.ind.end(); otherInd++, otherNum++)
 				{
 					if (_do_op(arr[*otherInd], *otherNum, false, false))
 						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum, false, false);
-					otherInd++;
-					otherNum++;
 				}
 			}
 		}
