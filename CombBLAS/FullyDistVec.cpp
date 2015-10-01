@@ -738,7 +738,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 #ifdef _OPENMP
 #pragma omp for
 #endif
-                for(; otherInd < other.ind.end(); otherInd++, otherNum++)
+                for(otherInd = other.ind.begin(); otherInd < other.ind.end(); otherInd++, otherNum++)
 				{
 					if (_do_op(arr[*otherInd], *otherNum, false, false))
 						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum, false, false);
