@@ -91,10 +91,8 @@ public:
     FullyDistSpVec<IT,NT> Compose1 (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
     template <typename NT1, typename _UnaryOperation>
     void Select (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation unop);
-    template <typename NT1, typename _UnaryOperation>
-    FullyDistSpVec<IT,NT> SelectNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop);
     template <typename NT1, typename _UnaryOperation1, typename _UnaryOperation2>
-    FullyDistSpVec<IT,NT1> SelectNew1 (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2);
+    FullyDistSpVec<IT,NT1> SelectNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2);
     template <typename NT1, typename _UnaryOperation>
     void FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
     template <typename NT1>
@@ -332,6 +330,11 @@ private:
 	friend FullyDistSpVec<IU,RET> 
 	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp);
 
+    template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+    friend FullyDistSpVec<IU,RET>
+    EWiseApply_threaded (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp);
+
+    
 	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 	friend FullyDistSpVec<IU,RET>
 	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect, const bool useExtendedBinOp);

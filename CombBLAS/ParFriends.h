@@ -1317,31 +1317,16 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 
 
 /**
- * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. 
- * The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not 
- * performed and ret does not contain an element at that position.
- * More formally the operation is defined as:
- * if (_doOp(V[i], W[i]))
- *    ret[i] = _binary_op(V[i], W[i])
- * else
- *    // ret[i] is not set
- * Hence _doOp can be used to implement a filter on either of the vectors.
- *
- * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) 
- * the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
- *
- * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
- * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0)
+ Threaded version
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-FullyDistSpVec<IU,RET> EWiseApply 
+FullyDistSpVec<IU,RET> EWiseApply_threaded
 	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp)
 {
 	typedef RET T_promote; //typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
 	{
 		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
-		FullyDistVec< IU, NU1> DV (V);
 		if(V.TotalLength() != W.TotalLength())
 		{
 			ostringstream outs;
@@ -1351,56 +1336,194 @@ FullyDistSpVec<IU,RET> EWiseApply
 		}
 		else
 		{
+            int nthreads;
+#pragma omp parallel
+            {
+                nthreads = omp_get_num_threads();
+            }
+
 			Product.glen = V.glen;
 			IU size= W.LocArrSize();
 			IU spsize = V.getlocnnz();
-			IU sp_iter = 0;
-			if (allowVNulls)
-			{
-				// iterate over the dense vector
-				for(IU i=0; i<size; ++i)
-				{
-					if(sp_iter < spsize && V.ind[sp_iter] == i)
-					{
-						if (_doOp(V.num[sp_iter], W.arr[i], false, false))
-						{
-							Product.ind.push_back(i);
-							Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[i], false, false));
-						}
-						sp_iter++;
-					}
-					else
-					{
-						if (_doOp(Vzero, W.arr[i], true, false))
-						{
-							Product.ind.push_back(i);
-							Product.num.push_back(_binary_op(Vzero, W.arr[i], true, false));
-						}
-					}
-				}
-			}
-			else
-			{
-				// iterate over the sparse vector
-				for(sp_iter = 0; sp_iter < spsize; ++sp_iter)
-				{
-					if (_doOp(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false))
-					{
-						Product.ind.push_back(V.ind[sp_iter]);
-						Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false));
-					}
-				}
-			}
+            
+            // temporary result vectors per thread
+            vector<vector<IU>> tProductInd(nthreads);
+            vector<vector<T_promote>> tProductVal(nthreads);
+            IU perthread; //chunk of tProductInd or tProductVal allocated to each thread
+            if (allowVNulls)
+                perthread = size/nthreads;
+            else
+                perthread = spsize/nthreads;
+            
+            
+#pragma omp parallel
+            {
+                int curthread = omp_get_thread_num();
+                IU tStartIdx = perthread * curthread;
+                IU tNextIdx = perthread * (curthread+1);
+                
+                if (allowVNulls)
+                {
+                    if(curthread == nthreads-1) tNextIdx = size;
+                    
+                    // get sparse part for the current thread
+                    auto it = std::lower_bound (V.ind.begin(), V.ind.end(), tStartIdx);
+                    IU tSpIdx = (IU) std::distance(V.ind.begin(), it);
+                    
+                    // iterate over the dense vector
+                    for(IU tIdx=tStartIdx; tIdx < tNextIdx; ++tIdx)
+                    {
+                        if(tSpIdx < spsize && V.ind[tSpIdx] < tNextIdx && V.ind[tSpIdx] == tIdx)
+                        {
+                            if (_doOp(V.num[tSpIdx], W.arr[tIdx], false, false))
+                            {
+                                tProductInd[curthread].push_back(tIdx);
+                                tProductVal[curthread].push_back (_binary_op(V.num[tSpIdx], W.arr[tIdx], false, false));
+                            }
+                            tSpIdx++;
+                        }
+                        else
+                        {
+                            if (_doOp(Vzero, W.arr[tIdx], true, false))
+                            {
+                                tProductInd[curthread].push_back(tIdx);
+                                tProductVal[curthread].push_back (_binary_op(Vzero, W.arr[tIdx], true, false));
+                            }
+                        }
+                    }
+                }
+                else // iterate over the sparse vector
+                {
+                    if(curthread == nthreads-1) tNextIdx = spsize;
+                    for(IU tSpIdx=tStartIdx; tSpIdx < tNextIdx; ++tSpIdx)
+                    {
+                        if (_doOp(V.num[tSpIdx], W.arr[V.ind[tSpIdx]], false, false))
+                        {
+                            
+                            tProductInd[curthread].push_back( V.ind[tSpIdx]);
+                            tProductVal[curthread].push_back (_binary_op(V.num[tSpIdx], W.arr[V.ind[tSpIdx]], false, false));
+                        }
+                    }
+                }
+            }
+            
+            vector<IU> tdisp(nthreads+1);
+            tdisp[0] = 0;
+            for(int i=0; i<nthreads; ++i)
+            {
+                tdisp[i+1] = tdisp[i] + tProductInd[i].size();
+            }
+            
+            // copy results from temporary vectors
+            Product.ind.resize(tdisp[nthreads]);
+            Product.num.resize(tdisp[nthreads]);
+#pragma omp parallel
+            {
+                int curthread = omp_get_thread_num();
+                std::copy(tProductInd[curthread].begin(), tProductInd[curthread].end(), Product.ind.data() + tdisp[curthread]);
+                std::copy(tProductVal[curthread].begin() , tProductVal[curthread].end(), Product.num.data() + tdisp[curthread]);
+            }
 		}
 		return Product;
 	}
 	else
 	{
-		cout << "Grids are not comparable for EWiseApply" << endl; 
+		cout << "Grids are not comparable for EWiseApply" << endl;
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
+
+
+
+/**
+ * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret.
+ * The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not
+ * performed and ret does not contain an element at that position.
+ * More formally the operation is defined as:
+ * if (_doOp(V[i], W[i]))
+ *    ret[i] = _binary_op(V[i], W[i])
+ * else
+ *    // ret[i] is not set
+ * Hence _doOp can be used to implement a filter on either of the vectors.
+ *
+ * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does)
+ * the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
+ *
+ * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
+ * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0)
+ **/
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+FullyDistSpVec<IU,RET> EWiseApply
+(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp)
+{
+    typedef RET T_promote; //typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+    if(*(V.commGrid) == *(W.commGrid))
+    {
+        FullyDistSpVec< IU, T_promote> Product(V.commGrid);
+        //FullyDistVec< IU, NU1> DV (V); // Ariful: I am not sure why it was there??
+        if(V.TotalLength() != W.TotalLength())
+        {
+            ostringstream outs;
+            outs << "Vector dimensions don't match (" << V.TotalLength() << " vs " << W.TotalLength() << ") for EWiseApply (short version)\n";
+            SpParHelper::Print(outs.str());
+            MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+        }
+        else
+        {
+            Product.glen = V.glen;
+            IU size= W.LocArrSize();
+            IU spsize = V.getlocnnz();
+            IU sp_iter = 0;
+            if (allowVNulls)
+            {
+                // iterate over the dense vector
+                for(IU i=0; i<size; ++i)
+                {
+                    if(sp_iter < spsize && V.ind[sp_iter] == i)
+                    {
+                        if (_doOp(V.num[sp_iter], W.arr[i], false, false))
+                        {
+                            Product.ind.push_back(i);
+                            Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[i], false, false));
+                        }
+                        sp_iter++;
+                    }
+                    else
+                    {
+                        if (_doOp(Vzero, W.arr[i], true, false))
+                        {
+                            Product.ind.push_back(i);
+                            Product.num.push_back(_binary_op(Vzero, W.arr[i], true, false));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // iterate over the sparse vector
+                for(sp_iter = 0; sp_iter < spsize; ++sp_iter)
+                {
+                    if (_doOp(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false))
+                    {
+                        Product.ind.push_back(V.ind[sp_iter]);
+                        Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false));
+                    }
+                }
+                
+            }
+        }
+        return Product;
+    }
+    else
+    {
+        cout << "Grids are not comparable for EWiseApply" << endl; 
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+        return FullyDistSpVec< IU,T_promote>();
+    }
+}
+
+
 
 /**
  * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. 
