@@ -736,7 +736,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			else // scan the sparse vector only
 			{
 #ifdef _OPENMP
-#pragma omp for
+//#pragma omp for
 #endif
                 for(otherInd = other.ind.begin(); otherInd < other.ind.end(); otherInd++, otherNum++)
 				{
