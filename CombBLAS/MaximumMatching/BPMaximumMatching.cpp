@@ -713,7 +713,7 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
 #ifdef _OPENMP
-#pragma omp for // multiple thread can do their own one sided communication, what happens in receiver??
+//#pragma omp for // multiple thread can do their own one sided communication, what happens in receiver??
 #endif
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
@@ -761,7 +761,7 @@ void prune(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64_
     FullyDistSpVec<int64_t, int64_t> remove(fringeRow.getcommgrid(), ncol);
     //SpMV<SelectMinSRing1>(MB, temp1, remove, false);
     SpMV<Select2ndMinSR<bool, int64_t>>(MB, temp1, remove, false);
-    fringeRow.Setminus(remove);    
+    fringeRow.Setminus(remove);
 }
 
 
