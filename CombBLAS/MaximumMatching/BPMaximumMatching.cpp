@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include "BPMaximalMatching.h"
+#include "Utility.h"
 
 #ifdef THREADED
 	#ifndef _OPENMP
@@ -34,50 +35,25 @@ void Symmetricize(PARMAT & A)
 }
 
 
-/*
 struct VertexType
 {
 public:
-    //VertexType(){parent=-1; root = -1; degree=0; prob = 0;};
-    //VertexType(int64_t p){parent=p; root=-1; degree=0; prob = 0;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
-	//VertexType(int64_t p, int64_t r){parent=p; root = r; degree=0; prob = 0;};
-    VertexType(int64_t p=-1, int64_t r=-1, int64_t deg=0, int16_t pr=0){parent=p; root = r; degree=deg; prob = pr;};
+    VertexType(int64_t p=-1, int64_t r=-1, int16_t pr=0){parent=p; root = r; prob = pr;};
     
-    friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent<vtx2.parent;};
+    friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 )
+    {
+        if(vtx1.prob==vtx2.prob) return vtx1.parent<vtx2.parent;
+        else return vtx1.prob<vtx2.prob;
+    };
     friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
     friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
     //private:
     int64_t parent;
     int64_t root;
-    int64_t degree;
     int16_t prob; // probability of selecting an edge
-
+    
 };
 
-
-template <typename T1, typename T2>
-struct Select2ndMinSR
-{
-    static T2 id(){ return T2(); };
-    static bool returnedSAID() { return false; }
-    static MPI_Op mpi_op() { return MPI_MIN; };
-    
-    static T2 add(const T2 & arg1, const T2 & arg2)
-    {
-        return std::min(arg1, arg2);
-    }
-    
-    static T2 multiply(const T1 & arg1, const T2 & arg2)
-    {
-        return arg2;
-    }
-    
-    static void axpy(const T1 a, const T2 & x, T2 & y)
-    {
-        y = add(y, multiply(a, x));
-    }
-};
-*/
 
 
 
@@ -85,9 +61,7 @@ typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
-void greedyMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-                    FullyDistVec<int64_t, int64_t>& mateCol2Row);
-void maximumMatching(PSpMat_Bool & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void maximumMatching(PSpMat_s32p64 & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row);
 template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
@@ -427,8 +401,8 @@ int main(int argc, char* argv[])
 	
     // ------------ initialize MPI ---------------
     int provided;
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
-    if (provided < MPI_THREAD_SERIALIZED)
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+    if (provided < MPI_THREAD_MULTIPLE)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
@@ -450,6 +424,7 @@ int main(int argc, char* argv[])
 	{
         
         PSpMat_Bool * ABool;
+        PSpMat_s32p64 ALocalT;
         ostringstream tinfo;
         double t01, t02;
         if(string(argv[1]) == string("input")) // input option
@@ -607,8 +582,8 @@ int main(int argc, char* argv[])
         
         
      
-        PSpMat_Bool A = *ABool;
-        PSpMat_Bool AT = A;
+        PSpMat_s32p64 A = *ABool;
+        PSpMat_s32p64 AT = A;
         AT.Transpose();
         
 #ifdef _OPENMP
@@ -619,7 +594,8 @@ int main(int argc, char* argv[])
         tinfo.str("");
         tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
         SpParHelper::Print(tinfo.str());
-        //A.ActivateThreading(cblas_splits);
+        A.ActivateThreading(cblas_splits); // note: crash on empty matrix
+        AT.ActivateThreading(cblas_splits);
 #endif
 
 
@@ -649,7 +625,7 @@ int main(int argc, char* argv[])
         //greedyMatching(A, mateRow2Col, mateCol2Row);
         
         
-        hybrid(A, AT, mateRow2Col, mateCol2Row, init, true);
+        //hybrid(A, AT, mateRow2Col, mateCol2Row, init, true);
         //KS(A, AT, mateRow2Col, mateCol2Row);
         
         
@@ -675,7 +651,7 @@ int main(int argc, char* argv[])
 
 
 // It is not easy to write these two inverts using matvec.
-// The first invert is accessing matee, hence can be implemented by multipying with matching matrix
+// The first invert is accessing mate, hence can be implemented by multipying with matching matrix
 // The second invert access parents, which can not be implemented with simple matvec.
 
 
@@ -695,7 +671,7 @@ void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t,
         row = col.Invert(nrow);
         
         row.SelectApply(parentsRow, [](int64_t parent){return true;},
-                        [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
+                        [](int64_t root, int64_t parent){return parent;});
         
 
         col = row.Invert(ncol); // children array
@@ -736,7 +712,9 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
-    //IT i=1;
+#ifdef _OPENMP
+#pragma omp for // multiple thread can do their own one sided communication, what happens in receiver??
+#endif
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
         int depth=0;
@@ -745,32 +723,22 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
         {
             
             owner_row = mateRow2Col.Owner(row, locind_row);
-            //cout << myrank << ": " << row << " " << owner_row << " " << locind_row << "@@@\n";
             MPI_Win_lock(MPI_LOCK_SHARED, owner_row, 0, win_parentsRow);
             MPI_Get(&col, 1, MPIType<NT>(), owner_row, locind_row, 1, MPIType<NT>(), win_parentsRow);
             MPI_Win_unlock(owner_row, win_parentsRow);
             
             owner_col = mateCol2Row.Owner(col, locind_col);
-            //cout <<  myrank << ": " << col << " " << owner_col << " " << locind_col << "!!!\n";
-            
             MPI_Win_lock(MPI_LOCK_SHARED, owner_col, 0, win_mateCol2Row);
             MPI_Fetch_and_op(&row, &nextrow, MPIType<NT>(), owner_col, locind_col, MPI_REPLACE, win_mateCol2Row);
-            
-            //MPI_Get(&nextrow, 1, MPIType<NT>(), owner_col, locind_col, 1, MPIType<NT>(), win_mateCol2Row);
-            //MPI_Put(&row, 1, MPIType<NT>(), owner_col, locind_col, 1, MPIType<NT>(), win_mateCol2Row);
             MPI_Win_unlock(owner_col, win_mateCol2Row);
             
             MPI_Win_lock(MPI_LOCK_SHARED, owner_row, 0, win_mateRow2Col);
             MPI_Put(&col, 1, MPIType<NT>(), owner_row, locind_row, 1, MPIType<NT>(), win_mateRow2Col);
             MPI_Win_unlock(owner_row, win_mateRow2Col); // we need this otherwise col might get overwritten before communication!
-            //depth++;
-            //if(depth>5) {cout << "depth--------------\n";break;}
-            
             row = nextrow;
             
         }
     }
-    
 
     MPI_Win_fence(0, win_mateRow2Col);
     MPI_Win_fence(0, win_mateCol2Row);
@@ -779,9 +747,6 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     MPI_Win_free(&win_mateRow2Col);
     MPI_Win_free(&win_mateCol2Row);
     MPI_Win_free(&win_parentsRow);
-    
-    //mateCol2Row.DebugPrint();
-    //mateRow2Col.DebugPrint();
 }
 
 
@@ -796,13 +761,12 @@ void prune(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64_
     FullyDistSpVec<int64_t, int64_t> remove(fringeRow.getcommgrid(), ncol);
     //SpMV<SelectMinSRing1>(MB, temp1, remove, false);
     SpMV<Select2ndMinSR<bool, int64_t>>(MB, temp1, remove, false);
-    fringeRow.Setminus(remove);
-
-    
+    fringeRow.Setminus(remove);    
 }
 
 
-void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+
+void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
     
@@ -834,15 +798,18 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
         time_phase = MPI_Wtime();
         
         PSpMat_Bool Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
-        
-        
+
+#ifdef _OPENMP
+        if(Mbool.getnnz()>cblas_splits)
+            Mbool.ActivateThreading(cblas_splits);
+#endif
+
         
         vector<double> phase_timing(8,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
         
         FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), nrow, (int64_t) -1); // just for test
-        
         FullyDistSpVec<int64_t, VertexType> fringeCol(A.getcommgrid(), ncol);
         
         
@@ -850,6 +817,7 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
                                             [](VertexType vtx, int64_t mate){return vtx;},
                                             [](VertexType vtx, int64_t mate){return mate==-1;},
                                             true, VertexType()); // root & parent both =-1
+        
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
         //fringeCol.DebugPrint();
         
@@ -865,6 +833,8 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
         {
             layer++;
             t1 = MPI_Wtime();
+            
+
             SpMV<Select2ndMinSR<bool, VertexType>>(A, fringeCol, fringeRow, false);
             phase_timing[0] += MPI_Wtime()-t1;
             
@@ -872,63 +842,54 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
             
             // remove vertices already having parents
             t1 = MPI_Wtime();
-            fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;});
-            
+            //fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;}); //much faster
+            fringeRow = EWiseApply_threaded<VertexType>(fringeRow, parentsRow,
+                                                        [](VertexType vtx, int64_t parent, bool a, bool b){return vtx;},
+                                                        [](VertexType vtx, int64_t parent, bool a, bool b){return parent==-1;},
+                                                        false, VertexType(), true);
             
             // Set parent pointer
-            // TODO: Write a general purpose FullyDistVec::Set
-            //t1 = MPI_Wtime();
             parentsRow.EWiseApply(fringeRow,
-                                  [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
-                                  [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;},
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return true;},
                                   false, VertexType(), false);
             
             
+            umFringeRow1 = EWiseApply_threaded<int64_t>(fringeRow, mateRow2Col,
+                                      [](VertexType vtx, int64_t mate, bool a, bool b){return vtx.root;},
+                                      [](VertexType vtx, int64_t mate, bool a, bool b){return mate==-1;},
+                                      false, VertexType(), true);
             
-            //get unmatched row vertices
-            //t1 = MPI_Wtime();
-            //umFringeRow = fringeRow.SelectNew(mateRow2Col, [](int64_t mate){return mate==-1;});
-            umFringeRow1 = fringeRow.SelectNew1(mateRow2Col, [](int64_t mate){return mate==-1;}, [](VertexType& vtx){return vtx.root;});
-            //umFringeRow1 = fringeRow.SelectApplyNew(mateRow2Col, [](int64_t mate){return mate==-1;},
-            //                                        [](VertexType& vtx, int64_t mate){return vtx.root;});
             
-            //cout << "umFringeRow1: ";
-            //if(umFringeRow1.getnnz()>0)umFringeRow1.DebugPrint();
+            
             phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             
             
             // get the unique leaves
-            //MPI_Pcontrol(1,"Compose");
             if(umFringeRow1.getnnz()>0)
             {
                 //TODO: merge into one with RMA??? RMA useful because leaves is dense. So need to send count/displacement
                 temp1 = umFringeRow1.Invert(ncol);
                 leaves.Set(temp1);
-                //umFringeRow1.DebugPrint();
                 //leaves.GSet(umFringeRow1,
-                //            [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
-                //            [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
-                //leaves.DebugPrint();
-                
-                //temp1.DebugPrint();
+                 //           [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
+                   //         [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
             }
-            
-            //MPI_Pcontrol(-1,"Compose");
+    
             
             phase_timing[2] += MPI_Wtime()-t1;
             
             
-            fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
-                                  [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
+            //fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
+            //                      [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
+            fringeRow = EWiseApply_threaded<VertexType>(fringeRow, mateRow2Col,
+                                                        [](VertexType vtx, int64_t mate, bool a, bool b){return VertexType(mate, vtx.root);},
+                                                        [](VertexType vtx, int64_t mate, bool a, bool b){return mate!=-1;},
+                                                        false, VertexType(), true);
             
             
             //TODO: experiment prunning
-            
-            //FullyDistSpVec<int64_t, VertexType> fringeCol(A.getcommgrid(), ncol);
-            //fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
-            //                     [](VertexType vtx, int64_t mate){return vtx.root;});
-            
             t1 = MPI_Wtime();
             if(temp1.getnnz()>0 )
             {
@@ -943,24 +904,7 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
             
             if(fringeRow.getnnz() > 0)
             {
-
-                // it is faster than compose and composeRMA
                 SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol, false);
-             
-                /*
-                 // looks like we need fringeCol sorted. I don't know why I said this before
-                 // option2: invert
-                 fringeCol = fringeRow.Compose(ncol,
-                 [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
-                 [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
-                 
-                 //option2: invert with RMA
-                 fringeCol = fringeRow.ComposeRMA(ncol,
-                 [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
-                 [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
-                 */
-                
-                
             }
             else break;
             phase_timing[4] += MPI_Wtime()-t1;
@@ -1042,190 +986,6 @@ void maximumMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
     
     
 }
-
-
-
-void greedyMatching(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-                    FullyDistVec<int64_t, int64_t>& mateCol2Row)
-{
-    
-    int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
-    //PSpMat_Int64  A = Aeff;
-    //A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
-    //A.PrintInfo();
-    
-    
-    //matching vector (dense)
-    
-    //unmatched row and column vertices
-    FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
-    FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, [](int64_t mate){return mate==-1;});
-    unmatchedRow.setNumToInd();
-    unmatchedCol.setNumToInd();
-    
-    
-    //fringe vector (sparse)
-    FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
-    FullyDistSpVec<int64_t, int64_t> fringeCol(A.getcommgrid(), A.getncol());
-    
-    
-    int64_t curUnmatchedCol = unmatchedCol.getnnz();
-    int64_t curUnmatchedRow = unmatchedRow.getnnz();
-    int64_t newlyMatched = 1; // ensure the first pass of the while loop
-    int iteration = 0;
-    double tStart = MPI_Wtime();
-    vector<vector<double> > timing;
-    if(myrank == 0)
-    {
-        cout << "=======================================================\n";
-        cout << "@@@@@@ Number of processes: " << nprocs << endl;
-        cout << "=======================================================\n";
-        cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
-        cout << "=======================================================\n";
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    //PSpMat_Int64  A = Aeff;
-    //A.PrintInfo();
-    
-    while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
-    {
-        vector<double> times;
-        double t1 = MPI_Wtime();
-        // step1: Find adjacent row vertices (col vertices parent, row vertices child)
-        
-        SpMV<Select2ndMinSR<bool, int64_t>>(A, unmatchedCol, fringeRow, false);
-        
-        // step2: Remove matched row vertices
-        fringeRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
-        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        
-        
-        // step3: Remove duplicate row vertices
-        //fringeRow = fringeRow.Uniq();
-        //if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        //fringeRow.DebugPrint();
-        
-        // step4: Update mateRow2Col with the newly matched row vertices
-        //mateRow2Col.Set(fringeRow);
-        //fringeRow.DebugPrint();
-        
-        // step5: Update mateCol2Row with the newly matched col vertices
-        FullyDistSpVec<int64_t, int64_t> temp = fringeRow.Invert(A.getncol());
-        mateCol2Row.Set(temp);
-        //temp.DebugPrint();
-        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        
-        FullyDistSpVec<int64_t, int64_t> temp1 = temp.Invert(A.getnrow());
-        
-        mateRow2Col.Set(temp1);
-        //temp1.DebugPrint();
-        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        
-        // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
-        //unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
-        //unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
-        
-        unmatchedRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
-        unmatchedCol.Select(mateCol2Row, [](int64_t mate){return mate==-1;});
-        
-        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        
-        
-        ++iteration;
-        newlyMatched = temp.getnnz();
-        if(myrank == 0)
-        {
-            times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
-            timing.push_back(times);
-            cout  << iteration <<  "  " << curUnmatchedRow  <<  "  " << curUnmatchedCol  <<  "  " << newlyMatched <<  "  " << times.back() << endl;
-        }
-        
-        curUnmatchedCol = unmatchedCol.getnnz();
-        curUnmatchedRow = unmatchedRow.getnnz();
-        MPI_Barrier(MPI_COMM_WORLD);
-        
-    }
-    
-    
-    
-    
-    //Check if this is a maximal matching
-    //mateRow2Col.DebugPrint();
-    //mateCol2Row.DebugPrint();
-    //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
-    //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
-    
-    
-    // print statistics
-    if(myrank == 0)
-    {
-        cout << "============================================================\n";
-        cout << "\n================individual timings =========================\n";
-        cout  << "SpMV  |  Uniq   |  Permute   |  Update matching  |  Total "<< endl;
-        cout << "============================================================\n";
-        
-        vector<double> totalTimes(timing[0].size(),0);
-        for(int i=0; i<timing.size(); i++)
-        {
-            for(int j=0; j<timing[i].size(); j++)
-            {
-                totalTimes[j] += timing[i][j];
-                cout << timing[i][j] << "  ";
-            }
-            cout << endl;
-        }
-        
-        cout << "=================== total timing ===========================\n";
-        for(int i=0; i<totalTimes.size(); i++)
-            cout<<totalTimes[i] << " ";
-        cout << endl;
-    }
-    
-    
-}
-
-
-
-
-/*
- * Serial: Check the validity of the matching solution; 
- we need a better solution using invert
- */
-template <class IT, class NT>
-bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col)
-{
-    
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    for(int i=0; i< mateRow2Col.glen ; i++)
-    {
-        int t = mateRow2Col[i];
-        
-        if(t!=-1 && mateCol2Row[t]!=i)
-        {
-            if(myrank == 0)
-                cout << "Does not satisfy the matching constraints\n";
-            return false;
-        }
-    }
-    
-    for(int i=0; i< mateCol2Row.glen ; i++)
-    {
-        int t = mateCol2Row[i];
-        if(t!=-1 && mateRow2Col[t]!=i)
-        {
-            if(myrank == 0)
-                cout << "Does not satisfy the matching constraints\n";
-            return false;
-        }
-    }
-    return true;
-}
-
 
 
 

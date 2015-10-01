@@ -33,28 +33,6 @@ public:
 };
 
 
-
-struct VertexType
-{
-public:
-    VertexType(int64_t p=-1, int64_t r=-1, int64_t deg=0, int16_t pr=0){parent=p; root = r; degree=deg; prob = pr;};
-    
-    friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 )
-    {
-        if(vtx1.prob==vtx2.prob) return vtx1.parent<vtx2.parent;
-        else return vtx1.prob<vtx2.prob;
-    };
-    friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
-    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
-    //private:
-    int64_t parent;
-    int64_t root;
-    int64_t degree;
-    int16_t prob; // probability of selecting an edge
-    
-};
-
-
 template <typename T1, typename T2>
 struct SelectPlusSR
 {
@@ -115,8 +93,9 @@ struct Select2ndMinSR
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
+typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 
-void hybrid(PSpMat_Bool & A, PSpMat_Bool & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void hybrid(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
             FullyDistVec<int64_t, int64_t>& mateCol2Row, int type, bool rand=true)
 {
     
@@ -288,7 +267,7 @@ void hybrid(PSpMat_Bool & A, PSpMat_Bool & AT, FullyDistVec<int64_t, int64_t>& m
 
 
 template <class IT, class NT>
-bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row)
+bool isMaximalmatching(PSpMat_Bool & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row)
 {
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -300,7 +279,7 @@ bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, Full
     unmatchedCol.setNumToInd();
     
     
-    SpMV<SelectMinSRing1>(A, unmatchedCol, fringeRow, false);
+    SpMV<Select2ndMinSR<bool, VertexType1>>(A, unmatchedCol, fringeRow, false);
     fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
     if(fringeRow.getnnz() != 0)
     {
@@ -311,7 +290,7 @@ bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, Full
     
     PSpMat_Int64 tA = A;
     tA.Transpose();
-    SpMV<SelectMinSRing1>(tA, unmatchedRow, fringeCol, false);
+    SpMV<Select2ndMinSR<bool, VertexType1>>(tA, unmatchedRow, fringeCol, false);
     fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
     if(fringeCol.getnnz() != 0)
     {
