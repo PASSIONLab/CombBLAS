@@ -2838,9 +2838,6 @@ void FullyDistSpVec<IT,NT>::Select (const FullyDistVec<IT,NT1> & denseVec, _Unar
 			IT spsize = getlocnnz();
             IT k = 0;
             // iterate over the sparse vector
-#ifdef _OPENMP
-#pragma OMP for
-#endif
             for(IT i=0; i< spsize; ++i)
             {
                 if(__unop(denseVec.arr[ind[i]]))
