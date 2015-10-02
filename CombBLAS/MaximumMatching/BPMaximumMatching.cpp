@@ -401,8 +401,8 @@ int main(int argc, char* argv[])
 	
     // ------------ initialize MPI ---------------
     int provided;
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
-    if (provided < MPI_THREAD_MULTIPLE)
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
     {
         printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
@@ -553,16 +553,17 @@ int main(int argc, char* argv[])
         
         
         //////
-        /*
+        
+/*	
         // Remove Isolated vertice
-        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
-        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
+        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
         FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
         FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
         FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
         
-        A1.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
-        A1.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
+        ABool->Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
         //ColSums->EWiseApply(*RowSums, plus<int64_t>());
         nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
         nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
@@ -574,11 +575,17 @@ int main(int argc, char* argv[])
         
         delete ColSums;
         delete RowSums;
-        
-        //A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
-        A.operator()(nonisoRowV, nonisoColV, true);
+*/
+	FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
+	FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
+	prow.iota(ABool->getnrow(), 0); 
+	pcol.iota(ABool->getncol(), 0);       
+        prow.RandPerm();
+        pcol.RandPerm();
+	//A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
+        (*ABool)(prow, pcol, true);
         /////
-        */
+        
         
         
      
@@ -713,7 +720,7 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
 #ifdef _OPENMP
-//#pragma omp for // multiple thread can do their own one sided communication, what happens in receiver??
+#pragma omp for 
 #endif
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
@@ -796,15 +803,16 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     while(matched)
     {
         time_phase = MPI_Wtime();
-        
+       
         PSpMat_Bool Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
-
+	//cout << "before : " << Mbool.getlocalnnz() << endl;
+//MPI_Barrier(MPI_COMM_WORLD);
 #ifdef _OPENMP
         if(Mbool.getnnz()>cblas_splits)
             Mbool.ActivateThreading(cblas_splits);
 #endif
-
-        
+ //cout << "after : " << Mbool.getlocalnnz() << endl;
+   //    MPI_Barrier(MPI_COMM_WORLD);
         vector<double> phase_timing(8,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
@@ -820,7 +828,6 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
         //fringeCol.DebugPrint();
-        
         ++phase;
         numUnmatchedCol = fringeCol.getnnz();
         int64_t tt;
@@ -839,11 +846,10 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             phase_timing[0] += MPI_Wtime()-t1;
             
             
-            
             // remove vertices already having parents
             t1 = MPI_Wtime();
             //fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;}); //much faster
-            fringeRow = EWiseApply_threaded<VertexType>(fringeRow, parentsRow,
+            fringeRow = EWiseApply<VertexType>(fringeRow, parentsRow,
                                                         [](VertexType vtx, int64_t parent, bool a, bool b){return vtx;},
                                                         [](VertexType vtx, int64_t parent, bool a, bool b){return parent==-1;},
                                                         false, VertexType(), true);
@@ -855,7 +861,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
                                   false, VertexType(), false);
             
             
-            umFringeRow1 = EWiseApply_threaded<int64_t>(fringeRow, mateRow2Col,
+            umFringeRow1 = EWiseApply<int64_t>(fringeRow, mateRow2Col,
                                       [](VertexType vtx, int64_t mate, bool a, bool b){return vtx.root;},
                                       [](VertexType vtx, int64_t mate, bool a, bool b){return mate==-1;},
                                       false, VertexType(), true);
@@ -864,7 +870,6 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
-            
             
             // get the unique leaves
             if(umFringeRow1.getnnz()>0)
@@ -883,7 +888,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             //fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
             //                      [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
-            fringeRow = EWiseApply_threaded<VertexType>(fringeRow, mateRow2Col,
+            fringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col,
                                                         [](VertexType vtx, int64_t mate, bool a, bool b){return VertexType(mate, vtx.root);},
                                                         [](VertexType vtx, int64_t mate, bool a, bool b){return mate!=-1;},
                                                         false, VertexType(), true);
@@ -901,7 +906,6 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             
             t1 = MPI_Wtime();
-            
             if(fringeRow.getnnz() > 0)
             {
                 SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol, false);
@@ -909,11 +913,9 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             else break;
             phase_timing[4] += MPI_Wtime()-t1;
             
-            
         }
         time_search = MPI_Wtime() - time_search;
         phase_timing[5] += time_search;
-        
         
         int64_t numMatchedCol = leaves.Count([](int64_t leaf){return leaf!=-1;});
         time_augment = MPI_Wtime();
@@ -925,8 +927,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         }
         time_augment = MPI_Wtime() - time_augment;
         phase_timing[6] += time_augment;
-        
-        
+
         time_phase = MPI_Wtime() - time_phase;
         phase_timing[7] += time_phase;
         timing.push_back(phase_timing);
@@ -986,6 +987,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     
 }
+
 
 
 
