@@ -593,6 +593,11 @@ int main(int argc, char* argv[])
         PSpMat_s32p64 AT = A;
         AT.Transpose();
         
+        // Reduce is not multithreaded, so I am doing it here
+        FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
+        A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        
+        
 #ifdef _OPENMP
 #pragma omp parallel
         {
@@ -628,18 +633,10 @@ int main(int argc, char* argv[])
         
         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-        //if(argc>=3 && static_cast<unsigned>(atoi(argv[2]))==1)
-        //greedyMatching(A, mateRow2Col, mateCol2Row);
+ 
         
         
-        //hybrid(A, AT, mateRow2Col, mateCol2Row, init, true);
-        //KS(A, AT, mateRow2Col, mateCol2Row);
-        
-        
-        //A1.Transpose();
-        //varify_matching(*ABool);
-        
-        
+        MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, true);
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
         int64_t ncols=A.getncol();
@@ -704,9 +701,6 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     MPI_Win_create(&mateCol2Row.arr[0], mateCol2Row.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, mateCol2Row.commGrid->GetWorld(), &win_mateCol2Row);
     MPI_Win_create(&parentsRow.arr[0], parentsRow.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
 
-    //cout<< "Leaves: " ;
-    //leaves.DebugPrint();
-    //parentsRow.DebugPrint();
     
     MPI_Win_fence(0, win_mateRow2Col);
     MPI_Win_fence(0, win_mateCol2Row);
