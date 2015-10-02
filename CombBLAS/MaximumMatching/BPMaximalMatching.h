@@ -27,7 +27,6 @@ public:
     };
     friend bool operator==(const VertexType1 & vtx1, const VertexType1 & vtx2 ){return vtx1.comp==vtx2.comp;};
     friend ostream& operator<<(ostream& os, const VertexType1 & vertex ){os << "(" << vertex.parent << "," << vertex.comp << ")"; return os;};
-    //private:
     int64_t parent;
     int64_t comp; // can be index, probability or degree
 };
@@ -95,8 +94,8 @@ typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 
-void hybrid(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-            FullyDistVec<int64_t, int64_t>& mateCol2Row, int type, bool rand=true)
+void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+            FullyDistVec<int64_t, int64_t>& mateCol2Row, FullyDistVec<int64_t, int64_t> degCol, int type, bool rand=true)
 {
     
     int nprocs, myrank;
@@ -109,8 +108,8 @@ void hybrid(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t
     //unmatched row and column vertices
     FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
     FullyDistSpVec<int64_t, int64_t> degColSG(A.getcommgrid(), A.getncol());
-    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
-    A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
+    //FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
+    //A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0)); // Reduce is not multithreaded
     
     
     FullyDistSpVec<int64_t, VertexType1> unmatchedCol(A.getcommgrid(), A.getncol());
@@ -135,6 +134,7 @@ void hybrid(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t
     int iteration = 0;
     double tStart = MPI_Wtime();
     vector<vector<double> > timing;
+    
     if(myrank == 0)
     {
         cout << "=======================================================\n";
@@ -144,7 +144,7 @@ void hybrid(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t
         cout << "=======================================================\n";
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    
+
     
     while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
     {

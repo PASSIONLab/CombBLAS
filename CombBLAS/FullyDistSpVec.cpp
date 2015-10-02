@@ -33,6 +33,11 @@
 #include "hash.hpp"
 #include "FileHeader.h"
 
+#ifdef GNU_PARALLEL
+#include <parallel/algorithm>
+#include <parallel/numeric>
+#endif
+
 using namespace std;
 
 template <class IT, class NT>
@@ -2061,11 +2066,8 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 {
-    double t1, t2, t3;
     FullyDistSpVec<IT,NT> Inverted(commGrid, globallen);
-    t2 = MPI_Wtime();
     IT max_entry = Reduce(maximum<IT>(), (IT) 0 ) ;
-    t2 = MPI_Wtime() - t2;
     if(max_entry >= globallen)
     {
         cout << "Sparse vector has entries (" << max_entry  << ") larger than requested global vector length " << globallen << endl;
@@ -2081,16 +2083,22 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     
     
 	IT ploclen = getlocnnz();
+#ifdef _OPENMP
+#pragma omp for
+#endif
 	for(IT k=0; k < ploclen; ++k)
 	{
 		IT locind;
 		int owner = Inverted.Owner(num[k], locind);
+#ifdef _OPENMP
+        __sync_fetch_and_add(&sendcnt[owner], 1);
+#else
         sendcnt[owner]++;
+#endif
 	}
     
-    t3 = MPI_Wtime();
+
    	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
-    t3 = MPI_Wtime()- t3;
     
     sdispls[0] = 0;
 	rdispls[0] = 0;
@@ -2105,19 +2113,32 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     NT * datbuf = new NT[ploclen];
     IT * indbuf = new IT[ploclen];
     int *count = new int[nprocs](); //current position
+#ifdef _OPENMP
+#pragma omp for
+#endif
     for(IT i=0; i < ploclen; ++i)
 	{
 		IT locind;
         int owner = Inverted.Owner(num[i], locind);
-        int id = sdispls[owner] + count[owner];
+        int id;
+#ifdef _OPENMP
+        id = sdispls[owner] + __sync_fetch_and_add(&count[owner], 1);
+#else
+        id = sdispls[owner] + count[owner];
+        sendcnt[owner]++;
+#endif
         datbuf[id] = ind[i] + LengthUntil();
         indbuf[id] = locind;
-        count[owner]++;
 	}
     delete [] count;
+    
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
+    IT totrecv = __gnu_parallel::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+#else
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+#endif
 
-    t1 = MPI_Wtime();
+
 	NT * recvdatbuf = new NT[totrecv];
 	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
     delete [] datbuf;
@@ -2125,22 +2146,31 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     IT * recvindbuf = new IT[totrecv];
     MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
     delete [] indbuf;
-    t1 = MPI_Wtime() - t1;
+
     
-    vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    vector< pair<IT,NT> > tosort;
     tosort.resize(totrecv);
+#ifdef _OPENMP
+#pragma omp for
+#endif
 	for(int i=0; i<totrecv; ++i)
 	{
         tosort[i] = make_pair(recvindbuf[i], recvdatbuf[i]);
 	}
 	DeleteAll(recvindbuf, recvdatbuf);
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
-    std::sort(tosort.begin(), tosort.end());
     
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
+    __gnu_parallel::sort(tosort.begin(), tosort.end());
+#else
+    std::sort(tosort.begin(), tosort.end());
+#endif
     
     Inverted.ind.reserve(totrecv);
     Inverted.num.reserve(totrecv);
     IT lastIndex=-1;
+    
+    // not threaded because Inverted.ind is kept sorted
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
         if(lastIndex!=itr->first) // avoid duplicate indices
@@ -2152,9 +2182,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
         
 	}
     
-    //ostringstream tinfo;
-    //tinfo << t1 << " "<< t2 << " " << t3 << " \n";
-    //SpParHelper::Print(tinfo.str());
 	return Inverted;
     
 }
