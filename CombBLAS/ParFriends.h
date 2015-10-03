@@ -1650,7 +1650,7 @@ template <typename RET, typename IU, typename NU1, typename NU2, typename _Binar
 FullyDistSpVec<IU,RET> EWiseApply 
 	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 {
-	return EWiseApply_threaded<RET>(V, W,
+	return EWiseApply<RET>(V, W,
 					EWiseExtToPlainAdapter<RET, NU1, NU2, _BinaryOperation>(_binary_op),
 					EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
 					allowVNulls, Vzero, true);
