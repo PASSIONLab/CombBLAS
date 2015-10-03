@@ -735,14 +735,22 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			}
 			else // scan the sparse vector only
 			{
-#ifdef _OPENMP
-//#pragma omp for
-#endif
+                /*
                 for(otherInd = other.ind.begin(); otherInd < other.ind.end(); otherInd++, otherNum++)
 				{
 					if (_do_op(arr[*otherInd], *otherNum, false, false))
 						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum, false, false);
-				}
+				}*/
+                
+                IT spsize = other.ind.size();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for(IT i=0; i< spsize; i++)
+                {
+                    if (_do_op(arr[other.ind[i]], other.num[i], false, false))
+                        arr[other.ind[i]] = __binary_op(arr[other.ind[i]], other.num[i], false, false);
+                }
 			}
 		}
 	}
@@ -1059,47 +1067,13 @@ void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
     }
     else
     {
-        cout << "Grids are not comparable for GSet" << endl;
+        cout << "Grids are not comparable for Set" << endl;
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
 }
 
 
 
-
-/*
-
-template <class IT, class NT>
-template <typename _BinaryOperation, class NT2>
-void FullyDistVec<IT,NT>::Set(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binop)
-{
-    if(*(commGrid) == *(other.commGrid))
-    {
-        if(glen != other.glen)
-        {
-            cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::Set\n";
-            MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-        }
-        else
-        {
-            
-            IT spvecsize = rhs.getlocnnz();
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for(IT i=0; i< spvecsize; ++i)
-            {
-                arr[other.ind[i]] = __binop(arr[other.ind[i]], other.num[i]);
-            }
-        }
-    }
-    else
-    {
- 
-    }
-}
-
-*/
 
 
 
