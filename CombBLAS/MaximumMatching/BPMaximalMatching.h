@@ -14,7 +14,7 @@
 #define KARP_SIPSER 2
 #define DMD 3
 using namespace std;
-MTRand GlobalMT(123); // for reproducable result
+MTRand GlobalMT(123); // for reproducible result
 
 
 struct VertexType1

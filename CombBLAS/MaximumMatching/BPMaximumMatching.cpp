@@ -359,6 +359,7 @@ void ShowUsage()
         cout << "** (optional) init : maximal matching algorithm used to initialize\n ";
         cout << "      none: noinit, greedy: greedy init , ks: Karp-Sipser, dmd: dynamic mindegree\n";
         cout << "       default: none\n";
+        cout << "** (optional) rand: random parent selection in greedy/Karp-Sipser\n" ;
         cout << "** (optional) diropt: employ direction-optimized BFS\n" ;
         cout << "** (optional) prune: discard trees as soon as an augmenting path is found\n" ;
         cout << "** (optional) graft: employ tree grafting\n" ;
@@ -371,7 +372,7 @@ void ShowUsage()
     }
 }
 
-void GetOptions(char* argv[], int argc, int & init, bool & diropt, bool & prune, bool & graft)
+void GetOptions(char* argv[], int argc, int & init, bool & rand, bool & diropt, bool & prune, bool & graft)
 {
     string allArg="";
     for(int i=0; i<argc; i++)
@@ -384,6 +385,8 @@ void GetOptions(char* argv[], int argc, int & init, bool & diropt, bool & prune,
         prune = true;
     if(allArg.find("graft")!=string::npos)
         graft = true;
+    if(allArg.find("rand")!=string::npos)
+        rand = true;
     if(allArg.find("greedy")!=string::npos)
         init = GREEDY;
     else if(allArg.find("ks")!=string::npos)
@@ -418,7 +421,7 @@ int main(int argc, char* argv[])
     }
 
     int init = NO_INIT;
-    bool diropt=false, prune=false, graft=false;
+    bool rand = false, diropt=false, prune=false, graft=false;
     
     // ------------ Process input arguments and build matrix ---------------
 	{
@@ -439,33 +442,7 @@ int main(int argc, char* argv[])
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
-            
-            /*
-            // random permutations for load balance
-            if(permute)
-            {
-                if(A->getnrow() == A->getncol())
-                {
-                    if(p.TotalLength()!=A->getnrow())
-                    {
-                        SpParHelper::Print("Generating random permutation vector.\n");
-                        p.iota(A->getnrow(), 0);
-                        p.RandPerm();
-                    }
-                    SpParHelper::Print("Perfoming random permuation of matrix.\n");
-                    (*A)(p,p,true);// in-place permute to save memory
-                    ostringstream tinfo1;
-                    tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
-                    SpParHelper::Print(tinfo1.str());
-                }
-                else
-                {
-                    SpParHelper::Print("nrow != ncol. Can not apply symmetric permutation.\n");
-                }
-            }
-             */
-            
-            GetOptions(argv+3, argc-3, init, diropt, prune, graft);
+            GetOptions(argv+3, argc-3, init, rand, diropt, prune, graft);
 
         }
         else if(argc < 4)
@@ -523,71 +500,22 @@ int main(int argc, char* argv[])
             SpParHelper::Print("Generated matrix symmetricized....\n");
             ABool->PrintInfo();
             
-            GetOptions(argv+4, argc-4, init, diropt, prune, graft);
+            GetOptions(argv+4, argc-4, init, rand, diropt, prune, graft);
 
         }
 
-        
-		
-		
-
-        
-        
-        //int64_t removed  = ABool->RemoveLoops(); // loop means an edges (i,i+NU) in a bipartite graph
-        
-       
-        // remove isolated vertice if necessary
-        
-        //greedyMatching(*ABool);
-        // maximumMatching(*ABool);
-        //maximumMatchingSimple(*ABool);
-        
-        
-        
-        
-        //PSpMat_Bool A1;
-        //A1.ReadDistribute("amazon0312.mtx", 0);	// read it from file
-        //A1.ReadDistribute("coPapersDBLP.mtx", 0);	// read it from file
-        //A1.PrintInfo();
-        
-        
-        
-        //////
-        
-/*	
-        // Remove Isolated vertice
-        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
-        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
-        FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
-        FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
-        FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
-        
-        ABool->Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
-        ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
-        //ColSums->EWiseApply(*RowSums, plus<int64_t>());
-        nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
-        nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
-        nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
-        //nonisoColV.iota(A.getncol(), 0);
-        nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-        nonisoColV.RandPerm();
-        nonisoRowV.RandPerm();
-        
-        delete ColSums;
-        delete RowSums;
-*/
-	FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
-	FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
-	prow.iota(ABool->getnrow(), 0); 
-	pcol.iota(ABool->getncol(), 0);       
+  
+        // randomly permute for load balance
+        SpParHelper::Print("Performing random permuation of matrix.\n");
+        FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
+        FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
+        prow.iota(ABool->getnrow(), 0);
+        pcol.iota(ABool->getncol(), 0);
         prow.RandPerm();
         pcol.RandPerm();
-	//A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
         (*ABool)(prow, pcol, true);
-        /////
-        
-        
-        
+        SpParHelper::Print("Performed random permuation of matrix.\n");
+
      
         PSpMat_s32p64 A = *ABool;
         PSpMat_s32p64 AT = A;
@@ -611,11 +539,6 @@ int main(int argc, char* argv[])
 #endif
 
 
-        
-        
-        //if(argc>=4 && static_cast<unsigned>(atoi(argv[3]))==1)
-        //    removeIsolated(A);
-        
         tinfo.str("");
         tinfo << "\n---------------------------------\n";
         tinfo << "Calling maximum-cardinality matching with options: " << endl;
@@ -624,6 +547,7 @@ int main(int argc, char* argv[])
         if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
         if(init == DMD) tinfo << " dynamic mindegree, ";
         if(init == GREEDY) tinfo << " greedy, ";
+        if(rand) tinfo << " random parent selection in greedy/Karp-Sipser, ";
         if(diropt) tinfo << " direction-optimized BFS, ";
         if(prune) tinfo << " tree pruning, ";
         if(graft) tinfo << " tree grafting ";
@@ -635,8 +559,8 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
  
         
-        
-        MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, true);
+        if(init!=NO_INIT)
+            MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, rand);
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
         int64_t ncols=A.getncol();
