@@ -2084,7 +2084,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     
 	IT ploclen = getlocnnz();
 #ifdef _OPENMP
-#pragma omp paralel for
+#pragma omp parallel for
 #endif
 	for(IT k=0; k < ploclen; ++k)
 	{
@@ -2114,7 +2114,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     IT * indbuf = new IT[ploclen];
     int *count = new int[nprocs](); //current position
 #ifdef _OPENMP
-#pragma omp paralel for
+#pragma omp parallel for
 #endif
     for(IT i=0; i < ploclen; ++i)
 	{
@@ -2151,7 +2151,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     vector< pair<IT,NT> > tosort;
     tosort.resize(totrecv);
 #ifdef _OPENMP
-#pragma omp paralel for
+#pragma omp parallel for
 #endif
 	for(int i=0; i<totrecv; ++i)
 	{
