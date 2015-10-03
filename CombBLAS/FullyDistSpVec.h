@@ -222,7 +222,13 @@ public:
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{
-		transform(num.begin(), num.end(), num.begin(), __unary_op);
+		//transform(num.begin(), num.end(), num.begin(), __unary_op);
+        IT spsize = num.size();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for(IT i=0; i < spsize; ++i)
+            num[i] = __unary_op(num[i]);
 	}
 
 	template <typename _BinaryOperation>

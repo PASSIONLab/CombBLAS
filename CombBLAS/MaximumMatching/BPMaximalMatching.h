@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "Utility.h"
 
 #define NO_INIT 0
 #define GREEDY 1
@@ -111,21 +112,18 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     //FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
     //A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0)); // Reduce is not multithreaded
     
-    
+ 
     FullyDistSpVec<int64_t, VertexType1> unmatchedCol(A.getcommgrid(), A.getncol());
-    unmatchedCol  = EWiseApply<VertexType1>(unmatchedCol, mateCol2Row, [](VertexType1 vtx, int64_t mate){return VertexType1();},
-                                            [](VertexType1 vtx, int64_t mate){return mate==-1;}, true, VertexType1());
-    unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;});
-    unmatchedCol.ApplyInd([](VertexType1 vtx, int64_t idx){return VertexType1(idx,idx);}); //  parent equals to index
+    // every veretx is unmatched. keep non-isolated vertices
+    unmatchedCol  = EWiseApply<VertexType1>(unmatchedCol, degCol,
+                                            [](VertexType1 vtx, int64_t deg){return VertexType1();},
+                                            [](VertexType1 vtx, int64_t deg){return deg>0;},
+                                            true, VertexType1());
     
-        
-    if(type==DMD)
-        unmatchedCol.SelectApply(degCol, [](int64_t deg){return deg>0;},
-                             [](VertexType1 vtx, int64_t deg){return VertexType1(vtx.parent,deg);});
     
-    //fringe vector (sparse)
     FullyDistSpVec<int64_t, VertexType1> fringeRow(A.getcommgrid(), A.getnrow());
-    
+    FullyDistSpVec<int64_t, int64_t> fringeRow2(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<int64_t, VertexType1> deg1Col(A.getcommgrid(), A.getncol());
    
     
     int64_t curUnmatchedCol = unmatchedCol.getnnz();
@@ -148,14 +146,24 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     
     while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
     {
+        unmatchedCol.ApplyInd([](VertexType1 vtx, int64_t idx){return VertexType1(idx,idx);});
+        if(type==DMD)
+        {
+            unmatchedCol  = EWiseApply<VertexType1>(unmatchedCol, degCol,
+                                                    [](VertexType1 vtx, int64_t deg){return VertexType1(vtx.parent,deg);},
+                                                    [](VertexType1 vtx, int64_t deg){return true;},
+                                                    false, VertexType1());
+        }
+        else if(rand)
+        {
+            unmatchedCol.Apply([](VertexType1 vtx){return VertexType1(vtx.parent, static_cast<int64_t>((GlobalMT.rand() * 9999999)+1));});
+        }
         
         // ======================== step1: One step of BFS =========================
         vector<double> times;
         double t1 = MPI_Wtime();
         if(type==GREEDY)
         {
-            if(rand)
-                unmatchedCol.Apply([](VertexType1 vtx){return VertexType1(vtx.parent, static_cast<int64_t>((GlobalMT.rand() * 9999999)+1));});
             SpMV<Select2ndMinSR<bool, VertexType1>>(A, unmatchedCol, fringeRow, false);
         }
         else if(type==DMD)
@@ -164,30 +172,32 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         }
         else //(type==KARP_SIPSER)
         {
-            FullyDistSpVec<int64_t, VertexType1> deg1Col = unmatchedCol;
-            deg1Col.Select(degCol, [](int64_t deg){return deg==1;});
-            
+            deg1Col = EWiseApply<VertexType1>(unmatchedCol, degCol,
+                                            [](VertexType1 vtx, int64_t deg){return vtx;},
+                                            [](VertexType1 vtx, int64_t deg){return deg==1;},
+                                            false, VertexType1());
+
             if(deg1Col.getnnz()>9)
                 SpMV<Select2ndMinSR<bool, VertexType1>>(A, deg1Col, fringeRow, false);
             else
-            {
-                if(rand)
-                    unmatchedCol.Apply([](VertexType1 vtx){return VertexType1(vtx.parent, static_cast<int64_t>((GlobalMT.rand() * 9999999)+1));});
                 SpMV<Select2ndMinSR<bool, VertexType1>>(A, unmatchedCol, fringeRow, false);
-            }
-            
         }
         // Remove matched row vertices
-        fringeRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
+        fringeRow = EWiseApply<VertexType1>(fringeRow, mateRow2Col,
+                                            [](VertexType1 vtx, int64_t mate){return vtx;},
+                                            [](VertexType1 vtx, int64_t mate){return mate==-1;},
+                                            false, VertexType1());
+        
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         // ===========================================================================
         
         
         // ======================== step2: Update matching  =========================
-        FullyDistSpVec<int64_t, int64_t> fringeRow2(A.getcommgrid(), A.getnrow());
         
-        fringeRow2  = EWiseApply<int64_t>(fringeRow, mateRow2Col, [](VertexType1 vtx, int64_t mate){return vtx.parent;},
-                                          [](VertexType1 vtx, int64_t mate){return true;}, false, VertexType1());
+        fringeRow2  = EWiseApply<int64_t>(fringeRow, mateRow2Col,
+                                          [](VertexType1 vtx, int64_t mate){return vtx.parent;},
+                                          [](VertexType1 vtx, int64_t mate){return true;},
+                                          false, VertexType1());
         
         FullyDistSpVec<int64_t, int64_t> newMatchedCols = fringeRow2.Invert(A.getncol());
         FullyDistSpVec<int64_t, int64_t> newMatchedRows = newMatchedCols.Invert(A.getnrow());
@@ -208,11 +218,14 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
             SpMV< SelectPlusSR<bool, int64_t>>(AT, newMatchedRows, degColSG, false);  // degree of column vertices to matched rows
             // subtract degree of column vertices
             degCol.EWiseApply(degColSG,
-                              [](int64_t old_deg, int64_t new_deg, bool a, bool b){return old_deg-new_deg;},
-                              [](int64_t old_deg, int64_t new_deg, bool a, bool b){return true;},
-                              false, static_cast<int64_t>(0), false);
-            unmatchedCol.SelectApply(degCol, [](int64_t deg){return deg>0;},
-                                     [](VertexType1 vtx, int64_t deg){return VertexType1(vtx.parent,deg);});
+                              [](int64_t old_deg, int64_t new_deg){return old_deg-new_deg;},
+                              [](int64_t old_deg, int64_t new_deg){return true;},
+                              false, static_cast<int64_t>(0));
+            // remove isolated vertices
+            unmatchedCol  = EWiseApply<VertexType1>(unmatchedCol, degCol,
+                                                    [](VertexType1 vtx, int64_t deg){return vtx;},
+                                                    [](VertexType1 vtx, int64_t deg){return deg>0;},
+                                                    false, VertexType1());
         }
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         // ===========================================================================
@@ -259,6 +272,7 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         
         printf("%lld %lf\n",curUnmatchedRow, totalTimes.back());
     }
+    //isMatching(mateCol2Row, mateRow2Col);
 }
 
 
