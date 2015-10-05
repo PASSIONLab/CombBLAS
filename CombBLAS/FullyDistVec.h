@@ -125,6 +125,9 @@ public:
 	void Set(const FullyDistSpVec< IT,NT > & rhs);
     template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>
     void GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
+    template <class NT1, typename _BinaryOperationIdx>
+    FullyDistSpVec<IT,NT> GGet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, NT nullValue);
+
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation

@@ -1109,7 +1109,6 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
         IT globind = __binopIdx(spVec.num[k], spVec.ind[k] + lengthUntil);
         int owner = Owner(globind, locind); // get local index
         NT val = __binopVal(spVec.num[k], spVec.ind[k] + lengthUntil);
-        //cout << myrank << " " << owner << " " << locind << " " << val << " " << glen << "\n";
         if(globind < glen) // prevent index greater than size of the composed vector
         {
             datsent[owner].push_back(val);
@@ -1138,11 +1137,86 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
             }
             MPI_Win_unlock(i, win);
         }
-        
     }
     //MPI_Win_fence(0, win);
     MPI_Win_free(&win);
 
+}
+
+
+
+// General purpose get operation on dense vector by a sparse vector
+// Get the element of the dense vector indexed by the value of the sparse vector
+// invert and get might not work in the presence of repeated values
+
+template <class IT, class NT>
+template <class NT1, typename _BinaryOperationIdx>
+ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::GGet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, NT nullValue)
+{
+    if(*(commGrid) != *(spVec.commGrid))
+    {
+        cout << "Grids are not comparable for GGet" << endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    
+    MPI_Comm World = commGrid->GetWorld();
+    int nprocs = commGrid->GetSize();
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    
+    
+    vector< vector< NT > > spIdx(nprocs);
+    vector< vector< IT > > indsent(nprocs);
+    IT lengthUntil = spVec.LengthUntil();
+    IT spVecSize = spVec.getlocnnz();
+    
+    FullyDistSpVec<IT, NT> res(spVec.commGrid, spVec.TotalLength());
+    res.ind.resize(spVecSize);
+    res.num.resize(spVecSize);
+    
+    
+    for(IT k=0; k < spVecSize; ++k)
+    {
+        IT locind;
+        // get global index of the dense vector from the value. Most often a select operator.
+        // If the first operand is selected, then invert; otherwise, EwiseApply.
+        IT globind = __binopIdx(spVec.num[k], spVec.ind[k] + lengthUntil);
+        int owner = Owner(globind, locind); // get local index
+        //NT val = __binopVal(spVec.num[k], spVec.ind[k] + lengthUntil);
+        if(globind < glen) // prevent index greater than size of the composed vector
+        {
+            spIdx[owner].push_back(k); // position of spVec
+            indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+        }
+        else
+            res.num[k] = nullValue;
+        res.ind[k] = spVec.ind[k];
+    }
+    
+    
+    for(int j = 0; j < indsent[myrank].size(); ++j)	// directly get local entries
+    {
+        res.num[spIdx[myrank][j]] = arr[indsent[myrank][j]];
+    }
+    
+    
+    MPI_Win win;
+    MPI_Win_create(&arr[0], LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, World, &win);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(i!=myrank)
+        {
+            MPI_Win_lock(MPI_LOCK_SHARED,i,MPI_MODE_NOCHECK,win);
+            for(int j = 0; j < indsent[i].size(); ++j)
+            {
+                MPI_Get(&res.num[spIdx[i][j]], 1, MPIType<NT>(), i, indsent[i][j], 1, MPIType<NT>(), win);
+            }
+            MPI_Win_unlock(i, win);
+        }
+    }
+    MPI_Win_free(&win);
+    
+    return res;
 }
 
 
