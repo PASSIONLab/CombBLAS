@@ -21,7 +21,7 @@
 
 using namespace std;
 
-
+bool prune, rmaAugment, rmaPrune, rmaSetLeaves;
 
 
 template <typename PARMAT>
@@ -278,7 +278,8 @@ SpParMat<IT, bool, DER> PermMat1 (const FullyDistSpVec<IT,NT> & ri, const IT nco
         {
             IT rowrec = (n_perproccol!=0) ? std::min(val / n_perproccol, procsPerRow-1) : (procsPerRow-1);
             // ri's numerical values give the colids and its local indices give rowids
-            rowid[rowrec].push_back( i + roffset); // ************************************ this is not right, it should be (ri.ind[i]+offset)
+            //rowid[rowrec].push_back( i + roffset);
+            rowid[rowrec].push_back( ri.ind[i] + roffset);
             colid[rowrec].push_back(val - (rowrec * n_perproccol));
         }
     }
@@ -383,6 +384,12 @@ void GetOptions(char* argv[], int argc, int & init, bool & rand, bool & diropt, 
         diropt = true;
     if(allArg.find("prune")!=string::npos)
         prune = true;
+    if(allArg.find("rmaAugment")!=string::npos)
+        rmaAugment = true;
+    if(allArg.find("rmaPrune")!=string::npos)
+        rmaPrune = true;
+    if(allArg.find("rmaSetLeaves")!=string::npos)
+        rmaSetLeaves = true;
     if(allArg.find("graft")!=string::npos)
         graft = true;
     if(allArg.find("rand")!=string::npos)
@@ -421,7 +428,11 @@ int main(int argc, char* argv[])
     }
 
     int init = NO_INIT;
-    bool rand = false, diropt=false, prune=false, graft=false;
+    bool rand = false, diropt=false, graft=false;
+    prune = false;
+    rmaAugment = false;
+    rmaPrune = false;
+    rmaSetLeaves = false;
     
     // ------------ Process input arguments and build matrix ---------------
 	{
@@ -578,6 +589,7 @@ int main(int argc, char* argv[])
 
 
 
+// augment using invert
 // It is not easy to write these two inverts using matvec.
 // The first invert is accessing mate, hence can be implemented by multipying with matching matrix
 // The second invert access parents, which can not be implemented with simple matvec.
@@ -597,24 +609,25 @@ void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t,
     {
      
         row = col.Invert(nrow);
+        row = EWiseApply<int64_t>(row, parentsRow,
+                                       [](int64_t root, int64_t parent){return parent;},
+                                       [](int64_t root, int64_t parent){return true;},
+                                       false, (int64_t)-1);
         
-        row.SelectApply(parentsRow, [](int64_t parent){return true;},
-                        [](int64_t root, int64_t parent){return parent;});
-        
-
         col = row.Invert(ncol); // children array
-
-        nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
-        
+        nextcol = EWiseApply<int64_t>(col, mateCol2Row,
+                                            [](int64_t child, int64_t mate){return mate;},
+                                            [](int64_t child, int64_t mate){return mate!=-1;},
+                                            false, (int64_t)-1);
         mateRow2Col.Set(row);
         mateCol2Row.Set(col);
         col = nextcol;
-        
     }
 }
 
 
-
+// augment using one-sided MPI
+// not thread safe
 template <typename IT, typename NT>
 void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
              FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
@@ -637,9 +650,7 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
-#ifdef _OPENMP
-#pragma omp for 
-#endif
+
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
         int depth=0;
@@ -677,14 +688,18 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
 
 
 
-void prune(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64_t, int64_t>& temp1)
+void pruneM(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64_t, int64_t>& temp1)
 {
     int64_t ncol = temp1.TotalLength();
     PSpMat_Bool MB;
     MB = PermMat1<int64_t, VertexType, SpDCCols<int64_t,bool>>(fringeRow, ncol, [](VertexType vtx){return vtx.root;});
-    //PSpMat_Int64  M = Mbool; // matching matrix
+    /*
+#ifdef _OPENMP
+    if(MB.getnnz()>cblas_splits)
+        MB.ActivateThreading(cblas_splits); // obtained seg-fault!
+#endif
+     */
     FullyDistSpVec<int64_t, int64_t> remove(fringeRow.getcommgrid(), ncol);
-    //SpMV<SelectMinSRing1>(MB, temp1, remove, false);
     SpMV<Select2ndMinSR<bool, int64_t>>(MB, temp1, remove, false);
     fringeRow.Setminus(remove);
 }
@@ -701,13 +716,8 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     int64_t nrow = A.getnrow();
     int64_t ncol = A.getncol();
-    //FullyDistSpVec<int64_t, VertexType> unmatchedCol(A.getcommgrid(), ncol);
-    
-    FullyDistSpVec<int64_t, VertexType> temp(A.getcommgrid(), ncol);
-    FullyDistSpVec<int64_t, int64_t> temp1(A.getcommgrid(), ncol);
     FullyDistSpVec<int64_t, VertexType> fringeRow(A.getcommgrid(), nrow);
-    FullyDistSpVec<int64_t, VertexType> umFringeRow(A.getcommgrid(), nrow);
-    FullyDistSpVec<int64_t, int64_t> umFringeRow1(A.getcommgrid(), nrow);
+    FullyDistSpVec<int64_t, int64_t> umFringeRow(A.getcommgrid(), nrow);
     
     
     vector<vector<double> > timing;
@@ -723,106 +733,132 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         time_phase = MPI_Wtime();
        
         PSpMat_Bool Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
-	//cout << "before : " << Mbool.getlocalnnz() << endl;
-//MPI_Barrier(MPI_COMM_WORLD);
+
 #ifdef _OPENMP
         if(Mbool.getnnz()>cblas_splits)
             Mbool.ActivateThreading(cblas_splits);
 #endif
- //cout << "after : " << Mbool.getlocalnnz() << endl;
-   //    MPI_Barrier(MPI_COMM_WORLD);
+        
         vector<double> phase_timing(8,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
-        FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
-        
-        FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), nrow, (int64_t) -1); // just for test
+        FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistSpVec<int64_t, VertexType> fringeCol(A.getcommgrid(), ncol);
-        
-        
         fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row,
                                             [](VertexType vtx, int64_t mate){return vtx;},
                                             [](VertexType vtx, int64_t mate){return mate==-1;},
-                                            true, VertexType()); // root & parent both =-1
+                                            true, VertexType());
         
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
-        //fringeCol.DebugPrint();
+
         ++phase;
         numUnmatchedCol = fringeCol.getnnz();
-        int64_t tt;
         int layer = 0;
-        
-        double test1=0, test2=0, test3=0;
+
         
         time_search = MPI_Wtime();
         while(fringeCol.getnnz() > 0)
         {
             layer++;
             t1 = MPI_Wtime();
-            
-
             SpMV<Select2ndMinSR<bool, VertexType>>(A, fringeCol, fringeRow, false);
             phase_timing[0] += MPI_Wtime()-t1;
             
             
             // remove vertices already having parents
+            
             t1 = MPI_Wtime();
-            //fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;}); //much faster
             fringeRow = EWiseApply<VertexType>(fringeRow, parentsRow,
-                                                        [](VertexType vtx, int64_t parent, bool a, bool b){return vtx;},
-                                                        [](VertexType vtx, int64_t parent, bool a, bool b){return parent==-1;},
-                                                        false, VertexType(), true);
+                                                        [](VertexType vtx, int64_t parent){return vtx;},
+                                                        [](VertexType vtx, int64_t parent){return parent==-1;},
+                                                        false, VertexType());
             
             // Set parent pointer
             parentsRow.EWiseApply(fringeRow,
-                                  [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;},
-                                  [](int64_t dval, VertexType svtx, bool a, bool b){return true;},
-                                  false, VertexType(), false);
+                                  [](int64_t dval, VertexType svtx){return svtx.parent;},
+                                  [](int64_t dval, VertexType svtx){return true;},
+                                  false, VertexType());
             
             
-            umFringeRow1 = EWiseApply<int64_t>(fringeRow, mateRow2Col,
-                                      [](VertexType vtx, int64_t mate, bool a, bool b){return vtx.root;},
-                                      [](VertexType vtx, int64_t mate, bool a, bool b){return mate==-1;},
-                                      false, VertexType(), true);
-            
-            
+            umFringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col,
+                                      [](VertexType vtx, int64_t mate){return vtx.root;},
+                                      [](VertexType vtx, int64_t mate){return mate==-1;},
+                                      false, VertexType());
             
             phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             
+            double trmaSetLeaves, tSetLeaves;
+            FullyDistSpVec<int64_t, int64_t> temp1(A.getcommgrid(), ncol);
+            
             // get the unique leaves
-            if(umFringeRow1.getnnz()>0)
+            if(umFringeRow.getnnz()>0)
             {
-                //TODO: merge into one with RMA??? RMA useful because leaves is dense. So need to send count/displacement
-                temp1 = umFringeRow1.Invert(ncol);
+                trmaSetLeaves = MPI_Wtime();
+                
+                leaves.GSet(umFringeRow,
+                            [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
+                            [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
+                trmaSetLeaves = MPI_Wtime() - trmaSetLeaves;
+                
+                tSetLeaves = MPI_Wtime();
+                temp1 = umFringeRow.Invert(ncol);
                 leaves.Set(temp1);
-                //leaves.GSet(umFringeRow1,
-                 //           [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
-                   //         [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
+                tSetLeaves = MPI_Wtime() - tSetLeaves;
             }
-    
+            
             
             phase_timing[2] += MPI_Wtime()-t1;
             
-            
-            //fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
-            //                      [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
+            // matched row vertices in the the fringe
             fringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col,
-                                                        [](VertexType vtx, int64_t mate, bool a, bool b){return VertexType(mate, vtx.root);},
-                                                        [](VertexType vtx, int64_t mate, bool a, bool b){return mate!=-1;},
-                                                        false, VertexType(), true);
+                                                [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);},
+                                                [](VertexType vtx, int64_t mate){return mate!=-1;},
+                                                        false, VertexType());
+            
+            int64_t nnz_umFringeRow = umFringeRow.getnnz();
+            int64_t nnz_temp1 = temp1.getnnz();
+            int64_t nnz_fringeRow = fringeRow.getnnz();
             
             
+            double tprune1, tprune2, tprune3;
             //TODO: experiment prunning
             t1 = MPI_Wtime();
-            if(temp1.getnnz()>0 )
+            if(umFringeRow.getnnz()>0 && prune)
             {
-                //prune(fringeRow, temp1); // option1
-                fringeRow.FilterByVal (temp1,[](VertexType vtx){return vtx.root;}); //option2
+               
+
+                FullyDistSpVec<int64_t, VertexType> fringeRow1 = fringeRow;
+                
+                tprune1 = MPI_Wtime();
+                FullyDistSpVec<int64_t, int64_t> leafOfRoots = leaves.GGet(fringeRow,
+                                                                           [](VertexType vtx, int64_t idx){return vtx.root;}, //index of dense
+                                                                           (int64_t) -1);
+                tprune1 = MPI_Wtime() - tprune1;
+                /*
+                fringeRow = EWiseApply<VertexType>(fringeRow, leafOfRoots,
+                                                   [](VertexType vtx, int64_t leafOfRoot){return vtx;},
+                                                   [](VertexType vtx, int64_t leafOfRoot){return leafOfRoot==-1;},
+                                                   false, false, VertexType(), (int64_t)-1 , true);
+                 */
+                
+                tprune2 = MPI_Wtime();
+                fringeRow1.FilterByVal (temp1,[](VertexType vtx){return vtx.root;});
+                tprune2 = MPI_Wtime() - tprune2;
+                
+                tprune3 = MPI_Wtime();
+                pruneM(fringeRow, temp1);
+                tprune3 = MPI_Wtime() - tprune3;
             }
             double tprune = MPI_Wtime()-t1;
             phase_timing[3] += tprune;
             
+            if(myrank == 0)
+            {
+                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3);
+               
+            }
             
+            // Go to matched column from matched row in the fringe. parent is automatically set to itself.
             t1 = MPI_Wtime();
             if(fringeRow.getnnz() > 0)
             {
@@ -840,8 +876,10 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         if (numMatchedCol== 0) matched = false;
         else
         {
-            Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
-            //Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            if(rmaAugment)
+                Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            else
+                Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
         }
         time_augment = MPI_Wtime() - time_augment;
         phase_timing[6] += time_augment;
@@ -849,11 +887,6 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         time_phase = MPI_Wtime() - time_phase;
         phase_timing[7] += time_phase;
         timing.push_back(phase_timing);
-        
-        //ostringstream tinfo;
-        //tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " ::: "  << test1 << " , " << test2 << "\n";
-        //tinfo << test1 << "  " << test2 << "\n";
-        //SpParHelper::Print(tinfo.str());
         totalLayer += layer;
         
     }
