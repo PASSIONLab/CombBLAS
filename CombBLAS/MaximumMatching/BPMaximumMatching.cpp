@@ -821,14 +821,11 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             
             double tprune1, tprune2, tprune3;
+            FullyDistSpVec<int64_t, VertexType> fringeRow1 = fringeRow;
             //TODO: experiment prunning
             t1 = MPI_Wtime();
             if(umFringeRow.getnnz()>0 && prune)
             {
-               
-
-                FullyDistSpVec<int64_t, VertexType> fringeRow1 = fringeRow;
-                
                 tprune1 = MPI_Wtime();
                 FullyDistSpVec<int64_t, int64_t> leafOfRoots = leaves.GGet(fringeRow,
                                                                            [](VertexType vtx, int64_t idx){return vtx.root;}, //index of dense
@@ -852,20 +849,47 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             double tprune = MPI_Wtime()-t1;
             phase_timing[3] += tprune;
             
-            if(myrank == 0)
-            {
-                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3);
-               
-            }
             
             // Go to matched column from matched row in the fringe. parent is automatically set to itself.
             t1 = MPI_Wtime();
+            double tswap1, tswap2, tswap3;
             if(fringeRow.getnnz() > 0)
             {
-                SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol, false);
+                
+                FullyDistSpVec<int64_t, VertexType> fringeCol1(A.getcommgrid(), ncol);
+                FullyDistSpVec<int64_t, VertexType> fringeCol2(A.getcommgrid(), ncol);
+                
+                
+                tswap1 = MPI_Wtime();
+                
+                fringeCol1 = fringeRow.Invert(ncol,
+                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;},
+                                               [](VertexType& vtx, const int64_t & index){return vtx;});
+                tswap1 = MPI_Wtime() - tswap1;
+                
+                
+                
+                tswap3 = MPI_Wtime();
+                SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol1, false);
+                tswap3 = MPI_Wtime() - tswap3;
+                
+                tswap2 = MPI_Wtime();
+                fringeCol = fringeRow.InvertRMA(ncol,
+                                                 [](VertexType& vtx, const int64_t & index){return vtx.parent;},
+                                                 [](VertexType& vtx, const int64_t & index){return vtx;});
+                
+                tswap2 = MPI_Wtime() - tswap2;
             }
             else break;
             phase_timing[4] += MPI_Wtime()-t1;
+            
+            
+            if(myrank == 0)
+            {
+                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3, tswap2, tswap2, tswap3);
+                
+            }
+
             
         }
         time_search = MPI_Wtime() - time_search;
