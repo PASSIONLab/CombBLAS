@@ -886,7 +886,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             if(myrank == 0)
             {
-                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3, tswap2, tswap2, tswap3);
+                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3, tswap1, tswap2, tswap3);
                 
             }
 
