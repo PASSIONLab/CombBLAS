@@ -875,12 +875,16 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     {
         time_phase = MPI_Wtime();
        
-        PSpMat_Bool Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
-
+        PSpMat_Bool Mbool;
+        if(mvInvertMate)
+        {
+            Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
+            
 #ifdef _OPENMP
-        if(Mbool.getnnz()>cblas_splits)
-            Mbool.ActivateThreading(cblas_splits);
+            if(Mbool.getnnz()>cblas_splits)
+                Mbool.ActivateThreading(cblas_splits);
 #endif
+        }
         
         vector<double> phase_timing(8,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
