@@ -2769,8 +2769,8 @@ FullyDistSpVec<IT,NT1> FullyDistSpVec<IT,NT>::Apply(_UnaryOperation __unop)
 /* exp version
   */
 template <class IT, class NT>
-template <typename NT1, typename _UnaryOperation>
-void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop)
+template <typename _UnaryOperation>
+void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,IT> Selector, _UnaryOperation __unop, bool filterByIndex)
 {
     if(*commGrid != *(Selector.commGrid))
     {
@@ -2795,27 +2795,42 @@ void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,NT1> Selector, _Unary
 	}
     
     
-    NT1 * sendbuf = new NT1[sendcnt];
-    
+    IT * sendbuf = new IT[sendcnt];
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for(int k=0; k<sendcnt; k++)
     {
-        sendbuf[k] = Selector.ind[k] + Selector.LengthUntil();
+        if(filterByIndex)
+            sendbuf[k] = Selector.ind[k] + Selector.LengthUntil();
+        else
+            sendbuf[k] = Selector.num[k];
     }
     
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
     
-    std::vector<NT1> recvbuf;
+    std::vector<IT> recvbuf;
     recvbuf.resize(totrecv);
     
-    MPI_Allgatherv(sendbuf, sendcnt, MPIType<NT1>(), recvbuf.data(), recvcnt, rdispls, MPIType<NT1>(), World);
+    MPI_Allgatherv(sendbuf, sendcnt, MPIType<IT>(), recvbuf.data(), recvcnt, rdispls, MPIType<IT>(), World);
     delete [] sendbuf;
     DeleteAll(rdispls,recvcnt);
     
-    // now perform filter (recvbuf is sorted)
+     if(!filterByIndex) // need to sort
+     {
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
+    __gnu_parallel::sort(recvbuf.begin(), recvbuf.end());
+#else
+    std::sort(recvbuf.begin(), recvbuf.end());
+#endif
+     }
+    
+    // now perform filter (recvbuf is sorted) // TODO: OpenMP parallel and keep things sorted
     IT k=0;
+    
     for(IT i=0; i<num.size(); i++)
     {
-        NT1 val = __unop(num[i]);
+        IT val = __unop(num[i]);
         if(!std::binary_search(recvbuf.begin(), recvbuf.end(), val))
         {
             ind[k] = ind[i];
@@ -2827,4 +2842,6 @@ void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,NT1> Selector, _Unary
  
     
 }
+
+
 

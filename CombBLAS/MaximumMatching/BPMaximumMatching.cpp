@@ -21,7 +21,9 @@
 
 using namespace std;
 
-bool prune, rmaAugment, rmaPrune, rmaSetLeaves;
+bool prune, augmentRMA, mvInvertMate, updateLeavesRMA, autoRMA, randMM, moreSplit;
+int init;
+bool randMaximal;
 
 
 template <typename PARMAT>
@@ -360,10 +362,12 @@ void ShowUsage()
         cout << "** (optional) init : maximal matching algorithm used to initialize\n ";
         cout << "      none: noinit, greedy: greedy init , ks: Karp-Sipser, dmd: dynamic mindegree\n";
         cout << "       default: none\n";
-        cout << "** (optional) rand: random parent selection in greedy/Karp-Sipser\n" ;
-        cout << "** (optional) diropt: employ direction-optimized BFS\n" ;
+        cout << "** (optional) randMaximal: random parent selection in greedy/Karp-Sipser\n" ;
+        //cout << "** (optional) diropt: employ direction-optimized BFS\n" ;
         cout << "** (optional) prune: discard trees as soon as an augmenting path is found\n" ;
-        cout << "** (optional) graft: employ tree grafting\n" ;
+        //cout << "** (optional) graft: employ tree grafting\n" ;
+        cout << "** (optional) mvInvertMate: Invert based on SpMV as opposted to All2All.\n" ;
+        cout << "** (optional) moreSplit: more splitting of Matrix.\n" ;
         cout << "(order of optional arguments does not matter)\n";
         
         cout << " \n-------------- examples ----------\n";
@@ -373,27 +377,30 @@ void ShowUsage()
     }
 }
 
-void GetOptions(char* argv[], int argc, int & init, bool & rand, bool & diropt, bool & prune, bool & graft)
+void GetOptions(char* argv[], int argc)
 {
     string allArg="";
     for(int i=0; i<argc; i++)
     {
         allArg += string(argv[i]);
     }
-    if(allArg.find("diropt")!=string::npos)
-        diropt = true;
+    
     if(allArg.find("prune")!=string::npos)
         prune = true;
-    if(allArg.find("rmaAugment")!=string::npos)
-        rmaAugment = true;
-    if(allArg.find("rmaPrune")!=string::npos)
-        rmaPrune = true;
-    if(allArg.find("rmaSetLeaves")!=string::npos)
-        rmaSetLeaves = true;
-    if(allArg.find("graft")!=string::npos)
-        graft = true;
-    if(allArg.find("rand")!=string::npos)
-        rand = true;
+    if(allArg.find("augmentRMA")!=string::npos)
+        augmentRMA = true;
+    if(allArg.find("mvInvertMate")!=string::npos)
+        mvInvertMate = true;
+    if(allArg.find("updateLeavesRMA")!=string::npos)
+        updateLeavesRMA = true;
+    if(allArg.find("moreSplit")!=string::npos)
+        moreSplit = true;
+    if(allArg.find("autoRMA")!=string::npos)
+        autoRMA = true;
+    if(allArg.find("randMM")!=string::npos)
+        randMM = true;
+    if(allArg.find("randMaximal")!=string::npos)
+        randMaximal = true;
     if(allArg.find("greedy")!=string::npos)
         init = GREEDY;
     else if(allArg.find("ks")!=string::npos)
@@ -405,6 +412,128 @@ void GetOptions(char* argv[], int argc, int & init, bool & rand, bool & diropt, 
     
 }
 
+void showCurOptions()
+{
+    ostringstream tinfo;
+    tinfo.str("");
+    tinfo << "\n---------------------------------\n";
+    tinfo << "Calling maximum-cardinality matching with options: " << endl;
+    tinfo << " init: ";
+    if(init == NO_INIT) tinfo << " no-init ";
+    if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
+    if(init == DMD) tinfo << " dynamic mindegree, ";
+    if(init == GREEDY) tinfo << " greedy, ";
+    if(rand) tinfo << " random parent selection in greedy/Karp-Sipser, ";
+    if(prune) tinfo << " tree pruning, ";
+    if(mvInvertMate) tinfo << " Invert using matvec ";
+    if(updateLeavesRMA) tinfo << " updateLeavesRMA ";
+    if(autoRMA) tinfo << " autoRMA ";
+    if(augmentRMA) tinfo << " augmentRMA ";
+    if(moreSplit) tinfo << " moreSplit ";
+    tinfo << "\n---------------------------------\n\n";
+    SpParHelper::Print(tinfo.str());
+    
+}
+
+void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+{
+    FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+    
+    // best option
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    // best option + KS
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = KARP_SIPSER; randMaximal = true; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    // best option + Greedy
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = GREEDY; randMaximal = true; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    // best option + No init
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = NO_INIT; randMaximal = false; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+
+    
+    // best option - randMM
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = DMD; randMaximal = false; randMM = false; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    // best option - prune
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = DMD; randMaximal = false; randMM = true; prune = false;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    // best option + mvInvertMate
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = true;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    // augmentRMA
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    autoRMA = false; augmentRMA = true; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+}
 
 int main(int argc, char* argv[])
 {
@@ -427,12 +556,15 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    int init = NO_INIT;
-    bool rand = false, diropt=false, graft=false;
+    init = DMD;
+    randMaximal = false;
     prune = false;
-    rmaAugment = false;
-    rmaPrune = false;
-    rmaSetLeaves = false;
+    augmentRMA = false;
+    updateLeavesRMA = false;
+    autoRMA = true;
+    mvInvertMate = false;
+    randMM = true;
+    moreSplit = false;
     
     // ------------ Process input arguments and build matrix ---------------
 	{
@@ -453,7 +585,7 @@ int main(int argc, char* argv[])
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
-            GetOptions(argv+3, argc-3, init, rand, diropt, prune, graft);
+            GetOptions(argv+3, argc-3);
 
         }
         else if(argc < 4)
@@ -511,7 +643,7 @@ int main(int argc, char* argv[])
             SpParHelper::Print("Generated matrix symmetricized....\n");
             ABool->PrintInfo();
             
-            GetOptions(argv+4, argc-4, init, rand, diropt, prune, graft);
+            GetOptions(argv+4, argc-4);
 
         }
 
@@ -536,42 +668,34 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
-        
+        int nthreads;
 #ifdef _OPENMP
 #pragma omp parallel
         {
-            cblas_splits = omp_get_num_threads()*1;
+            int splitPerThread = 1;
+            if(moreSplit) splitPerThread = 4;
+            nthreads = omp_get_num_threads();
+            cblas_splits = nthreads*splitPerThread;
         }
         tinfo.str("");
-        tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
+        tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
         SpParHelper::Print(tinfo.str());
         A.ActivateThreading(cblas_splits); // note: crash on empty matrix
         AT.ActivateThreading(cblas_splits);
 #endif
 
 
-        tinfo.str("");
-        tinfo << "\n---------------------------------\n";
-        tinfo << "Calling maximum-cardinality matching with options: " << endl;
-        tinfo << " init: ";
-        if(init == NO_INIT) tinfo << " no-init ";
-        if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
-        if(init == DMD) tinfo << " dynamic mindegree, ";
-        if(init == GREEDY) tinfo << " greedy, ";
-        if(rand) tinfo << " random parent selection in greedy/Karp-Sipser, ";
-        if(diropt) tinfo << " direction-optimized BFS, ";
-        if(prune) tinfo << " tree pruning, ";
-        if(graft) tinfo << " tree grafting ";
-        tinfo << "\n---------------------------------\n\n";
-        SpParHelper::Print(tinfo.str());
         
         
+        /*
+        
+        showCurOptions();
         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
  
         
         if(init!=NO_INIT)
-            MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, rand);
+            MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
         int64_t ncols=A.getncol();
@@ -581,6 +705,23 @@ int main(int argc, char* argv[])
             cout << "matched %cols\n";
             printf("%lld %lf \n",matched, 100*(double)matched/(ncols));
         }
+         */
+        
+        SpParHelper::Print(" ################## Run 1 ############################\n");
+        SpParHelper::Print(" ################## Run 1 ############################\n");
+        SpParHelper::Print(" ################## Run 1 ############################\n");
+        experiment(A, AT, degCol);
+        
+        SpParHelper::Print(" ################## Run 2 ############################\n");
+        SpParHelper::Print(" ################## Run 2 ############################\n");
+        SpParHelper::Print(" ################## Run 2 ############################\n");
+        experiment(A, AT, degCol);
+        
+        SpParHelper::Print(" ################## Run 3 ############################\n");
+        SpParHelper::Print(" ################## Run 3 ############################\n");
+        SpParHelper::Print(" ################## Run 3 ############################\n");
+        experiment(A, AT, degCol);
+
         //mateRow2Col.DebugPrint();
 	}
 	MPI_Finalize();
@@ -639,9 +780,9 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     MPI_Win_create(&parentsRow.arr[0], parentsRow.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
 
     
-    MPI_Win_fence(0, win_mateRow2Col);
-    MPI_Win_fence(0, win_mateCol2Row);
-    MPI_Win_fence(0, win_parentsRow);
+    //MPI_Win_fence(0, win_mateRow2Col);
+    //MPI_Win_fence(0, win_mateCol2Row);
+    //MPI_Win_fence(0, win_parentsRow);
 
     int64_t row, col=100, nextrow;
     int owner_row, owner_col;
@@ -676,9 +817,9 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
         }
     }
 
-    MPI_Win_fence(0, win_mateRow2Col);
-    MPI_Win_fence(0, win_mateCol2Row);
-    MPI_Win_fence(0, win_parentsRow);
+    //MPI_Win_fence(0, win_mateRow2Col);
+    //MPI_Win_fence(0, win_mateCol2Row);
+    //MPI_Win_fence(0, win_parentsRow);
     
     MPI_Win_free(&win_mateRow2Col);
     MPI_Win_free(&win_mateCol2Row);
@@ -721,6 +862,8 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     
     vector<vector<double> > timing;
+    vector<int> layers;
+    vector<int64_t> phaseMatched;
     double t1, time_search, time_augment, time_phase;
     
     bool matched = true;
@@ -748,8 +891,16 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
                                             [](VertexType vtx, int64_t mate){return mate==-1;},
                                             true, VertexType());
         
-        fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
-
+        
+        if(randMM) //select rand
+        {
+            fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx,static_cast<int16_t>((GlobalMT.rand() * 9999999)+1));});
+        }
+        else
+        {
+            fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);});
+        }
+        
         ++phase;
         numUnmatchedCol = fringeCol.getnnz();
         int layer = 0;
@@ -760,6 +911,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         {
             layer++;
             t1 = MPI_Wtime();
+        
             SpMV<Select2ndMinSR<bool, VertexType>>(A, fringeCol, fringeRow, false);
             phase_timing[0] += MPI_Wtime()-t1;
             
@@ -787,23 +939,32 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             
-            double trmaSetLeaves, tSetLeaves;
             FullyDistSpVec<int64_t, int64_t> temp1(A.getcommgrid(), ncol);
             
-            // get the unique leaves
-            if(umFringeRow.getnnz()>0)
+            int64_t nnz_umFringeRow = umFringeRow.getnnz();
+            bool RMAused = false;
+            
+            if(autoRMA)
             {
-                trmaSetLeaves = MPI_Wtime();
-                
-                leaves.GSet(umFringeRow,
+                if(nnz_umFringeRow < 20*nprocs) updateLeavesRMA = true;
+                else updateLeavesRMA = false;
+            }
+            
+            
+            // get the unique leaves
+            if(nnz_umFringeRow >0)
+            {
+                if(updateLeavesRMA)
+                {
+                    leaves.GSet(umFringeRow,
                             [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
                             [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
-                trmaSetLeaves = MPI_Wtime() - trmaSetLeaves;
-                
-                tSetLeaves = MPI_Wtime();
-                temp1 = umFringeRow.Invert(ncol);
-                leaves.Set(temp1);
-                tSetLeaves = MPI_Wtime() - tSetLeaves;
+                }
+                else
+                {
+                    temp1 = umFringeRow.Invert(ncol);
+                    leaves.Set(temp1);
+                }
             }
             
             
@@ -815,36 +976,43 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
                                                 [](VertexType vtx, int64_t mate){return mate!=-1;},
                                                         false, VertexType());
             
-            int64_t nnz_umFringeRow = umFringeRow.getnnz();
-            int64_t nnz_temp1 = temp1.getnnz();
-            int64_t nnz_fringeRow = fringeRow.getnnz();
+            //int64_t nnz_temp1 = temp1.getnnz();
+            //int64_t nnz_fringeRow = fringeRow.getnnz();
             
             
-            double tprune1, tprune2, tprune3;
-            FullyDistSpVec<int64_t, VertexType> fringeRow1 = fringeRow;
+        
             //TODO: experiment prunning
             t1 = MPI_Wtime();
-            if(umFringeRow.getnnz()>0 && prune)
+            if(nnz_umFringeRow>0 && prune)
             {
-                tprune1 = MPI_Wtime();
+                
+                /*
+                 //RMA not useful here, becuase we have to do it on the frontier.
+                 //By contrast, FilterByVal can operate only on unmatched rows in the frontier.
+                 
                 FullyDistSpVec<int64_t, int64_t> leafOfRoots = leaves.GGet(fringeRow,
                                                                            [](VertexType vtx, int64_t idx){return vtx.root;}, //index of dense
                                                                            (int64_t) -1);
-                tprune1 = MPI_Wtime() - tprune1;
-                /*
+                
                 fringeRow = EWiseApply<VertexType>(fringeRow, leafOfRoots,
                                                    [](VertexType vtx, int64_t leafOfRoot){return vtx;},
                                                    [](VertexType vtx, int64_t leafOfRoot){return leafOfRoot==-1;},
                                                    false, false, VertexType(), (int64_t)-1 , true);
                  */
                 
-                tprune2 = MPI_Wtime();
-                fringeRow1.FilterByVal (temp1,[](VertexType vtx){return vtx.root;});
-                tprune2 = MPI_Wtime() - tprune2;
                 
+                if(updateLeavesRMA)
+                    fringeRow.FilterByVal (umFringeRow,[](VertexType vtx){return vtx.root;}, false); // by the values of umFringeRow
+                else
+                    fringeRow.FilterByVal (temp1,[](VertexType vtx){return vtx.root;}, true); // by the index of temp1
+
+                
+                /*
+                 This might be better on very large number of unmatched vertices. I am not considering it now.
                 tprune3 = MPI_Wtime();
                 pruneM(fringeRow, temp1);
                 tprune3 = MPI_Wtime() - tprune3;
+                */
             }
             double tprune = MPI_Wtime()-t1;
             phase_timing[3] += tprune;
@@ -852,43 +1020,40 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             // Go to matched column from matched row in the fringe. parent is automatically set to itself.
             t1 = MPI_Wtime();
-            double tswap1, tswap2, tswap3;
             if(fringeRow.getnnz() > 0)
             {
                 
-                FullyDistSpVec<int64_t, VertexType> fringeCol1(A.getcommgrid(), ncol);
-                FullyDistSpVec<int64_t, VertexType> fringeCol2(A.getcommgrid(), ncol);
+                if(mvInvertMate)
+                {
+                    // SpMV base permutation: faster on small matrices, e.g., amazon0312
+                    SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol, false);
+                    
+                }
+                else
+                {
+                    fringeCol = fringeRow.Invert(ncol,
+                                                 [](VertexType& vtx, const int64_t & index){return vtx.parent;},
+                                                 [](VertexType& vtx, const int64_t & index){return vtx;});
+                }
                 
-                
-                tswap1 = MPI_Wtime();
-                
-                fringeCol1 = fringeRow.Invert(ncol,
-                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;},
-                                               [](VertexType& vtx, const int64_t & index){return vtx;});
-                tswap1 = MPI_Wtime() - tswap1;
-                
-                
-                
-                tswap3 = MPI_Wtime();
-                SpMV<Select2ndMinSR<bool, VertexType>>(Mbool, fringeRow, fringeCol1, false);
-                tswap3 = MPI_Wtime() - tswap3;
-                
-                tswap2 = MPI_Wtime();
+                 /*
+                // option 3 rma-based Invert. Never faster than Invert. Will not use this anymore.
                 fringeCol = fringeRow.InvertRMA(ncol,
                                                  [](VertexType& vtx, const int64_t & index){return vtx.parent;},
                                                  [](VertexType& vtx, const int64_t & index){return vtx;});
-                
-                tswap2 = MPI_Wtime() - tswap2;
+                 */
+
             }
             else break;
             phase_timing[4] += MPI_Wtime()-t1;
             
-            
+            /*
             if(myrank == 0)
             {
-                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, trmaSetLeaves, tSetLeaves, tprune1, tprune2, tprune3, tswap1, tswap2, tswap3);
+                printf("%10ld %10ld %10ld %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf %.5lf\n ", nnz_umFringeRow, nnz_temp1, nnz_fringeRow, tsetLeavesRMA, tSetLeaves, tprune1, tprune2, tprune3, tswap1, tswap2, tswap3);
                 
             }
+             */
 
             
         }
@@ -896,11 +1061,17 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         phase_timing[5] += time_search;
         
         int64_t numMatchedCol = leaves.Count([](int64_t leaf){return leaf!=-1;});
+        phaseMatched.push_back(numMatchedCol);
         time_augment = MPI_Wtime();
         if (numMatchedCol== 0) matched = false;
         else
         {
-            if(rmaAugment)
+            if(autoRMA)
+            {
+                if(numMatchedCol < (nprocs * nprocs)) augmentRMA=true;
+                else augmentRMA=false;
+            }
+            if(augmentRMA)
                 Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
             else
                 Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
@@ -912,6 +1083,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         phase_timing[7] += time_phase;
         timing.push_back(phase_timing);
         totalLayer += layer;
+        layers.push_back(layer);
         
     }
     
@@ -927,23 +1099,27 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         cout << "========================================================================\n";
         cout << "                                     BFS Search                       \n";
         cout << "===================== ==================================================\n";
-        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
+        cout  << "Phase Layer    Match   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
         cout << "===================== ===================================================\n";
         
         vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
         for(int i=0; i<timing.size(); i++)
         {
-            //printf(" %3d   ", i+1);
+            printf(" %3d  %3d  %8lld   ", i+1, layers[i], phaseMatched[i]);
             for(int j=0; j<timing[i].size(); j++)
             {
                 totalTimes[j] += timing[i][j];
                 //timing[i][j] /= timing[i].back();
-                //printf("%.2lf  ", timing[i][j]);
+                printf("%.2lf  ", timing[i][j]);
             }
             
-            //printf("\n");
+            printf("\n");
         }
+        
+        cout << "-----------------------------------------------------------------------\n";
+        cout  << "Phase Layer    UnMat   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
+        cout << "-----------------------------------------------------------------------\n";
         
         double combTime = totalTimes.back();
         printf(" %3d  %3d  %8lld   ", nphases, totalLayer/nphases, numUnmatchedCol);
@@ -953,10 +1129,18 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         }
         printf("%.2lf\n", combTime);
         
-        //cout << "=================== total timing ===========================\n";
-        //for(int i=0; i<totalTimes.size(); i++)
-        //    cout<<totalTimes[i] << " ";
-        //cout << endl;
+        
+        int64_t nrows=A.getnrow();
+        int64_t matched = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+        if(myrank==0)
+        {
+            cout << "***Final Maximum Matching***\n";
+            cout << "***Total-Rows Matched-Rows  Total Time***\n";
+            printf("%lld %lld %lf \n",nrows, matched, combTime);
+            printf("matched rows: %lld , which is: %lf percent \n",matched, 100*(double)matched/(nrows));
+            cout << "-------------------------------------------------------\n\n";
+        }
+        
     }
     
     
