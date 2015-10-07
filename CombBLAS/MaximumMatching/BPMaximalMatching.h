@@ -96,7 +96,7 @@ typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 
 void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-            FullyDistVec<int64_t, int64_t>& mateCol2Row, FullyDistVec<int64_t, int64_t> degCol, int type, bool rand=true)
+            FullyDistVec<int64_t, int64_t>& mateCol2Row, FullyDistVec<int64_t, int64_t>& degColRecv, int type, bool rand=true)
 {
     
     int nprocs, myrank;
@@ -104,7 +104,7 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
     
-    
+    FullyDistVec<int64_t, int64_t> degCol = degColRecv;
     
     //unmatched row and column vertices
     FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
@@ -270,7 +270,10 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
         
+        cout << "***Final Maximal Matching***\n";
+        cout << "***Unmatched Rows  Total Time***\n";
         printf("%lld %lf\n",curUnmatchedRow, totalTimes.back());
+        cout << "-------------------------------------------------------\n\n";
     }
     //isMatching(mateCol2Row, mateRow2Col);
 }
