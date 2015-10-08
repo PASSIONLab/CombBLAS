@@ -47,6 +47,11 @@ bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/g
 	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 
+gathertest:	gathertest.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -o gathertest MPIType.o gathertest.cpp
+
+
+
 clean:
 	rm -f *.o
 	rm -f bpmm
