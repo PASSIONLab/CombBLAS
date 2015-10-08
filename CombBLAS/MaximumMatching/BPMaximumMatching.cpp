@@ -423,7 +423,7 @@ void showCurOptions()
     if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
     if(init == DMD) tinfo << " dynamic mindegree, ";
     if(init == GREEDY) tinfo << " greedy, ";
-    if(rand) tinfo << " random parent selection in greedy/Karp-Sipser, ";
+    if(randMaximal) tinfo << " random parent selection in greedy/Karp-Sipser, ";
     if(prune) tinfo << " tree pruning, ";
     if(mvInvertMate) tinfo << " Invert using matvec ";
     if(updateLeavesRMA) tinfo << " updateLeavesRMA ";
@@ -441,8 +441,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
     
     // best option
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = DMD; randMaximal = false; randMM = true; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -452,8 +450,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + KS
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = KARP_SIPSER; randMaximal = true; randMM = true; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -464,8 +460,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     
     // best option + Greedy
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = GREEDY; randMaximal = true; randMM = true; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -475,20 +469,15 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + No init
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = NO_INIT; randMaximal = false; randMM = true; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
-    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     maximumMatching(A, mateRow2Col, mateCol2Row);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
 
     
     // best option - randMM
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = DMD; randMaximal = false; randMM = false; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -499,8 +488,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     
     // best option - prune
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = DMD; randMaximal = false; randMM = true; prune = false;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -511,8 +498,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     
     // best option + mvInvertMate
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = DMD; randMaximal = false; randMM = true; prune = true;
     autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = true;
     showCurOptions();
@@ -523,8 +508,6 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     
     // augmentRMA
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    SpParHelper::Print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     init = DMD; randMaximal = false; randMM = true; prune = true;
     autoRMA = false; augmentRMA = true; updateLeavesRMA = false; mvInvertMate = false;
     showCurOptions();
@@ -576,8 +559,11 @@ int main(int argc, char* argv[])
         if(string(argv[1]) == string("input")) // input option
         {
             ABool = new PSpMat_Bool();
+            
             string filename(argv[2]);
-            SpParHelper::Print("Reading input matrix....\n");
+            tinfo.str("");
+            tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
+            SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
             ABool->ParallelReadMM(filename);
             t02 = MPI_Wtime();
@@ -707,19 +693,19 @@ int main(int argc, char* argv[])
         }
          */
         
+        SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 1 ############################\n");
-        SpParHelper::Print(" ################## Run 1 ############################\n");
-        SpParHelper::Print(" ################## Run 1 ############################\n");
+        SpParHelper::Print(" #####################################################\n");
         experiment(A, AT, degCol);
         
+        SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 2 ############################\n");
-        SpParHelper::Print(" ################## Run 2 ############################\n");
-        SpParHelper::Print(" ################## Run 2 ############################\n");
+        SpParHelper::Print(" #####################################################\n");
         experiment(A, AT, degCol);
         
+        SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 3 ############################\n");
-        SpParHelper::Print(" ################## Run 3 ############################\n");
-        SpParHelper::Print(" ################## Run 3 ############################\n");
+        SpParHelper::Print(" #####################################################\n");
         experiment(A, AT, degCol);
 
         //mateRow2Col.DebugPrint();
@@ -1097,6 +1083,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     
     // print statistics
+    double combTime;
     if(myrank == 0)
     {
         cout << endl;
@@ -1122,33 +1109,28 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         }
         
         cout << "-----------------------------------------------------------------------\n";
-        cout  << "Phase Layer    UnMat   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
+        cout  << "Phase Layer   UnMat   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total \n";
         cout << "-----------------------------------------------------------------------\n";
         
-        double combTime = totalTimes.back();
+        combTime = totalTimes.back();
         printf(" %3d  %3d  %8lld   ", nphases, totalLayer/nphases, numUnmatchedCol);
         for(int j=0; j<totalTimes.size()-1; j++)
         {
             printf("%.2lf  ", totalTimes[j]);
         }
         printf("%.2lf\n", combTime);
-        
-        
-        int64_t nrows=A.getnrow();
-        int64_t matched = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
-        if(myrank==0)
-        {
-            cout << "***Final Maximum Matching***\n";
-            cout << "***Total-Rows Matched-Rows  Total Time***\n";
-            printf("%lld %lld %lf \n",nrows, matched, combTime);
-            printf("matched rows: %lld , which is: %lf percent \n",matched, 100*(double)matched/(nrows));
-            cout << "-------------------------------------------------------\n\n";
-        }
-        
     }
     
-    
-    
+    int64_t nrows=A.getnrow();
+    int64_t matchedRow = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    if(myrank==0)
+    {
+        cout << "***Final Maximum Matching***\n";
+        cout << "***Total-Rows Matched-Rows  Total Time***\n";
+        printf("%lld %lld %lf \n",nrows, matchedRow, combTime);
+        printf("matched rows: %lld , which is: %lf percent \n",matchedRow, 100*(double)matchedRow/(nrows));
+        cout << "-------------------------------------------------------\n\n";
+    }
 }
 
 
