@@ -24,6 +24,7 @@ using namespace std;
 bool prune, augmentRMA, mvInvertMate, updateLeavesRMA, autoRMA, randMM, moreSplit;
 int init;
 bool randMaximal;
+bool fewexp;
 
 
 template <typename PARMAT>
@@ -387,6 +388,8 @@ void GetOptions(char* argv[], int argc)
     
     if(allArg.find("prune")!=string::npos)
         prune = true;
+    if(allArg.find("fewexp")!=string::npos)
+        fewexp = true;
     if(allArg.find("augmentRMA")!=string::npos)
         augmentRMA = true;
     if(allArg.find("mvInvertMate")!=string::npos)
@@ -518,6 +521,38 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
 }
 
+
+// only two options
+void experiment1(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+{
+    FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+    
+    // best option
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    
+    // best option + mvInvertMate
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = true;
+    showCurOptions();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+}
+
+
+
 int main(int argc, char* argv[])
 {
 	
@@ -548,6 +583,7 @@ int main(int argc, char* argv[])
     mvInvertMate = false;
     randMM = true;
     moreSplit = false;
+    fewexp=false;
     
     // ------------ Process input arguments and build matrix ---------------
 	{
@@ -696,17 +732,20 @@ int main(int argc, char* argv[])
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 1 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        experiment(A, AT, degCol);
+        if(fewexp) experiment1(A, AT, degCol);
+        else experiment(A, AT, degCol);
         
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 2 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        experiment(A, AT, degCol);
+        if(fewexp) experiment1(A, AT, degCol);
+        else experiment(A, AT, degCol);
         
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 3 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        experiment(A, AT, degCol);
+        if(fewexp) experiment1(A, AT, degCol);
+        else experiment(A, AT, degCol);
 
         //mateRow2Col.DebugPrint();
 	}
