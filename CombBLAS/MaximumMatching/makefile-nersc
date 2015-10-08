@@ -63,6 +63,9 @@ BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp 
 bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
+gathertest:	gathertest.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -o gathertest MPIType.o gathertest.cpp
+
 clean:
 	rm -f bpmm
 	rm -f BPMaximalMatching
