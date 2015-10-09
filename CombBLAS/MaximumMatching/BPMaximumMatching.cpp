@@ -510,7 +510,7 @@ void experiment1(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, in
     
     // best option
     init = DMD; randMaximal = false; randMM = true; prune = true;
-    autoRMA = true; augmentRMA = false; updateLeavesRMA = false; mvInvertMate = false;
+    autoRMA = true; augmentRMA = false; updateLeavesRMA = true; mvInvertMate = true;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     maximumMatching(A, mateRow2Col, mateCol2Row);
@@ -709,12 +709,13 @@ int main(int argc, char* argv[])
         if(fewexp) experiment1(A, AT, degCol);
         else experiment(A, AT, degCol);
         
+        /*
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 3 ############################\n");
         SpParHelper::Print(" #####################################################\n");
         if(fewexp) experiment1(A, AT, degCol);
         else experiment(A, AT, degCol);
-
+         */
         //mateRow2Col.DebugPrint();
 	}
 	MPI_Finalize();
