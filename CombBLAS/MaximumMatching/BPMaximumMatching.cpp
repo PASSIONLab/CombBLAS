@@ -853,7 +853,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     int64_t ncol = A.getncol();
     FullyDistSpVec<int64_t, VertexType> fringeRow(A.getcommgrid(), nrow);
     FullyDistSpVec<int64_t, int64_t> umFringeRow(A.getcommgrid(), nrow);
-    FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), ncol, (int64_t) -1);
     
     vector<vector<double> > timing;
     vector<int> layers;
