@@ -1083,13 +1083,17 @@ void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
 
 template <class IT, class NT>
 template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>
-void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal, MPI_Win win)
 {
     if(*(commGrid) != *(spVec.commGrid))
     {
         cout << "Grids are not comparable for GSet" << endl;
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
+    
+    IT spVecSize = spVec.getlocnnz();
+    if(spVecSize==0) return;
+    
     
     MPI_Comm World = commGrid->GetWorld();
     int nprocs = commGrid->GetSize();
@@ -1100,7 +1104,7 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
     vector< vector< NT > > datsent(nprocs);
     vector< vector< IT > > indsent(nprocs);
     IT lengthUntil = spVec.LengthUntil();
-    IT spVecSize = spVec.getlocnnz();
+   
     for(IT k=0; k < spVecSize; ++k)
     {
         IT locind;
@@ -1123,8 +1127,8 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
     }
     
     
-    MPI_Win win;
-    MPI_Win_create(&arr[0], LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, World, &win);
+    //MPI_Win win;
+    //MPI_Win_create(&arr[0], LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, World, &win);
     //MPI_Win_fence(0, win);
     for(int i=0; i<nprocs; ++i)
     {
@@ -1139,7 +1143,7 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
         }
     }
     //MPI_Win_fence(0, win);
-    MPI_Win_free(&win);
+    //MPI_Win_free(&win);
 
 }
 

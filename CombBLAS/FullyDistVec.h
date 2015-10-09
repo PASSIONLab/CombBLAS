@@ -124,7 +124,7 @@ public:
 
 	void Set(const FullyDistSpVec< IT,NT > & rhs);
     template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>
-    void GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
+    void GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal, MPI_Win win);
     template <class NT1, typename _BinaryOperationIdx>
     FullyDistSpVec<IT,NT> GGet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, NT nullValue);
 
@@ -292,6 +292,9 @@ private:
                          FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves);
     template <class IU, class DER>
     friend SpParMat<IU, bool, DER> PermMat (const FullyDistVec<IU,IU> & ri, const IU ncol);
+    
+    
+    friend void maximumMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,FullyDistVec<int64_t, int64_t>& mateCol2Row);
 };
 
 #include "FullyDistVec.cpp"

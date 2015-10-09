@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
             recvcnt[i] = locallen;
         }
         
-        double t1 = MPI_Wtime();
+        //double t1 = MPI_Wtime();
         
         vector<int64_t> recv1 ;
         vector<int64_t> recv2 ;
@@ -55,6 +55,8 @@ int main(int argc, char* argv[])
             recv2.resize(totalen);
             recv3.resize(totalen);
         }
+
+ double t1 = MPI_Wtime();
         MPI_Gatherv(ind1.data(), locallen, MPIType<int64_t>(), recv1.data(), recvcnt.data(), disp.data(), MPIType<int64_t>(), 0, MPI_COMM_WORLD);
         MPI_Gatherv(ind2.data(), locallen, MPIType<int64_t>(), recv2.data(), recvcnt.data(), disp.data(), MPIType<int64_t>(), 0, MPI_COMM_WORLD);
         MPI_Gatherv(val.data(), locallen, MPIType<double>(), recv3.data(), recvcnt.data(), disp.data(), MPIType<double>(), 0, MPI_COMM_WORLD);
