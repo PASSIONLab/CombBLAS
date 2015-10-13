@@ -85,6 +85,19 @@ public:
 	{
 		return static_cast<const DER*>(this)->GetEssentials();
 	}
+    
+    auto GetInternal() const
+    {
+        return static_cast<const DER*>(this)->GetInternal();
+    }
+    auto GetInternal(int i) const
+    {
+        return static_cast<const DER*>(this)->GetInternal(i);
+    }
+    int getnsplit() const
+    {
+        return static_cast<const DER*>(this)->getnsplit();
+    }
 
 	void Transpose()
 	{
