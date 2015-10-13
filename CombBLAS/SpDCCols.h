@@ -256,6 +256,9 @@ public:
 	template <typename SR>
 	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 	
+    auto GetInternal() const    { return GetDCSC(); }
+    auto GetInternal(int i) const { return GetDCSC(i); }
+    
 	Dcsc<IT, NT> * GetDCSC() const 	// only for single threaded matrices
 	{
 		return dcsc;

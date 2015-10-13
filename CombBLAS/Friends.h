@@ -83,8 +83,8 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
   * Multithreaded SpMV with sparse vector
   * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
   */
-template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
+int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
 		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c)
 {
 	// FACTS: Split boundaries (for multithreaded execution) are independent of recipient boundaries
@@ -109,9 +109,9 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const int32_t * indx, con
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 
 			vector<int> accum(splits+1, 0);
