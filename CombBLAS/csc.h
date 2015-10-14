@@ -43,8 +43,9 @@ template <class IT, class NT>
 class Csc
 {
 public:
+    typedef NT value_type;
+    typedef IT index_type;
     Csc ();
-
     Csc (int size,int nCol);
     Csc (const Csc<IT,NT> & rhs);				// copy constructor
     ~Csc();

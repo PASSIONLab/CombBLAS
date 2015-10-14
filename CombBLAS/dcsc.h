@@ -45,6 +45,8 @@ template <class IT, class NT>
 class Dcsc
 {
 public:
+    typedef NT value_type;
+    typedef IT index_type;
 	Dcsc ();
 	Dcsc (IT nnz, IT nzcol);
 
