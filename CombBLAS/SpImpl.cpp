@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -269,7 +269,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 }
 
 
-
+//! We can safely use a SPA here because Adcsc is short (::RowSplit() has already been called on it)
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
@@ -302,11 +302,9 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 					localy[rowid] = SR::add(localy[rowid], numx[k]);
 				}	
 			}
-			++i;
-			++k;
+			++i; ++k;
 		}
 	}
-
 	sort(nzinds.begin(), nzinds.end());
 	int nnzy = nzinds.size();
 	indy.resize(nnzy);
@@ -316,8 +314,47 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
 		numy[i] = localy[nzinds[i]]; 	
 	}
-	delete [] localy;
-	delete [] isthere;
+	DeleteAll(localy,isthere);
 }
 
+
+//! We can safely use a SPA here because Acsc is short (::RowSplit() has already been called on it)
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
+{
+    OVT * localy = new OVT[mA];
+    bool * isthere = new bool[mA];
+    fill(isthere, isthere+mA, false);
+    vector<int32_t> nzinds;	// nonzero indices
+    
+    for (int32_t k = 0; k < veclen; ++k)
+    {
+        IT colid = indx[k];
+        for(IT j=Acsc.jr[colid]; j < Adcsc.jr[colid+1]; ++j)	// for all nonzeros in this column
+        {
+            int32_t rowid = (int32_t) Adcsc.ir[j];
+            if(!isthere[rowid])
+            {
+                localy[rowid] = numx[k];	// initial assignment
+                nzinds.push_back(rowid);
+                isthere[rowid] = true;
+            }
+            else
+            {
+                localy[rowid] = SR::add(localy[rowid], numx[k]);
+            }
+        }
+    }
+    sort(nzinds.begin(), nzinds.end());
+    int nnzy = nzinds.size();
+    indy.resize(nnzy);
+    numy.resize(nnzy);
+    for(int i=0; i< nnzy; ++i)
+    {
+        indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
+        numy[i] = localy[nzinds[i]]; 	
+    }
+    DeleteAll(localy,isthere);
+}
 
