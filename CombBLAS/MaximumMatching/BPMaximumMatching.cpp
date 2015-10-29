@@ -76,7 +76,7 @@ bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, Full
 /*
  Remove isolated vertices and purmute
  */
-void removeIsolated(PSpMat_Int64 & A)
+void removeIsolated(PSpMat_Bool & A)
 {
     
     int nprocs, myrank;
@@ -582,6 +582,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .25;
                 initiator[2] = .25;
                 initiator[3] = .25;
+                cout << "ER ******** \n";
             }
             else if(string(argv[1]) == string("g500"))
             {
@@ -589,6 +590,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .19;
                 initiator[2] = .19;
                 initiator[3] = .05;
+                 cout << "g500 ******** \n";
             }
             else if(string(argv[1]) == string("ssca"))
             {
@@ -596,6 +598,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .4/3;
                 initiator[2] = .4/3;
                 initiator[3] = .4/3;
+                 cout << "ER ******** \n";
             }
             else
             {
@@ -617,6 +620,7 @@ int main(int argc, char* argv[])
             SpParHelper::Print(tinfo.str());
             
             Symmetricize(*ABool);
+            //removeIsolated(*ABool);
             SpParHelper::Print("Generated matrix symmetricized....\n");
             ABool->PrintInfo();
             
