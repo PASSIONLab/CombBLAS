@@ -614,7 +614,7 @@ void FullyDistVec<IT,NT>::DebugPrint()
 	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), native, MPI_INFO_NULL);
 
 	IT count = LocArrSize();	
-	MPI_File_write(thefile, &(arr[0]), count, MPIType<NT>(), NULL);
+	MPI_File_write(thefile, &(arr[0]), count, MPIType<NT>(), MPI_STATUS_IGNORE);
 	MPI_File_close(&thefile);
 	
 	// Now let processor-0 read the file and print
