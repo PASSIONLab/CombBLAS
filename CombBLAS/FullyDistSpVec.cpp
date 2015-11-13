@@ -1900,7 +1900,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		packed[i].ind = ind[i];
 		packed[i].num = num[i];
 	}
-	MPI_File_write(thefile, packed, count, datatype, MPI_INFO_NULL);
+	MPI_File_write(thefile, packed, count, datatype, MPI_STATUS_IGNORE);
 	MPI_Barrier(World);
 	MPI_File_close(&thefile);
 	delete [] packed;
