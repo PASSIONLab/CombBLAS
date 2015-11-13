@@ -80,7 +80,7 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs) // Conve
 	*this = rhs;
 }
 
-// Conversion copy-constructor where unary op is trueumFringeRow
+// Conversion copy-constructor where unary op is true
 template <class IT, class NT>
 template <typename _UnaryOperation>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop)
@@ -133,6 +133,7 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT
  ************************************************************************/
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates)
+: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(inds.commGrid,globallen)
 {
     if(*(inds.commGrid) != *(vals.commGrid))
     {
@@ -144,8 +145,8 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> &
         SpParHelper::Print("Index and value vectors have different sizes, FullyDistSpVec() fails !");
         MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
     }
-    commGrid = inds.commGrid;
-    glen = globallen;
+    //commGrid = inds.commGrid;
+    //glen = globallen;
     
     IT maxind = inds.Reduce(maximum<IT>(), (IT) 0);
     if(maxind>=globallen)
