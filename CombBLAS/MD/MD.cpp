@@ -248,7 +248,7 @@ FullyDistSpVec<int64_t, int64_t> getReachesSPMM(FullyDistSpVec<int64_t, int64_t>
     degrees.Apply([](int64_t val){return (val-1);}); // -1 to remove sources themselves
      */
 
-    return FullyDistSpVec<int64_t, int64_t>(sources.TotalLength(), ri, degrees1);
+    return FullyDistSpVec<int64_t, int64_t>(sources.TotalLength(), ri, degrees);
 }
 
 
@@ -349,7 +349,7 @@ void MD(PSpMat_Int64 & A)
     
     
     
-    mdOrder.DebugPrint();
+    //mdOrder.DebugPrint();
     
     
     
