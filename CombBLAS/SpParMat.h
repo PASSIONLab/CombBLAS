@@ -127,6 +127,12 @@ public:
     template <typename VT, typename GIT, typename _BinaryOperation>
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const;
 
+    
+    template <typename VT, typename GIT, typename _BinaryOperation>
+    void MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpVec<GIT,VT> & mask, Dim dim, _BinaryOperation __binary_op, VT id, bool exclude=false) const;
+    template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
+    void MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpVec<GIT,VT> & mask, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, bool exclude=false) const;
+    
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{
