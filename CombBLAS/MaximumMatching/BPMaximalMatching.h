@@ -246,7 +246,7 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         
     }
     
-    
+    int64_t cardinality = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     if(myrank == 0)
     {
         cout << "==========================================================\n";
@@ -270,9 +270,10 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
         
+        
         cout << "***Final Maximal Matching***\n";
-        cout << "***Unmatched Rows  Total Time***\n";
-        printf("%lld %lf\n",curUnmatchedRow, totalTimes.back());
+        cout << "***Unmatched-Rows  Cardinality Total Time***\n";
+        printf("%lld    %lld     %lf\n",curUnmatchedRow, cardinality, totalTimes.back());
         cout << "-------------------------------------------------------\n\n";
     }
     //isMatching(mateCol2Row, mateRow2Col);
