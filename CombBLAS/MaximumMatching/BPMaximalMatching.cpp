@@ -197,8 +197,7 @@ void showCurOptions()
     ostringstream tinfo;
     tinfo.str("");
     tinfo << "\n---------------------------------\n";
-    tinfo << "Calling maximal-cardinality matching with options: " << endl;
-    tinfo << " init: ";
+    tinfo << " Maximal matching algorithm options: ";
     if(init == KARP_SIPSER) tinfo << " Karp-Sipser, ";
     if(init == DMD) tinfo << " dynamic mindegree, ";
     if(init == GREEDY) tinfo << " greedy, ";
@@ -216,14 +215,14 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     // best option
     init = DMD; randMaximal = false;
-    showCurOptions();
+    //showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + KS
     init = KARP_SIPSER; randMaximal = true;
-    showCurOptions();
+    //showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
@@ -231,14 +230,14 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     // best option + Greedy
     init = GREEDY; randMaximal = true;
-    showCurOptions();
+    //showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + KS
     init = KARP_SIPSER; randMaximal = false;
-    showCurOptions();
+    //showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
@@ -246,7 +245,7 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     
     // best option + Greedy
     init = GREEDY; randMaximal = false;
-    showCurOptions();
+    //showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
