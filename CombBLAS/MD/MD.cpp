@@ -311,35 +311,35 @@ void MD(PSpMat_Int64 & A)
         enodes.SetElement(s, i+1);
         mdOrder.SetElement(i, s+1);
         
-        //time1 = MPI_Wtime();
+        time1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> reach = getReach(s, A, enodes);
-        //time2 += MPI_Wtime()-time1;
+        time2 += MPI_Wtime()-time1;
         
         
-        //time1 = MPI_Wtime();
+        time1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> updatedDeg( A.getcommgrid());
         //updatedDeg = getReachesSPMV(reach, A, enodes);
         updatedDeg = getReachesSPMM(reach, A, enodes);
         
         
-        //time3 += MPI_Wtime()-time1;
+        time3 += MPI_Wtime()-time1;
         
         degrees.Set(updatedDeg);
         degrees.SetElement(s, A.getnrow()); // set degree to infinite
         //degrees.DebugPrint();
         
-        /*
+        
         int nnz = reach.getnnz();
         if(myrank==0)
         {
-            if(i%10==0)
+            if(i%20==0)
             {
                 cout << i << " .................. " << nnz << " :: " << time2 << " + " << time3 << endl;
                 time2 = 0; time3 = 0;
             }
             
         }
-        */
+        
     }
     
     
