@@ -133,6 +133,7 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     double tStart = MPI_Wtime();
     vector<vector<double> > timing;
     
+#ifdef DETAIL_STATS
     if(myrank == 0)
     {
         cout << "=======================================================\n";
@@ -141,6 +142,7 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
         cout << "=======================================================\n";
     }
+#endif
     MPI_Barrier(MPI_COMM_WORLD);
 
     
@@ -233,13 +235,14 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         
         ++iteration;
         newlyMatched = newMatchedCols.getnnz();
+        times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
+        timing.push_back(times);
+#ifdef DETAIL_STATS
         if(myrank == 0)
         {
-            times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
-            timing.push_back(times);
             printf("%3d %10lld %10lld %10lld %18lf\n", iteration , curUnmatchedRow, curUnmatchedCol, newlyMatched, times.back());
         }
-        
+#endif
         curUnmatchedCol = unmatchedCol.getnnz();
         curUnmatchedRow = unmatchedRow.getnnz();
         MPI_Barrier(MPI_COMM_WORLD);
@@ -247,19 +250,27 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     }
     
     int64_t cardinality = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    vector<double> totalTimes(timing[0].size(),0);
+    for(int i=0; i<timing.size(); i++)
+    {
+        for(int j=0; j<timing[i].size(); j++)
+        {
+            totalTimes[j] += timing[i][j];
+        }
+    }
+
+    
     if(myrank == 0)
     {
+#ifdef DETAIL_STATS
         cout << "==========================================================\n";
         cout << "\n================individual timings =======================\n";
         cout  << "     SpMV      Update-Match   Update-UMC    Total "<< endl;
         cout << "==========================================================\n";
-        
-        vector<double> totalTimes(timing[0].size(),0);
         for(int i=0; i<timing.size(); i++)
         {
             for(int j=0; j<timing[i].size(); j++)
             {
-                totalTimes[j] += timing[i][j];
                 printf("%12.5lf ", timing[i][j]);
             }
             cout << endl;
@@ -269,9 +280,14 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         for(int i=0; i<totalTimes.size(); i++)
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
+#endif
         
         
-        cout << "***Final Maximal Matching***\n";
+        if(type == DMD) cout << "*** dynamic mindegree algorithm ";
+        else if(type == GREEDY) cout << "*** greedy algorithm ";
+        else if(type == KARP_SIPSER) cout << "*** Karp-Sipser algorithm ";
+        if(rand && (type == KARP_SIPSER || type == GREEDY) ) cout << " (random parent selection) ";
+        cout << " *** \n";
         cout << "***Unmatched-Rows  Cardinality Total Time***\n";
         printf("%lld    %lld     %lf\n",curUnmatchedRow, cardinality, totalTimes.back());
         cout << "-------------------------------------------------------\n\n";
