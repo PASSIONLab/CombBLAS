@@ -1,6 +1,3 @@
-INCDIR = $(HOME)
-INCADD = -I$(INCDIR)
-
 # notes for configure:
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
@@ -20,42 +17,42 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
+	$(COMPILER)  $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
 mmio.o: ../mmio.c
-	mpicc $(INCADD) $(FLAGS) -c -o mmio.o ../mmio.c
+	mpicc  $(FLAGS) -c -o mmio.o ../mmio.c
 
 MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
+	$(COMPILER)  $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
 
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
+	$(COMPILER)  $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
 
-BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximalMatching.o:  BPMaximalMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
 	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
 
 
-BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+maximal: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) -o maximal BPMaximalMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
 BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
+	$(COMPILER)  $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
 bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+	$(COMPILER) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 
 gathertest:	gathertest.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -o gathertest MPIType.o gathertest.cpp
+	$(COMPILER) $(FLAGS) -o gathertest MPIType.o gathertest.cpp
 
 
 
 clean:
 	rm -f *.o
 	rm -f bpmm
-	rm -f BPMaximalMatching
+	rm -f maximal
 	rm -f ../graph500-1.2/generator/*.o
 	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
 
