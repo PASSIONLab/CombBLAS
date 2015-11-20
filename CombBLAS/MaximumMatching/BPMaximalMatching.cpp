@@ -293,6 +293,7 @@ int main(int argc, char* argv[])
             ABool = new PSpMat_Bool();
             
             string filename(argv[2]);
+            matrix_name = filename;
             tinfo.str("");
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
@@ -323,6 +324,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .25;
                 initiator[2] = .25;
                 initiator[3] = .25;
+                matrix_name = "ER";
             }
             else if(string(argv[1]) == string("g500"))
             {
@@ -330,6 +332,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .19;
                 initiator[2] = .19;
                 initiator[3] = .05;
+                matrix_name = "G500";
             }
             else if(string(argv[1]) == string("ssca"))
             {
@@ -337,6 +340,7 @@ int main(int argc, char* argv[])
                 initiator[1] = .4/3;
                 initiator[2] = .4/3;
                 initiator[3] = .4/3;
+                matrix_name = "SSCA";
             }
             else
             {
