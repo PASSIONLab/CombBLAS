@@ -1,0 +1,87 @@
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx ******* 
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1150725436
+File is 20241588318 bytes
+Total number of entries read across all processors is 1150725436
+As a whole: 41291594 rows and 41291594 columns and 1150725436 nonzeros
+Reader took 70.1894 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 12 threads, and matrix split into 12 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 DMD 16453458    24838136     23.810739
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 Karp-Sipser-rand 16494756    24796838     142.006357
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 Greedy-rand 17500341    23791253     743.544228
+-------------------------------------------------------
+
+Application 17653471 resources: utime ~165940s, stime ~20381s, Rss ~22407400, inblocks ~59321899, outblocks ~336831
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/sk-2005.mtx ******* 
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1949412601
+File is 34382175184 bytes
+Total number of entries read across all processors is 1949412601
+Rank 1 [Fri Nov 20 14:21:31 2015] [c7-3c0s14n3] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aacbebee010, scnts=0xd7a790, sdispls=0xd9ef90, dtype=USER<contig>, rbuf=0x2aab56bea010, rcnts=0xd7a7e0, rdispls=0xd9efe0, dtype=USER<contig>, comm=0x84000007) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1123): 
+MPIC_Isend(703)................: Negative count, value is -1198408600
+Rank 5 [Fri Nov 20 14:21:31 2015] [c7-3c0s15n1] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aacbebee010, scnts=0xd7ad90, sdispls=0xd9f5d0, dtype=USER<contig>, rbuf=0x2aad69938010, rcnts=0xd7ade0, rdispls=0xd9f620, dtype=USER<contig>, comm=0xc4000000) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1114): 
+MPIC_Irecv(741)................: Negative count, value is -1556996224
+Rank 4 [Fri Nov 20 14:21:31 2015] [c7-3c0s15n1] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aacbedee010, scnts=0xd7bd50, sdispls=0xda0540, dtype=USER<contig>, rbuf=0x2aab56dea010, rcnts=0xd7bda0, rdispls=0xda0590, dtype=USER<contig>, comm=0xc4000003) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1123): 
+MPIC_Isend(703)................: Negative count, value is -1556996224
+Rank 0 [Fri Nov 20 14:21:31 2015] [c7-3c0s14n3] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aad518ef010, scnts=0xd7d440, sdispls=0xda21d0, dtype=USER<contig>, rbuf=0x2aae17a9d010, rcnts=0xd7d490, rdispls=0xda2250, dtype=USER<contig>, comm=0xc4000004) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1114): 
+MPIC_Irecv(741)................: Negative count, value is -1198408600
+Rank 14 [Fri Nov 20 14:21:31 2015] [c7-3c1s0n2] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aacbedee010, scnts=0xd7bec0, sdispls=0xda0660, dtype=USER<contig>, rbuf=0x2aab56dea010, rcnts=0xd7bf10, rdispls=0xda06b0, dtype=USER<contig>, comm=0xc4000003) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1123): 
+MPIC_Isend(703)................: Negative count, value is -1504706056
+Rank 15 [Fri Nov 20 14:21:31 2015] [c7-3c1s0n2] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(557)............: MPI_Alltoallv(sbuf=0x2aacbebee010, scnts=0xd7ae20, sdispls=0xd9f640, dtype=USER<contig>, rbuf=0x2aad69b9a010, rcnts=0xd7ae70, rdispls=0xd9f690, dtype=USER<contig>, comm=0xc4000000) failed
+MPIR_Alltoallv_impl(380).......: 
+MPIDI_CRAY_ugni_alltoallv(1114): 
+MPIC_Irecv(741)................: Negative count, value is -1504706056
+_pmiu_daemon(SIGCHLD): [NID 06013] [c7-3c0s15n1] [Fri Nov 20 14:21:32 2015] PE RANK 4 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 06018] [c7-3c1s0n2] [Fri Nov 20 14:21:32 2015] PE RANK 14 exit signal Aborted
+[NID 06018] 2015-11-20 14:21:32 Apid 17653851: initiated application termination
+[NID 06016] 2015-11-20 14:21:33 Apid 17653851: Error detected during page fault processing.  Process terminated via bus error.
+Application 17653851 exit codes: 134
+Application 17653851 exit signals: Killed
+Application 17653851 resources: utime ~111s, stime ~16s, Rss ~7565204, inblocks ~8486450, outblocks ~237570
+
+ + --------------------------------------------------------------------------
+ +        Job name: run_192_12t_
+ +          Job Id: 5028145.edique02
+ +          System: edison
+ +     Queued Time: Fri Nov 20 12:46:22 2015
+ +      Start Time: Fri Nov 20 13:58:22 2015
+ + Completion Time: Fri Nov 20 14:21:35 2015
+ +            User: azad
+ +        MOM Host: nid00896
+ +           Queue: debug
+ +  Req. Resources: mppnodect=8,mppnppn=24,mppwidth=192,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=11176kb,vmem=270080kb,walltime=00:23:16
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/MaximumMatching/maximal-exp/unsymmetric
+ +     Submit Args: batch256_12t_
+ + --------------------------------------------------------------------------
+

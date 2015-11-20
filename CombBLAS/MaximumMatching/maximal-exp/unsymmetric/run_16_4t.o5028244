@@ -1,0 +1,1349 @@
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/amazon0312.mtx ******* 
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 3200440
+File is 42238461 bytes
+Total number of entries read across all processors is 3200440
+As a whole: 400727 rows and 400727 columns and 3200440 nonzeros
+Reader took 0.674212 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/amazon0312.mtx 4 4 16 DMD 30134    370593     0.208291
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/amazon0312.mtx 4 4 16 Karp-Sipser-rand 39615    361112     0.304190
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/amazon0312.mtx 4 4 16 Greedy-rand 71795    328932     0.175061
+-------------------------------------------------------
+
+Application 17653925 resources: utime ~19s, stime ~2s, Rss ~150048, inblocks ~104791, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/t2em.mtx ******* 
+Matrix is Integer
+Total number of nonzeros expected across all processors is 4590832
+File is 76034632 bytes
+Total number of entries read across all processors is 4590832
+As a whole: 921632 rows and 921632 columns and 4590832 nonzeros
+Reader took 0.857454 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/t2em.mtx 4 4 16 DMD 51624    870008     0.364901
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/t2em.mtx 4 4 16 Karp-Sipser-rand 57692    863940     0.618433
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/t2em.mtx 4 4 16 Greedy-rand 83104    838528     0.351725
+-------------------------------------------------------
+
+Application 17653930 resources: utime ~28s, stime ~3s, Rss ~225288, inblocks ~174027, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/mono_500Hz.mtx ******* 
+Sorry, this application does not support complext typesMarket Market type: [matrix coordinate complex general]
+Total number of nonzeros expected across all processors is 5036288
+File is 271936660 bytes
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+Total number of entries read across all processors is 5036288
+As a whole: 169410 rows and 169410 columns and 0 nonzeros
+Reader took 0.906518 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+_pmiu_daemon(SIGCHLD): [NID 05656] [c5-3c1s6n0] [Fri Nov 20 14:24:05 2015] PE RANK 2 exit signal Segmentation fault
+Threading activated with 4 threads, and matrix split into 4 parts
+[NID 05656] 2015-11-20 14:24:04 Apid 17653932: initiated application termination
+Application 17653932 exit codes: 139
+Application 17653932 resources: utime ~1s, stime ~0s, Rss ~11048, inblocks ~144150, outblocks ~29702
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/ohne2.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 11063545
+File is 246604153 bytes
+Total number of entries read across all processors is 11063545
+As a whole: 181343 rows and 181343 columns and 11063545 nonzeros
+Reader took 2.26809 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ohne2.mtx 4 4 16 DMD 31742    149601     0.377776
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ohne2.mtx 4 4 16 Karp-Sipser-rand 36098    145245     0.825749
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ohne2.mtx 4 4 16 Greedy-rand 3186    178157     0.465249
+-------------------------------------------------------
+
+Application 17653937 resources: utime ~42s, stime ~4s, Rss ~312868, inblocks ~503407, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/atmosmodm.mtx ******* 
+Matrix is Integer
+Total number of nonzeros expected across all processors is 10319760
+File is 221980901 bytes
+Total number of entries read across all processors is 10319760
+As a whole: 1489752 rows and 1489752 columns and 10319760 nonzeros
+Reader took 1.92296 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/atmosmodm.mtx 4 4 16 DMD 72123    1417629     0.693882
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/atmosmodm.mtx 4 4 16 Karp-Sipser-rand 75851    1413901     1.068010
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/atmosmodm.mtx 4 4 16 Greedy-rand 117240    1372512     0.570133
+-------------------------------------------------------
+
+Application 17653940 resources: utime ~60s, stime ~6s, Rss ~413704, inblocks ~456228, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/TSOPF_RS_b2383.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 16171169
+File is 540216117 bytes
+Total number of entries read across all processors is 16171169
+As a whole: 38120 rows and 38120 columns and 16171169 nonzeros
+Reader took 4.52915 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/TSOPF_RS_b2383.mtx 4 4 16 DMD 1204    36916     0.815484
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/TSOPF_RS_b2383.mtx 4 4 16 Karp-Sipser-rand 564    37556     1.297941
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/TSOPF_RS_b2383.mtx 4 4 16 Greedy-rand 2367    35753     0.932714
+-------------------------------------------------------
+
+Application 17653953 resources: utime ~91s, stime ~7s, Rss ~846532, inblocks ~1080369, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/fem_hifreq_circuit.mtx ******* 
+Sorry, this application does not support complext typesMarket Market type: [matrix coordinate complex general]
+Total number of nonzeros expected across all processors is 20239237
+File is 706688667 bytes
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+COMBBLAS: Unrecognized matrix market scalar type
+Total number of entries read across all processors is 20239237
+As a whole: 491100 rows and 491100 columns and 0 nonzeros
+Reader took 19.3923 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+_pmiu_daemon(SIGCHLD): [NID 05656] [c5-3c1s6n0] [Fri Nov 20 14:25:40 2015] PE RANK 3 exit signal Segmentation fault
+Application 17653960 exit codes: 139
+Application 17653960 resources: utime ~13s, stime ~1s, Rss ~20896, inblocks ~356406, outblocks ~29713
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/rajat31.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 20316253
+File is 634761442 bytes
+Total number of entries read across all processors is 20316253
+As a whole: 4690002 rows and 4690002 columns and 20316253 nonzeros
+Reader took 10.287 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/rajat31.mtx 4 4 16 DMD 220691    4469311     2.460764
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/rajat31.mtx 4 4 16 Karp-Sipser-rand 301822    4388180     3.407405
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/rajat31.mtx 4 4 16 Greedy-rand 434571    4255431     1.853106
+-------------------------------------------------------
+
+Application 17653974 resources: utime ~186s, stime ~18s, Rss ~798276, inblocks ~1261301, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/FullChip.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 26621990
+File is 718508936 bytes
+Total number of entries read across all processors is 26621990
+As a whole: 2987012 rows and 2987012 columns and 26621990 nonzeros
+Reader took 6.14604 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/FullChip.mtx 4 4 16 DMD 110375    2876637     1.716368
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/FullChip.mtx 4 4 16 Karp-Sipser-rand 166558    2820454     2.882299
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/FullChip.mtx 4 4 16 Greedy-rand 246952    2740060     1.693278
+-------------------------------------------------------
+
+Application 17653987 resources: utime ~148s, stime ~15s, Rss ~881848, inblocks ~1425240, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/RM07R.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 37464962
+File is 1236185753 bytes
+Total number of entries read across all processors is 37464962
+As a whole: 381689 rows and 381689 columns and 37464962 nonzeros
+Reader took 9.12939 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/RM07R.mtx 4 4 16 DMD 16157    365532     1.062400
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/RM07R.mtx 4 4 16 Karp-Sipser-rand 1431    380258     2.760154
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/RM07R.mtx 4 4 16 Greedy-rand 2081    379608     1.812750
+-------------------------------------------------------
+
+Application 17653997 resources: utime ~156s, stime ~17s, Rss ~1395172, inblocks ~2439734, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/circuit5M.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 59524291
+File is 2164750677 bytes
+Total number of entries read across all processors is 59524291
+As a whole: 5558326 rows and 5558326 columns and 59524291 nonzeros
+Reader took 15.169 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/circuit5M.mtx 4 4 16 DMD 3263    5555063     3.033165
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/circuit5M.mtx 4 4 16 Karp-Sipser-rand 111525    5446801     4.746356
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/circuit5M.mtx 4 4 16 Greedy-rand 197702    5360624     2.913761
+-------------------------------------------------------
+
+Application 17654017 resources: utime ~329s, stime ~41s, Rss ~2678208, inblocks ~4252517, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/ljournal-2008.mtx ******* 
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 79023142
+File is 1233483077 bytes
+Total number of entries read across all processors is 79023142
+As a whole: 5363260 rows and 5363260 columns and 79023142 nonzeros
+Reader took 11.2862 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ljournal-2008.mtx 4 4 16 DMD 1247218    4116042     6.148185
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ljournal-2008.mtx 4 4 16 Karp-Sipser-rand 1207169    4156091     14.211952
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/ljournal-2008.mtx 4 4 16 Greedy-rand 1576972    3786288     33.464084
+-------------------------------------------------------
+
+Application 17654046 resources: utime ~944s, stime ~158s, Rss ~2836112, inblocks ~2432550, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/cage15.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 99199551
+File is 2627728707 bytes
+Total number of entries read across all processors is 99199551
+As a whole: 5154859 rows and 5154859 columns and 99199551 nonzeros
+Reader took 22.5058 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/cage15.mtx 4 4 16 DMD 254686    4900173     3.306915
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/cage15.mtx 4 4 16 Karp-Sipser-rand 125089    5029770     8.283372
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/cage15.mtx 4 4 16 Greedy-rand 200633    4954226     4.780485
+-------------------------------------------------------
+
+Application 17654154 resources: utime ~512s, stime ~63s, Rss ~3265684, inblocks ~5152408, outblocks ~29700
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/HV15R.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 283073458
+File is 10095089342 bytes
+Total number of entries read across all processors is 283073458
+As a whole: 2017169 rows and 2017169 columns and 283073458 nonzeros
+Reader took 74.2472 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 4 threads, and matrix split into 4 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/HV15R.mtx 4 4 16 DMD 119149    1898020     7.081999
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/HV15R.mtx 4 4 16 Karp-Sipser-rand 9840    2007329     14.837792
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/HV15R.mtx 4 4 16 Greedy-rand 16966    2000203     11.592084
+-------------------------------------------------------
+
+Application 17654177 resources: utime ~1193s, stime ~137s, Rss ~10710956, inblocks ~19738106, outblocks ~29700
+
+ + --------------------------------------------------------------------------
+ +        Job name: run_16_4t
+ +          Job Id: 5028244.edique02
+ +          System: edison
+ +     Queued Time: Fri Nov 20 13:11:14 2015
+ +      Start Time: Fri Nov 20 14:23:33 2015
+ + Completion Time: Fri Nov 20 14:36:09 2015
+ +            User: azad
+ +        MOM Host: nid00898
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=16,mppwidth=16,walltime=00:30:00
+ +  Used Resources: cput=00:00:05,energy_used=0,mem=10828kb,vmem=159392kb,walltime=00:12:38
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/MaximumMatching/maximal-exp/unsymmetric
+ +     Submit Args: batch16_4t
+ + --------------------------------------------------------------------------
+

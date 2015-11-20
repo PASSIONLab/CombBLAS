@@ -1,0 +1,48 @@
+#PBS -q debug
+#PBS -l mppwidth=4
+#PBS -l walltime=00:30:00
+#PBS -N run_4_1t
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+
+EXE=../../maximal
+DIR=/scratch2/scratchdirs/azad/unsymmetric/
+IN1=amazon0312.mtx
+IN2=t2em.mtx
+IN3=mono_500Hz.mtx
+IN4=ohne2.mtx
+IN5=atmosmodm.mtx
+IN6=TSOPF_RS_b2383.mtx
+IN7=fem_hifreq_circuit.mtx
+IN8=rajat31.mtx
+IN9=FullChip.mtx
+IN10=RM07R.mtx
+IN11=circuit5M.mtx
+IN12=ljournal-2008.mtx
+IN13=cage15.mtx
+IN14=HV15R.mtx
+IN15=it-2004.mtx
+IN16=sk-2005.mtx
+
+APRUN="aprun -n 4 -d 1 -N 1 -S 1 -cc depth" 
+
+export OMP_NUM_THREADS=1
+
+$APRUN $EXE input $DIR$IN1
+$APRUN $EXE input $DIR$IN2
+$APRUN $EXE input $DIR$IN3
+$APRUN $EXE input $DIR$IN4
+$APRUN $EXE input $DIR$IN5
+$APRUN $EXE input $DIR$IN6
+$APRUN $EXE input $DIR$IN7
+$APRUN $EXE input $DIR$IN8
+$APRUN $EXE input $DIR$IN9
+$APRUN $EXE input $DIR$IN10
+$APRUN $EXE input $DIR$IN11
+$APRUN $EXE input $DIR$IN12
+$APRUN $EXE input $DIR$IN13
+$APRUN $EXE input $DIR$IN14
+
+

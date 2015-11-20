@@ -1,0 +1,45 @@
+**** Reading input matrix: /scratch2/scratchdirs/azad/unsymmetric/sk-2005.mtx ******* 
+Matrix is Boolean
+Total number of nonzeros expected across all processors is 1949412601
+File is 34382175184 bytes
+Total number of entries read across all processors is 1949412601
+As a whole: 50636154 rows and 50636154 columns and 1949412601 nonzeros
+Reader took 98.5227 seconds
+Performing random permuation of matrix.
+Performed random permuation of matrix.
+Threading activated with 12 threads, and matrix split into 12 parts
+ #####################################################
+ ################## Run 1 ############################
+ #####################################################
+Creating a new MPI data type for 11VertexType1
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/sk-2005.mtx 81 12 972 DMD 20173008    30463146     30.701885
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/sk-2005.mtx 81 12 972 Karp-Sipser-rand 20169017    30467137     105.106950
+-------------------------------------------------------
+
+matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***
+/scratch2/scratchdirs/azad/unsymmetric/sk-2005.mtx 81 12 972 Greedy-rand 21360980    29275174     399.283848
+-------------------------------------------------------
+
+Application 17652844 resources: utime ~483591s, stime ~64653s, Rss ~11913304, inblocks ~156741853, outblocks ~1649479
+
+ + --------------------------------------------------------------------------
+ +        Job name: run_972_12t_
+ +          Job Id: 5028142.edique02
+ +          System: edison
+ +     Queued Time: Fri Nov 20 12:42:40 2015
+ +      Start Time: Fri Nov 20 13:36:16 2015
+ + Completion Time: Fri Nov 20 13:50:20 2015
+ +            User: azad
+ +        MOM Host: nid02435
+ +           Queue: debug
+ +  Req. Resources: mppnodect=41,mppnppn=24,mppwidth=972,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=10820kb,vmem=94588kb,walltime=00:14:03
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/MaximumMatching/maximal-exp/unsymmetric
+ +     Submit Args: batch1024_12t_
+ + --------------------------------------------------------------------------
+

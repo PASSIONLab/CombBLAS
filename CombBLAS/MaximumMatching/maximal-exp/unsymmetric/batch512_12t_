@@ -1,0 +1,37 @@
+#PBS -q debug
+#PBS -l mppwidth=432
+#PBS -l walltime=00:30:00
+#PBS -N run_432_12t_
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+
+EXE=../../maximal
+DIR=/scratch2/scratchdirs/azad/unsymmetric/
+IN1=amazon0312.mtx
+IN2=t2em.mtx
+IN3=mono_500Hz.mtx
+IN4=ohne2.mtx
+IN5=atmosmodm.mtx
+IN6=TSOPF_RS_b2383.mtx
+IN7=fem_hifreq_circuit.mtx
+IN8=rajat31.mtx
+IN9=FullChip.mtx
+IN10=RM07R.mtx
+IN11=circuit5M.mtx
+IN12=ljournal-2008.mtx
+IN13=cage15.mtx
+IN14=HV15R.mtx
+IN15=it-2004.mtx
+IN16=sk-2005.mtx
+
+APRUN="aprun -n 36 -d 12 -N 2 -S 1 -cc numa_node "
+
+
+export OMP_NUM_THREADS=12
+
+$APRUN $EXE input $DIR$IN16
+
+
+

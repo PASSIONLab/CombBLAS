@@ -1,0 +1,3 @@
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 DMD 16453458    24838136     23.810739
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 Karp-Sipser-rand 16494756    24796838     142.006357
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 16 12 192 Greedy-rand 17500341    23791253     743.544228
