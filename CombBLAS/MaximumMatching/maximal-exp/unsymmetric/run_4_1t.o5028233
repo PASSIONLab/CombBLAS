@@ -1,0 +1,32 @@
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+apsched: claim exceeds reservation's node-count
+
+ + --------------------------------------------------------------------------
+ +        Job name: run_4_1t
+ +          Job Id: 5028233.edique02
+ +          System: edison
+ +     Queued Time: Fri Nov 20 13:09:39 2015
+ +      Start Time: Fri Nov 20 14:21:51 2015
+ + Completion Time: Fri Nov 20 14:22:21 2015
+ +            User: azad
+ +        MOM Host: nid02050
+ +           Queue: debug
+ +  Req. Resources: mppnodect=1,mppnppn=4,mppwidth=4,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,energy_used=0,mem=1660kb,vmem=11796kb,walltime=00:00:18
+ +     Acct String: m1982
+ +   PBS_O_WORKDIR: /global/u1/a/azad/combinatorial-blas-2.0/CombBLAS/MaximumMatching/maximal-exp/unsymmetric
+ +     Submit Args: batch4_1t
+ + --------------------------------------------------------------------------
+

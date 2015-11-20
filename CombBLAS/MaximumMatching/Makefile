@@ -1,1 +1,1 @@
-makefile-mac
+makefile-nersc

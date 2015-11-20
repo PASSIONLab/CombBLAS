@@ -1,0 +1,9 @@
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 DMD 16453649    24837945     6.330182
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Karp-Sipser-rand 16494392    24797202     57.227493
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Greedy-rand 17498428    23793166     335.100952
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Karp-Sipser 16256499    25035095     60.442436
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Greedy 16909503    24382091     340.135426
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 DMD 16453649    24837945     5.881067
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Karp-Sipser-rand 16498488    24793106     62.525537
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Greedy-rand 17501394    23790200     335.676698
+/scratch2/scratchdirs/azad/unsymmetric/it-2004.mtx 81 12 972 Karp-Sipser 16256499    25035095     65.454442
