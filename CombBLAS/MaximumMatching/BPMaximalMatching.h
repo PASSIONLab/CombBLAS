@@ -16,6 +16,7 @@
 using namespace std;
 MTRand GlobalMT(123); // for reproducible result
 
+string matrix_name="";
 
 struct VertexType1
 {
@@ -102,7 +103,13 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
+    int nthreads = 1;
+#ifdef _OPENMP
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
     
     FullyDistVec<int64_t, int64_t> degCol = degColRecv;
     
@@ -282,14 +289,15 @@ void MaximalMatching(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t
         cout << endl;
 #endif
         
-        
-        if(type == DMD) cout << "*** dynamic mindegree algorithm ";
-        else if(type == GREEDY) cout << "*** greedy algorithm ";
-        else if(type == KARP_SIPSER) cout << "*** Karp-Sipser algorithm ";
-        if(rand && (type == KARP_SIPSER || type == GREEDY) ) cout << " (random parent selection) ";
-        cout << " *** \n";
-        cout << "***Unmatched-Rows  Cardinality Total Time***\n";
-        printf("%lld    %lld     %lf\n",curUnmatchedRow, cardinality, totalTimes.back());
+        cout << "matrix  nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***\n";
+        cout << matrix_name << " ";
+        cout << nprocs << " " << nthreads << " " << nprocs * nthreads << " ";
+        if(type == DMD) cout << "DMD";
+        else if(type == GREEDY) cout << "Greedy";
+        else if(type == KARP_SIPSER) cout << "Karp-Sipser";
+        if(rand && (type == KARP_SIPSER || type == GREEDY) ) cout << "-rand";
+        cout << " ";
+        printf("%lld    %lld     %lf\n", curUnmatchedRow, cardinality, totalTimes.back());
         cout << "-------------------------------------------------------\n\n";
     }
     //isMatching(mateCol2Row, mateRow2Col);
