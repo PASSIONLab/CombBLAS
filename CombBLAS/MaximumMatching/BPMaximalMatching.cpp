@@ -385,7 +385,11 @@ int main(int argc, char* argv[])
      
         PSpMat_s32p64 A = *ABool;
         PSpMat_s32p64 AT = A;
-        AT.Transpose();
+        if(ABool->getnrow() > ABool->getncol())
+            AT.Transpose();
+        else
+            A.Transpose();
+       
         
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
