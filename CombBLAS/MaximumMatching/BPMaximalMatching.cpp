@@ -234,7 +234,7 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
-   /* 
+    
     // best option + KS
     init = KARP_SIPSER; randMaximal = false;
     //showCurOptions();
@@ -249,7 +249,7 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
-    */
+    
 }
 
 
@@ -411,7 +411,7 @@ int main(int argc, char* argv[])
         SpParHelper::Print(" ################## Run 1 ############################\n");
         SpParHelper::Print(" #####################################################\n");
         experiment(A, AT, degCol);
-       /* 
+        
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 2 ############################\n");
         SpParHelper::Print(" #####################################################\n");
@@ -421,7 +421,7 @@ int main(int argc, char* argv[])
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 3 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        experiment(A, AT, degCol);*/
+        experiment(A, AT, degCol);
 	}
 	MPI_Finalize();
 	return 0;
