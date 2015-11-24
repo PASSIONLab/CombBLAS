@@ -1,0 +1,3 @@
+/scratch2/scratchdirs/azad/symmetric/europe_osm.mtx 4 6 24 DMD 6917909    43994109     13.566708
+/scratch2/scratchdirs/azad/symmetric/europe_osm.mtx 4 6 24 Karp-Sipser-rand 4341736    46570282     813.074753
+/scratch2/scratchdirs/azad/symmetric/europe_osm.mtx 4 6 24 Greedy-rand 8344146    42567872     13.878810
