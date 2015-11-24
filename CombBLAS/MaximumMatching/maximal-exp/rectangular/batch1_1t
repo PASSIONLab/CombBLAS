@@ -1,0 +1,47 @@
+#PBS -q debug
+#PBS -l mppwidth=1
+#PBS -l walltime=00:30:00
+#PBS -N run_1_1t
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+
+EXE=../../maximal
+DIR=/scratch2/scratchdirs/azad/rectangular/
+IN1=watson_2.mtx
+IN2=neos3.mtx
+IN3=wheel_601.mtx
+IN4=ch8-8-b5.mtx
+IN5=stormG2_1000.mtx
+IN6=IMDB.mtx
+IN7=LargeRegFile.mtx
+IN8=cont1_l.mtx
+IN9=Rucci1.mtx
+IN10=degme.mtx
+IN11=tp-6.mtx
+IN12=rel9.mtx
+IN13=GL7d19.mtx
+IN14=relat9.mtx
+IN15=spal_004.mtx
+
+APRUN="aprun -n 1 -d 1 -N 1 -S 1 -cc depth" 
+
+export OMP_NUM_THREADS=1
+
+$APRUN $EXE input $DIR$IN1
+$APRUN $EXE input $DIR$IN2
+$APRUN $EXE input $DIR$IN3
+$APRUN $EXE input $DIR$IN4
+$APRUN $EXE input $DIR$IN5
+$APRUN $EXE input $DIR$IN6
+$APRUN $EXE input $DIR$IN7
+$APRUN $EXE input $DIR$IN8
+$APRUN $EXE input $DIR$IN9
+$APRUN $EXE input $DIR$IN10
+$APRUN $EXE input $DIR$IN11
+$APRUN $EXE input $DIR$IN12
+$APRUN $EXE input $DIR$IN13
+$APRUN $EXE input $DIR$IN14
+$APRUN $EXE input $DIR$IN15
+

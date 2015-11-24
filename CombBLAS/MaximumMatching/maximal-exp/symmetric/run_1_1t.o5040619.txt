@@ -1,0 +1,10 @@
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 DMD 857053    15920163     101.059738
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Karp-Sipser-rand 507105    16270111     159.324166
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Greedy-rand 714599    16062617     107.444683
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Karp-Sipser 625141    16152075     155.397123
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Greedy 870691    15906525     103.952961
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 DMD 857053    15920163     100.759338
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Karp-Sipser-rand 506848    16270368     157.767386
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Greedy-rand 715761    16061455     107.621737
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Karp-Sipser 625141    16152075     155.150289
+/scratch2/scratchdirs/azad/symmetric/rgg_n_2_24_s0.mtx 1 1 1 Greedy 870691    15906525     104.085962

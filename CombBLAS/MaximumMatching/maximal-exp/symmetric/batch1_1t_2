@@ -1,0 +1,39 @@
+#PBS -q debug
+#PBS -l mppwidth=1
+#PBS -l walltime=00:30:00
+#PBS -N run_1_1t
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+
+EXE=../../maximal
+DIR=/scratch2/scratchdirs/azad/symmetric/
+IN1=coPapersDBLP.mtx
+IN2=hugetrace-00020.mtx
+IN3=road_usa.mtx
+IN4=dielFilterV3real.mtx
+IN5=delaunay_n24.mtx
+IN6=europe_osm.mtx
+IN7=hollywood-2009.mtx
+IN8=Flan_1565.mtx
+IN9=kron_g500-logn21.mtx
+IN10=rgg_n_2_24_s0.mtx
+IN11=nlpkkt240.mtx
+
+APRUN="aprun -n 1 -d 1 -N 1 -S 1 -cc depth" 
+
+export OMP_NUM_THREADS=1
+
+#$APRUN $EXE input $DIR$IN1
+#$APRUN $EXE input $DIR$IN2
+#$APRUN $EXE input $DIR$IN3
+#$APRUN $EXE input $DIR$IN4
+#$APRUN $EXE input $DIR$IN5
+#$APRUN $EXE input $DIR$IN6
+#$APRUN $EXE input $DIR$IN7
+#$APRUN $EXE input $DIR$IN8
+#$APRUN $EXE input $DIR$IN9
+$APRUN $EXE input $DIR$IN10
+$APRUN $EXE input $DIR$IN11
+
