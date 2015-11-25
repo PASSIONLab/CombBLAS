@@ -511,6 +511,73 @@ void experiment1(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, in
 
 
 
+void experiment_maximal(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+{
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+    
+    double time_start;
+    
+    // best option
+    init = DMD; randMaximal = false; randMM = true; prune = true;
+    mvInvertMate = false;
+    time_start=MPI_Wtime();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    double time_dmd = MPI_Wtime()-time_start;
+    int64_t cardDMD = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    
+    time_start=MPI_Wtime();
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    double time_mm_dmd = MPI_Wtime()-time_start;
+    int64_t mmcardDMD = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    // best option + KS
+    init = KARP_SIPSER; randMaximal = true; randMM = true; prune = true;
+    mvInvertMate = false;
+    time_start=MPI_Wtime();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    double time_ks = MPI_Wtime()-time_start;
+    int64_t cardKS = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    
+    time_start=MPI_Wtime();
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    double time_mm_ks = MPI_Wtime()-time_start;
+    int64_t mmcardKS = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    
+    // best option + Greedy
+    init = GREEDY; randMaximal = true; randMM = true; prune = true;
+    mvInvertMate = false;
+    time_start=MPI_Wtime();
+    MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+    double time_greedy = MPI_Wtime()-time_start;
+    int64_t cardGreedy = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    
+    time_start=MPI_Wtime();
+    maximumMatching(A, mateRow2Col, mateCol2Row);
+    double time_mm_greedy = MPI_Wtime()-time_start;
+    int64_t mmcardGreedy = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
+    mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
+    mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
+    
+    if(myrank == 0)
+    {
+    cout << "\n maximal matching experiment \n";
+    cout << cardGreedy << " " << mmcardGreedy << " " << time_greedy << " " << time_mm_greedy << " " << cardKS << " " << mmcardKS << " " << time_ks << " " << time_mm_ks << " " << cardDMD << " " << mmcardDMD << " " << time_dmd << " " << time_mm_dmd << " \n";
+    }
+}
+
+
+
 int main(int argc, char* argv[])
 {
 	
@@ -691,16 +758,19 @@ int main(int argc, char* argv[])
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 1 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        if(fewexp) experiment1(A, AT, degCol);
-        else experiment(A, AT, degCol);
+        //if(fewexp) experiment1(A, AT, degCol);
+        //else experiment(A, AT, degCol);
+        experiment_maximal(A, AT, degCol);
         
+        /*
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 2 ############################\n");
         SpParHelper::Print(" #####################################################\n");
-        if(fewexp) experiment1(A, AT, degCol);
-        else experiment(A, AT, degCol);
+        //if(fewexp) experiment1(A, AT, degCol);
+        //else experiment(A, AT, degCol);
         
-        /*
+        
+
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 3 ############################\n");
         SpParHelper::Print(" #####################################################\n");
@@ -1066,6 +1136,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         printf("matched rows: %lld , which is: %lf percent \n",matchedRow, 100*(double)matchedRow/(nrows));
         cout << "-------------------------------------------------------\n\n";
     }
+    
 }
 
 
