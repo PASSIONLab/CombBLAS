@@ -66,10 +66,10 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./md <rmat|er|input> <scale|filename>" << endl;
-            cout << "Example: mpirun -np 4 ./md rmat 20" << endl;
-            cout << "Example: mpirun -np 4 ./md er 20" << endl;
-            cout << "Example: mpirun -np 4 ./md input a.mtx" << endl;
+            cout << "Usage: ./rcm <rmat|er|input> <scale|filename>" << endl;
+            cout << "Example: mpirun -np 4 ./rcm rmat 20" << endl;
+            cout << "Example: mpirun -np 4 ./rcm er 20" << endl;
+            cout << "Example: mpirun -np 4 ./rcm input a.mtx" << endl;
             
         }
         MPI_Finalize();
