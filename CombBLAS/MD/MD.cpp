@@ -1,5 +1,6 @@
 #define DETERMINISTIC
 #include "../CombBLAS.h"
+#include "../Operations.h"
 #include <mpi.h>
 #include <sys/time.h>
 #include <iostream>
@@ -356,9 +357,5 @@ void MD(PSpMat_Int64 & A)
     
     
 }
-
-
-
-
 
 
