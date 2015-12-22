@@ -93,12 +93,6 @@ public:
      	 map[t] = datatype;
 #endif
   }
-
-  MPIDataTypeCache& mpi_datatype_cache()
-  {
-    	static MPIDataTypeCache cache;
-    	return cache;
-  }
 };
 
 

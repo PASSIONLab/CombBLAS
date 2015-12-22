@@ -37,6 +37,7 @@
 #include "promote.h"
 #include "SpParMat.h"
 #include "Operations.h"
+#include "MPIOp.h"
 
 template <class IT, class NT, class DER>
 class SpParMat;
