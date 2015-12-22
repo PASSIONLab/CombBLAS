@@ -38,6 +38,7 @@
 #include "LocArr.h"
 #include "CommGrid.h"
 #include "MPIType.h"
+#include "SpDefs.h"
 #include "psort-1.0/src/psort.h"
 
 using namespace std;

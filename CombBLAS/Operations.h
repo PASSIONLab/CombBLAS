@@ -36,7 +36,8 @@
 #include <iostream>
 #include <functional>
 #include <cmath>
-#include <mpi.h>
+#include <limits>
+#include "psort-1.0/driver/MersenneTwister.h"
 
 using namespace std;
 
@@ -291,26 +292,6 @@ struct bitwise_xor : public std::binary_function<T, T, T>
 };
 
 
-// MPIOp: A class that has a static op() function that takes no arguments and returns the corresponding MPI_Op
-// if and only if the given Op has a mapping to a valid MPI_Op
-// No concepts checking for the applicability of Op on the datatype T at the moment
-// In the future, this can be implemented via metafunction forwarding using mpl::or_ and mpl::bool_
-
-template <typename Op, typename T> 
-struct MPIOp
-{
-};
-
-template<typename T> struct MPIOp< maximum<T>, T > {  static MPI_Op op() { return MPI_MAX; } };
-template<typename T> struct MPIOp< minimum<T>, T > {  static MPI_Op op() { return MPI_MIN; } };
-template<typename T> struct MPIOp< std::plus<T>, T > {  static MPI_Op op() { return MPI_SUM; } };
-template<typename T> struct MPIOp< std::multiplies<T>, T > {  static MPI_Op op() { return MPI_PROD; } };
-template<typename T> struct MPIOp< std::logical_and<T>, T > {  static MPI_Op op() { return MPI_LAND; } };
-template<typename T> struct MPIOp< std::logical_or<T>, T > {  static MPI_Op op() { return MPI_LOR; } };
-template<typename T> struct MPIOp< logical_xor<T>, T > {  static MPI_Op op() { return MPI_LXOR; } };
-template<typename T> struct MPIOp< bitwise_and<T>, T > {  static MPI_Op op() { return MPI_BAND; } };
-template<typename T> struct MPIOp< bitwise_or<T>, T > {  static MPI_Op op() { return MPI_BOR; } };
-template<typename T> struct MPIOp< bitwise_xor<T>, T > {  static MPI_Op op() { return MPI_BXOR; } };
 
 
 #endif

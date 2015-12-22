@@ -124,6 +124,7 @@ class EWiseExtToPlainAdapter
 #include "DistEdgeList.h"
 #include "Semirings.h"
 #include "Operations.h"
+#include "MPIOp.h"
 #include "MPIType.h"
 
 #endif
