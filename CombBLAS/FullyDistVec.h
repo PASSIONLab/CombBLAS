@@ -103,6 +103,16 @@ public:
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
+    
+    FullyDistVec<IT,NT> &  operator=(NT fixedval) // assign fixed value
+    {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for(IT i=0; i < arr.size(); ++i)
+            arr[i] = fixedval;
+        return *this;
+    }
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
@@ -141,6 +151,8 @@ public:
 	template <typename _Predicate>
 	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
+    FullyDistSpVec<IT,NT> Find(NT val) const;	//!< Return the elements val is found
+    
 	template <typename _Predicate>
 	FullyDistVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
 

@@ -33,7 +33,7 @@ struct SelectMinSR
     typedef int64_t T_promote;
     static T_promote id(){ return -1; };
     static bool returnedSAID() { return false; }
-    static MPI_Op mpi_op() { return MPI_MIN; };
+    //static MPI_Op mpi_op() { return MPI_MIN; };
     
     static T_promote add(const T_promote & arg1, const T_promote & arg2)
     {
@@ -137,52 +137,59 @@ int main(int argc, char* argv[])
 }
 
 
+
 void RCM(PSpMat_Bool & A)
 {
     
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
     A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
     
+    int64_t cc = 0; // connected component
     
-    int64_t nvertices = A.getnrow();
-    int64_t oldLevels=-1, newLevels=0; // initialized just to make the first iteration going
-    int64_t source = 1;
-    while(newLevels > oldLevels)
+    int64_t nv = A.getnrow();
+    int64_t prevLevel=-1, curLevel=0; // initialized just to make the first iteration going
+    int64_t source = 5; // any starting vertex is fine. test if it really matters in practice.
+    FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  nv , (int64_t) -1); // level structure in the current BFS tree
+    
+    while(curLevel > prevLevel)
     {
-        oldLevels = newLevels;
-        FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nvertices );
-        FullyDistSpVec<int64_t, int64_t> next_fringe(A.getcommgrid(),  nvertices );
-        FullyDistVec<int64_t, int64_t> visited ( A.getcommgrid(),  nvertices , (int64_t) -1);
-        
-        //SpMV<Select2ndMinSR<bool, int64_t>>(A, fringe, fringe, false);
-        fringe.SetElement(source, source);
-        newLevels = 0;
-        while(1)
+        prevLevel = curLevel;
+        FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
+        level = (int64_t)-1; // reset level structure in every iteration
+        level.SetElement(source, 1); // place source at level 1
+        fringe.SetElement(source, source); // include source to the initial fringe 
+        curLevel = 2;
+        while(fringe.getnnz() > 0) // continue until the frontier is empty
         {
-            
-            SpMV<SelectMinSR>(A, fringe, next_fringe, false);
-            next_fringe = EWiseMult(next_fringe, visited, true, (int64_t) -1);
-            visited.Set(next_fringe);
-            if(next_fringe.getnnz() > 0)
-            {
-                fringe = next_fringe;
-                newLevels++;
-            }
-            else
-                break;
-            
+            fringe.setNumToInd(); // unncessary since we don't care about the parent
+            SpMV<SelectMinSR>(A, fringe, fringe, false);
+            fringe = EWiseMult(fringe, level, true, (int64_t) -1);
+            // set value to the current level
+            fringe=curLevel++;
+            level.Set(fringe);
         }
+        curLevel = curLevel-2;
+        // last non-empty level
+        fringe = level.Find(curLevel);
+        fringe.setNumToInd();
+        FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
+                                            EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
+                                            [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
+                                            [](int64_t vtx, int64_t deg){return true;},
+                                            false, (int64_t) 0);
+   
+        //for(int i=0; i<fringe_degree.getnnz(); i++)
+         //   cout << "(" << fringe_degree[i].first << ", " << fringe_degree[i].second << ")";
         
-        
-        FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree = EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
-                                                                                                           [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
-                                                                                                           [](int64_t vtx, int64_t deg){return true;},
-                                                                                                           false, (int64_t) 0);
         pair<int64_t, int64_t> mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
-        source = mindegree_vertex.first;
-        
-        
+        //cout << "\n ** (" << mindegree_vertex.first << ", " << mindegree_vertex.second << ")" << endl;
+        if (curLevel > prevLevel)
+            source = mindegree_vertex.second;
+   
     }
+    
+    cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+    //level.DebugPrint();
 }
 
 
