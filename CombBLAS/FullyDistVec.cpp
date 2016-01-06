@@ -510,6 +510,26 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 	return found;	
 }
 
+
+//! Retain a sparse vector with indices where the supplied value is found
+template <class IT, class NT>
+FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(NT val) const
+{
+    FullyDistSpVec<IT,NT> found(commGrid);
+    size_t size = arr.size();
+    for(size_t i=0; i<size; ++i)
+    {
+        if(arr[i]==val)
+        {
+            found.ind.push_back( (IT) i);
+            found.num.push_back(val);
+        }
+    }
+    found.glen = glen;
+    return found;	
+}
+
+
 template <class IT, class NT>
 template <class HANDLER>
 ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HANDLER handler)

@@ -110,6 +110,15 @@ public:
 	void stealFrom(FullyDistSpVec<IT,NT> & victim); 
 	FullyDistSpVec<IT,NT> &  operator=(const FullyDistSpVec< IT,NT > & rhs);
 	FullyDistSpVec<IT,NT> &  operator=(const FullyDistVec< IT,NT > & rhs);	// convert from dense
+    FullyDistSpVec<IT,NT> &  operator=(NT fixedval) // assign fixed value
+    {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for(IT i=0; i < ind.size(); ++i)
+            num[i] = fixedval;
+        return *this;
+    }
 	FullyDistSpVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);
 	FullyDistSpVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);
 
@@ -240,6 +249,8 @@ public:
 		for(IT i=0; i < spsize; ++i)
 			num[i] = __binary_op(num[i], ind[i] + offset);
 	}
+
+    
 
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT init) const;
