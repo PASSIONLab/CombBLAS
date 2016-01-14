@@ -281,6 +281,7 @@ void RCM(PSpMat_Bool & A)
     if(myrank == 0)
     {
         cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+        cout << "pseudo diameter = " << curLevel << endl;
         cout << "time taken: " <<  MPI_Wtime() - tstart << " seconds." << endl;
     }
     
