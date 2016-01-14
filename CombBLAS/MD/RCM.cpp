@@ -28,6 +28,25 @@ void Symmetricize(PARMAT & A)
 
 
 
+struct VertexType
+{
+public:
+    VertexType(int64_t ord=-1, int64_t deg=-1){order=ord; degree = deg;};
+    
+    friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 )
+    {
+        if(vtx1.order==vtx2.order) return vtx1.degree < vtx2.degree;
+        else return vtx1.order<vtx2.order;
+    };
+    friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.order==vtx2.order & vtx1.degree==vtx2.degree;};
+    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.order << "," << vertex.degree << ")"; return os;};
+    //private:
+    int64_t order;
+    int64_t degree;
+};
+
+
+
 struct SelectMinSR
 {
     typedef int64_t T_promote;
@@ -131,10 +150,78 @@ int main(int argc, char* argv[])
         Symmetricize(*ABool);
         RCM(*ABool);
         
+        /*
+        FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
+        //fringe.SetElement(0, 10);
+        fringe.SetElement(1, 11);
+        fringe.SetElement(3, 0);
+        fringe.SetElement(4, 2);
+        FullyDistSpVec<int64_t, int64_t> sorted=  fringe.sort();
+        FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
+        FullyDistVec<int64_t, int64_t> val = idx;
+        val.iota(idx.TotalLength(),1);
+        FullyDistSpVec<int64_t, int64_t> sorted1 (fringe.TotalLength(), idx, val);
+        
+        FullyDistSpVec<int64_t, int64_t> sortedi= sorted.Invert(5);
+        sorted.DebugPrint();
+        sortedi.DebugPrint();
+        sorted1.DebugPrint();
+         */
+         
+        
     }
     MPI_Finalize();
     return 0;
 }
+
+
+
+void RCMOrder(PSpMat_Bool & A, int64_t source)
+{
+ 
+    FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
+    A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+    
+    int64_t nv = A.getnrow();
+    FullyDistVec<int64_t, int64_t> order ( A.getcommgrid(),  nv , (int64_t) -1);
+    FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
+    order.SetElement(source, 0); // source has order = 1
+    fringe.SetElement(source, 0);
+    int64_t curOrder = 1;
+    
+    while(fringe.getnnz() > 0) // continue until the frontier is empty
+    {
+        
+        fringe = EWiseApply<int64_t>(fringe, order,
+                                    [](int64_t parent_order, int64_t ord){return ord;},
+                                    [](int64_t parent_order, int64_t ord){return true;},
+                                    false, (int64_t) -1);
+        SpMV<SelectMinSR>(A, fringe, fringe, false);
+        fringe = EWiseMult(fringe, order, true, (int64_t) -1);
+        
+        fringe.DebugPrint();
+        FullyDistSpVec<int64_t, VertexType> fringeRow = EWiseApply<VertexType>(fringe, degrees,
+                                           [](int64_t parent_order, int64_t degree){return VertexType(parent_order, degree);},
+                                           [](int64_t parent_order, int64_t degree){return true;},
+                                           false, (int64_t) -1);
+        //fringeRow.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(vtx.order, vtx.degree, idx);});
+        
+        FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
+        //sorted.ApplyInd([](){});
+        sorted.DebugPrint();
+        FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
+        FullyDistVec<int64_t, int64_t> val = idx;
+        val.iota(idx.TotalLength(),curOrder);
+        curOrder += idx.TotalLength();
+        FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
+        order.Set(levelOrder);
+        
+    }
+    
+    order.DebugPrint();
+    
+}
+
 
 
 
@@ -188,7 +275,18 @@ void RCM(PSpMat_Bool & A)
    
     }
     
-    cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    if(myrank == 0)
+    {
+        cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+        
+    }
+    
+    
+    
+    //RCMOrder(A, source);
     //level.DebugPrint();
 }
 
