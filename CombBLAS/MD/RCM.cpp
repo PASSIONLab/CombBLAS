@@ -238,6 +238,7 @@ void RCM(PSpMat_Bool & A)
     int64_t source = 5; // any starting vertex is fine. test if it really matters in practice.
     FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  nv , (int64_t) -1); // level structure in the current BFS tree
     
+    double tstart = MPI_Wtime();
     while(curLevel > prevLevel)
     {
         prevLevel = curLevel;
@@ -281,7 +282,7 @@ void RCM(PSpMat_Bool & A)
     if(myrank == 0)
     {
         cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
-        
+        cout << "time taken: " <<  MPI_Wtime() - tstart << " seconds." << endl;
     }
     
     
