@@ -96,23 +96,22 @@ int main(int argc, char* argv[])
     }
     {
         PSpMat_Bool * ABool;
+        ostringstream tinfo;
         
         if(string(argv[1]) == string("input")) // input option
         {
-            string filename(argv[2]);
-            ifstream inf;
-            inf.open(filename.c_str(), ios::in);
-            string header;
-            getline(inf,header);
-            bool isSymmetric = header.find("symmetric");
-            bool isUnweighted = header.find("pattern");
-            inf.close();
-            
             ABool = new PSpMat_Bool();
-            ABool->ReadDistribute(filename, 0, isUnweighted);	// unweighted
-            if(isSymmetric)
-                Symmetricize(*ABool);
-            SpParHelper::Print("Read input\n");
+            string filename(argv[2]);
+            tinfo.str("");
+            tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
+            SpParHelper::Print(tinfo.str());
+            double t01 = MPI_Wtime();
+            ABool->ParallelReadMM(filename);
+            double t02 = MPI_Wtime();
+            ABool->PrintInfo();
+            tinfo.str("");
+            tinfo << "Reader took " << t02-t01 << " seconds" << endl;
+            SpParHelper::Print(tinfo.str());
         }
         else if(string(argv[1]) == string("rmat"))
         {
