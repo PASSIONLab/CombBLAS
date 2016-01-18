@@ -112,6 +112,21 @@ int main(int argc, char* argv[])
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
+            
+            if(ABool->getnrow() == ABool->getncol())
+            {
+                FullyDistVec<int64_t, int64_t> p( ABool->getcommgrid());
+                p.iota(ABool->getnrow(), 0);
+                p.RandPerm();
+                (*ABool)(p,p,true);// in-place permute to save memory
+                SpParHelper::Print("Applied symmetric permutation.\n");
+            }
+            else
+            {
+                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+            }
+            
+            //Symmetricize(*ABool);
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -146,7 +161,14 @@ int main(int argc, char* argv[])
             return -1;
         }
         
-        Symmetricize(*ABool);
+       
+        ABool->PrintInfo();
+        float balance = ABool->LoadImbalance();
+        ostringstream outs;
+        outs << "Load balance: " << balance << endl;
+        SpParHelper::Print(outs.str());
+        
+
         RCM(*ABool);
         
         /*
@@ -237,7 +259,9 @@ void RCM(PSpMat_Bool & A)
     int64_t source = 5; // any starting vertex is fine. test if it really matters in practice.
     FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  nv , (int64_t) -1); // level structure in the current BFS tree
     
+    int iterations = 0;
     double tstart = MPI_Wtime();
+    double tSpMV=0, tBFS=0, tOther=0, tSpMV1, tBFS1, tOther1;
     while(curLevel > prevLevel)
     {
         prevLevel = curLevel;
@@ -246,17 +270,26 @@ void RCM(PSpMat_Bool & A)
         level.SetElement(source, 1); // place source at level 1
         fringe.SetElement(source, source); // include source to the initial fringe 
         curLevel = 2;
+        tBFS1 = MPI_Wtime();
         while(fringe.getnnz() > 0) // continue until the frontier is empty
         {
             fringe.setNumToInd(); // unncessary since we don't care about the parent
+            
+            tSpMV1 = MPI_Wtime();
             SpMV<SelectMinSR>(A, fringe, fringe, false);
+            tSpMV += MPI_Wtime() - tSpMV1;
             fringe = EWiseMult(fringe, level, true, (int64_t) -1);
             // set value to the current level
-            fringe=curLevel++;
+            fringe=curLevel;
+            curLevel++;
             level.Set(fringe);
         }
+        tBFS += MPI_Wtime() - tBFS1;
         curLevel = curLevel-2;
+        
+        
         // last non-empty level
+        tOther1 = MPI_Wtime();
         fringe = level.Find(curLevel);
         fringe.setNumToInd();
         FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
@@ -272,6 +305,8 @@ void RCM(PSpMat_Bool & A)
         //cout << "\n ** (" << mindegree_vertex.first << ", " << mindegree_vertex.second << ")" << endl;
         if (curLevel > prevLevel)
             source = mindegree_vertex.second;
+        iterations++;
+        tOther += MPI_Wtime() - tOther1;
    
     }
     
@@ -281,8 +316,9 @@ void RCM(PSpMat_Bool & A)
     if(myrank == 0)
     {
         cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
-        cout << "pseudo diameter = " << curLevel << endl;
-        cout << "time taken: " <<  MPI_Wtime() - tstart << " seconds." << endl;
+        cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
+        cout << "SpMV time: " <<  tSpMV << " BFS time: " << tBFS << " Other time: " << tOther << endl;
+        cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
     }
     
     
@@ -290,11 +326,5 @@ void RCM(PSpMat_Bool & A)
     //RCMOrder(A, source);
     //level.DebugPrint();
 }
-
-
-
-
-
-
 
 
