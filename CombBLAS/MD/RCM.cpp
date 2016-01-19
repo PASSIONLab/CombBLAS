@@ -14,6 +14,15 @@
 using namespace std;
 
 
+#ifdef THREADED
+#ifndef _OPENMP
+#define _OPENMP
+#endif
+
+#include <omp.h>
+int cblas_splits = 1;
+#endif
+
 
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
@@ -73,7 +82,7 @@ struct SelectMinSR
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-void RCM(PSpMat_Bool & A);
+void RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
 
 int main(int argc, char* argv[])
 {
@@ -85,7 +94,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./rcm <rmat|er|input> <scale|filename>" << endl;
+            cout << "Usage: ./rcm <rmat|er|input> <scale|filename> <splitPerThread>" << endl;
             cout << "Example: mpirun -np 4 ./rcm rmat 20" << endl;
             cout << "Example: mpirun -np 4 ./rcm er 20" << endl;
             cout << "Example: mpirun -np 4 ./rcm input a.mtx" << endl;
@@ -168,8 +177,32 @@ int main(int argc, char* argv[])
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
         
+        // Reduce is not multithreaded, so I am doing it here
+        FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
+        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        
+        
+        int splitPerThread = 1;
+        if(argc==4)
+            splitPerThread = atoi(argv[3]);
+        int nthreads;
 
-        RCM(*ABool);
+#ifdef THREADED
+#pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+            cblas_splits = nthreads*splitPerThread;
+        }
+        tinfo.str("");
+        tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
+        SpParHelper::Print(tinfo.str());
+        ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
+        
+#endif
+        
+
+        
+        RCM(*ABool, degrees);
         
         /*
         FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
@@ -246,11 +279,8 @@ void RCMOrder(PSpMat_Bool & A, int64_t source)
 
 
 
-void RCM(PSpMat_Bool & A)
+void RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
 {
-    
-    FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
-    A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
     
     int64_t cc = 0; // connected component
     
