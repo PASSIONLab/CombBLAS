@@ -1,5 +1,5 @@
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -O2 -fopenmp -fpermissive -DNDEBUG #-DBUPC
+CXXFLAGS := -std=c++11 -O2 -DTHREADED -fopenmp -fpermissive -DNDEBUG #-DBUPC
 
 
 
