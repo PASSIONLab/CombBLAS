@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
         
         RCM(*ABool, degrees);
         
-        /*
+        
         FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
         //fringe.SetElement(0, 10);
         fringe.SetElement(1, 11);
@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
         sorted.DebugPrint();
         sortedi.DebugPrint();
         sorted1.DebugPrint();
-         */
+        
          
         
     }

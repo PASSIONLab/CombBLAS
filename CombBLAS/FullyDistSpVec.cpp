@@ -609,6 +609,11 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 	SpHelper::iota(num.begin(), num.end(), LengthUntil() + first);	// global across processors
 }
 
+
+// - sorts the entries with respect to nonzero values
+// - ignores structural zeros
+// - keeps the sparsity structure intact
+// - returns a permutation representing the mapping from old to new locations
 template <class IT, class NT>
 FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
@@ -624,11 +629,11 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
-	IT sizeuntil = accumulate(dist, dist+rank, 0);
+    IT until = LengthUntil();
 	for(IT i=0; i< nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
-		vecpair[i].second = ind[i] + sizeuntil;
+		vecpair[i].second = ind[i] + until;
 	}
 	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
