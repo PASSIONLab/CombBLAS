@@ -27,6 +27,7 @@
  */
 
 #include "SpImpl.h"
+#include "Deleter.h"
 
 /**
  * Base template version [full use of the semiring add() and multiply()]
@@ -331,9 +332,9 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
     for (int32_t k = 0; k < veclen; ++k)
     {
         IT colid = indx[k];
-        for(IT j=Acsc.jr[colid]; j < Adcsc.jr[colid+1]; ++j)	// for all nonzeros in this column
+        for(IT j=Acsc.jr[colid]; j < Acsc.jr[colid+1]; ++j)	// for all nonzeros in this column
         {
-            int32_t rowid = (int32_t) Adcsc.ir[j];
+            int32_t rowid = (int32_t) Acsc.ir[j];
             if(!isthere[rowid])
             {
                 localy[rowid] = numx[k];	// initial assignment
