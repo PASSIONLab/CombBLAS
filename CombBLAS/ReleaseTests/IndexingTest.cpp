@@ -1,3 +1,31 @@
+/****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
+/****************************************************************/
+/*
+ Copyright (c) 2010-2015, The Regents of the University of California
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
@@ -12,8 +40,8 @@ using namespace std;
 template <typename IT, typename NT>
 pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v, IT k)
 {
-	// FullyDistVec::FullyDistVec(IT glen, NT initval) 
-	FullyDistVec<IT,IT> sel(k, 0);
+	// FullyDistVec::FullyDistVec(shared_ptr<CommGrid> commgrid, IT glen, NT initval) 
+	FullyDistVec<IT,IT> sel(v.getcommgrid(), k, 0);
 	
 	//void FullyDistVec::iota(IT globalsize, NT first)
 	sel.iota(k, v.TotalLength() - k);
@@ -71,8 +99,11 @@ int main(int argc, char* argv[])
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
-		PARDBMAT A, AID, ACID;		// declare objects
-		FullyDistVec<int,int> vec1, vec2;
+        PARDBMAT A(MPI_COMM_WORLD);
+        PARDBMAT AID(MPI_COMM_WORLD);
+        PARDBMAT ACID(MPI_COMM_WORLD);
+        FullyDistVec<int,int> vec1(MPI_COMM_WORLD);
+        FullyDistVec<int,int> vec2(MPI_COMM_WORLD);
 
 		A.ReadDistribute(normalname, 0);	
 		AID.ReadDistribute(indexdname, 0);	
@@ -92,8 +123,9 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in indexing, go fix it!\n");	
 		}
 
-		FullyDistVec<int,int> crow, ccol;
-		FullyDistVec<int,double> cval;
+        FullyDistVec<int,int> crow(MPI_COMM_WORLD);
+        FullyDistVec<int,int> ccol(MPI_COMM_WORLD);
+        FullyDistVec<int,double> cval(MPI_COMM_WORLD);
 		A.Find(crow, ccol, cval);
 		FullyDistSpVec<int, double> sval = cval;	
 		sval.DebugPrint();
@@ -104,7 +136,8 @@ int main(int argc, char* argv[])
 		//ptopk.second.DebugPrint();
 
 		// generate random permutations
-		FullyDistVec<int,int> p, q;
+        FullyDistVec<int,int> p(MPI_COMM_WORLD);
+        FullyDistVec<int,int> q(MPI_COMM_WORLD);
 		p.iota(A.getnrow(), 0);
 		q.iota(A.getncol(), 0);
 		p.RandPerm();	

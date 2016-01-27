@@ -119,7 +119,7 @@ struct randGen : public std::unary_function<double, double>
 	}
 };
 
-
+#define DEFAULTVEC FullyDistVec<int64_t, int64_t>(MPI_COMM_WORLD)
 
 int main(int argc, char* argv[])
 {
@@ -140,9 +140,9 @@ int main(int argc, char* argv[])
 	{
 		// Declare objects
 		PSpMat_Twitter A;
-		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> indegrees(MPI_COMM_WORLD);	// in-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> oudegrees(MPI_COMM_WORLD);	// out-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> degrees(MPI_COMM_WORLD);	// combined degrees of vertices (including multi-edges and self-loops)
 		PSpMat_Bool * ABool;
 
 		SpParHelper::Print("Using synthetic data, which we ALWAYS permute for load balance\n");
@@ -182,9 +182,9 @@ int main(int argc, char* argv[])
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0));
 
 		// indegrees_filt and oudegrees_filt is used for the real data
-		FullyDistVec<int64_t, int64_t> indegrees_filt;
-		FullyDistVec<int64_t, int64_t> oudegrees_filt;
-		FullyDistVec<int64_t, int64_t> degrees_filt[4];	// used for the synthetic data (symmetricized before randomization)
+		FullyDistVec<int64_t, int64_t> indegrees_filt(MPI_COMM_WORLD);
+		FullyDistVec<int64_t, int64_t> oudegrees_filt(MPI_COMM_WORLD);
+        FullyDistVec<int64_t, int64_t> degrees_filt[4] = {DEFAULTVEC, DEFAULTVEC, DEFAULTVEC, DEFAULTVEC};	// used for the synthetic data (symmetricized before randomization)
 		int64_t keep[PERCENTS] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000)
 
 		degrees = indegrees;

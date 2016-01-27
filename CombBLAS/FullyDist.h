@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -60,15 +60,18 @@ class FullyDist<IT, NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>:
 public:
 	explicit FullyDist():glen(0)
 	{
-        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
+        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create (vector) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
 	explicit FullyDist(IT globallen): glen(globallen)
 	{
-        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
+        SpParHelper::Print("COMBBLAS Warning: It is dangerous to create (vector) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
-    
+    FullyDist( MPI_Comm world):glen(0)
+    {
+        commGrid.reset(new CommGrid(world, 0, 0));
+    }
 	FullyDist( shared_ptr<CommGrid> grid):glen(0)
 	{
 		commGrid = grid;

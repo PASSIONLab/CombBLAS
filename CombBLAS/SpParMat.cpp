@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -81,17 +81,26 @@ SpParMat< IT,NT,DER >::SpParMat (shared_ptr<CommGrid> grid)
 	commGrid = grid;
 }
 
-/**
-  * If there is a single file read by the master process only, use this and then call ReadDistribute()
-  * Since this is the default constructor, you don't need to explicitly call it, just a declaration will call it
- **/
+//! Deprecated. Don't call the default constructor
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat ()
 {
-	
+	SpParHelper::Print("COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
+}
+
+/**
+* If there is a single file read by the master process only, use this and then call ReadDistribute()
+**/
+template <class IT, class NT, class DER>
+SpParMat< IT,NT,DER >::SpParMat (MPI_Comm world)
+{
+    
+    assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
+    spSeq = new DER();
+    commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 template <class IT, class NT, class DER>
@@ -1050,14 +1059,14 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	Prune(ri, ci);	// make a hole	
 	
 	// embed B to the size of A
-	FullyDistVec<IT,IT> * rvec = new FullyDistVec<IT,IT>();
+	FullyDistVec<IT,IT> * rvec = new FullyDistVec<IT,IT>(ri.commGrid);
 	rvec->iota(total_m_B, 0);	// sparse() expects a zero based index
 	
 	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, *rvec, 1);
 	delete rvec;	// free memory
 	SpParMat<IT,NT,DER> RB = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(R, B, true, false); // clear memory of R but not B
 	
-	FullyDistVec<IT,IT> * qvec = new FullyDistVec<IT,IT>();
+	FullyDistVec<IT,IT> * qvec = new FullyDistVec<IT,IT>(ri.commGrid);
 	qvec->iota(total_n_B, 0);
 	SpParMat<IT,NT,DER> Q(total_n_B, total_n_A, *qvec, ci, 1);
 	delete qvec;	// free memory
