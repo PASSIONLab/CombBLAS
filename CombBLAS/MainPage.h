@@ -1,6 +1,6 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a> (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a>).
+* @authors <a href="http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/"> Ariful Azad </a>, <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a> (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a>).
 *
 * <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a> described <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/LICENSE">here</a>. </i>
 *
@@ -8,8 +8,7 @@
 * @section intro Introduction
 * The Combinatorial BLAS is an extensible distributed-memory parallel graph library offering a small but powerful set of linear
 * algebra primitives specifically targeting graph analytics. 
-* - The Combinatorial BLAS is also the backend of the Python <a href="http://kdt.sourceforge.net">
-* Knowledge Discovery Toolbox (KDT) </a>. 
+* - The Combinatorial BLAS development influences the <a href="http://graphblas.org">Graph BLAS</a> standardization process.
 * - It achieves scalability via its two dimensional distribution and coarse-grained parallelism. 
 * - For an illustrative overview, check out <a href="http://gauss.cs.ucsb.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
 * - Operations among sparse matrices and vectors use arbitrary user defined semirings. Here is a semiring <a href="http://kdt.sourceforge.net/wiki/index.php/Using_Semirings">primer</a>
@@ -17,8 +16,8 @@
 *
 * <b>Download</b> 
 * - Read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
-* - The latest CMake'd tarball (version 1.4.0, Jan 2014) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_14_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
- The previous version (version 1.3.0, Feb 2013) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_13_0.tgz"> here </a> for backwards compatibility and benchmarking.
+* - The latest CMake'd tarball (version 1.5.0, Jan 2016) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_15_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
+ The previous version (version 1.4.0, Jan 2014) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_14_0.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 *		- <i> mkdir Build <it>
@@ -31,11 +30,9 @@
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * 
 * <b>Requirements</b>: You need a recent 
-* C++ compiler (gcc version 4.4+, Intel version 11.0+ and compatible - please avoid 13.x with -std=c++11), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
-* has them). If not, you can use the boost library and pass the -DCOMBBLAS_BOOST option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
-* $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
-* CombBLAS works successfully with GNU, Intel, and PGI compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
-* 
+* C++ compiler (gcc version 4.8+, Intel version 14.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
+* has them). The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated.
+*
 * <b>Documentation</b>:
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
@@ -45,8 +42,8 @@
 * sequential parts of the computation, making it possible to implement new formats and plug them in
 * without changing the rest of the library.
 *
-* The implementation supports both formatted and binary I/O. The latter is much faster but not human readable. Formatted I/O uses a tuples format very similar to the Matrix Market.
-* We encourage in-memory generators for faster benchmarking. A port to University of Florida Sparse Matrix Collection is under construction. More info on I/O formats are 
+* The implementation supports both formatted and binary I/O. The latter is faster but not human readable. Formatted I/O can read both a tuples format very similar to the Matrix Market and the Matrix Market format itself.
+* We encourage in-memory generators for faster benchmarking. More info on I/O formats (other than the well-known Matrix Market Format) are
 * <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/Input_File_Formats.pdf">here</a>
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
@@ -63,14 +60,25 @@
 * much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
 * (sparse matrix-dense vector multiplication) 
 *
+* <b> New in version 1.5</b>:
+* - Fully parallel matrix market format reader (SpParMat::ParallelReadMM())
+* - Complete multithreading support, including SpGEMM (previously it was solely SpMV), enabled by -DTHREADED during compilation
+* - Experimental 3D SpGEMM (the ability to switch processor grids from 2D to 3D will have to wait for version 1.6)
+*       - Cite [9] if you use this implementation
+*       - cd 3DSpGEMM/, make test_mpipspgemm, and call the executable with correct parameters
+* - Maximal and Maximum cardinality matching algorithms on bipartite graphs
+*       - Cite [10] for maximal cardinality and [11] for maximum cardinality matching
+*       - cd MaximumMatching, make bpmm, and call the executable with correct parameters
+* - Automated MPI_Op creation from simple C++ function objects (simplifies semiring descriptions and Reduce() functions)
+* - Vector::Invert() to map from/to (integer) values to/from indices
+* - Many more helper functions
+* - Experimental CSC support for low concurrencies
+* - Lots of bug fixes
+*
+
 * <b> New in version 1.4</b>:
 * - Direction optimizing breadth-first search in distributed memory (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="http://www.cs.berkeley.edu/~sbeamer/gap/">GAP</a>). Please cite [8] if you use this code in your research or benchmarks (DirOptBFS.cpp).
 *
-* <b> New in version 1.3</b>: 
-* - MPI C++ bindings are removed since they are no longer supported by the MPI-3 standard. All MPI calls are C-style. 
-* - On-the-fly filtering support [7] illustrated through examples (FilteredBFS.cpp, FilteredMIS.cpp, and TwitterEdge.h). 
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/FAQ-combblas.html">Frequently asked questions (FAQ)</a> added. 
-* - Maximal Independent Set (MIS) application implememented in the language of linear algebra (FilteredMIS.cpp).
 *
 * The supported operations (a growing list) are:
 * - Sparse matrix-matrix multiplication on a semiring SR: PSpGEMM()
@@ -103,6 +111,7 @@
 * Important Sequential classes:
 * - SpTuples		: uses triples format to store matrices, mostly used for input/output and intermediate tasks (such as sorting)
 * - SpDCCols		: implements Alg 1B and Alg 2 [2], holds DCSC.
+* - SpCCols (incomplete) : implements CSC
 
 * Important Parallel classes:
 * - SpParMat		: distributed memory MPI implementation 
@@ -119,9 +128,12 @@
 * - DirOptBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the faster direction-optimizing BFS.
 * - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
 * - FilteredBFS.cpp: Filtered breadth-first search on a twitter-like data set. 
+* - MaximumCardinality/BPMaximalMatching.cpp: Maximal matching algorithms on bipartite graphs [10]
+* - MaximumCardinality/BPMaximumMatching.cpp: Maximum matching algorithm on bipartite graphs [11]
 *
 * <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most
-recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7]. 
+recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7].
+ Performance of the 3D SpGEMM algorithm can be found in [9]
 *
 * A subset of test programs demonstrating how to use the library (under ReleaseTests):
 * - TransposeTest.cpp : File I/O and parallel transpose tests
@@ -142,4 +154,7 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
 * - [6] Aydın Buluç. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
 * - [7] Aydın Buluç, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. <i> High-Productivity and High-Performance Analysis of Filtered Semantic Graphs </i> , International Parallel and Distributed Processing Symposium (IPDPS), 2013. <a href="http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf"> PDF </a>
 * - [8] Scott Beamer, Aydin Buluç, Krste Asanović, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013.  <a href="http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf"> PDF </a>
+* - [9] Ariful Azad, Grey Ballard, Aydin Buluç, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. arXiv preprint arXiv:1510.00844, Oct 2015.  <a href="http://gauss.cs.ucsb.edu/~aydin/3DSpGEMM2015.pdf"> PDF </a>
+* - [10] Ariful Azad and Aydin Buluç. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015.  <a href="http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf"> PDF </a>
+* - [11] Ariful Azad and Aydin Buluc¸. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016.  <a href="http://ipdps.org/ipdps2016/2016_advance_program.html"> PDF </a>
 */
