@@ -1,6 +1,6 @@
 # C++ compiler
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -O2 -DNDEBUG -fopenmp #-DDEBUG 
+CXXFLAGS := -std=c++11 -std=c++14 -O2 -DNDEBUG -fopenmp #-DDEBUG 
 
 # C compiler
 CC := cc
