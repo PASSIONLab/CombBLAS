@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.3 -------------------------------------------------*/
-/* date: 2/1/2013 ----------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-, Aydin Buluc
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -129,7 +129,9 @@ void CheckPAPI(int errorcode, char [] errorstring)
 	}
 }
 #endif
-					
+
+
+#define DEFAULTVEC FullyDistVec<int64_t, int64_t>(MPI_COMM_WORLD)
 
 int main(int argc, char* argv[])
 {
@@ -173,10 +175,10 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
 
 		// Declare objects
-		PSpMat_Twitter A;	
-		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
+		PSpMat_Twitter A(MPI_COMM_WORLD);
+		FullyDistVec<int64_t, int64_t> indegrees(MPI_COMM_WORLD);	// in-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> oudegrees(MPI_COMM_WORLD);	// out-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> degrees(MPI_COMM_WORLD);	// combined degrees of vertices (including multi-edges and self-loops)
 		PSpMat_Bool * ABool;
 
 		double t01 = MPI_Wtime();
@@ -250,9 +252,9 @@ int main(int argc, char* argv[])
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 		
 		// indegrees_filt and oudegrees_filt is used for the real data
-		FullyDistVec<int64_t, int64_t> indegrees_filt;	
-		FullyDistVec<int64_t, int64_t> oudegrees_filt;	
-		FullyDistVec<int64_t, int64_t> degrees_filt[4];	// used for the synthetic data (symmetricized before randomization)
+		FullyDistVec<int64_t, int64_t> indegrees_filt(MPI_COMM_WORLD);
+		FullyDistVec<int64_t, int64_t> oudegrees_filt(MPI_COMM_WORLD);
+        FullyDistVec<int64_t, int64_t> degrees_filt[4] = {DEFAULTVEC, DEFAULTVEC, DEFAULTVEC, DEFAULTVEC};	// used for the synthetic data (symmetricized before randomization)
 		int64_t keep[PERCENTS] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
 		
 		if(string(argv[1]) == string("File"))	// if using synthetic data, no notion of out/in degrees after randomization exist
@@ -459,7 +461,10 @@ int main(int argc, char* argv[])
 				parentsp.Apply(myset<ParentType>(ParentType(1)));
 
 #ifndef ONLYTIME
-				FullyDistSpVec<int64_t, int64_t> intraversed, inprocessed, outraversed, ouprocessed;
+                FullyDistSpVec<int64_t, int64_t> intraversed(MPI_COMM_WORLD);
+                FullyDistSpVec<int64_t, int64_t> inprocessed(MPI_COMM_WORLD);
+                FullyDistSpVec<int64_t, int64_t> outraversed(MPI_COMM_WORLD);
+                FullyDistSpVec<int64_t, int64_t> ouprocessed(MPI_COMM_WORLD);
 				inprocessed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
 				ouprocessed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
 				int64_t nedges, in_nedges, ou_nedges;

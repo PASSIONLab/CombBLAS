@@ -81,11 +81,12 @@ namespace vpsort {
 		      int rank, int nproc, 
 		      MPI_Datatype &MPI_valueType, MPI_Comm comm)
   { 
-    int starch[nproc][nproc];
+    int ** starch =  new int*[nproc];
     
     for (int i = 0; i < nproc; ++i) { 
-      for (int j = 0; j < nproc; ++j) { 
-	starch[i][j] = 0; 
+        starch[i] = new int[nproc];
+        for (int j = 0; j < nproc; ++j) {
+            starch[i][j] = 0;
       } 
     } 
     
@@ -167,6 +168,10 @@ namespace vpsort {
       if ( starch[p][rank] )
 	MPI_Wait(&recv_req[p], &status);
     }      
+
+      for (int i = 0; i < nproc; ++i)
+          delete [] starch[i];
+      delete [] starch;
 
   }
 
