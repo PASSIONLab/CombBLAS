@@ -30,7 +30,7 @@
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * 
 * <b>Requirements</b>: You need a recent 
-* C++ compiler (gcc version 4.8+, Intel version 14.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
+* C++ compiler (gcc version 4.8+, Intel version 15.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
 * has them). The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated.
 *
 * <b>Documentation</b>:
