@@ -697,7 +697,7 @@ int main(int argc, char* argv[])
 
   
         // randomly permute for load balance
-        SpParHelper::Print("Performing random permuation of matrix.\n");
+        SpParHelper::Print("Performing random permutation of matrix.\n");
         FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
         FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
         prow.iota(ABool->getnrow(), 0);
@@ -705,7 +705,7 @@ int main(int argc, char* argv[])
         prow.RandPerm();
         pcol.RandPerm();
         (*ABool)(prow, pcol, true);
-        SpParHelper::Print("Performed random permuation of matrix.\n");
+        SpParHelper::Print("Performed random permutation of matrix.\n");
 
      
         PSpMat_s32p64 A = *ABool;
