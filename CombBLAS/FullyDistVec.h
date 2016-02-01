@@ -59,11 +59,10 @@ class FullyDistVec: public FullyDist<IT,NT, typename CombBLAS::disable_if< CombB
 public:
 	FullyDistVec ( );
 	FullyDistVec ( IT globallen, NT initval);
-    FullyDistVec ( MPI_Comm world);
 	FullyDistVec ( shared_ptr<CommGrid> grid);
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    FullyDistVec ( const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
+    	FullyDistVec ( const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
 	FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
 	
 

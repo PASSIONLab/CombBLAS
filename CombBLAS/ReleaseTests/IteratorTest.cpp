@@ -59,8 +59,10 @@ int main(int argc, char* argv[])
 		name = directory+"/"+name;
 
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARMAT;
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-		PARMAT A(MPI_COMM_WORLD);
+		PARMAT A(fullWorld);
 		A.ReadDistribute(name, 0);	// read it from file
 
 		int count = 0;	

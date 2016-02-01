@@ -81,11 +81,13 @@ int main(int argc, char* argv[])
 
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef PlusTimesSRing<double, double> PTDD;	
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        PSpMat<double>::MPI_DCCols A(MPI_COMM_WORLD); // construct objects
-        PSpMat<double>::MPI_DCCols L(MPI_COMM_WORLD);
-        PSpMat<double>::MPI_DCCols T(MPI_COMM_WORLD);
-		FullyDistVec<int,double> dvec(MPI_COMM_WORLD);
+        	PSpMat<double>::MPI_DCCols A(fullWorld); // construct objects
+        	PSpMat<double>::MPI_DCCols L(fullWorld);
+        	PSpMat<double>::MPI_DCCols T(fullWorld);
+		FullyDistVec<int,double> dvec(fullWorld);
 		
 		// For matrices, passing the file names as opposed to fstream objects
 		A.ReadDistribute(Aname, 0);

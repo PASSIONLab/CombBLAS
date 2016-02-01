@@ -103,12 +103,15 @@ int main(int argc, char* argv[])
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
-        PARDBMAT A(MPI_COMM_WORLD);
-        PARDBMAT Apr(MPI_COMM_WORLD);
-        PARDBMAT B(MPI_COMM_WORLD);
-        PARDBMAT C(MPI_COMM_WORLD);
-        FullyDistVec<int,int> vec1(MPI_COMM_WORLD);
-        FullyDistVec<int,int> vec2(MPI_COMM_WORLD);
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+
+        	PARDBMAT A(fullWorld);
+        	PARDBMAT Apr(fullWorld);
+        	PARDBMAT B(fullWorld);
+        	PARDBMAT C(fullWorld);
+        	FullyDistVec<int,int> vec1(fullWorld);
+        	FullyDistVec<int,int> vec2(fullWorld);
 
 		A.ReadDistribute(normalname, 0);	
 		Apr.ReadDistribute(prunedname, 0);	
@@ -144,9 +147,9 @@ int main(int argc, char* argv[])
 			A.SaveGathered("Erroneous_SpAsgnd.txt");
 		}
 
-        FullyDistVec<int,int> crow(MPI_COMM_WORLD);
-        FullyDistVec<int,int> ccol(MPI_COMM_WORLD);
-		FullyDistVec<int,double> cval(MPI_COMM_WORLD);
+        	FullyDistVec<int,int> crow(fullWorld);
+        	FullyDistVec<int,int> ccol(fullWorld);
+		FullyDistVec<int,double> cval(fullWorld);
 		A.Find(crow, ccol, cval);
 		FullyDistSpVec<int, double> sval = cval;	
 		// sval.DebugPrint();

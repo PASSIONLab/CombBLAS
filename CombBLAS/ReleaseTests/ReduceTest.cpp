@@ -73,8 +73,11 @@ int main(int argc, char* argv[])
 		ifstream inputB(Bname.c_str());
 		ifstream inputC(Cname.c_str());
 		MPI_Barrier(MPI_COMM_WORLD);
+
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 		
-		PSpMat<double>::MPI_DCCols A(MPI_COMM_WORLD);
+		PSpMat<double>::MPI_DCCols A(fullWorld);
 		FullyDistVec<int,double> colsums(A.getcommgrid());
 		FullyDistVec<int,double> rowsums(A.getcommgrid());
 
@@ -82,8 +85,8 @@ int main(int argc, char* argv[])
 		colsums.ReadDistribute(inputB, 0);
 		rowsums.ReadDistribute(inputC, 0);
 		
-        FullyDistVec< int, double > rowsums_control(MPI_COMM_WORLD);
-        FullyDistVec< int, double > colsums_control(MPI_COMM_WORLD);
+        	FullyDistVec< int, double > rowsums_control(fullWorld);
+        	FullyDistVec< int, double > colsums_control(fullWorld);
 		A.Reduce(rowsums_control, Row, std::plus<double>() , 0.0);
 		A.Reduce(colsums_control, Column, std::plus<double>() , 0.0);
 		
