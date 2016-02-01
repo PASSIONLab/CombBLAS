@@ -70,10 +70,13 @@ int main(int argc, char* argv[])
 		matrixname = directory+"/"+matrixname;
 	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;
-		PARDBMAT A(MPI_COMM_WORLD);		// declare objects
-        FullyDistVec<int,int> crow(MPI_COMM_WORLD);
-        FullyDistVec<int,int> ccol(MPI_COMM_WORLD);
-		FullyDistVec<int,double> cval(MPI_COMM_WORLD);
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+
+		PARDBMAT A(fullWorld);		// declare objects
+        	FullyDistVec<int,int> crow(fullWorld);
+        	FullyDistVec<int,int> ccol(fullWorld);
+		FullyDistVec<int,double> cval(fullWorld);
 
 		A.ReadDistribute(matrixname, 0);	
 
@@ -105,12 +108,12 @@ int main(int argc, char* argv[])
 		
 		A.PrintInfo();
 		Symmetricize(A);
-        FullyDistVec<int,int> rowsym(MPI_COMM_WORLD);
-        FullyDistVec<int,int> colsym(MPI_COMM_WORLD);
-		FullyDistVec<int,double> valsym(MPI_COMM_WORLD);
+        	FullyDistVec<int,int> rowsym(fullWorld);
+        	FullyDistVec<int,int> colsym(fullWorld);
+		FullyDistVec<int,double> valsym(fullWorld);
 		A.Find(rowsym, colsym, valsym);
 		
-		FullyDistVec<int,double> colsums(MPI_COMM_WORLD);
+		FullyDistVec<int,double> colsums(fullWorld);
 		A.Reduce(colsums, Column, plus<double>(), 0.0);
 		
 		FullyDistVec<int,double> numcols(A.getcommgrid(), 1, A.getncol());

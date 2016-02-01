@@ -68,10 +68,11 @@ public:
         SpParHelper::Print("COMBBLAS Warning: It is dangerous to create (vector) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?\n");
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
-    FullyDist( MPI_Comm world):glen(0)
-    {
-        commGrid.reset(new CommGrid(world, 0, 0));
-    }
+    	/* ABAB: This clashes with FullyDist(IT globallen) signature on MPICH based systems that #define MPI_Comm to be an INT
+	FullyDist( MPI_Comm world):glen(0)
+    	{
+        	commGrid.reset(new CommGrid(world, 0, 0));
+    	}*/
 	FullyDist( shared_ptr<CommGrid> grid):glen(0)
 	{
 		commGrid = grid;

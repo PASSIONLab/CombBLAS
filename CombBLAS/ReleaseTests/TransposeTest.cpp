@@ -62,10 +62,12 @@ int main(int argc, char* argv[])
 		transname = directory+"/"+transname;
 
 		typedef SpParMat <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        PARBOOLMAT A(MPI_COMM_WORLD);
-        PARBOOLMAT AT(MPI_COMM_WORLD);
-        PARBOOLMAT ATControl(MPI_COMM_WORLD);
+        	PARBOOLMAT A(fullWorld);
+        	PARBOOLMAT AT(fullWorld);
+        	PARBOOLMAT ATControl(fullWorld);
 		A.ReadDistribute(normalname, 0);	// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();

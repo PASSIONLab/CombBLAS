@@ -99,11 +99,14 @@ int main(int argc, char* argv[])
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
-        PARDBMAT A(MPI_COMM_WORLD);
-        PARDBMAT AID(MPI_COMM_WORLD);
-        PARDBMAT ACID(MPI_COMM_WORLD);
-        FullyDistVec<int,int> vec1(MPI_COMM_WORLD);
-        FullyDistVec<int,int> vec2(MPI_COMM_WORLD);
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+        	
+		PARDBMAT A(fullWorld);
+        	PARDBMAT AID(fullWorld);
+        	PARDBMAT ACID(fullWorld);
+        	FullyDistVec<int,int> vec1(fullWorld);
+        	FullyDistVec<int,int> vec2(fullWorld);
 
 		A.ReadDistribute(normalname, 0);	
 		AID.ReadDistribute(indexdname, 0);	
@@ -123,9 +126,9 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in indexing, go fix it!\n");	
 		}
 
-        FullyDistVec<int,int> crow(MPI_COMM_WORLD);
-        FullyDistVec<int,int> ccol(MPI_COMM_WORLD);
-        FullyDistVec<int,double> cval(MPI_COMM_WORLD);
+        	FullyDistVec<int,int> crow(fullWorld);
+        	FullyDistVec<int,int> ccol(fullWorld);
+        	FullyDistVec<int,double> cval(fullWorld);
 		A.Find(crow, ccol, cval);
 		FullyDistSpVec<int, double> sval = cval;	
 		sval.DebugPrint();
@@ -136,8 +139,8 @@ int main(int argc, char* argv[])
 		//ptopk.second.DebugPrint();
 
 		// generate random permutations
-        FullyDistVec<int,int> p(MPI_COMM_WORLD);
-        FullyDistVec<int,int> q(MPI_COMM_WORLD);
+        	FullyDistVec<int,int> p(fullWorld);
+        	FullyDistVec<int,int> q(fullWorld);
 		p.iota(A.getnrow(), 0);
 		q.iota(A.getncol(), 0);
 		p.RandPerm();	

@@ -43,11 +43,6 @@ FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval)
 	arr.resize(MyLocLength(), initval);
 }
 
-template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( MPI_Comm world)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(world)
-{ };
-
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid)

@@ -90,15 +90,18 @@ int main(int argc, char* argv[])
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 
-        // construct objects
-        PSpMat<double>::MPI_DCCols A(MPI_COMM_WORLD);
-        PSpMat<double>::MPI_DCCols B(MPI_COMM_WORLD);
-        PSpMat<double>::MPI_DCCols C(MPI_COMM_WORLD);
-        PSpMat<double>::MPI_DCCols CControl(MPI_COMM_WORLD);
-        FullyDistVec<int64_t, double> ycontrol(MPI_COMM_WORLD);
-        FullyDistVec<int64_t, double> x(MPI_COMM_WORLD);
-        FullyDistSpVec<int64_t, double> spycontrol(MPI_COMM_WORLD);
-        FullyDistSpVec<int64_t, double> spx(MPI_COMM_WORLD);
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+
+        	// construct objects
+        	PSpMat<double>::MPI_DCCols A(fullWorld);
+        	PSpMat<double>::MPI_DCCols B(fullWorld);
+        	PSpMat<double>::MPI_DCCols C(fullWorld);
+        	PSpMat<double>::MPI_DCCols CControl(fullWorld);
+        	FullyDistVec<int64_t, double> ycontrol(fullWorld);
+        	FullyDistVec<int64_t, double> x(fullWorld);
+        	FullyDistSpVec<int64_t, double> spycontrol(fullWorld);
+        	FullyDistSpVec<int64_t, double> spx(fullWorld);
 		
 		A.ReadDistribute(Aname, 0);
 #ifndef NOGEMM
