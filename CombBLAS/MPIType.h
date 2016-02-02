@@ -86,12 +86,7 @@ public:
 
   void set(const std::type_info* t, MPI_Datatype datatype)
   {
-#ifdef NOTGNU
-	if (map.find(t) != map.end()) map.erase(key);
-    	map.insert(make_pair(t, datatype));
-#else
      	 map[t] = datatype;
-#endif
   }
 };
 
