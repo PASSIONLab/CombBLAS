@@ -20,9 +20,7 @@
  The previous version (version 1.4.0, Jan 2014) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_14_0.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
-*		- <i> mkdir Build <it>
-*		- <i> cd Build <it>
-* 		- <i> cmake .. </i>
+* 		- <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
 * 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
@@ -70,7 +68,7 @@
 *       - Cite [10] for maximal cardinality and [11] for maximum cardinality matching
 *       - cd MaximumMatching, make bpmm, and call the executable with correct parameters
 * - Automated MPI_Op creation from simple C++ function objects (simplifies semiring descriptions and Reduce() functions)
-* - Vector::Invert() to map from/to (integer) values to/from indices
+* - FullyDistSpVec::Invert() to map from/to (integer) values to/from indices
 * - Many more helper functions
 * - Experimental CSC support for low concurrencies
 * - Lots of bug fixes
@@ -128,8 +126,8 @@
 * - DirOptBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the faster direction-optimizing BFS.
 * - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
 * - FilteredBFS.cpp: Filtered breadth-first search on a twitter-like data set. 
-* - MaximumCardinality/BPMaximalMatching.cpp: Maximal matching algorithms on bipartite graphs [10]
-* - MaximumCardinality/BPMaximumMatching.cpp: Maximum matching algorithm on bipartite graphs [11]
+* - MaximumMatching/BPMaximalMatching.cpp: Maximal matching algorithms on bipartite graphs [10]
+* - MaximumMatching/BPMaximumMatching.cpp: Maximum matching algorithm on bipartite graphs [11]
 *
 * <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most
 recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7].
