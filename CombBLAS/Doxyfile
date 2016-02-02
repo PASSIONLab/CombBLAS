@@ -7,6 +7,7 @@ FILE_PATTERNS = *.cpp *.h
 RECURSIVE = YES
 PDF_HYPERLINKS = YES
 USE_PDFLATEX   = YES
+SOURCE_BROWSER	= YES
 EXCLUDE_PATTERNS = */Test/* \
 		*/BranchTrial/* \
 		*/SequenceHeaps/* \
@@ -14,7 +15,13 @@ EXCLUDE_PATTERNS = */Test/* \
 		*/ms_inttypes/* \
 		*/ms_sys/* \	
 		*/mfiles/* \
+		*/Serialization/* \
+		*/CMakeFiles/* \
+		*/KameshCode/* \
+		*/TDSP/* \
+		*/MD/* \
+		*/Temporary/* \
+		*/TESTDATA/* \
 		*/Applications/hyperthread_finder.cpp \
 		*/Applications/Driver.cpp \
 		*/Applications/SpMMError.cpp \
-SOURCE_BROWSER	= YES
