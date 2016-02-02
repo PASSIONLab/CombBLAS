@@ -139,12 +139,14 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
 		typedef SpParMat < int64_t, int, SpDCCols<int32_t,int> > PSpMat_s32p64_Int;	// similarly mixed, but holds integers as upposed to booleans
 		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
 		// Declare objects
-		PSpMat_Bool A(MPI_COMM_WORLD);
-		PSpMat_s32p64 Aeff(MPI_COMM_WORLD);
-		FullyDistVec<int64_t, int64_t> degrees(MPI_COMM_WORLD);	// degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> nonisov(MPI_COMM_WORLD);	// id's of non-isolated (connected) vertices
+		PSpMat_Bool A(fullWorld);
+		PSpMat_s32p64 Aeff(fullWorld);
+		FullyDistVec<int64_t, int64_t> degrees(fullWorld);	// degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> nonisov(fullWorld);	// id's of non-isolated (connected) vertices
 		unsigned scale;
 		OptBuf<int32_t, int64_t> optbuf;	// let indices be 32-bits
 		bool scramble = false;

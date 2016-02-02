@@ -88,8 +88,11 @@ int main(int argc, char* argv[])
 		string ifilename = "input.txt";
 		ifilename = directory+"/"+ifilename;
 
-        Dist<bool>::MPI_DCCols A(MPI_COMM_WORLD);
-        Dist<bool>::MPI_DCCols AT(MPI_COMM_WORLD);	// construct object
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+        
+		Dist<bool>::MPI_DCCols A(fullWorld);
+        	Dist<bool>::MPI_DCCols AT(fullWorld);	// construct object
 		AT.ReadDistribute(ifilename, 0);	// read it from file, note that we use the transpose of "input" data
 		A = AT;
 		A.Transpose();

@@ -73,7 +73,7 @@ public:
 	
 	// Constructors
 	SpParMat ();
-    SpParMat (MPI_Comm world);
+    	SpParMat (MPI_Comm world); 	// ABAB: there is risk that any integer would call this constructor due to MPICH representation
 	SpParMat (shared_ptr<CommGrid> grid);
 	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
 		

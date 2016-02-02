@@ -172,8 +172,10 @@ int main(int argc, char* argv[])
 		PSpMat_Bool A;	
 		PSpMat_s32p64 Aeff;
 		PSpMat_s32p64 ALocalT;
-		FullyDistVec<int64_t, int64_t> degrees(MPI_COMM_WORLD);	// degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> nonisov(MPI_COMM_WORLD);	// id's of non-isolated (connected) vertices
+		shared_ptr<CommGrid> fullWorld;
+		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+		FullyDistVec<int64_t, int64_t> degrees(fullWorld);	// degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> nonisov(fullWorld);	// id's of non-isolated (connected) vertices
 		unsigned scale;
 		OptBuf<int32_t, int64_t> optbuf;	// let indices be 32-bits
 		bool scramble = false;
