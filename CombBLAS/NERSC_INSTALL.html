@@ -2,6 +2,11 @@ Combinatorial BLAS compilation instructions for <a href="http://www.nersc.gov/">
 <br><br>
 1- First and foremost, make cmake active by running: <em> module load cmake </em> <br>
 2- In your CombBLAS_xx directory, rename CMakeLists_NERSC.txt to CMakeLists.txt, replacing the existing one. <br>
+
+Option 1 (preferred):
+3- module swap PrgEnv-intel PrgEnv-gnu
+
+Option 2 (fragile)
 3- module load gcc/4.8.0
 
 Now run <em>"cmake -DCMAKE_TOOLCHAIN_FILE=ToolChain.Cray ."</em> , followed by <em>"make"</em> <br> <br>
