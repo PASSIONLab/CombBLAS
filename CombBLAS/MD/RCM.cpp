@@ -204,6 +204,7 @@ int main(int argc, char* argv[])
         
         RCM(*ABool, degrees);
         
+        /*
         
         FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
         //fringe.SetElement(0, 10);
@@ -212,15 +213,15 @@ int main(int argc, char* argv[])
         fringe.SetElement(4, 2);
         FullyDistSpVec<int64_t, int64_t> sorted=  fringe.sort();
         FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
-        FullyDistVec<int64_t, int64_t> val = idx;
-        val.iota(idx.TotalLength(),1);
+        FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
+        val.iota(idx.TotalLength(),10);
         FullyDistSpVec<int64_t, int64_t> sorted1 (fringe.TotalLength(), idx, val);
         
         FullyDistSpVec<int64_t, int64_t> sortedi= sorted.Invert(5);
         sorted.DebugPrint();
         sortedi.DebugPrint();
         sorted1.DebugPrint();
-        
+        */
          
         
     }
@@ -253,18 +254,25 @@ void RCMOrder(PSpMat_Bool & A, int64_t source)
         SpMV<SelectMinSR>(A, fringe, fringe, false);
         fringe = EWiseMult(fringe, order, true, (int64_t) -1);
         
-        fringe.DebugPrint();
+        //fringe.DebugPrint();
         FullyDistSpVec<int64_t, VertexType> fringeRow = EWiseApply<VertexType>(fringe, degrees,
                                            [](int64_t parent_order, int64_t degree){return VertexType(parent_order, degree);},
                                            [](int64_t parent_order, int64_t degree){return true;},
                                            false, (int64_t) -1);
         //fringeRow.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(vtx.order, vtx.degree, idx);});
         
+        /*
+        //FullyDistSpVec::sort returns (i,j) index pairs such that
+        // jth entry before sorting becomes ith entry after sorting.
+        // Here i/j is the index of the elements relative to the dense containter
+        // Alternatively, j's consist a permutation that would premute the undorted vector to sorted vector
+         */
+        
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
-        //sorted.ApplyInd([](){});
-        sorted.DebugPrint();
+        // idx is the index  of fringe in sorted order
         FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
-        FullyDistVec<int64_t, int64_t> val = idx;
+        FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
+        // val is the index  of fringe in sorted order (relative to each other starting with  1)
         val.iota(idx.TotalLength(),curOrder);
         curOrder += idx.TotalLength();
         FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
@@ -353,7 +361,7 @@ void RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
     
     
     
-    //RCMOrder(A, source);
+    RCMOrder(A, source);
     //level.DebugPrint();
 }
 
