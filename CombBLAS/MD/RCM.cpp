@@ -82,7 +82,7 @@ struct SelectMinSR
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-void RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
+FullyDistVec<int64_t, int64_t> RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
 
 int main(int argc, char* argv[])
 {
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
                 SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
             }
             
-            //Symmetricize(*ABool);
+            Symmetricize(*ABool); //***** because RCM makes sense only to symmetric matrices
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -201,8 +201,13 @@ int main(int argc, char* argv[])
 #endif
         
 
-        
-        RCM(*ABool, degrees);
+        // compute bandwidth
+        FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
+        // note: threaded matrix can not be permuted
+        // That is why I am not a supprter of split matrix.
+        //(*ABool)(rcmorder,rcmorder,true);// in-place permute to save memory
+        // compute bandwidth
+
         
         /*
         
@@ -230,19 +235,18 @@ int main(int argc, char* argv[])
 }
 
 
-
-void RCMOrder(PSpMat_Bool & A, int64_t source)
+// perform ordering from a source vertex
+void RCMOrder(PSpMat_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder)
 {
  
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
     A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
     
     int64_t nv = A.getnrow();
-    FullyDistVec<int64_t, int64_t> order ( A.getcommgrid(),  nv , (int64_t) -1);
     FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
-    order.SetElement(source, 0); // source has order = 1
-    fringe.SetElement(source, 0);
-    int64_t curOrder = 1;
+    order.SetElement(source, startOrder);
+    fringe.SetElement(source, startOrder);
+    int64_t curOrder = startOrder+1;
     
     while(fringe.getnnz() > 0) // continue until the frontier is empty
     {
@@ -287,82 +291,123 @@ void RCMOrder(PSpMat_Bool & A, int64_t source)
 
 
 
-void RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
+FullyDistVec<int64_t, int64_t> RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
 {
+    /*
+     list of current unvisited vertices
+     After discovering a pseudo peripheral vertex in the ith connected component
+     all vertices in the ith component are removed from this vector.
+     I am keeping degrees of the vertices as well so that we can select the starting vertex
+     in each connected component based on the degrees.
+     degrees can be replaced by random numbers or other things
+    */
+    FullyDistSpVec<int64_t, int64_t> unvisited ( A.getcommgrid(),  A.getnrow());
+    unvisited.iota(A.getnrow(), (int64_t) 0); // index and values become the same
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> unvisitedVertices =
+    EWiseApply<pair<int64_t, int64_t>>(unvisited, degrees,
+                                       [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
+                                       [](int64_t vtx, int64_t deg){return true;},
+                                       false, (int64_t) -1);
     
-    int64_t cc = 0; // connected component
+   
+    FullyDistVec<int64_t, int64_t> rcmorder ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
+    int cc = 1;
     
-    int64_t nv = A.getnrow();
-    int64_t prevLevel=-1, curLevel=0; // initialized just to make the first iteration going
-    int64_t source = 5; // any starting vertex is fine. test if it really matters in practice.
-    FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  nv , (int64_t) -1); // level structure in the current BFS tree
-    
-    int iterations = 0;
-    double tstart = MPI_Wtime();
-    double tSpMV=0, tBFS=0, tOther=0, tSpMV1, tBFS1, tOther1;
-    while(curLevel > prevLevel)
+    while(unvisitedVertices.getnnz()>0) // for each connected component
     {
-        prevLevel = curLevel;
-        FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
-        level = (int64_t)-1; // reset level structure in every iteration
-        level.SetElement(source, 1); // place source at level 1
-        fringe.SetElement(source, source); // include source to the initial fringe 
-        curLevel = 2;
-        tBFS1 = MPI_Wtime();
-        while(fringe.getnnz() > 0) // continue until the frontier is empty
+
+        // Select a minimum-degree unvisited vertex as the initial source
+        
+        pair<int64_t, int64_t> mindegree_vertex = unvisitedVertices.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
+        int64_t source = mindegree_vertex.second;
+        
+        int64_t prevLevel=-1, curLevel=0; // initialized just to make the first iteration going
+        // level structure in the current BFS tree
+        // we are not using this information. Currently it is serving as visited flag
+        FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
+        
+        int iterations = 0;
+        double tstart = MPI_Wtime();
+        double tSpMV=0, tBFS=0, tOther=0, tSpMV1, tBFS1, tOther1;
+        while(curLevel > prevLevel)
         {
-            fringe.setNumToInd(); // unncessary since we don't care about the parent
+            prevLevel = curLevel;
+            FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  A.getnrow() );
+            level = (int64_t)-1; // reset level structure in every iteration
+            level.SetElement(source, 1); // place source at level 1
+            fringe.SetElement(source, source); // include source to the initial fringe
+            curLevel = 2;
+            tBFS1 = MPI_Wtime();
+            while(fringe.getnnz() > 0) // continue until the frontier is empty
+            {
+                fringe.setNumToInd(); // unncessary since we don't care about the parent
+                
+                tSpMV1 = MPI_Wtime();
+                SpMV<SelectMinSR>(A, fringe, fringe, false);
+                tSpMV += MPI_Wtime() - tSpMV1;
+                fringe = EWiseMult(fringe, level, true, (int64_t) -1);
+                // set value to the current level
+                fringe=curLevel;
+                curLevel++;
+                level.Set(fringe);
+            }
+            tBFS += MPI_Wtime() - tBFS1;
+            curLevel = curLevel-2;
             
-            tSpMV1 = MPI_Wtime();
-            SpMV<SelectMinSR>(A, fringe, fringe, false);
-            tSpMV += MPI_Wtime() - tSpMV1;
-            fringe = EWiseMult(fringe, level, true, (int64_t) -1);
-            // set value to the current level
-            fringe=curLevel;
-            curLevel++;
-            level.Set(fringe);
+            
+            // last non-empty level
+            tOther1 = MPI_Wtime();
+            fringe = level.Find(curLevel);
+            fringe.setNumToInd();
+            
+            // this can be done by combingn a reduce and find
+            FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
+            EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
+                                               [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
+                                               [](int64_t vtx, int64_t deg){return true;},
+                                               false, (int64_t) -1);
+            
+            //for(int i=0; i<fringe_degree.getnnz(); i++)
+            //   cout << "(" << fringe_degree[i].first << ", " << fringe_degree[i].second << ")";
+            
+            mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
+            //cout << "\n ** (" << mindegree_vertex.first << ", " << mindegree_vertex.second << ")" << endl;
+            if (curLevel > prevLevel)
+                source = mindegree_vertex.second;
+            iterations++;
+            tOther += MPI_Wtime() - tOther1;
+            
         }
-        tBFS += MPI_Wtime() - tBFS1;
-        curLevel = curLevel-2;
+        
+        int myrank;
+        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+        if(myrank == 0)
+        {
+            cout << "Connected component # " << cc++ << endl;
+            cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+            cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
+            cout << "SpMV time: " <<  tSpMV << " BFS time: " << tBFS << " Other time: " << tOther << endl;
+            cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
+           
+        }
+        
+        // order vertices in this connected component
+        int64_t curOrder =  A.getnrow() - unvisitedVertices.getnnz();
+        RCMOrder(A, source, rcmorder, curOrder);
         
         
-        // last non-empty level
-        tOther1 = MPI_Wtime();
-        fringe = level.Find(curLevel);
-        fringe.setNumToInd();
-        FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
-                                            EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
-                                            [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
-                                            [](int64_t vtx, int64_t deg){return true;},
-                                            false, (int64_t) 0);
-   
-        //for(int i=0; i<fringe_degree.getnnz(); i++)
-         //   cout << "(" << fringe_degree[i].first << ", " << fringe_degree[i].second << ")";
+        // remove vertices in the current connected component
+        //unvisitedVertices = EWiseMult(unvisitedVertices, level, true, (int64_t) -1);
+        unvisitedVertices = EWiseApply<pair<int64_t, int64_t>>(unvisitedVertices, level,
+                                           [](pair<int64_t, int64_t> vtx, int64_t visited){return vtx;},
+                                           [](pair<int64_t, int64_t> vtx, int64_t visited){return visited==-1;},
+                                           false, make_pair((int64_t)-1, (int64_t)0));
         
-        pair<int64_t, int64_t> mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
-        //cout << "\n ** (" << mindegree_vertex.first << ", " << mindegree_vertex.second << ")" << endl;
-        if (curLevel > prevLevel)
-            source = mindegree_vertex.second;
-        iterations++;
-        tOther += MPI_Wtime() - tOther1;
-   
+        if(myrank == 0)
+            cout << "remaining vertices: " << unvisitedVertices.getnnz() << endl;
     }
     
-    
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    if(myrank == 0)
-    {
-        cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
-        cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
-        cout << "SpMV time: " <<  tSpMV << " BFS time: " << tBFS << " Other time: " << tOther << endl;
-        cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
-    }
-    
-    
-    
-    RCMOrder(A, source);
-    //level.DebugPrint();
+    return rcmorder;
 }
 
 
