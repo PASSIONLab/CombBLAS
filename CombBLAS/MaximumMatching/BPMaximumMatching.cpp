@@ -1048,7 +1048,8 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             else
                 fringeCol = fringeRow.Invert(ncol,
                                              [](VertexType& vtx, const int64_t & index){return vtx.parent;},
-                                             [](VertexType& vtx, const int64_t & index){return vtx;});
+                                             [](VertexType& vtx, const int64_t & index){return vtx;},
+                                             [](VertexType& vtx1, VertexType& vtx2){return vtx1;});
             phase_timing[4] += MPI_Wtime()-t1;
             
             
