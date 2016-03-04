@@ -81,8 +81,8 @@ public:
     FullyDistSpVec (IT globalsize, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates = false);
 
     FullyDistSpVec<IT,NT> Invert (IT globallen);
-    template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
-    FullyDistSpVec<IT,NT> Invert (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
+    template <typename _BinaryOperationIdx, typename _BinaryOperationVal, typename _BinaryOperationDuplicate>
+    FullyDistSpVec<IT,NT> Invert (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal, _BinaryOperationDuplicate __binopDuplicate);
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
     FullyDistSpVec<IT,NT> InvertRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
 
