@@ -1336,11 +1336,13 @@ FullyDistSpVec<IU,RET> EWiseApply_threaded
 		}
 		else
 		{
-            int nthreads;
+            int nthreads=1;
+#ifdef _OPENMP
 #pragma omp parallel
             {
                 nthreads = omp_get_num_threads();
             }
+#endif
 
 			Product.glen = V.glen;
 			IU size= W.LocArrSize();
@@ -1355,10 +1357,14 @@ FullyDistSpVec<IU,RET> EWiseApply_threaded
             else
                 perthread = spsize/nthreads;
             
-            
+#ifdef _OPENMP
 #pragma omp parallel
+#endif
             {
-                int curthread = omp_get_thread_num();
+                int curthread = 0;
+#ifdef _OPENMP
+                curthread = omp_get_thread_num();
+#endif
                 IU tStartIdx = perthread * curthread;
                 IU tNextIdx = perthread * (curthread+1);
                 
@@ -1417,9 +1423,15 @@ FullyDistSpVec<IU,RET> EWiseApply_threaded
             // copy results from temporary vectors
             Product.ind.resize(tdisp[nthreads]);
             Product.num.resize(tdisp[nthreads]);
+            
+#ifdef _OPENMP
 #pragma omp parallel
+#endif
             {
-                int curthread = omp_get_thread_num();
+                int curthread = 0;
+#ifdef _OPENMP
+                curthread = omp_get_thread_num();
+#endif
                 std::copy(tProductInd[curthread].begin(), tProductInd[curthread].end(), Product.ind.data() + tdisp[curthread]);
                 std::copy(tProductVal[curthread].begin() , tProductVal[curthread].end(), Product.num.data() + tdisp[curthread]);
             }
