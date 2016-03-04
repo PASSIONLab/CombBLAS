@@ -1317,7 +1317,7 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 
 
 /**
- Threaded EWiseApply
+ Threaded EWiseApply. Only called internally from EWiseApply.
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply_threaded
@@ -1469,6 +1469,11 @@ template <typename RET, typename IU, typename NU1, typename NU2, typename _Binar
 FullyDistSpVec<IU,RET> EWiseApply
 (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp)
 {
+    
+#ifdef _OPENMP
+    return EWiseApply_threaded<RET>(V, W, _binary_op, _doOp, allowVNulls, Vzero, useExtendedBinOp);
+    
+#else
     typedef RET T_promote; //typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
     if(*(V.commGrid) == *(W.commGrid))
     {
@@ -1533,6 +1538,7 @@ FullyDistSpVec<IU,RET> EWiseApply
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
         return FullyDistSpVec< IU,T_promote>();
     }
+#endif
 }
 
 
@@ -1662,6 +1668,8 @@ template <typename RET, typename IU, typename NU1, typename NU2, typename _Binar
 FullyDistSpVec<IU,RET> EWiseApply 
 	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 {
+
+
 	return EWiseApply<RET>(V, W,
 					EWiseExtToPlainAdapter<RET, NU1, NU2, _BinaryOperation>(_binary_op),
 					EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
@@ -1669,15 +1677,6 @@ FullyDistSpVec<IU,RET> EWiseApply
 }
 
 
-template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-FullyDistSpVec<IU,RET> EWiseApply_threaded
-(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
-{
-    return EWiseApply_threaded<RET>(V, W,
-                           EWiseExtToPlainAdapter<RET, NU1, NU2, _BinaryOperation>(_binary_op),
-                           EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
-                           allowVNulls, Vzero, true);
-}
 
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
