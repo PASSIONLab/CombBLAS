@@ -237,7 +237,7 @@ public:
 		}
 	};
 	
-    void ParallelReadMM (const string & filename);
+    	void ParallelReadMM (const string & filename, bool onebased = true);
 	template <class HANDLER>
 	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
 	void ReadDistribute (const string & filename, int master, bool nonum=false, bool pario = false) 
