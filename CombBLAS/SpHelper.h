@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 
 #ifndef _SP_HELPER_H_
 #define _SP_HELPER_H_
@@ -48,10 +49,13 @@ class SpHelper
 public:
     
     template <typename IT1, typename NT1, typename IT2, typename NT2>
-    static void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric)
+    static void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric, bool onebased = true)
     {
-        ii--;  /* adjust from 1-based to 0-based */
-        jj--;
+	if(onebased)
+	{
+        	ii--;  /* adjust from 1-based to 0-based */
+        	jj--;
+	}
         rows.push_back(ii);
         cols.push_back(jj);
         vals.push_back(vv);
@@ -64,7 +68,7 @@ public:
     }
     
     template <typename IT1, typename NT1>
-    static void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, int symmetric, int type)
+    static void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, int symmetric, int type, bool onebased = true)
     {
         if(type == 0)   // real
         {
@@ -74,7 +78,7 @@ public:
             {
                 // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
                 sscanf(itr->c_str(), "%lld %lld %lg", &ii, &jj, &vv);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric, onebased);
             }
         }
         else if(type == 1) // integer
@@ -83,7 +87,7 @@ public:
             for (auto itr=lines.begin(); itr != lines.end(); ++itr)
             {
                 sscanf(itr->c_str(), "%lld %lld %lld", &ii, &jj, &vv);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric, onebased);
             }
         }
         else if(type == 2) // pattern
@@ -92,7 +96,7 @@ public:
             for (auto itr=lines.begin(); itr != lines.end(); ++itr)
             {
                 sscanf(itr->c_str(), "%lld %lld", &ii, &jj);
-                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric);
+                SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric, onebased);
             }
         }
         else

@@ -1214,6 +1214,15 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	int * rdispls = new int[nprocs]();
 	partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
 	partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
+
+#ifdef COMBBLAS_DEBUG
+	IT * gsizes;
+	if(commGrid->GetRank() == 0) gsizes = new IT[nprocs];
+        MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
+	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
+	MPI_Barrier(commGrid->GetWorld());
+#endif
 
   	tuple<IT,IT,NT> * senddata = new tuple<IT,IT,NT>[locsize];	// re-used for both rows and columns
 	for(int i=0; i<nprocs; ++i)
@@ -1225,7 +1234,6 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
 	MPI_Type_commit(&MPI_triple);
 
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
 	tuple<IT,IT,NT> * recvdata = new tuple<IT,IT,NT>[totrecv];	
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple, commGrid->GetWorld());
 
@@ -2021,7 +2029,7 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! Requires proper matrix market banner at the moment
 //! Might replace ReadDistribute in the long term
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
+void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebased)
 {
     int32_t type = -1;
     int32_t symmetric = 0;
@@ -2036,7 +2044,7 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
         MM_typecode matcode;
         if ((f = fopen(filename.c_str(), "r")) == NULL)
         {
-            printf("COMBBLAS: Matrix-market file can not be found\n");
+            printf("COMBBLAS: Matrix-market file %s can not be found\n", filename.c_str());
             MPI_Abort(MPI_COMM_WORLD, NOFILE);
         }
         if (mm_read_banner(f, &matcode) != 0)
@@ -2117,22 +2125,22 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
     vector<string> lines;
     bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
     int64_t entriesread = lines.size();
-    SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
+    SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type, onebased);
     MPI_Barrier(commGrid->commWorld);
 
     while(!finished)
     {
         finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
         entriesread += lines.size();
-        SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type);
+        SpHelper::ProcessLines(rows, cols, vals, lines, symmetric, type, onebased);
     }
     int64_t allentriesread;
     MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+#ifdef COMBBLAS_DEBUG
     if(myrank == 0)
-    {
-        cout << "Total number of entries read across all processors is " << allentriesread << endl;
-    }
-    
+        cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
+#endif    
+
     vector< vector < tuple<IT,IT,NT> > > data(nprocs);
     
     IT locsize = rows.size();
@@ -2142,6 +2150,10 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename)
         int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
         data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
     }
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+        cout << "Packing to recepients finished, about to send..." << endl;
+#endif
     SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
 }
 

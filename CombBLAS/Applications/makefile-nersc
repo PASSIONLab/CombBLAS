@@ -14,7 +14,7 @@
 # LIBADD = -L/opt/gcc/4.5.1/snos/lib/gcc/x86_64-suse-linux/4.5.1/../../../
 
 BOOST = $(BOOST_DIR)
-INCADD = -I$(BOOST)/include
+INCADD = -I$(BOOST)/include 
 # notes for configure:
 
 # -fno-exceptions does not work with MPICH2
@@ -27,7 +27,7 @@ COMPILER = CC
 GCCFLAGS = $(GCCOPT) #-DCOMBBLAS_TR1 #-DTIMING #-DNOPERMUTE
 PGIFLAGS = $(INCADD) $(OPTPGI) -DCOMBBLAS_BOOST
 CRAYFLAGS = $(INCADD) -DCOMBBLAS_BOOST -DCRAYCOMP -h msglevel_4
-FLAGS = $(GCCFLAGS) -std=c++11 -std=c++14 -DTHREADED -fopenmp
+FLAGS = $(GCCFLAGS) -std=c++11 -std=c++14 -DCOMBBLAS_DEBUG -DTHREADED -fopenmp 
 COMBBLAS = ..
 
 #
@@ -72,8 +72,8 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o nqp.o nqp.cpp
 
-mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
-	$(COMPILER) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
+mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o
+	$(COMPILER) $(FLAGS) -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o
 
 nqp:	MemoryPool.o CommGrid.o MPIType.o nqp.o
 	$(COMPILER) $(FLAGS) -o mcl nqp.o MemoryPool.o CommGrid.o MPIType.o

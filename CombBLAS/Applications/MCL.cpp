@@ -1,30 +1,30 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.2 -------------------------------------------------*/
-/* date: 10/06/2011 --------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.5 -------------------------------------------------*/
+/* date: 10/09/2015 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
-Copyright (c) 2011, Aydin Buluc
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
+ Copyright (c) 2010-2015, The Regents of the University of California
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include <mpi.h>
 
@@ -57,9 +57,9 @@ template <class NT>
 class Dist
 { 
 public: 
-	typedef SpDCCols < int, NT > DCCols;
-	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
-	typedef FullyDistVec < int, NT> MPI_DenseVec;
+	typedef SpDCCols < int64_t, NT > DCCols;
+	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
+	typedef FullyDistVec < int64_t, NT> MPI_DenseVec;
 };
 
 
@@ -106,9 +106,8 @@ int main(int argc, char* argv[])
         {
 		if(myrank == 0)
 		{	
-                	cout << "Usage: ./mcl <BASEADDRESS> <INFLATION> <PRUNELIMIT>" << endl;
-                	cout << "Example: ./mcl Data/ 2 0.00001" << endl;
-                	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
+                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <BASE_OF_MM>" << endl;
+                	cout << "Example: ./mcl input.mtx 2 0.00001 0" << endl;
                 }
 		MPI_Finalize(); 
 		return -1;
@@ -118,12 +117,25 @@ int main(int argc, char* argv[])
 		double inflation = atof(argv[2]);
 		double prunelimit = atof(argv[3]);
 
-		string directory(argv[1]);		
-		string ifilename = "input.txt";
-		ifilename = directory+"/"+ifilename;
+		string ifilename(argv[1]);		
 
 		Dist<double>::MPI_DCCols A;	// construct object
-		A.ReadDistribute(ifilename, 0);	// read it from file
+		if(argv[4] == "0")
+		{
+			A.ParallelReadMM(ifilename, false);	// use zero-based indexing for matrix-market file
+		}
+		else
+		{
+			A.ParallelReadMM(ifilename);
+		}
+
+		float balance = A.LoadImbalance();
+		int64_t nnz = A.getnnz();
+		ostringstream outs;
+		outs << "Load balance: " << balance << endl;
+		outs << "Nonzeros: " << nnz << endl;
+		SpParHelper::Print(outs.str());
+
 	
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
