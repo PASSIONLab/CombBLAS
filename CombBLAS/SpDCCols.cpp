@@ -204,11 +204,13 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
     }
     else
     {
-        int totThreads;
+        int totThreads=1;
+#ifdef _OPENMP
 #pragma omp parallel
         {
             totThreads = omp_get_num_threads();
         }
+#endif
         
         vector <IT> tstart(totThreads);
         vector <IT> tend(totThreads);
@@ -218,10 +220,14 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         IT* temp_jc = new IT[nTuples];
         IT* temp_cp = new IT[nTuples];
 
-
+#ifdef _OPENMP
 #pragma omp parallel
+#endif
         {
-            int threadID = omp_get_thread_num();
+            int threadID = 0;
+#ifdef _OPENMP
+            threadID = omp_get_thread_num();
+#endif
             IT start = threadID * (nTuples / totThreads);
             IT end = (threadID + 1) * (nTuples / totThreads);
             if(threadID == (totThreads-1)) end = nTuples;
@@ -267,9 +273,14 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         IT localnzc = tdisp[totThreads];
         dcsc = new Dcsc<IT,NT>(nTuples,localnzc);
     
+#ifdef _OPENMP
 #pragma omp parallel
+#endif
         {
-            int threadID = omp_get_thread_num();
+            int threadID = 0;
+#ifdef _OPENMP
+            threadID = omp_get_thread_num();
+#endif
             std::copy(temp_jc + tstart[threadID],  temp_jc + tend[threadID], dcsc->jc + tdisp[threadID]);
             std::copy(temp_cp + tstart[threadID],  temp_cp + tend[threadID], dcsc->cp + tdisp[threadID]);
         }
@@ -278,7 +289,9 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         delete [] temp_jc;
         delete [] temp_cp;
         
+#ifdef _OPENMP
 #pragma omp parallel for schedule (static)
+#endif
         for(IT i=0; i<nTuples; ++i)
         {
             dcsc->ir[i]  = std::get<0>(tuples[i]);
