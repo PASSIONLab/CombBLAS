@@ -5,7 +5,7 @@
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -DGNU_PARALLEL -fopenmp
+COMPILER = mpicxx -std=c++11 -std=c++14 -DGNU_PARALLEL #-fopenmp -DTHREADED 
 FLAGS = $(OPT)
 COMBBLAS = ..
 
@@ -27,6 +27,8 @@ MPIType.o:	../MPIType.cpp ../MPIType.h
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 	$(COMPILER)  $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
+MPIOp.o:	../MPIOp.cpp ../MPIOp.h
+	$(COMPILER)  $(FLAGS) -c -o MPIOp.o ../MPIOp.cpp 
 
 BPMaximalMatching.o:  BPMaximalMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
 	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
@@ -40,8 +42,19 @@ BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp 
 	$(COMPILER)  $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
+auction.o:  auction.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
+	$(COMPILER)  $(FLAGS) -c -o auction.o auction.cpp 
+
+
+
+
 bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
+
+auction:	MemoryPool.o CommGrid.o MPIType.o auction.o mmio.o MPIOp.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) -o auction auction.o MemoryPool.o CommGrid.o mmio.o MPIType.o  MPIOp.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
 
 
 gathertest:	gathertest.cpp

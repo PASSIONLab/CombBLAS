@@ -2193,11 +2193,12 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 
 /*
  // generalized invert taking binary operations to define index and values of the inverted vector
+ // _BinaryOperationDuplicate: function to reduce duplicate entries
  */
 
 template <class IT, class NT>
-template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+template <typename _BinaryOperationIdx, typename _BinaryOperationVal, typename _BinaryOperationDuplicate>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal, _BinaryOperationDuplicate __binopDuplicate)
 
 {
     
@@ -2312,17 +2313,24 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen, _BinaryOperat
     
     Inverted.ind.reserve(totrecv);
     Inverted.num.reserve(totrecv);
-    IT lastIndex=-1;
+
     
     // not threaded because Inverted.ind is kept sorted
-    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); )
     {
-        if(lastIndex!=itr->first) // avoid duplicate indices
+        IT ind = itr->first;
+        NT val = itr->second;
+        ++itr;
+     
+        while(itr != tosort.end() && itr->first == ind)
         {
-            Inverted.ind.push_back(itr->first);
-            Inverted.num.push_back(itr->second);
+            val = __binopDuplicate(val, itr->second);
+            ++itr;
         }
-        lastIndex = itr->first;
+     
+        
+        Inverted.ind.push_back(ind);
+        Inverted.num.push_back(val);
         
     }
     
