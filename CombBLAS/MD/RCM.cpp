@@ -80,9 +80,9 @@ struct SelectMinSR
 };
 
 
-typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
-typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-FullyDistVec<int64_t, int64_t> RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
+typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
+typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
+FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
 
 int main(int argc, char* argv[])
 {
@@ -104,12 +104,12 @@ int main(int argc, char* argv[])
         return -1;
     }
     {
-        PSpMat_Bool * ABool;
+        Par_DCSC_Bool * ABool;
         ostringstream tinfo;
         
         if(string(argv[1]) == string("input")) // input option
         {
-            ABool = new PSpMat_Bool();
+            ABool = new Par_DCSC_Bool();
             string filename(argv[2]);
             tinfo.str("");
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
             DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
             MPI_Barrier(MPI_COMM_WORLD);
             
-            ABool = new PSpMat_Bool(*DEL, false);
+            ABool = new Par_DCSC_Bool(*DEL, false);
             Symmetricize(*ABool);
             delete DEL;
         }
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
             DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
             MPI_Barrier(MPI_COMM_WORLD);
             
-            ABool = new PSpMat_Bool(*DEL, false);
+            ABool = new Par_DCSC_Bool(*DEL, false);
             Symmetricize(*ABool);
             delete DEL;
         }
@@ -204,7 +204,8 @@ int main(int argc, char* argv[])
         // compute bandwidth
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         // note: threaded matrix can not be permuted
-        // That is why I am not a supprter of split matrix.
+        // That is why I am not a supporter of split matrix.
+        // ABAB: Any suggestions in lieu of split matrix?
         //(*ABool)(rcmorder,rcmorder,true);// in-place permute to save memory
         // compute bandwidth
 
@@ -236,11 +237,11 @@ int main(int argc, char* argv[])
 
 
 // perform ordering from a source vertex
-void RCMOrder(PSpMat_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder)
+void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder)
 {
  
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
-    A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+    A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));    // HERE
     
     int64_t nv = A.getnrow();
     FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
@@ -255,7 +256,7 @@ void RCMOrder(PSpMat_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& o
                                     [](int64_t parent_order, int64_t ord){return ord;},
                                     [](int64_t parent_order, int64_t ord){return true;},
                                     false, (int64_t) -1);
-        SpMV<SelectMinSR>(A, fringe, fringe, false);
+        SpMV<SelectMinSR>(A, fringe, fringe, false);    // HERE
         fringe = EWiseMult(fringe, order, true, (int64_t) -1);
         
         //fringe.DebugPrint();
@@ -291,7 +292,7 @@ void RCMOrder(PSpMat_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& o
 
 
 
-FullyDistVec<int64_t, int64_t> RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
+FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
 {
     /*
      list of current unvisited vertices
@@ -343,7 +344,7 @@ FullyDistVec<int64_t, int64_t> RCM(PSpMat_Bool & A, FullyDistVec<int64_t, int64_
                 fringe.setNumToInd(); // unncessary since we don't care about the parent
                 
                 tSpMV1 = MPI_Wtime();
-                SpMV<SelectMinSR>(A, fringe, fringe, false);
+                SpMV<SelectMinSR>(A, fringe, fringe, false); // HERE
                 tSpMV += MPI_Wtime() - tSpMV1;
                 fringe = EWiseMult(fringe, level, true, (int64_t) -1);
                 // set value to the current level

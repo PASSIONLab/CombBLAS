@@ -39,7 +39,7 @@ public:
     SpCCols (const SpTuples<IT,NT> & rhs, bool transpose);
 
     SpCCols (const SpCCols<IT,NT> & rhs);					// Actual copy constructor
-    SpCCols();
+    ~SpCCols();
 
     // Member Functions and Operators:
     SpCCols<IT,NT> & operator= (const SpCCols<IT, NT> & rhs);
@@ -63,21 +63,25 @@ public:
 private:
     // Anonymous union
     union {
-        Csc<IT, NT> * dcsc;
-        Csc<IT, NT> ** dcscarr;
+        Csc<IT, NT> * csc;
+        Csc<IT, NT> ** cscarr;
     };
     
     IT m;
     IT n;
     IT nnz;
     
-    template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
-    friend void csc_gespmv_dense (const SpCCols<IU, NU> & A, const RHS * x, LHS * y); //!< dense vector
+    int splits;	// for multithreading
+
+    void CopyCsc(Csc<IT,NT> * source);
     
-    template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-    friend int csc_gespmv_sparse (const SpCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-                                     int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c);  //!< sparse vector
-}
+    template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+    friend void csc_gespmv_dense (const SpCCols<IU, NU> & A, const RHS * x, LHS * y); //!< dense vector (not implemented)
+    
+    template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
+    friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
+                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c); //<! sparse vector
+};
 
 #include "SpCCols.cpp"
 #endif

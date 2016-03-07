@@ -115,6 +115,7 @@ class EWiseExtToPlainAdapter
 #include "BitMap.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
+#include "SpCCols.h"
 #include "SpParMat.h"
 #include "FullyDistVec.h"
 #include "FullyDistSpVec.h"
