@@ -52,7 +52,8 @@ public:
     
     Csc<IT,NT> & operator=(const Csc<IT,NT> & rhs);	// assignment operator
     void Resize(IT nsize);
-    
+
+
     IT * jc ;	    //	col pointers, size n+1
     IT * ir ;	    //  row indices, size nzmax
     NT * numx;		//  generic values, size nzmax
