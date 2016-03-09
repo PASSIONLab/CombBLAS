@@ -957,7 +957,7 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 	
 /**
- * Old version that is no longer considered optimal
+ * \TODO: Old version that is no longer considered optimal
  * Kept for legacy purposes
  * To be removed when other functionals are fully tested.
  **/ 
