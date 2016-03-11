@@ -241,7 +241,7 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
 {
  
     double tSpMV=0, tOrder, tOther, tSpMV1;
-    tOrder1 = MPI_Wtime();
+    tOrder = MPI_Wtime();
     
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
     A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));    // HERE
