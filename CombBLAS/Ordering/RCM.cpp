@@ -20,7 +20,6 @@ using namespace std;
 #endif
 
 #include <omp.h>
-int cblas_splits = 1;
 #endif
 
 
@@ -83,6 +82,7 @@ struct SelectMinSR
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int64_t> degrees);
+OptBuf<int32_t, int64_t> optbuf;
 
 int main(int argc, char* argv[])
 {
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
             return -1;
         }
         
-       
+       ABool->OptimizeForGraph500(optbuf);
         ABool->PrintInfo();
         float balance = ABool->LoadImbalance();
         ostringstream outs;
@@ -183,26 +183,29 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
-        
+        int nthreads = 1;
         int splitPerThread = 1;
         if(argc==4)
             splitPerThread = atoi(argv[3]);
-        int nthreads;
+        int cblas_splits = splitPerThread;
+        
+        
 
 #ifdef THREADED
 #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
-            cblas_splits = nthreads*splitPerThread;
+            cblas_splits = nthreads * splitPerThread;
         }
         tinfo.str("");
         tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
         SpParHelper::Print(tinfo.str());
-        ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
+        //ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
         
 #endif
         
-
+        // I think this is still a good idea on small concurrency even though multithreading is not used for better cache performance of SPA arrays
+        ABool->ActivateThreading(cblas_splits);
         // compute bandwidth
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         // note: threaded matrix can not be permuted
@@ -238,15 +241,12 @@ int main(int argc, char* argv[])
 }
 
 
-// perform ordering from a source vertex
-void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder)
+// perform ordering from a pseudo peripheral vertex
+void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees)
 {
  
     double tSpMV=0, tOrder, tOther, tSpMV1;
     tOrder = MPI_Wtime();
-    
-    FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
-    A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));    // HERE
     
     int64_t nv = A.getnrow();
     FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  nv );
@@ -265,7 +265,8 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
                                     false, (int64_t) -1);
         
         tSpMV1 = MPI_Wtime();
-        SpMV<SelectMinSR>(A, fringe, fringe, false);
+        //SpMV<SelectMinSR>(A, fringe, fringe, false);
+        fringe = SpMV(A, fringe, optbuf);
         tSpMV += MPI_Wtime() - tSpMV1;
         fringe = EWiseMult(fringe, order, true, (int64_t) -1);
        
@@ -277,12 +278,12 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
                                            false, (int64_t) -1);
         //fringeRow.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(vtx.order, vtx.degree, idx);});
         
-        /*
+ 
         //FullyDistSpVec::sort returns (i,j) index pairs such that
         // jth entry before sorting becomes ith entry after sorting.
         // Here i/j is the index of the elements relative to the dense containter
         // Alternatively, j's consist a permutation that would premute the undorted vector to sorted vector
-         */
+ 
         
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
         // idx is the index  of fringe in sorted order
@@ -302,10 +303,10 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
-        cout << "Ordering time: " << endl;
+        cout << "==================Ordering time =======================\n";
         cout << "SpMV time: " <<  tSpMV << " Other time: " << tOther << endl;
         cout << "Total time: " <<  tOrder << " seconds." << endl;
-        
+        cout << "=======================================================\n";
     }
     
     //order.DebugPrint();
@@ -318,12 +319,13 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
 FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int64_t> degrees)
 {
     /*
-     list of current unvisited vertices
+     unvisitedVertices: list of current unvisited vertices.
+     Each entry is a (degree, vertex index) pair.
+     I am keeping index as a value so that we can call reduce to finds the vertex with the minimum/maximum degree.
+     TODO: alternatively, we can create a MinIdx and MaxIdx function (will not be faster)
      After discovering a pseudo peripheral vertex in the ith connected component
      all vertices in the ith component are removed from this vector.
-     I am keeping degrees of the vertices as well so that we can select the starting vertex
-     in each connected component based on the degrees.
-     degrees can be replaced by random numbers or other things
+     Degrees can be replaced by random numbers or something else.
     */
     FullyDistSpVec<int64_t, int64_t> unvisited ( A.getcommgrid(),  A.getnrow());
     unvisited.iota(A.getnrow(), (int64_t) 0); // index and values become the same
@@ -334,14 +336,24 @@ FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int6
                                        false, (int64_t) -1);
     
    
+    // final RCM order
     FullyDistVec<int64_t, int64_t> rcmorder ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
+    // current connected component
     int cc = 1;
     
-    while(unvisitedVertices.getnnz()>0) // for each connected component
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    int64_t numUnvisited = unvisitedVertices.getnnz();
+    
+    while(numUnvisited>0) // for each connected component
     {
-
+        if(myrank == 0)
+        {
+            cout << "\n*********** Connected component # " << cc << " *****************" << endl;
+            cout << "Discovering Pseudo-peripheral vertex\n";
+        }
+        double tstart = MPI_Wtime();
         // Select a minimum-degree unvisited vertex as the initial source
-        
         pair<int64_t, int64_t> mindegree_vertex = unvisitedVertices.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
         int64_t source = mindegree_vertex.second;
         
@@ -351,23 +363,23 @@ FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int6
         FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
         
         int iterations = 0;
-        double tstart = MPI_Wtime();
-        double tSpMV=0, tBFS=0, tOther=0, tSpMV1, tBFS1, tOther1;
+        double tSpMV=0, tOther=0, tSpMV1;
         while(curLevel > prevLevel)
         {
+            double tItr = MPI_Wtime();
             prevLevel = curLevel;
             FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  A.getnrow() );
             level = (int64_t)-1; // reset level structure in every iteration
             level.SetElement(source, 1); // place source at level 1
-            fringe.SetElement(source, source); // include source to the initial fringe
+            fringe.SetElement(source, 1); // include source to the initial fringe
             curLevel = 2;
-            tBFS1 = MPI_Wtime();
             while(fringe.getnnz() > 0) // continue until the frontier is empty
             {
-                fringe.setNumToInd(); // unncessary since we don't care about the parent
-                
+                //fringe.setNumToInd(); // unncessary since we don't care about the parent
+                //cout << "vector nnz: " << fringe.getnnz() << endl;
                 tSpMV1 = MPI_Wtime();
-                SpMV<SelectMinSR>(A, fringe, fringe, false); // HERE
+                //SpMV<SelectMinSR>(A, fringe, fringe, false, optbuf);
+                fringe = SpMV(A, fringe, optbuf);
                 tSpMV += MPI_Wtime() - tSpMV1;
                 fringe = EWiseMult(fringe, level, true, (int64_t) -1);
                 // set value to the current level
@@ -375,50 +387,50 @@ FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int6
                 curLevel++;
                 level.Set(fringe);
             }
-            tBFS += MPI_Wtime() - tBFS1;
             curLevel = curLevel-2;
             
             
             // last non-empty level
-            tOther1 = MPI_Wtime();
-            fringe = level.Find(curLevel);
+            fringe = level.Find(curLevel); // we can avoid this by keeping the last nonempty fringe
             fringe.setNumToInd();
             
-            // this can be done by combingn a reduce and find
+            // find a minimum degree vertex in the last level
             FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
             EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
                                                [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
                                                [](int64_t vtx, int64_t deg){return true;},
                                                false, (int64_t) -1);
             
-            //for(int i=0; i<fringe_degree.getnnz(); i++)
-            //   cout << "(" << fringe_degree[i].first << ", " << fringe_degree[i].second << ")";
             
             mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
-            //cout << "\n ** (" << mindegree_vertex.first << ", " << mindegree_vertex.second << ")" << endl;
             if (curLevel > prevLevel)
                 source = mindegree_vertex.second;
             iterations++;
-            tOther += MPI_Wtime() - tOther1;
+            
+            
+            if(myrank == 0)
+            {
+                cout <<" iteration: "<<  iterations << " BFS levels: " << curLevel << " Time: "  << MPI_Wtime() - tItr << " seconds." << endl;
+            }
             
         }
         
-        int myrank;
-        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+        tOther = MPI_Wtime() - tstart - tSpMV;
         if(myrank == 0)
         {
-            cout << "Pseudo-peripheral vertex identification time" << endl;
-            cout << "Connected component # " << cc++ << endl;
-            cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
+            cout << "==================Overall Stats =======================\n";
+            cout << "vertex " << source << " is a pseudo peripheral vertex" << endl;
             cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
-            cout << "SpMV time: " <<  tSpMV << " BFS time: " << tBFS << " Other time: " << tOther << endl;
+            cout << "SpMV time: " <<  tSpMV << " Other time: " << tOther << endl;
             cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
+            cout << "======================================================\n";
            
         }
+        cc++;
         
         // order vertices in this connected component
-        int64_t curOrder =  A.getnrow() - unvisitedVertices.getnnz();
-        RCMOrder(A, source, rcmorder, curOrder);
+        int64_t curOrder =  A.getnrow() - numUnvisited;
+        RCMOrder(A, source, rcmorder, curOrder, degrees);
         
         
         // remove vertices in the current connected component
@@ -427,9 +439,7 @@ FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int6
                                            [](pair<int64_t, int64_t> vtx, int64_t visited){return vtx;},
                                            [](pair<int64_t, int64_t> vtx, int64_t visited){return visited==-1;},
                                            false, make_pair((int64_t)-1, (int64_t)0));
-        
-        if(myrank == 0)
-            cout << "remaining vertices: " << unvisitedVertices.getnnz() << endl;
+        numUnvisited = unvisitedVertices.getnnz();
     }
     
     return rcmorder;
