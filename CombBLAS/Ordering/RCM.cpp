@@ -242,6 +242,9 @@ int main(int argc, char* argv[])
 void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder)
 {
  
+    double tSpMV=0, tOrder, tOther, tSpMV1;
+    tOrder = MPI_Wtime();
+    
     FullyDistVec<int64_t, int64_t> degrees ( A.getcommgrid());
     A.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));    // HERE
     
@@ -251,6 +254,8 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
     fringe.SetElement(source, startOrder);
     int64_t curOrder = startOrder+1;
     
+    
+    
     while(fringe.getnnz() > 0) // continue until the frontier is empty
     {
         
@@ -258,8 +263,12 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
                                     [](int64_t parent_order, int64_t ord){return ord;},
                                     [](int64_t parent_order, int64_t ord){return true;},
                                     false, (int64_t) -1);
-        SpMV<SelectMinSR>(A, fringe, fringe, false);    // HERE
+        
+        tSpMV1 = MPI_Wtime();
+        SpMV<SelectMinSR>(A, fringe, fringe, false);
+        tSpMV += MPI_Wtime() - tSpMV1;
         fringe = EWiseMult(fringe, order, true, (int64_t) -1);
+       
         
         //fringe.DebugPrint();
         FullyDistSpVec<int64_t, VertexType> fringeRow = EWiseApply<VertexType>(fringe, degrees,
@@ -284,6 +293,18 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
         curOrder += idx.TotalLength();
         FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
         order.Set(levelOrder);
+        
+    }
+    
+    tOrder = MPI_Wtime() - tOrder;
+    tOther = tOrder - tSpMV;
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    if(myrank == 0)
+    {
+        cout << "Ordering time: " << endl;
+        cout << "SpMV time: " <<  tSpMV << " Other time: " << tOther << endl;
+        cout << "Total time: " <<  tOrder << " seconds." << endl;
         
     }
     
@@ -386,6 +407,7 @@ FullyDistVec<int64_t, int64_t> RCM(Par_DCSC_Bool & A, FullyDistVec<int64_t, int6
         MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
         if(myrank == 0)
         {
+            cout << "Pseudo-peripheral vertex identification time" << endl;
             cout << "Connected component # " << cc++ << endl;
             cout << "vertex " << source+1 << " is a pseudo peripheral vertex" << endl;
             cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
