@@ -177,6 +177,8 @@ int main(int argc, char* argv[])
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
         
+        Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
+        
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
@@ -285,7 +287,7 @@ void RCMOrder(Par_DCSC_Bool & A, int64_t source, FullyDistVec<int64_t, int64_t>&
         
     }
     
-    order.DebugPrint();
+    //order.DebugPrint();
     
 }
 

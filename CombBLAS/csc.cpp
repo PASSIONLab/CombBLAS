@@ -36,7 +36,7 @@ template <class IT, class NT>
 Csc<IT,NT>::Csc (IT size, IT nCol): nz(size),n(nCol)
 {
     assert(size != 0 && n != 0);
-    numx = new NT[nz];
+    num = new NT[nz];
     ir = new IT[nz];
     jc = new IT[n+1];
 }
@@ -47,9 +47,9 @@ Csc<IT,NT>::Csc (const Csc<IT,NT> & rhs): n(rhs.n), nz(rhs.nz)
     if(nz > 0)
     {
         ir		= new IT[nz];
-        numx	= new NT[nz];
+        num	= new NT[nz];
         std::copy(rhs.ir, rhs.ir+nz, ir); // copy(first, last, result)
-        std::copy(rhs.numx, rhs.numx+nz, numx);
+        std::copy(rhs.num, rhs.num+nz, num);
     }
     jc	= new IT[n+1];
     std::copy(rhs.jc, rhs.jc+n+1, jc);
@@ -63,7 +63,7 @@ Csc<IT,NT> & Csc<IT,NT>::operator= (const Csc<IT,NT> & rhs)
         if(nz > 0)	// if the existing object is not empty
         {
             // make it empty
-            delete [] numx;
+            delete [] num;
             delete [] ir;
         }
         delete [] jc;
@@ -73,9 +73,9 @@ Csc<IT,NT> & Csc<IT,NT>::operator= (const Csc<IT,NT> & rhs)
         if(nz > 0)	// if the copied object is not empty
         {
             ir		= new IT[nz];
-            numx	= new NT[nz];
+            num	= new NT[nz];
             std::copy(rhs.ir, rhs.ir+nz, ir);
-            std::copy(rhs.numx, rhs.numx+nz, numx);
+            std::copy(rhs.num, rhs.num+nz, num);
         }
         jc	= new IT[n+1];
         std::copy(rhs.jc, rhs.jc+n+1, jc);
@@ -88,7 +88,7 @@ Csc<IT,NT>::~Csc()
 {
     if( nz > 0)
     {
-        delete [] numx;
+        delete [] num;
         delete [] ir;
     }
     delete [] jc;
@@ -105,28 +105,28 @@ void Csc<IT,NT>::Resize(IT nsize)
     }
     else if(nsize == 0)
     {
-        delete []  numx;
+        delete []  num;
         delete []  ir;
         nz = 0;
         return;
     }
     
-    NT * tmpnumx = numx;
+    NT * tmpnum = num;
     IT * tmpir = ir;
-    numx	= new NT[nsize];
+    num	= new NT[nsize];
     ir	= new IT[nsize];
     
     if(nsize > nz)	// Grow it
     {
         std::copy(tmpir, tmpir + nz, ir);   //copy all old elements
-        std::copy(tmpnumx, tmpnumx + nz, numx);
+        std::copy(tmpnum, tmpnum + nz, num);
     }
     else	// Shrink it
     {
         std::copy(tmpir, tmpir + nsize, ir);   // copy only a portion of the old elements
-        std::copy(tmpnumx, tmpnumx + nsize, numx);
+        std::copy(tmpnum, tmpnum + nsize, num);
     }
-    delete [] tmpnumx;		// delete the memory pointed by previous pointers
+    delete [] tmpnum;		// delete the memory pointed by previous pointers
     delete [] tmpir;
     nz = nsize;
 }

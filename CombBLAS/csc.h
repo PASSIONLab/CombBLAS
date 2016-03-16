@@ -46,7 +46,7 @@ public:
     typedef NT value_type;
     typedef IT index_type;
     Csc ();
-    Csc (int size,int nCol);
+    Csc (IT size,IT nCol);
     Csc (const Csc<IT,NT> & rhs);				// copy constructor
     ~Csc();
     
@@ -56,7 +56,7 @@ public:
 
     IT * jc ;	    //	col pointers, size n+1
     IT * ir ;	    //  row indices, size nzmax
-    NT * numx;		//  generic values, size nzmax
+    NT * num;		//  generic values, size nzmax
     IT n;			//  number of columns
     IT nz;
 };
