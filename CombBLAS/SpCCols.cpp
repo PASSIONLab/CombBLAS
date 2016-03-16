@@ -130,13 +130,15 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
             if(nnz > 0)
             {
                 std::partial_sum(work.begin(), work.end(), work.begin());
-                copy(work, work+n+1, csc->jc);
+                copy(work.begin(), work.end(), csc->jc);
                 IT last;
                 for (IT k = 0 ; k < nnz ; ++k)
                 {
                     tosort[ work[ rhs.rowindex(k) ]++] = make_pair( rhs.colindex(k), rhs.numvalue(k));
                 }
+                #ifdef _OPENMP
                 #pragma omp parallel for
+                #endif
                 for(int i=0; i< n; ++i)
                 {
                     sort(tosort.begin() + csc->jc[i], tosort.begin() + csc->jc[i+1]);
@@ -164,13 +166,15 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
             if(nnz > 0)
             {
                 std::partial_sum(work.begin(), work.end(), work.begin());
-                copy(work, work+n+1, csc->jc);
+                copy(work.begin(), work.end(), csc->jc);
                 IT last;
                 for (IT k = 0 ; k < nnz ; ++k)
                 {
                     tosort[ work[ rhs.colindex(k) ]++] = make_pair( rhs.rowindex(k), rhs.numvalue(k));
                 }
+                #ifdef _OPENMP
                 #pragma omp parallel for
+                #endif
                 for(int i=0; i< n; ++i)
                 {
                     sort(tosort.begin() + csc->jc[i], tosort.begin() + csc->jc[i+1]);
@@ -186,6 +190,44 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
             }
 		}
 	}
+}
+
+/****************************************************************************/
+/************************** PUBLIC OPERATORS ********************************/
+/****************************************************************************/
+
+/**
+ * The assignment operator operates on an existing object
+ * The assignment operator is the only operator that is not inherited.
+ * But there is no need to call base's assigment operator as it has no data members
+ */
+template <class IT, class NT>
+SpCCols<IT,NT> & SpCCols<IT,NT>::operator=(const SpCCols<IT,NT> & rhs)
+{
+    // this pointer stores the address of the class instance
+    // check for self assignment using address comparison
+    if(this != &rhs)
+    {
+        if(csc != NULL && nnz > 0)
+        {
+            delete csc;
+        }
+        if(rhs.csc != NULL)
+        {
+            csc = new Csc<IT,NT>(*(rhs.csc));
+            nnz = rhs.nnz;
+        }
+        else
+        {
+            csc = NULL;
+            nnz = 0;
+        }
+        
+        m = rhs.m; 
+        n = rhs.n;
+        splits = rhs.splits;
+    }
+    return *this;
 }
 
 

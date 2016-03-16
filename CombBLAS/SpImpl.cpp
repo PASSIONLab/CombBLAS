@@ -33,8 +33,6 @@
  * Base template version [full use of the semiring add() and multiply()]
  * @param[in] indx { vector that practically keeps column numbers requested from A }
  *
- * Base template version [full use of the semiring add() and multiply()]
- * @param[in] indx { vector that practically keeps column numbers requested from A }
  *
  * Roughly how the below function works:
  * Let's say our sparse vector has entries at 3, 7 and 9.
@@ -274,7 +272,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
-{   
+{
 	OVT * localy = new OVT[mA];
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
