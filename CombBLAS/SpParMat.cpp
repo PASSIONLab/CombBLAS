@@ -539,15 +539,60 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 	}
 }
 
+
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::Bandwidth() const
+{
+
+    
+    
+    IT upperlBW = -1;
+    IT lowerlBW = -1;
+    typename DER::SpColIter colit = spSeq->begcol();
+    for(; colit != spSeq->endcol(); ++colit)	// iterate over columns
+    {
+        typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit);
+        if(nzit != spSeq->endnz(colit)) // nonempty column
+        {
+            IT firstrow = nzit.rowid();
+            IT lastrow = (nzit+ colit.nnz()-1).rowid();
+           
+            
+            if(firstrow < colit.colid()) // upper diagonal
+            {
+                IT dev = colit.colid() - firstrow;
+                if(upperlBW < dev) upperlBW = dev;
+            }
+            if(lastrow > colit.colid()) // lower diagonal
+            {
+                IT dev = lastrow - colit.colid();
+                if(lowerlBW < dev) lowerlBW = dev;
+            }
+            
+        }
+    }
+    
+    IT upperBW;
+    IT lowerBW;
+    MPI_Allreduce( &upperlBW, &upperBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    MPI_Allreduce( &lowerlBW, &lowerBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    
+    //cout << "upperBW = " << upperBW << " lowerBW = " << lowerBW << endl;
+    
+}
+
+
+
 /**
   * Reduce along the column/row into a vector
   * @param[in] __binary_op {the operation used for reduction; examples: max, min, plus, multiply, and, or. Its parameters and return type are all VT}
   * @param[in] id {scalar that is used as the identity for __binary_op; examples: zero, infinity}
   * @param[in] __unary_op {optional unary operation applied to nonzeros *before* the __binary_op; examples: 1/x, x^2}
   * @param[out] rvec {the return vector, specified as an output parameter to allow arbitrary return types via VT}
- **/ 
+ **/
 template <class IT, class NT, class DER>
-template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
+template <typename VT, typename _BinaryOperation, typename _UnaryOperation>
 void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
 	if(rvec.zero != id)
@@ -582,7 +627,7 @@ void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOper
 			if(rvec.diagonal)
 			{
 				rvec.arr.resize(getlocalcols());
-				recvbuf = SpHelper::p2a(rvec.arr);	
+				recvbuf = SpHelper::p2a(rvec.arr);
 			}
 			MPI_Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root, commGrid->GetColWorld());
 			delete [] sendbuf;
