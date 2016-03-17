@@ -94,6 +94,22 @@ public:
       			{
         	 		return(rid != other.rid);
       			}
+                bool operator<(const NzIter & other)
+                {
+                    return(rid < other.rid);
+                }
+                NzIter operator+(IT inc)
+                {
+                    rid+=inc;
+                    val+=inc;
+                    return(*this);
+                }
+                NzIter operator-(IT inc)
+                {
+                    rid-=inc;
+                    val-=inc;
+                    return(*this);
+                }
            		NzIter & operator++()	// prefix operator
       			{
          			++rid;
