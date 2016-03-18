@@ -330,7 +330,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
     for (int32_t k = 0; k < veclen; ++k)
     {
         IT colid = indx[k];
-        for(IT j=Acsc.jr[colid]; j < Acsc.jr[colid+1]; ++j)	// for all nonzeros in this column
+        for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
         {
             int32_t rowid = (int32_t) Acsc.ir[j];
             if(!isthere[rowid])

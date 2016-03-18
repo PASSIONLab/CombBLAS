@@ -77,6 +77,10 @@ public:
     int getnsplit() const { return splits; }
     
     
+    auto GetInternal() const    { return GetCSC(); }
+    auto GetInternal(int i) const  { return GetCSC(i); }
+    
+    
     class SpColIter //! Iterate over (sparse) columns of the sparse matrix
     {
     public:
@@ -200,6 +204,16 @@ private:
     int splits;	// for multithreading
 
     void CopyCsc(Csc<IT,NT> * source);
+    
+    Csc<IT, NT> * GetCSC() const 	// only for single threaded matrices
+    {
+        return csc;
+    }
+    
+    Csc<IT, NT> * GetCSC(int i) const 	// only for split (multithreaded) matrices
+    {
+        return cscarr[i];
+    }
     
     template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
     friend void csc_gespmv_dense (const SpCCols<IU, NU> & A, const RHS * x, LHS * y); //!< dense vector (not implemented)
