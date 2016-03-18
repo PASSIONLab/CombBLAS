@@ -10,7 +10,7 @@
 #include <sstream>
 
 
-#define EDGEFACTOR 16  /// changed to 8
+#define EDGEFACTOR 4  /// changed to 8
 using namespace std;
 
 
@@ -117,10 +117,12 @@ int main(int argc, char* argv[])
             double t01 = MPI_Wtime();
             ABool->ParallelReadMM(filename);
             double t02 = MPI_Wtime();
-            ABool->PrintInfo();
+            int64_t bw = ABool->Bandwidth();
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
+            tinfo << "Bandwidth before random permutation " << bw << endl;
             SpParHelper::Print(tinfo.str());
+            
             
             if(ABool->getnrow() == ABool->getncol())
             {
@@ -169,12 +171,14 @@ int main(int argc, char* argv[])
             MPI_Finalize();
             return -1;
         }
+         
+        int64_t bw = ABool->Bandwidth();
         
-       ABool->OptimizeForGraph500(optbuf);
-        ABool->PrintInfo();
+        ABool->OptimizeForGraph500(optbuf);
         float balance = ABool->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
+        outs << "Bandwidth after random permutation " << bw << endl;
         SpParHelper::Print(outs.str());
         
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
@@ -192,7 +196,6 @@ int main(int argc, char* argv[])
         int cblas_splits = splitPerThread;
         
         
-
 #ifdef THREADED
 #pragma omp parallel
         {
@@ -200,25 +203,50 @@ int main(int argc, char* argv[])
             cblas_splits = nthreads * splitPerThread;
         }
         tinfo.str("");
-        tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
+        tinfo << "Threading activated with " << nthreads << endl;
         SpParHelper::Print(tinfo.str());
-        //ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
-        
 #endif
         
         // I think this is still a good idea on small concurrency even though multithreading is not used for better cache performance of SPA arrays
-        ABool->ActivateThreading(cblas_splits);
-        
+        //ABool->ActivateThreading(cblas_splits);
         ABoolCSC->ActivateThreading(cblas_splits);
         
         
         // compute bandwidth
+        if(cblas_splits>1)
+        {
+            ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
+            tinfo.str("");
+            tinfo << "Matrix split into "<< cblas_splits <<  " parts" << endl;
+            SpParHelper::Print(tinfo.str());
+        }
+        
+        // Compute RCM ordering
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         // note: threaded matrix can not be permuted
         // That is why I am not a supporter of split matrix.
         // ABAB: Any suggestions in lieu of split matrix?
-        //(*ABool)(rcmorder,rcmorder,true);// in-place permute to save memory
-        // compute bandwidth
+        
+        
+        // compute bandwidth of the permuted matrix
+        if(cblas_splits==1)
+        {
+            // Ariful: sort returns permutation from ordering
+            // and make the original vector a sequence (like iota)
+            // I actually need an invert to convert ordering a permutation
+    
+            FullyDistVec<int64_t, int64_t>rcmorder1 = rcmorder.sort();
+            (*ABool)(rcmorder1,rcmorder1,true);// in-place permute to save memory
+            bw = ABool->Bandwidth();
+            ostringstream outs1;
+            outs1 << "Bandwidth after RCM " << bw << endl;
+            SpParHelper::Print(outs1.str());
+        }
+        else
+        {
+            SpParHelper::Print("Split matrix can not be permuted for bandwidth computation\n");
+        }
+        
 
         
         /*

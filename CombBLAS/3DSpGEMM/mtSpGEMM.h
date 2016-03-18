@@ -3,7 +3,22 @@
 
 #include "../CombBLAS.h"
 
-
+/*
+ Multithreaded prefix sum
+ Inputs:
+    in: an input array
+    size: the length of the input array "in"
+    nthreads: number of threads used to compute the prefix sum
+ 
+ Output:
+    return an array of size "size+1"
+    the memory of the output array is allocated internallay
+ 
+ Example:
+ 
+    in = [2, 1, 3, 5]
+    out = [0, 2, 3, 6, 11]
+ */
 template <typename T>
 T* prefixsum(T* in, int size, int nthreads)
 {
