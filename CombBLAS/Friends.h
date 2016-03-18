@@ -36,7 +36,6 @@
 #include "Isect.h"
 #include "Deleter.h"
 #include "SpImpl.h"
-#include "SpImplNoSR.h"
 #include "SpParHelper.h"
 #include "Compare.h"
 #include "CombBLAS.h"
@@ -208,15 +207,14 @@ int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, 
 }
 
 
-
 /** 
  * Multithreaded SpMV with sparse vector and preset buffers
  * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
  * IVT: input vector numerical type
  * OVT: output vector numerical type
  */
-template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
+void generic_gespmv_threaded_setbuffers (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
 				 int32_t * sendindbuf, OVT * sendnumbuf, int * cnts, int * dspls, int p_c)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
@@ -235,9 +233,9 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 			
 			int32_t perproc = nlocrows / p_c;	
@@ -337,8 +335,8 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 //! SpMV with sparse vector
 //! MIND: Matrix index type
 //! VIND: Vector index type (optimized: int32_t, general: int64_t)
-template <typename SR, typename MIND, typename VIND, typename NUM, typename IVT, typename OVT>
-void dcsc_gespmv (const SpDCCols<MIND, NUM> & A, const VIND * indx, const IVT * numx, VIND nnzx, vector<VIND> & indy, vector<OVT>  & numy)
+template <typename SR, typename MIND, typename VIND, typename DER, typename NUM, typename IVT, typename OVT>
+void generic_gespmv (const SpMat<MIND,NUM,DER> & A, const VIND * indx, const IVT * numx, VIND nnzx, vector<VIND> & indy, vector<OVT>  & numy)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -348,7 +346,7 @@ void dcsc_gespmv (const SpDCCols<MIND, NUM> & A, const VIND * indx, const IVT * 
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.GetDCSC()), (VIND) A.getnrow(), indx, numx, nnzx, indy, numy);
+			SpMXSpV<SR>(*(A.GetInternal()), (VIND) A.getnrow(), indx, numx, nnzx, indy, numy);
 		}
 	}
 }
@@ -356,8 +354,8 @@ void dcsc_gespmv (const SpDCCols<MIND, NUM> & A, const VIND * indx, const IVT * 
 /** SpMV with sparse vector
   * @param[in] indexisvalue is only used for BFS-like computations, if true then we can call the optimized version that skips SPA
   */
-template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+template <typename SR, typename IU, typename DER, typename NUM, typename IVT, typename OVT>
+void generic_gespmv (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
 		int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c, bool indexisvalue)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
@@ -368,15 +366,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT *
 		}
 		else
 		{
-			if(indexisvalue)
-			{
-				int32_t localm = (int32_t) A.getnrow();
-				BitMap * isthere = new BitMap(localm);
-				SpMXSpV(*(A.GetDCSC()), localm, indx, numx, nnzx, indy, numy, cnts, dspls, p_c, isthere);
-				delete isthere;
-			}
-			else
-				SpMXSpV<SR>(*(A.GetDCSC()), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+            SpMXSpV<SR>(*(A.GetInternal()), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }

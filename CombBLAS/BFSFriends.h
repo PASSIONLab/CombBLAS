@@ -37,7 +37,6 @@
 #include "Friends.h"
 #include "OptBuf.h"
 #include "ParFriends.h"
-#include "SpImplNoSR.h"
 #include "BitMap.h"
 #include "BitMapCarousel.h"
 #include "BitMapFringe.h"
@@ -59,6 +58,7 @@ template <typename IT, typename VT>
 void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_t * indx, const VT * numx, int32_t nnzx, 
 				 int32_t * sendindbuf, VT * sendnumbuf, int * cnts, int * dspls, int p_c)
 {
+    Select2ndSRing<bool, VT, VT> BFSsring;
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
 		int splits = A.getnsplit();
@@ -75,9 +75,9 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreading(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<BFSsring>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreading(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<BFSsring>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 			
 			int32_t perproc = nlocrows / p_c;	
@@ -183,6 +183,8 @@ template<typename VT, typename IT, typename UDER>
 void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz)
 {	
 
+    Select2ndSRing<bool, VT, VT> BFSsring;
+
 #ifdef TIMING
 	double t0=MPI_Wtime();
 #endif
@@ -191,15 +193,17 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 		if(A.spSeq->getnsplit() > 0)
 		{
 			// optbuf.{inds/nums/dspls} and sendcnt are all pre-allocated and only filled by dcsc_gespmv_threaded
-			dcsc_gespmv_threaded_setbuffers (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);	
+			generic_gespmv_threaded_setbuffers (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 		}
 		else
 		{
 			// by-pass dcsc_gespmv call
 			if(A.getlocalnnz() > 0 && accnz > 0)
 			{
-				SpMXSpV(*((A.spSeq)->GetDCSC()), (int32_t) A.getlocalrows(), indacc, numacc, 
-					accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs, optbuf.isthere);
+                // ABAB: ignoring optbuf.isthere here
+                // \TODO: Remove .isthere from optbuf definition
+				SpMXSpV<BFSsring>(*((A.spSeq)->GetInternal()), (int32_t) A.getlocalrows(), indacc, numacc,
+					accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 			}
 		}
 		DeleteAll(indacc,numacc);
