@@ -1,5 +1,5 @@
 CXX := CC
-CXXFLAGS := -std=c++11 -O2 -DTHREADED -fopenmp -fpermissive -DNDEBUG #-DBUPC
+CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -DTHREADED -fopenmp -fpermissive -DNDEBUG #-DBUPC
 
 
 
