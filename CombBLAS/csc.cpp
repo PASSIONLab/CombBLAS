@@ -46,7 +46,7 @@ Csc<IT,NT>::Csc (const Csc<IT,NT> & rhs): n(rhs.n), nz(rhs.nz)
 {
     if(nz > 0)
     {
-        ir		= new IT[nz];
+        ir	= new IT[nz];
         num	= new NT[nz];
         std::copy(rhs.ir, rhs.ir+nz, ir); // copy(first, last, result)
         std::copy(rhs.num, rhs.num+nz, num);
