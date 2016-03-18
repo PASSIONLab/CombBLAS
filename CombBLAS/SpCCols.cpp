@@ -231,6 +231,62 @@ SpCCols<IT,NT> & SpCCols<IT,NT>::operator=(const SpCCols<IT,NT> & rhs)
 }
 
 
+template <class IT, class NT>
+void SpCCols<IT,NT>::RowSplit(int numsplits)
+{
+    splits = numsplits;
+    IT perpiece = m / splits;
+    vector<IT> nnzs(splits, 0);
+    vector < vector < tuple<IT,IT,NT> > > colrowpairs(splits);
+    vector< vector<IT> > colcnts(splits);
+    for(int i=0; i< splits; ++i)
+        colcnts[i].resize(n, 0);
+    
+    if(nnz > 0 && csc != NULL)
+    {
+        for(IT i=0; i< csc->n; ++i)
+        {
+            for(IT j = csc->jc[i]; j< csc->jc[i+1]; ++j)
+            {
+                IT rowid = csc->jc[i];  // colid=i
+                IT owner = min(rowid / perpiece, static_cast<IT>(splits-1));
+                colrowpairs[owner].push_back(make_tuple(i, rowid - owner*perpiece, csc->num[i]));
+                
+                ++(colcnts[owner][i]);
+                ++(nnzs[owner]);
+            }
+        }
+    }
+    delete csc;	// claim memory
+ 
+    cscarr = new Csc<IT,NT>*[splits];
+    
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+    for(int i=0; i< splits; ++i)    // i iterates over splits
+    {
+        cscarr[i] = new Csc<IT,NT>(nnzs[i],n);
+        sort(colrowpairs[i].begin(), colrowpairs[i].end());	// sort w.r.t. columns first and rows second
+        cscarr[i]->jc[0]  = 0;
+        std::partial_sum(colcnts[i].begin(), colcnts[i].end(), cscarr[i]->jc+1);
+        std::copy(cscarr[i]->jc, cscarr[i]->jc+n, colcnts[i].begin());   // reuse the colcnts as "current column pointers"
+        
+        
+        for(IT k=0; k<nnzs[i]; ++k) // k iterates over all nonzeros
+        {
+            IT cindex = get<0>(colrowpairs[i][k]);
+            IT rindex = get<1>(colrowpairs[i][k]);
+            NT value = get<2>(colrowpairs[i][k]);
+            
+            IT curcptr = (colcnts[i][cindex])++;   // fetch the pointer and post increment
+            cscarr[i]->ir[curcptr] = rindex;
+            cscarr[i]->num[curcptr] = value;
+        }
+    }
+}
+
+
 /****************************************************************************/
 /************************* PRIVATE MEMBER FUNCTIONS *************************/
 /****************************************************************************/

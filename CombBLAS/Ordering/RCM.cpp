@@ -178,6 +178,8 @@ int main(int argc, char* argv[])
         SpParHelper::Print(outs.str());
         
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
+        ABoolCSC->PrintInfo();
+        
         
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
@@ -206,6 +208,10 @@ int main(int argc, char* argv[])
         
         // I think this is still a good idea on small concurrency even though multithreading is not used for better cache performance of SPA arrays
         ABool->ActivateThreading(cblas_splits);
+        
+        ABoolCSC->ActivateThreading(cblas_splits);
+        
+        
         // compute bandwidth
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         // note: threaded matrix can not be permuted

@@ -47,11 +47,11 @@ public:
     SpCCols ();
     SpCCols (IT size, IT nRow, IT nCol);
     SpCCols (const SpTuples<IT,NT> & rhs, bool transpose);
-    SpCCols (const SpDCCols<IT,NT> & rhs)
+    SpCCols (const SpDCCols<IT,NT> & rhs):nnz(0), n(0), m(0), splits(0), csc(NULL)
     {
         SpTuples<IT,NT> tuples(rhs);
         SpCCols<IT,NT> object(tuples, false);
-        *this = object;
+        *this = object; // its members are already initialized by the initializer list
     }
 
     SpCCols (const SpCCols<IT,NT> & rhs);					// Actual copy constructor
