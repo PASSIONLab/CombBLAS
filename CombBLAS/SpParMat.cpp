@@ -542,31 +542,33 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 
 
 template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::Bandwidth() const
+IT SpParMat<IT,NT,DER>::Bandwidth() const
 {
-
-    
-    
     IT upperlBW = -1;
     IT lowerlBW = -1;
-    typename DER::SpColIter colit = spSeq->begcol();
-    for(; colit != spSeq->endcol(); ++colit)	// iterate over columns
+    IT m_perproc = getnrow() / commGrid->GetGridRows();
+    IT n_perproc = getncol() / commGrid->GetGridCols();
+    IT moffset = commGrid->GetRankInProcCol() * m_perproc;
+    IT noffset = commGrid->GetRankInProcRow() * n_perproc;
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
     {
+        IT diagrow = colit.colid() + noffset;
         typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit);
         if(nzit != spSeq->endnz(colit)) // nonempty column
         {
-            IT firstrow = nzit.rowid();
-            IT lastrow = (nzit+ colit.nnz()-1).rowid();
+            IT firstrow = nzit.rowid() + moffset;
+            IT lastrow = (nzit+ colit.nnz()-1).rowid() + moffset;
            
             
-            if(firstrow < colit.colid()) // upper diagonal
+            if(firstrow <= diagrow) // upper diagonal
             {
-                IT dev = colit.colid() - firstrow;
+                IT dev = diagrow - firstrow;
                 if(upperlBW < dev) upperlBW = dev;
             }
-            if(lastrow > colit.colid()) // lower diagonal
+            if(lastrow >= diagrow) // lower diagonal
             {
-                IT dev = lastrow - colit.colid();
+                IT dev = lastrow - diagrow;
                 if(lowerlBW < dev) lowerlBW = dev;
             }
             
@@ -578,8 +580,7 @@ void SpParMat<IT,NT,DER>::Bandwidth() const
     MPI_Allreduce( &upperlBW, &upperBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
     MPI_Allreduce( &lowerlBW, &lowerBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
     
-    //cout << "upperBW = " << upperBW << " lowerBW = " << lowerBW << endl;
-    
+    return (upperBW + lowerBW + 1);
 }
 
 
