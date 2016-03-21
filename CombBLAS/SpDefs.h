@@ -55,7 +55,7 @@
 #define ONEMILLION 1000000
 #define MAXLINELENGTH 200
 #define MINLINELENGTH 2
-#define PRINT_LIMIT 30
+#define PRINT_LIMIT 50
 #define EPSILON 0.01
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors

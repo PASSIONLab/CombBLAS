@@ -1,4 +1,12 @@
 #define DETERMINISTIC
+
+#ifdef THREADED
+#ifndef _OPENMP
+#define _OPENMP // should be defined before any COMBBLAS header is included
+#endif
+#include <omp.h>
+#endif
+
 #include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h>
@@ -14,15 +22,6 @@
 using namespace std;
 
 
-#ifdef THREADED
-#ifndef _OPENMP
-#define _OPENMP
-#endif
-
-#include <omp.h>
-#endif
-
-
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
 {
@@ -33,7 +32,6 @@ void Symmetricize(PARMAT & A)
     AT.RemoveLoops(); // not needed for boolean matrices, but no harm in keeping it
     A += AT;
 }
-
 
 
 struct VertexType
@@ -227,7 +225,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                 //fringe.setNumToInd(); // unncessary since we don't care about the parent
                 //cout << "vector nnz: " << fringe.getnnz() << endl;
                 tSpMV1 = MPI_Wtime();
+                
                 SpMV<SelectMinSR>(A, fringe, fringe, false, optbuf);
+                
                 //fringe = SpMV(A, fringe, optbuf);
                 tSpMV += MPI_Wtime() - tSpMV1;
                 fringe = EWiseMult(fringe, level, true, (int64_t) -1);
@@ -404,6 +404,7 @@ int main(int argc, char* argv[])
             splitPerThread = atoi(argv[3]);
         int cblas_splits = splitPerThread;
         
+        delete ABool;
         
 #ifdef THREADED
 #pragma omp parallel
@@ -416,24 +417,22 @@ int main(int argc, char* argv[])
         SpParHelper::Print(tinfo.str());
 #endif
         
-        // I think this is still a good idea on small concurrency even though multithreading is not used for better cache performance of SPA arrays
-        //ABool->ActivateThreading(cblas_splits);
-        ABoolCSC->ActivateThreading(cblas_splits);
         
         
         // compute bandwidth
         if(cblas_splits>1)
         {
-            ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
+            // ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
+            ABoolCSC->ActivateThreading(cblas_splits);
+
             tinfo.str("");
             tinfo << "Matrix split into "<< cblas_splits <<  " parts" << endl;
             SpParHelper::Print(tinfo.str());
         }
         
         // Compute RCM ordering
-        FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
-        
-        FullyDistVec<int64_t, int64_t> rcmorder2 = RCM(*ABoolCSC, degrees);
+        // FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
+        FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABoolCSC, degrees);
 
         
         // note: threaded matrix can not be permuted
