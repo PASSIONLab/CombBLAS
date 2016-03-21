@@ -263,7 +263,6 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 		}
 	}
 	delete [] localy;
-	delete [] isthere;
 }
 
 
@@ -273,8 +272,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
 {
 	OVT * localy = new OVT[mA];
-	bool * isthere = new bool[mA];
-	fill(isthere, isthere+mA, false);
+    BitMap isthere(mA);
 	vector<int32_t> nzinds;	// nonzero indices		
 
 	// The following piece of code is not general, but it's more memory efficient than FillColInds
@@ -289,11 +287,11 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
 				int32_t rowid = (int32_t) Adcsc.ir[j];
-				if(!isthere[rowid])
+				if(!isthere.get_bit(rowid))
 				{
 					localy[rowid] = numx[k];	// initial assignment
 					nzinds.push_back(rowid);
-					isthere[rowid] = true;
+					isthere.set_bit(rowid);
 				}
 				else
 				{
@@ -312,7 +310,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
 		numy[i] = localy[nzinds[i]]; 	
 	}
-	DeleteAll(localy,isthere);
+    delete [] localy;
 }
 
 
@@ -323,8 +321,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
                                                       vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
 {
     OVT * localy = new OVT[mA];
-    bool * isthere = new bool[mA];
-    fill(isthere, isthere+mA, false);
+    BitMap isthere(mA);
     vector<int32_t> nzinds;	// nonzero indices
     
     for (int32_t k = 0; k < veclen; ++k)
@@ -333,11 +330,11 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
         for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
         {
             int32_t rowid = (int32_t) Acsc.ir[j];
-            if(!isthere[rowid])
+            if(!isthere.get_bit(rowid))
             {
                 localy[rowid] = numx[k];	// initial assignment
                 nzinds.push_back(rowid);
-                isthere[rowid] = true;
+                isthere.set_bit(rowid);
             }
             else
             {
@@ -354,6 +351,6 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
         indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
         numy[i] = localy[nzinds[i]]; 	
     }
-    DeleteAll(localy,isthere);
+    delete [] localy;
 }
 
