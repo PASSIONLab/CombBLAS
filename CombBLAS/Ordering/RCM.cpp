@@ -79,7 +79,6 @@ struct SelectMinSR
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
-OptBuf<int32_t, int64_t> optbuf;
 
 
 
@@ -226,9 +225,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                 //cout << "vector nnz: " << fringe.getnnz() << endl;
                 tSpMV1 = MPI_Wtime();
                 
-                SpMV<SelectMinSR>(A, fringe, fringe, false, optbuf);
+                SpMV<SelectMinSR>(A, fringe, fringe, false);
                 
-                //fringe = SpMV(A, fringe, optbuf);
+                //fringe = SpMV(A, fringe);
                 tSpMV += MPI_Wtime() - tSpMV1;
                 fringe = EWiseMult(fringe, level, true, (int64_t) -1);
                 // set value to the current level
@@ -332,7 +331,8 @@ int main(int argc, char* argv[])
             tinfo << "Bandwidth before random permutation " << bw << endl;
             SpParHelper::Print(tinfo.str());
             
-            
+           
+#ifdef RAND_PERMUTE
             if(ABool->getnrow() == ABool->getncol())
             {
                 FullyDistVec<int64_t, int64_t> p( ABool->getcommgrid());
@@ -345,8 +345,8 @@ int main(int argc, char* argv[])
             {
                 SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
             }
-            
-            Symmetricize(*ABool); //***** because RCM makes sense only to symmetric matrices
+#endif
+            // ::ParallelReadMM should already create symmetric matrix if the file is symmetric as described in header
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -383,7 +383,6 @@ int main(int argc, char* argv[])
          
         int64_t bw = ABool->Bandwidth();
         
-        ABool->OptimizeForGraph500(optbuf);
         float balance = ABool->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
