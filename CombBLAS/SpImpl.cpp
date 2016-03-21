@@ -28,6 +28,7 @@
 
 #include "SpImpl.h"
 #include "Deleter.h"
+#include "PBBS/radixSort.h"
 
 /**
  * Base template version [full use of the semiring add() and multiply()]
@@ -301,8 +302,8 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 			++i; ++k;
 		}
 	}
-	sort(nzinds.begin(), nzinds.end());
-	int nnzy = nzinds.size();
+    int nnzy = nzinds.size();
+    integerSort(nzinds.data(), nnzy);
 	indy.resize(nnzy);
 	numy.resize(nnzy);
 	for(int i=0; i< nnzy; ++i)
@@ -322,14 +323,14 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
 {
     OVT * localy = new OVT[mA];
     BitMap isthere(mA);
-    vector<int32_t> nzinds;	// nonzero indices
+    vector<uint32_t> nzinds;	// nonzero indices
     
     for (int32_t k = 0; k < veclen; ++k)
     {
         IT colid = indx[k];
         for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
         {
-            int32_t rowid = (int32_t) Acsc.ir[j];
+            uint32_t rowid = (uint32_t) Acsc.ir[j];
             if(!isthere.get_bit(rowid))
             {
                 localy[rowid] = numx[k];	// initial assignment
@@ -342,8 +343,8 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
             }
         }
     }
-    sort(nzinds.begin(), nzinds.end());
     int nnzy = nzinds.size();
+    integerSort(nzinds.data(), nnzy);
     indy.resize(nnzy);
     numy.resize(nnzy);
     for(int i=0; i< nnzy; ++i)
