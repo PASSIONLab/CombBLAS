@@ -189,8 +189,13 @@ public:
     {
         return typename SpColIter::NzIter( csc->ir + ccol.colptrnext(), NULL );
     }
+    
+    void PrintInfo() const;
 
 private:
+    
+    void SubPrintInfo(Csc<IT,NT> * mycsc) const;
+
     // Anonymous union
     union {
         Csc<IT, NT> * csc;
@@ -221,6 +226,51 @@ private:
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
                                         int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c); //<! sparse vector
+};
+
+
+// At this point, complete type of of SpCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
+// General case #1: When both NT is the same
+template <class IT, class NT> struct promote_trait< SpCCols<IT,NT> , SpCCols<IT,NT> >
+{
+    typedef SpCCols<IT,NT> T_promote;
+};
+// General case #2: First is boolean the second is anything except boolean (to prevent ambiguity)
+template <class IT, class NT> struct promote_trait< SpCCols<IT,bool> , SpCCols<IT,NT>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >
+{
+    typedef SpCCols<IT,NT> T_promote;
+};
+// General case #3: Second is boolean the first is anything except boolean (to prevent ambiguity)
+template <class IT, class NT> struct promote_trait< SpCCols<IT,NT> , SpCCols<IT,bool>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >
+{
+    typedef SpCCols<IT,NT> T_promote;
+};
+template <class IT> struct promote_trait< SpCCols<IT,int> , SpCCols<IT,float> >
+{
+    typedef SpCCols<IT,float> T_promote;
+};
+
+template <class IT> struct promote_trait< SpCCols<IT,float> , SpCCols<IT,int> >
+{
+    typedef SpCCols<IT,float> T_promote;
+};
+template <class IT> struct promote_trait< SpCCols<IT,int> , SpCCols<IT,double> >
+{
+    typedef SpCCols<IT,double> T_promote;
+};
+template <class IT> struct promote_trait< SpCCols<IT,double> , SpCCols<IT,int> >
+{
+    typedef SpCCols<IT,double> T_promote;
+};
+
+
+// Capture everything of the form SpCCols<OIT, ONT>
+// it may come as a surprise that the partial specializations can
+// involve more template parameters than the primary template
+template <class NIT, class NNT, class OIT, class ONT>
+struct create_trait< SpCCols<OIT, ONT> , NIT, NNT >
+{
+    typedef SpCCols<NIT,NNT> T_inferred;
 };
 
 #include "SpCCols.cpp"

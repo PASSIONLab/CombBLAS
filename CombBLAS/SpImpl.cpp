@@ -318,6 +318,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 
 
 //! We can safely use a SPA here because Acsc is short (::RowSplit() has already been called on it)
+//! \TODO: ABAB (2016): But is indx really indexable by 32-bit integers????
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                       vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)

@@ -248,7 +248,7 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
         {
             for(IT j = csc->jc[i]; j< csc->jc[i+1]; ++j)
             {
-                IT rowid = csc->jc[i];  // colid=i
+                IT rowid = csc->ir[j];  // colid=i
                 IT owner = min(rowid / perpiece, static_cast<IT>(splits-1));
                 colrowpairs[owner].push_back(make_tuple(i, rowid - owner*perpiece, csc->num[i]));
                 
@@ -258,7 +258,6 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
         }
     }
     delete csc;	// claim memory
- 
     cscarr = new Csc<IT,NT>*[splits];
     
     #ifdef _OPENMP
@@ -287,9 +286,74 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
 }
 
 
+template<class IT, class NT>
+void SpCCols<IT,NT>::PrintInfo() const
+{
+    cout << "m: " << m ;
+    cout << ", n: " << n ;
+    cout << ", nnz: "<< nnz ;
+    
+    if(splits > 0)
+    {
+        cout << ", local splits: " << splits << endl;
+#ifdef _OPENMP
+        if(omp_get_thread_num() == 0)
+        {
+            SubPrintInfo(cscarr[0]);
+        }
+#endif
+    }
+    else
+    {
+        cout << endl;
+        SubPrintInfo(csc);
+    }
+}
+
+
+
+
 /****************************************************************************/
 /************************* PRIVATE MEMBER FUNCTIONS *************************/
 /****************************************************************************/
+
+
+template <class IT, class NT>
+void SpCCols<IT,NT>::SubPrintInfo(Csc<IT,NT> * mycsc) const
+{
+#ifdef _OPENMP
+    cout << "Printing for thread " << omp_get_thread_num() << endl;
+#endif
+    if(m < PRINT_LIMIT && n < PRINT_LIMIT)	// small enough to print
+    {
+        NT ** A = SpHelper::allocate2D<NT>(m,n);
+        for(IT i=0; i< m; ++i)
+            for(IT j=0; j<n; ++j)
+                A[i][j] = NT();
+        if(mycsc != NULL)
+        {
+            for(IT i=0; i< n; ++i)
+            {
+                for(IT j = mycsc->jc[i]; j< mycsc->jc[i+1]; ++j)
+                {
+                    IT rowid = mycsc->ir[j];
+                    A[rowid][i] = mycsc->num[j];
+                }
+            }
+        }
+        for(IT i=0; i< m; ++i)
+        {
+            for(IT j=0; j<n; ++j)
+            {
+                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
+                cout << " ";
+            }
+            cout << endl;
+        }
+        SpHelper::deallocate2D(A,m);
+    }
+}
+
 
 template <class IT, class NT>
 inline void SpCCols<IT,NT>::CopyCsc(Csc<IT,NT> * source)
