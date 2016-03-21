@@ -540,7 +540,7 @@ template<typename IU, typename NV>
 void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * & trxinds, NV * & trxnums, 
 					 int32_t * & indacc, NV * & numacc, int & accnz, bool indexisvalue)
 {
-        int colneighs, colrank;
+    int colneighs, colrank;
 	MPI_Comm_size(ColWorld, &colneighs);
 	MPI_Comm_rank(ColWorld, &colrank);
 	int * colnz = new int[colneighs];
@@ -678,7 +678,6 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 			int32_t index = recvindbuf[rdispls[i] + j];
 			if(!isthere[index])
 				ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
-			
 		}
 	}
 	DeleteAll(recvcnt, rdispls);
@@ -770,31 +769,18 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t *trxinds, *indacc;
 	IVT *trxnums, *numacc;
 	
-	
-	/* char errorstring[PAPI_MAX_STR_LEN+1];
-	 int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
-	 string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
-	 int arraysize = sizeof(Events2Add) / sizeof(int);
-	 long long ptr2values[arraysize];
-	 
-	int errorcode = PAPI_start_counters(Events2Add, arraysize);
-	if (errorcode != PAPI_OK) {
-		PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
-		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
-	}
-	*/
-	
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
-	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);
-	
-	/*
-	errorcode = PAPI_read_counters(ptr2values, arraysize);
-	if (errorcode != PAPI_OK) {
-		PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
-		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
-	}
-	errorcode = PAPI_stop_counters(ptr2values, arraysize);
-	 */
+    
+    if(x.commGrid->GetGridRows() > 1)
+    {
+        AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);   // trxindS/trxnums deallocated, indacc/numacc allocated, accnz set
+    }
+    else
+    {
+        accnz = trxlocnz;
+        indacc = trxinds;   // aliasing ptr
+        numacc = trxnums;   // aliasing ptr
+    }
 	
 	int rowneighs;
 	MPI_Comm_size(RowWorld, &rowneighs);
@@ -803,6 +789,16 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	OVT * sendnumbuf;
 	int * sdispls;
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+    
+    if(x.commGrid->GetGridCols() == 1)
+    {
+        y.ind.resize(sendcnt[0]);
+        y.num.resize(sendcnt[0]);
+        copy(sendindbuf, sendindbuf+sendcnt[0], y.ind.begin());
+        copy(sendnumbuf, sendnumbuf+sendcnt[0], y.num.begin());
+        DeleteAll(sendindbuf, sendnumbuf,sendcnt, sdispls);
+        return;
+    }
 	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
@@ -825,40 +821,21 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	{
 		MPI_Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>(), RowWorld);
 		MPI_Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>(), RowWorld);
-
 		delete [] sendcnt;
 	}
 	else
-	{
-		 /*		ofstream oput;
-		 x.commGrid->OpenDebugFile("Send", oput);
-		 oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-		 oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-		 for(int i=0; i< rowneighs; ++i)
-		 {
-		 oput << "To neighbor: " << i << endl; 
-		 copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<int32_t>(oput, " ")); oput << endl;
-		 copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<OVT>(oput, " ")); oput << endl;
-		 }
-		 oput.close(); */
-		 
+    {
 		MPI_Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>(), RowWorld);
 		MPI_Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>(), RowWorld);
-
-		DeleteAll(sendindbuf, sendnumbuf);
-		DeleteAll(sendcnt, sdispls);
+		DeleteAll(sendindbuf, sendnumbuf, sendcnt, sdispls);
 	}
 #ifdef TIMING
 	double t3=MPI_Wtime();
 	cblas_alltoalltime += (t3-t2);
 #endif
 	
-	//	ofstream output;
-	//	A.commGrid->OpenDebugFile("Recv", output);
-	//	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
-	//	output.close();
-	
-	MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+
+    MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
 }
 
 
