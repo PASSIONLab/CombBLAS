@@ -218,8 +218,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 			int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
 {   
 	OVT * localy = new OVT[mA];
-	bool * isthere = new bool[mA];
-	fill(isthere, isthere+mA, false);
+	BitMap isthere(mA);
 	vector< vector<int32_t> > nzinds(p_c);	// nonzero indices		
 
 	int32_t perproc = mA / p_c;	
@@ -234,12 +233,12 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
 				int32_t rowid = (int32_t) Adcsc.ir[j];
-				if(!isthere[rowid])
+				if(!isthere.get_bit(rowid))
 				{
 					int32_t owner = min(rowid / perproc, static_cast<int32_t>(p_c-1)); 			
 					localy[rowid] = numx[k];	// initial assignment, requires implicit conversion if IVT != OVT
 					nzinds[owner].push_back(rowid);
-					isthere[rowid] = true;
+                    isthere.set_bit(rowid);
 				}
 				else	
 				{
