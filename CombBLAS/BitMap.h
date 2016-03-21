@@ -44,7 +44,7 @@ class BitMap {
   BitMap(uint64_t size) {
     uint64_t num_longs = (size + 63) / 64;
     // VS9:  warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
-    start = new uint64_t[num_longs];
+    start = new uint64_t[num_longs]();  // zero initialized by default
     end = start + num_longs;
   }
 
