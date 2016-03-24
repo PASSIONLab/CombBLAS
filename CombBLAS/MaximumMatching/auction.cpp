@@ -45,7 +45,6 @@ public:
      
     friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.price < vtx2.price;};
     friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.objID << ", " << vertex.price << ", " << vertex.secondMaxProfit << ")"; return os;};
- 
     
     // variables for the object
     int64_t objID; // ultimately it will be the object with the max profit for a bidder
@@ -362,6 +361,8 @@ void auction(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
     
 
     FullyDistVec<int64_t, VertexType> objects ( A.getcommgrid(), ncol, VertexType());
+    // set index to value 
+    objects.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx, vtx.price, vtx.secondMaxProfit);});
     FullyDistVec<int64_t, VertexType> bidders ( A.getcommgrid(), nrow, VertexType());
     
     // future: I need an SPMV that could return a dense vector of type other than the input
@@ -385,15 +386,17 @@ void auction(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
     // compute bid
     activeBidders.Apply([](VertexType bidder){return VertexType(bidder.objID, bidder.price - bidder.secondMaxProfit);}); // I don't care secondMaxProfit anymore
     
+    
     // place bid
     // objects need to select the best bidder
-    
+    activeBidders.DebugPrint();
     FullyDistSpVec<int64_t, VertexType> bidObject =
                             activeBidders.Invert(ncol,
                             [](VertexType bidder, int64_t idx){return bidder.objID;},
                             [](VertexType bidder, int64_t idx){return VertexType(idx, bidder.price);},
                             [](VertexType bid1, VertexType bid2){return bid1.price>bid2.price? bid1: bid2;}); // I don't care secondMaxProfit anymore
     
+    bidObject.DebugPrint();
     
     // just creating a simplified object with the highest bidder
     // mateCol2Row is used just as a mask
@@ -403,8 +406,8 @@ void auction(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                                       false, VertexType());
     
     
-    
-
+    //mateCol2Row.DebugPrint();
+    // bidders previously matched to current successfull bids will become unmatched
     FullyDistSpVec<int64_t, int64_t> revokedBids = EWiseApply<int64_t>(successfullBids, mateCol2Row,
                                                                             [](int64_t newbidder, int64_t mate){return mate;},
                                                                             [](int64_t newbidder, int64_t mate){return mate!=-1;},
@@ -413,8 +416,13 @@ void auction(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
     
     mateCol2Row.Set(successfullBids);
     
+    //cout << " djkfhksjdfh \n";
+    //successfullBids.DebugPrint();
+    //revokedBids.DebugPrint();
+    
     // previously unmatched bidders that will be matched
     FullyDistSpVec<int64_t, int64_t> successfullBidders = successfullBids.Invert(nrow);
+   
     // previously matched bidders that will be unmatched
     FullyDistSpVec<int64_t, int64_t> revokedBidders = revokedBids.Invert(nrow);
     // they are mutually exclusive
