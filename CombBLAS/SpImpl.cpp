@@ -29,6 +29,8 @@
 #include "SpImpl.h"
 #include "Deleter.h"
 #include "PBBS/radixSort.h"
+#include "Tommy/tommyhashdyn.h"
+using namespace std;
 
 /**
  * Base template version [full use of the semiring add() and multiply()]
@@ -274,7 +276,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 {
 	OVT * localy = new OVT[mA];
     BitMap isthere(mA);
-	vector<int32_t> nzinds;	// nonzero indices		
+	vector<uint32_t> nzinds;	// nonzero indices
 
 	// The following piece of code is not general, but it's more memory efficient than FillColInds
 	int32_t k = 0; 	// index to indx vector
@@ -287,7 +289,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 		{
 			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
-				int32_t rowid = (int32_t) Adcsc.ir[j];
+				uint32_t rowid = (uint32_t) Adcsc.ir[j];
 				if(!isthere.get_bit(rowid))
 				{
 					localy[rowid] = numx[k];	// initial assignment
@@ -315,15 +317,39 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 }
 
 
+template <typename OVT>
+struct tommy_object {
+    tommy_node node;
+    OVT value;
+    uint32_t index;
+    
+    tommy_object(OVT val, uint32_t ind):value(val), index(ind){}; // constructor
+};
+
+template <typename OVT>
+int compare(const void* arg, const void* obj)
+{
+    return *(const uint32_t*)arg != ((const tommy_object<OVT> *)obj)->index;
+}
+
+//#define USE_TOMMY
+
 //! We can safely use a SPA here because Acsc is short (::RowSplit() has already been called on it)
 //! \TODO: ABAB (2016): But is indx really indexable by 32-bit integers????
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                       vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
 {
-    OVT * localy = new OVT[mA];
+    
     BitMap isthere(mA);
     vector<uint32_t> nzinds;	// nonzero indices
+
+#ifdef USE_TOMMY
+    tommy_hashdyn hashdyn;
+    tommy_hashdyn_init(&hashdyn);
+#else
+    OVT * localy = new OVT[mA];
+#endif
     
     for (int32_t k = 0; k < veclen; ++k)
     {
@@ -333,13 +359,23 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
             uint32_t rowid = (uint32_t) Acsc.ir[j];
             if(!isthere.get_bit(rowid))
             {
+            #ifdef USE_TOMMY
+                tommy_object<OVT> * obj = new tommy_object<OVT>(numx[k], rowid);
+                tommy_hashdyn_insert(&hashdyn, &(obj->node), obj, tommy_inthash_u32(obj->index));
+            #else
                 localy[rowid] = numx[k];	// initial assignment
+            #endif
                 nzinds.push_back(rowid);
                 isthere.set_bit(rowid);
             }
             else
             {
+            #ifdef USE_TOMMY
+                tommy_object<OVT> * obj = (tommy_object<OVT> *) tommy_hashdyn_search(&hashdyn, compare<OVT>, &rowid, tommy_inthash_u32(rowid));
+                obj->value = SR::add(obj->value, numx[k]);
+            #else
                 localy[rowid] = SR::add(localy[rowid], numx[k]);
+            #endif
             }
         }
     }
@@ -347,11 +383,24 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
     integerSort(nzinds.data(), nnzy);
     indy.resize(nnzy);
     numy.resize(nnzy);
+    
     for(int i=0; i< nnzy; ++i)
     {
         indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
-        numy[i] = localy[nzinds[i]]; 	
+    #ifdef USE_TOMMY
+        tommy_object<OVT> * obj = (tommy_object<OVT> *) tommy_hashdyn_search(&hashdyn, compare<OVT>, &(nzinds[i]), tommy_inthash_u32(nzinds[i]));
+        numy[i] = obj->value;
+    #else
+        numy[i] = localy[nzinds[i]];
+    #endif
     }
+    
+#ifdef USE_TOMMY
+    tommy_hashdyn_foreach(&hashdyn, operator delete);
+    tommy_hashdyn_done(&hashdyn);
+#else
     delete [] localy;
+#endif
+
 }
 

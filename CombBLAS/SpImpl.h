@@ -141,7 +141,10 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
                         vector<int32_t> & indy, vector< OVT > & numy);
     
     static void SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                        vector<int32_t> & indy, vector< OVT > & numy) { cout << "SpMXSpV(CSC) to be implemented" << endl; }
+                        vector<int32_t> & indy, vector< OVT > & numy)
+    {
+        SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, 0);  // forward to ::SpMXSpV_ForThreading with offset=0
+    }
     
     static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                         int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
