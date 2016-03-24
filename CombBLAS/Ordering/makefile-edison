@@ -1,5 +1,5 @@
 CXX := CC
-CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -DTHREADED -fopenmp -fpermissive -DNDEBUG #-DBUPC
+CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive -DNDEBUG -DTHREADED 
 
 
 
@@ -11,6 +11,9 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
+$(COMBBLAS)/Tommy/%.o : $(COMBBLAS)/Tommy/%.c
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
 
 clean:
 	rm -rf ../*.o
@@ -18,6 +21,8 @@ clean:
 	rm -f rcm 
 	rm -f *.o
         
+
+TOMMYS = $(COMBBLAS)/Tommy/tommyhashdyn.o $(COMBBLAS)/Tommy/tommyhash.o $(COMBBLAS)/Tommy/tommylist.o
 
 
 md.o: MD.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
@@ -29,6 +34,6 @@ md: MD.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  
 rcm.o: RCM.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-rcm: rcm.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o
+rcm: rcm.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 

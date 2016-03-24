@@ -18,7 +18,8 @@
 #include <sstream>
 
 
-#define EDGEFACTOR 4  /// changed to 8
+#define EDGEFACTOR 16
+#define RAND_PERMUTE 1
 using namespace std;
 
 
@@ -382,20 +383,21 @@ int main(int argc, char* argv[])
         }
          
         int64_t bw = ABool->Bandwidth();
-        
         float balance = ABool->LoadImbalance();
         ostringstream outs;
         outs << "Load balance: " << balance << endl;
         outs << "Bandwidth after random permutation " << bw << endl;
         SpParHelper::Print(outs.str());
         
+        // Reduce is not multithreaded, so I am doing it here
+        FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
+        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+       
+        
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
         ABoolCSC->PrintInfo();
         
         
-        // Reduce is not multithreaded, so I am doing it here
-        FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
-        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
         int nthreads = 1;
         int splitPerThread = 1;
@@ -403,7 +405,7 @@ int main(int argc, char* argv[])
             splitPerThread = atoi(argv[3]);
         int cblas_splits = splitPerThread;
         
-        delete ABool;
+
         
 #ifdef THREADED
 #pragma omp parallel
@@ -440,8 +442,9 @@ int main(int argc, char* argv[])
         
         
         // compute bandwidth of the permuted matrix
-        if(cblas_splits==1)
-        {
+        // using DCSC version here which is not split
+        //if(cblas_splits==1)
+        
             // Ariful: sort returns permutation from ordering
             // and make the original vector a sequence (like iota)
             // I actually need an invert to convert ordering a permutation
@@ -452,34 +455,9 @@ int main(int argc, char* argv[])
             ostringstream outs1;
             outs1 << "Bandwidth after RCM " << bw << endl;
             SpParHelper::Print(outs1.str());
-        }
-        else
-        {
-            SpParHelper::Print("Split matrix can not be permuted for bandwidth computation\n");
-        }
-        
-
-        
-        /*
-        
-        FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
-        //fringe.SetElement(0, 10);
-        fringe.SetElement(1, 11);
-        fringe.SetElement(3, 0);
-        fringe.SetElement(4, 2);
-        FullyDistSpVec<int64_t, int64_t> sorted=  fringe.sort();
-        FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
-        FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
-        val.iota(idx.TotalLength(),10);
-        FullyDistSpVec<int64_t, int64_t> sorted1 (fringe.TotalLength(), idx, val);
-        
-        FullyDistSpVec<int64_t, int64_t> sortedi= sorted.Invert(5);
-        sorted.DebugPrint();
-        sortedi.DebugPrint();
-        sorted1.DebugPrint();
-        */
-         
-        
+            
+        delete ABool;
+        delete ABoolCSC;
     }
     MPI_Finalize();
     return 0;
