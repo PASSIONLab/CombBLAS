@@ -381,7 +381,8 @@ int main(int argc, char* argv[])
             MPI_Finalize();
             return -1;
         }
-         
+        
+        ABool->RemoveLoops();
         int64_t bw = ABool->Bandwidth();
         float balance = ABool->LoadImbalance();
         ostringstream outs;

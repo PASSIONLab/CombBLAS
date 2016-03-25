@@ -34,7 +34,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 	MPI_Comm_size(comm, &nprocs);
 	MPI_Comm_rank(comm, &myrank);
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 1000)
+	if(nprocs < 10000)
 	{
 		bool excluded =  false;
 		if(dist[myrank] == 0)	excluded = true;
