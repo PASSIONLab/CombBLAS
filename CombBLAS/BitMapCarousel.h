@@ -151,7 +151,7 @@ class BitMapCarousel {
 				   recv_buff->data(), recv_words, MPIType<uint64_t>(), source, ROTATE, RowWorld, &status);
 #ifdef TIMING
     double t2 = MPI_Wtime();
-    bottomup_sendrecv += t2-t1;
+    //bottomup_sendrecv += t2-t1; // Ariful: I am getting compilation error. Disabling it 
 #endif
     local_size = SizeOfChunk();
     rotlenuntil = RotLengthUntil();

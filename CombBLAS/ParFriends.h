@@ -598,7 +598,7 @@ void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * &
 template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
 			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
-{	
+{
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
 		if(A.spSeq->getnsplit() > 0)
@@ -936,7 +936,16 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t *trxinds, *indacc;
 	IVT *trxnums, *numacc;
 	
+#ifdef TIMING
+    double t0=MPI_Wtime();
+#endif
+    
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
+    
+#ifdef TIMING
+    double t1=MPI_Wtime();
+    cblas_transvectime += (t1-t0);
+#endif
     
     if(x.commGrid->GetGridRows() > 1)
     {
@@ -955,7 +964,17 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t * sendindbuf;	
 	OVT * sendnumbuf;
 	int * sdispls;
+    
+#ifdef TIMING
+    double t2=MPI_Wtime();
+#endif
+    
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+    
+#ifdef TIMING
+    double t3=MPI_Wtime();
+    cblas_localspmvtime += (t3-t2);
+#endif
     
     if(x.commGrid->GetGridCols() == 1)
     {
@@ -989,7 +1008,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	OVT * recvnumbuf = new OVT[totrecv];
 	
 #ifdef TIMING
-	double t2=MPI_Wtime();
+	double t4=MPI_Wtime();
 #endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
@@ -1004,10 +1023,13 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 		DeleteAll(sendindbuf, sendnumbuf, sendcnt, sdispls);
 	}
 #ifdef TIMING
-	double t3=MPI_Wtime();
-	cblas_alltoalltime += (t3-t2);
+	double t5=MPI_Wtime();
+	cblas_alltoalltime += (t5-t4);
 #endif
 	
+#ifdef TIMING
+    double t6=MPI_Wtime();
+#endif
     //MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
     // free memory of y, in case it was aliased
     vector<IU>().swap(y.ind);
@@ -1015,6 +1037,10 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     
     vector<int32_t *> indsvec(rowneighs);
     vector<OVT *> numsvec(rowneighs);
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
     for(int i=0; i<rowneighs; i++)
     {
         indsvec[i] = recvindbuf+rdispls[i];
@@ -1027,6 +1053,10 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 #endif
     
     DeleteAll(recvcnt, rdispls,recvindbuf, recvnumbuf);
+#ifdef TIMING
+    double t7=MPI_Wtime();
+    cblas_mergeconttime += (t6-t1);
+#endif
     
 }
 

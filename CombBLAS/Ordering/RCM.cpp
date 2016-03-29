@@ -20,7 +20,18 @@
 
 #define EDGEFACTOR 16
 #define RAND_PERMUTE 1
+
+
+double cblas_alltoalltime;
+double cblas_allgathertime;
+double cblas_localspmvtime;
+double cblas_mergeconttime;
+double cblas_transvectime;
+
+
+
 using namespace std;
+
 
 
 template <typename PARMAT>
@@ -131,7 +142,8 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         // Here i/j is the index of the elements relative to the dense containter
         // Alternatively, j's consist a permutation that would premute the undorted vector to sorted vector
         
-        
+        // Currently sort works up to 10k MPI processes
+        // We can change the hardcoded limit in SpParHelper::MemoryEfficientPSort
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
         // idx is the index  of fringe in sorted order
         FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
@@ -165,6 +177,13 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
 template <typename PARMAT>
 FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees)
 {
+#ifdef TIMING
+    cblas_allgathertime = 0;
+    cblas_alltoalltime = 0;
+    cblas_mergeconttime = 0;
+    cblas_transvectime = 0;
+    cblas_localspmvtime = 0;
+#endif
     /*
      unvisitedVertices: list of current unvisited vertices.
      Each entry is a (degree, vertex index) pair.
@@ -188,8 +207,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     // current connected component
     int cc = 1;
     
-    int myrank;
+    int myrank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     int64_t numUnvisited = unvisitedVertices.getnnz();
     
     while(numUnvisited>0) // for each connected component
@@ -289,6 +309,75 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                                                                false, make_pair((int64_t)-1, (int64_t)0));
         numUnvisited = unvisitedVertices.getnnz();
     }
+    
+#ifdef TIMING
+    double *td_ag_all, *td_a2a_all, *td_tv_all, *td_mc_all, *td_spmv_all;
+    if(myrank == 0)
+    {
+        td_ag_all = new double[nprocs];
+        td_a2a_all = new double[nprocs];
+        td_tv_all = new double[nprocs];
+        td_mc_all = new double[nprocs];
+        td_spmv_all = new double[nprocs];
+    }
+    
+    MPI_Gather(&cblas_allgathertime, 1, MPI_DOUBLE, td_ag_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_alltoalltime, 1, MPI_DOUBLE, td_a2a_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_transvectime, 1, MPI_DOUBLE, td_tv_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_mergeconttime, 1, MPI_DOUBLE, td_mc_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_localspmvtime, 1, MPI_DOUBLE, td_spmv_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
+    
+    if(myrank == 0)
+    {
+        
+        vector<double> total_time(nprocs, 0);
+        for(int i=0; i< nprocs; ++i) 				// find the mean performing guy
+            total_time[i] += td_ag_all[i] +  td_a2a_all[i] + td_tv_all[i] + td_mc_all[i] + td_spmv_all[i];
+        
+        // order
+        vector<pair<double, int>> tosort;
+        for(int i=0; i<nprocs; i++) tosort.push_back(make_pair(total_time[i], i));
+        sort(tosort.begin(), tosort.end());
+        //vector<int> permutation = SpHelper::order(total_time);
+        vector<int> permutation(nprocs);
+        for(int i=0; i<nprocs; i++) permutation[i] = tosort[i].second;
+        
+        int smallest = permutation[0];
+        int largest = permutation[nprocs-1];
+        int median = permutation[nprocs/2];
+        
+        cout << "TOTAL (accounted) MEAN: " << accumulate( total_time.begin(), total_time.end(), 0.0 )/ static_cast<double> (nprocs) << endl;
+        cout << "TOTAL (accounted) MAX: " << total_time[0] << endl;
+        cout << "TOTAL (accounted) MIN: " << total_time[nprocs-1]  << endl;
+        cout << "TOTAL (accounted) MEDIAN: " << total_time[nprocs/2] << endl;
+        cout << "-------------------------------" << endl;
+        
+        cout << "allgather median: " << td_ag_all[median] << endl;
+        cout << "all2all median: " << td_a2a_all[median] << endl;
+        cout << "transposevector median: " << td_tv_all[median] << endl;
+        cout << "mergecontributions median: " << td_mc_all[median] << endl;
+        cout << "spmsv median: " << td_spmv_all[median] << endl;
+        cout << "-------------------------------" << endl;
+        
+       
+        cout << "allgather fastest: " << td_ag_all[smallest] << endl;
+        cout << "all2all fastest: " << td_a2a_all[smallest] << endl;
+        cout << "transposevector fastest: " << td_tv_all[smallest] << endl;
+        cout << "mergecontributions fastest: " << td_mc_all[smallest] << endl;
+        cout << "spmsv fastest: " << td_spmv_all[smallest] << endl;
+        cout << "-------------------------------" << endl;
+        
+        
+        cout << "allgather slowest: " << td_ag_all[largest] << endl;
+        cout << "all2all slowest: " << td_a2a_all[largest] << endl;
+        cout << "transposevector slowest: " << td_tv_all[largest] << endl;
+        cout << "mergecontributions slowest: " << td_mc_all[largest] << endl;
+        cout << "spmsv slowest: " << td_spmv_all[largest] << endl;
+    }
+#endif
+
+    
     return rcmorder;
 }
 
