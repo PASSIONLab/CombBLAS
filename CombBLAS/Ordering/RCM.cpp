@@ -474,10 +474,6 @@ int main(int argc, char* argv[])
         ABool->RemoveLoops();
         int64_t bw = ABool->Bandwidth();
         float balance = ABool->LoadImbalance();
-        ostringstream outs;
-        outs << "Load balance: " << balance << endl;
-        outs << "Bandwidth after random permutation " << bw << endl;
-        SpParHelper::Print(outs.str());
         
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
@@ -509,16 +505,21 @@ int main(int argc, char* argv[])
 #endif
         
         
+        ostringstream outs;
+        outs << "--------------------------------------" << endl;
+        outs << "Number of MPI proceses: " << nprocs << endl;
+        outs << "Number of threads per procese: " << nthreads << endl;
+        outs << "Number of splits of the matrix: " << cblas_splits << endl;
+        outs << "Load balance: " << balance << endl;
+        outs << "Bandwidth after random permutation " << bw << endl;
+        outs << "--------------------------------------" << endl;
+        SpParHelper::Print(outs.str());
         
         // compute bandwidth
         if(cblas_splits>1)
         {
             // ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
             ABoolCSC->ActivateThreading(cblas_splits);
-
-            tinfo.str("");
-            tinfo << "Matrix split into "<< cblas_splits <<  " parts" << endl;
-            SpParHelper::Print(tinfo.str());
         }
         
         // Compute RCM ordering
