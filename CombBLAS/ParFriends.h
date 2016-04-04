@@ -598,7 +598,7 @@ void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * &
 template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
 			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
-{	
+{
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
 		if(A.spSeq->getnsplit() > 0)
@@ -656,95 +656,262 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 	}
 }
 
+
+// old MergeContributions is replaced by the function below
+/*
 template <typename SR, typename IU, typename OVT>
 void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs)
 {
-	// free memory of y, in case it was aliased
-	vector<IU>().swap(y.ind);
-	vector<OVT>().swap(y.num);
-	
+    // free memory of y, in case it was aliased
+    vector<IU>().swap(y.ind);
+    vector<OVT>().swap(y.num);
+    
 #ifndef HEAPMERGE
-	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
-	bool * isthere = new bool[ysize];
-	vector< pair<IU,OVT> > ts_pairs;	
-	fill_n(isthere, ysize, false);
-
-	// We don't need to keep a "merger" because minimum will always come from the processor
-	// with the smallest rank; so a linear sweep over the received buffer is enough	
-	for(int i=0; i<rowneighs; ++i)
-	{
-		for(int j=0; j< recvcnt[i]; ++j) 
-		{
-			int32_t index = recvindbuf[rdispls[i] + j];
-			if(!isthere[index])
-				ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
-		}
-	}
-	DeleteAll(recvcnt, rdispls);
-	DeleteAll(isthere, recvindbuf, recvnumbuf);
-	sort(ts_pairs.begin(), ts_pairs.end());
-	int nnzy = ts_pairs.size();
-	y.ind.resize(nnzy);
-	y.num.resize(nnzy);
-	for(int i=0; i< nnzy; ++i)
-	{
-		y.ind[i] = ts_pairs[i].first;
-		y.num[i] = ts_pairs[i].second; 	
-	}
+    IU ysize = y.MyLocLength();	// my local length is only O(n/p)
+    bool * isthere = new bool[ysize];
+    vector< pair<IU,OVT> > ts_pairs;
+    fill_n(isthere, ysize, false);
+    
+    // We don't need to keep a "merger" because minimum will always come from the processor
+    // with the smallest rank; so a linear sweep over the received buffer is enough
+    for(int i=0; i<rowneighs; ++i)
+    {
+        for(int j=0; j< recvcnt[i]; ++j)
+        {
+            int32_t index = recvindbuf[rdispls[i] + j];
+            if(!isthere[index])
+                ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
+        }
+    }
+    DeleteAll(recvcnt, rdispls);
+    DeleteAll(isthere, recvindbuf, recvnumbuf);
+    sort(ts_pairs.begin(), ts_pairs.end());
+    int nnzy = ts_pairs.size();
+    y.ind.resize(nnzy);
+    y.num.resize(nnzy);
+    for(int i=0; i< nnzy; ++i)
+    {
+        y.ind[i] = ts_pairs[i].first;
+        y.num[i] = ts_pairs[i].second;
+    }
 #else
-	// Alternative 2: Heap-merge
-	int32_t hsize = 0;		
-	int32_t inf = numeric_limits<int32_t>::min();
-	int32_t sup = numeric_limits<int32_t>::max(); 
-	KNHeap< int32_t, int32_t > sHeap(sup, inf); 
-	int * processed = new int[rowneighs]();
-	for(int i=0; i<rowneighs; ++i)
-	{
-		if(recvcnt[i] > 0)
-		{
-			// key, proc_id
-			sHeap.insert(recvindbuf[rdispls[i]], i);
-			++hsize;
-		}
-	}	
-	int32_t key, locv;
-	if(hsize > 0)
-	{
-		sHeap.deleteMin(&key, &locv);
-		y.ind.push_back( static_cast<IU>(key));
-		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
-		
-		if( (++(processed[locv])) < recvcnt[locv] )
-			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-		else
-			--hsize;
-	}
-	while(hsize > 0)
-	{
-		sHeap.deleteMin(&key, &locv);
-		IU deref = rdispls[locv] + processed[locv];
-		if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
-		{
-			y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
-			// ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
-			// We can just skip this addition operator (if it's a max/min select)
-		} 
-		else
-		{
-			y.ind.push_back(static_cast<IU>(key));
-			y.num.push_back(recvnumbuf[deref]);
-		}
-		
-		if( (++(processed[locv])) < recvcnt[locv] )
-			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-		else
-			--hsize;
-	}
-	DeleteAll(recvcnt, rdispls,processed);
-	DeleteAll(recvindbuf, recvnumbuf);
+    // Alternative 2: Heap-merge
+    int32_t hsize = 0;
+    int32_t inf = numeric_limits<int32_t>::min();
+    int32_t sup = numeric_limits<int32_t>::max();
+    KNHeap< int32_t, int32_t > sHeap(sup, inf);
+    int * processed = new int[rowneighs]();
+    for(int i=0; i<rowneighs; ++i)
+    {
+        if(recvcnt[i] > 0)
+        {
+            // key, proc_id
+            sHeap.insert(recvindbuf[rdispls[i]], i);
+            ++hsize;
+        }
+    }
+    int32_t key, locv;
+    if(hsize > 0)
+    {
+        sHeap.deleteMin(&key, &locv);
+        y.ind.push_back( static_cast<IU>(key));
+        y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
+        
+        if( (++(processed[locv])) < recvcnt[locv] )
+            sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+        else
+            --hsize;
+    }
+    while(hsize > 0)
+    {
+        sHeap.deleteMin(&key, &locv);
+        IU deref = rdispls[locv] + processed[locv];
+        if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
+        {
+            y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
+            // ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
+            // We can just skip this addition operator (if it's a max/min select)
+        } 
+        else
+        {
+            y.ind.push_back(static_cast<IU>(key));
+            y.num.push_back(recvnumbuf[deref]);
+        }
+        
+        if( (++(processed[locv])) < recvcnt[locv] )
+            sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+        else
+            --hsize;
+    }
+    //DeleteAll(recvcnt, rdispls,processed);
+    //DeleteAll(recvindbuf, recvnumbuf);
 #endif	
-
+    
 }
+*/
+
+// non threaded
+template <typename SR, typename IU, typename OVT>
+void MergeContributions(int*  listSizes, vector<int32_t *> & indsvec, vector<OVT *> & numsvec, vector<IU>& mergedind, vector<OVT>& mergednum)
+{
+    
+    int nlists = indsvec.size();
+    // this condition is checked in the caller SpMV function.
+    // I am still putting it here for completeness
+    if(nlists == 1)
+    {
+        // simply copy data
+        int veclen = listSizes[0];
+        mergedind.resize(veclen);
+        mergednum.resize(veclen);
+        for(int i=0; i<veclen; i++)
+        {
+            mergedind[i] = indsvec[0][i];
+            mergednum[i] = numsvec[0][i];
+        }
+        return;
+    }
+
+    int32_t hsize = 0;
+    int32_t inf = numeric_limits<int32_t>::min();
+    int32_t sup = numeric_limits<int32_t>::max();
+    KNHeap< int32_t, int32_t > sHeap(sup, inf);
+    int * processed = new int[nlists]();
+    for(int i=0; i<nlists; ++i)
+    {
+        if(listSizes[i] > 0)
+        {
+            // key, list_id
+            sHeap.insert(indsvec[i][0], i);
+            ++hsize;
+        }
+    }
+    int32_t key, locv;
+    if(hsize > 0)
+    {
+        sHeap.deleteMin(&key, &locv);
+        mergedind.push_back( static_cast<IU>(key));
+        mergednum.push_back(numsvec[locv][0]);	// nothing is processed yet
+        
+        if( (++(processed[locv])) < listSizes[locv] )
+            sHeap.insert(indsvec[locv][processed[locv]], locv);
+        else
+            --hsize;
+    }
+    while(hsize > 0)
+    {
+        sHeap.deleteMin(&key, &locv);
+        if(mergedind.back() == static_cast<IU>(key))
+        {
+            mergednum.back() = SR::add(mergednum.back(), numsvec[locv][processed[locv]]);
+            // ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
+            // We can just skip this addition operator (if it's a max/min select)
+        }
+        else
+        {
+            mergedind.push_back(static_cast<IU>(key));
+            mergednum.push_back(numsvec[locv][processed[locv]]);
+        }
+        
+        if( (++(processed[locv])) < listSizes[locv] )
+            sHeap.insert(indsvec[locv][processed[locv]], locv);
+        else
+            --hsize;
+    }
+    DeleteAll(processed);
+}
+
+
+
+template <typename SR, typename IU, typename OVT>
+void MergeContributions_threaded(int * & listSizes, vector<int32_t *> & indsvec, vector<OVT *> & numsvec, vector<IU> & mergedind, vector<OVT> & mergednum, IU maxindex)
+{
+    
+    int nlists = indsvec.size();
+    // this condition is checked in the caller SpMV function.
+    // I am still putting it here for completeness
+    if(nlists == 1)
+    {
+        // simply copy data
+        int veclen = listSizes[0];
+        mergedind.resize(veclen);
+        mergednum.resize(veclen);
+        
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(int i=0; i<veclen; i++)
+        {
+            mergedind[i] = indsvec[0][i];
+            mergednum[i] = numsvec[0][i];
+        }
+        return;
+    }
+    
+    int nthreads=1;
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    int nsplits = 4*nthreads; // oversplit for load balance
+    nsplits = min(nsplits, (int)maxindex);
+    vector< vector<int32_t> > splitters(nlists);
+    for(int k=0; k< nlists; k++)
+    {
+        splitters[k].resize(nsplits+1);
+        splitters[k][0] = static_cast<int32_t>(0);
+#pragma omp parallel for
+        for(int i=1; i< nsplits; i++)
+        {
+            IU cur_idx = i * (maxindex/nsplits);
+            auto it = lower_bound (indsvec[k], indsvec[k] + listSizes[k], cur_idx);
+            splitters[k][i] = (int32_t) (it - indsvec[k]);
+        }
+        splitters[k][nsplits] = listSizes[k];
+    }
+    
+    // ------ perform merge in parallel ------
+    vector<vector<IU>> indsBuf(nsplits);
+    vector<vector<OVT>> numsBuf(nsplits);
+    //TODO: allocate these vectors here before calling MergeContributions
+#pragma omp parallel for schedule(dynamic)
+    for(int i=0; i< nsplits; i++)
+    {
+        vector<int32_t *> tIndsVec(nlists);
+        vector<OVT *> tNumsVec(nlists);
+        vector<int> tLengths(nlists);
+        for(int j=0; j< nlists; ++j)
+        {
+            tIndsVec[j] = indsvec[j] + splitters[j][i];
+            tNumsVec[j] = numsvec[j] + splitters[j][i];
+            tLengths[j]= splitters[j][i+1] - splitters[j][i];
+            
+        }
+        MergeContributions<SR>(tLengths.data(), tIndsVec, tNumsVec, indsBuf[i], numsBuf[i]);
+    }
+
+    // ------ concatenate merged tuples processed by threads ------
+    vector<IU> tdisp(nsplits+1);
+    tdisp[0] = 0;
+    for(int i=0; i<nsplits; ++i)
+    {
+        tdisp[i+1] = tdisp[i] + indsBuf[i].size();
+    }
+    
+    mergedind.resize(tdisp[nsplits]);
+    mergednum.resize(tdisp[nsplits]);
+    
+    
+#pragma omp parallel for schedule(dynamic)
+    for(int i=0; i< nsplits; i++)
+    {
+        std::copy(indsBuf[i].data() , indsBuf[i].data() + indsBuf[i].size(), mergedind.data() + tdisp[i]);
+        std::copy(numsBuf[i].data() , numsBuf[i].data() + numsBuf[i].size(), mergednum.data() + tdisp[i]);
+    }
+}
+
 
 /** 
   * This version is the most flexible sparse matrix X sparse vector [Used in KDT]
@@ -769,7 +936,16 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t *trxinds, *indacc;
 	IVT *trxnums, *numacc;
 	
+#ifdef TIMING
+    double t0=MPI_Wtime();
+#endif
+    
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
+    
+#ifdef TIMING
+    double t1=MPI_Wtime();
+    cblas_transvectime += (t1-t0);
+#endif
     
     if(x.commGrid->GetGridRows() > 1)
     {
@@ -788,14 +964,31 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t * sendindbuf;	
 	OVT * sendnumbuf;
 	int * sdispls;
+    
+#ifdef TIMING
+    double t2=MPI_Wtime();
+#endif
+    
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue, SPA);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+
+#ifdef TIMING
+    double t3=MPI_Wtime();
+    cblas_localspmvtime += (t3-t2);
+#endif
     
     if(x.commGrid->GetGridCols() == 1)
     {
         y.ind.resize(sendcnt[0]);
         y.num.resize(sendcnt[0]);
-        copy(sendindbuf, sendindbuf+sendcnt[0], y.ind.begin());
-        copy(sendnumbuf, sendnumbuf+sendcnt[0], y.num.begin());
+
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(int i=0; i<sendcnt[0]; i++)
+        {
+            y.ind[i] = sendindbuf[i];
+            y.num[i] = sendnumbuf[i];
+        }
         DeleteAll(sendindbuf, sendnumbuf,sendcnt, sdispls);
         return;
     }
@@ -815,7 +1008,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	OVT * recvnumbuf = new OVT[totrecv];
 	
 #ifdef TIMING
-	double t2=MPI_Wtime();
+	double t4=MPI_Wtime();
 #endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
@@ -830,12 +1023,41 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 		DeleteAll(sendindbuf, sendnumbuf, sendcnt, sdispls);
 	}
 #ifdef TIMING
-	double t3=MPI_Wtime();
-	cblas_alltoalltime += (t3-t2);
+	double t5=MPI_Wtime();
+	cblas_alltoalltime += (t5-t4);
 #endif
 	
-
-    MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+#ifdef TIMING
+    double t6=MPI_Wtime();
+#endif
+    //MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+    // free memory of y, in case it was aliased
+    vector<IU>().swap(y.ind);
+    vector<OVT>().swap(y.num);
+    
+    vector<int32_t *> indsvec(rowneighs);
+    vector<OVT *> numsvec(rowneighs);
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(int i=0; i<rowneighs; i++)
+    {
+        indsvec[i] = recvindbuf+rdispls[i];
+        numsvec[i] = recvnumbuf+rdispls[i];
+    }
+#ifdef THREADED
+    MergeContributions_threaded<SR>(recvcnt, indsvec, numsvec, y.ind, y.num, y.MyLocLength());
+#else
+    MergeContributions<SR>(recvcnt, indsvec, numsvec, y.ind, y.num);
+#endif
+    
+    DeleteAll(recvcnt, rdispls,recvindbuf, recvnumbuf);
+#ifdef TIMING
+    double t7=MPI_Wtime();
+    cblas_mergeconttime += (t6-t1);
+#endif
+    
 }
 
 

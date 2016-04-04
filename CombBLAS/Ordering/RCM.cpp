@@ -18,8 +18,20 @@
 #include <sstream>
 
 
-#define EDGEFACTOR 4  /// changed to 8
+#define EDGEFACTOR 16
+#define RAND_PERMUTE 1
+
+
+double cblas_alltoalltime;
+double cblas_allgathertime;
+double cblas_localspmvtime;
+double cblas_mergeconttime;
+double cblas_transvectime;
+
+
+
 using namespace std;
+
 
 
 template <typename PARMAT>
@@ -129,7 +141,8 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         // Here i/j is the index of the elements relative to the dense containter
         // Alternatively, j's consist a permutation that would premute the undorted vector to sorted vector
         
-        
+        // Currently sort works up to 10k MPI processes
+        // We can change the hardcoded limit in SpParHelper::MemoryEfficientPSort
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
         // idx is the index  of fringe in sorted order
         FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
@@ -163,6 +176,13 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
 template <typename PARMAT>
 FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees)
 {
+#ifdef TIMING
+    cblas_allgathertime = 0;
+    cblas_alltoalltime = 0;
+    cblas_mergeconttime = 0;
+    cblas_transvectime = 0;
+    cblas_localspmvtime = 0;
+#endif
     /*
      unvisitedVertices: list of current unvisited vertices.
      Each entry is a (degree, vertex index) pair.
@@ -186,8 +206,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     // current connected component
     int cc = 1;
     
-    int myrank;
+    int myrank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     int64_t numUnvisited = unvisitedVertices.getnnz();
     SpParHelper::Print("Pre allocating SPA\n");
     PreAllocatedSPA<int64_t,bool,int64_t> SPA(A.seq());
@@ -291,6 +312,75 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                                                                false, make_pair((int64_t)-1, (int64_t)0));
         numUnvisited = unvisitedVertices.getnnz();
     }
+    
+#ifdef TIMING
+    double *td_ag_all, *td_a2a_all, *td_tv_all, *td_mc_all, *td_spmv_all;
+    if(myrank == 0)
+    {
+        td_ag_all = new double[nprocs];
+        td_a2a_all = new double[nprocs];
+        td_tv_all = new double[nprocs];
+        td_mc_all = new double[nprocs];
+        td_spmv_all = new double[nprocs];
+    }
+    
+    MPI_Gather(&cblas_allgathertime, 1, MPI_DOUBLE, td_ag_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_alltoalltime, 1, MPI_DOUBLE, td_a2a_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_transvectime, 1, MPI_DOUBLE, td_tv_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_mergeconttime, 1, MPI_DOUBLE, td_mc_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&cblas_localspmvtime, 1, MPI_DOUBLE, td_spmv_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
+    
+    if(myrank == 0)
+    {
+        
+        vector<double> total_time(nprocs, 0);
+        for(int i=0; i< nprocs; ++i) 				// find the mean performing guy
+            total_time[i] += td_ag_all[i] +  td_a2a_all[i] + td_tv_all[i] + td_mc_all[i] + td_spmv_all[i];
+        
+        // order
+        vector<pair<double, int>> tosort;
+        for(int i=0; i<nprocs; i++) tosort.push_back(make_pair(total_time[i], i));
+        sort(tosort.begin(), tosort.end());
+        //vector<int> permutation = SpHelper::order(total_time);
+        vector<int> permutation(nprocs);
+        for(int i=0; i<nprocs; i++) permutation[i] = tosort[i].second;
+        
+        int smallest = permutation[0];
+        int largest = permutation[nprocs-1];
+        int median = permutation[nprocs/2];
+        
+        cout << "TOTAL (accounted) MEAN: " << accumulate( total_time.begin(), total_time.end(), 0.0 )/ static_cast<double> (nprocs) << endl;
+        cout << "TOTAL (accounted) MAX: " << total_time[0] << endl;
+        cout << "TOTAL (accounted) MIN: " << total_time[nprocs-1]  << endl;
+        cout << "TOTAL (accounted) MEDIAN: " << total_time[nprocs/2] << endl;
+        cout << "-------------------------------" << endl;
+        
+        cout << "allgather median: " << td_ag_all[median] << endl;
+        cout << "all2all median: " << td_a2a_all[median] << endl;
+        cout << "transposevector median: " << td_tv_all[median] << endl;
+        cout << "mergecontributions median: " << td_mc_all[median] << endl;
+        cout << "spmsv median: " << td_spmv_all[median] << endl;
+        cout << "-------------------------------" << endl;
+        
+       
+        cout << "allgather fastest: " << td_ag_all[smallest] << endl;
+        cout << "all2all fastest: " << td_a2a_all[smallest] << endl;
+        cout << "transposevector fastest: " << td_tv_all[smallest] << endl;
+        cout << "mergecontributions fastest: " << td_mc_all[smallest] << endl;
+        cout << "spmsv fastest: " << td_spmv_all[smallest] << endl;
+        cout << "-------------------------------" << endl;
+        
+        
+        cout << "allgather slowest: " << td_ag_all[largest] << endl;
+        cout << "all2all slowest: " << td_a2a_all[largest] << endl;
+        cout << "transposevector slowest: " << td_tv_all[largest] << endl;
+        cout << "mergecontributions slowest: " << td_mc_all[largest] << endl;
+        cout << "spmsv slowest: " << td_spmv_all[largest] << endl;
+    }
+#endif
+
+    
     return rcmorder;
 }
 
@@ -383,22 +473,20 @@ int main(int argc, char* argv[])
             MPI_Finalize();
             return -1;
         }
-         
-        int64_t bw = ABool->Bandwidth();
         
+        ABool->RemoveLoops();
+        int64_t bw = ABool->Bandwidth();
         float balance = ABool->LoadImbalance();
-        ostringstream outs;
-        outs << "Load balance: " << balance << endl;
-        outs << "Bandwidth after random permutation " << bw << endl;
-        SpParHelper::Print(outs.str());
+        
+        // Reduce is not multithreaded, so I am doing it here
+        FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
+        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+       
         
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
         ABoolCSC->PrintInfo();
         
         
-        // Reduce is not multithreaded, so I am doing it here
-        FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
-        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
         int nthreads = 1;
         int splitPerThread = 1;
@@ -406,7 +494,7 @@ int main(int argc, char* argv[])
             splitPerThread = atoi(argv[3]);
         int cblas_splits = splitPerThread;
         
-        delete ABool;
+
         
 #ifdef THREADED
 #pragma omp parallel
@@ -420,16 +508,21 @@ int main(int argc, char* argv[])
 #endif
         
         
+        ostringstream outs;
+        outs << "--------------------------------------" << endl;
+        outs << "Number of MPI proceses: " << nprocs << endl;
+        outs << "Number of threads per procese: " << nthreads << endl;
+        outs << "Number of splits of the matrix: " << cblas_splits << endl;
+        outs << "Load balance: " << balance << endl;
+        outs << "Bandwidth after random permutation " << bw << endl;
+        outs << "--------------------------------------" << endl;
+        SpParHelper::Print(outs.str());
         
         // compute bandwidth
         if(cblas_splits>1)
         {
             // ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
             ABoolCSC->ActivateThreading(cblas_splits);
-
-            tinfo.str("");
-            tinfo << "Matrix split into "<< cblas_splits <<  " parts" << endl;
-            SpParHelper::Print(tinfo.str());
         }
         
         // Compute RCM ordering
@@ -443,8 +536,9 @@ int main(int argc, char* argv[])
         
         
         // compute bandwidth of the permuted matrix
-        if(cblas_splits==1)
-        {
+        // using DCSC version here which is not split
+        //if(cblas_splits==1)
+        
             // Ariful: sort returns permutation from ordering
             // and make the original vector a sequence (like iota)
             // I actually need an invert to convert ordering a permutation
@@ -455,34 +549,9 @@ int main(int argc, char* argv[])
             ostringstream outs1;
             outs1 << "Bandwidth after RCM " << bw << endl;
             SpParHelper::Print(outs1.str());
-        }
-        else
-        {
-            SpParHelper::Print("Split matrix can not be permuted for bandwidth computation\n");
-        }
-        
-
-        
-        /*
-        
-        FullyDistSpVec<int64_t, int64_t> fringe(ABool->getcommgrid(),  int64_t(5) );
-        //fringe.SetElement(0, 10);
-        fringe.SetElement(1, 11);
-        fringe.SetElement(3, 0);
-        fringe.SetElement(4, 2);
-        FullyDistSpVec<int64_t, int64_t> sorted=  fringe.sort();
-        FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
-        FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
-        val.iota(idx.TotalLength(),10);
-        FullyDistSpVec<int64_t, int64_t> sorted1 (fringe.TotalLength(), idx, val);
-        
-        FullyDistSpVec<int64_t, int64_t> sortedi= sorted.Invert(5);
-        sorted.DebugPrint();
-        sortedi.DebugPrint();
-        sorted1.DebugPrint();
-        */
-         
-        
+            
+        delete ABool;
+        delete ABoolCSC;
     }
     MPI_Finalize();
     return 0;
