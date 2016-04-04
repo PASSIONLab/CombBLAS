@@ -1504,9 +1504,9 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 }		
 
 
-//! Does two optimizations
-//! 1) Splits the local column indices to sparse & dense pieces to avoid redundant AllGather (sparse pieces get p2p)
-//! 2) Pre-allocates buffers for row communication
+//! Pre-allocates buffers for row communication
+//! additionally (if GATHERVOPT is defined, incomplete as of March 2016):
+//! - Splits the local column indices to sparse & dense pieces to avoid redundant AllGather (sparse pieces get p2p)
 template <class IT, class NT, class DER>
 template <typename LIT, typename OT>
 void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)

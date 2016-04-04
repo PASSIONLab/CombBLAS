@@ -124,25 +124,18 @@ public:
         };
         
         SpColIter(IT * jc = NULL) : begcptr(jc), curcptr(jc) {}
-        
         bool operator==(const SpColIter& other)
         {
-            return(curcptr == other.curcptr);	// compare current pointers
+            return(curcptr == other.curcptr);	// compare pointers
         }
         bool operator!=(const SpColIter& other)
         {
             return(curcptr != other.curcptr);
         }
-        SpColIter& operator++()		// prefix operator
+        SpColIter& operator++()		// prefix operator (different across derived classes)
         {
             ++curcptr;
             return(*this);
-        }
-        SpColIter operator++(int)	// postfix operator
-        {
-            SpColIter tmp(*this);
-            ++(*this);
-            return(tmp);
         }
         IT colid() const	//!< Return the "local" colid of the current column.
         {
@@ -165,21 +158,37 @@ public:
         IT * curcptr;
    	};
     
-    SpColIter begcol()
+    SpColIter begcol()  // serial version
     {
         if( nnz > 0 )
             return SpColIter(csc->jc);
         else
             return SpColIter(NULL);
     }
-    SpColIter endcol()
+    SpColIter endcol()  //serial version
     {
         if( nnz > 0 )
             return SpColIter(csc->jc + n);  // (csc->jc+n) should never execute because SpColIter::colptrnext() would point invalid
         else
             return SpColIter(NULL);
     }
-    
+
+    SpColIter begcol(int i)  // multithreaded version
+    {
+        if( cscarr[i] )
+            return SpColIter(cscarr[i]->jc);
+        else
+            return SpColIter(NULL);
+    }
+    SpColIter endcol(int i)  //multithreaded version
+    {
+        if( cscarr[i] )
+            return SpColIter(cscarr[i]->jc + n);  // (csc->jc+n) should never execute because SpColIter::colptrnext() would point invalid
+        else
+            return SpColIter(NULL);
+    }
+
+
     typename SpColIter::NzIter begnz(const SpColIter & ccol)	//!< Return the beginning iterator for the nonzeros of the current column
     {
         return typename SpColIter::NzIter( csc->ir + ccol.colptr(), csc->num + ccol.colptr() );
@@ -188,6 +197,16 @@ public:
     typename SpColIter::NzIter endnz(const SpColIter & ccol)	//!< Return the ending iterator for the nonzeros of the current column
     {
         return typename SpColIter::NzIter( csc->ir + ccol.colptrnext(), NULL );
+    }
+    
+    typename SpColIter::NzIter begnz(const SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return typename SpColIter::NzIter( cscarr[i]->ir + ccol.colptr(), cscarr[i]->num + ccol.colptr() );
+    }
+    
+    typename SpColIter::NzIter endnz(const SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return typename SpColIter::NzIter( cscarr[i]->ir + ccol.colptrnext(), NULL );
     }
     
     void PrintInfo() const;
@@ -223,9 +242,10 @@ private:
     template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
     friend void csc_gespmv_dense (const SpCCols<IU, NU> & A, const RHS * x, LHS * y); //!< dense vector (not implemented)
     
+    //<! sparse vector version
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c); //<! sparse vector
+                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,NUM,OVT> & SPA);
 };
 
 

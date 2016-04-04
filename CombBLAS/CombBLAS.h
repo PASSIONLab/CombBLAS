@@ -120,6 +120,7 @@ class EWiseExtToPlainAdapter
 #include "FullyDistVec.h"
 #include "FullyDistSpVec.h"
 #include "VecIterator.h"
+#include "PreAllocatedSPA.h"
 #include "ParFriends.h"
 #include "BFSFriends.h"
 #include "DistEdgeList.h"

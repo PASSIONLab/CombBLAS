@@ -1,7 +1,7 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 05/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
@@ -597,7 +597,7 @@ void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * &
  **/
 template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
-			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
+			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
 {	
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -617,7 +617,7 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 		if(A.spSeq->getnsplit() > 0)
 		{
 			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = generic_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, accnz, sendindbuf, sendnumbuf, sdispls, rowneighs);
+			int totalsent = generic_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, accnz, sendindbuf, sendnumbuf, sdispls, rowneighs, SPA);
 			
 			DeleteAll(indacc, numacc);
 			for(int i=0; i<rowneighs-1; ++i)
@@ -754,7 +754,7 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
   */
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, 
-			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf)
+			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,NUM,OVT> & SPA)
 {
 	CheckSpMVCompliance(A,x);
 	optbuf.MarkEmpty();
@@ -788,7 +788,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	int32_t * sendindbuf;	
 	OVT * sendnumbuf;
 	int * sdispls;
-	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue, SPA);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
     
     if(x.commGrid->GetGridCols() == 1)
     {
@@ -840,10 +840,18 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 
 
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
-void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue)
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
 {
 	OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >(); 
-	SpMV<SR>(A, x, y, indexisvalue, optbuf);
+	SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
+}
+
+template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue)
+{
+    OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >();
+    PreAllocatedSPA<IU,NUM,OVT> SPA;
+    SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
 }
 
 

@@ -78,90 +78,91 @@ public:
 		return ((*dcsc) == (*(rhs.dcsc)));
 	}
 
-	class SpColIter //! Iterate over (sparse) columns of the sparse matrix
-	{
-	public:
-		class NzIter	//! Iterate over the nonzeros of the sparse column
-		{	
-		public:
-			NzIter(IT * ir = NULL, NT * num = NULL) : rid(ir), val(num) {}
-     		
-      			bool operator==(const NzIter & other)
-      			{
-       		  		return(rid == other.rid);	// compare pointers
-      			}
-      			bool operator!=(const NzIter & other)
-      			{
-        	 		return(rid != other.rid);
-      			}
-                bool operator<(const NzIter & other)
-                {
-                    return(rid < other.rid);
-                }
-                NzIter operator+(IT inc)
-                {
-                    rid+=inc;
-                    val+=inc;
-                    return(*this);
-                }
-                NzIter operator-(IT inc)
-                {
-                    rid-=inc;
-                    val-=inc;
-                    return(*this);
-                }
-           		NzIter & operator++()	// prefix operator
-      			{
-         			++rid;
-				++val;
-         			return(*this);
-			}
-      			NzIter operator++(int)	// postfix operator
-      			{
-         			NzIter tmp(*this);
-         			++(*this);
-        	 		return(tmp);
-      			}
-			IT rowid() const	//!< Return the "local" rowid of the current nonzero entry.
-			{
-				return (*rid);
-			}
-			NT & value()		//!< value is returned by reference for possible updates
-			{
-				return (*val);
-			}
-		private:
-			IT * rid;
-			NT * val;
-			
-		};
 
-      		SpColIter(IT * cp = NULL, IT * jc = NULL) : cptr(cp), cid(jc) {}
-     		
-      		bool operator==(const SpColIter& other)
-      		{
-         		return(cptr == other.cptr);	// compare pointers
-      		}
-      		bool operator!=(const SpColIter& other)
-      		{
-         		return(cptr != other.cptr);
-      		}
-           	SpColIter& operator++()		// prefix operator
-      		{
-         		++cptr;
-			++cid;
-         		return(*this);
-      		}
-      		SpColIter operator++(int)	// postfix operator
-      		{
-         		SpColIter tmp(*this);
-         		++(*this);
-         		return(tmp);
-      		}
-      		IT colid() const	//!< Return the "local" colid of the current column. 
-      		{
-         		return (*cid);
-      		}
+    class SpColIter //! Iterate over (sparse) columns of the sparse matrix
+    {
+    public:
+        class NzIter	//! Iterate over the nonzeros of the sparse column
+        {
+        public:
+            NzIter(IT * ir = NULL, NT * num = NULL) : rid(ir), val(num) {}
+            
+            bool operator==(const NzIter & other)
+            {
+                return(rid == other.rid);	// compare pointers
+            }
+            bool operator!=(const NzIter & other)
+            {
+                return(rid != other.rid);
+            }
+            bool operator<(const NzIter & other)
+            {
+                return(rid < other.rid);
+            }
+            NzIter operator+(IT inc)
+            {
+                rid+=inc;
+                val+=inc;
+                return(*this);
+            }
+            NzIter operator-(IT inc)
+            {
+                rid-=inc;
+                val-=inc;
+                return(*this);
+            }
+            NzIter & operator++()	// prefix operator
+            {
+                ++rid;
+                ++val;
+                return(*this);
+            }
+            NzIter operator++(int)	// postfix operator
+            {
+                NzIter tmp(*this);
+                ++(*this);
+                return(tmp);
+            }
+            IT rowid() const	//!< Return the "local" rowid of the current nonzero entry.
+            {
+                return (*rid);
+            }
+            NT & value()		//!< value is returned by reference for possible updates
+            {
+                return (*val);
+            }
+        private:
+            IT * rid;
+            NT * val;
+            
+        };
+        
+        SpColIter(IT * cp = NULL, IT * jc = NULL) : cptr(cp), cid(jc) {}
+        bool operator==(const SpColIter& other)
+        {
+            return(cptr == other.cptr);	// compare pointers
+        }
+        bool operator!=(const SpColIter& other)
+        {
+            return(cptr != other.cptr);
+        }
+        
+        SpColIter& operator++()		// prefix operator
+        {
+            ++cptr;
+            ++cid;
+            return(*this);
+        }
+        SpColIter operator++(int)	// postfix operator (common)
+        {
+            SpColIter tmp(*this);
+            ++(*this);
+            return(tmp);
+        }
+        IT colid() const	//!< Return the "local" colid of the current column.
+        {
+            return (*cid);
+        }
 		IT colptr() const
 		{
 			return (*cptr);
@@ -175,7 +176,7 @@ public:
 			return (colptrnext() - colptr());
 		}
   	private:
-      		IT * cptr;
+        IT * cptr;
 		IT * cid;
    	};
 	

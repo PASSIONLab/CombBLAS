@@ -90,6 +90,14 @@ void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * 
     SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
 };
 
+//! Overload #3: CSC w/ preallocated SPA
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                          vector<int32_t> & indy, vector< OVT > & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
+{
+    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);	
+};
+
 /**
  * IT: The sparse matrix index type. Sparse vector index type is fixed to be int32_t
  * It is the caller function's (inside ParFriends/Friends) job to convert any different types
@@ -124,8 +132,14 @@ struct SpImpl
         cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
     };
     
-    static void SpMXSpV_ForThreading(const Csc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+    static void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
+    {
+        cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+    };
+    
+    static void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                     vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
     {
         cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
     };
@@ -159,6 +173,9 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
     //! Csc and vector index types do not need to match
     static void SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset);
+    
+    static void SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                     vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds);
 };
 
 #include "SpImpl.cpp"
