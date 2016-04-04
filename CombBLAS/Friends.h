@@ -39,6 +39,7 @@
 #include "SpParHelper.h"
 #include "Compare.h"
 #include "CombBLAS.h"
+#include "PreAllocatedSPA.h"
 using namespace std;
 
 template <class IU, class NU>	
@@ -84,7 +85,7 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
   */
 template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
 int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c)
+		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,NUM,OVT> & SPA)
 {
 	// FACTS: Split boundaries (for multithreaded execution) are independent of recipient boundaries
 	// Two splits might create output to the same recipient (needs to be merged)

@@ -45,7 +45,6 @@ public:
 	{
 		if(totmax > 0)
 		{
-		//	fill(isthere, isthere+localm, false);
 			isthere->reset();
 		}
 	}
@@ -60,14 +59,12 @@ public:
 		dspls = new int[p_c]();
 		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);
 		localm = mA;
-		//isthere = new bool[localm];
-		//fill(isthere, isthere+localm, false);
+		
 		isthere = new BitMap(localm);
 	};
 	~OptBuf()
 	{	if(localm > 0)
 		{
-			//delete [] isthere;
 			delete isthere;
 		}
 		
@@ -86,9 +83,7 @@ public:
 		localm = rhs.localm;
 		inds = new IT[totmax];
 		nums = new NT[totmax];
-		dspls = new int[p_c]();	
-		//isthere = new bool[localm];
-		//fill(isthere, isthere+localm, false);
+		dspls = new int[p_c]();
 		isthere = new BitMap(localm);
 	}
 	OptBuf<IT,NT> & operator=(const OptBuf<IT,NT> & rhs)
@@ -97,7 +92,6 @@ public:
 		{
 			if(localm > 0)
 			{
-				//delete [] isthere;
 				delete isthere;
 			}
 			if(totmax > 0)
@@ -122,7 +116,6 @@ public:
 	IT * inds;	
 	NT * nums;	
 	int * dspls;
-	//bool * isthere;
 	BitMap * isthere;
 	int p_c;
 	int totmax;

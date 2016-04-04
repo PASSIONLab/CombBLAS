@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 05/15/2016 --------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2015, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -336,6 +336,9 @@ private:
 
 	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
+    
+    template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+    friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,NUM,OVT> & SPA);
 
 	template <typename IU, typename NU1, typename NU2>
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 

@@ -101,7 +101,6 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
     int64_t curOrder = startOrder+1;
     
     
-    
     while(fringe.getnnz() > 0) // continue until the frontier is empty
     {
         
@@ -190,6 +189,10 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     int64_t numUnvisited = unvisitedVertices.getnnz();
+    SpParHelper::Print("Pre allocating SPA\n");
+    PreAllocatedSPA<int64_t,bool,int64_t> SPA(A.seq());
+    SpParHelper::Print("Pre allocated SPA\n");
+
     
     while(numUnvisited>0) // for each connected component
     {
@@ -225,7 +228,7 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                 //cout << "vector nnz: " << fringe.getnnz() << endl;
                 tSpMV1 = MPI_Wtime();
                 
-                SpMV<SelectMinSR>(A, fringe, fringe, false);
+                SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
                 
                 //fringe = SpMV(A, fringe);
                 tSpMV += MPI_Wtime() - tSpMV1;

@@ -94,7 +94,7 @@ public:
     {
         return static_cast<const DER*>(this)->GetInternal(i);
     }
-    int getnsplit() const
+    int getnsplit() const // \TODO: Normalize the interface so that nsplit = 1 for serial cases 
     {
         return static_cast<const DER*>(this)->getnsplit();
     }
@@ -103,8 +103,49 @@ public:
 	{
 		static_cast<DER*>(this)->Transpose();
 	}
+    auto begcol()  // serial version
+    {
+        return static_cast<DER*>(this)->begcol();
+    }
+    auto endcol()  //serial version
+    {
+        return static_cast<DER*>(this)->endcol();
+    }
+    auto begcol(int i)  // multithreaded version
+    {
+        return static_cast<DER*>(this)->begcol(i);
+    }
+    auto endcol(int i)  //multithreaded version
+    {
+        return static_cast<DER*>(this)->endcol(i);
+    }
+    
+    template <typename X = DER>  // <-- (requires C++0x to have a default)
+    auto begnz(const typename X::SpColIter & ccol)	//!< Return the beginning iterator for the nonzeros of the current column
+    {
+        return static_cast<DER*>(this)->begnz(ccol);
+    }
+    
+    template <typename X = DER>  // <-- (requires C++0x to have a default)
+    auto endnz(const typename X::SpColIter & ccol)	//!< Return the ending iterator for the nonzeros of the current column
+    {
+         return static_cast<DER*>(this)->endnz(ccol);
+    }
+    
+    template <typename X = DER>  // <-- (requires C++0x to have a default)
+    auto begnz(const typename X::SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return static_cast<DER*>(this)->begnz(ccol, i);
+    }
+    
+    template <typename X = DER>  // <-- (requires C++0x to have a default)
+    auto endnz(const typename X::SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return static_cast<DER*>(this)->endnz(ccol, i);
+    }
 
-	bool operator== (const SpMat< IT,NT,DER > & rhs) const; 
+    
+	bool operator== (const SpMat< IT,NT,DER > & rhs) const;
 		
 	ofstream& put(ofstream& outfile) const;
 	ifstream& get(ifstream& infile);

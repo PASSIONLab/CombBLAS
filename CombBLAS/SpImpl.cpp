@@ -334,21 +334,30 @@ int compare(const void* arg, const void* obj)
 
 //#define USE_TOMMY
 
-//! We can safely use a SPA here because Acsc is short (::RowSplit() has already been called on it)
-//! \TODO: ABAB (2016): But is indx really indexable by 32-bit integers????
+
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                       vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
 {
-    
+#ifdef USE_TOMMY
+    vector<OVT> localy; // won't be used
+#else
+    vector<OVT> localy(mA);
+#endif
     BitMap isthere(mA);
     vector<uint32_t> nzinds;	// nonzero indices
-
+    
+    SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);
+}
+                                                      
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset,
+                                                      vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)    // these three are pre-allocated buffers
+{
 #ifdef USE_TOMMY
     tommy_hashdyn hashdyn;
     tommy_hashdyn_init(&hashdyn);
-#else
-    OVT * localy = new OVT[mA];
 #endif
     
     for (int32_t k = 0; k < veclen; ++k)
@@ -394,12 +403,12 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
         numy[i] = localy[nzinds[i]];
     #endif
     }
+    isthere.reset();
+    nzinds.clear(); // not necessarily reclaim memory, just make size=0
     
 #ifdef USE_TOMMY
     tommy_hashdyn_foreach(&hashdyn, operator delete);
     tommy_hashdyn_done(&hashdyn);
-#else
-    delete [] localy;
 #endif
 
 }
