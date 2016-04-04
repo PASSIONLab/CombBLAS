@@ -364,8 +364,9 @@ private:
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
 	
 	//! Helper functions for sparse matrix X sparse vector
-	template <typename SR, typename IU, typename OVT>
-	friend void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs);
+    // Ariful: I made this an internal function in ParFriends.h
+	//template <typename SR, typename IU, typename OVT>
+	//friend void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs);
 
 	template <typename IU, typename VT>
 	friend void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs);
