@@ -1055,7 +1055,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     DeleteAll(recvcnt, rdispls,recvindbuf, recvnumbuf);
 #ifdef TIMING
     double t7=MPI_Wtime();
-    cblas_mergeconttime += (t6-t1);
+    cblas_mergeconttime += (t7-t6);
 #endif
     
 }
