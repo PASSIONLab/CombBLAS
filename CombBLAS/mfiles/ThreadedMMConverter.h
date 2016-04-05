@@ -58,8 +58,8 @@ void check_newline(int *bytes_read, int bytes_requested, char *buf)
 bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool firstcall, vector<string> & lines)
 {
     size_t bytes2fetch = BATCH;    // we might read more than needed but no problem as we won't process them
-    bool begfile = (ftell(f_local) == 0);
-    if(firstcall && !begfile)
+    bool begfile = (curpos == 0);
+    if(firstcall && (!begfile))
     {
         curpos -= 1;    // first byte is to check whether we started at the beginning of a line
         bytes2fetch += 1;
@@ -78,7 +78,7 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
         return true;    // done
     }
     check_newline(&bytes_read, bytes2fetch, buf);
-    if(firstcall && !begfile)
+    if(firstcall && (!begfile))
     {
         if(buf[0] == '\n')  // we got super lucky and hit the line break
         {
@@ -88,14 +88,9 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
         }
         else    // skip to the next line and let the preceeding thread take care of this partial line
         {
-            cout << "skipping" << endl;
             char *c = (char*)memchr(buf, '\n', MAXLINELENGTH); //  return a pointer to the matching byte or NULL if the character does not occur
             if (c == NULL) {
                 cout << "Unexpected line without a break" << endl;
-            }
-            else
-            {
-                cout << c << endl;
             }
             int n = c - buf + 1;
             bytes_read -= n;
@@ -187,7 +182,7 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
         vector<string>().swap(lines);
     }
     cout << "Populated maps " << omp_get_wtime() - time_start << "  seconds"<< endl;
-    cout << "There are " << nvertices << " vertices and " << vertexid << " edges" << endl;
+    cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
 
     time_start = omp_get_wtime();
     nvertices = vertexid;
