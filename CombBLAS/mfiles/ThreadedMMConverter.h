@@ -10,10 +10,27 @@
 #include <sys/stat.h>
 #include <string.h>
 #include "mmio.h"
+#include "../Tommy/tommyhashdyn.h"
 using namespace std;
 
 #define BATCH 10000000  // 10MB
 #define MAXLINELENGTH 128
+
+
+struct tommy_object {
+    tommy_node node;
+    uint32_t value;
+    string index;
+    
+    tommy_object(uint32_t val, string ind):value(val), index(ind){}; // constructor
+};
+
+
+int compare(const void* arg, const void* obj)
+{
+    return *(const string*)arg != ((const tommy_object *)obj)->index;
+}
+
 
 template <typename IT1, typename NT1, typename IT2, typename NT2>
 void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv)
@@ -24,17 +41,24 @@ void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals,
 }
 
 template <typename IT1, typename NT1>
-void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, const map<string, uint32_t> & vertexmap, const vector<uint32_t> & shuffler)
+void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, tommy_hashdyn & hashdyn, const vector<uint32_t> & shuffler)
 {
-    char fr[64];
+    char from[64];
     char to[64];
     double vv;
     for (vector<string>::iterator itr=lines.begin(); itr != lines.end(); ++itr)
     {
         // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
-        sscanf(itr->c_str(), "%s %s %lg", fr, to, &vv);
-        uint32_t fr_id = shuffler[vertexmap.at(string(fr))];
-        uint32_t to_id = shuffler[vertexmap.at(string(to))];
+        sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
+        string s_from = string(from);
+        string s_to = string(to);
+        
+        tommy_object * obj1 = (tommy_object *) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
+        tommy_object * obj2 = (tommy_object *) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
+
+
+        uint32_t fr_id = shuffler[obj1->value];
+        uint32_t to_id = shuffler[obj2->value];
         push_to_vectors(rows, cols, vals, fr_id, to_id, vv);
     }
     vector<string>().swap(lines);
@@ -141,11 +165,15 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
     long int end_fpos = file_size;
     
     double time_start = omp_get_wtime();
-    map<string, uint32_t> vertexmap;
     vector<string> lines;
     bool finished = FetchBatch(f, fpos, end_fpos, true, lines); // fpos will move
     int64_t entriesread = lines.size();
+   
+    tommy_hashdyn hashdyn;
+    tommy_hashdyn_init(&hashdyn);
     
+    vector<string> mymap;
+ 
     char from[64];
     char to[64];
     double vv;
@@ -154,10 +182,26 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
     {
         // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
         sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
-        auto ret = vertexmap.insert(make_pair(string(from), vertexid));
-        if (ret.second)	++vertexid; // insert successful
-        ret = vertexmap.insert(make_pair(string(to), vertexid));
-        if (ret.second)	++vertexid; // insert successful
+        string s_from = string(from);
+        string s_to = string(to);
+
+        tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
+        if(!obj1)
+        {
+            tommy_object * obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
+            tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
+            mymap.push_back(s_from);
+            ++vertexid; // new entry
+        }
+        
+        tommy_object* obj2 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
+        if(!obj2)
+        {
+            tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
+            tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
+            mymap.push_back(s_to);
+            ++vertexid; // new entry
+        }
     }
     vector<string>().swap(lines);
     
@@ -174,10 +218,27 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
         {
             // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
             sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
-            auto ret = vertexmap.insert(make_pair(string(from), vertexid));
-            if (ret.second)	++vertexid; // insert successful
-            ret = vertexmap.insert(make_pair(string(to), vertexid));
-            if (ret.second)	++vertexid; // insert successful
+            
+            string s_from = string(from);
+            string s_to = string(to);
+            
+            tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
+            if(!obj1)
+            {
+                tommy_object* obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
+                tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
+                mymap.push_back(s_from);
+                ++vertexid; // new entry
+            }
+            
+            tommy_object* obj2 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
+            if(!obj2)
+            {
+                tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
+                tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
+                mymap.push_back(s_to);
+                ++vertexid; // new entry
+            }
         }
         vector<string>().swap(lines);
     }
@@ -191,9 +252,9 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
     random_shuffle ( shuffler.begin(), shuffler.end() );
     fclose(f);
     
-    for (auto it = vertexmap.begin(); it != vertexmap.end(); ++it)
+    for (int i=0; i< mymap.size(); ++i)
     {
-        dictout << shuffler[it->second] << "\t" << it ->first << "\n";
+        dictout << shuffler[i] << "\t" << mymap[i] << "\n";
     }
     cout << "Shuffled and wrote dictionary in " << omp_get_wtime() - time_start << "  seconds"<< endl;
 
@@ -222,11 +283,11 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
         vector<IT> cols;
         vector<NT> vals;
         
-        ProcessLines(rows, cols, vals, lines, vertexmap, shuffler);
+        ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
         while(!finished)
         {
             finished = FetchBatch(f_perthread, fpos, end_fpos, false, lines);
-            ProcessLines(rows, cols, vals, lines, vertexmap, shuffler);
+            ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
         }
         localsizes[this_thread] = rows.size();
 #pragma omp barrier
@@ -248,6 +309,9 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
         std::copy(cols.begin(), cols.end(), allcols.begin() + untilnow);
         std::copy(vals.begin(), vals.end(), allvals.begin() + untilnow);
     }
+
+    tommy_hashdyn_foreach(&hashdyn, operator delete);
+    tommy_hashdyn_done(&hashdyn);
     
 }
 
