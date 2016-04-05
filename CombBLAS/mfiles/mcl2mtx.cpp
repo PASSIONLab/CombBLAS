@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     double time_start = omp_get_wtime();
     ThreadedMMConverter(string(argv[1]), allrows, allcols, allvals, nvertices, dictout);
     cout << "ThreadedMMReader read/permuted/converted in " << omp_get_wtime() - time_start << "  seconds"<< endl;
-    
+    dictout.close();
     size_t nnz = allvals.size();
 
     string name = "Renamed_";

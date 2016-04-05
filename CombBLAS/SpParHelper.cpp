@@ -619,8 +619,6 @@ inline void SpParHelper::check_newline(int *bytes_read, int bytes_requested, cha
 inline bool SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines, int myrank)
 {
     size_t bytes2fetch = ONEMILLION;    // we might read more than needed but no problem as we won't process them
-    char * buf = new char[bytes2fetch];
-    char * originalbuf = buf;   // so that we can delete it later because "buf" will move
     MPI_Status status;
     int bytes_read;
     if(firstcall)
@@ -628,6 +626,8 @@ inline bool SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_
         curpos -= 1;    // first byte is to check whether we started at the beginning of a line
         bytes2fetch += 1;
     }
+    char * buf = new char[bytes2fetch]; // needs to happen **after** bytes2fetch is updated
+    char * originalbuf = buf;   // so that we can delete it later because "buf" will move
     
     MPI_File_read_at(infile, curpos, buf, bytes2fetch, MPI_CHAR, &status);
     MPI_Get_count(&status, MPI_CHAR, &bytes_read);  // MPI_Get_Count can only return 32-bit integers
