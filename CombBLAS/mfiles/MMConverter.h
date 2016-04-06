@@ -1,5 +1,5 @@
-#ifndef _THREADED_MM_CONVERTER_
-#define _THREADED_MM_CONVERTER_
+#ifndef _MM_CONVERTER_
+#define _MM_CONVERTER_
 
 #include <iostream>
 #include <vector>
@@ -13,7 +13,7 @@
 #include "../Tommy/tommyhashdyn.h"
 using namespace std;
 
-#define BATCH 10000000  // 10MB
+#define BATCH 100000000  // 100MB
 #define MAXLINELENGTH 128
 
 
@@ -142,8 +142,7 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
     else    return false;
 }
 
-template <typename IT, typename NT>
-void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<IT> & allcols, vector<NT> & allvals, IT& nvertices, ofstream & dictout)
+void MMConverter(const string & filename, ofstream & dictout, ofstream & out)
 {
     FILE *f;
     if ((f = fopen(filename.c_str(), "r")) == NULL)
@@ -164,7 +163,6 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
     long int fpos = ffirst;
     long int end_fpos = file_size;
     
-    double time_start = omp_get_wtime();
     vector<string> lines;
     bool finished = FetchBatch(f, fpos, end_fpos, true, lines); // fpos will move
     int64_t entriesread = lines.size();
@@ -209,6 +207,7 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
     {
         finished = FetchBatch(f, fpos, end_fpos, false, lines);
         entriesread += lines.size();
+	cout << "entriesread: " << entriesread << endl;
         
         // Process files
         char from[64];
@@ -242,72 +241,53 @@ void ThreadedMMConverter(const string & filename, vector<IT> & allrows, vector<I
         }
         vector<string>().swap(lines);
     }
-    cout << "Populated maps " << omp_get_wtime() - time_start << "  seconds"<< endl;
     cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
 
-    time_start = omp_get_wtime();
-    nvertices = vertexid;
+    uint32_t nvertices = vertexid;
     vector< uint32_t > shuffler(nvertices);
     iota(shuffler.begin(), shuffler.end(), static_cast<uint32_t>(0));
     random_shuffle ( shuffler.begin(), shuffler.end() );
-    fclose(f);
     
     for (int i=0; i< mymap.size(); ++i)
     {
         dictout << shuffler[i] << "\t" << mymap[i] << "\n";
     }
-    cout << "Shuffled and wrote dictionary in " << omp_get_wtime() - time_start << "  seconds"<< endl;
+    cout << "Shuffled and wrote dictionary " << endl;
+ 
+  
+    fpos = 0;
+    int seekfail = fseek(f, fpos, SEEK_SET); // move the file pointer to the beginning 
+    if(seekfail != 0)
+        cout << "fseek failed to move to " << fpos << endl;
+    finished = FetchBatch(f, fpos, end_fpos, true, lines);
+    size_t nnz = lines.size();
+    vector<uint32_t> rows;
+    vector<uint32_t> cols;
+    vector<float> vals;
+    ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
 
-    
-    vector<IT> localsizes(omp_get_max_threads());
-#pragma omp parallel
+    out << "%%MatrixMarket matrix coordinate real symmetric\n";
+    out << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
+    for(size_t k=0; k< nnz; ++k)
+    {		
+	out << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+    }
+    rows.clear();
+    cols.clear();
+    vals.clear();
+
+    while(!finished)
     {
-        long int fpos, end_fpos;
-        int this_thread = omp_get_thread_num();
-        int num_threads = omp_get_num_threads();
-        
-        if(this_thread == 0)
-            fpos = ffirst;
-        else
-            fpos = this_thread * file_size / num_threads;
-        
-        if(this_thread != (num_threads-1)) end_fpos = (this_thread + 1) * file_size / num_threads;
-        else end_fpos = file_size;
-        
-        FILE * f_perthread = fopen(filename.c_str(), "rb");   // reopen
-        
-        vector<string> lines;
-        bool finished = FetchBatch(f_perthread, fpos, end_fpos, true, lines);
-        
-        vector<IT> rows;
-        vector<IT> cols;
-        vector<NT> vals;
-        
-        ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
-        while(!finished)
-        {
-            finished = FetchBatch(f_perthread, fpos, end_fpos, false, lines);
-            ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
-        }
-        localsizes[this_thread] = rows.size();
-#pragma omp barrier
-        
-#pragma omp single
-        {
-            size_t nnz_after_symmetry = std::accumulate(localsizes.begin(), localsizes.begin()+num_threads, IT(0));
-            
-            allrows.resize(nnz_after_symmetry);
-            allcols.resize(nnz_after_symmetry);
-            allvals.resize(nnz_after_symmetry);
-            
-            copy(localsizes.begin(), localsizes.end(), ostream_iterator<IT>(cout, " ")); cout << endl;
-        }
-        
-        IT untilnow = std::accumulate(localsizes.begin(), localsizes.begin()+this_thread, IT(0));
-        
-        std::copy(rows.begin(), rows.end(), allrows.begin() + untilnow);
-        std::copy(cols.begin(), cols.end(), allcols.begin() + untilnow);
-        std::copy(vals.begin(), vals.end(), allvals.begin() + untilnow);
+      	finished = FetchBatch(f, fpos, end_fpos, false, lines);
+      	ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
+
+    	for(size_t k=0; k< nnz; ++k)
+   	{		
+		out << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+    	}
+    	rows.clear();
+    	cols.clear();
+    	vals.clear();
     }
 
     tommy_hashdyn_foreach(&hashdyn, operator delete);

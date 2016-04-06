@@ -12,8 +12,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <limits>
-#include <omp.h>
-#include "ThreadedMMConverter.h"
+#include "MMConverter.h"
 
 using namespace std;
 
@@ -35,27 +34,12 @@ int main(int argc, char* argv[])
     string dictname = "Vertex_Dict_";
     dictname += string(argv[1]);
     ofstream dictout(dictname);
-    
-    double time_start = omp_get_wtime();
-    ThreadedMMConverter(string(argv[1]), allrows, allcols, allvals, nvertices, dictout);
-    cout << "ThreadedMMReader read/permuted/converted in " << omp_get_wtime() - time_start << "  seconds"<< endl;
-    dictout.close();
-    size_t nnz = allvals.size();
 
     string name = "Renamed_";
     name += string(argv[1]);
     ofstream out(name);
     
-    time_start = omp_get_wtime();
-    out << "%%MatrixMarket matrix coordinate real symmetric\n";
-    out << nvertices << "\t" << nvertices << "\t" << nnz << "\n";
-    for(size_t k=0; k< nnz; ++k)
-    {
-		out << allrows[k] << "\t" << allcols[k] << "\t" << allvals[k] << "\n";
-	}
-	out.close();
-    cout << "Output written in " << omp_get_wtime() - time_start << "  seconds"<< endl;
-
-	
-    
+    MMConverter(string(argv[1]), dictout, out);
+    dictout.close();
+    out.close();
 }
