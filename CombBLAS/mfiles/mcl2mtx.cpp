@@ -34,12 +34,7 @@ int main(int argc, char* argv[])
     string dictname = "Vertex_Dict_";
     dictname += string(argv[1]);
     ofstream dictout(dictname);
-
-    string name = "Renamed_";
-    name += string(argv[1]);
-    ofstream out(name);
     
-    MMConverter(string(argv[1]), dictout, out);
+    MMConverter(string(argv[1]), dictout);
     dictout.close();
-    out.close();
 }

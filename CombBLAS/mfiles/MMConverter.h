@@ -9,6 +9,7 @@
 #include <omp.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <omp.h>
 #include "mmio.h"
 #include "../Tommy/tommyhashdyn.h"
 using namespace std;
@@ -142,7 +143,7 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
     else    return false;
 }
 
-void MMConverter(const string & filename, ofstream & dictout, ofstream & out)
+void MMConverter(const string & filename, ofstream & dictout)
 {
     FILE *f;
     if ((f = fopen(filename.c_str(), "r")) == NULL)
@@ -207,7 +208,7 @@ void MMConverter(const string & filename, ofstream & dictout, ofstream & out)
     {
         finished = FetchBatch(f, fpos, end_fpos, false, lines);
         entriesread += lines.size();
-	cout << "entriesread: " << entriesread << endl;
+        cout << "entriesread: " << entriesread << endl;
         
         // Process files
         char from[64];
@@ -253,46 +254,64 @@ void MMConverter(const string & filename, ofstream & dictout, ofstream & out)
         dictout << shuffler[i] << "\t" << mymap[i] << "\n";
     }
     cout << "Shuffled and wrote dictionary " << endl;
- 
-  
-    fpos = 0;
-    int seekfail = fseek(f, fpos, SEEK_SET); // move the file pointer to the beginning 
-    if(seekfail != 0)
-        cout << "fseek failed to move to " << fpos << endl;
-    finished = FetchBatch(f, fpos, end_fpos, true, lines);
-    size_t nnz = lines.size();
-    vector<uint32_t> rows;
-    vector<uint32_t> cols;
-    vector<float> vals;
-    ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
-
-    out << "%%MatrixMarket matrix coordinate real symmetric\n";
-    out << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
-    for(size_t k=0; k< nnz; ++k)
-    {		
-	out << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
-    }
-    rows.clear();
-    cols.clear();
-    vals.clear();
-
-    while(!finished)
+    fclose(f);
+    
+#pragma omp parallel
     {
-      	finished = FetchBatch(f, fpos, end_fpos, false, lines);
-      	ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
-
-    	for(size_t k=0; k< nnz; ++k)
-   	{		
-		out << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
-    	}
-    	rows.clear();
-    	cols.clear();
-    	vals.clear();
+        long int fpos, end_fpos; // override
+        int this_thread = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+        if(this_thread == 0) fpos = ffirst;
+        else fpos = this_thread * file_size / num_threads;
+       
+        if(this_thread != (num_threads-1)) end_fpos = (this_thread + 1) * file_size / num_threads;
+        else end_fpos = file_size;
+    
+        FILE * f_perthread = fopen(filename.c_str(), "rb");   // reopen
+        vector<string> lines;
+        bool finished = FetchBatch(f_perthread, fpos, end_fpos, true, lines);
+        size_t nnz = lines.size();
+        vector<uint32_t> rows;
+        vector<uint32_t> cols;
+        vector<float> vals;
+        ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
+        
+        string name = "Renamed_";
+        name += filename;
+        name += std::to_string(this_thread);
+        ofstream outfile(name);
+        
+        if(this_thread == 0)
+        {
+            outfile << "%%MatrixMarket matrix coordinate real symmetric\n";
+            outfile << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
+        }
+        for(size_t k=0; k< nnz; ++k)
+        {
+            outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+        }
+        rows.clear();
+        cols.clear();
+        vals.clear();
+        
+        while(!finished)
+        {
+            finished = FetchBatch(f_perthread, fpos, end_fpos, false, lines);
+            ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
+            nnz = lines.size(); // without this, it is buggy
+            
+            for(size_t k=0; k< nnz; ++k)
+            {
+                outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+            }
+            rows.clear();
+            cols.clear();
+            vals.clear();
+        }
     }
 
     tommy_hashdyn_foreach(&hashdyn, operator delete);
     tommy_hashdyn_done(&hashdyn);
-    
 }
 
 #endif
