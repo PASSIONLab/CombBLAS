@@ -437,7 +437,71 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
 		MPI_Bcast(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), root, comm1d);
 	}			
 }
-	
+
+
+/**
+ * Just a test function to see the time to gather a matrix on an MPI process
+ * @param[in] Matrix {For the root processor, the local object to be sent to all others.
+ * 		For all others, it is a (yet) empty object to be filled by the received data}
+ * @param[in] essentials {irrelevant for the root}
+ **/
+template<typename IT, typename NT, typename DER>
+void SpParHelper::GatherMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, int root)
+{
+    int myrank, nprocs;
+    MPI_Comm_rank(comm1d, &myrank);
+    MPI_Comm_size(comm1d,&nprocs);
+
+    /*
+    if(myrank != root)
+    {
+        Matrix.Create(essentials);		// allocate memory for arrays
+    }
+     */
+    
+    Arr<IT,NT> arrinfo = Matrix.GetArrays();
+    vector<vector<int>> recvcnt_ind(arrinfo.indarrs.size());
+    vector<vector<int>> recvcnt_num(arrinfo.numarrs.size());
+    for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+    {
+        recvcnt_ind[i].resize(nprocs);
+        int lcount = (int)arrinfo.indarrs[i].count;
+        MPI_Gather(&lcount, 1, MPI_INT, recvcnt_ind[i].data(),1, MPI_INT, root, comm1d);
+    }
+    for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+    {
+        recvcnt_num[i].resize(nprocs);
+        int lcount = (int) arrinfo.numarrs[i].count;
+        MPI_Gather(&lcount, 1, MPI_INT, recvcnt_num[i].data(),1, MPI_INT, root, comm1d);
+    }
+    
+    // now gather the actual vector
+    vector<vector<int>> recvdsp_ind(arrinfo.indarrs.size());
+    vector<vector<int>> recvdsp_num(arrinfo.numarrs.size());
+    vector<vector<IT>> recvind(arrinfo.indarrs.size());
+    vector<vector<IT>> recvnum(arrinfo.numarrs.size());
+    for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+    {
+        recvdsp_ind[i].resize(nprocs);
+        recvdsp_ind[i][0] = 0;
+        for(int j=1; j<nprocs; j++)
+            recvdsp_ind[i][j] = recvdsp_ind[i][j-1] + recvcnt_ind[i][j-1];
+        recvind[i].resize(recvdsp_ind[i][nprocs-1] + recvcnt_ind[i][nprocs-1]);
+        MPI_Gatherv(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), recvind[i].data(),recvcnt_ind[i].data(), recvdsp_ind[i].data(), MPIType<IT>(), root, comm1d);
+    }
+    
+    
+    for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// gather num arrays
+    {
+        recvdsp_num[i].resize(nprocs);
+        recvdsp_num[i][0] = 0;
+        for(int j=1; j<nprocs; j++)
+            recvdsp_num[i][j] = recvdsp_num[i][j-1] + recvcnt_num[i][j-1];
+        recvnum[i].resize(recvdsp_num[i][nprocs-1] + recvcnt_num[i][nprocs-1]);
+        MPI_Gatherv(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), recvnum[i].data(),recvcnt_num[i].data(), recvdsp_num[i].data(), MPIType<NT>(), root, comm1d);
+    }
+}
+
 
 template <class IT, class NT, class DER>
 void SpParHelper::SetWindows(MPI_Comm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI_Win> & arrwin) 
