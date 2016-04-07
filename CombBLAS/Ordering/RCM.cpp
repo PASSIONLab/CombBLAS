@@ -479,6 +479,17 @@ int main(int argc, char* argv[])
             return -1;
         }
         
+        MPI_Comm com = ABool->getcommgrid()->GetWorld();
+        
+        double gtime = MPI_Wtime();
+        SpParHelper::GatherMatrix(com, ABool->seq(), (int)0);
+        if(myrank==0)
+        {
+            cout << "gathertime " << MPI_Wtime() - gtime << endl;
+        }
+        //SpParHelper::GatherMatrix(ABool->seq(), (int)0);
+        
+        /*
         ABool->RemoveLoops();
         int64_t bw = ABool->Bandwidth();
         float balance = ABool->LoadImbalance();
@@ -487,8 +498,10 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
        
-        //ABool->kselect(degrees, plus<int64_t>(), static_cast<int64_t>(0), myidentity<int64_t>());
-        
+    
+        ABool->PrintInfo();
+        ABool->kselect(degrees, plus<int64_t>(), static_cast<int64_t>(0), myidentity<int64_t>());
+        degrees.DebugPrint();
         
         
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
@@ -560,7 +573,8 @@ int main(int argc, char* argv[])
             
         
         delete ABool;
-        //delete ABoolCSC;
+        delete ABoolCSC;
+         */
     }
     MPI_Finalize();
     return 0;

@@ -70,6 +70,9 @@ public:
 
 	template<typename IT, typename NT, typename DER>	
 	static void BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const vector<IT> & essentials, int root);
+    
+    template<typename IT, typename NT, typename DER>
+    static void GatherMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, int root);
 
 	template<typename IT, typename NT, typename DER>
 	static void SetWindows(MPI_Comm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI_Win> & arrwin);
