@@ -540,7 +540,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 
-
+// only defined for symmetric matrix
 template <class IT, class NT, class DER>
 IT SpParMat<IT,NT,DER>::Bandwidth() const
 {
@@ -576,11 +576,12 @@ IT SpParMat<IT,NT,DER>::Bandwidth() const
     }
     
     IT upperBW;
-    IT lowerBW;
+    //IT lowerBW;
     MPI_Allreduce( &upperlBW, &upperBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
-    MPI_Allreduce( &lowerlBW, &lowerBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    //MPI_Allreduce( &lowerlBW, &lowerBW, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
     
-    return (upperBW + lowerBW + 1);
+    //return (upperBW + lowerBW + 1);
+    return (upperBW);
 }
 
 

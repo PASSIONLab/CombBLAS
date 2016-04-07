@@ -103,7 +103,7 @@ template <typename PARMAT>
 void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees)
 {
     
-    double tSpMV=0, tOrder, tOther, tSpMV1;
+    double tSpMV=0, tOrder, tOther, tSpMV1, tsort=0, tsort1;
     tOrder = MPI_Wtime();
     
     int64_t nv = A.getnrow();
@@ -139,11 +139,13 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         //FullyDistSpVec::sort returns (i,j) index pairs such that
         // jth entry before sorting becomes ith entry after sorting.
         // Here i/j is the index of the elements relative to the dense containter
-        // Alternatively, j's consist a permutation that would premute the undorted vector to sorted vector
+        // Alternatively, j's consist a permutation that would premute the unsorted vector to sorted vector
         
         // Currently sort works up to 10k MPI processes
         // We can change the hardcoded limit in SpParHelper::MemoryEfficientPSort
+        tsort1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
+        tsort += MPI_Wtime()-tsort1;
         // idx is the index  of fringe in sorted order
         FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
         FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
@@ -156,13 +158,14 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
     }
     
     tOrder = MPI_Wtime() - tOrder;
-    tOther = tOrder - tSpMV;
+    tOther = tOrder - tSpMV - tsort;
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
         cout << "==================Ordering time =======================\n";
-        cout << "SpMV time: " <<  tSpMV << " Other time: " << tOther << endl;
+        cout << "SpMV time " << " Sort time "<< " Other time" << endl;
+        cout << tSpMV << "        "<< tsort << "       "<< tOther << endl;
         cout << "Total time: " <<  tOrder << " seconds." << endl;
         cout << "=======================================================\n";
     }
@@ -249,6 +252,7 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                 //cout << "vector nnz: " << fringe.getnnz() << endl;
                 tSpMV1 = MPI_Wtime();
                 
+                //SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
                 SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
                 
                 //fringe = SpMV(A, fringe);
@@ -293,7 +297,8 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
             cout << "==================Overall Stats =======================\n";
             cout << "vertex " << source << " is a pseudo peripheral vertex" << endl;
             cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
-            cout << "SpMV time: " <<  tSpMV << " Other time: " << tOther << endl;
+            cout << "SpMV time " << " Other time" << endl;
+            cout << tSpMV << "          "<< tOther << endl;
             cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
             cout << "======================================================\n";
             
@@ -482,6 +487,9 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
        
+        //ABool->kselect(degrees, plus<int64_t>(), static_cast<int64_t>(0), myidentity<int64_t>());
+        
+        
         
         Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
         ABoolCSC->PrintInfo();
@@ -550,8 +558,9 @@ int main(int argc, char* argv[])
             outs1 << "Bandwidth after RCM " << bw << endl;
             SpParHelper::Print(outs1.str());
             
+        
         delete ABool;
-        delete ABoolCSC;
+        //delete ABoolCSC;
     }
     MPI_Finalize();
     return 0;
