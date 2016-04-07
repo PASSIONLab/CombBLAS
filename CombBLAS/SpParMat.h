@@ -129,6 +129,9 @@ public:
     template <typename VT, typename GIT, typename _BinaryOperation>
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const;
 
+    template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>
+    void kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
+
     IT Bandwidth() const;
     
     template <typename VT, typename GIT, typename _BinaryOperation>

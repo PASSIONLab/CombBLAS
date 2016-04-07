@@ -159,6 +159,18 @@ public:
             ++(*this);
             return(tmp);
         }
+        SpColIter operator+(IT inc)
+        {
+            cptr+=inc;
+            cid+=inc;
+            return(*this);
+        }
+        SpColIter operator-(IT inc)
+        {
+            cptr-=inc;
+            cid-=inc;
+            return(*this);
+        }
         IT colid() const	//!< Return the "local" colid of the current column.
         {
             return (*cid);
