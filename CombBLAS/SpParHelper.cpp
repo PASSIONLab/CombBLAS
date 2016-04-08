@@ -441,6 +441,7 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
 
 /**
  * Just a test function to see the time to gather a matrix on an MPI process
+ * The ultimate object would be to create the whole matrix on rank 0 (TODO)
  * @param[in] Matrix {For the root processor, the local object to be sent to all others.
  * 		For all others, it is a (yet) empty object to be filled by the received data}
  * @param[in] essentials {irrelevant for the root}
