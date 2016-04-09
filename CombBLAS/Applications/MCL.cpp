@@ -128,7 +128,8 @@ int main(int argc, char* argv[])
 		{
 			A.ParallelReadMM(ifilename);
 		}
-
+		
+		SpParHelper::Print("File Read\n");
 		float balance = A.LoadImbalance();
 		int64_t nnz = A.getnnz();
 		ostringstream outs;
