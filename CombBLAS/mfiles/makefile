@@ -1,6 +1,6 @@
-CFLAGS = -Drestrict=__restrict__ -O2 -fopenmp #-DNDEBUG 
+CFLAGS = -Drestrict=__restrict__ -O2 -fopenmp -DNDEBUG 
 COMBBLAS = ..
-CC = g++-5
+CC = g++
 
 mmio.o: mmio.c
 	$(CC) $(CFLAGS) -Wno-write-strings -c -o mmio.o mmio.c

@@ -146,6 +146,7 @@ public:
 	}
 
 	IT RemoveLoops();	// returns the number of loops removed
+	void AddLoops(NT loopval);
 	
 	template <typename LIT, typename OT>
 	void OptimizeForGraph500(OptBuf<LIT,OT> & optbuf);

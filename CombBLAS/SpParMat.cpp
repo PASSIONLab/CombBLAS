@@ -1455,7 +1455,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 #ifdef COMBBLAS_DEBUG
 	IT * gsizes;
 	if(commGrid->GetRank() == 0) gsizes = new IT[nprocs];
-    MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
+    	MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
 #endif
@@ -1693,6 +1693,20 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 	return totrem;
 }		
 
+
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::AddLoops(NT loopval)
+{
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
+	{
+		SpTuples<IT,NT> tuples(*spSeq);
+		delete spSeq;
+		tuples.AddLoops(loopval);
+		spSeq = new DER(tuples, false);	// Convert to DER
+	}
+}
 
 //! Pre-allocates buffers for row communication
 //! additionally (if GATHERVOPT is defined, incomplete as of March 2016):
@@ -2353,7 +2367,6 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
-    // ABAB: It is the user's job that NT is compatible with "type" and IT is compatible with int64_t
     vector<IT> rows;
     vector<IT> cols;
     vector<NT> vals;
@@ -2386,11 +2399,17 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
         int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
         data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
     }
+
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
         cout << "Packing to recepients finished, about to send..." << endl;
 #endif
     SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
+
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+        cout << "Exchanged..." << endl;
+#endif
 }
 
 

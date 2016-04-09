@@ -99,6 +99,45 @@ public:
 	}
 
 	/**
+	 * @pre {should only be called on diagonal processors (others will add non-loop nonzeros)}
+	 * @pre {both the implementation and its semantics is meaningless for non-square matrices}
+	 **/
+	IT AddLoops(NT loopval)
+	{
+		vector<bool> existing(n,false);	// none of the diagonals exist	
+		IT loop = 0;
+		for(IT i=0; i< nnz; ++i)
+		{
+			if(joker::get<0>(tuples[i]) == joker::get<1>(tuples[i])) 
+			{	
+				++loop;
+				existing[joker::get<0>(tuples[i])] = true;
+			}
+		}
+		vector<IT> missingindices;
+		for(IT i = 0; i < n; ++i)
+		{
+			if(!existing[i])	missingindices.push_back(i);
+		}
+		IT toadd = n - loop;	// number of new entries needed (equals missingindices.size())
+		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz+toadd];
+
+		copy(tuples,tuples+nnz, ntuples);
+		
+		// MCL: As for the loop weights that are chosen, experience shows that a neutral value works well. It is possible to choose larger weights, 
+		// and this will increase cluster granularity. The effect is secondary however to that of varying the inflation parameter, 
+		// and the algorithm is not very sensitive to changes in the loop weights.
+		for(IT i=0; i< toadd; ++i)
+		{
+			ntuples[nnz+i] = make_tuple(existing[i], existing[i], loopval);
+		}
+		delete [] tuples;
+		tuples = ntuples;
+		nnz = nnz+toadd;
+		return loop;
+	}
+
+	/**
 	 *  @pre {should only be called on diagonal processors (others will remove non-loop nonzeros)}
 	 **/
 	IT RemoveLoops()
