@@ -297,8 +297,8 @@ void MMConverter(const string & filename, ofstream & dictout)
         while(!finished)
         {
             finished = FetchBatch(f_perthread, fpos, end_fpos, false, lines);
+            nnz = lines.size(); // without this in this exact place, it is buggy
             ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
-            nnz = lines.size(); // without this, it is buggy
             
             for(size_t k=0; k< nnz; ++k)
             {

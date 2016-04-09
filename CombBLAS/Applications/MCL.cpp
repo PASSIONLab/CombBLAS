@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 		{	
                 	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <BASE_OF_MM>" << endl;
-                	cout << "Example: ./mcl input.mtx 2 0.00001 0" << endl;
+                	cout << "Example: ./mcl input.mtx 2 0.0001 0" << endl;
                 }
 		MPI_Finalize(); 
 		return -1;
@@ -136,10 +136,13 @@ int main(int argc, char* argv[])
 		outs << "Nonzeros: " << nnz << endl;
 		SpParHelper::Print(outs.str());
 
+		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
+		Inflate(A, 1); 		// matrix_make_stochastic($mx);
+
 	
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
-		double chaos = 1000;
+		double chaos = 1;
 
 		// while there is an epsilon improvement
 		while( chaos > EPS)
