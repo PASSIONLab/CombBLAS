@@ -2429,6 +2429,9 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
         int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
         data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
     }
+    vector<IT>().swap(rows);
+    vector<IT>().swap(cols);
+    vector<NT>().swap(vals);	
 
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
