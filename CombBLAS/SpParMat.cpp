@@ -539,13 +539,22 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 	}
 }
 
-// identify the k-th maximum or minimum element in each column of a matrix
-// if nonzeros in a column is less then k, return max or min
+
 template <class IT, class NT, class DER>
-template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector
-void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
+template <typename VT, typename GIT>
+void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k) const
 {
-    IT k=10;
+    Kselect(rvec, k, myidentity<NT>());
+}
+
+// identify the k-th maximum element in each column of a matrix
+// if nonzeros in a column is less then k, return minimum entry
+// Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
+// this memory requirement is too high for larger k
+template <class IT, class NT, class DER>
+template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
+void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
+{
     if(*rvec.commGrid != *commGrid)
     {
         SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails!", commGrid->GetWorld());
@@ -557,12 +566,8 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
     vector<VT> sendbuf(n_thiscol*k);
-    vector<VT> recvbuf(n_thiscol*k);
-    vector<VT> tempbuf(n_thiscol*k);
     vector<IT> send_coldisp(n_thiscol+1);
-    vector<IT> recv_coldisp(n_thiscol+1);
     vector<IT> local_coldisp(n_thiscol+1);
-    vector<IT> templen(n_thiscol);
     
     
     //displacement of local columns
@@ -571,17 +576,17 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
     typename DER::SpColIter colit = spSeq->begcol();
     send_coldisp[0] = 0;
     local_coldisp[0] = 0;
-    for(IT i=1; i<n_thiscol; ++i)
+    for(IT i=0; i<n_thiscol; ++i)
     {
-        local_coldisp[i] = local_coldisp[i-1];
-        send_coldisp[i] = send_coldisp[i-1];
+        local_coldisp[i+1] = local_coldisp[i];
+        send_coldisp[i+1] = send_coldisp[i];
         if(i==colit.colid())
         {
-            local_coldisp[i] += colit.nnz();
-            if(colit.nnz()<=k)
-                send_coldisp[i] += k;
+            local_coldisp[i+1] += colit.nnz();
+            if(colit.nnz()>=k)
+                send_coldisp[i+1] += k;
             else
-                send_coldisp[i] += colit.nnz();
+                send_coldisp[i+1] += colit.nnz();
             colit++;
         }
     }
@@ -605,23 +610,27 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
         
         if(colit.nnz()<=k)
         {
-            sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1]);
+            sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], greater<VT>());
             copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], sendbuf.begin()+send_coldisp[colid]);
         }
         else
         {
-            partial_sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, localmat.begin()+local_coldisp[colid+1]);
+            partial_sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, localmat.begin()+local_coldisp[colid+1], greater<VT>());
             copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, sendbuf.begin()+send_coldisp[colid]);
         }
     }
     
     vector<VT>().swap(localmat);
     vector<IT>().swap(local_coldisp);
-    
-    
+
+    vector<VT> recvbuf(n_thiscol*k);
+    vector<VT> tempbuf(n_thiscol*k);
+    vector<IT> recv_coldisp(n_thiscol+1);
+    vector<IT> templen(n_thiscol);
     
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
+    int rank = commGrid->GetRank();
     for(int p=2; p <= colneighs; p*=2)
     {
        
@@ -630,6 +639,7 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
             int receiver = colrank - ceil(p/2);
             MPI_Send(send_coldisp.data(), n_thiscol+1, MPIType<IT>(), receiver, 0, commGrid->GetColWorld());
             MPI_Send(sendbuf.data(), send_coldisp[n_thiscol], MPIType<VT>(), receiver, 1, commGrid->GetColWorld());
+            //break;
         }
         else if(colrank%p == 0) // this processor is a receiver in this round
         {
@@ -638,8 +648,10 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
             {
                 
                 MPI_Recv(recv_coldisp.data(), n_thiscol+1, MPIType<IT>(), sender, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
-                MPI_Recv(recvbuf.data(), n_thiscol*k, MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+                MPI_Recv(recvbuf.data(), recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 
+
+
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -647,16 +659,18 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
                 {
                     // partial merge until first k elements
                     IT j=send_coldisp[i], l=recv_coldisp[i];
+                    //IT templen[i] = k*i;
+                    IT offset = k*i;
                     IT lid = 0;
                     for(; j<send_coldisp[i+1] && l<recv_coldisp[i+1] && lid<k;)
                     {
                         if(sendbuf[j] > recvbuf[l])  // decision
-                            tempbuf[lid++] = sendbuf[j++];
+                            tempbuf[offset+lid++] = sendbuf[j++];
                         else
-                            tempbuf[lid++] = recvbuf[l++];
+                            tempbuf[offset+lid++] = recvbuf[l++];
                     }
-                    while(j<send_coldisp[i+1] && lid<k) tempbuf[lid++] = sendbuf[j++];
-                    while(l<recv_coldisp[i+1] && lid<k) tempbuf[lid++] = recvbuf[l++];
+                    while(j<send_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = sendbuf[j++];
+                    while(l<recv_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = recvbuf[l++];
                     templen[i] = lid;
                 }
                 
@@ -670,11 +684,11 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-                for(IT i=0; i<n_thiscol; i++)
+                for(IT i=0; i<n_thiscol; i++) // use direct copy
                 {
-                    copy(tempbuf.begin()+send_coldisp[i], tempbuf.begin()+send_coldisp[i+1], sendbuf.begin() + send_coldisp[i]);
+                    IT offset = k*i;
+                    copy(tempbuf.begin()+offset, tempbuf.begin()+offset+templen[i], sendbuf.begin() + send_coldisp[i]);
                 }
-                
             }
         }
     }
@@ -682,7 +696,23 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
     
     vector<VT> kthItem(n_thiscol);
     int root = commGrid->GetDiagOfProcCol();
-    if(root>0 && colrank==0)
+    if(root==0 && colrank==0) // rank 0
+    {
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT i=0; i<n_thiscol; i++)
+        {
+            IT nitems = send_coldisp[i+1]-send_coldisp[i];
+            if(nitems >= k)
+                kthItem[i] = sendbuf[send_coldisp[i]+k-1];
+            else if (nitems==0)
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
+            else
+                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+        }
+    }
+    else if(root>0 && colrank==0)
     {
 #ifdef THREADED
 #pragma omp parallel for
@@ -699,7 +729,7 @@ void SpParMat<IT,NT,DER>::kselect(FullyDistVec<GIT,VT> & rvec, _BinaryOperation 
         }
         MPI_Send(kthItem.data(), n_thiscol, MPIType<VT>(), root, 0, commGrid->GetColWorld());
     }
-    if(root>0 && colrank==root)
+    else if(root>0 && colrank==root)
     {
         MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
