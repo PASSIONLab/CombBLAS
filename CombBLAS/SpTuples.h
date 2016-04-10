@@ -129,11 +129,12 @@ public:
 		// and the algorithm is not very sensitive to changes in the loop weights.
 		for(IT i=0; i< toadd; ++i)
 		{
-			ntuples[nnz+i] = make_tuple(existing[i], existing[i], loopval);
+			ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopval);
 		}
 		delete [] tuples;
 		tuples = ntuples;
 		nnz = nnz+toadd;
+        
 		return loop;
 	}
 

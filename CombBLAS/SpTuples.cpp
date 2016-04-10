@@ -251,6 +251,7 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 		delete [] tuples;
 		tuples  = new tuple<IT, IT, NT>[summed.size()];
 		copy(summed.begin(), summed.end(), tuples);
+		nnz =  summed.size();
 	}
 }
 

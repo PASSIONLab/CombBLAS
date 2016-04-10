@@ -347,29 +347,60 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _Bina
 
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation, typename _UnaryOperation >	
-DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
+FullyDistVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
 {
-	DenseParVec<IT,NT> parvec(commGrid, id);
+    IT length;
+    switch(dim)
+    {
+        case Column:
+        {
+            length = getncol();
+            break;
+        }
+        case Row:
+        {
+            length = getnrow();
+            break;
+        }
+        default:
+        {
+            cout << "Unknown reduction dimension, returning empty vector" << endl;
+            break;
+        }
+    }
+	FullyDistVec<IT,NT> parvec(commGrid, length, id);
 	Reduce(parvec, dim, __binary_op, id, __unary_op);			
 	return parvec;
 }
 
-// default template arguments don't work with function templates
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation>	
-DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
+FullyDistVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
 {
-	DenseParVec<IT,NT> parvec(commGrid, id);
-	Reduce(parvec, dim, __binary_op, id, myidentity<NT>() );			
+    IT length;
+    switch(dim)
+    {
+        case Column:
+        {
+            length = getncol();
+            break;
+        }
+        case Row:
+        {
+            length = getnrow();
+            break;
+        }
+        default:
+        {
+            cout << "Unknown reduction dimension, returning empty vector" << endl;
+            break;
+        }
+    }
+	FullyDistVec<IT,NT> parvec(commGrid, length, id);
+	Reduce(parvec, dim, __binary_op, id, myidentity<NT>()); // myidentity<NT>() is a no-op function
 	return parvec;
 }
 
-template <class IT, class NT, class DER>
-template <typename VT, typename _BinaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
-{
-	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );			
-}
 
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _BinaryOperation>	
@@ -429,7 +460,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			{
 				VT * sendbuf = new VT[loclens[i]];
 				fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
-
+                
 				for(; colit != spSeq->endcol() && colit.colid() < lensums[i+1]; ++colit)	// iterate over a portion of columns
 				{
 					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)	// all nonzeros in this column
@@ -437,6 +468,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 						sendbuf[colit.colid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[colit.colid()-lensums[i]]);
 					}
 				}
+                
 				VT * recvbuf = NULL;
 				if(colrank == i)
 				{
@@ -802,92 +834,6 @@ IT SpParMat<IT,NT,DER>::Bandwidth() const
     //return (upperBW + lowerBW + 1);
     return (upperBW);
 }
-
-
-
-/**
-  * Reduce along the column/row into a vector
-  * @param[in] __binary_op {the operation used for reduction; examples: max, min, plus, multiply, and, or. Its parameters and return type are all VT}
-  * @param[in] id {scalar that is used as the identity for __binary_op; examples: zero, infinity}
-  * @param[in] __unary_op {optional unary operation applied to nonzeros *before* the __binary_op; examples: 1/x, x^2}
-  * @param[out] rvec {the return vector, specified as an output parameter to allow arbitrary return types via VT}
- **/
-template <class IT, class NT, class DER>
-template <typename VT, typename _BinaryOperation, typename _UnaryOperation>
-void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
-{
-	if(rvec.zero != id)
-	{
-		ostringstream outs;
-		outs << "SpParMat::Reduce(): Return vector's zero is different than set id"  << endl;
-		outs << "Setting rvec.zero to id (" << id << ") instead" << endl;
-		SpParHelper::Print(outs.str(), commGrid->GetWorld());
-		rvec.zero = id;
-	}
-	if(*rvec.commGrid != *commGrid)
-	{
-		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !", commGrid->GetWorld());
-		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-	}
-	switch(dim)
-	{
-		case Column:	// pack along the columns, result is a vector of size n
-		{
-			VT * sendbuf = new VT[getlocalcols()];
-			fill(sendbuf, sendbuf+getlocalcols(), id);	// fill with identity
-
-			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
-			{
-				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
-				{
-					sendbuf[colit.colid()] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[colit.colid()]);
-				}
-			}
-			VT * recvbuf = NULL;
-			int root = commGrid->GetDiagOfProcCol();
-			if(rvec.diagonal)
-			{
-				rvec.arr.resize(getlocalcols());
-				recvbuf = SpHelper::p2a(rvec.arr);
-			}
-			MPI_Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root, commGrid->GetColWorld());
-			delete [] sendbuf;
-			break;
-		}
-		case Row:	// pack along the rows, result is a vector of size m
-		{
-			VT * sendbuf = new VT[getlocalrows()];
-			fill(sendbuf, sendbuf+getlocalrows(), id);	// fill with identity
-			
-			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
-			{
-				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
-				{
-					sendbuf[nzit.rowid()] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()]);
-				}
-			}
-			VT * recvbuf = NULL;
-			int root = commGrid->GetDiagOfProcRow();
-			if(rvec.diagonal)
-			{
-				rvec.arr.resize(getlocalrows());
-				recvbuf = SpHelper::p2a(rvec.arr);	
-			}
-			MPI_Reduce(sendbuf, recvbuf, getlocalrows(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root, commGrid->GetRowWorld());
-			delete [] sendbuf;
-			break;
-		}
-		default:
-		{
-			cout << "Unknown reduction dimension, returning empty vector" << endl;
-			break;
-		}
-	}
-}
-
-
-
-
 
 
 
@@ -1517,7 +1463,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	else 	locrows = total_m - myprocrow * m_perproc;
 	if(myproccol != s-1)	loccols = n_perproc;
 	else	loccols = total_n - myproccol * n_perproc;
-
+    
 	SpTuples<IT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
 	if(SumDuplicates)
 	{
@@ -1734,6 +1680,7 @@ void SpParMat<IT,NT,DER>::AddLoops(NT loopval)
 		SpTuples<IT,NT> tuples(*spSeq);
 		delete spSeq;
 		tuples.AddLoops(loopval);
+        tuples.SortColBased();
 		spSeq = new DER(tuples, false);	// Convert to DER
 	}
 }
@@ -2418,11 +2365,11 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
         cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
-#endif    
+#endif
 
     vector< vector < tuple<IT,IT,NT> > > data(nprocs);
     
-    IT locsize = rows.size();
+    IT locsize = rows.size();   // remember: locsize != entriesread (unless the matrix is unsymmetric)
     for(IT i=0; i<locsize; ++i)
     {
         IT lrow, lcol;
@@ -2437,12 +2384,9 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
     if(myrank == 0)
         cout << "Packing to recepients finished, about to send..." << endl;
 #endif
+    
+    if(spSeq)   delete spSeq;
     SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
-
-#ifdef COMBBLAS_DEBUG
-    if(myrank == 0)
-        cout << "Exchanged..." << endl;
-#endif
 }
 
 

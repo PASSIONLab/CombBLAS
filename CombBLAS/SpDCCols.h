@@ -202,7 +202,7 @@ public:
 	SpColIter endcol()
 	{
 		if( nnz > 0 )
-			return SpColIter(dcsc->cp + dcsc->nzc, NULL); 
+			return SpColIter(dcsc->cp + dcsc->nzc, NULL);
 		else
 			return SpColIter(NULL, NULL);
 	}
