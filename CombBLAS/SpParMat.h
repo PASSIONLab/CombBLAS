@@ -106,16 +106,10 @@ public:
 	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
 
 	template <typename _BinaryOperation, typename _UnaryOperation >	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;  // deprecated?
+	FullyDistVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
 
 	template <typename _BinaryOperation>	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;  // deprecated?
-
-	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const; // deprecated?
-
-	template <typename VT, typename _BinaryOperation>	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const; // deprecated?
+	FullyDistVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;
 
     template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
@@ -162,7 +156,7 @@ public:
 		if (inPlace)
 		{
 			spSeq->PruneI(__unary_op, inPlace, grow, gcol);
-			return SpParMat<IT,NT,DER>(); // return blank to match signature
+			return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
 		}
 		else
 		{
@@ -176,7 +170,7 @@ public:
 		if (inPlace)
 		{
 			spSeq->Prune(__unary_op, inPlace);
-			return SpParMat<IT,NT,DER>(); // return blank to match signature
+			return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
 		}
 		else
 		{

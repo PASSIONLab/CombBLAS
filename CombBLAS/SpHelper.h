@@ -51,11 +51,11 @@ public:
     template <typename IT1, typename NT1, typename IT2, typename NT2>
     static void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric, bool onebased = true)
     {
-	if(onebased)
-	{
+        if(onebased)
+        {
         	ii--;  /* adjust from 1-based to 0-based */
         	jj--;
-	}
+        }
         rows.push_back(ii);
         cols.push_back(jj);
         vals.push_back(vv);
@@ -103,7 +103,7 @@ public:
         {
             cout << "COMBBLAS: Unrecognized matrix market scalar type" << endl;
         }
-        vector<string>().swap(lines);
+        lines.clear();
     }
 
 

@@ -50,48 +50,45 @@ using namespace std;
 
 #define EPS 0.001
 
-// Simple helper class for declarations: Just the numerical type is templated 
-// The index type and the sequential matrix type stays the same for the whole code
-// In this case, they are "int" and "SpDCCols"
-template <class NT>
+
 class Dist
 { 
 public: 
-	typedef SpDCCols < int64_t, NT > DCCols;
-	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
-	typedef FullyDistVec < int64_t, NT> MPI_DenseVec;
+	typedef SpDCCols < uint32_t, float > DCCols;
+	typedef SpParMat < uint32_t, float, DCCols > MPI_DCCols;
+	typedef FullyDistVec < uint32_t, float> MPI_DenseVec;
 };
 
 
-void Interpret(const Dist<double>::MPI_DCCols & A)
+void Interpret(const Dist::MPI_DCCols & A)
 {
 	// Placeholder
 }
 
 
-double Inflate(Dist<double>::MPI_DCCols & A, double power)
-{		
+float Inflate(Dist::MPI_DCCols & A, float power)
+{
 	A.Apply(bind2nd(exponentiate(), power));
 	{
 		// Reduce (Column): pack along the columns, result is a vector of size n
-		Dist<double>::MPI_DenseVec colsums = A.Reduce(Column, plus<double>(), 0.0);			
-		colsums.Apply(safemultinv<double>());
-		A.DimApply(Column, colsums, multiplies<double>());	// scale each "Column" with the given vector
+		Dist::MPI_DenseVec colsums = A.Reduce(Column, plus<float>(), 0.0);
+		colsums.Apply(safemultinv<float>());
+		A.DimApply(Column, colsums, multiplies<float>());	// scale each "Column" with the given vector
 
-#ifdef DEBUG
-		colsums = A.Reduce(Column, plus<double>(), 0.0);			
+#ifdef COMBBLAS_DEBUG
+		colsums = A.Reduce(Column, plus<float>(), 0.0);
 		colsums.PrintToFile("colnormalizedsums"); 
 #endif		
 	}
 
 	// After normalization, each column of A is now a stochastic vector
-	Dist<double>::MPI_DenseVec colssqs = A.Reduce(Column, plus<double>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
+	Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<float>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
 
 	// Matrix entries are non-negative, so max() can use zero as identity
-	Dist<double>::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), 0.0);
+    Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 0.0);
 
 	colmaxs -= colssqs;	// chaos indicator
-	return colmaxs.Reduce(maximum<double>(), 0.0);
+	return colmaxs.Reduce(maximum<float>(), 0.0);
 }
 
 
@@ -101,8 +98,8 @@ int main(int argc, char* argv[])
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-	typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;
-	if(argc < 4)
+	typedef PlusTimesSRing<float, float> PTFF;
+	if(argc < 5)
         {
 		if(myrank == 0)
 		{	
@@ -114,14 +111,15 @@ int main(int argc, char* argv[])
         }
 
 	{
-		double inflation = atof(argv[2]);
-		double prunelimit = atof(argv[3]);
+		float inflation = atof(argv[2]);
+		float prunelimit = atof(argv[3]);
 
 		string ifilename(argv[1]);		
 
-		Dist<double>::MPI_DCCols A;	// construct object
-		if(argv[4] == "0")
+		Dist::MPI_DCCols A;	// construct object
+		if(string(argv[4]) == "0")
 		{
+            SpParHelper::Print("Treating input zero based\n");
 			A.ParallelReadMM(ifilename, false);	// use zero-based indexing for matrix-market file
 		}
 		else
@@ -136,22 +134,24 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		outs << "Nonzeros: " << nnz << endl;
 		SpParHelper::Print(outs.str());
-
+        
 		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
+        SpParHelper::Print("Added loops\n");
+        
 		Inflate(A, 1); 		// matrix_make_stochastic($mx);
+        SpParHelper::Print("Made stochastic\n");
 
 	
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
-		double chaos = 1;
+		float chaos = 1;
 
 		// while there is an epsilon improvement
 		while( chaos > EPS)
 		{
+            A.PrintInfo();
 			double t1 = MPI_Wtime();
-			A.Square<PTDOUBLEDOUBLE>() ;		// expand 
-			// Dist<double>::MPI_DCCols TA = A;
-			// A = PSpGEMM<PTDOUBLEDOUBLE>(TA, A);
+			A.Square<PTFF>() ;		// expand
 			
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Before pruning...\n");
 			A.PrintInfo();
 #endif
-			A.Prune(bind2nd(less<double>(), prunelimit));
+			A.Prune(bind2nd(less<float>(), prunelimit));
 			
 			double t2=MPI_Wtime();
 			if(myrank == 0)
