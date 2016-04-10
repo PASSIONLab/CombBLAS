@@ -1413,7 +1413,8 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
  ** Before this call, commGrid is already set
  **/
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, bool SumDuplicates)
+template <typename _BinaryOperation>
+void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
 {
 	int nprocs = commGrid->GetSize();
 	int * sendcnt = new int[nprocs];
@@ -1465,11 +1466,9 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	else	loccols = total_n - myproccol * n_perproc;
     
 	SpTuples<IT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
-	if(SumDuplicates)
-	{
-		// the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
-		A.RemoveDuplicates(plus<NT>());
-	}
+	
+    // the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
+    A.RemoveDuplicates(BinOp);
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
@@ -1501,7 +1500,14 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
 		data[owner].push_back(make_tuple(lrow,lcol,distvals.arr[i]));	
 	}
-	SparseCommon(data, locsize, total_m, total_n, SumDuplicates);
+    if(SumDuplicates)
+    {
+        SparseCommon(data, locsize, total_m, total_n, plus<NT>());
+    }
+    else
+    {
+        SparseCommon(data, locsize, total_m, total_n, maximum<NT>());
+    }
 }
 
 
@@ -1531,7 +1537,14 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
 		data[owner].push_back(make_tuple(lrow,lcol,val));	
 	}
-	SparseCommon(data, locsize, total_m, total_n, SumDuplicates);
+    if(SumDuplicates)
+    {
+        SparseCommon(data, locsize, total_m, total_n, plus<NT>());
+    }
+    else
+    {
+        SparseCommon(data, locsize, total_m, total_n, max<NT>());
+    }
 }
 
 template <class IT, class NT, class DER>
@@ -2256,7 +2269,8 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! Requires proper matrix market banner at the moment
 //! Might replace ReadDistribute in the long term
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebased)
+template <typename _BinaryOperation>
+void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp)
 {
     int32_t type = -1;
     int32_t symmetric = 0;
@@ -2386,7 +2400,7 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
 #endif
     
     if(spSeq)   delete spSeq;
-    SparseCommon(data, locsize, nrows, ncols, true);    // sum duplicates! (what else can we do anyway)
+    SparseCommon(data, locsize, nrows, ncols, BinOp);
 }
 
 

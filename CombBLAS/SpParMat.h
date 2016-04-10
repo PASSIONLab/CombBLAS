@@ -239,7 +239,9 @@ public:
 		}
 	};
 	
-    	void ParallelReadMM (const string & filename, bool onebased = true);
+    template <typename _BinaryOperation>
+    void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
+    
 	template <class HANDLER>
 	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
 	void ReadDistribute (const string & filename, int master, bool nonum=false, bool pario = false) 
@@ -325,7 +327,8 @@ public:
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
 
 private:
-	void SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, bool SumDuplicates = false);
+    template <typename _BinaryOperation>
+	void SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
 	
 	void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;

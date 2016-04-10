@@ -120,11 +120,11 @@ int main(int argc, char* argv[])
 		if(string(argv[4]) == "0")
 		{
             SpParHelper::Print("Treating input zero based\n");
-			A.ParallelReadMM(ifilename, false);	// use zero-based indexing for matrix-market file
+            A.ParallelReadMM(ifilename, false, maximum<float>());	// use zero-based indexing for matrix-market file
 		}
 		else
 		{
-			A.ParallelReadMM(ifilename);
+            A.ParallelReadMM(ifilename, true, maximum<float>());
 		}
 		
 		SpParHelper::Print("File Read\n");
