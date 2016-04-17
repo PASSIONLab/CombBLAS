@@ -5,7 +5,7 @@
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -174,6 +174,98 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 	}	
 	return true;
 }	
+
+
+
+/**
+ * Broadcasts A multiple times (#phases) in order to save storage in the output
+ * Only uses 1/phases of C memory if the threshold/max limits are proper
+ **/
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
+                                           int phases, NT0 hardthreshold)
+{
+    if(!CheckSpGEMMCompliance(A,B) )
+        return SpParMat< IU,NUO,UDERO >();
+    
+    int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+    shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+    IU C_m = A.spSeq->getnrow();
+    IU C_n = B.spSeq->getncol();
+    
+    vector< DER > PiecesOfB;
+    DER CopyB = *(B.spSeq);
+    CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
+    MPI_Barrier(GridC->GetWorld());
+    
+    IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+    IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+    
+    SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+    
+    // Remotely fetched matrices are stored as pointers
+    UDERA * ARecv;
+    UDERB * BRecv;
+    vector< SpTuples<IU,NUO>  *> tomerge;
+    
+    int Aself = (A.commGrid)->GetRankInProcRow();
+    int Bself = (B.commGrid)->GetRankInProcCol();
+    
+    for(int p = 0; p< phases; ++p)
+    {
+        SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.commGrid)->GetColWorld());
+
+        for(int i = 0; i < stages; ++i)
+        {
+            vector<IU> ess;
+            if(i == Aself)  ARecv = A.spSeq;	// shallow-copy
+            else
+            {
+                ess.resize(UDERA::esscount);
+                for(int j=0; j< UDERA::esscount; ++j)
+                    ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row
+                ARecv = new UDERA();				// first, create the object
+            }
+            SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+            ess.clear();
+
+            if(i == Bself)  BRecv = &(PiecesOfB[p]);	// shallow-copy
+            else
+            {
+                ess.resize(UDERB::esscount);
+                for(int j=0; j< UDERB::esscount; ++j)
+                    ess[j] = BRecvSizes[j][i];
+                BRecv = new UDERB();
+            }
+            SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+            
+            
+            SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+                                        (*ARecv, *BRecv, // parameters themselves
+                                        false, false,	// transpose information (none are transposed)
+                                         i != Aself, 	// 'delete A' condition
+                                         i != Bself);	// 'delete B' condition
+            
+            // alternatively:
+            // SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            
+            if(!C_cont->isZero())
+                tomerge.push_back(C_cont);
+            else
+                delete C_cont;
+            
+        }   // all stages executed
+        
+        UDER0 OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+        UDER0 * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NT0>(), hardthreshold), false);    // don't delete OnePieceOfC yet
+        
+    }
+    
+    
+    // First get the result in SpTuples, then convert to UDER
+    return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
+}
+
 
 
 /**

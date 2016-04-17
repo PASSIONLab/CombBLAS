@@ -1845,34 +1845,24 @@ void SpParMat<IT,NT,DER>::Square ()
 	for(int i = 0; i < stages; ++i) 
 	{
 		vector<IT> ess;	
-		if(i == Nself)
-		{	
-			NRecv = spSeq;	// shallow-copy 
-		}
+		if(i == Nself)  NRecv = spSeq;	// shallow-copy
 		else
 		{
 			ess.resize(DER::esscount);
-			for(int j=0; j< DER::esscount; ++j)	
-			{
-				ess[j] = NRecvSizes[j][i];		// essentials of the ith matrix in this row	
-			}
+			for(int j=0; j< DER::esscount; ++j)
+				ess[j] = NRecvSizes[j][i];		// essentials of the ith matrix in this row
 			NRecv = new DER();				// first, create the object
 		}
 
 		SpParHelper::BCastMatrix(Grid->GetRowWorld(), *NRecv, ess, i);	// then, broadcast its elements	
 		ess.clear();	
 		
-		if(i == Tself)
-		{
-			TRecv = &seqTrn;	// shallow-copy
-		}
+		if(i == Tself)  TRecv = &seqTrn;	// shallow-copy
 		else
 		{
 			ess.resize(DER::esscount);		
-			for(int j=0; j< DER::esscount; ++j)	
-			{
-				ess[j] = TRecvSizes[j][i];	
-			}	
+			for(int j=0; j< DER::esscount; ++j)
+				ess[j] = TRecvSizes[j][i];
 			TRecv = new DER();
 		}
 		SpParHelper::BCastMatrix(Grid->GetColWorld(), *TRecv, ess, i);	
@@ -1881,14 +1871,8 @@ void SpParMat<IT,NT,DER>::Square ()
 		if(!AA_cont->isZero()) 
 			tomerge.push_back(AA_cont);
 
-		if(i != Nself)	
-		{
-			delete NRecv;		
-		}
-		if(i != Tself)	
-		{
-			delete TRecv;
-		}
+		if(i != Nself)	delete NRecv;
+		if(i != Tself)  delete TRecv;
 	}
 
 	SpHelper::deallocate2D(NRecvSizes, DER::esscount);
@@ -1897,9 +1881,7 @@ void SpParMat<IT,NT,DER>::Square ()
 	delete spSeq;		
 	spSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false);	// First get the result in SpTuples, then convert to UDER
 	for(unsigned int i=0; i<tomerge.size(); ++i)
-	{
 		delete tomerge[i];
-	}
 }
 
 
