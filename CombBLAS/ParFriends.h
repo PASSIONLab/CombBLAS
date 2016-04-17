@@ -259,8 +259,17 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         UDER0 OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
         UDER0 * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NT0>(), hardthreshold), false);    // don't delete OnePieceOfC yet
         
+        // Recover using OnePieceOfC if too sparse
+        // needs the logic of k-select implemented here
+        
+        
+        // toconcatenate.push_back(PrunedPieceOfC);
     }
     
+    UDER * C = ColConcatenate(toconcatenate);
+    
+    for(unsigned int i=0; i<toconcatenate.size(); ++i)
+        delete toconcatenate[i];
     
     // First get the result in SpTuples, then convert to UDER
     return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
