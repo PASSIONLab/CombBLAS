@@ -1413,8 +1413,8 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
  ** Before this call, commGrid is already set
  **/
 template <class IT, class NT, class DER>
-template <typename _BinaryOperation>
-void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
+template <typename _BinaryOperation, typename LIT>
+void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
 {
 	int nprocs = commGrid->GetSize();
 	int * sendcnt = new int[nprocs];
@@ -1437,17 +1437,18 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	MPI_Barrier(commGrid->GetWorld());
 #endif
 
-  	tuple<IT,IT,NT> * senddata = new tuple<IT,IT,NT>[locsize];	// re-used for both rows and columns
+    	typedef typename DER::LocalIT LIT;
+  	tuple<LIT,LIT,NT> * senddata = new tuple<LIT,LIT,NT>[locsize];	// re-used for both rows and columns
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(data[i].begin(), data[i].end(), senddata+sdispls[i]);
-		vector< tuple<IT,IT,NT> >().swap(data[i]);	// clear memory
+		vector< tuple<LIT,LIT,NT> >().swap(data[i]);	// clear memory
 	}
 	MPI_Datatype MPI_triple;
-	MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_triple);
+	MPI_Type_contiguous(sizeof(tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_triple);
 	MPI_Type_commit(&MPI_triple);
 
-	tuple<IT,IT,NT> * recvdata = new tuple<IT,IT,NT>[totrecv];	
+	tuple<LIT,LIT,NT> * recvdata = new tuple<LIT,LIT,NT>[totrecv];	
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple, commGrid->GetWorld());
 
 	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
@@ -1465,10 +1466,10 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	if(myproccol != s-1)	loccols = n_perproc;
 	else	loccols = total_n - myproccol * n_perproc;
     
-	SpTuples<IT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
+	SpTuples<LIT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
 	
-    // the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
-    A.RemoveDuplicates(BinOp);
+    	// the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
+    	A.RemoveDuplicates(BinOp);
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
@@ -1690,10 +1691,11 @@ void SpParMat<IT,NT,DER>::AddLoops(NT loopval)
 	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		SpTuples<IT,NT> tuples(*spSeq);
+    		typedef typename DER::LocalIT LIT;
+		SpTuples<LIT,NT> tuples(*spSeq);
 		delete spSeq;
 		tuples.AddLoops(loopval);
-        tuples.SortColBased();
+        	tuples.SortColBased();
 		spSeq = new DER(tuples, false);	// Convert to DER
 	}
 }
@@ -1820,16 +1822,18 @@ void SpParMat<IT,NT,DER>::Square ()
 {
 	int stages, dummy; 	// last two parameters of productgrid are ignored for synchronous multiplication
 	shared_ptr<CommGrid> Grid = ProductGrid(commGrid.get(), commGrid.get(), stages, dummy, dummy);		
+
+	typedef typename DER::LocalIT LIT;
 	
-	IT AA_m = spSeq->getnrow();
-	IT AA_n = spSeq->getncol();
+	LIT AA_m = spSeq->getnrow();
+	LIT AA_n = spSeq->getncol();
 	
 	DER seqTrn = spSeq->TransposeConst();	// will be automatically discarded after going out of scope		
 
 	MPI_Barrier(commGrid->GetWorld());
 
-	IT ** NRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
-	IT ** TRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+	LIT ** NRecvSizes = SpHelper::allocate2D<LIT>(DER::esscount, stages);
+	LIT ** TRecvSizes = SpHelper::allocate2D<LIT>(DER::esscount, stages);
 	
 	SpParHelper::GetSetSizes( *spSeq, NRecvSizes, commGrid->GetRowWorld());
 	SpParHelper::GetSetSizes( seqTrn, TRecvSizes, commGrid->GetColWorld());
@@ -1837,14 +1841,14 @@ void SpParMat<IT,NT,DER>::Square ()
 	// Remotely fetched matrices are stored as pointers
 	DER * NRecv; 
 	DER * TRecv;
-	vector< SpTuples<IT,NT>  *> tomerge;
+	vector< SpTuples<LIT,NT>  *> tomerge;
 
 	int Nself = commGrid->GetRankInProcRow();
 	int Tself = commGrid->GetRankInProcCol();	
 
 	for(int i = 0; i < stages; ++i) 
 	{
-		vector<IT> ess;	
+		vector<LIT> ess;	
 		if(i == Nself)
 		{	
 			NRecv = spSeq;	// shallow-copy 
@@ -1877,7 +1881,7 @@ void SpParMat<IT,NT,DER>::Square ()
 		}
 		SpParHelper::BCastMatrix(Grid->GetColWorld(), *TRecv, ess, i);	
 
-		SpTuples<IT,NT> * AA_cont = MultiplyReturnTuples<SR, NT>(*NRecv, *TRecv, false, true);
+		SpTuples<LIT,NT> * AA_cont = MultiplyReturnTuples<SR, NT>(*NRecv, *TRecv, false, true);
 		if(!AA_cont->isZero()) 
 			tomerge.push_back(AA_cont);
 
@@ -2358,8 +2362,10 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
-    vector<IT> rows;
-    vector<IT> cols;
+	 
+    typedef typename DER::LocalIT LIT;
+    vector<LIT> rows;
+    vector<LIT> cols;
     vector<NT> vals;
 
     vector<string> lines;
@@ -2381,17 +2387,17 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
         cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
 #endif
 
-    vector< vector < tuple<IT,IT,NT> > > data(nprocs);
+    vector< vector < tuple<LIT,LIT,NT> > > data(nprocs);
     
-    IT locsize = rows.size();   // remember: locsize != entriesread (unless the matrix is unsymmetric)
-    for(IT i=0; i<locsize; ++i)
+    LIT locsize = rows.size();   // remember: locsize != entriesread (unless the matrix is unsymmetric)
+    for(LIT i=0; i<locsize; ++i)
     {
-        IT lrow, lcol;
+        LIT lrow, lcol;
         int owner = Owner(nrows, ncols, rows[i], cols[i], lrow, lcol);
         data[owner].push_back(make_tuple(lrow,lcol,vals[i]));
     }
-    vector<IT>().swap(rows);
-    vector<IT>().swap(cols);
+    vector<LIT>().swap(rows);
+    vector<LIT>().swap(cols);
     vector<NT>().swap(vals);	
 
 #ifdef COMBBLAS_DEBUG
@@ -3118,7 +3124,8 @@ ofstream& operator<<(ofstream& outfile, const SpParMat<IU, NU, UDER> & s)
   * @returns {owner processor id}
  **/
 template <class IT, class NT,class DER>
-int SpParMat<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const
+template <typename LIT>
+int SpParMat<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const
 {
 	int procrows = commGrid->GetGridRows();
 	int proccols = commGrid->GetGridCols();
