@@ -716,7 +716,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-                for(IT i=0; i<n_thiscol; i++) // use direct copy
+                for(IT i=0; i<n_thiscol; i++) // direct copy
                 {
                     IT offset = k*i;
                     copy(tempbuf.begin()+offset, tempbuf.begin()+offset+templen[i], sendbuf.begin() + send_coldisp[i]);
@@ -727,6 +727,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     MPI_Barrier(commGrid->GetWorld());
     
     vector<VT> kthItem(n_thiscol);
+
     int root = commGrid->GetDiagOfProcCol();
     if(root==0 && colrank==0) // rank 0
     {
@@ -744,7 +745,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
                 kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
         }
     }
-    else if(root>0 && colrank==0)
+    else if(root>0 && colrank==0) // send to the diagonl processor of this processor column
     {
 #ifdef THREADED
 #pragma omp parallel for
@@ -755,9 +756,9 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
             if(nitems >= k)
                 kthItem[i] = sendbuf[send_coldisp[i]+k-1];
             else if (nitems==0)
-                kthItem[i] = -1; // TODO: What should we return if a column is empty? *******
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
             else
-               kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the max/min if nnz in this column is less than k
+               kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
         }
         MPI_Send(kthItem.data(), n_thiscol, MPIType<VT>(), root, 0, commGrid->GetColWorld());
     }
@@ -1318,6 +1319,70 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 	SpParMat<IT,NT,DER> T(total_n, total_n, ci, ci, 1);
 	SpParMat<IT,NT,DER> SAT = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(SA, T, true, true); // clear memory of SA and T
 	EWiseMult(SAT, true);	// In-place EWiseMult with not(SAT)
+}
+
+
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
+{
+
+    if(getncol() != pvals.TotalLength())
+    {
+        ostringstream outs;
+        outs << "Can not prune column-by-column, dimensions does not match"<< endl;
+        outs << getncol() << " != " << pvals.TotalLength() << endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+    if(! ( *(getcommgrid()) == *(pvals.getcommgrid())) )
+    {
+        cout << "Grids are not comparable for PurneColumn" << endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
+    MPI_Comm RowWorld = pvals.commGrid->GetRowWorld();
+    
+    int xsize = (int) pvals.LocArrSize();
+    int trxsize = 0;
+    
+    int diagneigh = pvals.commGrid->GetComplementRank();
+    MPI_Status status;
+    MPI_Sendrecv(&xsize, 1, MPI_INT, diagneigh, TRX, &trxsize, 1, MPI_INT, diagneigh, TRX, World, &status);
+    
+    NT * trxnums = new NT[trxsize];
+    MPI_Sendrecv(const_cast<NT*>(SpHelper::p2a(pvals.arr)), xsize, MPIType<NT>(), diagneigh, TRX, trxnums, trxsize, MPIType<NT>(), diagneigh, TRX, World, &status);
+    
+    int colneighs, colrank;
+    MPI_Comm_size(ColWorld, &colneighs);
+    MPI_Comm_rank(ColWorld, &colrank);
+    int * colsize = new int[colneighs];
+    colsize[colrank] = trxsize;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colsize, 1, MPI_INT, ColWorld);
+    int * dpls = new int[colneighs]();	// displacements (zero initialized pid)
+    std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
+    int accsize = std::accumulate(colsize, colsize+colneighs, 0);
+    NT * numacc = new NT[accsize];
+    
+    
+    MPI_Allgatherv(trxnums, trxsize, MPIType<NT>(), numacc, colsize, dpls, MPIType<NT>(), ColWorld);
+    delete [] trxnums;
+    delete [] colsize;
+    delete [] dpls;
+
+    //sanity check
+    assert(accsize == getlocalcols());
+    if (inPlace)
+    {
+        spSeq->PruneColumn(numacc, __binary_op, inPlace);
+        return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
+    }
+    else
+    {
+        return SpParMat<IT,NT,DER>(spSeq->PruneColumn(numacc, __binary_op, inPlace), commGrid);
+    }
 }
 
 

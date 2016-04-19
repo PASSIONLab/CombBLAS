@@ -78,7 +78,10 @@ public:
 	Dcsc<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset);
 	template <typename _UnaryOperation>
 	Dcsc<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
+    template <typename _BinaryOperation>
+    Dcsc<IT,NT>* PruneColumn(NT* pvals, _BinaryOperation __binary_op, bool inPlace);
 
+    
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	
 	void RowSplit(int numsplits);
