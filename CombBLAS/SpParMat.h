@@ -177,7 +177,10 @@ public:
 			return SpParMat<IT,NT,DER>(spSeq->Prune(__unary_op, inPlace), commGrid);
 		}
 	}
-
+    
+    template <typename _BinaryOperation>
+    SpParMat<IT,NT,DER> PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace=true);
+    
 	template <typename _BinaryOperation>
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 
@@ -327,9 +330,11 @@ public:
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
 
 private:
-    template <typename _BinaryOperation>
-	void SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
-	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
+    	template <typename _BinaryOperation, typename LIT>
+	void SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
+
+	template <typename LIT>
+	int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
 	
 	void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;
 	
