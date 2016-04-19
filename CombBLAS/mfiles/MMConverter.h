@@ -11,11 +11,111 @@
 #include <string.h>
 #include <omp.h>
 #include "mmio.h"
+#include <zlib.h>
 #include "../Tommy/tommyhashdyn.h"
 using namespace std;
 
 #define BATCH 100000000  // 100MB
-#define MAXLINELENGTH 128
+#define MAXLINELENGTH 512
+#define COMPRESS_STRING
+#define VERTEX_HEAD "metagenome"
+
+string chop_head(const string & full_str, const string & head_str)
+{
+	if (full_str.compare(0, head_str.length(), head_str) == 0)	// begins_with
+	{
+		return full_str.substr(head_str.length(), string::npos);
+	}
+	else
+	{
+		cout << "String doesn't start with " << head_str << endl;
+		return full_str;
+	}
+} 
+
+/** Compress a STL string using zlib with given compression level and return
+ * the binary data. */
+string compress_string(const string& str, int compressionlevel = Z_BEST_COMPRESSION)
+{
+    z_stream zs;                        // z_stream is zlib's control structure
+    memset(&zs, 0, sizeof(zs));
+    
+    if (deflateInit(&zs, compressionlevel) != Z_OK)
+        throw(std::runtime_error("deflateInit failed while compressing."));
+    
+    zs.next_in = (Bytef*)str.data();
+    zs.avail_in = str.size();           // set the z_stream's input
+    
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+    
+    // retrieve the compressed bytes blockwise
+    do {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+        
+        ret = deflate(&zs, Z_FINISH);
+        
+        if (outstring.size() < zs.total_out) {
+            // append the block to the output string
+            outstring.append(outbuffer,
+                             zs.total_out - outstring.size());
+        }
+    } while (ret == Z_OK);
+    
+    deflateEnd(&zs);
+    
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        ostringstream oss;
+        oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
+        throw(runtime_error(oss.str()));
+    }
+    
+    return outstring;
+}
+
+/** Decompress an STL string using zlib and return the original data. */
+string decompress_string(const string& str)
+{
+    z_stream zs;                        // z_stream is zlib's control structure
+    memset(&zs, 0, sizeof(zs));
+    
+    if (inflateInit(&zs) != Z_OK)
+        throw(std::runtime_error("inflateInit failed while decompressing."));
+    
+    zs.next_in = (Bytef*)str.data();
+    zs.avail_in = str.size();
+    
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+    
+    // get the decompressed bytes blockwise using repeated calls to inflate
+    do {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+        
+        ret = inflate(&zs, 0);
+        
+        if (outstring.size() < zs.total_out) {
+            outstring.append(outbuffer,
+                             zs.total_out - outstring.size());
+        }
+        
+    } while (ret == Z_OK);
+    
+    inflateEnd(&zs);
+    
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        std::ostringstream oss;
+        oss << "Exception during zlib decompression: (" << ret << ") "
+        << zs.msg;
+        throw(std::runtime_error(oss.str()));
+    }
+    
+    return outstring;
+}
 
 
 struct tommy_object {
@@ -23,13 +123,29 @@ struct tommy_object {
     uint32_t value;
     string index;
     
-    tommy_object(uint32_t val, string ind):value(val), index(ind){}; // constructor
+    tommy_object(uint32_t val, string ind):value(val)
+    {
+#ifdef COMPRESS_STRING
+	index = compress_string(ind);
+#else
+	index = ind;
+#endif
+    }; // constructor
+
+    string getIndex() const
+    {
+#ifdef COMPRESS_STRING
+	return decompress_string(index);
+#else
+	return index;
+#endif	
+    } 
 };
 
 
 int compare(const void* arg, const void* obj)
 {
-    return *(const string*)arg != ((const tommy_object *)obj)->index;
+    return *(const string*)arg != ((const tommy_object *)obj)->getIndex();
 }
 
 
@@ -51,8 +167,8 @@ void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, ve
     {
         // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
         sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
-        string s_from = string(from);
-        string s_to = string(to);
+        string s_from = chop_head(string(from), VERTEX_HEAD);
+        string s_to = chop_head(string(to), VERTEX_HEAD);
         
         tommy_object * obj1 = (tommy_object *) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
         tommy_object * obj2 = (tommy_object *) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
@@ -181,15 +297,19 @@ void MMConverter(const string & filename, ofstream & dictout)
     {
         // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
         sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
-        string s_from = string(from);
-        string s_to = string(to);
+        string s_from = chop_head(string(from), VERTEX_HEAD);
+        string s_to = chop_head(string(to), VERTEX_HEAD);
 
         tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
         if(!obj1)
         {
             tommy_object * obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
             tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
-            mymap.push_back(s_from);
+	#ifdef COMPRESS_STRING
+            mymap.push_back(compress_string(s_from));
+	#else
+	    mymap.push_back(s_from);
+	#endif
             ++vertexid; // new entry
         }
         
@@ -198,7 +318,11 @@ void MMConverter(const string & filename, ofstream & dictout)
         {
             tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
             tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
-            mymap.push_back(s_to);
+	#ifdef COMPRESS_STRING
+            mymap.push_back(compress_string(s_to));
+	#else
+	    mymap.push_back(s_to);
+	#endif
             ++vertexid; // new entry
         }
     }
@@ -208,7 +332,7 @@ void MMConverter(const string & filename, ofstream & dictout)
     {
         finished = FetchBatch(f, fpos, end_fpos, false, lines);
         entriesread += lines.size();
-        cout << "entriesread: " << entriesread << endl;
+        cout << "entriesread: " << entriesread << ", current vertex id: " << vertexid << endl;
         
         // Process files
         char from[64];
@@ -219,15 +343,20 @@ void MMConverter(const string & filename, ofstream & dictout)
             // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
             sscanf(itr->c_str(), "%s %s %lg", from, to, &vv);
             
-            string s_from = string(from);
-            string s_to = string(to);
+            string s_from = chop_head(string(from), VERTEX_HEAD);
+            string s_to = chop_head(string(to), VERTEX_HEAD);
             
             tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
             if(!obj1)
             {
                 tommy_object* obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
                 tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
-                mymap.push_back(s_from);
+
+	#ifdef COMPRESS_STRING
+            	mymap.push_back(compress_string(s_from));
+	#else
+	    	mymap.push_back(s_from);
+	#endif
                 ++vertexid; // new entry
             }
             
@@ -236,7 +365,12 @@ void MMConverter(const string & filename, ofstream & dictout)
             {
                 tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
                 tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
-                mymap.push_back(s_to);
+
+	#ifdef COMPRESS_STRING
+            	mymap.push_back(compress_string(s_to));
+	#else
+	    	mymap.push_back(s_to);
+	#endif
                 ++vertexid; // new entry
             }
         }
@@ -251,7 +385,11 @@ void MMConverter(const string & filename, ofstream & dictout)
     
     for (int i=0; i< mymap.size(); ++i)
     {
+#ifdef COMPRESS_STRING
+        dictout << shuffler[i] << "\t" << decompress_string(mymap[i]) << "\n";
+#else
         dictout << shuffler[i] << "\t" << mymap[i] << "\n";
+#endif
     }
     cout << "Shuffled and wrote dictionary " << endl;
     fclose(f);

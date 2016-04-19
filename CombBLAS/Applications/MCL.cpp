@@ -54,9 +54,9 @@ using namespace std;
 class Dist
 { 
 public: 
-	typedef SpDCCols < uint32_t, float > DCCols;
-	typedef SpParMat < uint32_t, float, DCCols > MPI_DCCols;
-	typedef FullyDistVec < uint32_t, float> MPI_DenseVec;
+	typedef SpDCCols < int32_t, float > DCCols;
+	typedef SpParMat < int64_t, float, DCCols > MPI_DCCols;
+	typedef FullyDistVec < int64_t, float> MPI_DenseVec;
 };
 
 
