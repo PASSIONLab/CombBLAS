@@ -727,11 +727,18 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 		}
 		else
 		{
-			// serial SpMV with sparse vector
-			vector< int32_t > indy;
-			vector< OVT >  numy;
-			
-			generic_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
+            vector< int32_t > indy;
+            vector< OVT >  numy;
+            
+            #ifdef THREADED
+            // multithreaded SpMV without splitting the matrix
+            // skipping the intermadiate layer of Friends.h
+            SpMXSpV_Threaded_2D<SR>(*(A.spSeq->GetInternal()), (int32_t) A.getnrow(), indacc, numacc, accnz, indy, numy);
+            #else
+                // serial SpMV
+                generic_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
+            #endif
+
 			DeleteAll(indacc, numacc);
 			
 			int32_t bufsize = indy.size();	// as compact as possible
