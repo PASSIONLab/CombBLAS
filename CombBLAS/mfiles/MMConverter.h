@@ -17,8 +17,8 @@ using namespace std;
 
 #define BATCH 100000000  // 100MB
 #define MAXLINELENGTH 512
-#define COMPRESS_STRING
-#define VERTEX_HEAD "metagenome"
+#define VERTEX_HEAD ""
+#define MAXVERTNAME 128
 
 string chop_head(const string & full_str, const string & head_str)
 {
@@ -160,8 +160,8 @@ void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals,
 template <typename IT1, typename NT1>
 void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, tommy_hashdyn & hashdyn, const vector<uint32_t> & shuffler)
 {
-    char from[64];
-    char to[64];
+    char from[MAXVERTNAME];
+    char to[MAXVERTNAME];
     double vv;
     for (vector<string>::iterator itr=lines.begin(); itr != lines.end(); ++itr)
     {
@@ -289,8 +289,8 @@ void MMConverter(const string & filename, ofstream & dictout)
     
     vector<string> mymap;
  
-    char from[64];
-    char to[64];
+    char from[MAXVERTNAME];
+    char to[MAXVERTNAME];
     double vv;
     uint32_t vertexid = 0;
     for (vector<string>::iterator itr=lines.begin(); itr != lines.end(); ++itr)
@@ -335,8 +335,8 @@ void MMConverter(const string & filename, ofstream & dictout)
         cout << "entriesread: " << entriesread << ", current vertex id: " << vertexid << endl;
         
         // Process files
-        char from[64];
-        char to[64];
+        char from[MAXVERTNAME];
+        char to[MAXVERTNAME];
         double vv;
         for (vector<string>::iterator itr=lines.begin(); itr != lines.end(); ++itr)
         {

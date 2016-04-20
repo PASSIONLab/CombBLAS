@@ -15,19 +15,15 @@
 #include "MMConverter.h"
 
 using namespace std;
+#define COMPRESS_STRING
 
 int main(int argc, char* argv[])
 {
-	if(argc < 3)
+    if(argc < 2)
     {
-        cout << "Usage: ./mcl2mtx <input> <permute:0/1>" << endl;
+        cout << "Usage: ./mcl2mtx <input>" << endl;
         return 0;
     }
-    
-    vector<uint32_t> allrows;
-    vector<uint32_t> allcols;
-    vector<float> allvals;
-    uint32_t nvertices;
     
     cout << "reading input matrix in MCL format... " << endl;
     
