@@ -317,6 +317,10 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 }
 
 
+
+
+
+
 template <typename OVT>
 struct tommy_object {
     tommy_node node;
@@ -411,5 +415,145 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
     tommy_hashdyn_done(&hashdyn);
 #endif
 
+}
+
+
+
+
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                      vector<int32_t> & indy, vector<OVT> & numy)
+{
+    vector<OVT> localy(mA);
+    BitMap isthere(mA);
+    vector<uint32_t> nzinds(mA);
+    SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, localy, isthere, nzinds);
+}
+
+
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,vector<int32_t> & indy, vector<OVT> & numy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)    // these three are pre-allocated buffers
+{
+    int splits = 1;
+#ifdef _OPENMP
+#pragma omp parallel
+    {
+        splits = omp_get_num_threads()*2;
+    }
+#endif
+     // this does not split the matrix
+    
+    int rowSplits, colSplits;
+    rowSplits = colSplits = splits;
+    
+    int32_t colPerSplit = Acsc.n / colSplits;
+    int32_t rowPerSplit = mA / rowSplits;
+    
+    vector<vector<vector<int32_t>>> tIndBucket(colSplits);
+    vector<vector<vector<OVT>>> tNumBucket(colSplits);
+    
+    
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int cs=0; cs<colSplits; ++cs)
+    {
+        tIndBucket[cs].resize(rowSplits);
+        tNumBucket[cs].resize(rowSplits);
+        
+        int32_t startCol = cs*colPerSplit;
+        int32_t endCol = (cs==colSplits-1) ? Acsc.n: (cs+1)*colPerSplit;
+
+        // this can be moved outside so that we can use finger search
+        int32_t* it1 = (int32_t*) lower_bound (indx, indx+veclen, startCol);
+        int32_t* it2 = (int32_t*) lower_bound (indx, indx+veclen, endCol);
+        int32_t startid = (int32_t) (it1 - indx);
+        int32_t endid = (int32_t) (it2 - indx);
+        // now compute my boundary
+        //itearet over my assigned columns
+        for (int32_t k = startid; k < endid; ++k)
+        {
+            IT colid = indx[k];
+            for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
+            {
+                uint32_t rowid = (uint32_t) Acsc.ir[j];
+                int32_t bucketId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits : rowid/rowPerSplit;
+                tIndBucket[cs][bucketId].push_back(rowid);
+                tNumBucket[cs][bucketId].push_back(numx[k]);
+
+            }
+        }
+    }
+    
+
+    
+    vector<uint32_t> nzInRowSplits(rowSplits);
+#ifdef TIMING
+    double t2=MPI_Wtime();
+#endif
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int rs=0; rs<rowSplits; ++rs)
+    {
+        int nzInSplit = 0;
+        
+        for(int cs=0; cs<colSplits; ++cs)
+        {
+            // thread i will process ith row split from every column split
+            // we need SPA here
+            for(int i=0; i<tIndBucket[cs][rs].size() ; i++)
+            {
+                int32_t rowid = tIndBucket[cs][rs][i];
+                if(!isthere.get_bit(rowid)) // there is no conflict across threads
+                {
+                    localy[rowid] = tNumBucket[cs][rs][i];
+                    nzinds[rowPerSplit * rs + nzInSplit] = rowid;
+                    nzInSplit++;
+                    isthere.set_bit(rowid);
+                }
+                else
+                {
+                    localy[rowid] = SR::add(localy[rowid], tNumBucket[cs][rs][i]);
+                }
+            }
+            
+        }
+        nzInRowSplits[rs] = nzInSplit;
+    }
+#ifdef TIMING
+    double t3=MPI_Wtime();
+    cblas_localspmvtime += (t3-t2);
+#endif
+    
+    // prefix sum
+    vector<uint32_t> dispRowSplits(rowSplits+1);
+    dispRowSplits[0] = 0;
+    for(int i=0; i<rowSplits; i++)
+    {
+        dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
+    }
+    
+    int nnzy = dispRowSplits[rowSplits];
+    indy.resize(nnzy);
+    numy.resize(nnzy);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int rs=0; rs<rowSplits; rs++)
+    {
+        integerSort(nzinds.data() + rowPerSplit * rs, nzInRowSplits[rs]);
+        for(int i=rowPerSplit * rs, j=dispRowSplits[rs]; j<dispRowSplits[rs+1]; i++, j++)
+        {
+            indy[j] = nzinds[i];
+            numy[j] = localy[indy[j]];
+        }
+    }
+    
+
+    
+    isthere.reset();
+    nzinds.clear(); // not necessarily reclaim memory, just make size=0
 }
 
