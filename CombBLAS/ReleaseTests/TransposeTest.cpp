@@ -65,9 +65,9 @@ int main(int argc, char* argv[])
 		shared_ptr<CommGrid> fullWorld;
 		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        	PARBOOLMAT A(fullWorld);
-        	PARBOOLMAT AT(fullWorld);
-        	PARBOOLMAT ATControl(fullWorld);
+        PARBOOLMAT A(fullWorld);
+        PARBOOLMAT AT(fullWorld);
+        PARBOOLMAT ATControl(fullWorld);
 		A.ReadDistribute(normalname, 0);	// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();
