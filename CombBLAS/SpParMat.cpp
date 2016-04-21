@@ -1502,7 +1502,6 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	MPI_Barrier(commGrid->GetWorld());
 #endif
 
-    	typedef typename DER::LocalIT LIT;
   	tuple<LIT,LIT,NT> * senddata = new tuple<LIT,LIT,NT>[locsize];	// re-used for both rows and columns
 	for(int i=0; i<nprocs; ++i)
 	{
@@ -1912,7 +1911,7 @@ void SpParMat<IT,NT,DER>::Square ()
 	int Tself = commGrid->GetRankInProcCol();	
 
 	for(int i = 0; i < stages; ++i) 
-
+    {
 		vector<LIT> ess;	
 		if(i == Nself)  NRecv = spSeq;	// shallow-copy 
 		else
