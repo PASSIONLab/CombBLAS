@@ -84,6 +84,11 @@ class BitMap {
   void set_bit(uint64_t pos) {
     start[WORD_OFFSET(pos)] |= ( static_cast<uint64_t>(1l)<<BIT_OFFSET(pos));
   }
+    
+    inline
+    void reset_bit(uint64_t pos) {
+        start[WORD_OFFSET(pos)] &= ~( static_cast<uint64_t>(1l)<<BIT_OFFSET(pos));
+    }
 
   inline
   void set_bit_atomic(long pos) {
