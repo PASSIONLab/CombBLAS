@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <vector>
+#include "PreAllocatedSPA.h"
 using namespace std;
 
 template <class IT, class NT>
@@ -101,9 +102,9 @@ void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * 
 
 //! CSC with 2D threading
 template <class SR, class IT, class NUM, class IVT, class OVT>
-void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,vector<int32_t> & indy, vector< OVT > & numy)
+void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,vector<int32_t> & indy, vector< OVT > & numy, PreAllocatedSPA<IT,NUM,OVT> & SPA)
 {
-    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy);
+    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, SPA);
 };
 
 //! CSC with 2D threading and preallocated SPA
@@ -197,7 +198,7 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
     
     //! Csc and vector index types do not need to match
     static void SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                     vector<int32_t> & indy, vector<OVT> & numy);
+                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA);
     
     static void SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      vector<int32_t> & indy, vector<OVT> & numy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds);

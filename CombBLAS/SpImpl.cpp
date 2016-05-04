@@ -420,112 +420,177 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
 
 
 
+
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                      vector<int32_t> & indy, vector<OVT> & numy)
+                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA)
 {
-    vector<OVT> localy(mA);
-    BitMap isthere(mA);
-    vector<uint32_t> nzinds(mA);
-    SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, localy, isthere, nzinds);
-}
 
-
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,vector<int32_t> & indy, vector<OVT> & numy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)    // these three are pre-allocated buffers
-{
-    int splits = 1;
+    int rowSplits = 1, nthreads=1;
 #ifdef _OPENMP
 #pragma omp parallel
     {
-        splits = omp_get_num_threads()*2;
+        
+        nthreads = omp_get_num_threads();
+        rowSplits = nthreads * 4;
     }
 #endif
-     // this does not split the matrix
-    
-    int rowSplits, colSplits;
-    rowSplits = colSplits = splits;
-    
-    int32_t colPerSplit = Acsc.n / colSplits;
     int32_t rowPerSplit = mA / rowSplits;
     
-    vector<vector<vector<int32_t>>> tIndBucket(colSplits);
-    vector<vector<vector<OVT>>> tNumBucket(colSplits);
+    
+    //------------------------------------------------------
+    // Step1: count the nnz in each rowsplit of the matrix,
+    // because we don't want to waste memory
+    // False sharing is not a big problem because it is written outside of the main loop
+    //------------------------------------------------------
+    
+    vector<int32_t> nnzSplitA(rowSplits,0);
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        vector<int32_t> tnnzSplitA(rowSplits,0); // temporary per thread
+        
+#ifdef _OPENMP
+#pragma omp for //nowait
+#endif
+        for (int32_t k = 0; k < veclen; ++k)
+        {
+            IT colid = indx[k];
+            for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)
+            {
+                uint32_t rowid = (uint32_t) Acsc.ir[j];
+                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                tnnzSplitA[splitId]++;
+            }
+        }
+        for(int i=0; i<rowSplits; i++)
+        {
+            //#pragma omp atomic
+            //nnzSplitA[i]+=tnnzSplitA[i];
+            __sync_fetch_and_add(&nnzSplitA[i], tnnzSplitA[i]);
+        }
+    }
+
+    
+    
+    // prefix sum
+    vector<uint32_t> disp(rowSplits+1);
+    disp[0] = 0;
+    for(int i=0; i<rowSplits; i++)
+    {
+        disp[i+1] = disp[i] + nnzSplitA[i];
+    }
+    
+    
+    
+    
+    //------------------------------------------------------
+    // Step2: The matrix is traversed column by column and
+    // nonzeros each rowsplit of the matrix are compiled together
+    //------------------------------------------------------
+    
+    int32_t* indSplitA = static_cast<int32_t*> (::operator new (sizeof(int32_t)*disp[rowSplits]));
+    OVT* numSplitA = static_cast<OVT*> (::operator new (sizeof(OVT)*disp[rowSplits]));
+    vector<int> bucketSize(rowSplits,0);
+    int THREAD_BUF_LEN = 256;
     
     
 #ifdef _OPENMP
-#pragma omp parallel for
+#pragma omp parallel
 #endif
-    for(int cs=0; cs<colSplits; ++cs)
     {
-        tIndBucket[cs].resize(rowSplits);
-        tNumBucket[cs].resize(rowSplits);
+        int thisThread = omp_get_thread_num();
+        vector<int32_t> tIndSplitA(rowSplits*THREAD_BUF_LEN);
+        vector<OVT> tNumSplitA(rowSplits*THREAD_BUF_LEN);
+        vector<int> tBucketSize(rowSplits,0);
         
-        int32_t startCol = cs*colPerSplit;
-        int32_t endCol = (cs==colSplits-1) ? Acsc.n: (cs+1)*colPerSplit;
-
-        // this can be moved outside so that we can use finger search
-        int32_t* it1 = (int32_t*) lower_bound (indx, indx+veclen, startCol);
-        int32_t* it2 = (int32_t*) lower_bound (indx, indx+veclen, endCol);
-        int32_t startid = (int32_t) (it1 - indx);
-        int32_t endid = (int32_t) (it2 - indx);
-        // now compute my boundary
-        //itearet over my assigned columns
-        for (int32_t k = startid; k < endid; ++k)
+#ifdef _OPENMP
+#pragma omp for
+#endif
+        for (int32_t k = 0; k < veclen; ++k)
         {
             IT colid = indx[k];
             for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
             {
                 uint32_t rowid = (uint32_t) Acsc.ir[j];
-                int32_t bucketId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits : rowid/rowPerSplit;
-                tIndBucket[cs][bucketId].push_back(rowid);
-                tNumBucket[cs][bucketId].push_back(numx[k]);
-
-            }
-        }
-    }
-    
-
-    
-    vector<uint32_t> nzInRowSplits(rowSplits);
-#ifdef TIMING
-    double t2=MPI_Wtime();
-#endif
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for(int rs=0; rs<rowSplits; ++rs)
-    {
-        int nzInSplit = 0;
-        
-        for(int cs=0; cs<colSplits; ++cs)
-        {
-            // thread i will process ith row split from every column split
-            // we need SPA here
-            for(int i=0; i<tIndBucket[cs][rs].size() ; i++)
-            {
-                int32_t rowid = tIndBucket[cs][rs][i];
-                if(!isthere.get_bit(rowid)) // there is no conflict across threads
+                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                if (tBucketSize[splitId] < THREAD_BUF_LEN)
                 {
-                    localy[rowid] = tNumBucket[cs][rs][i];
-                    nzinds[rowPerSplit * rs + nzInSplit] = rowid;
-                    nzInSplit++;
-                    isthere.set_bit(rowid);
+                    tIndSplitA[splitId*THREAD_BUF_LEN + tBucketSize[splitId]] = rowid;
+                    tNumSplitA[splitId*THREAD_BUF_LEN  + tBucketSize[splitId]++] = numx[k];
                 }
                 else
                 {
-                    localy[rowid] = SR::add(localy[rowid], tNumBucket[cs][rs][i]);
+                    uint32_t voff = __sync_fetch_and_add (&bucketSize[splitId], THREAD_BUF_LEN);
+                    for (uint32_t vk = 0; vk < THREAD_BUF_LEN; ++vk)
+                    {
+                        indSplitA[disp[splitId] + voff + vk] = tIndSplitA[splitId*THREAD_BUF_LEN + vk];
+                        numSplitA[disp[splitId] + voff + vk] = tNumSplitA[splitId*THREAD_BUF_LEN + vk];
+                    }
+                    tIndSplitA[splitId*THREAD_BUF_LEN] = rowid;
+                    tNumSplitA[splitId*THREAD_BUF_LEN] = numx[k];
+                    tBucketSize[splitId] = 1;
+                }
+            }
+        }
+        
+        for(int rs=0; rs<rowSplits; ++rs)
+        {
+            if(tBucketSize[rs]>0)
+            {
+                uint32_t voff = __sync_fetch_and_add (&bucketSize[rs], tBucketSize[rs]);
+                for (uint32_t vk = 0; vk < tBucketSize[rs]; ++vk)
+                {
+                    indSplitA[disp[rs] + voff + vk] = tIndSplitA[rs*THREAD_BUF_LEN + vk];
+                    numSplitA[disp[rs] + voff + vk] = tNumSplitA[rs*THREAD_BUF_LEN + vk];
+                }
+            }
+        }
+    }
+    
+
+    vector<uint32_t> nzInRowSplits(rowSplits);
+    // Ariful: somehow I was not able to make SPA.C_inds working. See the dirty version
+    uint32_t* nzinds = static_cast<uint32_t*> (::operator new (sizeof(uint32_t)*disp[rowSplits]));
+    
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        
+#ifdef _OPENMP
+#pragma omp for
+#endif
+        for(int rs=0; rs<rowSplits; ++rs)
+        {
+            
+            for(int i=disp[rs]; i<disp[rs+1] ; i++)
+            {
+                SPA.V_isthereBool[0][indSplitA[i]] = false;
+            }
+            uint32_t tMergeDisp = disp[rs];
+            for(int i=disp[rs]; i<disp[rs+1] ; i++)
+            {
+                int32_t rowid = indSplitA[i];
+                if(!SPA.V_isthereBool[0][rowid])// there is no conflict across threads
+                {
+                    SPA.V_localy[0][rowid] = numSplitA[i];
+                    nzinds[tMergeDisp++] = rowid;
+                    SPA.V_isthereBool[0][rowid]=true;
+                }
+                else
+                {
+                    SPA.V_localy[0][rowid] = SR::add(SPA.V_localy[0][rowid], numSplitA[i]);
                 }
             }
             
+            integerSort(nzinds + disp[rs], tMergeDisp - disp[rs]);
+            nzInRowSplits[rs] = tMergeDisp - disp[rs];
+            
         }
-        nzInRowSplits[rs] = nzInSplit;
+        
     }
-#ifdef TIMING
-    double t3=MPI_Wtime();
-    cblas_localspmvtime += (t3-t2);
-#endif
     
     // prefix sum
     vector<uint32_t> dispRowSplits(rowSplits+1);
@@ -535,25 +600,30 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
         dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
     }
     
+    
+    ::operator delete(indSplitA);
+    ::operator delete(numSplitA);
+    
     int nnzy = dispRowSplits[rowSplits];
     indy.resize(nnzy);
     numy.resize(nnzy);
+    
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
     for(int rs=0; rs<rowSplits; rs++)
     {
-        integerSort(nzinds.data() + rowPerSplit * rs, nzInRowSplits[rs]);
-        for(int i=rowPerSplit * rs, j=dispRowSplits[rs]; j<dispRowSplits[rs+1]; i++, j++)
+        copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy.data()+dispRowSplits[rs]);
+        for(int j=0; j<nzInRowSplits[rs]; j++)
         {
-            indy[j] = nzinds[i];
-            numy[j] = localy[indy[j]];
+            numy[j+dispRowSplits[rs]] = SPA.V_localy[0][nzinds[disp[rs]+j]];
+            
         }
     }
-    
 
-    
-    isthere.reset();
-    nzinds.clear(); // not necessarily reclaim memory, just make size=0
+    ::operator delete(nzinds);
 }
+
+
+
 

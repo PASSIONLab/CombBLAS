@@ -89,7 +89,10 @@ public:
         {
             V_isthere.push_back(BitMap(mA));
             V_localy.push_back(vector<OVT>(mA));
+            V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
+            V_isthereBool.push_back(vector<bool>(mA));
             
+            /*
             vector<bool> isthere(mA, false);
             for(typename DER::SpColIter colit = A.begcol(); colit != A.endcol(); ++colit)
             {
@@ -101,11 +104,42 @@ public:
             }
             size_t maxvector = std::count(isthere.begin(), isthere.end(), true);
             V_inds.push_back(vector<uint32_t>(maxvector));
+             */
         }
     };
     
+    // for manual splitting.
+    /*
+    template <class DER>
+    PreAllocatedSPA(SpMat<IT,NT,DER> & A, int split):initialized(true)
+    {
+        IT mA = A.getnrow();
+        if( split > 0)
+        {
+            IT perpiece =  mA / split;
+            for(int i=0; i<split; ++i)
+            {
+                if(i != split-1)
+                {
+                    V_isthere.push_back(BitMap(perpiece));
+                    V_localy.push_back(vector<OVT>(perpiece));
+                    V_inds.push_back(vector<uint32_t>(perpiece));
+                    
+                }
+                else
+                {
+                    V_isthere.push_back(BitMap(mA - i*perpiece));
+                    V_localy.push_back(vector<OVT>(mA - i*perpiece));
+                    V_inds.push_back(vector<uint32_t>(mA - i*perpiece));
+                }
+            }
+        }
+    };
+    */
+    
     vector< vector<uint32_t> > V_inds;  // ABAB: is this big enough?
     vector< BitMap > V_isthere;
+    vector< vector<bool> > V_isthereBool; // for thread safe access
     vector< vector<OVT> > V_localy;
     bool initialized;
 };
