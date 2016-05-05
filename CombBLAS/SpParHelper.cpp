@@ -45,11 +45,6 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 		for(int i=0; i< nprocs; ++i)	
 			if(dist[i] != 0) ++nreals;
 
-        vector<IndexHolder<KEY>> in(length);
-        for(int i=0; i< length; ++i)
-        {
-            in[i] = IndexHolder<KEY>(array[i].first, static_cast<unsigned long>(array[i].second));
-        }
         //SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
         
 		if(nreals == nprocs)	// general case
@@ -147,6 +142,9 @@ vector<pair<KEY,VAL>> SpParHelper::KeyValuePSort(pair<KEY,VAL> * array, IT lengt
         if(dist[i] != 0) ++nreals;
     
     vector<IndexHolder<KEY>> in(length);
+#ifdef THREADED
+#pragma omp parallel for
+#endif
     for(int i=0; i< length; ++i)
     {
         in[i] = IndexHolder<KEY>(array[i].first, static_cast<unsigned long>(array[i].second));
