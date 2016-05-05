@@ -180,6 +180,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
+ ** ABAB: Incomplete as of April 21
  *
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
@@ -618,7 +619,11 @@ void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t 
 	// Copy them to 32 bit integers and transfer that to save 50% of off-node bandwidth
 	trxinds = new int32_t[trxlocnz];
 	int32_t * temp_xind = new int32_t[xlocnz];
-	for(int i=0; i< xlocnz; ++i)	temp_xind[i] = (int32_t) x.ind[i];
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+	for(int i=0; i< xlocnz; ++i)
+        temp_xind[i] = (int32_t) x.ind[i];
 	MPI_Sendrecv(temp_xind, xlocnz, MPIType<int32_t>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<int32_t>(), diagneigh, TRI, World, &status);
 	delete [] temp_xind;
 	if(!indexisvalue)
@@ -626,6 +631,7 @@ void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t 
 		trxnums = new NV[trxlocnz];
 		MPI_Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX, World, &status);
 	}
+    
 	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
 }
 
@@ -733,7 +739,7 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
             #ifdef THREADED
             // multithreaded SpMV without splitting the matrix
             // skipping the intermadiate layer of Friends.h
-            SpMXSpV_Threaded_2D<SR>(*(A.spSeq->GetInternal()), (int32_t) A.getnrow(), indacc, numacc, accnz, indy, numy);
+            SpMXSpV_Threaded_2D<SR>(*(A.spSeq->GetInternal()), (int32_t) A.getnrow(), indacc, numacc, accnz, indy, numy, SPA);
             #else
                 // serial SpMV
                 generic_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
