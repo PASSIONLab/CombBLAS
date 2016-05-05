@@ -693,6 +693,9 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	dist[rank] = nnz;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
     IT until = LengthUntil();
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 	for(IT i=0; i< nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
@@ -705,6 +708,9 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
     temp.num.resize(nnz);
     temp.ind.resize(nnz);
     
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 	for(IT i=0; i< nnz; ++i)
 	{
 		//num[i] = sorted[i].first;	// sorted range (change the object itself)
