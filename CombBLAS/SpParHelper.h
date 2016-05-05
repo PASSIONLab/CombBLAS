@@ -61,6 +61,8 @@ public:
 	// 	1.5 GB with 8K processors
 	template<typename KEY, typename VAL, typename IT>
 	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm);
+    template<typename KEY, typename VAL, typename IT>
+    static vector<pair<KEY,VAL>> KeyValuePSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm);
 	
 	template<typename KEY, typename VAL, typename IT>
 	static void DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI_Comm & World);

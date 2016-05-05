@@ -26,6 +26,8 @@
  THE SOFTWARE.
  */
 
+#include "usort/include/parUtils.h"
+
 
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm)
@@ -43,12 +45,19 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 		for(int i=0; i< nprocs; ++i)	
 			if(dist[i] != 0) ++nreals;
 
+        vector<IndexHolder<KEY>> in(length);
+        for(int i=0; i< length; ++i)
+        {
+            in[i] = IndexHolder<KEY>(array[i].first, static_cast<unsigned long>(array[i].second));
+        }
+        //SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
+        
 		if(nreals == nprocs)	// general case
 		{
-			long * dist_in = new long[nprocs];
-                	for(int i=0; i< nprocs; ++i)    dist_in[i] = (long) dist[i];
-                	vpsort::parallel_sort (array, array+length,  dist_in, comm);
-                	delete [] dist_in;
+            long * dist_in = new long[nprocs];
+            for(int i=0; i< nprocs; ++i)    dist_in[i] = (long) dist[i];
+            vpsort::parallel_sort (array, array+length,  dist_in, comm);
+            delete [] dist_in;
 		}
 		else
 		{
@@ -111,7 +120,92 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 		MPI_Comm_split(comm, color, myrank, &halfcomm);	// split into two communicators
 		MemoryEfficientPSort(array, length, dist, halfcomm);
 	}
+    
 }
+
+
+/*
+ TODO: This function is just a hack at this moment. 
+ The payload (VAL) can only be integer at this moment.
+ FIX this.
+ */
+template<typename KEY, typename VAL, typename IT>
+vector<pair<KEY,VAL>> SpParHelper::KeyValuePSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm)
+{
+    int nprocs, myrank;
+    MPI_Comm_size(comm, &nprocs);
+    MPI_Comm_rank(comm, &myrank);
+    int nsize = nprocs / 2;	// new size
+    
+    
+    
+    bool excluded =  false;
+    if(dist[myrank] == 0)	excluded = true;
+    
+    int nreals = 0;
+    for(int i=0; i< nprocs; ++i)
+        if(dist[i] != 0) ++nreals;
+    
+    vector<IndexHolder<KEY>> in(length);
+    for(int i=0; i< length; ++i)
+    {
+        in[i] = IndexHolder<KEY>(array[i].first, static_cast<unsigned long>(array[i].second));
+    }
+    
+    if(nreals == nprocs)	// general case
+    {
+        par::sampleSort(in, comm);
+    }
+    else
+    {
+        long * dist_in = new long[nreals];
+        int * dist_out = new int[nprocs-nreals];	// ranks to exclude
+        int indin = 0;
+        int indout = 0;
+        for(int i=0; i< nprocs; ++i)
+        {
+            if(dist[i] == 0)
+                dist_out[indout++] = i;
+            else
+                dist_in[indin++] = (long) dist[i];
+        }
+        
+#ifdef DEBUG
+        ostringstream outs;
+        outs << "To exclude indices: ";
+        copy(dist_out, dist_out+indout, ostream_iterator<int>(outs, " ")); outs << endl;
+        SpParHelper::Print(outs.str());
+#endif
+        
+        MPI_Group sort_group, real_group;
+        MPI_Comm_group(comm, &sort_group);
+        MPI_Group_excl(sort_group, indout, dist_out, &real_group);
+        MPI_Group_free(&sort_group);
+        
+        // The Create() function should be executed by all processes in comm,
+        // even if they do not belong to the new group (in that case MPI_COMM_NULL is returned as real_comm?)
+        // MPI::Intracomm MPI::Intracomm::Create(const MPI::Group& group) const;
+        MPI_Comm real_comm;
+        MPI_Comm_create(comm, real_group, &real_comm);
+        if(!excluded)
+        {
+            par::sampleSort(in, real_comm);
+            MPI_Comm_free(&real_comm);
+        }
+        MPI_Group_free(&real_group);
+        delete [] dist_in;
+        delete [] dist_out;
+    }
+
+    vector<pair<KEY,VAL>> sorted(in.size());
+    for(int i=0; i<in.size(); i++)
+    {
+        sorted[i].second = static_cast<VAL>(in[i].index);
+        sorted[i].first = in[i].value;
+    }
+    return sorted;
+}
+
 
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, const MPI_Comm & comm)
