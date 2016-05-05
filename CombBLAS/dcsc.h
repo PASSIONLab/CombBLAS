@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 05/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 
 #ifndef _DCSC_H
 #define _DCSC_H
@@ -86,9 +87,10 @@ public:
 	
 	void RowSplit(int numsplits);
     void ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts);
+    void ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & offsets);
 
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	//! \todo{special case of ColSplit, to be deprecated...}
-	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
+	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);	 //! \todo{special case of ColConcatenate, to be deprecated...}
 
 	IT ConstructAux(IT ndim, IT * & aux) const;
 	void Resize(IT nzcnew, IT nznew);

@@ -3,8 +3,15 @@ INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK 
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
-COMPILER = mpicxx  -std=c++11 -fopenmp
+COMPILER = mpicxx  -std=c++14 -fopenmp
 FLAGS = $(DEB)
+COMBBLAS = ..
+
+#
+# build Graph500 generator
+#
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o ../CommGrid.cpp
@@ -39,6 +46,9 @@ VectorIndexing.o: VectorIndexing.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp .
 VectorIOPermute.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIOPermute.o VectorIOPermute.cpp
 
+SplitMergeTest.o: SplitMergeTest.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SplitMergeTest.o SplitMergeTest.cpp
+
 ParIOTest.o: ParIOTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h  ../SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ParIOTest.o ParIOTest.cpp
 
@@ -54,6 +64,9 @@ MultTime: MemoryPool.o CommGrid.o MPIType.o MultTiming.o mmio.o
 IteratorTest: MemoryPool.o CommGrid.o MPIType.o IteratorTest.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o IteratorTest IteratorTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
+SplitMergeTest: MemoryPool.o CommGrid.o MPIType.o SplitMergeTest.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) $(INCADD) -o SplitMergeTest SplitMergeTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
@@ -68,6 +81,7 @@ ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o
 
 clean: 
 	rm -f TransposeTest
+	rm -f SplitMergeTest
 	rm -f MultTest
 	rm -f ReduceTest
 	rm -f VectorInd

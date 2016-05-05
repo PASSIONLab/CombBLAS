@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 05/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 
 #include "dcsc.h"
 #include <algorithm>
@@ -470,7 +471,7 @@ template <class IT, class NT>
 bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 {
 	if(nzc != rhs.nzc) return false;
-	bool same = std::equal(cp, cp+nzc+1, rhs.cp); 
+	bool same = std::equal(cp, cp+nzc+1, rhs.cp);
 	same = same && std::equal(jc, jc+nzc, rhs.jc);
 	same = same && std::equal(ir, ir+nz, rhs.ir);
 	
@@ -1047,6 +1048,50 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 		std::copy(A->numx, A->numx + A->nz, numx);
 		std::copy(B->numx, B->numx + B->nz, numx + A->nz);
 	}
+}
+
+
+/**
+ * @pre {no member of "parts" is empty}
+ * @pre {there are at least 2 members}
+ * offsets arrays is "parallel to" parts array
+ * it shows the starts of column numbers
+ **/
+template<class IT, class NT>
+void Dcsc<IT,NT>::ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & offsets)
+{
+    IT cnz = 0;
+    IT cnzc = 0;
+    size_t nmembers = parts.size();
+    for(size_t i=0; i< nmembers; ++i)
+    {
+        cnz += parts[i]->nz;
+        cnzc += parts[i]->nzc;
+    }
+    if(cnz > 0)
+    {
+        *this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
+        
+        IT run_nz = 0;
+        IT run_nzc = 0;
+        for(size_t i=0; i< nmembers; ++i)
+        {
+            copy(parts[i]->jc, parts[i]->jc + parts[i]->nzc, jc + run_nzc);
+            transform(jc + run_nzc, jc + run_nzc + parts[i]->nzc, jc + run_nzc, bind2nd(plus<IT>(), offsets[i]));
+            
+            // remember: cp[nzc] = nnz
+            copy(parts[i]->cp, parts[i]->cp + parts[i]->nzc, cp + run_nzc);
+            transform(cp + run_nzc, cp + run_nzc + parts[i]->nzc, cp + run_nzc, bind2nd(plus<IT>(),run_nz));
+            
+            copy(parts[i]->ir, parts[i]->ir + parts[i]->nz, ir + run_nz);
+            copy(parts[i]->numx, parts[i]->numx + parts[i]->nz, numx + run_nz);
+            
+            run_nzc += parts[i]->nzc;
+            run_nz += parts[i]->nz;
+        }
+        // adjust the last pointer
+        cp[run_nzc] = run_nz;
+    }
 }
 
 /**
