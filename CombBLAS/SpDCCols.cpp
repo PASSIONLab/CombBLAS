@@ -880,6 +880,54 @@ void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
     *this = SpDCCols<IT, NT>();		    // handle destruction through assignment operator
 }
 
+
+/**
+ * Concatenates (merges) multuple matrices (cut along the columns) into 1 piece
+ * ColSplit() method should have been executed on the object beforehand
+ */
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
+{
+    vector< SpDCCols<IT,NT> * > nonempties;
+    vector< Dcsc<IT,NT> * > dcscs;
+    vector< IT > offsets;
+    IT runningoffset = 0;
+
+    for(int i=0; i< matrices.size(); ++i)
+    {
+        if(matrices[i].nnz != 0)
+        {
+            nonempties.push_back(&(matrices[i]));
+            dcscs.push_back(matrices[i].dcsc);
+            offsets.push_back(runningoffset);
+        }
+        runningoffset += matrices[i].n;
+    }
+    
+    if(nonempties.size() < 1)
+    {
+        cout << "Nothing to ColConcatenate" << endl;
+    }
+    else if(nonempties.size() < 2)
+    {
+        *this =  *(nonempties[0]);
+    }
+    else // nonempties.size() > 1
+    {
+        Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
+        Cdcsc->ColConcatenate(dcscs, offsets);
+        *this = SpDCCols<IT,NT> (nonempties[0]->m, runningoffset, Cdcsc);
+    }
+    
+    // destruct parameters
+    for(int i=0; i< matrices.size(); ++i)
+    {
+        matrices[i] = SpDCCols<IT,NT>();
+    }
+}
+
+
+
 /** 
   * Merges two matrices (cut along the columns) into 1 piece
   * Split method should have been executed on the object beforehand

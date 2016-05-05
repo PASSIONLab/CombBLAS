@@ -180,7 +180,6 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
- ** ABAB: Incomplete as of April 21
  *
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
