@@ -38,6 +38,8 @@
 #include <parallel/numeric>
 #endif
 
+#include "usort/include/parUtils.h"
+
 using namespace std;
 
 template <class IT, class NT>
@@ -610,6 +612,64 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 }
 
 
+/* old version
+// - sorts the entries with respect to nonzero values
+// - ignores structural zeros
+// - keeps the sparsity structure intact
+// - returns a permutation representing the mapping from old to new locations
+template <class IT, class NT>
+FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
+{
+    MPI_Comm World = commGrid->GetWorld();
+    FullyDistSpVec<IT,IT> temp(commGrid);
+    if(getnnz()==0) return temp;
+    IT nnz = getlocnnz();
+    pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
+    
+    
+    
+    int nprocs, rank;
+    MPI_Comm_size(World, &nprocs);
+    MPI_Comm_rank(World, &rank);
+    
+    IT * dist = new IT[nprocs];
+    dist[rank] = nnz;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+    IT until = LengthUntil();
+    for(IT i=0; i< nnz; ++i)
+    {
+        vecpair[i].first = num[i];	// we'll sort wrt numerical values
+        vecpair[i].second = ind[i] + until;
+        
+    }
+    SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
+    
+    vector< IT > nind(nnz);
+    vector< IT > nnum(nnz);
+    
+    for(IT i=0; i< nnz; ++i)
+    {
+        num[i] = vecpair[i].first;	// sorted range (change the object itself)
+        nind[i] = ind[i];		// make sure the sparsity distribution is the same
+        nnum[i] = vecpair[i].second;	// inverse permutation stored as numerical values
+        
+    }
+    delete [] vecpair;
+    delete [] dist;
+    
+    temp.glen = glen;
+    temp.ind = nind;
+    temp.num = nnum;
+    return temp;
+}
+*/
+
+
+/*
+ TODO: This function is just a hack at this moment.
+ The indices of the return vector is not correct.
+ FIX this
+ */
 // - sorts the entries with respect to nonzero values
 // - ignores structural zeros
 // - keeps the sparsity structure intact
@@ -619,9 +679,12 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
 	MPI_Comm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
+    if(getnnz()==0) return temp;
 	IT nnz = getlocnnz();
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
-
+    
+    
+    
 	int nprocs, rank;
 	MPI_Comm_size(World, &nprocs);
 	MPI_Comm_rank(World, &rank);
@@ -634,25 +697,96 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
 		vecpair[i].second = ind[i] + until;
+        
 	}
-	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
-
-	vector< IT > nind(nnz);
-	vector< IT > nnum(nnz);
+	vector<pair<NT,IT>> sorted = SpParHelper::KeyValuePSort(vecpair, nnz, dist, World);
+   
+    nnz = sorted.size();
+    temp.num.resize(nnz);
+    temp.ind.resize(nnz);
+    
 	for(IT i=0; i< nnz; ++i)
 	{
-		num[i] = vecpair[i].first;	// sorted range (change the object itself)
-		nind[i] = ind[i];		// make sure the sparsity distribution is the same
-		nnum[i] = vecpair[i].second;	// inverse permutation stored as numerical values
+		//num[i] = sorted[i].first;	// sorted range (change the object itself)
+		//nind[i] = ind[i];		// make sure the sparsity distribution is the same
+		temp.num[i] = sorted[i].second;	// inverse permutation stored as numerical values
+        temp.ind[i] = i; // we are not using this information at this moment
 	}
+
 	delete [] vecpair;
 	delete [] dist;
 
 	temp.glen = glen;
-	temp.ind = nind;
-	temp.num = nnum;
 	return temp;
 }
+
+
+
+/*
+// - sorts the entries with respect to nonzero values
+// - ignores structural zeros
+// - keeps the sparsity structure intact
+// - returns a permutation representing the mapping from old to new locations
+template <class IT, class NT>
+FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
+{
+    MPI_Comm World = commGrid->GetWorld();
+    FullyDistSpVec<IT,IT> temp(commGrid);
+    if(getnnz()==0) return temp;
+    IT nnz = getlocnnz();
+    //pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
+    vector<IndexHolder<NT>> in(nnz);
+    //vector<IndexHolder<NT>> out;
+    
+    
+    
+    int nprocs, rank;
+    MPI_Comm_size(World, &nprocs);
+    MPI_Comm_rank(World, &rank);
+    
+    //IT * dist = new IT[nprocs];
+    //dist[rank] = nnz;
+    //MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+    IT until = LengthUntil();
+    for(IT i=0; i< nnz; ++i)
+    {
+        //vecpair[i].first = num[i];	// we'll sort wrt numerical values
+        //vecpair[i].second = ind[i] + until;
+        
+        in[i] = IndexHolder<NT>(num[i], static_cast<unsigned long>(ind[i] + until));
+    }
+    //SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
+    
+    //MPI_Barrier(World);
+    //cout << "before sorting " << in.size() << endl;
+    par::sampleSort(in, World);
+    //MPI_Barrier(World);
+    //cout << "after sorting " << in.size() << endl;
+    //MPI_Barrier(World);
+     
+    //vector< IT > nind(out.size());
+    //vector< IT > nnum(out.size());
+    
+    temp.ind.resize(in.size());
+    temp.num.resize(in.size());
+    for(IT i=0; i< in.size(); ++i)
+    {
+        //num[i] = vecpair[i].first;	// sorted range (change the object itself)
+        //nind[i] = ind[i];		// make sure the sparsity distribution is the same
+        //nnum[i] = vecpair[i].second;	// inverse permutation stored as numerical values
+        
+        //num[i] = out[i].value;	// sorted range (change the object itself)
+        //nind[i] = ind[i];		// make sure the sparsity distribution is the same
+        //nnum[i] = static_cast<IT>(out[i].index);	// inverse permutation stored as numerical values
+        temp.num[i] = static_cast<IT>(in[i].index);	// inverse permutation stored as numerical values
+        //cout << temp.num[i] << " " ;
+    }
+    
+    temp.glen = glen;
+    return temp;
+}
+ */
+
 
 template <class IT, class NT>
 template <typename _BinaryOperation >
