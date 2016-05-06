@@ -1,0 +1,775 @@
+srun: error: Invalid numeric value "-n" for requested node count.
+srun: error: Invalid numeric value "-n" for requested node count.
+srun: error: Invalid numeric value "-n" for requested node count.
+srun: error: Invalid numeric value "-n" for requested node count.
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/dielFilterV3real.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 45204422
+File is 1581474573 bytes
+Reader took 16.0005 seconds
+Bandwidth before random permutation 1036475
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00101
+Bandwidth after random permutation 1102674
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.00118184 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.001091 seconds.
+==================Overall Stats =======================
+vertex 937556 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000756025          0.00197291
+Total time: 0.00274491 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000374079        0.000116825       0.000232935
+Total time: 0.000723839 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 84 Time: 0.242367 seconds.
+ iteration: 2 BFS levels: 84 Time: 0.23402 seconds.
+==================Overall Stats =======================
+vertex 407113 is a pseudo peripheral vertex
+pseudo diameter: 84 iterations: 2
+SpMV time  Other time
+0.423306          0.0541208
+Total time: 0.477435 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.188916        0.206282       0.0355
+Total time: 0.430698 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 0.548148
+TOTAL (accounted) MAX: 0.519022
+TOTAL (accounted) MIN: 0.50651
+TOTAL (accounted) MEDIAN: 0.62816
+-------------------------------
+allgather median: 0.0812514
+all2all median: 0.0302234
+transposevector median: 0.0840876
+mergecontributions median: 0.0720801
+spmsv median: 0.271258
+-------------------------------
+allgather fastest: 0.0809455
+all2all fastest: 0.100867
+transposevector fastest: 0.00320053
+mergecontributions fastest: 0.0707116
+spmsv fastest: 0.250785
+-------------------------------
+allgather slowest: 0.126875
+all2all slowest: 0.100497
+transposevector slowest: 0.0850711
+mergecontributions slowest: 0.0671144
+spmsv slowest: 0.248603
+summary statistics
+dielFilterV3real.mtx 4 12 48 0.424062 0.0560937 0.188916 0.206282 0.0355 0.0812514 0.0302234 0.0840876 0.0720801 0.271258 
+Bandwidth after RCM 23885
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/hugetrace-00020.mtx ******* 
+Matrix is Boolean
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 23998813
+File is 398660712 bytes
+Reader took 6.23292 seconds
+Bandwidth before random permutation 15912882
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00007
+Bandwidth after random permutation 16000188
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.0199091 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00934196 seconds.
+==================Overall Stats =======================
+vertex 505188 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.00112081          0.0371311
+Total time: 0.038264 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000477791        0.000128031       0.000187397
+Total time: 0.000793219 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 5555 Time: 3.85741 seconds.
+ iteration: 2 BFS levels: 5715 Time: 3.88734 seconds.
+ iteration: 3 BFS levels: 5957 Time: 4.0299 seconds.
+ iteration: 4 BFS levels: 5957 Time: 4.01399 seconds.
+==================Overall Stats =======================
+vertex 8871080 is a pseudo peripheral vertex
+pseudo diameter: 5957 iterations: 4
+SpMV time  Other time
+9.2812          6.52784
+Total time: 15.8091 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+2.37766        7.18058       0.745603
+Total time: 10.3038 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 13.6815
+TOTAL (accounted) MAX: 10.2835
+TOTAL (accounted) MIN: 16.6057
+TOTAL (accounted) MEDIAN: 17.6837
+-------------------------------
+allgather median: 0.615437
+all2all median: 9.49616
+transposevector median: 0.197682
+mergecontributions median: 2.36735
+spmsv median: 3.92903
+-------------------------------
+allgather fastest: 0.62226
+all2all fastest: 0.293682
+transposevector fastest: 1.11812
+mergecontributions fastest: 2.47962
+spmsv fastest: 5.63944
+-------------------------------
+allgather slowest: 0.580164
+all2all slowest: 9.48088
+transposevector slowest: 1.19383
+mergecontributions slowest: 2.30523
+spmsv slowest: 4.12357
+summary statistics
+hugetrace-00020.mtx 4 12 48 9.28232 6.56497 2.37766 7.18058 0.745603 0.615437 9.49616 0.197682 2.36735 3.92903 
+Bandwidth after RCM 4633
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/delaunay_n24.mtx ******* 
+Matrix is Boolean
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 50331601
+File is 839313191 bytes
+Reader took 11.7553 seconds
+Bandwidth before random permutation 16769102
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00021
+Bandwidth after random permutation 16775952
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.009902 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00988007 seconds.
+==================Overall Stats =======================
+vertex 5372228 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.00110912          0.0285988
+Total time: 0.0297198 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000496149        0.000134945       0.00017786
+Total time: 0.000808954 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 1703 Time: 2.62241 seconds.
+ iteration: 2 BFS levels: 1712 Time: 2.56403 seconds.
+ iteration: 3 BFS levels: 1713 Time: 2.63541 seconds.
+ iteration: 4 BFS levels: 1713 Time: 2.56494 seconds.
+==================Overall Stats =======================
+vertex 1062040 is a pseudo peripheral vertex
+pseudo diameter: 1713 iterations: 4
+SpMV time  Other time
+8.1913          2.21575
+Total time: 10.4071 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+1.88028        3.24961       0.582769
+Total time: 5.71266 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 9.83826
+TOTAL (accounted) MAX: 8.75891
+TOTAL (accounted) MIN: 10.6342
+TOTAL (accounted) MEDIAN: 10.5277
+-------------------------------
+allgather median: 1.81907
+all2all median: 3.07507
+transposevector median: 0.768423
+mergecontributions median: 1.8656
+spmsv median: 2.99952
+-------------------------------
+allgather fastest: 1.8342
+all2all fastest: 0.454191
+transposevector fastest: 0.090116
+mergecontributions fastest: 2.06451
+spmsv fastest: 4.31589
+-------------------------------
+allgather slowest: 2.19816
+all2all slowest: 3.07763
+transposevector slowest: 0.0912008
+mergecontributions slowest: 1.95813
+spmsv slowest: 3.30905
+summary statistics
+delaunay_n24.mtx 4 12 48 8.19241 2.24435 1.88028 3.24961 0.582769 1.81907 3.07507 0.768423 1.8656 2.99952 
+Bandwidth after RCM 33416
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/road_usa.mtx ******* 
+Matrix is Boolean
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 28854312
+File is 492496838 bytes
+Reader took 7.76485 seconds
+Bandwidth before random permutation 22895468
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00034
+Bandwidth after random permutation 23945917
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.02931 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.014209 seconds.
+==================Overall Stats =======================
+vertex 22352263 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.00110197          0.0644341
+Total time: 0.065547 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000480175        0.000124216       0.000532627
+Total time: 0.00113702 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 4797 Time: 3.8611 seconds.
+ iteration: 2 BFS levels: 8441 Time: 5.66078 seconds.
+ iteration: 3 BFS levels: 8441 Time: 5.65932 seconds.
+==================Overall Stats =======================
+vertex 3680396 is a pseudo peripheral vertex
+pseudo diameter: 8441 iterations: 3
+SpMV time  Other time
+8.48221          6.73778
+Total time: 15.22 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+3.09584        10.5352       1.05185
+Total time: 14.6829 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 14.1477
+TOTAL (accounted) MAX: 10.1294
+TOTAL (accounted) MIN: 17.2132
+TOTAL (accounted) MEDIAN: 18.6512
+-------------------------------
+allgather median: 0.698273
+all2all median: 9.8436
+transposevector median: 0.218277
+mergecontributions median: 2.33008
+spmsv median: 4.12296
+-------------------------------
+allgather fastest: 0.669843
+all2all fastest: 0.292685
+transposevector fastest: 0.212577
+mergecontributions fastest: 2.27738
+spmsv fastest: 6.67694
+-------------------------------
+allgather slowest: 0.665544
+all2all slowest: 9.81962
+transposevector slowest: 1.25961
+mergecontributions slowest: 2.35755
+spmsv slowest: 4.54884
+summary statistics
+road_usa.mtx 4 12 48 8.48331 6.80221 3.09584 10.5352 1.05185 0.698273 9.8436 0.218277 2.33008 4.12296 
+Bandwidth after RCM 6831
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/rgg_n_2_24_s0.mtx ******* 
+Matrix is Boolean
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 132557200
+File is 2210504057 bytes
+Reader took 35.5286 seconds
+Bandwidth before random permutation 8398204
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00004
+Bandwidth after random permutation 16775578
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.0103478 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.009974 seconds.
+==================Overall Stats =======================
+vertex 3176967 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.00106478          0.0288672
+Total time: 0.0299449 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000533104        0.000123978       0.000330925
+Total time: 0.000988007 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 1 Time: 0.010386 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00957489 seconds.
+==================Overall Stats =======================
+vertex 10631792 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000837088          0.0389609
+Total time: 0.0398059 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000490904        0.000118971       0.000257254
+Total time: 0.000867128 seconds.
+=======================================================
+
+*********** Connected component # 3 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 2447 Time: 3.0253 seconds.
+ iteration: 2 BFS levels: 3069 Time: 3.42613 seconds.
+ iteration: 3 BFS levels: 3069 Time: 3.41817 seconds.
+==================Overall Stats =======================
+vertex 5291782 is a pseudo peripheral vertex
+pseudo diameter: 3069 iterations: 3
+SpMV time  Other time
+7.29969          2.59095
+Total time: 9.89065 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+2.22414        4.37755       0.67037
+Total time: 7.27206 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 9.76694
+TOTAL (accounted) MAX: 8.41321
+TOTAL (accounted) MIN: 11.033
+TOTAL (accounted) MEDIAN: 11.0292
+-------------------------------
+allgather median: 0.568795
+all2all median: 4.16776
+transposevector median: 0.626566
+mergecontributions median: 1.88246
+spmsv median: 3.78366
+-------------------------------
+allgather fastest: 0.567713
+all2all fastest: 0.315928
+transposevector fastest: 0.0995193
+mergecontributions fastest: 2.05673
+spmsv fastest: 5.37332
+-------------------------------
+allgather slowest: 1.10382
+all2all slowest: 4.16177
+transposevector slowest: 0.100063
+mergecontributions slowest: 1.88838
+spmsv slowest: 3.77897
+summary statistics
+rgg_n_2_24_s0.mtx 4 12 48 7.30159 2.65878 2.22414 4.37755 0.67037 0.568795 4.16776 0.626566 1.88246 3.78366 
+Bandwidth after RCM 12362
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/nlpkkt240.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 401232976
+File is 8408721644 bytes
+Rank 0 [Fri May  6 01:16:27 2016] [c0-0c0s5n3] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(553)............: MPI_Alltoallv(sbuf=0x6a8454f0, scnts=0x1337c60, sdispls=0x1337cc0, dtype=USER<contig>, rbuf=0x28454c0, rcnts=0x1337c80, rdispls=0x1337ce0, dtype=USER<contig>, comm=0x84000004) failed
+MPIR_Alltoallv_impl(376).......: 
+MPIDI_CRAY_ugni_alltoallv(1133): 
+MPIC_Isend(698)................: Negative count, value is -1923012568
+Rank 1 [Fri May  6 01:16:28 2016] [c0-0c0s5n3] Fatal error in PMPI_Alltoallv: Invalid count, error stack:
+PMPI_Alltoallv(553)............: MPI_Alltoallv(sbuf=0x9f046f30, scnts=0x1334d30, sdispls=0x1334d90, dtype=USER<contig>, rbuf=0x1bb824e90, rcnts=0x1334d50, rdispls=0x234e690, dtype=USER<contig>, comm=0x84000002) failed
+MPIR_Alltoallv_impl(376).......: 
+MPIDI_CRAY_ugni_alltoallv(1124): 
+MPIC_Irecv(778)................: Negative count, value is -1923012568
+srun: error: nid00023: task 0: Aborted
+srun: Terminating job step 408020.5
+slurmstepd: *** STEP 408020.5 ON nid00023 CANCELLED AT 2016-05-06T01:16:30 ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: nid00023: task 1: Aborted
+srun: error: nid00025: task 3: Killed
+srun: error: nid00024: task 2: Killed
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/ldoor.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 23737339
+File is 663855459 bytes
+Reader took 8.21967 seconds
+Bandwidth before random permutation 686979
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00084
+Bandwidth after random permutation 952017
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 174 Time: 0.239782 seconds.
+ iteration: 2 BFS levels: 178 Time: 0.199595 seconds.
+ iteration: 3 BFS levels: 179 Time: 0.197466 seconds.
+ iteration: 4 BFS levels: 179 Time: 0.200047 seconds.
+==================Overall Stats =======================
+vertex 369725 is a pseudo peripheral vertex
+pseudo diameter: 179 iterations: 4
+SpMV time  Other time
+0.603853          0.233717
+Total time: 0.837582 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.137946        0.260607       0.032901
+Total time: 0.431454 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 1 Time: 0.000826836 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.000814915 seconds.
+==================Overall Stats =======================
+vertex 825779 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000396013          0.00148392
+Total time: 0.00188684 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000231028        0.000113964       4.79221e-05
+Total time: 0.000392914 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 0.76474
+TOTAL (accounted) MAX: 0.627969
+TOTAL (accounted) MIN: 0.8319
+TOTAL (accounted) MEDIAN: 0.916252
+-------------------------------
+allgather median: 0.0850384
+all2all median: 0.313167
+transposevector median: 0.00747514
+mergecontributions median: 0.127358
+spmsv median: 0.298861
+-------------------------------
+allgather fastest: 0.0722389
+all2all fastest: 0.029783
+transposevector fastest: 0.00739217
+mergecontributions fastest: 0.143628
+spmsv fastest: 0.374927
+-------------------------------
+allgather slowest: 0.0723395
+all2all slowest: 0.312138
+transposevector slowest: 0.065273
+mergecontributions slowest: 0.139302
+spmsv slowest: 0.327199
+summary statistics
+ldoor.mtx 4 12 48 0.604249 0.235201 0.000231028 0.000113964 4.79221e-05 0.0850384 0.313167 0.00747514 0.127358 0.298861 
+Bandwidth after RCM 9574
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/Serena.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 32961525
+File is 888607773 bytes
+Reader took 10.8925 seconds
+Bandwidth before random permutation 81578
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.00051
+Bandwidth after random permutation 1391089
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 51 Time: 0.235073 seconds.
+ iteration: 2 BFS levels: 58 Time: 0.234134 seconds.
+ iteration: 3 BFS levels: 58 Time: 0.235211 seconds.
+==================Overall Stats =======================
+vertex 11983 is a pseudo peripheral vertex
+pseudo diameter: 58 iterations: 3
+SpMV time  Other time
+0.625461          0.0796082
+Total time: 0.705081 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.197257        0.220033       0.044421
+Total time: 0.461711 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 1 Time: 0.0021019 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00110006 seconds.
+==================Overall Stats =======================
+vertex 983417 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000498056          0.0029819
+Total time: 0.00348687 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000267982        0.000108004       0.00111008
+Total time: 0.00148606 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 0.749172
+TOTAL (accounted) MAX: 0.691226
+TOTAL (accounted) MIN: 0.705199
+TOTAL (accounted) MEDIAN: 0.803629
+-------------------------------
+allgather median: 0.11252
+all2all median: 0.065407
+transposevector median: 0.0972733
+mergecontributions median: 0.143047
+spmsv median: 0.378385
+-------------------------------
+allgather fastest: 0.120718
+all2all fastest: 0.0653512
+transposevector fastest: 0.00450039
+mergecontributions fastest: 0.139905
+spmsv fastest: 0.360752
+-------------------------------
+allgather slowest: 0.121189
+all2all slowest: 0.114235
+transposevector slowest: 0.0990908
+mergecontributions slowest: 0.124347
+spmsv slowest: 0.344767
+summary statistics
+Serena.mtx 4 12 48 0.625959 0.0825901 0.000267982 0.000108004 0.00111008 0.11252 0.065407 0.0972733 0.143047 0.378385 
+Bandwidth after RCM 81314
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/mp127/GradedL/GradedL_500.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 15006001
+File is 542588293 bytes
+Reader took 5.71237 seconds
+Bandwidth before random permutation 3751999
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.0003
+Bandwidth after random permutation 3751796
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.00286198 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00277209 seconds.
+==================Overall Stats =======================
+vertex 3100654 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000910997          0.00685406
+Total time: 0.00777483 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000413179        0.00012207       0.000160694
+Total time: 0.000695944 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 2499 Time: 1.49704 seconds.
+ iteration: 2 BFS levels: 3001 Time: 1.744 seconds.
+ iteration: 3 BFS levels: 3001 Time: 1.71483 seconds.
+==================Overall Stats =======================
+vertex 2867880 is a pseudo peripheral vertex
+pseudo diameter: 3001 iterations: 3
+SpMV time  Other time
+2.65088          2.30885
+Total time: 4.95974 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.927037        3.13889       0.269263
+Total time: 4.33519 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 4.61753
+TOTAL (accounted) MAX: 3.19737
+TOTAL (accounted) MIN: 5.88251
+TOTAL (accounted) MEDIAN: 6.11018
+-------------------------------
+allgather median: 0.131156
+all2all median: 3.71964
+transposevector median: 0.0712118
+mergecontributions median: 0.733406
+spmsv median: 1.2271
+-------------------------------
+allgather fastest: 0.126858
+all2all fastest: 0.102078
+transposevector fastest: 0.0700245
+mergecontributions fastest: 0.746072
+spmsv fastest: 2.15234
+-------------------------------
+allgather slowest: 0.126326
+all2all slowest: 3.71773
+transposevector slowest: 0.321583
+mergecontributions slowest: 0.714598
+spmsv slowest: 1.22995
+summary statistics
+GradedL_500.mtx 4 12 48 2.6518 2.3157 0.927037 3.13889 0.269263 0.131156 3.71964 0.0712118 0.733406 1.2271 
+Bandwidth after RCM 2002
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/mp127/GradedL/Hole3_0500.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 21011056
+File is 770749471 bytes
+Reader took 8.26116 seconds
+Bandwidth before random permutation 5509497
+Applied symmetric permutation.
+Threading activated with 12
+--------------------------------------
+Number of MPI proceses: 4
+Number of threads per procese: 12
+Number of splits of the matrix: 12
+Load balance: 1.0007
+Bandwidth after random permutation 7010439
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 1 Time: 0.00452209 seconds.
+ iteration: 2 BFS levels: 1 Time: 0.00450706 seconds.
+==================Overall Stats =======================
+vertex 6434646 is a pseudo peripheral vertex
+pseudo diameter: 1 iterations: 2
+SpMV time  Other time
+0.000976086          0.0123777
+Total time: 0.0133638 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.000457048        0.000130892       0.00518417
+Total time: 0.00577211 seconds.
+=======================================================
+
+*********** Connected component # 2 *****************
+Discovering Pseudo-peripheral vertex
+ iteration: 1 BFS levels: 4751 Time: 2.91824 seconds.
+ iteration: 2 BFS levels: 5001 Time: 3.01727 seconds.
+ iteration: 3 BFS levels: 5001 Time: 3.03551 seconds.
+==================Overall Stats =======================
+vertex 1580029 is a pseudo peripheral vertex
+pseudo diameter: 5001 iterations: 3
+SpMV time  Other time
+5.28683          3.6887
+Total time: 8.97554 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+1.81021        5.287       0.468734
+Total time: 7.56594 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 8.26173
+TOTAL (accounted) MAX: 6.44936
+TOTAL (accounted) MIN: 10.4556
+TOTAL (accounted) MEDIAN: 10.9215
+-------------------------------
+allgather median: 0.229452
+all2all median: 6.47437
+transposevector median: 0.124767
+mergecontributions median: 1.34509
+spmsv median: 2.2819
+-------------------------------
+allgather fastest: 0.228693
+all2all fastest: 0.180141
+transposevector fastest: 0.497595
+mergecontributions fastest: 1.49427
+spmsv fastest: 2.81982
+-------------------------------
+allgather slowest: 0.213912
+all2all slowest: 6.4716
+transposevector slowest: 0.549225
+mergecontributions slowest: 1.37046
+spmsv slowest: 2.31626
+summary statistics
+Hole3_0500.mtx 4 12 48 5.28781 3.70108 1.81021 5.287 0.468734 0.229452 6.47437 0.124767 1.34509 2.2819 
+Bandwidth after RCM 3500
