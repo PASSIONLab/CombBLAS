@@ -339,7 +339,7 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     return order;
 }
 
-double torderSpMV, torderSort, torderOther;
+double torderSpMV=0, torderSort=0, torderOther=0;
 // perform ordering from a pseudo peripheral vertex
 template <typename PARMAT>
 void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t,bool,int64_t>& SPA)
@@ -428,7 +428,7 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         cout << "=======================================================\n";
     }
     
-    torderSpMV=tSpMV; torderSort=tsort; torderOther=tOther;
+    torderSpMV+=tSpMV; torderSort+=tsort; torderOther+=tOther;
     //order.DebugPrint();
     
 }
