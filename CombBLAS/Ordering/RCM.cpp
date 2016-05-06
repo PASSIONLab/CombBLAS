@@ -152,9 +152,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     int * sendcnt = new int[nprocs](); // initialize to 0
     int * sdispls = new int[nprocs+1];
     
-    
-    
-    cout << "Yes0......" << perproc << endl;
     MPI_Barrier(MPI_COMM_WORLD);
   
 #ifdef _OPENMP
@@ -176,7 +173,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
 #endif
     }
     
-    cout << "Yes1......" << endl;
     MPI_Barrier(MPI_COMM_WORLD);
 
     
@@ -235,8 +231,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<int64_t>(), recvindbuf, recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
     delete [] indbuf;
     
-    
-     cout << "Yes2......" << endl;
    tuple<int64_t,int64_t, int64_t>* tosort = static_cast<tuple<int64_t,int64_t, int64_t>*> (::operator new (sizeof(tuple<int64_t,int64_t, int64_t>)*totrecv));
     
 #ifdef _OPENMP
@@ -273,7 +267,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
 #endif
     }
     
-     cout << "Yes3......" << endl;
     MPI_Alltoall(sendcnt1, 1, MPI_INT, recvcnt, 1, MPI_INT, MPI_COMM_WORLD);  // share the request counts
     
     sdispls[0] = 0;
