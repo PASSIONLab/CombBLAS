@@ -435,7 +435,8 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
 
 
 
-
+int threads, processors;
+string base_filename;
 template <typename PARMAT>
 FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t,bool,int64_t>& SPA)
 {
@@ -655,8 +656,8 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     if(myrank == 0)
     {
         
-        cout << "SpMV time " << " Other time" << endl;
-        cout << tpvSpMV << " "<< tpvOther << " "<< torderSpMV <<  " "<< torderSort<<  " "<<  torderOther<<  " "<< td_ag_all1 << " "<<  td_a2a_all1 << " "<<  td_tv_all1 << " "<<  td_mc_all1 << " "<< td_spmv_all1 << " "<<  endl;
+        cout << "summary statistics" << endl;
+        cout << base_filename << " " << processors << " " << threads << " " << processors * threads << " "<< tpvSpMV << " "<< tpvOther << " "<< torderSpMV <<  " "<< torderSort<<  " "<<  torderOther<<  " "<< td_ag_all1 << " "<<  td_a2a_all1 << " "<<  td_tv_all1 << " "<<  td_mc_all1 << " "<< td_spmv_all1 << " "<<  endl;
         
     }
 
@@ -694,6 +695,9 @@ int main(int argc, char* argv[])
             string filename(argv[2]);
             tinfo.str("");
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
+            
+            base_filename = filename.substr(filename.find_last_of("/\\") + 1);
+            
             SpParHelper::Print(tinfo.str());
             double t01 = MPI_Wtime();
             ABool->ParallelReadMM(filename, false, maximum<bool>());
@@ -804,7 +808,7 @@ int main(int argc, char* argv[])
             splitPerThread = atoi(argv[3]);
         int cblas_splits = splitPerThread;
         
-
+        
         
 #ifdef THREADED
 #pragma omp parallel
@@ -817,6 +821,8 @@ int main(int argc, char* argv[])
         SpParHelper::Print(tinfo.str());
 #endif
         
+        threads = nthreads;
+        processors = nprocs;
         
         ostringstream outs;
         outs << "--------------------------------------" << endl;
