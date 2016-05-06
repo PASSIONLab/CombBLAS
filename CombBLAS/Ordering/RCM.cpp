@@ -339,7 +339,7 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     return order;
 }
 
-
+double torderSpMV, torderSort, torderOther;
 // perform ordering from a pseudo peripheral vertex
 template <typename PARMAT>
 void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t,bool,int64_t>& SPA)
@@ -428,9 +428,11 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         cout << "=======================================================\n";
     }
     
+    torderSpMV=tSpMV; torderSort=tsort; torderOther=tOther;
     //order.DebugPrint();
     
 }
+
 
 
 
@@ -473,6 +475,7 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     int64_t numUnvisited = unvisitedVertices.getnnz();
     
 
+    double tpvSpMV=0, tpvOther=0;
     
     while(numUnvisited>0) // for each connected component
     {
@@ -548,6 +551,8 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
         }
         
         tOther = MPI_Wtime() - tstart - tSpMV;
+        tpvSpMV += tSpMV;
+        tpvOther += tOther;
         if(myrank == 0)
         {
             cout << "==================Overall Stats =======================\n";
@@ -592,6 +597,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     MPI_Gather(&cblas_localspmvtime, 1, MPI_DOUBLE, td_spmv_all, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     
     
+    double td_ag_all1=0, td_a2a_all1=0, td_tv_all1=0, td_mc_all1=0,td_spmv_all1 = 0;
+    
+    
     if(myrank == 0)
     {
         
@@ -623,7 +631,9 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
         cout << "mergecontributions median: " << td_mc_all[median] << endl;
         cout << "spmsv median: " << td_spmv_all[median] << endl;
         cout << "-------------------------------" << endl;
-        
+        td_ag_all1=td_ag_all[median]; td_a2a_all1=td_a2a_all[median];
+        td_tv_all1=td_tv_all[median]; td_mc_all1=td_mc_all[median];
+        td_spmv_all1 = td_spmv_all[median];
        
         cout << "allgather fastest: " << td_ag_all[smallest] << endl;
         cout << "all2all fastest: " << td_a2a_all[smallest] << endl;
@@ -640,6 +650,15 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
         cout << "spmsv slowest: " << td_spmv_all[largest] << endl;
     }
 #endif
+
+    
+    if(myrank == 0)
+    {
+        
+        cout << "SpMV time " << " Other time" << endl;
+        cout << tpvSpMV << " "<< tpvOther << " "<< torderSpMV <<  " "<< torderSort<<  " "<<  torderOther<<  " "<< td_ag_all1 << " "<<  td_a2a_all1 << " "<<  td_tv_all1 << " "<<  td_mc_all1 << " "<< td_spmv_all1 << " "<<  endl;
+        
+    }
 
     
     return rcmorder;
