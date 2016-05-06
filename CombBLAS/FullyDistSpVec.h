@@ -79,6 +79,8 @@ public:
     FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop);
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
     FullyDistSpVec (IT globalsize, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates = false);
+    FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, const vector<IT>& indvec, const vector<NT> & numvec, bool SumDuplicates = false, bool sorted=false);
+
 
     FullyDistSpVec<IT,NT> Invert (IT globallen);
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal, typename _BinaryOperationDuplicate>

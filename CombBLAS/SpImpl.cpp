@@ -420,7 +420,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
 
 
 
-
+/*
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                      vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA)
@@ -623,6 +623,182 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
 
     ::operator delete(nzinds);
 }
+
+
+*/
+
+
+
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+{
+    
+    int rowSplits = 1, nthreads=1;
+#ifdef _OPENMP
+#pragma omp parallel
+    {
+        
+        nthreads = omp_get_num_threads();
+        rowSplits = nthreads * 4;
+    }
+#endif
+    int32_t rowPerSplit = mA / rowSplits;
+    
+    
+    
+    
+    
+    
+    //------------------------------------------------------
+    // Step2: The matrix is traversed column by column and
+    // nonzeros each rowsplit of the matrix are compiled together
+    //------------------------------------------------------
+    
+    vector<int> bucketSize(rowSplits,0);
+    int THREAD_BUF_LEN = 256;
+    
+    
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        int thisThread = omp_get_thread_num();
+        vector<int32_t> tIndSplitA(rowSplits*THREAD_BUF_LEN);
+        vector<OVT> tNumSplitA(rowSplits*THREAD_BUF_LEN);
+        vector<int> tBucketSize(rowSplits,0);
+        
+#ifdef _OPENMP
+#pragma omp for
+#endif
+        for (int32_t k = 0; k < veclen; ++k)
+        {
+            IT colid = indx[k];
+            for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
+            {
+                uint32_t rowid = (uint32_t) Acsc.ir[j];
+                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                if (tBucketSize[splitId] < THREAD_BUF_LEN)
+                {
+                    tIndSplitA[splitId*THREAD_BUF_LEN + tBucketSize[splitId]] = rowid;
+                    tNumSplitA[splitId*THREAD_BUF_LEN  + tBucketSize[splitId]++] = numx[k];
+                }
+                else
+                {
+                    uint32_t voff = __sync_fetch_and_add (&bucketSize[splitId], THREAD_BUF_LEN);
+                    for (uint32_t vk = 0; vk < THREAD_BUF_LEN; ++vk)
+                    {
+                        SPA.indSplitA[SPA.disp[splitId] + voff + vk] = tIndSplitA[splitId*THREAD_BUF_LEN + vk];
+                        SPA.numSplitA[SPA.disp[splitId] + voff + vk] = tNumSplitA[splitId*THREAD_BUF_LEN + vk];
+                    }
+                    tIndSplitA[splitId*THREAD_BUF_LEN] = rowid;
+                    tNumSplitA[splitId*THREAD_BUF_LEN] = numx[k];
+                    tBucketSize[splitId] = 1;
+                }
+            }
+        }
+        
+        for(int rs=0; rs<rowSplits; ++rs)
+        {
+            if(tBucketSize[rs]>0)
+            {
+                uint32_t voff = __sync_fetch_and_add (&bucketSize[rs], tBucketSize[rs]);
+                for (uint32_t vk = 0; vk < tBucketSize[rs]; ++vk)
+                {
+                    SPA.indSplitA[SPA.disp[rs] + voff + vk] = tIndSplitA[rs*THREAD_BUF_LEN + vk];
+                    SPA.numSplitA[SPA.disp[rs] + voff + vk] = tNumSplitA[rs*THREAD_BUF_LEN + vk];
+                }
+            }
+        }
+    }
+    
+    
+    // prefix sum
+    vector<uint32_t> disp(rowSplits+1);
+    disp[0] = 0;
+    for(int i=0; i<rowSplits; i++)
+    {
+        disp[i+1] = disp[i] + bucketSize[i];
+    }
+    
+    
+    
+    vector<uint32_t> nzInRowSplits(rowSplits);
+    // Ariful: somehow I was not able to make SPA.C_inds working. See the dirty version
+    uint32_t* nzinds = static_cast<uint32_t*> (::operator new (sizeof(uint32_t)*disp[rowSplits]));
+    
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        
+#ifdef _OPENMP
+#pragma omp for
+#endif
+        for(int rs=0; rs<rowSplits; ++rs)
+        {
+            for(int i=0; i<disp[rs+1]-disp[rs] ; i++)
+            //for(int i=disp[rs]; i<disp[rs+1] ; i++)
+            {
+                SPA.V_isthereBool[0][SPA.indSplitA[SPA.disp[rs]+i]] = false;
+            }
+            uint32_t tMergeDisp = disp[rs];
+            for(int i=0; i<disp[rs+1]-disp[rs] ; i++)
+            //for(int i=disp[rs]; i<disp[rs+1] ; i++)
+            {
+                int32_t rowid = SPA.indSplitA[SPA.disp[rs]+i];
+                if(!SPA.V_isthereBool[0][rowid])// there is no conflict across threads
+                {
+                    SPA.V_localy[0][rowid] = SPA.numSplitA[SPA.disp[rs]+i];
+                    nzinds[tMergeDisp++] = rowid;
+                    SPA.V_isthereBool[0][rowid]=true;
+                }
+                else
+                {
+                    SPA.V_localy[0][rowid] = SR::add(SPA.V_localy[0][rowid], SPA.numSplitA[SPA.disp[rs]+i]);
+                }
+            }
+            
+            integerSort(nzinds + disp[rs], tMergeDisp - disp[rs]);
+            nzInRowSplits[rs] = tMergeDisp - disp[rs];
+            
+        }
+        
+    }
+    
+    // prefix sum
+    vector<uint32_t> dispRowSplits(rowSplits+1);
+    dispRowSplits[0] = 0;
+    for(int i=0; i<rowSplits; i++)
+    {
+        dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
+    }
+    
+
+    
+    int nnzy = dispRowSplits[rowSplits];
+    indy.resize(nnzy);
+    numy.resize(nnzy);
+    
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int rs=0; rs<rowSplits; rs++)
+    {
+        copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy.data()+dispRowSplits[rs]);
+        for(int j=0; j<nzInRowSplits[rs]; j++)
+        {
+            numy[j+dispRowSplits[rs]] = SPA.V_localy[0][nzinds[disp[rs]+j]];
+            
+        }
+    }
+    
+    ::operator delete(nzinds);
+}
+
+
+
+
 
 
 

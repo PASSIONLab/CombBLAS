@@ -89,10 +89,7 @@ public:
         {
             V_isthere.push_back(BitMap(mA));
             V_localy.push_back(vector<OVT>(mA));
-            V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
-            V_isthereBool.push_back(vector<bool>(mA));
             
-            /*
             vector<bool> isthere(mA, false);
             for(typename DER::SpColIter colit = A.begcol(); colit != A.endcol(); ++colit)
             {
@@ -104,44 +101,61 @@ public:
             }
             size_t maxvector = std::count(isthere.begin(), isthere.end(), true);
             V_inds.push_back(vector<uint32_t>(maxvector));
-             */
+             
         }
     };
     
-    // for manual splitting.
-    /*
+    // for manual splitting. just a hack. need to be fixed
+    
     template <class DER>
     PreAllocatedSPA(SpMat<IT,NT,DER> & A, int split):initialized(true)
     {
         IT mA = A.getnrow();
-        if( split > 0)
+        V_isthere.push_back(BitMap(mA));
+        V_localy.push_back(vector<OVT>(mA));
+        V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
+        V_isthereBool.push_back(vector<bool>(mA));
+        
+        
+        vector<int32_t> nnzSplitA(split,0);
+        int32_t rowPerSplit = mA / split;
+
+        //vector<bool> isthere(mA, false);
+        for(typename DER::SpColIter colit = A.begcol(); colit != A.endcol(); ++colit)
         {
-            IT perpiece =  mA / split;
-            for(int i=0; i<split; ++i)
+            for(typename DER::SpColIter::NzIter nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
             {
-                if(i != split-1)
-                {
-                    V_isthere.push_back(BitMap(perpiece));
-                    V_localy.push_back(vector<OVT>(perpiece));
-                    V_inds.push_back(vector<uint32_t>(perpiece));
-                    
-                }
-                else
-                {
-                    V_isthere.push_back(BitMap(mA - i*perpiece));
-                    V_localy.push_back(vector<OVT>(mA - i*perpiece));
-                    V_inds.push_back(vector<uint32_t>(mA - i*perpiece));
-                }
+                size_t rowid = nzit.rowid();
+                //if(!isthere[rowid])     isthere[rowid] = true;
+                size_t splitId = (rowid/rowPerSplit > split-1) ? split-1 : rowid/rowPerSplit;
+                nnzSplitA[splitId]++;
             }
         }
+        
+        
+        // prefix sum
+        disp.resize(split+1);
+        disp[0] = 0;
+        for(int i=0; i<split; i++)
+        {
+            disp[i+1] = disp[i] + nnzSplitA[i];
+        }
+        
+        indSplitA.resize(disp[split]);
+        numSplitA.resize(disp[split]);
+
+
     };
-    */
+    
     
     vector< vector<uint32_t> > V_inds;  // ABAB: is this big enough?
     vector< BitMap > V_isthere;
     vector< vector<bool> > V_isthereBool; // for thread safe access
     vector< vector<OVT> > V_localy;
     bool initialized;
+    vector<int32_t> indSplitA;
+    vector<OVT> numSplitA;
+    vector<uint32_t> disp;
 };
 
 #endif

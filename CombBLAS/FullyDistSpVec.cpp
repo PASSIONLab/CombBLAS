@@ -105,6 +105,73 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOp
 
 
 
+// create a sparse vector from local vectors
+template <class IT, class NT>
+FullyDistSpVec<IT,NT>::FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, const vector<IT>& indvec, const vector<NT> & numvec, bool SumDuplicates, bool sorted)
+: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid, globallen)
+{
+
+    assert(indvec.size()==numvec.size());
+    IT vecsize = indvec.size();
+    if(!sorted)
+    {
+        vector< pair<IT,NT> > tosort(vecsize);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for(IT i=0; i<vecsize; ++i)
+        {
+            tosort[i] = make_pair(indvec[i], numvec[i]);
+        }
+        
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
+        __gnu_parallel::sort(tosort.begin(), tosort.end());
+#else
+        std::sort(tosort.begin(), tosort.end());
+#endif
+        
+        
+        ind.reserve(vecsize);
+        num.reserve(vecsize);
+        IT lastIndex=-1;
+        for(auto itr = tosort.begin(); itr != tosort.end(); ++itr)
+        {
+            if(lastIndex!=itr->first) //if SumDuplicates=false, keep only the first one
+            {
+                ind.push_back(itr->first);
+                num.push_back(itr->second);
+                lastIndex = itr->first;
+            }
+            else if(SumDuplicates)
+            {
+                num.back() += itr->second;
+            }
+        }
+        
+    }
+    else
+    {
+        
+        ind.reserve(vecsize);
+        num.reserve(vecsize);
+        IT lastIndex=-1;
+
+        for(IT i=0; i< vecsize; ++i)
+        {
+            if(lastIndex!=indvec[i]) //if SumDuplicates=false, keep only the first one
+            {
+                ind.push_back(indvec[i]);
+                num.push_back(numvec[i]);
+                lastIndex = indvec[i];
+            }
+            else if(SumDuplicates)
+            {
+                num.back() += numvec[i];
+            }
+        }
+    }
+}
+
 // ABAB: This function probably operates differently than a user would immediately expect
 // ABAB: Write a well-posed description for it
 template <class IT, class NT>
