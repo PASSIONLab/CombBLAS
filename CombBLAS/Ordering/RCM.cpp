@@ -120,7 +120,231 @@ typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
 
 
+FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &fringeRow)
+{
 
+    int myrank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    
+    
+    vector<int64_t> lind = fringeRow.GetLocalInd ();
+    vector<VertexType> lnum = fringeRow.GetLocalNum ();
+    int64_t ploclen = lind.size();
+    int64_t localmin = (int64_t)INT_MAX;
+    int64_t localmax = (int64_t) 0;
+    for(int i=0; i<ploclen; i++)
+        if(localmin > lnum[i].order)  localmin = lnum[i].order;
+    for(int i=0; i<ploclen; i++)
+        if(localmax < lnum[i].order)  localmax = lnum[i].order;
+    
+    //MPI_Reduce;
+    int64_t globalmin = (int64_t) INT_MAX;
+    int64_t globalmax = (int64_t) 0;
+    MPI_Allreduce( &localmin, &globalmin, 1, MPIType<int64_t>(), MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+    
+    int64_t nparents = globalmax - globalmin + 1;
+    int64_t perproc = nparents/nprocs;
+    
+    int * rdispls = new int[nprocs+1];
+    int * recvcnt = new int[nprocs];
+    int * sendcnt = new int[nprocs](); // initialize to 0
+    int * sdispls = new int[nprocs+1];
+    
+    
+    
+    cout << "Yes0......" << perproc << endl;
+    MPI_Barrier(MPI_COMM_WORLD);
+  
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int64_t k=0; k < ploclen; ++k)
+    {
+        int64_t temp = lnum[k].order-globalmin;
+        int owner;
+        if(perproc==0 || temp/perproc > nprocs-1)
+            owner = nprocs-1;
+        else
+            owner = temp/perproc;
+        
+#ifdef _OPENMP
+        __sync_fetch_and_add(&sendcnt[owner], 1);
+#else
+        sendcnt[owner]++;
+#endif
+    }
+    
+    cout << "Yes1......" << endl;
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, MPI_COMM_WORLD);  // share the request counts
+    
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    
+    
+    int64_t * datbuf1 = new int64_t[ploclen];
+    int64_t * datbuf2 = new int64_t[ploclen];
+    int64_t * indbuf = new int64_t[ploclen];
+    int *count = new int[nprocs](); //current position
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int64_t i=0; i < ploclen; ++i)
+    {
+        
+        int64_t temp = lnum[i].order-globalmin;
+        int owner;
+        if(perproc==0 || temp/perproc > nprocs-1)
+            owner = nprocs-1;
+        else
+            owner = temp/perproc;
+        
+        
+        int id;
+#ifdef _OPENMP
+        id = sdispls[owner] + __sync_fetch_and_add(&count[owner], 1);
+#else
+        id = sdispls[owner] + count[owner];
+        count[owner]++;
+#endif
+        
+        datbuf1[id] = temp;
+        datbuf2[id] = lnum[i].degree;
+        indbuf[id] = lind[i] + fringeRow.LengthUntil();
+    }
+    delete [] count;
+
+    int64_t totrecv = rdispls[nprocs];
+    int64_t * recvdatbuf1 = new int64_t[totrecv];
+    int64_t * recvdatbuf2 = new int64_t[totrecv];
+    MPI_Alltoallv(datbuf1, sendcnt, sdispls, MPIType<int64_t>(), recvdatbuf1, recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
+    delete [] datbuf1;
+    MPI_Alltoallv(datbuf2, sendcnt, sdispls, MPIType<int64_t>(), recvdatbuf2, recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
+    delete [] datbuf2;
+    
+    int64_t * recvindbuf = new int64_t[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<int64_t>(), recvindbuf, recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
+    delete [] indbuf;
+    
+    
+     cout << "Yes2......" << endl;
+   tuple<int64_t,int64_t, int64_t>* tosort = static_cast<tuple<int64_t,int64_t, int64_t>*> (::operator new (sizeof(tuple<int64_t,int64_t, int64_t>)*totrecv));
+    
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int i=0; i<totrecv; ++i)
+    {
+        tosort[i] = make_tuple(recvdatbuf1[i], recvdatbuf2[i], recvindbuf[i]);
+    }
+    
+    
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
+    __gnu_parallel::sort(tosort, tosort+totrecv);
+#else
+    std::sort(tosort, tosort+totrecv);
+#endif
+    
+    //cout << "I am here " << endl;
+    //FullyDistSpVec<int64_t,int64_t> order(fringeRow.getcommgrid(), fringeRow.TotalLength());
+    // send order back
+    int * sendcnt1 = new int[nprocs]();
+    
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int64_t k=0; k < totrecv; ++k)
+    {
+        int64_t locind;
+        int owner = fringeRow.Owner(get<2>(tosort[k]), locind);
+#ifdef _OPENMP
+        __sync_fetch_and_add(&sendcnt1[owner], 1);
+#else
+        sendcnt1[owner]++;
+#endif
+    }
+    
+     cout << "Yes3......" << endl;
+    MPI_Alltoall(sendcnt1, 1, MPI_INT, recvcnt, 1, MPI_INT, MPI_COMM_WORLD);  // share the request counts
+    
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt1[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+
+    
+    
+    
+    vector<int64_t> sortperproc (nprocs);
+    sortperproc[myrank] = totrecv;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), sortperproc.data(), 1, MPIType<int64_t>(), MPI_COMM_WORLD);
+    
+    vector<int64_t> disp(nprocs+1);
+    disp[0] = 0;
+    for(int i=0; i<nprocs; ++i)
+    {
+        disp[i+1] = disp[i] + sortperproc[i];
+    }
+
+    
+    
+    ploclen = totrecv;
+    
+    int64_t * datbuf = new int64_t[ploclen];
+    indbuf = new int64_t[ploclen];
+    count = new int[nprocs](); //current position
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(int64_t i=0; i < ploclen; ++i)
+    {
+        int64_t locind;
+        int owner = fringeRow.Owner(get<2>(tosort[i]), locind);
+        int id;
+#ifdef _OPENMP
+        id = sdispls[owner] + __sync_fetch_and_add(&count[owner], 1);
+#else
+        id = sdispls[owner] + count[owner];
+        count[owner]++;
+#endif
+        datbuf[id] = i + disp[myrank] + globalmax + 1;
+        indbuf[id] = locind;
+    }
+    delete [] count;
+    
+    
+    totrecv = rdispls[nprocs];
+    vector<int64_t> recvdatbuf3 (totrecv);
+    MPI_Alltoallv(datbuf, sendcnt1, sdispls, MPIType<int64_t>(), recvdatbuf3.data(), recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
+    delete [] datbuf;
+    
+    vector<int64_t> recvindbuf3 (totrecv);
+    MPI_Alltoallv(indbuf, sendcnt1, sdispls, MPIType<int64_t>(), recvindbuf3.data(), recvcnt, rdispls, MPIType<int64_t>(), MPI_COMM_WORLD);
+    delete [] indbuf;
+    
+
+    FullyDistSpVec<int64_t, int64_t> order(fringeRow.getcommgrid(), fringeRow.TotalLength(), recvindbuf3, recvdatbuf3);
+    
+    
+    
+    DeleteAll(recvindbuf, recvdatbuf1, recvdatbuf2);
+    DeleteAll(sdispls, rdispls, sendcnt, sendcnt1, recvcnt);
+    ::operator delete(tosort);
+    
+    return order;
+}
 
 
 // perform ordering from a pseudo peripheral vertex
@@ -167,10 +391,10 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         // jth entry before sorting becomes ith entry after sorting.
         // Here i/j is the index of the elements relative to the dense containter
         // Alternatively, j's consist a permutation that would premute the unsorted vector to sorted vector
-        
+        /*
         // Currently sort works up to 10k MPI processes
         // We can change the hardcoded limit in SpParHelper::MemoryEfficientPSort
-        tsort1 = MPI_Wtime();
+        
         //FullyDistSpVec<int64_t, int64_t> sorted =  fringe.sort();
         FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
         tsort += MPI_Wtime()-tsort1;
@@ -185,7 +409,11 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         // val is the index  of fringe in sorted order (relative to each other starting with  1)
         val.iota(idx.TotalLength(),curOrder);
         curOrder += idx.TotalLength();
-        FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
+         FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
+        */
+        tsort1 = MPI_Wtime();
+        FullyDistSpVec<int64_t, int64_t> levelOrder = getOrder(fringeRow);
+        tsort += MPI_Wtime()-tsort1;
         order.Set(levelOrder);
         //order.DebugPrint();
         //MPI_Barrier(order.getcommgrid()->GetWorld());
@@ -599,7 +827,7 @@ int main(int argc, char* argv[])
         // FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         
         SpParHelper::Print("Pre allocating SPA\n");
-        PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq());
+        PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq(), nthreads*4);
         SpParHelper::Print("Pre allocated SPA\n");
         
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABoolCSC, degrees, SPA);
