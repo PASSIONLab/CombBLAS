@@ -129,6 +129,7 @@ public:
     void Kselect(FullyDistVec<GIT,VT> & rvec, IT k) const;
 
     IT Bandwidth() const;
+    IT Profile() const;
     
     template <typename VT, typename GIT, typename _BinaryOperation>
     void MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpVec<GIT,VT> & mask, Dim dim, _BinaryOperation __binary_op, VT id, bool exclude=false) const;

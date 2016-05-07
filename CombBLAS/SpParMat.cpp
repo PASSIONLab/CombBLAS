@@ -838,6 +838,65 @@ IT SpParMat<IT,NT,DER>::Bandwidth() const
 
 
 
+// only defined for symmetric matrix
+template <class IT, class NT, class DER>
+IT SpParMat<IT,NT,DER>::Profile() const
+{
+    int colrank = commGrid->GetRankInProcRow();
+    IT m_perproc = getnrow() / commGrid->GetGridRows();
+    IT n_perproc = getncol() / commGrid->GetGridCols();
+    IT moffset = commGrid->GetRankInProcCol() * m_perproc;
+    IT noffset = colrank * n_perproc;
+    
+    
+    int pc = commGrid->GetGridCols();
+    IT n_thisproc = colrank!=pc-1 ? n_perproc : getncol() - (pc-1)*n_perproc;
+    vector<IT> firstRowInCol(n_thisproc,getnrow());
+    vector<IT> lastRowInCol(n_thisproc,-1);
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    {
+        IT diagrow = colit.colid() + noffset;
+        typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit);
+        if(nzit != spSeq->endnz(colit)) // nonempty column
+        {
+            IT firstrow = nzit.rowid() + moffset;
+            IT lastrow = (nzit+ colit.nnz()-1).rowid() + moffset;
+            if(firstrow <= diagrow) // upper diagonal
+            {
+                firstRowInCol[colit.colid()] = firstrow;
+            }
+            if(lastrow >= diagrow) // lower diagonal
+            {
+                lastRowInCol[colit.colid()] = lastrow;
+            }
+            
+        }
+    }
+    
+    
+    vector<IT> firstRowInCol_global(n_thisproc,getnrow());
+    //vector<IT> lastRowInCol_global(n_thisproc,-1);
+    MPI_Allreduce( firstRowInCol.data(), firstRowInCol_global.data(), n_thisproc, MPIType<IT>(), MPI_MIN, commGrid->colWorld);
+    //MPI_Allreduce( lastRowInCol.data(), lastRowInCol_global.data(), n_thisproc, MPIType<IT>(), MPI_MAX, commGrid->GetColWorld());
+    
+    IT profile = 0;
+    for(IT i=0; i<n_thisproc; i++)
+    {
+        if(firstRowInCol_global[i]==getnrow()) // empty column
+            profile++;
+        else
+            profile += (i + noffset - firstRowInCol_global[i]);
+    }
+    
+    IT profile_global = 0;
+    MPI_Allreduce( &profile, &profile_global, 1, MPIType<IT>(), MPI_SUM, commGrid->rowWorld);
+    
+    return (profile_global);
+}
+
+
+
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _BinaryOperation>
 void SpParMat<IT,NT,DER>::MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpVec<GIT,VT> & mask, Dim dim, _BinaryOperation __binary_op, VT id, bool exclude) const
