@@ -687,7 +687,16 @@ int main(int argc, char* argv[])
     }
     {
         Par_DCSC_Bool * ABool;
+        Par_DCSC_Bool AAT;
+        bool unsym=false;
         ostringstream tinfo;
+        string allArg="";
+        for(int i=0; i<argc; i++)
+        {
+            allArg += string(argv[i]);
+        }
+        
+        if(allArg.find("unsymmetric")!=string::npos) unsym = true;
         
         if(string(argv[1]) == string("input")) // input option
         {
@@ -703,12 +712,13 @@ int main(int argc, char* argv[])
             ABool->ParallelReadMM(filename, false, maximum<bool>());
             double t02 = MPI_Wtime();
             int64_t bw = ABool->Bandwidth();
+            //int64_t pf = ABool->Profile();
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             tinfo << "Bandwidth before random permutation " << bw << endl;
+            //tinfo << "Profile before random permutation " << pf << endl;
             SpParHelper::Print(tinfo.str());
             
-           
 #ifdef RAND_PERMUTE
             if(ABool->getnrow() == ABool->getncol())
             {
@@ -723,7 +733,27 @@ int main(int argc, char* argv[])
                 SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
             }
 #endif
-            // ::ParallelReadMM should already create symmetric matrix if the file is symmetric as described in header
+
+            if(unsym)
+            {
+                SpParHelper::Print("Matrix is unsymmetric. Computing AAT for RCM\n");
+                Par_DCSC_Bool AT = *ABool;
+                AT.Transpose();
+                AAT = PSpGEMM<PlusTimesSRing<bool, int64_t>>(*ABool, AT);
+                //AAT = *ABool;
+                //AAT += (*ABool);
+                
+                SpParHelper::Print("Computed AAT\n");
+                
+#ifdef RAND_PERMUTE
+                
+                FullyDistVec<int64_t, int64_t> p1( AAT.getcommgrid());
+                p1.iota(AAT.getnrow(), 0);
+                p1.RandPerm();
+                (AAT)(p1,p1,true);// in-place permute to save memory
+                SpParHelper::Print("Applied symmetric permutationon AAT.\n");
+#endif
+            }
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -773,11 +803,27 @@ int main(int argc, char* argv[])
         
         ABool->RemoveLoops();
         int64_t bw = ABool->Bandwidth();
-        float balance = ABool->LoadImbalance();
-        
-        // Reduce is not multithreaded, so I am doing it here
+        int64_t pf = ABool->Profile();
+        Par_CSC_Bool * ABoolCSC;
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
-        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        float balance;
+        if(unsym)
+        {
+            AAT.RemoveLoops();
+            balance = AAT.LoadImbalance();
+            AAT.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+            ABoolCSC = new Par_CSC_Bool(AAT);
+        }
+        else
+        {
+            float balance = ABool->LoadImbalance();
+            ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+            ABoolCSC = new Par_CSC_Bool(*ABool);
+        }
+        
+    
+        
+        
        
         /*
         FullyDistVec<int64_t, double> kth ( ABool->getcommgrid());
@@ -797,15 +843,15 @@ int main(int argc, char* argv[])
         
         
         
-        Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(*ABool);
+        
         //ABoolCSC->PrintInfo();
         
         
         
         int nthreads = 1;
         int splitPerThread = 1;
-        if(argc==4)
-            splitPerThread = atoi(argv[3]);
+        //if(argc==4)
+        //    splitPerThread = atoi(argv[3]);
         int cblas_splits = splitPerThread;
         
         
@@ -831,6 +877,7 @@ int main(int argc, char* argv[])
         outs << "Number of splits of the matrix: " << cblas_splits << endl;
         outs << "Load balance: " << balance << endl;
         outs << "Bandwidth after random permutation " << bw << endl;
+        outs << "Profile after random permutation " << pf << endl;
         outs << "--------------------------------------" << endl;
         SpParHelper::Print(outs.str());
         
@@ -867,8 +914,10 @@ int main(int argc, char* argv[])
             FullyDistVec<int64_t, int64_t>rcmorder1 = rcmorder.sort();
             (*ABool)(rcmorder1,rcmorder1,true);// in-place permute to save memory
             bw = ABool->Bandwidth();
+            pf = ABool->Profile();
             ostringstream outs1;
             outs1 << "Bandwidth after RCM " << bw << endl;
+            outs1 << "Profile after RCM " << pf << endl;
             SpParHelper::Print(outs1.str());
             
         
