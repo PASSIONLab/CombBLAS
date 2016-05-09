@@ -42,3 +42,10 @@ rcm.o: RCM.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFri
 rcm: rcm.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
+
+gathertest.o: gathertest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+gathertest: gathertest.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
