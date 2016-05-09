@@ -407,6 +407,7 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         tsort1 = MPI_Wtime();
         FullyDistSpVec<int64_t, int64_t> levelOrder = getOrder(fringeRow);
         tsort += MPI_Wtime()-tsort1;
+        //curOrder += idx.TotalLength(); // taken care of in sorting
         order.Set(levelOrder);
         //order.DebugPrint();
         //MPI_Barrier(order.getcommgrid()->GetWorld());
@@ -712,11 +713,11 @@ int main(int argc, char* argv[])
             ABool->ParallelReadMM(filename, false, maximum<bool>());
             double t02 = MPI_Wtime();
             int64_t bw = ABool->Bandwidth();
-            //int64_t pf = ABool->Profile();
+            int64_t pf = ABool->Profile();
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             tinfo << "Bandwidth before random permutation " << bw << endl;
-            //tinfo << "Profile before random permutation " << pf << endl;
+            tinfo << "Profile before random permutation " << pf << endl;
             SpParHelper::Print(tinfo.str());
             
 #ifdef RAND_PERMUTE
@@ -803,7 +804,8 @@ int main(int argc, char* argv[])
         
         ABool->RemoveLoops();
         int64_t bw = ABool->Bandwidth();
-        int64_t pf = ABool->Profile();
+        int64_t pf;
+        //pf = ABool->Profile();
         Par_CSC_Bool * ABoolCSC;
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         float balance;
@@ -911,7 +913,12 @@ int main(int argc, char* argv[])
             // and make the original vector a sequence (like iota)
             // I actually need an invert to convert ordering a permutation
     
-            FullyDistVec<int64_t, int64_t>rcmorder1 = rcmorder.sort();
+            FullyDistVec<int64_t, int64_t> reverseOrder = rcmorder;
+#ifndef CM
+            reverseOrder= rcmorder.TotalLength();
+            reverseOrder -= rcmorder;
+#endif
+            FullyDistVec<int64_t, int64_t>rcmorder1 = reverseOrder.sort();
             (*ABool)(rcmorder1,rcmorder1,true);// in-place permute to save memory
             bw = ABool->Bandwidth();
             pf = ABool->Profile();
