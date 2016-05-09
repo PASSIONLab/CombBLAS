@@ -842,15 +842,22 @@ IT SpParMat<IT,NT,DER>::Bandwidth() const
 template <class IT, class NT, class DER>
 IT SpParMat<IT,NT,DER>::Profile() const
 {
+    
     int colrank = commGrid->GetRankInProcRow();
-    IT m_perproc = getnrow() / commGrid->GetGridRows();
-    IT n_perproc = getncol() / commGrid->GetGridCols();
+    IT cols = getncol();
+    IT rows = getnrow();
+    IT m_perproc = cols / commGrid->GetGridRows();
+    IT n_perproc = rows / commGrid->GetGridCols();
     IT moffset = commGrid->GetRankInProcCol() * m_perproc;
     IT noffset = colrank * n_perproc;
-    
-    
+  
+
     int pc = commGrid->GetGridCols();
-    IT n_thisproc = colrank!=pc-1 ? n_perproc : getncol() - (pc-1)*n_perproc;
+    IT n_thisproc;
+    if(colrank!=pc-1 ) n_thisproc = n_perproc;
+    else n_thisproc =  cols - (pc-1)*n_perproc;
+ 
+    
     vector<IT> firstRowInCol(n_thisproc,getnrow());
     vector<IT> lastRowInCol(n_thisproc,-1);
     
@@ -874,7 +881,6 @@ IT SpParMat<IT,NT,DER>::Profile() const
         }
     }
     
-    
     vector<IT> firstRowInCol_global(n_thisproc,getnrow());
     //vector<IT> lastRowInCol_global(n_thisproc,-1);
     MPI_Allreduce( firstRowInCol.data(), firstRowInCol_global.data(), n_thisproc, MPIType<IT>(), MPI_MIN, commGrid->colWorld);
@@ -883,7 +889,7 @@ IT SpParMat<IT,NT,DER>::Profile() const
     IT profile = 0;
     for(IT i=0; i<n_thisproc; i++)
     {
-        if(firstRowInCol_global[i]==getnrow()) // empty column
+        if(firstRowInCol_global[i]==rows) // empty column
             profile++;
         else
             profile += (i + noffset - firstRowInCol_global[i]);
