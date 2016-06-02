@@ -305,7 +305,7 @@ private:
     friend SpParMat<IU, bool, DER> PermMat (const FullyDistVec<IU,IU> & ri, const IU ncol);
     
     
-    friend void maximumMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,FullyDistVec<int64_t, int64_t>& mateCol2Row);
+    friend void maximumMatching(SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,FullyDistVec<int64_t, int64_t>& mateCol2Row);
 };
 
 #include "FullyDistVec.cpp"

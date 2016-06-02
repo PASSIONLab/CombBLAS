@@ -1,26 +1,29 @@
+
+#ifdef THREADED
+#ifndef _OPENMP
+#define _OPENMP
+#endif
+
+#include <omp.h>
+int cblas_splits = 1;
+#endif
+
 #include "../CombBLAS.h"
 #include <mpi.h>
-#include <sys/time.h> 
+#include <sys/time.h>
 #include <iostream>
 #include <functional>
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <sstream>
+
+
 #include "BPMaximalMatching.h"
-
-
-#ifdef THREADED
-	#ifndef _OPENMP
-	#define _OPENMP
-	#endif
-
-	#include <omp.h>
-    int cblas_splits = 1;
-#endif
 
 using namespace std;
 
+// algorithmic options
 bool prune, mvInvertMate, randMM, moreSplit;
 int init;
 bool randMaximal;
@@ -30,11 +33,11 @@ bool fewexp;
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
 {
-	// boolean addition is practically a "logical or"
-	// therefore this doesn't destruct any links
-	PARMAT AT = A;
-	AT.Transpose();
-	A += AT;
+    // boolean addition is practically a "logical or"
+    // therefore this doesn't destruct any links
+    PARMAT AT = A;
+    AT.Transpose();
+    A += AT;
 }
 
 
@@ -60,15 +63,8 @@ public:
 
 
 
-typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
-typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
-typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
-void maximumMatching(PSpMat_s32p64 & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void maximumMatching(Par_DCSC_Bool & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row);
-template <class IT, class NT>
-bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
-                       FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
 
 
 
@@ -76,7 +72,7 @@ bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, Full
 /*
  Remove isolated vertices and purmute
  */
-void removeIsolated(PSpMat_Bool & A)
+void removeIsolated(Par_DCSC_Bool & A)
 {
     
     int nprocs, myrank;
@@ -107,7 +103,7 @@ void removeIsolated(PSpMat_Bool & A)
     delete ColSums;
     delete RowSums;
     
-
+    
     {
         nonisoColV.RandPerm();
         nonisoRowV.RandPerm();
@@ -144,7 +140,7 @@ void removeIsolated(PSpMat_Bool & A)
  * Input: ri: a dense vector (actual values in FullyDistVec should be IT)
  *        ncol: number of columns in the output matrix A
  * Output: a boolean matrix A with m=size(ri) and n=ncol (input)
-           and  A[k,ri[k]]=1
+ and  A[k,ri[k]]=1
  */
 template <class IT, class DER>
 SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
@@ -159,11 +155,11 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
     IT m_perprocrow = global_nrow / procsPerRow;
     IT n_perproccol = global_ncol / procsPerCol;
     
-
+    
     // The indices for FullyDistVec are offset'd to 1/p pieces
     // The matrix indices are offset'd to 1/sqrt(p) pieces
     // Add the corresponding offset before sending the data
-
+    
     vector< vector<IT> > rowid(procsPerRow); // rowid in the local matrix of each vector entry
     vector< vector<IT> > colid(procsPerRow); // colid in the local matrix of each vector entry
     
@@ -178,11 +174,11 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
             rowid[rowrec].push_back( i + roffset);
             colid[rowrec].push_back(ri.arr[i] - (rowrec * n_perproccol));
         }
-       
+        
     }
     
     
-
+    
     int * sendcnt = new int[procsPerRow];
     int * recvcnt = new int[procsPerRow];
     for(IT i=0; i<procsPerRow; ++i)
@@ -198,7 +194,7 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
     partial_sum(recvcnt, recvcnt+procsPerRow-1, rdispls+1);
     IT p_nnz = accumulate(recvcnt,recvcnt+procsPerRow, static_cast<IT>(0));
     
-
+    
     IT * p_rows = new IT[p_nnz];
     IT * p_cols = new IT[p_nnz];
     IT * senddata = new IT[locvec];
@@ -236,7 +232,7 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
     PSeq->Create( p_nnz, local_nrow, local_ncol, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
     
     SpParMat<IT,bool,DER_IT> P (PSeq, ri.commGrid);
-    //PSpMat_Bool P (PSeq, ri.commGrid);
+    //Par_DCSC_Bool P (PSeq, ri.commGrid);
     return P;
 }
 
@@ -342,7 +338,7 @@ SpParMat<IT, bool, DER> PermMat1 (const FullyDistSpVec<IT,NT> & ri, const IT nco
     PSeq->Create( p_nnz, local_nrow, local_ncol, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
     
     SpParMat<IT,bool,DER_IT> P (PSeq, ri.commGrid);
-    //PSpMat_Bool P (PSeq, ri.commGrid);
+    //Par_DCSC_Bool P (PSeq, ri.commGrid);
     return P;
 }
 
@@ -429,7 +425,7 @@ void showCurOptions()
     
 }
 
-void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+void experiment(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int64_t> degCol)
 {
     FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
@@ -469,7 +465,7 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
     maximumMatching(A, mateRow2Col, mateCol2Row);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
-
+    
     
     // best option - randMM
     init = DMD; randMaximal = false; randMM = false; prune = true;
@@ -493,8 +489,8 @@ void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int
 }
 
 
-// only two options
-void experiment1(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+// default experiment
+void defaultExp(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int64_t> degCol)
 {
     FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
@@ -511,7 +507,7 @@ void experiment1(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, in
 
 
 
-void experiment_maximal(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+void experiment_maximal(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int64_t> degCol)
 {
     
     int nprocs, myrank;
@@ -571,8 +567,8 @@ void experiment_maximal(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int6
     
     if(myrank == 0)
     {
-    cout << "\n maximal matching experiment \n";
-    cout << cardGreedy << " " << mmcardGreedy << " " << time_greedy << " " << time_mm_greedy << " " << cardKS << " " << mmcardKS << " " << time_ks << " " << time_mm_ks << " " << cardDMD << " " << mmcardDMD << " " << time_dmd << " " << time_mm_dmd << " \n";
+        cout << "\n maximal matching experiment \n";
+        cout << cardGreedy << " " << mmcardGreedy << " " << time_greedy << " " << time_mm_greedy << " " << cardKS << " " << mmcardKS << " " << time_ks << " " << time_mm_ks << " " << cardDMD << " " << mmcardDMD << " " << time_dmd << " " << time_mm_dmd << " \n";
     }
 }
 
@@ -580,7 +576,7 @@ void experiment_maximal(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int6
 
 int main(int argc, char* argv[])
 {
-	
+    
     // ------------ initialize MPI ---------------
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
@@ -590,15 +586,15 @@ int main(int argc, char* argv[])
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(argc < 3)
     {
         ShowUsage();
         MPI_Finalize();
         return -1;
     }
-
+    
     init = DMD;
     randMaximal = false;
     prune = false;
@@ -607,30 +603,30 @@ int main(int argc, char* argv[])
     moreSplit = false;
     fewexp=false;
     
+    SpParHelper::Print("***** I/O and other preprocessing steps *****\n");
     // ------------ Process input arguments and build matrix ---------------
-	{
+    {
         
-        PSpMat_Bool * ABool;
-        PSpMat_s32p64 ALocalT;
+        Par_DCSC_Bool * ABool;
         ostringstream tinfo;
         double t01, t02;
         if(string(argv[1]) == string("input")) // input option
         {
-            ABool = new PSpMat_Bool();
+            ABool = new Par_DCSC_Bool();
             
             string filename(argv[2]);
             tinfo.str("");
-            tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
+            tinfo << "\n**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
-            ABool->ParallelReadMM(filename);
+            ABool->ParallelReadMM(filename, false, maximum<bool>());
             t02 = MPI_Wtime();
             ABool->PrintInfo();
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             GetOptions(argv+3, argc-3);
-
+            
         }
         else if(argc < 4)
         {
@@ -649,7 +645,8 @@ int main(int argc, char* argv[])
                 initiator[1] = .25;
                 initiator[2] = .25;
                 initiator[3] = .25;
-                cout << "ER ******** \n";
+                if(myrank==0)
+                    cout << "Randomly generated ER matric\n";
             }
             else if(string(argv[1]) == string("g500"))
             {
@@ -657,7 +654,8 @@ int main(int argc, char* argv[])
                 initiator[1] = .19;
                 initiator[2] = .19;
                 initiator[3] = .05;
-                 cout << "g500 ******** \n";
+                if(myrank==0)
+                    cout << "Randomly generated G500 matric\n";
             }
             else if(string(argv[1]) == string("ssca"))
             {
@@ -665,7 +663,8 @@ int main(int argc, char* argv[])
                 initiator[1] = .4/3;
                 initiator[2] = .4/3;
                 initiator[3] = .4/3;
-                 cout << "ER ******** \n";
+                if(myrank==0)
+                    cout << "Randomly generated SSCA matric\n";
             }
             else
             {
@@ -678,7 +677,7 @@ int main(int argc, char* argv[])
             t01 = MPI_Wtime();
             DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
             DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true);
-            ABool = new PSpMat_Bool(*DEL, false);
+            ABool = new Par_DCSC_Bool(*DEL, false);
             delete DEL;
             t02 = MPI_Wtime();
             ABool->PrintInfo();
@@ -692,10 +691,10 @@ int main(int argc, char* argv[])
             ABool->PrintInfo();
             
             GetOptions(argv+4, argc-4);
-
+            
         }
-
-  
+        
+        
         // randomly permute for load balance
         SpParHelper::Print("Performing random permutation of matrix.\n");
         FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
@@ -706,10 +705,10 @@ int main(int argc, char* argv[])
         pcol.RandPerm();
         (*ABool)(prow, pcol, true);
         SpParHelper::Print("Performed random permutation of matrix.\n");
-
-     
-        PSpMat_s32p64 A = *ABool;
-        PSpMat_s32p64 AT = A;
+        
+        
+        Par_DCSC_Bool A = *ABool;
+        Par_DCSC_Bool AT = A;
         AT.Transpose();
         
         // Reduce is not multithreaded, so I am doing it here
@@ -731,56 +730,61 @@ int main(int argc, char* argv[])
         A.ActivateThreading(cblas_splits); // note: crash on empty matrix
         AT.ActivateThreading(cblas_splits);
 #endif
-
-
+        
+        
+       SpParHelper::Print("**************************************************\n\n");
+        defaultExp(A, AT, degCol);
+        
+        /*
+         
+         showCurOptions();
+         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+         
+         
+         if(init!=NO_INIT)
+         MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+         maximumMatching(A, mateRow2Col, mateCol2Row);
+         
+         int64_t ncols=A.getncol();
+         int64_t matched = mateCol2Row.Count([](int64_t mate){return mate!=-1;});
+         if(myrank==0)
+         {
+         cout << "matched %cols\n";
+         printf("%lld %lf \n",matched, 100*(double)matched/(ncols));
+         }
+         */
         
         
         /*
-        
-        showCurOptions();
-        FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
-        FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
- 
-        
-        if(init!=NO_INIT)
-            MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-        maximumMatching(A, mateRow2Col, mateCol2Row);
-        
-        int64_t ncols=A.getncol();
-        int64_t matched = mateCol2Row.Count([](int64_t mate){return mate!=-1;});
-        if(myrank==0)
-        {
-            cout << "matched %cols\n";
-            printf("%lld %lf \n",matched, 100*(double)matched/(ncols));
-        }
-         */
-        
         SpParHelper::Print(" #####################################################\n");
         SpParHelper::Print(" ################## Run 1 ############################\n");
         SpParHelper::Print(" #####################################################\n");
+        
         //if(fewexp) experiment1(A, AT, degCol);
         //else experiment(A, AT, degCol);
         experiment_maximal(A, AT, degCol);
         
-        /*
-        SpParHelper::Print(" #####################################################\n");
-        SpParHelper::Print(" ################## Run 2 ############################\n");
-        SpParHelper::Print(" #####################################################\n");
-        //if(fewexp) experiment1(A, AT, degCol);
-        //else experiment(A, AT, degCol);
         
         
-
-        SpParHelper::Print(" #####################################################\n");
-        SpParHelper::Print(" ################## Run 3 ############################\n");
-        SpParHelper::Print(" #####################################################\n");
-        if(fewexp) experiment1(A, AT, degCol);
-        else experiment(A, AT, degCol);
+         SpParHelper::Print(" #####################################################\n");
+         SpParHelper::Print(" ################## Run 2 ############################\n");
+         SpParHelper::Print(" #####################################################\n");
+         //if(fewexp) experiment1(A, AT, degCol);
+         //else experiment(A, AT, degCol);
+         
+         
+         
+         SpParHelper::Print(" #####################################################\n");
+         SpParHelper::Print(" ################## Run 3 ############################\n");
+         SpParHelper::Print(" #####################################################\n");
+         if(fewexp) experiment1(A, AT, degCol);
+         else experiment(A, AT, degCol);
          */
         //mateRow2Col.DebugPrint();
-	}
-	MPI_Finalize();
-	return 0;
+    }
+    MPI_Finalize();
+    return 0;
 }
 
 
@@ -792,29 +796,29 @@ int main(int argc, char* argv[])
 
 
 void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
-             FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
+              FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
 {
- 
+    
     int64_t nrow = mateRow2Col.TotalLength();
     int64_t ncol = mateCol2Row.TotalLength();
     FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
     FullyDistSpVec<int64_t, int64_t> row(mateRow2Col.getcommgrid(), nrow);
     FullyDistSpVec<int64_t, int64_t> nextcol(col.getcommgrid(), ncol);
- 
+    
     while(col.getnnz()!=0)
     {
-     
+        
         row = col.Invert(nrow);
         row = EWiseApply<int64_t>(row, parentsRow,
-                                       [](int64_t root, int64_t parent){return parent;},
-                                       [](int64_t root, int64_t parent){return true;},
-                                       false, (int64_t)-1);
+                                  [](int64_t root, int64_t parent){return parent;},
+                                  [](int64_t root, int64_t parent){return true;},
+                                  false, (int64_t)-1);
         
         col = row.Invert(ncol); // children array
         nextcol = EWiseApply<int64_t>(col, mateCol2Row,
-                                            [](int64_t child, int64_t mate){return mate;},
-                                            [](int64_t child, int64_t mate){return mate!=-1;},
-                                            false, (int64_t)-1);
+                                      [](int64_t child, int64_t mate){return mate;},
+                                      [](int64_t child, int64_t mate){return mate!=-1;},
+                                      false, (int64_t)-1);
         mateRow2Col.Set(row);
         mateCol2Row.Set(col);
         col = nextcol;
@@ -828,17 +832,17 @@ template <typename IT, typename NT>
 void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
              FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
 {
-
+    
     MPI_Win win_mateRow2Col, win_mateCol2Row, win_parentsRow;
     MPI_Win_create(&mateRow2Col.arr[0], mateRow2Col.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, mateRow2Col.commGrid->GetWorld(), &win_mateRow2Col);
     MPI_Win_create(&mateCol2Row.arr[0], mateCol2Row.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, mateCol2Row.commGrid->GetWorld(), &win_mateCol2Row);
     MPI_Win_create(&parentsRow.arr[0], parentsRow.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
-
+    
     
     //MPI_Win_fence(0, win_mateRow2Col);
     //MPI_Win_fence(0, win_mateCol2Row);
     //MPI_Win_fence(0, win_parentsRow);
-
+    
     int64_t row, col=100, nextrow;
     int owner_row, owner_col;
     IT locind_row, locind_col;
@@ -846,7 +850,7 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
-
+    
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
         int depth=0;
@@ -871,7 +875,7 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
             
         }
     }
-
+    
     //MPI_Win_fence(0, win_mateRow2Col);
     //MPI_Win_fence(0, win_mateCol2Row);
     //MPI_Win_fence(0, win_parentsRow);
@@ -887,13 +891,13 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
 void pruneM(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64_t, int64_t>& temp1)
 {
     int64_t ncol = temp1.TotalLength();
-    PSpMat_Bool MB;
+    Par_DCSC_Bool MB;
     MB = PermMat1<int64_t, VertexType, SpDCCols<int64_t,bool>>(fringeRow, ncol, [](VertexType vtx){return vtx.root;});
     /*
-#ifdef _OPENMP
-    if(MB.getnnz()>cblas_splits)
-        MB.ActivateThreading(cblas_splits); // obtained seg-fault!
-#endif
+     #ifdef _OPENMP
+     if(MB.getnnz()>cblas_splits)
+     MB.ActivateThreading(cblas_splits); // obtained seg-fault!
+     #endif
      */
     FullyDistSpVec<int64_t, int64_t> remove(fringeRow.getcommgrid(), ncol);
     SpMV<Select2ndMinSR<bool, int64_t>>(MB, temp1, remove, false);
@@ -902,7 +906,7 @@ void pruneM(FullyDistSpVec<int64_t, VertexType>& fringeRow, FullyDistSpVec<int64
 
 
 
-void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+void maximumMatching(Par_DCSC_Bool & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
     
@@ -912,6 +916,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     int64_t nrow = A.getnrow();
     int64_t ncol = A.getncol();
+    
     FullyDistSpVec<int64_t, VertexType> fringeRow(A.getcommgrid(), nrow);
     FullyDistSpVec<int64_t, int64_t> umFringeRow(A.getcommgrid(), nrow);
     FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), ncol, (int64_t) -1);
@@ -934,16 +939,14 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     while(matched)
     {
         time_phase = MPI_Wtime();
-       
-        PSpMat_Bool Mbool;
-        
-        Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
+
+        Par_DCSC_Bool Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
         
 #ifdef _OPENMP
         if(Mbool.getnnz()>cblas_splits)
             Mbool.ActivateThreading(cblas_splits);
 #endif
-
+        
         
         vector<double> phase_timing(8,0);
         leaves.Apply ( [](int64_t val){return (int64_t) -1;});
@@ -967,7 +970,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         ++phase;
         numUnmatchedCol = fringeCol.getnnz();
         int layer = 0;
-
+        
         
         time_search = MPI_Wtime();
         while(fringeCol.getnnz() > 0)
@@ -982,9 +985,9 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             t1 = MPI_Wtime();
             fringeRow = EWiseApply<VertexType>(fringeRow, parentsRow,
-                                                        [](VertexType vtx, int64_t parent){return vtx;},
-                                                        [](VertexType vtx, int64_t parent){return parent==-1;},
-                                                        false, VertexType());
+                                               [](VertexType vtx, int64_t parent){return vtx;},
+                                               [](VertexType vtx, int64_t parent){return parent==-1;},
+                                               false, VertexType());
             
             // Set parent pointer
             parentsRow.EWiseApply(fringeRow,
@@ -994,15 +997,15 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             
             umFringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col,
-                                      [](VertexType vtx, int64_t mate){return vtx.root;},
-                                      [](VertexType vtx, int64_t mate){return mate==-1;},
-                                      false, VertexType());
+                                              [](VertexType vtx, int64_t mate){return vtx.root;},
+                                              [](VertexType vtx, int64_t mate){return mate==-1;},
+                                              false, VertexType());
             
             phase_timing[1] += MPI_Wtime()-t1;
             
             
             int64_t nnz_umFringeRow = umFringeRow.getnnz(); // careful about this timing
-
+            
             t1 = MPI_Wtime();
             if(nnz_umFringeRow >0)
             {
@@ -1023,7 +1026,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             
             phase_timing[2] += MPI_Wtime()-t1;
             
-
+            
             
             
             // matched row vertices in the the fringe
@@ -1053,7 +1056,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
             phase_timing[4] += MPI_Wtime()-t1;
             
             
-
+            
             
         }
         time_search = MPI_Wtime() - time_search;
@@ -1072,7 +1075,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
         }
         time_augment = MPI_Wtime() - time_augment;
         phase_timing[6] += time_augment;
-
+        
         time_phase = MPI_Wtime() - time_phase;
         phase_timing[7] += time_phase;
         timing.push_back(phase_timing);
@@ -1083,7 +1086,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     
     
     MPI_Win_free(&winLeaves);
-      
+    
     //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
     //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
     
@@ -1092,6 +1095,7 @@ void maximumMatching(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2
     double combTime;
     if(myrank == 0)
     {
+        cout << "****** maximum matching runtime ********\n";
         cout << endl;
         cout << "========================================================================\n";
         cout << "                                     BFS Search                       \n";

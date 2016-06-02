@@ -1,74 +1,48 @@
-# notes for configure:
-# -fno-exceptions does not work with MPICH2
-# -fno-rtti does not work with tr1:tuples
+CXX := mpicxx
+CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive  -DNDEBUG -DTHREADED #-DTIMING 
 
-OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
-PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++11 -std=c++14 -DGNU_PARALLEL #-fopenmp -DTHREADED 
-FLAGS = $(OPT)
+
+
 COMBBLAS = ..
 
-
-#
-# build Graph500 generator
-#
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER)  $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
-mmio.o: ../mmio.c
-	mpicc  $(FLAGS) -c -o mmio.o ../mmio.c
+%.o : %.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER)  $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
+$(COMBBLAS)/Tommy/%.o : $(COMBBLAS)/Tommy/%.c
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER)  $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
-
-MPIOp.o:	../MPIOp.cpp ../MPIOp.h
-	$(COMPILER)  $(FLAGS) -c -o MPIOp.o ../MPIOp.cpp 
-
-BPMaximalMatching.o:  BPMaximalMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
-	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
-
-
-maximal: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o maximal BPMaximalMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
-
-
-BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
-	$(COMPILER)  $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
-
-
-auction.o:  auction.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../FullyDistSpVec.h ../FullyDistSpVec.cpp ../FullyDistVec.h ../FullyDistVec.cpp ../SpImpl.h
-	$(COMPILER)  $(FLAGS) -c -o auction.o auction.cpp 
+$(COMBBLAS)/usort/%.o : $(COMBBLAS)/usort/src/%.cpp
+	$(CXX) -I$(COMBBLAS)/usort/include $(CXXFLAGS) -o $@ -c $<
 
 
 
+TOMMYS = $(COMBBLAS)/Tommy/tommyhashdyn.o $(COMBBLAS)/Tommy/tommyhash.o $(COMBBLAS)/Tommy/tommylist.o
 
-bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
-
-
-auction:	MemoryPool.o CommGrid.o MPIType.o auction.o mmio.o MPIOp.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o auction auction.o MemoryPool.o CommGrid.o mmio.o MPIType.o  MPIOp.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+USORT = $(COMBBLAS)/usort/binUtils.o $(COMBBLAS)/usort/parUtils.o 
 
 
 
-gathertest:	gathertest.cpp
-	$(COMPILER) $(FLAGS) -o gathertest MPIType.o gathertest.cpp
+BPMaximumMatching.o: BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+bpmm: BPMaximumMatching.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+auction.o: auction.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+auction: auction.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
+
 
 
 
 clean:
+	rm -rf ../*.o
+	rm -f bpmm auction
 	rm -f *.o
-	rm -f bpmm
-	rm -f maximal
-	rm -f ../graph500-1.2/generator/*.o
-	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
-
-cleanout:
-	rm out.*
-	rm err.*
