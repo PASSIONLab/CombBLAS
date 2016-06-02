@@ -897,6 +897,10 @@ int main(int argc, char* argv[])
         PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq(), nthreads*4);
         SpParHelper::Print("Pre allocated SPA\n");
         
+        //FullyDistVec<int64_t, int64_t> fringe();
+        //degrees = SpMV<Select2ndSRing>(*ABool, degrees);
+        
+        
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABoolCSC, degrees, SPA);
 
         
