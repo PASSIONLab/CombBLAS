@@ -28,6 +28,7 @@
 
 #include "SpImpl.h"
 #include "Deleter.h"
+#include "SpParHelper.h"
 #include "PBBS/radixSort.h"
 #include "Tommy/tommyhashdyn.h"
 using namespace std;
@@ -628,6 +629,13 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
 */
 
 
+
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+{
+    SpParHelper::Print("2D SpMSpV is not supported for Dcsc yet!\n");
+}
 
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
