@@ -181,9 +181,7 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
  **/
 template<typename VT, typename IT, typename UDER>
 void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz)
-{	
-
-    Select2ndSRing<bool, VT, VT> BFSsring;
+{
 
 #ifdef TIMING
 	double t0=MPI_Wtime();
@@ -193,7 +191,8 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 		if(A.spSeq->getnsplit() > 0)
 		{
 			// optbuf.{inds/nums/dspls} and sendcnt are all pre-allocated and only filled by dcsc_gespmv_threaded
-			generic_gespmv_threaded_setbuffers<BFSsring> (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+            
+        generic_gespmv_threaded_setbuffers< Select2ndSRing<bool, VT, VT> > (*(A.spSeq), indacc, numacc, (int32_t) accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 		}
 		else
 		{
@@ -202,7 +201,7 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 			{
                 // ABAB: ignoring optbuf.isthere here
                 // \TODO: Remove .isthere from optbuf definition
-				SpMXSpV<BFSsring>(*((A.spSeq)->GetInternal()), (int32_t) A.getlocalrows(), indacc, numacc,
+				SpMXSpV< Select2ndSRing<bool, VT, VT> >(*((A.spSeq)->GetInternal()), (int32_t) A.getlocalrows(), indacc, numacc,
 					accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 			}
 		}
