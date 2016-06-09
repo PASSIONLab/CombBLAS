@@ -373,10 +373,6 @@ private:
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
                                         int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c);
-	
-	template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-	friend void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
-		int32_t * sendindbuf, OVT * sendnumbuf, int * cnts, int * sdispls, int p_c);
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
