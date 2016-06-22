@@ -181,10 +181,10 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
  ** ABAB: Incomplete as of April 21
- *
+ */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NT0 hardthreshold)
+                                           int phases, NUO hardthreshold)
 {
     if(!CheckSpGEMMCompliance(A,B) )
         return SpParMat< IU,NUO,UDERO >();
@@ -194,8 +194,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     IU C_m = A.spSeq->getnrow();
     IU C_n = B.spSeq->getncol();
     
-    vector< DER > PiecesOfB;
-    DER CopyB = *(B.spSeq);
+    vector< UDERB > PiecesOfB;
+    UDERB CopyB = *(B.spSeq);
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
     
@@ -208,6 +208,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     UDERA * ARecv;
     UDERB * BRecv;
     vector< SpTuples<IU,NUO>  *> tomerge;
+    vector< UDERO *> toconcatenate;
     
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
@@ -257,8 +258,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }   // all stages executed
         
-        UDER0 OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
-        UDER0 * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NT0>(), hardthreshold), false);    // don't delete OnePieceOfC yet
+        UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+        UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardthreshold), false);    // don't delete OnePieceOfC yet
         
         // Recover using OnePieceOfC if too sparse
         // needs the logic of k-select implemented here
@@ -267,7 +268,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // toconcatenate.push_back(PrunedPieceOfC);
     }
     
-    UDER * C = ColConcatenate(toconcatenate);
+    UDERO * C = ColConcatenate(toconcatenate);
     
     for(unsigned int i=0; i<toconcatenate.size(); ++i)
         delete toconcatenate[i];
@@ -275,7 +276,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     // First get the result in SpTuples, then convert to UDER
     return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
-*/
+
 
 
 /**
