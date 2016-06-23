@@ -54,7 +54,7 @@ using namespace std;
 class Dist
 { 
 public: 
-	typedef SpDCCols < int32_t, float > DCCols;
+	typedef SpDCCols < int64_t, float > DCCols;
 	typedef SpParMat < int64_t, float, DCCols > MPI_DCCols;
 	typedef FullyDistVec < int64_t, float> MPI_DenseVec;
 };
@@ -151,7 +151,8 @@ int main(int argc, char* argv[])
 		{
             A.PrintInfo();
 			double t1 = MPI_Wtime();
-			A.Square<PTFF>() ;		// expand
+			//A.Square<PTFF>() ;		// expand
+            MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, 1.0);
 			
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
