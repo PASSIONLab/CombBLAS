@@ -258,6 +258,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }   // all stages executed
         
+        
         UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
         UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardthreshold), false);    // don't delete OnePieceOfC yet
         
@@ -268,7 +269,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // toconcatenate.push_back(PrunedPieceOfC);
     }
     
-    UDERO * C = ColConcatenate(toconcatenate);
+    UDERO * C; //= ColConcatenate(toconcatenate);
     
     for(unsigned int i=0; i<toconcatenate.size(); ++i)
         delete toconcatenate[i];
