@@ -186,8 +186,18 @@ template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, 
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                            int phases, NUO hardthreshold)
 {
-    if(!CheckSpGEMMCompliance(A,B) )
+    
+    if(A.getncol() != B.getnrow())
+    {
+        ostringstream outs;
+        outs << "Can not multiply, dimensions does not match"<< endl;
+        outs << A.getncol() << " != " << B.getnrow() << endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
         return SpParMat< IU,NUO,UDERO >();
+    }
+    //if(!CheckSpGEMMCompliance(A,B) )
+      //  return SpParMat< IU,NUO,UDERO >();
     
     int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
     shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
@@ -195,7 +205,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     IU C_n = B.spSeq->getncol();
     
     vector< UDERB > PiecesOfB;
-    UDERB CopyB = *(B.spSeq);
+    UDERB CopyB = *(B.spSeq); // we allow alias matrices as input because of this local copy
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
     
@@ -208,7 +218,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     UDERA * ARecv;
     UDERB * BRecv;
     vector< SpTuples<IU,NUO>  *> tomerge;
-    vector< UDERO *> toconcatenate;
+    vector< UDERO > toconcatenate;
     
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
@@ -260,19 +270,22 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         
         UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+        //cout << "beofre prunning \n";
+        //OnePieceOfC.PrintInfo();
         UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardthreshold), false);    // don't delete OnePieceOfC yet
-        
+        PrunedPieceOfC->PrintInfo();
         // Recover using OnePieceOfC if too sparse
         // needs the logic of k-select implemented here
         
         
-        // toconcatenate.push_back(PrunedPieceOfC);
+        toconcatenate.push_back(*PrunedPieceOfC);
     }
     
-    UDERO * C; //= ColConcatenate(toconcatenate);
+    UDERO * C = new UDERO();
+    C->ColConcatenate(toconcatenate);
     
-    for(unsigned int i=0; i<toconcatenate.size(); ++i)
-        delete toconcatenate[i];
+    //for(unsigned int i=0; i<toconcatenate.size(); ++i)
+      //  delete toconcatenate[i];
     
     // First get the result in SpTuples, then convert to UDER
     return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
