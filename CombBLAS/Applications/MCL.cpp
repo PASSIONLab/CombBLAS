@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
             A.PrintInfo();
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, 1.0);
+            MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, prunelimit);
 			
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
