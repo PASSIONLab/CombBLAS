@@ -180,11 +180,10 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
- ** ABAB: Incomplete as of April 21
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardthreshold)
+                                           int phases, NUO hardThreshold, int selectPerColumn)
 {
     
     if(A.getncol() != B.getnrow())
@@ -270,14 +269,17 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         
         UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
-        //cout << "beofre prunning \n";
-        //OnePieceOfC.PrintInfo();
-        UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardthreshold), false);    // don't delete OnePieceOfC yet
-        PrunedPieceOfC->PrintInfo();
+        UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
         // Recover using OnePieceOfC if too sparse
-        // needs the logic of k-select implemented here
-        
-        
+
+        // select largest k entries
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);
+        FullyDistVec<int64_t, float> kth ( PrunedPieceOfC_mat.getcommgrid());
+        PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
+        // inplace prunning. PrunedPieceOfC is purned automatically
+        PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
+    
+
         toconcatenate.push_back(*PrunedPieceOfC);
     }
     
@@ -285,7 +287,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     C->ColConcatenate(toconcatenate);
     
     //for(unsigned int i=0; i<toconcatenate.size(); ++i)
-      //  delete toconcatenate[i];
+        //delete toconcatenate[i];
     
     // First get the result in SpTuples, then convert to UDER
     return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object

@@ -68,6 +68,7 @@ void Interpret(const Dist::MPI_DCCols & A)
 
 float Inflate(Dist::MPI_DCCols & A, float power)
 {
+   
 	A.Apply(bind2nd(exponentiate(), power));
 	{
 		// Reduce (Column): pack along the columns, result is a vector of size n
@@ -80,13 +81,10 @@ float Inflate(Dist::MPI_DCCols & A, float power)
 		colsums.PrintToFile("colnormalizedsums"); 
 #endif		
 	}
-
 	// After normalization, each column of A is now a stochastic vector
 	Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<float>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
-
 	// Matrix entries are non-negative, so max() can use zero as identity
     Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 0.0);
-
 	colmaxs -= colssqs;	// chaos indicator
 	return colmaxs.Reduce(maximum<float>(), 0.0);
 }
@@ -99,12 +97,12 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	typedef PlusTimesSRing<float, float> PTFF;
-	if(argc < 5)
+	if(argc < 6)
         {
 		if(myrank == 0)
 		{	
-                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <BASE_OF_MM>" << endl;
-                	cout << "Example: ./mcl input.mtx 2 0.0001 0" << endl;
+                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <select> <BASE_OF_MM>" << endl;
+                	cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
                 }
 		MPI_Finalize(); 
 		return -1;
@@ -113,11 +111,12 @@ int main(int argc, char* argv[])
 	{
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
+        int select = atof(argv[4]);
 
 		string ifilename(argv[1]);		
 
 		Dist::MPI_DCCols A;	// construct object
-		if(string(argv[4]) == "0")
+		if(string(argv[5]) == "0")
 		{
             SpParHelper::Print("Treating input zero based\n");
             A.ParallelReadMM(ifilename, false, maximum<float>());	// use zero-based indexing for matrix-market file
@@ -137,9 +136,12 @@ int main(int argc, char* argv[])
         
 		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
         SpParHelper::Print("Added loops\n");
+		float initChaos = Inflate(A, 1); 		// matrix_make_stochastic($mx);
+        SpParHelper::Print("Made stochastic: ");
+        stringstream s1;
+        s1 << "Initial chaos = " << initChaos << '\n';
+        SpParHelper::Print(s1.str());
         
-		Inflate(A, 1); 		// matrix_make_stochastic($mx);
-        SpParHelper::Print("Made stochastic\n");
 
 	
 		// chaos doesn't make sense for non-stochastic matrices	
@@ -149,22 +151,23 @@ int main(int argc, char* argv[])
 		// while there is an epsilon improvement
 		while( chaos > EPS)
 		{
-            A.PrintInfo();
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, prunelimit);
-			
+            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, prunelimit,select);
+            
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
 			stringstream s;
 			s << "New chaos: " << chaos << '\n';
 			SpParHelper::Print(s.str());
-			
+            // Prunning is performed inside MemEfficientSpGEMM
+			/*
 #ifdef DEBUG	
 			SpParHelper::Print("Before pruning...\n");
 			A.PrintInfo();
 #endif
 			A.Prune(bind2nd(less<float>(), prunelimit));
+             */
 			
 			double t2=MPI_Wtime();
 			if(myrank == 0)

@@ -593,6 +593,15 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
     
+    FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
+    Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
+    IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
+    if(k>maxnnzPerColumn)
+    {
+        SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Setting k to maxNnzInColumn.\n");
+        k = maxnnzPerColumn;
+    }
+    
     IT n_thiscol = getlocalcols();   // length assigned to this processor column
     
     // check, memory should be min(n_thiscol*k, local nnz)
