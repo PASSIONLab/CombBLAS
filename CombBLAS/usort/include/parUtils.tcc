@@ -90,7 +90,7 @@ namespace par {
         S* recvBuf, int recvCount, int source, int recvTag,
         MPI_Comm comm, MPI_Status* status) {
 
-        MPI_Sendrecv(sendBuf, sendCount, par::Mpi_datatype<T>::value(), dest, sendTag,
+        return MPI_Sendrecv(sendBuf, sendCount, par::Mpi_datatype<T>::value(), dest, sendTag,
             recvBuf, recvCount, par::Mpi_datatype<S>::value(), source, recvTag, comm, status);
 
     }
@@ -100,7 +100,7 @@ namespace par {
 #ifdef __PROFILE_WITH_BARRIER__
       MPI_Barrier(comm);
 #endif
-        MPI_Scan(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, comm);
+        return MPI_Scan(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, comm);
     }
 
   template <typename T>
@@ -109,7 +109,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Allreduce(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, comm);
+        return MPI_Allreduce(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, comm);
     }
 
   template <typename T>
@@ -118,7 +118,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Alltoall(sendbuf, count, par::Mpi_datatype<T>::value(),
+        return MPI_Alltoall(sendbuf, count, par::Mpi_datatype<T>::value(),
             recvbuf, count, par::Mpi_datatype<T>::value(), comm);
 
     }
@@ -131,7 +131,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Alltoallv(
+        return MPI_Alltoallv(
             sendbuf, sendcnts, sdispls, par::Mpi_datatype<T>::value(), 
             recvbuf, recvcnts, rdispls, par::Mpi_datatype<T>::value(), 
             comm);
@@ -144,7 +144,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Gather(sendBuffer, count, par::Mpi_datatype<T>::value(),
+        return MPI_Gather(sendBuffer, count, par::Mpi_datatype<T>::value(),
             recvBuffer, count, par::Mpi_datatype<T>::value(), root, comm);
 
     }
@@ -155,7 +155,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Bcast(buffer, count, par::Mpi_datatype<T>::value(), root, comm);
+        return MPI_Bcast(buffer, count, par::Mpi_datatype<T>::value(), root, comm);
 
     }
 
@@ -165,7 +165,7 @@ namespace par {
       MPI_Barrier(comm);
 #endif
 
-        MPI_Reduce(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, root, comm);
+        return MPI_Reduce(sendbuf, recvbuf, count, par::Mpi_datatype<T>::value(), op, root, comm);
 
     }
 
@@ -210,10 +210,11 @@ namespace par {
 
       delete [] dummySendBuf;
       delete [] dummyRecvBuf;
+      return 1;
 
 #else
 
-      MPI_Allgatherv(sendBuf, sendCount, par::Mpi_datatype<T>::value(),
+      return MPI_Allgatherv(sendBuf, sendCount, par::Mpi_datatype<T>::value(),
           recvBuf, recvCounts, displs, par::Mpi_datatype<T>::value(), comm);
 
 #endif
@@ -240,10 +241,11 @@ namespace par {
       }
       par::Mpi_Alltoall<T>(dummySendBuf, recvBuf, count, comm);
       delete [] dummySendBuf;
+      return 1;
 
 #else
 
-      MPI_Allgather(sendBuf, count, par::Mpi_datatype<T>::value(), 
+      return MPI_Allgather(sendBuf, count, par::Mpi_datatype<T>::value(),
           recvBuf, count, par::Mpi_datatype<T>::value(), comm);
 
 #endif
@@ -258,7 +260,7 @@ namespace par {
 #endif
     
 #ifndef ALLTOALLV_FIX
-      Mpi_Alltoallv
+      return Mpi_Alltoallv
         (sendbuf, sendcnts, sdispls, 
          recvbuf, recvcnts, rdispls, comm);
 #else
@@ -345,6 +347,7 @@ namespace par {
 
       delete [] requests;
       delete [] statuses;
+      return 1;
 #endif
     }
 
@@ -358,7 +361,7 @@ namespace par {
 #endif
       
 #ifndef ALLTOALLV_FIX
-      Mpi_Alltoallv
+      return Mpi_Alltoallv
         (sbuff_, s_cnt_, sdisp_,
          rbuff_, r_cnt_, rdisp_, c);
 #else
@@ -526,6 +529,7 @@ namespace par {
 
   //Free memory.
   if(sbuff   !=NULL) delete[] sbuff;
+return 1;
 #endif
 
     }
@@ -1032,7 +1036,9 @@ namespace par {
 
       par::Mpi_Allreduce<long>(&bytes_comm, &total_bytes, 1, MPI_SUM, comm_);
       // if(!rank_) printf("Total comm is %ld bytes\n", total_comm);
+
 #endif
+return 1;
     }//end function
 
   //--------------------------------------------------------------------------------
@@ -1234,6 +1240,7 @@ namespace par {
 #ifdef _PROFILE_SORT
 		 	total_sort.stop();
 #endif
+return 1;
     }//end function
 // */
 
@@ -1407,6 +1414,7 @@ namespace par {
 		 	total_sort.stop();
 #endif
 			SortedElem=arr;
+return 1;
     }
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1586,6 +1594,7 @@ namespace par {
 #ifdef _PROFILE_SORT
 		 	total_sort.stop();
 #endif
+return 1;
 } // mem effecient HykSort
 
 

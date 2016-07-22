@@ -101,8 +101,9 @@ int main(int argc, char* argv[])
         {
 		if(myrank == 0)
 		{	
-                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <select> <BASE_OF_MM>" << endl;
+                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM><PHASES>" << endl;
                 	cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
+                    cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 2" << endl;
                 }
 		MPI_Finalize(); 
 		return -1;
@@ -111,9 +112,14 @@ int main(int argc, char* argv[])
 	{
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
-        int select = atof(argv[4]);
+        int select = atoi(argv[4]);
+        int phases = 1;
+        if(argc > 6)
+        {
+            phases = atoi(argv[6]);
+        }
 
-		string ifilename(argv[1]);		
+		string ifilename(argv[1]);
 
 		Dist::MPI_DCCols A;	// construct object
 		if(string(argv[5]) == "0")
@@ -153,7 +159,7 @@ int main(int argc, char* argv[])
 		{
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, 1, prunelimit,select);
+            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
             
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 

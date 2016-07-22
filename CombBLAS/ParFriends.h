@@ -197,6 +197,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
         return SpParMat< IU,NUO,UDERO >();
     }
+    if(phases <1 || phases >= A.getncol())
+    {
+        SpParHelper::Print("MemEfficientSpGEMM: The value of phases is too small or large. Resetting to 1.\n");
+        phases = 1;
+    }
     //if(!CheckSpGEMMCompliance(A,B) )
       //  return SpParMat< IU,NUO,UDERO >();
     
@@ -218,7 +223,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     // Remotely fetched matrices are stored as pointers
     UDERA * ARecv;
     UDERB * BRecv;
-    vector< SpTuples<IU,NUO>  *> tomerge;
+    
     vector< UDERO > toconcatenate;
     
     int Aself = (A.commGrid)->GetRankInProcRow();
@@ -227,7 +232,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     for(int p = 0; p< phases; ++p)
     {
         SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.commGrid)->GetColWorld());
-
+        vector< SpTuples<IU,NUO>  *> tomerge;
         for(int i = 0; i < stages; ++i)
         {
             vector<IU> ess;
@@ -260,7 +265,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                                          i != Bself);	// 'delete B' condition
              */
             
-            // alternatively:
             SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
             
             if(!C_cont->isZero())
@@ -278,7 +282,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 
         // select largest k entries
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);
-        FullyDistVec<int64_t, float> kth ( PrunedPieceOfC_mat.getcommgrid());
+        FullyDistVec<IU, NUO> kth ( PrunedPieceOfC_mat.getcommgrid());
         PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
         // inplace prunning. PrunedPieceOfC is purned automatically
         PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);

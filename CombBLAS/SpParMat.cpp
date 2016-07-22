@@ -598,7 +598,9 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
     if(k>maxnnzPerColumn)
     {
+#ifdef DEBUG
         SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Setting k to maxNnzInColumn.\n");
+#endif
         k = maxnnzPerColumn;
     }
     
@@ -778,7 +780,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     
     
     
-    rvec.glen = getnrow();
+    rvec.glen = getncol();
     rvec.arr.resize(rvec.MyLocLength());	// once glen is set, MyLocLength() works
     
     int * sendcnts = NULL;
