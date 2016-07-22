@@ -37,6 +37,8 @@
 #include "MPIType.h"
 #include "Friends.h"
 #include "OptBuf.h"
+#include "mtSpGEMM.h"
+#include "MultiwayMerge.h"
 
 
 using namespace std;
@@ -250,15 +252,16 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             }
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
             
-            
+            /*
             SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
                                         (*ARecv, *BRecv, // parameters themselves
                                         false, false,	// transpose information (none are transposed)
                                          i != Aself, 	// 'delete A' condition
                                          i != Bself);	// 'delete B' condition
+             */
             
             // alternatively:
-            // SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
             
             if(!C_cont->isZero())
                 tomerge.push_back(C_cont);
@@ -268,7 +271,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }   // all stages executed
         
         
-        UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+        //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+        UDERO OnePieceOfC(* MultiwayMerge<SR>(tomerge, C_m, C_n,true), false);
         UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
         // Recover using OnePieceOfC if too sparse
 
