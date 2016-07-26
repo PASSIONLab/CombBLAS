@@ -228,6 +228,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
+
     
     for(int p = 0; p< phases; ++p)
     {
@@ -257,14 +258,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             }
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
             
+            
             /*
             SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
                                         (*ARecv, *BRecv, // parameters themselves
                                         false, false,	// transpose information (none are transposed)
                                          i != Aself, 	// 'delete A' condition
                                          i != Bself);	// 'delete B' condition
-             */
-            
+             
+            */
             SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
             
             if(!C_cont->isZero())
@@ -274,9 +276,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }   // all stages executed
         
-        
-        //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, C_n,true), false);
-        UDERO OnePieceOfC(* MultiwayMerge<SR>(tomerge, C_m, C_n,true), false);
+
+        //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
+        UDERO OnePieceOfC(* MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
         UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
         // Recover using OnePieceOfC if too sparse
 
@@ -286,17 +288,17 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
         // inplace prunning. PrunedPieceOfC is purned automatically
         PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
+  
     
 
         toconcatenate.push_back(*PrunedPieceOfC);
     }
     
-    UDERO * C = new UDERO();
+    UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate);
     
     //for(unsigned int i=0; i<toconcatenate.size(); ++i)
         //delete toconcatenate[i];
-    
     // First get the result in SpTuples, then convert to UDER
     return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }

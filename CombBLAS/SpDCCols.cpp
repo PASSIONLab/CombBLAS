@@ -906,11 +906,15 @@ void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
     
     if(nonempties.size() < 1)
     {
+#ifdef DEBUG
         cout << "Nothing to ColConcatenate" << endl;
+#endif
+        n = runningoffset;
     }
     else if(nonempties.size() < 2)
     {
         *this =  *(nonempties[0]);
+        n = runningoffset; 
     }
     else // nonempties.size() > 1
     {

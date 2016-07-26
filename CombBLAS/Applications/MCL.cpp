@@ -160,6 +160,9 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
+            stringstream s1;
+            s1 << "A.nrow: " << A.getnrow() << " A.col: " << A.getncol() << '\n';
+            SpParHelper::Print(s1.str());
             
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
@@ -167,13 +170,13 @@ int main(int argc, char* argv[])
 			s << "New chaos: " << chaos << '\n';
 			SpParHelper::Print(s.str());
             // Prunning is performed inside MemEfficientSpGEMM
-			/*
+			
 #ifdef DEBUG	
 			SpParHelper::Print("Before pruning...\n");
 			A.PrintInfo();
 #endif
 			A.Prune(bind2nd(less<float>(), prunelimit));
-             */
+             
 			
 			double t2=MPI_Wtime();
 			if(myrank == 0)
