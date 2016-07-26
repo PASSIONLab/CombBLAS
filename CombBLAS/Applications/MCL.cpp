@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
 		float prunelimit = atof(argv[3]);
         int select = atoi(argv[4]);
         int phases = 1;
+        ostringstream outs;
         if(argc > 6)
         {
             phases = atoi(argv[6]);
@@ -152,8 +153,12 @@ int main(int argc, char* argv[])
             A.ParallelReadMM(ifilename, true, maximum<float>());
 		}
 		
-		SpParHelper::Print("File Read\n");
+        outs.str("");
+        outs.clear();
+        outs << "File Read" << endl;
+		SpParHelper::Print(outs.str());
         
+#ifdef RAND_PERMUTE
         // randomly permute for load balance
         if(A.getnrow() == A.getncol())
         {
@@ -167,11 +172,13 @@ int main(int argc, char* argv[])
         {
             SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
         }
+#endif
         
         
 		float balance = A.LoadImbalance();
 		int64_t nnz = A.getnnz();
-		ostringstream outs;
+        outs.str("");
+        outs.clear();
 		outs << "Load balance: " << balance << endl;
 		outs << "Nonzeros: " << nnz << endl;
 		SpParHelper::Print(outs.str());
@@ -181,12 +188,17 @@ int main(int argc, char* argv[])
         
         
 		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
-        SpParHelper::Print("Added loops\n");
+        outs.str("");
+        outs.clear();
+        outs << "Added loops" << endl;
+        SpParHelper::Print(outs.str());
 		float initChaos = Inflate(A, 1); 		// matrix_make_stochastic($mx);
-        SpParHelper::Print("Made stochastic: ");
-        stringstream s1;
-        s1 << "Initial chaos = " << initChaos << '\n';
-        SpParHelper::Print(s1.str());
+        outs.str("");
+        outs.clear();
+        outs << "Made stochastic" << endl;
+        outs << "Initial chaos = " << initChaos << endl;
+        SpParHelper::Print(outs.str());
+       
         
 
 	
@@ -215,7 +227,7 @@ int main(int argc, char* argv[])
             
 			double t2=MPI_Wtime();
             stringstream s;
-            s << "Iteration: " << it << " chaos: " << chaos << " time: " << (t2-t1) << '\n';
+            s << "Iteration: " << it << " chaos: " << chaos << " time: " << (t2-t1) << endl;
             SpParHelper::Print(s.str());
             it++;
 
@@ -229,7 +241,7 @@ int main(int argc, char* argv[])
         double tend = MPI_Wtime();
         stringstream s2;
         s2 << "=====================================\n" ;
-        s2 << "Total time: " << (tend-tstart) << "\n";
+        s2 << "Total time: " << (tend-tstart) << endl;
         SpParHelper::Print(s2.str());
 
 	}	
