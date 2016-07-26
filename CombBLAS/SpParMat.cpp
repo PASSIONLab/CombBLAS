@@ -609,28 +609,29 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
     vector<VT> sendbuf(n_thiscol*k);
-    vector<IT> send_coldisp(n_thiscol+1);
-    vector<IT> local_coldisp(n_thiscol+1);
+    vector<IT> send_coldisp(n_thiscol+1,0);
+    vector<IT> local_coldisp(n_thiscol+1,0);
     
     
     //displacement of local columns
     //local_coldisp is the displacement of all nonzeros per column
     //send_coldisp is the displacement of k nonzeros per column
-    typename DER::SpColIter colit = spSeq->begcol();
-    send_coldisp[0] = 0;
-    local_coldisp[0] = 0;
-    for(IT i=0; i<n_thiscol; ++i)
+    if(spSeq->getnnz()>0)
     {
-        local_coldisp[i+1] = local_coldisp[i];
-        send_coldisp[i+1] = send_coldisp[i];
-        if(i==colit.colid())
+        typename DER::SpColIter colit = spSeq->begcol();
+        for(IT i=0; i<n_thiscol; ++i)
         {
-            local_coldisp[i+1] += colit.nnz();
-            if(colit.nnz()>=k)
-                send_coldisp[i+1] += k;
-            else
-                send_coldisp[i+1] += colit.nnz();
-            colit++;
+            local_coldisp[i+1] = local_coldisp[i];
+            send_coldisp[i+1] = send_coldisp[i];
+            if(i==colit.colid())
+            {
+                local_coldisp[i+1] += colit.nnz();
+                if(colit.nnz()>=k)
+                    send_coldisp[i+1] += k;
+                else
+                    send_coldisp[i+1] += colit.nnz();
+                colit++;
+            }
         }
     }
     assert(local_coldisp[n_thiscol] == spSeq->getnnz());
@@ -638,6 +639,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     // a copy of local part of the matrix
     // this can be avoided if we write our own local kselect function instead of using partial_sort
     vector<VT> localmat(spSeq->getnnz());
+   
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -663,6 +665,8 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
         }
     }
     
+    
+    
     vector<VT>().swap(localmat);
     vector<IT>().swap(local_coldisp);
 
@@ -674,6 +678,8 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
     int rank = commGrid->GetRank();
+    
+    
     for(int p=2; p <= colneighs; p*=2)
     {
        
@@ -736,7 +742,6 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
         }
     }
     MPI_Barrier(commGrid->GetWorld());
-    
     vector<VT> kthItem(n_thiscol);
 
     int root = commGrid->GetDiagOfProcCol();
@@ -777,8 +782,6 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     {
         MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
-    
-    
     
     rvec.glen = getncol();
     rvec.arr.resize(rvec.MyLocLength());	// once glen is set, MyLocLength() works
