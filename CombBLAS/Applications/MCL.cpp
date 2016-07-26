@@ -92,23 +92,43 @@ float Inflate(Dist::MPI_DCCols & A, float power)
 
 int main(int argc, char* argv[])
 {
+    
+    int provided;
+    
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
+    {
+        printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    
+    int nthreads;
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+    
+
 	int nprocs, myrank;
-	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    if(myrank == 0)
+    {
+        cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
+    }
+    
 	typedef PlusTimesSRing<float, float> PTFF;
-	if(argc < 6)
+    if(argc < 6)
+    {
+        if(myrank == 0)
         {
-		if(myrank == 0)
-		{	
-                	cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM><PHASES>" << endl;
-                	cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
-                    cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 2" << endl;
-                }
-		MPI_Finalize(); 
-		return -1;
+            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM><PHASES>" << endl;
+            cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
+            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 2" << endl;
         }
-
+        MPI_Finalize();
+        return -1;
+    }
 	{
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
@@ -133,12 +153,32 @@ int main(int argc, char* argv[])
 		}
 		
 		SpParHelper::Print("File Read\n");
+        
+        // randomly permute for load balance
+        if(A.getnrow() == A.getncol())
+        {
+            FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
+            p.iota(A.getnrow(), 0);
+            p.RandPerm();
+            (A)(p,p,true);// in-place permute to save memory
+            SpParHelper::Print("Applied symmetric permutation.\n");
+        }
+        else
+        {
+            SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+        }
+        
+        
 		float balance = A.LoadImbalance();
 		int64_t nnz = A.getnnz();
 		ostringstream outs;
 		outs << "Load balance: " << balance << endl;
 		outs << "Nonzeros: " << nnz << endl;
 		SpParHelper::Print(outs.str());
+        
+        
+        double tstart = MPI_Wtime();
+        
         
 		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
         SpParHelper::Print("Added loops\n");
@@ -153,6 +193,7 @@ int main(int argc, char* argv[])
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
 		float chaos = 1;
+        int it=1;
 
 		// while there is an epsilon improvement
 		while( chaos > EPS)
@@ -160,36 +201,41 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
-            stringstream s1;
-            s1 << "A.nrow: " << A.getnrow() << " A.col: " << A.getncol() << '\n';
-            SpParHelper::Print(s1.str());
-            
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
-			stringstream s;
-			s << "New chaos: " << chaos << '\n';
-			SpParHelper::Print(s.str());
-            // Prunning is performed inside MemEfficientSpGEMM
 			
+            // Prunning is performed inside MemEfficientSpGEMM
+            /*
 #ifdef DEBUG	
 			SpParHelper::Print("Before pruning...\n");
 			A.PrintInfo();
 #endif
 			A.Prune(bind2nd(less<float>(), prunelimit));
-             
-			
+             */
+            
 			double t2=MPI_Wtime();
-			if(myrank == 0)
-				printf("%.6lf seconds elapsed for this iteration\n", (t2-t1));
+            stringstream s;
+            s << "Iteration: " << it << " chaos: " << chaos << " time: " << (t2-t1) << '\n';
+            SpParHelper::Print(s.str());
+            it++;
 
 #ifdef DEBUG	
 			SpParHelper::Print("After pruning...\n");
 			A.PrintInfo();
 #endif
 		}
-		Interpret(A);	
+		Interpret(A);
+        
+        double tend = MPI_Wtime();
+        stringstream s2;
+        s2 << "=====================================\n" ;
+        s2 << "Total time: " << (tend-tstart) << "\n";
+        SpParHelper::Print(s2.str());
+
 	}	
 
+    
+    
 	// make sure the destructors for all objects are called before MPI::Finalize()
 	MPI_Finalize();	
 	return 0;

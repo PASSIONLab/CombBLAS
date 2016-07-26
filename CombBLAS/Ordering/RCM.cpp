@@ -669,8 +669,15 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
 
 int main(int argc, char* argv[])
 {
+    int provided;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
+    {
+        printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    
     int nprocs, myrank;
-    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(argc < 3)
