@@ -142,6 +142,7 @@ int main(int argc, char* argv[])
 
 		string ifilename(argv[1]);
 
+        double tIO = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
 		if(string(argv[5]) == "0")
 		{
@@ -155,7 +156,7 @@ int main(int argc, char* argv[])
 		
         outs.str("");
         outs.clear();
-        outs << "File Read" << endl;
+        outs << "File Read time: " << MPI_Wtime() - tIO << endl;
 		SpParHelper::Print(outs.str());
         
 #ifdef RAND_PERMUTE
@@ -225,9 +226,10 @@ int main(int argc, char* argv[])
 			A.Prune(bind2nd(less<float>(), prunelimit));
              */
             
+            float newbalance = A.LoadImbalance();
 			double t2=MPI_Wtime();
             stringstream s;
-            s << "Iteration: " << it << " chaos: " << chaos << " time: " << (t2-t1) << endl;
+            s << "Iteration: " << it << " chaos: " << chaos << "  load-balance: "<< newbalance << " time: " << (t2-t1) << endl;
             SpParHelper::Print(s.str());
             it++;
 
