@@ -218,6 +218,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
     IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
     
+  
+    
     SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
     
     // Remotely fetched matrices are stored as pointers
@@ -278,9 +280,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
 
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
-        UDERO OnePieceOfC(* MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
-        UDERO * PrunedPieceOfC  = OnePieceOfC.Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
+        // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
+        SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
+        UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
+        delete OnePieceOfC_tuples;
+        //UDERO * OnePieceOfC = new UDERO(* MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false); // this was the bug
+        UDERO * PrunedPieceOfC  = OnePieceOfC->Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
         // Recover using OnePieceOfC if too sparse
+        delete OnePieceOfC;
+        
 
         // select largest k entries
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);
@@ -294,13 +302,13 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         toconcatenate.push_back(*PrunedPieceOfC);
     }
     
+    
     UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate);
     
-    //for(unsigned int i=0; i<toconcatenate.size(); ++i)
-        //delete toconcatenate[i];
-    // First get the result in SpTuples, then convert to UDER
-    return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
+    SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+    SpHelper::deallocate2D(BRecvSizes, UDERA::esscount);
+    return SpParMat<IU,NUO,UDERO> (C, GridC);
 }
 
 

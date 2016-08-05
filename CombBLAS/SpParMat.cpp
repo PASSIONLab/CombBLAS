@@ -786,23 +786,23 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     rvec.glen = getncol();
     rvec.arr.resize(rvec.MyLocLength());	// once glen is set, MyLocLength() works
     
-    int * sendcnts = NULL;
-    int * dpls = NULL;
+    vector <int> sendcnts;
+    vector <int> dpls;
     if(colrank==root)
     {
         int proccols = commGrid->GetGridCols();
         IT n_perproc = n_thiscol / proccols;
-        sendcnts = new int[proccols];
-        fill(sendcnts, sendcnts+proccols-1, n_perproc);
+        sendcnts.resize(proccols);
+        fill(sendcnts.data(), sendcnts.data()+proccols-1, n_perproc);
         sendcnts[proccols-1] = n_thiscol - (n_perproc * (proccols-1));
-        dpls = new int[proccols]();	// displacements (zero initialized pid)
-        partial_sum(sendcnts, sendcnts+proccols-1, dpls+1);
+        dpls.resize(proccols,0);	// displacements (zero initialized pid)
+        partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
     }
     
     
     
     int rowroot = commGrid->GetDiagOfProcRow();
-    MPI_Scatterv(kthItem.data(),sendcnts, dpls, MPIType<VT>(), rvec.arr.data(), rvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
+    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.arr.data(), rvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
 }
 
 
@@ -1443,10 +1443,11 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     int * dpls = new int[colneighs]();	// displacements (zero initialized pid)
     std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
     int accsize = std::accumulate(colsize, colsize+colneighs, 0);
-    NT * numacc = new NT[accsize];
+    //NT * numacc = new NT[accsize];
+    vector<NT> numacc(accsize);
     
     
-    MPI_Allgatherv(trxnums, trxsize, MPIType<NT>(), numacc, colsize, dpls, MPIType<NT>(), ColWorld);
+    MPI_Allgatherv(trxnums, trxsize, MPIType<NT>(), numacc.data(), colsize, dpls, MPIType<NT>(), ColWorld);
     delete [] trxnums;
     delete [] colsize;
     delete [] dpls;
@@ -1455,12 +1456,12 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     assert(accsize == getlocalcols());
     if (inPlace)
     {
-        spSeq->PruneColumn(numacc, __binary_op, inPlace);
+        spSeq->PruneColumn(numacc.data(), __binary_op, inPlace);
         return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
     }
     else
     {
-        return SpParMat<IT,NT,DER>(spSeq->PruneColumn(numacc, __binary_op, inPlace), commGrid);
+        return SpParMat<IT,NT,DER>(spSeq->PruneColumn(numacc.data(), __binary_op, inPlace), commGrid);
     }
 }
 

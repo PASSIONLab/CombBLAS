@@ -192,7 +192,6 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         return NULL;
     }
     
-    double tstart = MPI_Wtime();
     Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
     Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
     
@@ -220,13 +219,11 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     vector<vector< pair<IT,IT>>> colindsVec(numThreads);
     vector<vector<pair<IT,IT>>> globalheapVec(numThreads);
     
-    double tmemStart = MPI_Wtime();
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
         colindsVec[i].resize(nnzA/numThreads);
         globalheapVec[i].resize(nnzA/numThreads);
     }
-    double tmem = MPI_Wtime() - tmemStart;
     
 #pragma omp parallel for
     for(int i=0; i < Bdcsc->nzc; ++i)
@@ -235,10 +232,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         int myThread = omp_get_thread_num();
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
-            tmemStart = MPI_Wtime();
             colindsVec[myThread].resize(nnzcolB);
             globalheapVec[myThread].resize(nnzcolB);
-            tmem += (MPI_Wtime() - tmemStart);
         }
         
 

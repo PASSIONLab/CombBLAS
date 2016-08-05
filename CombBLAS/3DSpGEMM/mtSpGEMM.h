@@ -235,10 +235,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         int myThread = omp_get_thread_num();
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
-            tmemStart = MPI_Wtime();
             colindsVec[myThread].resize(nnzcolB);
             globalheapVec[myThread].resize(nnzcolB);
-            tmem += (MPI_Wtime() - tmemStart);
         }
         
 

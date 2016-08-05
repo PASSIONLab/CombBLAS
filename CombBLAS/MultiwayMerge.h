@@ -204,8 +204,8 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     
     for(int i=0; i< nsplits; i++)
     {
-        //::operator delete(listMergeTups[i]->tuples);
-        ::operator delete(mergeBuf[i]);
+        //::operator delete(mergeBuf[i]);
+        delete listMergeTups[i]; // it uses ::operator delete interenally to delete tuples
     }
     
     for(int i=0; i< nlists; i++)
