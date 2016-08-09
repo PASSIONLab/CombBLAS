@@ -826,13 +826,12 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
         MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
     
-    rvec.glen = getncol();
-    rvec.arr.resize(rvec.MyLocLength());	// once glen is set, MyLocLength() works
     
     vector <int> sendcnts;
     vector <int> dpls;
     if(colrank==root)
     {
+        
         int proccols = commGrid->GetGridCols();
         IT n_perproc = n_thiscol / proccols;
         sendcnts.resize(proccols);
@@ -843,7 +842,13 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     }
     
     int rowroot = commGrid->GetDiagOfProcRow();
+    int recvcnts = 0;
+    // scatter received data size
+    MPI_Scatter(sendcnts.data(),1, MPI_INT, & recvcnts, 1, MPI_INT, rowroot, commGrid->GetRowWorld());
+    
+    rvec.arr.resize(recvcnts);
     MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.arr.data(), rvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
+    rvec.glen = getncol();
 }
 
 
