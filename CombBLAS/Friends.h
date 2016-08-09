@@ -79,6 +79,7 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 	}
 }
 
+
 /** 
   * Multithreaded SpMV with sparse vector
   * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here

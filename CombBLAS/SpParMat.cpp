@@ -116,6 +116,50 @@ void SpParMat< IT,NT,DER >::FreeMemory ()
 	spSeq = NULL;
 }
 
+// only retain the largest k elements on each column of a matrix
+// if the number of nonzeros in a column is less then k, do nothing
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::TopK(IT k)
+{
+    FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
+    Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
+    IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
+    if(k>maxnnzPerColumn)
+    {
+        SpParHelper::Print("TopK: k is greater then maxNnzInColumn. Returning with no/op...\n");
+        return;
+    }
+
+    IT locm = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
+    vector< vector<NT> > localmat(locm);    // some sort of minimal local copy of matrix
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    {
+        for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
+        {
+            localmat[colit.colid()].push_back(nzit.value());
+        }
+    }
+    
+    vector<NT> medians(locm);   // one per column
+    vector<IT> nnzperc(locm);
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(IT i=0; i<locm; i++)
+    {
+        std::nth_element(localmat[i].begin(), localmat[i].begin() + localmat[i].size()/2, localmat[i].end());
+        medians[i] = localmat[i][localmat[i].size()/2];
+        nnzperc[i] = localmat[i].size();
+    }
+    
+    
+    MPI_Barrier(commGrid->GetColWorld());
+    
+}
+
+
 
 template <class IT, class NT, class DER>
 void SpParMat< IT,NT,DER >::Dump(string filename) const
@@ -580,7 +624,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k) const
 }
 
 // identify the k-th maximum element in each column of a matrix
-// if nonzeros in a column is less then k, return minimum entry
+// if the number of nonzeros in a column is less then k, return minimum entry
 // Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
 // this memory requirement is too high for larger k
 template <class IT, class NT, class DER>
@@ -589,7 +633,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
 {
     if(*rvec.commGrid != *commGrid)
     {
-        SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails!", commGrid->GetWorld());
+        SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
     
@@ -598,13 +642,12 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
     if(k>maxnnzPerColumn)
     {
-#ifdef DEBUG
-        SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Setting k to maxNnzInColumn.\n");
-#endif
-        k = maxnnzPerColumn;
+        SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Calling Reduce instead...\n");
+        Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));
+        return;
     }
     
-    IT n_thiscol = getlocalcols();   // length assigned to this processor column
+    IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
     
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
@@ -799,11 +842,12 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
         partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
     }
     
-    
-    
     int rowroot = commGrid->GetDiagOfProcRow();
     MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.arr.data(), rvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
 }
+
+
+
 
 
 // only defined for symmetric matrix
@@ -956,8 +1000,6 @@ void SpParMat<IT,NT,DER>::MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpV
         SpParHelper::Print("Grids are not comparable, SpParMat::MaskedReduce() fails!", commGrid->GetWorld());
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
-   
-    
     
     int rowneighs = commGrid->GetGridCols();
     int rowrank = commGrid->GetRankInProcRow();

@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM><PHASES>" << endl;
+            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM> <PHASES>" << endl;
             cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
             cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 2" << endl;
         }
@@ -193,13 +193,15 @@ int main(int argc, char* argv[])
         outs.clear();
         outs << "Added loops" << endl;
         SpParHelper::Print(outs.str());
+        A.PrintInfo();
+        
 		float initChaos = Inflate(A, 1); 		// matrix_make_stochastic($mx);
         outs.str("");
         outs.clear();
         outs << "Made stochastic" << endl;
         outs << "Initial chaos = " << initChaos << endl;
         SpParHelper::Print(outs.str());
-       
+        A.PrintInfo();
         
 
 	
@@ -214,8 +216,19 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
-			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
+            double t2 = MPI_Wtime();
+            stringstream ss;
+            ss << "Squared in " << (t2-t1) << " seconds" << endl;
+            SpParHelper::Print(ss.str());
+            A.PrintInfo();
+
+			chaos = Inflate(A, inflation);	// inflate (and renormalize)
+            stringstream sss;
+            sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
+            SpParHelper::Print(sss.str());
+            A.PrintInfo();
+            
 			
             // Prunning is performed inside MemEfficientSpGEMM
             /*
@@ -227,9 +240,9 @@ int main(int argc, char* argv[])
              */
             
             float newbalance = A.LoadImbalance();
-			double t2=MPI_Wtime();
+			double t3=MPI_Wtime();
             stringstream s;
-            s << "Iteration: " << it << " chaos: " << chaos << "  load-balance: "<< newbalance << " time: " << (t2-t1) << endl;
+            s << "Iteration: " << it << " chaos: " << chaos << "  load-balance: "<< newbalance << " time: " << (t3-t1) << endl;
             SpParHelper::Print(s.str());
             it++;
 
