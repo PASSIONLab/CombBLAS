@@ -101,6 +101,7 @@ public:
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & ) const;
+    void TopK(IT k);
 
 	template <typename _BinaryOperation>
 	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
