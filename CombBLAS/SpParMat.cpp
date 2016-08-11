@@ -149,13 +149,54 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
 #endif
     for(IT i=0; i<locm; i++)
     {
+        // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
         std::nth_element(localmat[i].begin(), localmat[i].begin() + localmat[i].size()/2, localmat[i].end());
         medians[i] = localmat[i][localmat[i].size()/2];
         nnzperc[i] = localmat[i].size();
     }
     
+    // two reasons for chunking:
+    // (1) keep memory limited to n/sqrt(p)
+    // (2) avoid overflow in sentcount
+    int colneighs = commGrid->GetGridRows();
+    int chunksize = (int) (locm / colneighs);
+    int iterations = locm / chunksize;
+    int lastchunk = locm - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
     
-    MPI_Barrier(commGrid->GetColWorld());
+    int rankincol = commGrid->GetRankInProcCol();
+    vector<NT> all_medians;
+    vector<IT> nnzs_per_col;
+
+    if(rankincol == 0)
+    {
+        all_medians.resize(lastchunk*colneighs);
+        nnzs_per_col.resize(lastchunk*colneighs);
+    }
+    for(int i=0; i< iterations-1; ++i)  // this loop should not be parallelized if we want to keep storage small
+    {
+        MPI_Gather(medians.data() + i*chunksize, chunksize, MPIType<NT>(), all_medians.data(), chunksize, MPIType<NT>(), 0, commGrid->GetColWorld());
+        MPI_Gather(nnzperc.data() + i*chunksize, chunksize, MPIType<IT>(), nnzs_per_col.data(), chunksize, MPIType<IT>(), 0, commGrid->GetColWorld());
+        
+        vector< pair<double,NT> > weightsNmedians(colneighs);
+        vector<double> columnCounts(chunksize, 0.0);
+
+        for(int j = 0; j < chunksize; ++j)  // for each column
+        {
+            for(int k = 0; k<colneighs; ++k)
+            {
+                columnCounts[j] += nnzs_per_col[k*chunksize+j];
+            }
+            for(int k = 0; k<colneighs; ++k)
+            {
+                weightsNmedians[k] = make_pair(static_cast<double>(nnzs_per_col[k*chunksize + j]) / columnCounts[j], all_medians[k*chunksize + j]);
+            }
+            sort(weightsNmedians.begin(), weightsNmedians.end());
+            // ABAB: Check correctness
+        }
+    }
+
+    MPI_Gather(medians.data() + (iterations-1)*chunksize, lastchunk, MPIType<NT>(), all_medians.data(), lastchunk, MPIType<NT>(), 0, commGrid->GetColWorld());
+
     
 }
 
