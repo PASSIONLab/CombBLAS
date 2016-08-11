@@ -1,6 +1,6 @@
 CFLAGS = -Drestrict=__restrict__ -O2 -fopenmp -DNDEBUG 
 COMBBLAS = ..
-CC = g++-5
+CC = g++
 
 gzstream/libgzstream.a: 
 	$(MAKE) -C gzstream
@@ -23,3 +23,4 @@ clean:
 	rm -f mcl2mtx
 	rm -f *.o
 	rm -f ../Tommy/*.o
+	rm -f gzstream/libgzstream.a
