@@ -290,20 +290,21 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
 
         // select largest k entries
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);
-        FullyDistVec<IU, NUO> kth ( PrunedPieceOfC_mat.getcommgrid());
-        PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here
+        
+        // FullyDistVec<IU, NUO> kth ( PrunedPieceOfC_mat.getcommgrid());
+        // PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
         // inplace prunning. PrunedPieceOfC is purned automatically
-        PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
-  
+        // PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
+        PrunedPieceOfC_mat.TopK(selectPerColumn);
     
 
-        toconcatenate.push_back(*PrunedPieceOfC);
+        toconcatenate.push_back(*PrunedPieceOfC);   // ABAB: Change this to accept pointers to objects
     }
     
     
     UDERO * C = new UDERO(0,C_m, C_n,0);
-    C->ColConcatenate(toconcatenate);
+    C->ColConcatenate(toconcatenate); // ABAB: Change this to accept a vector of pointers to pointers to DER objects
     
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERA::esscount);

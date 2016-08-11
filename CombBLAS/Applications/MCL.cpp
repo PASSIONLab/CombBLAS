@@ -118,13 +118,13 @@ int main(int argc, char* argv[])
     }
     
 	typedef PlusTimesSRing<float, float> PTFF;
-    if(argc < 6)
+    if(argc < 7)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM> <PHASES>" << endl;
-            cout << "Example: ./mcl input.mtx 2 0.0001 500 0" << endl;
-            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 2" << endl;
+            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM> <RANDPERMUTE> [PHASES]" << endl;
+            cout << "Example (0-indexed mtx and random permutation on): ./mcl input.mtx 2 0.0001 500 0 1" << endl;
+            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 1 2" << endl;
         }
         MPI_Finalize();
         return -1;
@@ -135,10 +135,11 @@ int main(int argc, char* argv[])
         int select = atoi(argv[4]);
         int phases = 1;
         ostringstream outs;
-        if(argc > 6)
+        if(argc > 7)
         {
-            phases = atoi(argv[6]);
+            phases = atoi(argv[7]);
         }
+        int randpermute = atoi(argv[6]);
 
 		string ifilename(argv[1]);
 
@@ -159,21 +160,22 @@ int main(int argc, char* argv[])
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
 		SpParHelper::Print(outs.str());
         
-#ifdef RAND_PERMUTE
-        // randomly permute for load balance
-        if(A.getnrow() == A.getncol())
+        if(randpermute)
         {
-            FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
-            p.iota(A.getnrow(), 0);
-            p.RandPerm();
-            (A)(p,p,true);// in-place permute to save memory
-            SpParHelper::Print("Applied symmetric permutation.\n");
+            // randomly permute for load balance
+            if(A.getnrow() == A.getncol())
+            {
+                FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
+                p.iota(A.getnrow(), 0);
+                p.RandPerm();
+                (A)(p,p,true);// in-place permute to save memory
+                SpParHelper::Print("Applied symmetric permutation.\n");
+            }
+            else
+            {
+                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+            }
         }
-        else
-        {
-            SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
-        }
-#endif
         
         
 		float balance = A.LoadImbalance();

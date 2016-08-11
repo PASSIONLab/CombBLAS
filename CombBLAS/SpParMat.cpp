@@ -149,10 +149,18 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
 #endif
     for(IT i=0; i<locm; i++)
     {
-        // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
-        std::nth_element(localmat[i].begin(), localmat[i].begin() + localmat[i].size()/2, localmat[i].end());
-        medians[i] = localmat[i][localmat[i].size()/2];
-        nnzperc[i] = localmat[i].size();
+        if(localmat[i].empty())
+        {
+            medians[i] = (NT) 0;
+            nnzperc[i] = 0;
+        }
+        else
+        {
+            // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
+            std::nth_element(localmat[i].begin(), localmat[i].begin() + localmat[i].size()/2, localmat[i].end());
+            medians[i] = localmat[i][localmat[i].size()/2];
+            nnzperc[i] = localmat[i].size();
+        }
     }
     
     // two reasons for chunking:
@@ -162,36 +170,49 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
     int chunksize = (int) (locm / colneighs);
     int iterations = locm / chunksize;
     int lastchunk = locm - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
-    
+
     int rankincol = commGrid->GetRankInProcCol();
     vector<NT> all_medians;
-    vector<IT> nnzs_per_col;
+    vector<IT> nnz_per_col;
 
     if(rankincol == 0)
     {
         all_medians.resize(lastchunk*colneighs);
-        nnzs_per_col.resize(lastchunk*colneighs);
+        nnz_per_col.resize(lastchunk*colneighs);
     }
     for(int i=0; i< iterations-1; ++i)  // this loop should not be parallelized if we want to keep storage small
     {
         MPI_Gather(medians.data() + i*chunksize, chunksize, MPIType<NT>(), all_medians.data(), chunksize, MPIType<NT>(), 0, commGrid->GetColWorld());
-        MPI_Gather(nnzperc.data() + i*chunksize, chunksize, MPIType<IT>(), nnzs_per_col.data(), chunksize, MPIType<IT>(), 0, commGrid->GetColWorld());
+        MPI_Gather(nnzperc.data() + i*chunksize, chunksize, MPIType<IT>(), nnz_per_col.data(), chunksize, MPIType<IT>(), 0, commGrid->GetColWorld());
         
-        vector< pair<double,NT> > weightsNmedians(colneighs);
-        vector<double> columnCounts(chunksize, 0.0);
-
-        for(int j = 0; j < chunksize; ++j)  // for each column
+        if(rankincol == 0)
         {
-            for(int k = 0; k<colneighs; ++k)
+            vector<double> columnCounts(chunksize, 0.0);
+            
+            vector< pair<NT, double> > mediansNweights(colneighs);  // (median,weight) pairs    [to be reused at each iteration]
+            for(int j = 0; j < chunksize; ++j)  // for each column
             {
-                columnCounts[j] += nnzs_per_col[k*chunksize+j];
+                for(int k = 0; k<colneighs; ++k)
+                {
+                    columnCounts[j] += static_cast<double>(nnz_per_col[k*chunksize+j]);
+                }
+                for(int k = 0; k<colneighs; ++k)
+                {
+                    mediansNweights[k] = make_pair(all_medians[k*chunksize + j], static_cast<double>(nnz_per_col[k*chunksize + j]) / columnCounts[j]);
+                }
+                sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
+                
+                for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
+                cout << endl;
+                
+                double sumofweights = 0;
+                int k = 0;
+                while( k<colneighs && sumofweights < 0.5)
+                {
+                    sumofweights += mediansNweights[k++].second;
+                }
+                cout << "weighted median of " << j << " is " << mediansNweights[k-1].first << endl;
             }
-            for(int k = 0; k<colneighs; ++k)
-            {
-                weightsNmedians[k] = make_pair(static_cast<double>(nnzs_per_col[k*chunksize + j]) / columnCounts[j], all_medians[k*chunksize + j]);
-            }
-            sort(weightsNmedians.begin(), weightsNmedians.end());
-            // ABAB: Check correctness
         }
     }
 
