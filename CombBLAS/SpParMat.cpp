@@ -119,14 +119,14 @@ void SpParMat< IT,NT,DER >::FreeMemory ()
 // only retain the largest k elements on each column of a matrix
 // if the number of nonzeros in a column is less then k, do nothing
 template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::TopK(IT k)
+void SpParMat<IT,NT,DER>::TopK(IT k_limit)
 {
     FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
     Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
-    if(k>maxnnzPerColumn)
+    if(k_limit >= maxnnzPerColumn)
     {
-        SpParHelper::Print("TopK: k is greater then maxNnzInColumn. Returning with no/op...\n");
+        SpParHelper::Print("TopK: k_limit is greater than or equal to maxNnzInColumn. Returning with no/op...\n");
         return;
     }
 
@@ -143,6 +143,8 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
     
     vector<NT> medians(locm);   // one per column
     vector<IT> nnzperc(locm);
+    int rankincol = commGrid->GetRankInProcCol();
+    int myrank = commGrid->GetRank();
     
 #ifdef THREADED
 #pragma omp parallel for
@@ -162,6 +164,20 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
             nnzperc[i] = localmat[i].size();
         }
     }
+    vector<IT> percsum(locm, 0);
+    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());   // TODO: Signal emptiness of these columns
+    int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
+    
+    if(rankincol == 0)
+    {
+        int64_t totactcols;
+        MPI_Reduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
+        if(myrank == 0)
+        {
+            cout << "Number of active columns are " << totactcols << endl;
+        }
+    }
+    
     
     // two reasons for chunking:
     // (1) keep memory limited to n/sqrt(p)
@@ -170,8 +186,7 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
     int chunksize = (int) (locm / colneighs);
     int iterations = locm / chunksize;
     int lastchunk = locm - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
-
-    int rankincol = commGrid->GetRankInProcCol();
+    
     vector<NT> all_medians;
     vector<IT> nnz_per_col;
 
@@ -202,11 +217,11 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
                 }
                 sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
                
-		if(commGrid->GetRank() == 0)
-		{ 
+                if(myrank == 0)
+                {
                 	for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
                 	cout << endl;
-		}
+                }
                 
                 double sumofweights = 0;
                 int k = 0;
@@ -214,7 +229,7 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
                 {
                     sumofweights += mediansNweights[k++].second;
                 }
-		if(commGrid->GetRank() == 0)
+                if(myrank == 0)
                 	cout << "weighted median of " << j << " is " << mediansNweights[k-1].first << endl;
             }
         }
