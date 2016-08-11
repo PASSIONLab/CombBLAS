@@ -25,7 +25,7 @@ void* printfunc(void* arg, void* obj)
     pair<DisjSets*, ofstream*> * mypair = (pair<DisjSets*, ofstream*> *) arg;    // cast argument
     DisjSets * ds = mypair->first;
     ofstream * out = mypair->second;
-    (*out) << ((tommy_object *) obj)->index << "\t" << ds->find( (int) ((tommy_object *) obj)->value) << "\n";
+    (*out) << ((tommy_object *) obj)->vname << "\t" << ds->find( (int) ((tommy_object *) obj)->vid) << "\n";
 }
 
 int main(int argc, char* argv[])
@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
         {
             cout << "This doesn't make sense! " << s_to <<  " should exist" << endl;
         }
-        int set1 = ds.find((int) obj1->value);
-        int set2 = ds.find((int) obj2->value);
+        int set1 = ds.find((int) obj1->vid);
+        int set2 = ds.find((int) obj2->vid);
         if(set1 != set2)
         {
             ds.unionSets(set1, set2);
@@ -135,8 +135,8 @@ int main(int argc, char* argv[])
             {
                 cout << "This doesn't make sense! " << s_to <<  " should exist" << endl;
             }
-            int set1 = ds.find((int) obj1->value);
-            int set2 = ds.find((int) obj2->value);
+            int set1 = ds.find((int) obj1->vid);
+            int set2 = ds.find((int) obj2->vid);
             if(set1 != set2)
             {
                 ds.unionSets(set1, set2);

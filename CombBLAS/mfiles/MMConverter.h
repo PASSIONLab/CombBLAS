@@ -13,6 +13,8 @@
 #include "mmio.h"
 #include <zlib.h>
 #include "../Tommy/tommyhashdyn.h"
+#include "compress_string.h"
+#include "TommyObj.h"
 using namespace std;
 
 #define BATCH 100000000  // 100MB
@@ -33,119 +35,19 @@ string chop_head(const string & full_str, const string & head_str)
 	}
 } 
 
-/** Compress a STL string using zlib with given compression level and return
- * the binary data. */
-string compress_string(const string& str, int compressionlevel = Z_BEST_COMPRESSION)
+
+// typedef void tommy_foreach_arg_func(void* arg, void* obj);
+
+void* shuffledprintfunc(void* arg, void* obj)
 {
-    z_stream zs;                        // z_stream is zlib's control structure
-    memset(&zs, 0, sizeof(zs));
-    
-    if (deflateInit(&zs, compressionlevel) != Z_OK)
-        throw(std::runtime_error("deflateInit failed while compressing."));
-    
-    zs.next_in = (Bytef*)str.data();
-    zs.avail_in = str.size();           // set the z_stream's input
-    
-    int ret;
-    char outbuffer[32768];
-    std::string outstring;
-    
-    // retrieve the compressed bytes blockwise
-    do {
-        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
-        zs.avail_out = sizeof(outbuffer);
-        
-        ret = deflate(&zs, Z_FINISH);
-        
-        if (outstring.size() < zs.total_out) {
-            // append the block to the output string
-            outstring.append(outbuffer,
-                             zs.total_out - outstring.size());
-        }
-    } while (ret == Z_OK);
-    
-    deflateEnd(&zs);
-    
-    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
-        ostringstream oss;
-        oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
-        throw(runtime_error(oss.str()));
-    }
-    
-    return outstring;
-}
-
-/** Decompress an STL string using zlib and return the original data. */
-string decompress_string(const string& str)
-{
-    z_stream zs;                        // z_stream is zlib's control structure
-    memset(&zs, 0, sizeof(zs));
-    
-    if (inflateInit(&zs) != Z_OK)
-        throw(std::runtime_error("inflateInit failed while decompressing."));
-    
-    zs.next_in = (Bytef*)str.data();
-    zs.avail_in = str.size();
-    
-    int ret;
-    char outbuffer[32768];
-    std::string outstring;
-    
-    // get the decompressed bytes blockwise using repeated calls to inflate
-    do {
-        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
-        zs.avail_out = sizeof(outbuffer);
-        
-        ret = inflate(&zs, 0);
-        
-        if (outstring.size() < zs.total_out) {
-            outstring.append(outbuffer,
-                             zs.total_out - outstring.size());
-        }
-        
-    } while (ret == Z_OK);
-    
-    inflateEnd(&zs);
-    
-    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
-        std::ostringstream oss;
-        oss << "Exception during zlib decompression: (" << ret << ") "
-        << zs.msg;
-        throw(std::runtime_error(oss.str()));
-    }
-    
-    return outstring;
-}
-
-
-struct tommy_object {
-    tommy_node node;
-    uint32_t value;
-    string index;
-    
-    tommy_object(uint32_t val, string ind):value(val)
-    {
+    pair<vector<uint32_t>*, ofstream*> * mypair = (pair<vector<uint32_t>*, ofstream*> *) arg;    // cast argument
+    vector<uint32_t> * shuffler = mypair->first;
+    ofstream * out = mypair->second;
 #ifdef COMPRESS_STRING
-	index = compress_string(ind);
+        (*out) << (*shuffler)[((tommy_object *) obj)->vid] << "\t" << decompress_string(((tommy_object *) obj)->vname) << "\n";
 #else
-	index = ind;
+        (*out) << (*shuffler)[((tommy_object *) obj)->vid] << "\t" << ((tommy_object *) obj)->vname << "\n";
 #endif
-    }; // constructor
-
-    string getIndex() const
-    {
-#ifdef COMPRESS_STRING
-	return decompress_string(index);
-#else
-	return index;
-#endif	
-    } 
-};
-
-
-int compare(const void* arg, const void* obj)
-{
-    return *(const string*)arg != ((const tommy_object *)obj)->getIndex();
 }
 
 
@@ -174,8 +76,8 @@ void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, ve
         tommy_object * obj2 = (tommy_object *) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
 
 
-        uint32_t fr_id = shuffler[obj1->value];
-        uint32_t to_id = shuffler[obj2->value];
+        uint32_t fr_id = shuffler[obj1->vid];
+        uint32_t to_id = shuffler[obj2->vid];
         push_to_vectors(rows, cols, vals, fr_id, to_id, vv);
     }
     vector<string>().swap(lines);
@@ -287,8 +189,6 @@ void MMConverter(const string & filename, ofstream & dictout)
     tommy_hashdyn hashdyn;
     tommy_hashdyn_init(&hashdyn);
     
-    vector<string> mymap;
- 
     char from[MAXVERTNAME];
     char to[MAXVERTNAME];
     double vv;
@@ -303,26 +203,16 @@ void MMConverter(const string & filename, ofstream & dictout)
         tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
         if(!obj1)
         {
-            tommy_object * obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
+            tommy_object * obj1 = new tommy_object(vertexid, s_from);   // vertexid is the vid
             tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
-	#ifdef COMPRESS_STRING
-            mymap.push_back(compress_string(s_from));
-	#else
-	    mymap.push_back(s_from);
-	#endif
             ++vertexid; // new entry
         }
         
         tommy_object* obj2 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
         if(!obj2)
         {
-            tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
+            tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the vid
             tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
-	#ifdef COMPRESS_STRING
-            mymap.push_back(compress_string(s_to));
-	#else
-	    mymap.push_back(s_to);
-	#endif
             ++vertexid; // new entry
         }
     }
@@ -349,28 +239,16 @@ void MMConverter(const string & filename, ofstream & dictout)
             tommy_object* obj1 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_from, tommy_hash_u32(0, from, strlen(from)));
             if(!obj1)
             {
-                tommy_object* obj1 = new tommy_object(vertexid, s_from);   // vertexid is the value
+                tommy_object* obj1 = new tommy_object(vertexid, s_from);   // vertexid is the vid
                 tommy_hashdyn_insert(&hashdyn, &(obj1->node), obj1, tommy_hash_u32(0, from, strlen(from)));
-
-	#ifdef COMPRESS_STRING
-            	mymap.push_back(compress_string(s_from));
-	#else
-	    	mymap.push_back(s_from);
-	#endif
                 ++vertexid; // new entry
             }
             
             tommy_object* obj2 = (tommy_object*) tommy_hashdyn_search(&hashdyn, compare, &s_to, tommy_hash_u32(0, to, strlen(to)));
             if(!obj2)
             {
-                tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the value
+                tommy_object* obj2 = new tommy_object(vertexid, s_to);   // vertexid is the vid
                 tommy_hashdyn_insert(&hashdyn, &(obj2->node), obj2, tommy_hash_u32(0, to, strlen(to)));
-
-	#ifdef COMPRESS_STRING
-            	mymap.push_back(compress_string(s_to));
-	#else
-	    	mymap.push_back(s_to);
-	#endif
                 ++vertexid; // new entry
             }
         }
@@ -382,15 +260,10 @@ void MMConverter(const string & filename, ofstream & dictout)
     vector< uint32_t > shuffler(nvertices);
     iota(shuffler.begin(), shuffler.end(), static_cast<uint32_t>(0));
     random_shuffle ( shuffler.begin(), shuffler.end() );
-    
-    for (int i=0; i< mymap.size(); ++i)
-    {
-#ifdef COMPRESS_STRING
-        dictout << shuffler[i] << "\t" << decompress_string(mymap[i]) << "\n";
-#else
-        dictout << shuffler[i] << "\t" << mymap[i] << "\n";
-#endif
-    }
+   
+    pair< vector<uint32_t>*, ofstream*> mypair(&shuffler, &dictout);
+    tommy_hashdyn_foreach_arg(&hashdyn, (tommy_foreach_arg_func *) shuffledprintfunc, &mypair);
+ 
     cout << "Shuffled and wrote dictionary " << endl;
     fclose(f);
     
