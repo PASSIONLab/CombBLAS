@@ -201,9 +201,12 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
                     mediansNweights[k] = make_pair(all_medians[k*chunksize + j], static_cast<double>(nnz_per_col[k*chunksize + j]) / columnCounts[j]);
                 }
                 sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
-                
-                for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
-                cout << endl;
+               
+		if(commGrid->GetRank() == 0)
+		{ 
+                	for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
+                	cout << endl;
+		}
                 
                 double sumofweights = 0;
                 int k = 0;
@@ -211,7 +214,8 @@ void SpParMat<IT,NT,DER>::TopK(IT k)
                 {
                     sumofweights += mediansNweights[k++].second;
                 }
-                cout << "weighted median of " << j << " is " << mediansNweights[k-1].first << endl;
+		if(commGrid->GetRank() == 0)
+                	cout << "weighted median of " << j << " is " << mediansNweights[k-1].first << endl;
             }
         }
     }
