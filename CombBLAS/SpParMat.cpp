@@ -116,6 +116,78 @@ void SpParMat< IT,NT,DER >::FreeMemory ()
 	spSeq = NULL;
 }
 
+
+//! Private function to guide TopK communication and avoid code duplication due to loop ends
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
+                                     const vector<NT> & medians, const vector<IT> & nnzperc, int itersuntil, vector< vector<NT> > & localmat)
+{
+    int rankincol = commGrid->GetRankInProcCol();
+    int myrank = commGrid->GetRank();
+    int colneighs = commGrid->GetGridRows();
+
+    
+    MPI_Gather(medians.data() + itersuntil*chunksize, thischunk, MPIType<NT>(), all_medians.data(), thischunk, MPIType<NT>(), 0, commGrid->GetColWorld());
+    MPI_Gather(nnzperc.data() + itersuntil*chunksize, thischunk, MPIType<IT>(), nnz_per_col.data(), thischunk, MPIType<IT>(), 0, commGrid->GetColWorld());
+    
+    vector<double> finalWeightedMedians(thischunk, 0.0);
+
+    if(rankincol == 0)
+    {
+        vector<double> columnCounts(thischunk, 0.0);
+        
+        vector< pair<NT, double> > mediansNweights(colneighs);  // (median,weight) pairs    [to be reused at each iteration]
+        for(int j = 0; j < thischunk; ++j)  // for each column
+        {
+            for(int k = 0; k<colneighs; ++k)
+            {
+                columnCounts[j] += static_cast<double>(nnz_per_col[k*thischunk+j]);
+            }
+            for(int k = 0; k<colneighs; ++k)
+            {
+                mediansNweights[k] = make_pair(all_medians[k*thischunk + j], static_cast<double>(nnz_per_col[k*thischunk + j]) / columnCounts[j]);
+            }
+            sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
+            
+            if(myrank == 0)
+            {
+                for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
+                cout << endl;
+            }
+            
+            double sumofweights = 0;
+            int k = 0;
+            while( k<colneighs && sumofweights < 0.5)
+            {
+                sumofweights += mediansNweights[k++].second;
+            }
+            if(myrank == 0)
+            {
+                cout << "weighted median of " << j+itersuntil*chunksize << " is " << mediansNweights[k-1].first << endl;
+                finalWeightedMedians[j] = mediansNweights[k-1].first;
+            }
+        }
+    }
+    MPI_Bcast(finalWeightedMedians.data(), thischunk, MPIType<double>(), 0, commGrid->GetColWorld());
+    
+    for(int j = 0; j < thischunk; ++j)  // for each column
+    {
+        vector<NT> survivors;
+        for(size_t k = 0; k < localmat[j+itersuntil*chunksize].size(); ++k)
+        {
+            if(localmat[j+itersuntil*chunksize][k] >= finalWeightedMedians[j]) // keep only these above the median
+            {
+                survivors.push_back(localmat[j+itersuntil*chunksize][k]);
+            }
+        }
+        localmat[j+itersuntil*chunksize].swap(survivors);
+        if(myrank == 0)
+        {
+            cout << "remains " << localmat[j+itersuntil*chunksize].size() << " entries out of " << survivors.size();
+        }
+    }
+}
+
 // only retain the largest k elements on each column of a matrix
 // if the number of nonzeros in a column is less then k, do nothing
 template <class IT, class NT, class DER>
@@ -197,47 +269,10 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
     }
     for(int i=0; i< iterations-1; ++i)  // this loop should not be parallelized if we want to keep storage small
     {
-        MPI_Gather(medians.data() + i*chunksize, chunksize, MPIType<NT>(), all_medians.data(), chunksize, MPIType<NT>(), 0, commGrid->GetColWorld());
-        MPI_Gather(nnzperc.data() + i*chunksize, chunksize, MPIType<IT>(), nnz_per_col.data(), chunksize, MPIType<IT>(), 0, commGrid->GetColWorld());
-        
-        if(rankincol == 0)
-        {
-            vector<double> columnCounts(chunksize, 0.0);
-            
-            vector< pair<NT, double> > mediansNweights(colneighs);  // (median,weight) pairs    [to be reused at each iteration]
-            for(int j = 0; j < chunksize; ++j)  // for each column
-            {
-                for(int k = 0; k<colneighs; ++k)
-                {
-                    columnCounts[j] += static_cast<double>(nnz_per_col[k*chunksize+j]);
-                }
-                for(int k = 0; k<colneighs; ++k)
-                {
-                    mediansNweights[k] = make_pair(all_medians[k*chunksize + j], static_cast<double>(nnz_per_col[k*chunksize + j]) / columnCounts[j]);
-                }
-                sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
-               
-                if(myrank == 0)
-                {
-                	for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
-                	cout << endl;
-                }
-                
-                double sumofweights = 0;
-                int k = 0;
-                while( k<colneighs && sumofweights < 0.5)
-                {
-                    sumofweights += mediansNweights[k++].second;
-                }
-                if(myrank == 0)
-                	cout << "weighted median of " << j << " is " << mediansNweights[k-1].first << endl;
-            }
-        }
+        TopKGather(all_medians, nnz_per_col, chunksize, chunksize, medians, nnzperc, i, localmat);
     }
 
-    MPI_Gather(medians.data() + (iterations-1)*chunksize, lastchunk, MPIType<NT>(), all_medians.data(), lastchunk, MPIType<NT>(), 0, commGrid->GetColWorld());
-
-    
+    TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, medians, nnzperc, (iterations-1), localmat);
 }
 
 
