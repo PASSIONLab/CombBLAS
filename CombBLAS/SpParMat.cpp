@@ -798,13 +798,18 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOpera
     // a copy of local part of the matrix
     // this can be avoided if we write our own local kselect function instead of using partial_sort
     vector<VT> localmat(spSeq->getnnz());
-   
+
+/*
 #ifdef THREADED
 #pragma omp parallel for
 #endif
     for (IT i=0; i<spSeq->getnzc(); ++i) // for every nonzero column (defined in this way to help OpenMP)
+    typename DER::SpColIter colit = spSeq->begcol() + i;
+ // Note: this was a problem because "::getnzc() is only defined for DCSC"
+*/
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
     {
-        typename DER::SpColIter colit = spSeq->begcol() + i;
         IT colid = colit.colid();
         IT idx = local_coldisp[colid];
         for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
