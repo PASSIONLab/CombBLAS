@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 	{
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
-        int select = atoi(argv[4]);
+        int64_t select = atoi(argv[4]);
         int phases = 1;
         ostringstream outs;
         if(argc > 7)

@@ -178,6 +178,44 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 }	
 
 
+// local function
+template <typename IT, typename NT, typename DER>
+bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct)
+{
+    FullyDistVec<IT,NT> colSums = A.Reduce(Column, plus<NT>(), 0.0);
+    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+    
+    // columns with nnz < recoverNum (r)
+    FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(greater<NT>(), recoverNum));
+    // columns with nnz < r AND sum < recoverPct (pct)
+    recoverCols = EWiseApply<NT>(recoverCols, colSums,
+                                  [](NT degree, NT sum){return degree;},
+                                  bind(less<NT>(), placeholders::_1, recoverPct),
+                                  true, NT());
+    
+    if(recoverCols.getnnz() > 0) // at least one column needs recovery
+    {
+        AOriginal.TopK(recoverNum);
+        return true;
+    }
+    else return false;
+}
+
+
+// local function
+template <typename IT, typename NT, typename DER>
+bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
+{
+    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+    FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
+    if(selectCols.getnnz() > 0)
+    {
+        A.TopK(selectNum);
+        return true;
+    }
+    else return false;
+}
+
 
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
@@ -185,7 +223,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold, int selectPerColumn)
+                                           int phases, NUO hardThreshold = 0.00025, IU selectNum = 500, IU recoverNum = 600, NUO recoverPct = .9)
 {
     
     if(A.getncol() != B.getnrow())
@@ -283,23 +321,45 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
         delete OnePieceOfC_tuples;
-        //UDERO * OnePieceOfC = new UDERO(* MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false); // this was the bug
+        
+        // Prune
         UDERO * PrunedPieceOfC  = OnePieceOfC->Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
         // Recover using OnePieceOfC if too sparse
-        delete OnePieceOfC;
+        //delete OnePieceOfC;
+        
+        
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
+        SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
         
 
-        // select largest k entries
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here
         
+        if (MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+        {
+            // ABAB: Change this to accept pointers to objects
+            toconcatenate.push_back(*OnePieceOfC); // making a copy here
+        }
+        else if(MCLSelect(PrunedPieceOfC_mat, selectNum))
+        {
+            if (MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+            {
+                toconcatenate.push_back(*OnePieceOfC);
+            }
+            else
+            {
+                toconcatenate.push_back(*PrunedPieceOfC);
+            }
+        }
+        else
+        {
+            toconcatenate.push_back(*PrunedPieceOfC);
+        }
+        
+        // **** this logic moved to MCLRecovery and MCLSelect functions ****
         // FullyDistVec<IU, NUO> kth ( PrunedPieceOfC_mat.getcommgrid());
-        // PrunedPieceOfC_mat.Kselect(kth, selectPerColumn);
+        // PrunedPieceOfC_mat.Kselect(kth, selectNum);
         // inplace prunning. PrunedPieceOfC is purned automatically
         // PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
-        PrunedPieceOfC_mat.TopK(selectPerColumn);
-    
-
-        toconcatenate.push_back(*PrunedPieceOfC);   // ABAB: Change this to accept pointers to objects
+        // PrunedPieceOfC_mat.TopK(selectNum);
     }
     
     
