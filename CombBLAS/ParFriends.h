@@ -333,14 +333,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
 
         
-        if (MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
         {
             // ABAB: Change this to accept pointers to objects
             toconcatenate.push_back(*OnePieceOfC); // making a copy here
         }
-        else if(MCLSelect(PrunedPieceOfC_mat, selectNum))
+        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum))
         {
-            if (MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
             {
                 toconcatenate.push_back(*OnePieceOfC);
             }
