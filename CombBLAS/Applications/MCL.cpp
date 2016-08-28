@@ -65,28 +65,32 @@ void Interpret(const Dist::MPI_DCCols & A)
 	// Placeholder
 }
 
-
-float Inflate(Dist::MPI_DCCols & A, float power)
+void MakeColStochastic(Dist::MPI_DCCols & A)
 {
-   
-	A.Apply(bind2nd(exponentiate(), power));
-	{
-		// Reduce (Column): pack along the columns, result is a vector of size n
-		Dist::MPI_DenseVec colsums = A.Reduce(Column, plus<float>(), 0.0);
-		colsums.Apply(safemultinv<float>());
-		A.DimApply(Column, colsums, multiplies<float>());	// scale each "Column" with the given vector
+    Dist::MPI_DenseVec colsums = A.Reduce(Column, plus<float>(), 0.0);
+    colsums.Apply(safemultinv<float>());
+    A.DimApply(Column, colsums, multiplies<float>());	// scale each "Column" with the given vector
+}
 
-#ifdef COMBBLAS_DEBUG
-		colsums = A.Reduce(Column, plus<float>(), 0.0);
-		colsums.PrintToFile("colnormalizedsums"); 
-#endif		
-	}
-	// After normalization, each column of A is now a stochastic vector
-	Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<float>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
-	// Matrix entries are non-negative, so max() can use zero as identity
+float Chaos(Dist::MPI_DCCols & A)
+{
+    // sums of squares of columns
+    Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<float>(), 0.0, bind2nd(exponentiate(), 2));
+    // Matrix entries are non-negative, so max() can use zero as identity
     Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 0.0);
-	colmaxs -= colssqs;	// chaos indicator
-	return colmaxs.Reduce(maximum<float>(), 0.0);
+    colmaxs -= colssqs;
+    
+    // multiplu by number of nonzeros in each column
+    Dist::MPI_DenseVec nnzPerColumn = A.Reduce(Column, plus<float>(), 0.0, [](float val){return 1.0;});
+    colmaxs.EWiseApply(nnzPerColumn, multiplies<float>());
+    
+    return colmaxs.Reduce(maximum<float>(), 0.0);
+}
+
+
+void Inflate(Dist::MPI_DCCols & A, float power)
+{
+	A.Apply(bind2nd(exponentiate(), power));
 }
 
 
@@ -132,7 +136,7 @@ int main(int argc, char* argv[])
 	{
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
-        int select = atoi(argv[4]);
+        int64_t select = atoi(argv[4]);
         int phases = 1;
         ostringstream outs;
         if(argc > 7)
@@ -197,7 +201,8 @@ int main(int argc, char* argv[])
         SpParHelper::Print(outs.str());
         A.PrintInfo();
         
-		float initChaos = Inflate(A, 1); 		// matrix_make_stochastic($mx);
+        Inflate(A, 1); 		// matrix_make_stochastic($mx);
+        float initChaos = Chaos(A);
         outs.str("");
         outs.clear();
         outs << "Made stochastic" << endl;
@@ -218,14 +223,18 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
-
+            MakeColStochastic(A);
             double t2 = MPI_Wtime();
             stringstream ss;
             ss << "Squared in " << (t2-t1) << " seconds" << endl;
             SpParHelper::Print(ss.str());
             A.PrintInfo();
 
-			chaos = Inflate(A, inflation);	// inflate (and renormalize)
+            chaos = Chaos(A);
+            
+			Inflate(A, inflation);	// inflate (and renormalize)
+            MakeColStochastic(A);
+            
             stringstream sss;
             sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
             SpParHelper::Print(sss.str());
