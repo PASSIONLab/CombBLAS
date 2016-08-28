@@ -170,21 +170,32 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     }
     MPI_Bcast(finalWeightedMedians.data(), thischunk, MPIType<double>(), 0, commGrid->GetColWorld());
     
+    vector<IT> larger(thischunk, 0);
+    vector<IT> smaller(thischunk, 0);
+    vector<IT> equal(thischunk, 0);
+
     for(int j = 0; j < thischunk; ++j)  // for each column
     {
-        vector<NT> survivors;
+        // vector<NT> survivors;
         for(size_t k = 0; k < localmat[j+itersuntil*chunksize].size(); ++k)
         {
-            if(localmat[j+itersuntil*chunksize][k] >= finalWeightedMedians[j]) // keep only these above the median
-            {
-                survivors.push_back(localmat[j+itersuntil*chunksize][k]);
-            }
+            // count those above/below/equal to the median
+            if(localmat[j+itersuntil*chunksize][k] > finalWeightedMedians[j])
+                larger[j]++;
+            else if(localmat[j+itersuntil*chunksize][k] < finalWeightedMedians[j])
+                smaller[j]++;
+            else
+                equal[j]++;
         }
-        localmat[j+itersuntil*chunksize].swap(survivors);
-        if(myrank == 0)
-        {
-            cout << "remains " << localmat[j+itersuntil*chunksize].size() << " entries out of " << survivors.size();
-        }
+        // localmat[j+itersuntil*chunksize].swap(survivors);
+    }
+    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());   // TODO: Signal emptiness of these columns
+    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());   // TODO: Signal emptiness of these columns
+    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());   // TODO: Signal emptiness of these columns
+
+    if(myrank == 0)
+    {
+        cout << "remains " << localmat[j+itersuntil*chunksize].size() << " entries out of " << survivors.size() << endl;
     }
 }
 
