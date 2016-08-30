@@ -102,7 +102,7 @@ public:
 	 * @pre {should only be called on diagonal processors (others will add non-loop nonzeros)}
 	 * @pre {both the implementation and its semantics is meaningless for non-square matrices}
 	 **/
-	IT AddLoops(NT loopval)
+	IT AddLoops(NT loopval, bool replaceExisting=false)
 	{
 		vector<bool> existing(n,false);	// none of the diagonals exist	
 		IT loop = 0;
@@ -112,6 +112,8 @@ public:
 			{	
 				++loop;
 				existing[joker::get<0>(tuples[i])] = true;
+                if(replaceExisting)
+                    joker::get<2>(tuples[i]) = loopval;
 			}
 		}
 		vector<IT> missingindices;
@@ -137,6 +139,47 @@ public:
         
 		return loop;
 	}
+    
+    
+    /**
+     * @pre {should only be called on diagonal processors (others will add non-loop nonzeros)}
+     * @pre {both the implementation and its semantics is meaningless for non-square matrices}
+     **/
+    IT AddLoops(vector<NT> loopvals, bool replaceExisting=false)
+    {
+        assert(n == loopvals.size());
+        vector<bool> existing(n,false);	// none of the diagonals exist
+        IT loop = 0;
+        for(IT i=0; i< nnz; ++i)
+        {
+            if(joker::get<0>(tuples[i]) == joker::get<1>(tuples[i]))
+            {
+                ++loop;
+                existing[joker::get<0>(tuples[i])] = true;
+                if(replaceExisting)
+                    joker::get<2>(tuples[i]) = loopvals[joker::get<0>(tuples[i])];
+            }
+        }
+        vector<IT> missingindices;
+        for(IT i = 0; i < n; ++i)
+        {
+            if(!existing[i])	missingindices.push_back(i);
+        }
+        IT toadd = n - loop;	// number of new entries needed (equals missingindices.size())
+        tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz+toadd];
+        
+        copy(tuples,tuples+nnz, ntuples);
+        
+        for(IT i=0; i< toadd; ++i)
+        {
+            ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopvals[missingindices[i]]);
+        }
+        delete [] tuples;
+        tuples = ntuples;
+        nnz = nnz+toadd;
+        
+        return loop;
+    }
 
 	/**
 	 *  @pre {should only be called on diagonal processors (others will remove non-loop nonzeros)}
