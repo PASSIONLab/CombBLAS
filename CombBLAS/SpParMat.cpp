@@ -231,7 +231,8 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
         }
         else  // larger[j] < klimits[j] &&  klimits[j] <= larger[j] + equal[j]
         {
-            cout << fetchindex << " hit the result " << finalWeightedMedians[j] << equal[j] << " times." << endl;
+            cout << fetchindex << " hit the result " << finalWeightedMedians[j] << " " << equal[j] << " times:" << endl;
+
             // TODO: if there are multiple equal entries; we have to choose some arbitrarily
             converged.push_back(j+itersuntil*chunksize);    // items to remove from actcolsmap
         }
