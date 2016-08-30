@@ -203,7 +203,8 @@ int main(int argc, char* argv[])
         
         double tstart = MPI_Wtime();
         
-        
+        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 0.0);
+        //A.AddLoops(colmaxs, true);
 		A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
         outs.str("");
         outs.clear();
