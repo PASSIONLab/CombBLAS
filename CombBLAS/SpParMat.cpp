@@ -2091,7 +2091,7 @@ void SpParMat<IT,NT,DER>::AddLoops(FullyDistVec<IT,NT> loopvals, bool replaceExi
     
     if(*loopvals.commGrid != *commGrid)
     {
-        SpParHelper::Print("Grids are not comparable, SpParMat::AddLoops() fails!", commGrid->GetWorld());
+        SpParHelper::Print("Grids are not comparable, SpParMat::AddLoops() fails!\n", commGrid->GetWorld());
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
     if (getncol()!= loopvals.TotalLength())
@@ -2100,15 +2100,20 @@ void SpParMat<IT,NT,DER>::AddLoops(FullyDistVec<IT,NT> loopvals, bool replaceExi
         MPI_Abort(MPI_COMM_WORLD,DIMMISMATCH);
     }
     
-    int diagProc = commGrid->GetDiagOfProcRow();
+    // Gather data on the diagonal processor
     IT locsize = loopvals.LocArrSize();
-    IT rowsize = 0;
-    
-    MPI_Reduce(&locsize, &rowsize, 1, MPIType<IT>(),
-               MPI_SUM, commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
-    vector<NT> rowvals(rowsize);
-	MPI_Gather(loopvals.arr.data(), locsize, MPIType<NT>(), rowvals.data(), rowsize, MPIType<NT>(), commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
-    
+    int rowProcs = commGrid->GetGridCols();
+    vector<int> recvcnt(rowProcs, 0);
+    vector<int> rdpls(rowProcs, 0);
+    MPI_Gather(&locsize, 1, MPI_INT, recvcnt.data(), 1, MPI_INT, commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
+    partial_sum(recvcnt.data(), recvcnt.data()+rowProcs-1, rdpls.data()+1);
+
+    IT totrecv = rdpls[rowProcs-1] + recvcnt[rowProcs-1];
+    vector<NT> rowvals(totrecv);
+	MPI_Gatherv(loopvals.arr.data(), locsize, MPIType<NT>(), rowvals.data(), recvcnt.data(), rdpls.data(),
+                 MPIType<NT>(), commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
+
+   
     MPI_Comm DiagWorld = commGrid->GetDiagWorld();
     if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
     {

@@ -147,7 +147,8 @@ public:
      **/
     IT AddLoops(vector<NT> loopvals, bool replaceExisting=false)
     {
-        assert(n == loopvals.size());
+        // expectation n == loopvals.size())
+        
         vector<bool> existing(n,false);	// none of the diagonals exist
         IT loop = 0;
         for(IT i=0; i< nnz; ++i)
@@ -177,7 +178,6 @@ public:
         delete [] tuples;
         tuples = ntuples;
         nnz = nnz+toadd;
-        
         return loop;
     }
 
