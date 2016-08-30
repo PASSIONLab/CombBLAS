@@ -122,13 +122,13 @@ int main(int argc, char* argv[])
     }
     
 	typedef PlusTimesSRing<float, float> PTFF;
-    if(argc < 7)
+    if(argc < 9)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <BASE_OF_MM> <RANDPERMUTE> [PHASES]" << endl;
-            cout << "Example (0-indexed mtx and random permutation on): ./mcl input.mtx 2 0.0001 500 0 1" << endl;
-            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 0 1 2" << endl;
+            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <RECOVER NUMBER> <RECOVER PCT> <BASE_OF_MM> <RANDPERMUTE> [PHASES]" << endl;
+            cout << "Example (0-indexed mtx and random permutation on): ./mcl input.mtx 2 0.0001 500 600 0.9 0 1" << endl;
+            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 600 0.9 0 1 2" << endl;
         }
         MPI_Finalize();
         return -1;
