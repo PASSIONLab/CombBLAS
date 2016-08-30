@@ -2068,7 +2068,7 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 
 
 template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::AddLoops(NT loopval)
+void SpParMat<IT,NT,DER>::AddLoops(NT loopval, bool replaceExisting)
 {
 	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
@@ -2076,11 +2076,51 @@ void SpParMat<IT,NT,DER>::AddLoops(NT loopval)
     		typedef typename DER::LocalIT LIT;
 		SpTuples<LIT,NT> tuples(*spSeq);
 		delete spSeq;
-		tuples.AddLoops(loopval);
+		tuples.AddLoops(loopval, replaceExisting);
         	tuples.SortColBased();
 		spSeq = new DER(tuples, false);	// Convert to DER
 	}
 }
+
+
+// Different values on the diagonal
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::AddLoops(FullyDistVec<IT,NT> loopvals, bool replaceExisting)
+{
+    
+    
+    if(*loopvals.commGrid != *commGrid)
+    {
+        SpParHelper::Print("Grids are not comparable, SpParMat::AddLoops() fails!", commGrid->GetWorld());
+        MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
+    }
+    if (getncol()!= loopvals.TotalLength())
+    {
+        SpParHelper::Print("The number of entries in loopvals is not equal to the number of diagonal entries.\n");
+        MPI_Abort(MPI_COMM_WORLD,DIMMISMATCH);
+    }
+    
+    int diagProc = commGrid->GetDiagOfProcRow();
+    IT locsize = loopvals.LocArrSize();
+    IT rowsize = 0;
+    
+    MPI_Reduce(&locsize, &rowsize, 1, MPIType<IT>(),
+               MPI_SUM, commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
+    vector<NT> rowvals(rowsize);
+	MPI_Gather(loopvals.arr.data(), locsize, MPIType<NT>(), rowvals.data(), rowsize, MPIType<NT>(), commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
+    
+    MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+    if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
+    {
+        typedef typename DER::LocalIT LIT;
+        SpTuples<LIT,NT> tuples(*spSeq);
+        delete spSeq;
+        tuples.AddLoops(rowvals, replaceExisting);
+        tuples.SortColBased();
+        spSeq = new DER(tuples, false);	// Convert to DER
+    }
+}
+
 
 //! Pre-allocates buffers for row communication
 //! additionally (if GATHERVOPT is defined, incomplete as of March 2016):
