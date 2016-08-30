@@ -138,12 +138,18 @@ int main(int argc, char* argv[])
 		float prunelimit = atof(argv[3]);
         int64_t select = atoi(argv[4]);
         int phases = 1;
-        ostringstream outs;
         if(argc > 7)
         {
             phases = atoi(argv[7]);
         }
         int randpermute = atoi(argv[6]);
+        
+        ostringstream runinfo;
+        runinfo << "Running with... " << endl;
+        runinfo << "Inflation: " << inflation << endl;
+        runinfo << "Prunelimit: " << prunelimit << endl;
+        runinfo << "Maximum column nonzeros: " << select << " in " << phases << " phases "<< endl;
+        SpParHelper::Print(runinfo.str());
 
 		string ifilename(argv[1]);
 
@@ -159,8 +165,7 @@ int main(int argc, char* argv[])
             A.ParallelReadMM(ifilename, true, maximum<float>());
 		}
 		
-        outs.str("");
-        outs.clear();
+        ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
 		SpParHelper::Print(outs.str());
         
