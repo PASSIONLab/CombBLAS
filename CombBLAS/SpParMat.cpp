@@ -126,7 +126,7 @@ template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
                                      const vector<NT> & activemedians, const vector<IT> & activennzperc, int itersuntil,
                                      vector< vector<NT> > & localmat, const vector<IT> & actcolsmap, vector<IT> & klimits,
-                                     vector<IT> & converged )
+                                     vector<IT> & toretain )
 {
     int rankincol = commGrid->GetRankInProcCol();
     int myrank = commGrid->GetRank();
@@ -214,6 +214,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                     survivors.push_back(localmat[fetchindex][k]);
             }
             localmat[fetchindex].swap(survivors);
+            toretain.push_back(j+itersuntil*chunksize);    // items to retain in actcolsmap
         }
         else if (klimits[j] > larger[j] + equal[j]) // the elements that are either larger or equal-to are surely keepers, no need to reprocess them
         {
@@ -223,9 +224,11 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                 if(localmat[fetchindex][k] < finalWeightedMedians[j])  // keep only the small guys (even equal guys go)
                     survivors.push_back(localmat[fetchindex][k]);
             }
+            cout << fetchindex << ": Swapping " << localmat[fetchindex].size() << " with " << survivors.size() << ", updating " << klimits[j] << " with " << klimits[j] - (larger[j] + equal[j]) << endl;
             localmat[fetchindex].swap(survivors);
             
             klimits[j] -= (larger[j] + equal[j]);   // update the k limit for this column only
+            toretain.push_back(j+itersuntil*chunksize);    // items to retain in actcolsmap
         }
         else  // larger[j] < klimits[j] &&  klimits[j] <= larger[j] + equal[j]
         {
@@ -238,7 +241,6 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             localmat[fetchindex].swap(survivors);
             if(rankincol == 0)
                 cout << fetchindex << " hit the result " << finalWeightedMedians[j] << " " << equal[j] << " times, retaining " << localmat[fetchindex].size() << endl;
-            converged.push_back(j+itersuntil*chunksize);    // items to remove from actcolsmap
         }
     }
 }
@@ -248,6 +250,8 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::TopK(IT k_limit)
 {
+    PrintInfo();
+    
     FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
     Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
@@ -295,14 +299,19 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         }
     }
     vector<IT> percsum(locm, 0);
-    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());   // TODO: Signal emptiness of these columns
+    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
     int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
+    int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
+
     
     if(rankincol == 0)
     {
-        int64_t totactcols;
+        int64_t totactcols, totactnnzs;
         MPI_Reduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
+        MPI_Reduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
+        if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
         if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+
     }
     vector<IT> actcolsmap(activecols);  // the map that gives the original index of that active column (this map will shrink over iterations)
     for (IT i=0, j=0; i< locm; ++i) {
@@ -313,6 +322,7 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
     vector<NT> all_medians;
     vector<IT> nnz_per_col;
     int colneighs = commGrid->GetGridRows();
+    vector<IT> klimits(activecols, k_limit); // is distributed management of this vector needed?
     
     while(activecols > 0)
     {
@@ -332,9 +342,18 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
             activennzperc[i] = nnzperc[actcolsmap[i]];
         }
         
-        vector<IT> converged;
-        vector<IT> klimits(activecols, k_limit); // is distributed management of this vector needed?
+        percsum.resize(activecols, 0);
+        MPI_Allreduce(activennzperc.data(), percsum.data(), activecols, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
+        activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
         
+        if(rankincol == 0)
+        {
+            int64_t totactnnzs;
+            MPI_Reduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
+            if(myrank == 0)   cout << "Number of active nonzeros are " << totactnnzs << endl;
+        }
+        
+        vector<IT> toretain;
         if(rankincol == 0)
         {
             all_medians.resize(lastchunk*colneighs);
@@ -342,16 +361,22 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         }
         for(int i=0; i< iterations-1; ++i)  // this loop should not be parallelized if we want to keep storage small
         {
-            TopKGather(all_medians, nnz_per_col, chunksize, chunksize, medians, nnzperc, i, localmat, actcolsmap, klimits, converged);
+            TopKGather(all_medians, nnz_per_col, chunksize, chunksize, activemedians, activennzperc, i, localmat, actcolsmap, klimits, toretain);
         }
+        TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, activemedians, activennzperc, (iterations-1), localmat, actcolsmap, klimits, toretain);
         
-        TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, medians, nnzperc, (iterations-1), localmat, actcolsmap, klimits, converged);
-        
-        vector<IT> newactivecols;
-        set_difference(actcolsmap.begin(), actcolsmap.end(), converged.begin(), converged.end(), std::back_inserter(newactivecols));
+        vector<IT> newactivecols(toretain.size());
+        vector<IT> newklimits(toretain.size());
+        IT newindex = 0;
+        for(auto & retind : toretain )
+        {
+            newactivecols[newindex] = actcolsmap[retind];
+            newklimits[newindex++] = klimits[retind];
+        }
         actcolsmap.swap(newactivecols);
+        klimits.swap(newklimits);
         activecols = actcolsmap.size();
-
+        
         if(rankincol == 0)
         {
             int64_t totactcols;
