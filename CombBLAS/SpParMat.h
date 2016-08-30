@@ -144,7 +144,8 @@ public:
 	}
 
 	IT RemoveLoops();	// returns the number of loops removed
-	void AddLoops(NT loopval);
+	void AddLoops(NT loopval, bool replaceExisting=false);
+    void AddLoops(FullyDistVec<IT,NT> loopvals, bool replaceExisting=false);
 	
 	template <typename LIT, typename OT>
 	void OptimizeForGraph500(OptBuf<LIT,OT> & optbuf);
