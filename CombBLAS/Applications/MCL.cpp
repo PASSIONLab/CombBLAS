@@ -137,17 +137,22 @@ int main(int argc, char* argv[])
 		float inflation = atof(argv[2]);
 		float prunelimit = atof(argv[3]);
         int64_t select = atoi(argv[4]);
+        int64_t recover_num = atoi(argv[5]);
+        float recover_pct = atoi(argv[6]);
+        
         int phases = 1;
-        if(argc > 7)
+        if(argc > 9)
         {
-            phases = atoi(argv[7]);
+            phases = atoi(argv[9]);
         }
-        int randpermute = atoi(argv[6]);
+        int randpermute = atoi(argv[8]);
         
         ostringstream runinfo;
         runinfo << "Running with... " << endl;
         runinfo << "Inflation: " << inflation << endl;
         runinfo << "Prunelimit: " << prunelimit << endl;
+        runinfo << "Recover number: " << recover_num << endl;
+        runinfo << "Recover percent: " << recover_pct << endl;
         runinfo << "Maximum column nonzeros: " << select << " in " << phases << " phases "<< endl;
         SpParHelper::Print(runinfo.str());
 
@@ -155,7 +160,7 @@ int main(int argc, char* argv[])
 
         double tIO = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
-		if(string(argv[5]) == "0")
+		if(string(argv[7]) == "0")
 		{
             SpParHelper::Print("Treating input zero based\n");
             A.ParallelReadMM(ifilename, false, maximum<float>());	// use zero-based indexing for matrix-market file
@@ -227,7 +232,7 @@ int main(int argc, char* argv[])
 		{
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select);
+            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
             MakeColStochastic(A);
             double t2 = MPI_Wtime();
             stringstream ss;
