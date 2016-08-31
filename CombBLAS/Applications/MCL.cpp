@@ -93,12 +93,9 @@ void Inflate(Dist::MPI_DCCols & A, float power)
 	A.Apply(bind2nd(exponentiate(), power));
 }
 
-
 int main(int argc, char* argv[])
 {
-    
     int provided;
-    
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
     if (provided < MPI_THREAD_SERIALIZED)
     {
@@ -111,7 +108,6 @@ int main(int argc, char* argv[])
     {
         nthreads = omp_get_num_threads();
     }
-    
 
 	int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -122,54 +118,82 @@ int main(int argc, char* argv[])
     }
     
 	typedef PlusTimesSRing<float, float> PTFF;
-    if(argc < 9)
+    if(argc < 3)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./mcl <FILENAME_MATRIX_MARKET> <INFLATION> <PRUNELIMIT> <KSELECT> <RECOVER NUMBER> <RECOVER PCT> <BASE_OF_MM> <RANDPERMUTE> [PHASES]" << endl;
-            cout << "Example (0-indexed mtx and random permutation on): ./mcl input.mtx 2 0.0001 500 600 0.9 0 1" << endl;
-            cout << "Example with two phases in SpGEMM: ./mcl input.mtx 2 0.0001 500 600 0.9 0 1 2" << endl;
+            cout << "Usage: ./mcl -M <FILENAME_MATRIX_MARKET> (required)\n";
+            cout << "-I <INFLATION> (default: 2)\n";
+            cout << "-p <CUTOFF> (default: 1/10000)\n";
+            cout << "-S <SELECTION NUMBER> (default: 1100)\n";
+            cout << "-R <RECOVER NUMBER> (default: 900)\n";
+            cout << "-pct <RECOVER PCT> (default: 90)\n";
+            cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
+            cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
+            cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
+            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 500 -R 600 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
         }
         MPI_Finalize();
         return -1;
     }
 	{
-		float inflation = atof(argv[2]);
-		float prunelimit = atof(argv[3]);
-        int64_t select = atoi(argv[4]);
-        int64_t recover_num = atoi(argv[5]);
-        float recover_pct = atoi(argv[6]);
-        
+        string ifilename = "";
+        float inflation = 2.0;
+        float prunelimit = 1.0/10000.0;
+        int64_t select = 1100;
+        int64_t recover_num = 900;
+        float recover_pct = 90.0;
+        int base = 1;
+        int randpermute = 0;
         int phases = 1;
-        if(argc > 9)
-        {
-            phases = atoi(argv[9]);
-        }
-        int randpermute = atoi(argv[8]);
         
+        for (int i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i],"-M")==0){
+                ifilename = string(argv[i+1]);
+                if(myrank == 0) printf("filename: %s",ifilename.c_str());}
+            else if (strcmp(argv[i],"-I")==0){
+                inflation = atof(argv[i + 1]);
+                if(myrank == 0) printf("Inflation: %f",inflation);
+            } else if (strcmp(argv[i],"-p")==0) {
+                prunelimit = atof(argv[i + 1]);
+                if(myrank == 0) printf("\nCutoff:%f",prunelimit);
+            } else if (strcmp(argv[i],"-S")==0) {
+                select = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nSelection Number:%d",select);
+            } else if (strcmp(argv[i],"-R")==0) {
+                recover_num = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nRecovery Number:%d",recover_num);
+            } else if (strcmp(argv[i],"-pct")==0) {
+                recover_pct = atof(argv[i + 1]);
+                if(myrank == 0) printf("\nRecovery Percentage:%f",recover_pct);
+            } else if (strcmp(argv[i],"-base")==0) {
+                base = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nBase of MM (1 or 0):%d",base);
+            }
+            else if (strcmp(argv[i],"-rand")==0) {
+                randpermute = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
+            }
+            else if (strcmp(argv[i],"-phases")==0) {
+                phases = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nNumber of SpGEMM phases:%d",phases);
+            }
+        }
+
         ostringstream runinfo;
-        runinfo << "Running with... " << endl;
+        runinfo << "\nRunning HipMCL with... " << endl;
         runinfo << "Inflation: " << inflation << endl;
         runinfo << "Prunelimit: " << prunelimit << endl;
         runinfo << "Recover number: " << recover_num << endl;
         runinfo << "Recover percent: " << recover_pct << endl;
-        runinfo << "Maximum column nonzeros: " << select << " in " << phases << " phases "<< endl;
+        runinfo << "Selection number: " << select << " in " << phases << " phases "<< endl;
         SpParHelper::Print(runinfo.str());
-
-		string ifilename(argv[1]);
 
         double tIO = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
-		if(string(argv[7]) == "0")
-		{
-            SpParHelper::Print("Treating input zero based\n");
-            A.ParallelReadMM(ifilename, false, maximum<float>());	// use zero-based indexing for matrix-market file
-		}
-		else
-		{
-            A.ParallelReadMM(ifilename, true, maximum<float>());
-		}
-		
+        A.ParallelReadMM(ifilename, base, maximum<float>());	// if base=0, then it is implicitly converted to Boolean false
+						
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
 		SpParHelper::Print(outs.str());
