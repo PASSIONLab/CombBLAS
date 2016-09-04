@@ -25,7 +25,7 @@ USORT = $(COMBBLAS)/usort/binUtils.o $(COMBBLAS)/usort/parUtils.o
 
 
 
-BPMaximumMatching.o: BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
+BPMaximumMatching.o: BPMaximumMatching.cpp BPMaximumMatching.h BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 bpmm: BPMaximumMatching.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
