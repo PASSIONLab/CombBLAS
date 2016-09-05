@@ -251,17 +251,6 @@ template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::TopK(IT k_limit)
 {
     PrintInfo();
-    
-    FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
-    Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
-    IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
-    if(k_limit >= maxnnzPerColumn)
-    {
-        ostringstream ss;
-        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn (" << maxnnzPerColumn << "). Returning with no/op..." << endl;
-        SpParHelper::Print(ss.str());
-        return;
-    }
 
     IT locm = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
     vector< vector<NT> > localmat(locm);    // some sort of minimal local copy of matrix
@@ -274,9 +263,7 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         }
     }
     
-    
-    vector<NT> medians(locm);   // one per column
-    vector<IT> nnzperc(locm);
+    vector<IT> nnzperc(locm); // one per column
     int rankincol = commGrid->GetRankInProcCol();
     int myrank = commGrid->GetRank();
     
@@ -284,35 +271,29 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
 #pragma omp parallel for
 #endif
     for(IT i=0; i<locm; i++)
-    {
-        if(localmat[i].empty())
-        {
-            medians[i] = (NT) 0;
-            nnzperc[i] = 0;
-        }
-        else
-        {
-            // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
-            std::nth_element(localmat[i].begin(), localmat[i].begin() + localmat[i].size()/2, localmat[i].end());
-            medians[i] = localmat[i][localmat[i].size()/2];
-            nnzperc[i] = localmat[i].size();
-        }
-    }
+        nnzperc[i] = localmat[i].size();
+    
     vector<IT> percsum(locm, 0);
     MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
     int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
     int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
-
+    nnzperc.resize(0);
+    nnzperc.shrink_to_fit();
     
-    if(rankincol == 0)
+    int64_t totactcols, totactnnzs;
+    MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+    MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+    if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
+    if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+    
+    if(totactcols == 0)
     {
-        int64_t totactcols, totactnnzs;
-        MPI_Reduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
-        MPI_Reduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
-        if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
-        if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
-
+        ostringstream ss;
+        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn. Returning with no/op..." << endl;
+        SpParHelper::Print(ss.str());
+        return;
     }
+    
     vector<IT> actcolsmap(activecols);  // the map that gives the original index of that active column (this map will shrink over iterations)
     for (IT i=0, j=0; i< locm; ++i) {
         if(percsum[i] > k_limit)
@@ -333,13 +314,28 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         int iterations = activecols / chunksize;
         int lastchunk = activecols - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
         
-        
         vector<NT> activemedians(activecols);   // one per "active" column
         vector<IT> activennzperc(activecols);
-        for(IT i=0; i< activecols; ++i)
+       
+        
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT i=0; i< activecols; ++i) // recompute the medians and nnzperc
         {
-            activemedians[i] = medians[actcolsmap[i]];
-            activennzperc[i] = nnzperc[actcolsmap[i]];
+            size_t orgindex = actcolsmap[i];
+            if(localmat[orgindex].empty())
+            {
+                activemedians[i] = (NT) 0;
+                activennzperc[i] = 0;
+            }
+            else
+            {
+                // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
+                std::nth_element(localmat[orgindex].begin(), localmat[orgindex].begin() + localmat[orgindex].size()/2, localmat[orgindex].end());
+                activemedians[i] = localmat[orgindex][localmat[orgindex].size()/2];
+                activennzperc[i] = localmat[orgindex].size();
+            }
         }
         
         percsum.resize(activecols, 0);
