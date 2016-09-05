@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 11/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -101,7 +101,6 @@ public:
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & ) const;
-    void TopK(IT k);
 
 	template <typename _BinaryOperation>
 	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
@@ -124,10 +123,15 @@ public:
     template <typename VT, typename GIT, typename _BinaryOperation>
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const;
 
-    template <typename VT, typename GIT, typename _UnaryOperation>
-    void Kselect(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const;
     template <typename VT, typename GIT>
-    void Kselect(FullyDistVec<GIT,VT> & rvec, IT k) const;
+    void Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const;
+    
+    template <typename VT, typename GIT, typename _UnaryOperation>
+    void Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
+    template <typename VT, typename GIT>
+    void Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
+    template <typename VT, typename GIT>
+    void Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
 
     IT Bandwidth() const;
     IT Profile() const;
@@ -340,9 +344,11 @@ private:
     template <typename _BinaryOperation, typename LIT>
 	void SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
+    template <typename VT, typename GIT>	// GIT: global index type of vector
     void TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
                     const vector<NT> & medians, const vector<IT> & nnzperc, int itersuntil, vector< vector<NT> > & localmat,
-                    const vector<IT> & actcolsmap, vector<IT> & klimits, vector<IT> & toretain);
+                    const vector<IT> & actcolsmap, vector<IT> & klimits, vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair,
+                    IT coffset, FullyDistVec<GIT,VT> & rvec) const;
     
 	template <typename LIT>
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;

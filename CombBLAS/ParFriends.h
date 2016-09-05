@@ -1,7 +1,7 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
 /* version 1.6 -------------------------------------------------*/
-/* date: 05/15/2016 --------------------------------------------*/
+/* date: 11/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
@@ -195,7 +195,9 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     
     if(recoverCols.getnnz() > 0) // at least one column needs recovery
     {
-        AOriginal.TopK(recoverNum);
+        FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
+        AOriginal.Kselect(kth, recoverNum);
+        AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
         return true;
     }
     else return false;
@@ -210,7 +212,9 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
     FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
     if(selectCols.getnnz() > 0)
     {
-        A.TopK(selectNum);
+        FullyDistVec<IT, NT> kth ( A.getcommgrid());
+        A.Kselect(kth, selectNum);
+        A.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
         return true;
     }
     else return false;
@@ -225,7 +229,6 @@ template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, 
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                            int phases, NUO hardThreshold = 0.00025, IU selectNum = 500, IU recoverNum = 600, NUO recoverPct = .9)
 {
-    
     if(A.getncol() != B.getnrow())
     {
         ostringstream outs;
@@ -353,13 +356,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         {
             toconcatenate.push_back(*PrunedPieceOfC);
         }
-        
-        // **** this logic moved to MCLRecovery and MCLSelect functions ****
-        // FullyDistVec<IU, NUO> kth ( PrunedPieceOfC_mat.getcommgrid());
-        // PrunedPieceOfC_mat.Kselect(kth, selectNum);
-        // inplace prunning. PrunedPieceOfC is purned automatically
-        // PrunedPieceOfC_mat.PruneColumn(kth, less<float>(), true);
-        // PrunedPieceOfC_mat.TopK(selectNum);
     }
     
     
