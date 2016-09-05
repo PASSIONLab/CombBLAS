@@ -131,12 +131,10 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     int rankincol = commGrid->GetRankInProcCol();
     int myrank = commGrid->GetRank();
     int colneighs = commGrid->GetGridRows();
-
+    vector<double> finalWeightedMedians(thischunk, 0.0);
     
     MPI_Gather(activemedians.data() + itersuntil*chunksize, thischunk, MPIType<NT>(), all_medians.data(), thischunk, MPIType<NT>(), 0, commGrid->GetColWorld());
     MPI_Gather(activennzperc.data() + itersuntil*chunksize, thischunk, MPIType<IT>(), nnz_per_col.data(), thischunk, MPIType<IT>(), 0, commGrid->GetColWorld());
-    
-    vector<double> finalWeightedMedians(thischunk, 0.0);
 
     if(rankincol == 0)
     {
@@ -157,23 +155,13 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             }
             sort(mediansNweights.begin(), mediansNweights.end());   // sort by median
             
-            //if(myrank == 0)
-            //{
-            //    for(auto & x : mediansNweights) cout<<"(" << x.first<<","<<x.second<<")";
-            //    cout << endl;
-            //}
-            
             double sumofweights = 0;
             int k = 0;
             while( k<colneighs && sumofweights < 0.5)
             {
                 sumofweights += mediansNweights[k++].second;
             }
-            if(myrank == 0)
-            {
-                //cout << "weighted median of " << actcolsmap[j+itersuntil*chunksize] << " is " << mediansNweights[k-1].first << endl;
-                finalWeightedMedians[j] = mediansNweights[k-1].first;
-            }
+            finalWeightedMedians[j] = mediansNweights[k-1].first;
         }
     }
     MPI_Bcast(finalWeightedMedians.data(), thischunk, MPIType<double>(), 0, commGrid->GetColWorld());
@@ -184,8 +172,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 
     for(int j = 0; j < thischunk; ++j)  // for each active column
     {
-        //
-        size_t fetchindex = actcolsmap[j+itersuntil*chunksize];
+        size_t fetchindex = actcolsmap[j+itersuntil*chunksize];        
         for(size_t k = 0; k < localmat[fetchindex].size(); ++k)
         {
             // count those above/below/equal to the median
@@ -203,9 +190,10 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     
     for(int j = 0; j < thischunk; ++j)  // for each active column
     {
-        size_t fetchindex = actcolsmap[j+itersuntil*chunksize];
+        size_t clmapindex = j+itersuntil*chunksize;     // klimits is of the same length as actcolsmap
+        size_t fetchindex = actcolsmap[clmapindex];     // localmat can only be dereferenced using the original indices.
         
-        if(klimits[j] <= larger[j]) // the entries larger than Weighted-Median are plentiful, we can discard all the smaller/equal guys
+        if(klimits[clmapindex] <= larger[j]) // the entries larger than Weighted-Median are plentiful, we can discard all the smaller/equal guys
         {
             vector<NT> survivors;
             for(size_t k = 0; k < localmat[fetchindex].size(); ++k)
@@ -214,9 +202,9 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                     survivors.push_back(localmat[fetchindex][k]);
             }
             localmat[fetchindex].swap(survivors);
-            toretain.push_back(j+itersuntil*chunksize);    // items to retain in actcolsmap
+            toretain.push_back(clmapindex);    // items to retain in actcolsmap
         }
-        else if (klimits[j] > larger[j] + equal[j]) // the elements that are either larger or equal-to are surely keepers, no need to reprocess them
+        else if (klimits[clmapindex] > larger[j] + equal[j]) // the elements that are either larger or equal-to are surely keepers, no need to reprocess them
         {
             vector<NT> survivors;
             for(size_t k = 0; k < localmat[fetchindex].size(); ++k)
@@ -224,13 +212,12 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                 if(localmat[fetchindex][k] < finalWeightedMedians[j])  // keep only the small guys (even equal guys go)
                     survivors.push_back(localmat[fetchindex][k]);
             }
-            cout << fetchindex << ": Swapping " << localmat[fetchindex].size() << " with " << survivors.size() << ", updating " << klimits[j] << " with " << klimits[j] - (larger[j] + equal[j]) << endl;
             localmat[fetchindex].swap(survivors);
             
-            klimits[j] -= (larger[j] + equal[j]);   // update the k limit for this column only
-            toretain.push_back(j+itersuntil*chunksize);    // items to retain in actcolsmap
+            klimits[clmapindex] -= (larger[j] + equal[j]);   // update the k limit for this column only
+            toretain.push_back(clmapindex);    // items to retain in actcolsmap
         }
-        else  // larger[j] < klimits[j] &&  klimits[j] <= larger[j] + equal[j]
+        else  // larger[j] < klimits[clmapindex] &&  klimits[clmapindex] <= larger[j] + equal[j]
         {
             vector<NT> survivors;
             for(size_t k = 0; k < localmat[fetchindex].size(); ++k)
@@ -239,8 +226,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                     survivors.push_back(localmat[fetchindex][k]);
             }
             localmat[fetchindex].swap(survivors);
-            if(rankincol == 0)
-                cout << fetchindex << " hit the result " << finalWeightedMedians[j] << " " << equal[j] << " times, retaining " << localmat[fetchindex].size() << endl;
+            //  We found it: the kth largest element is finalWeightedMedians[j]
         }
     }
 }
@@ -285,6 +271,8 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
     if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+    if(myrank == 0)   cout << "klimit is " << k_limit << endl;
+
     
     if(totactcols == 0)
     {
@@ -304,20 +292,29 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
     vector<IT> nnz_per_col;
     int colneighs = commGrid->GetGridRows();
     vector<IT> klimits(activecols, k_limit); // is distributed management of this vector needed?
+    int activecols_lowerbound = 10*colneighs;
     
-    while(activecols > 0)
+    while(totactcols > 0)
     {
-        // two reasons for chunking:
-        // (1) keep memory limited to activecols (<= n/sqrt(p))
-        // (2) avoid overflow in sentcount
-        int chunksize = (int) (activecols / colneighs);
-        int iterations = activecols / chunksize;
-        int lastchunk = activecols - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
-        
+        int chunksize, iterations, lastchunk;
+        if(activecols > activecols_lowerbound)
+        {
+            // two reasons for chunking:
+            // (1) keep memory limited to activecols (<= n/sqrt(p))
+            // (2) avoid overflow in sentcount
+            chunksize = static_cast<int>(activecols/colneighs); // invariant chunksize >= 10 (by activecols_lowerbound)
+            iterations = std::max(static_cast<int>(activecols/chunksize), 1);
+            lastchunk = activecols - (iterations-1)*chunksize; // lastchunk >= chunksize by construction
+        }
+        else
+        {
+            chunksize = activecols;
+            iterations = 1;
+            lastchunk = activecols;
+        }
         vector<NT> activemedians(activecols);   // one per "active" column
         vector<IT> activennzperc(activecols);
-       
-        
+   
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -342,12 +339,8 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         MPI_Allreduce(activennzperc.data(), percsum.data(), activecols, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
         activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
         
-        if(rankincol == 0)
-        {
-            int64_t totactnnzs;
-            MPI_Reduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
-            if(myrank == 0)   cout << "Number of active nonzeros are " << totactnnzs << endl;
-        }
+        MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+        if(myrank == 0)   cout << "Number of active nonzeros are " << totactnnzs << endl;
         
         vector<IT> toretain;
         if(rankincol == 0)
@@ -359,7 +352,7 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         {
             TopKGather(all_medians, nnz_per_col, chunksize, chunksize, activemedians, activennzperc, i, localmat, actcolsmap, klimits, toretain);
         }
-        TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, activemedians, activennzperc, (iterations-1), localmat, actcolsmap, klimits, toretain);
+        TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, activemedians, activennzperc, iterations-1, localmat, actcolsmap, klimits, toretain);
         
         vector<IT> newactivecols(toretain.size());
         vector<IT> newklimits(toretain.size());
@@ -373,13 +366,8 @@ void SpParMat<IT,NT,DER>::TopK(IT k_limit)
         klimits.swap(newklimits);
         activecols = actcolsmap.size();
         
-        if(rankincol == 0)
-        {
-            int64_t totactcols;
-            MPI_Reduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->GetRowWorld());
-            if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
-        }
-        
+        MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+        if(myrank  == 0) cout << "Number of active columns are " << totactcols << endl;
     }
 }
 
