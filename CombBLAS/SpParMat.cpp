@@ -228,9 +228,16 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             }
             localmat[fetchindex].swap(survivors);
             
-            IT locid;       //  We found it: the kth largest element in column (coffset + fetchindex) is finalWeightedMedians[j]
-            int owner = rvec.Owner(coffset + fetchindex, locid);
-            tmppair[owner].push_back(make_pair(locid, finalWeightedMedians[j]));
+            // We found it: the kth largest element in column (coffset + fetchindex) is finalWeightedMedians[j]
+            // But everyone in the same processor column has the information, only one of them should send it
+            IT n_perproc = getlocalcols() / colneighs;  // find a typical processor's share
+            int assigned = std::max(static_cast<int>(fetchindex/n_perproc), colneighs-1);
+            if( assigned == rankincol)
+            {
+                IT locid;
+                int owner = rvec.Owner(coffset + fetchindex, locid);
+                tmppair[owner].emplace_back(make_pair(locid, finalWeightedMedians[j]));
+            }
         }
     }
 }
@@ -285,9 +292,12 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     
     int64_t totactcols, totactnnzs;
     MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+    if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+    
+#ifdef COMBBLAS_DEBUG
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
-    if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+#endif
     
     if(totactcols == 0)
     {
@@ -308,8 +318,7 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     vector<IT> klimits(activecols, k_limit); // is distributed management of this vector needed?
     int activecols_lowerbound = 10*colneighs;
     
-    rvec.glen = getncol();
-    rvec.arr.resize(rvec.MyLocLength());    // get the vector ready (\todo do this with min instead)
+    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready
     
     IT * locncols = new IT[rowneighs];
     locncols[rankinrow] = locm;
@@ -372,8 +381,10 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         MPI_Allreduce(activennzperc.data(), percsum.data(), activecols, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
         activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
         
+#ifdef COMBBLAS_DEBUG
         MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
         if(myrank == 0)   cout << "Number of active nonzeros are " << totactnnzs << endl;
+#endif
         
         vector<IT> toretain;
         if(rankincol == 0)
@@ -381,13 +392,12 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
             all_medians.resize(lastchunk*colneighs);
             nnz_per_col.resize(lastchunk*colneighs);
         }
-        vector< vector< pair<IT,NT> > > tmppair;
+        vector< vector< pair<IT,NT> > > tmppair(nprocs);
         for(int i=0; i< iterations-1; ++i)  // this loop should not be parallelized if we want to keep storage small
         {
             TopKGather(all_medians, nnz_per_col, chunksize, chunksize, activemedians, activennzperc, i, localmat, actcolsmap, klimits, toretain, tmppair, coffset, rvec);
         }
         TopKGather(all_medians, nnz_per_col, lastchunk, chunksize, activemedians, activennzperc, iterations-1, localmat, actcolsmap, klimits, toretain, tmppair, coffset, rvec);
-        
         
         /* Set the newly found vector entries */
         IT totsend = 0;
@@ -413,10 +423,18 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         MPI_Alltoallv(sendpair, sendcnt, sdispls, MPI_pair, recvpair.data(), recvcnt, rdispls, MPI_pair, commGrid->GetWorld());
         delete [] sendpair;
 
+        IT updated = 0;
         for(auto & update : recvpair )    // Now, write these to rvec
         {
+            updated++;
             rvec.arr[update.first] =  update.second;
         }
+#ifdef COMBBLAS_DEBUG
+        MPI_Allreduce(MPI_IN_PLACE, &updated, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
+        if(myrank  == 0) cout << "Total vector entries updated " << updated << endl;
+#endif
+
+
         /* End of setting up the newly found vector entries */
         
         vector<IT> newactivecols(toretain.size());
@@ -432,7 +450,9 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         activecols = actcolsmap.size();
         
         MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
+#ifdef COMBBLAS_DEBUG
         if(myrank  == 0) cout << "Number of active columns are " << totactcols << endl;
+#endif
     }
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_pair);
@@ -1359,7 +1379,6 @@ void SpParMat<IT,NT,DER>::MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpV
                 while(nzit != spSeq->endnz(colit))
                 {
                     sendbuf[colit.colid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[colit.colid()-lensums[i]]);
-                    
                     ++nzit;
                 }
             }
