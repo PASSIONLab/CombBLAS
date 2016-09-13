@@ -250,8 +250,9 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 //! Preferred for large k values
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>	// GIT: global index type of vector
-void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
+bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 {
+    
     if(*rvec.commGrid != *commGrid)
     {
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
@@ -299,12 +300,14 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
 #endif
     
+    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready
+    
     if(totactcols == 0)
     {
         ostringstream ss;
-        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn. Returning with no/op..." << endl;
+        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn. Calling Reduce instead..." << endl;
         SpParHelper::Print(ss.str());
-        return;
+        return false;
     }
     
     vector<IT> actcolsmap(activecols);  // the map that gives the original index of that active column (this map will shrink over iterations)
@@ -318,7 +321,6 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     vector<IT> klimits(activecols, k_limit); // is distributed management of this vector needed?
     int activecols_lowerbound = 10*colneighs;
     
-    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready
     
     IT * locncols = new IT[rowneighs];
     locncols[rankinrow] = locm;
@@ -456,6 +458,7 @@ void SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     }
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_pair);
+    return true;
 }
 
 
@@ -917,17 +920,19 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 
 #define KSELECTLIMIT 50
 
+// Returns true if Kselect algorithm is invoked for at least one column
+// Otherwise, return false (rvec contains the minimum entry in each column)
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
-void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
+bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 {
     if(k_limit > KSELECTLIMIT)
     {
-        Kselect2(rvec, k_limit);
+        return Kselect2(rvec, k_limit);
     }
     else
     {
-        Kselect1(rvec, k_limit, myidentity<NT>());
+        return Kselect1(rvec, k_limit, myidentity<NT>());
     }
 }
 
@@ -937,7 +942,7 @@ void SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 // this memory requirement is too high for larger k
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
-void SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
+bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
 {
     if(*rvec.commGrid != *commGrid)
     {
@@ -952,7 +957,7 @@ void SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     {
         SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Calling Reduce instead...\n");
         Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));
-        return;
+        return false;
     }
     
     IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
@@ -1158,6 +1163,7 @@ void SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     rvec.arr.resize(recvcnts);
     MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.arr.data(), rvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
     rvec.glen = getncol();
+    return true;
 }
 
 

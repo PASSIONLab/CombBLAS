@@ -186,7 +186,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     
     // columns with nnz < recoverNum (r)
-    FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(greater<NT>(), recoverNum));
+    FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(less<NT>(), recoverNum));
     // columns with nnz < r AND sum < recoverPct (pct)
     recoverCols = EWiseApply<NT>(recoverCols, colSums,
                                   [](NT degree, NT sum){return degree;},
@@ -196,8 +196,8 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     if(recoverCols.getnnz() > 0) // at least one column needs recovery
     {
         FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
-        AOriginal.Kselect(kth, recoverNum);
-        AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+        if(AOriginal.Kselect(kth, recoverNum))
+            AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
         return true;
     }
     else return false;
@@ -213,11 +213,13 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
     if(selectCols.getnnz() > 0)
     {
         FullyDistVec<IT, NT> kth ( A.getcommgrid());
-        A.Kselect(kth, selectNum);
-        A.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
-        return true;
+        if(A.Kselect(kth, selectNum))
+        {
+            A.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+            return true;
+        }
     }
-    else return false;
+    return false;
 }
 
 
