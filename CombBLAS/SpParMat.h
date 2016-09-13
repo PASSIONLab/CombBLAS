@@ -124,14 +124,14 @@ public:
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const;
 
     template <typename VT, typename GIT>
-    void Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const;
+    bool Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const;
     
     template <typename VT, typename GIT, typename _UnaryOperation>
-    void Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
+    bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
     template <typename VT, typename GIT>
-    void Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
+    bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
     template <typename VT, typename GIT>
-    void Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
+    bool Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
 
     IT Bandwidth() const;
     IT Profile() const;
