@@ -244,7 +244,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 
 
 //! identify the k-th maximum element in each column of a matrix
-//! if the number of nonzeros in a column is less then k, return minimum entry
+//! if the number of nonzeros in a column is less then k, return the minimum among the entries of that column (including the implicit zero)
 //! This is an efficient implementation of the Saukas/Song algorithm
 //! http://www.ime.usp.br/~einar/select/INDEX.HTM
 //! Preferred for large k values
@@ -919,8 +919,9 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 
 #define KSELECTLIMIT 50
 
-// Returns true if Kselect algorithm is invoked for at least one column
-// Otherwise, return false (rvec contains the minimum entry in each column)
+//! Returns true if Kselect algorithm is invoked for at least one column
+//! Otherwise, returns false
+//! if false, rvec contains either contains the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
@@ -950,10 +951,11 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
     }
 }
 
-// identify the k-th maximum element in each column of a matrix
-// if the number of nonzeros in a column is less then k, return minimum entry
-// Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
-// this memory requirement is too high for larger k
+/* identify the k-th maximum element in each column of a matrix
+** if the number of nonzeros in a column is less than k, return minimum entry
+** Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
+** this memory requirement is too high for larger k
+ */
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
