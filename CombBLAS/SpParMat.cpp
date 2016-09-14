@@ -147,7 +147,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             for(int k = 0; k<colneighs; ++k)
             {
                 size_t fetchindex = k*thischunk+j;
-                columnCounts[j] += static_cast<double>(activennzperc[fetchindex]);
+                columnCounts[j] += static_cast<double>(nnz_per_col[fetchindex]);
             }
             for(int k = 0; k<colneighs; ++k)
             {
@@ -435,7 +435,6 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         MPI_Allreduce(MPI_IN_PLACE, &updated, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
         if(myrank  == 0) cout << "Total vector entries updated " << updated << endl;
 #endif
-
 
         /* End of setting up the newly found vector entries */
         
@@ -926,6 +925,21 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 {
+#ifdef COMBBLAS_DEBUG
+    FullyDistVec<GIT,VT> test1(rvec.getcommgrid());
+    FullyDistVec<GIT,VT> test2(rvec.getcommgrid());
+    Kselect1(test1, k_limit, myidentity<NT>());
+    Kselect2(test2, k_limit);
+    if(test1 == test2)
+        SpParHelper::Print("Kselect1 and Kselect2 producing same results\n");
+    else
+    {
+        SpParHelper::Print("WARNING: Kselect1 and Kselect2 producing DIFFERENT results\n");
+        //test1.PrintToFile("test1");
+        //test2.PrintToFile("test2");
+    }
+#endif
+    
     if(k_limit > KSELECTLIMIT)
     {
         return Kselect2(rvec, k_limit);
