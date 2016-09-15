@@ -196,8 +196,28 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     if(recoverCols.getnnz() > 0) // at least one column needs recovery
     {
         FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
-        if(AOriginal.Kselect(kth, recoverNum))
+        
+#ifdef TIMING
+        double t0=MPI_Wtime();
+#endif
+        bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
+        
+#ifdef TIMING
+        double t1=MPI_Wtime();
+        mcl_kselecttime += (t1-t0);
+#endif
+        if(pruneNeeded)
+        {
+#ifdef TIMING
+            double t2=MPI_Wtime();
+#endif
+
             AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+#ifdef TIMING
+            double t3=MPI_Wtime();
+            mcl_prunecolumntime += (t3-t2);
+#endif
+        }
         return true;
     }
     else return false;
@@ -213,9 +233,26 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
     if(selectCols.getnnz() > 0)
     {
         FullyDistVec<IT, NT> kth ( A.getcommgrid());
-        if(A.Kselect(kth, selectNum))
+#ifdef TIMING
+        double t0=MPI_Wtime();
+#endif
+        bool pruneNeeded = A.Kselect(kth, selectNum);
+        
+#ifdef TIMING
+        double t1=MPI_Wtime();
+        mcl_kselecttime += (t1-t0);
+#endif
+        if(pruneNeeded)
         {
+#ifdef TIMING
+            double t2=MPI_Wtime();
+#endif
+
             A.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+#ifdef TIMING
+            double t3=MPI_Wtime();
+            mcl_prunecolumntime += (t3-t2);
+#endif
             return true;
         }
     }
@@ -231,6 +268,8 @@ template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, 
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                            int phases, NUO hardThreshold = 0.00025, IU selectNum = 500, IU recoverNum = 600, NUO recoverPct = .9)
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(A.getncol() != B.getnrow())
     {
         ostringstream outs;
@@ -289,7 +328,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                     ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row
                 ARecv = new UDERA();				// first, create the object
             }
+            
+#ifdef TIMING
+            double t0=MPI_Wtime();
+#endif
             SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+#ifdef TIMING
+            double t1=MPI_Wtime();
+            mcl_Abcasttime += (t1-t0);
+#endif
             ess.clear();
 
             if(i == Bself)  BRecv = &(PiecesOfB[p]);	// shallow-copy
@@ -300,8 +347,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                     ess[j] = BRecvSizes[j][i];
                 BRecv = new UDERB();
             }
+#ifdef TIMING
+            double t2=MPI_Wtime();
+#endif
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-            
+#ifdef TIMING
+            double t3=MPI_Wtime();
+            mcl_Bbcasttime += (t3-t2);
+#endif
             
             /*
             SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -311,7 +364,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                                          i != Bself);	// 'delete B' condition
              
             */
+            
+#ifdef TIMING
+            double t4=MPI_Wtime();
+#endif
             SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+#ifdef TIMING
+            double t5=MPI_Wtime();
+            mcl_localspgemmtime += (t5-t4);
+#endif
             
             if(!C_cont->isZero())
                 tomerge.push_back(C_cont);
@@ -321,9 +382,16 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }   // all stages executed
         
 
+#ifdef TIMING
+        double t6=MPI_Wtime();
+#endif
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
         // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
         SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
+#ifdef TIMING
+        double t7=MPI_Wtime();
+        mcl_multiwaymergetime += (t7-t6);
+#endif
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
         delete OnePieceOfC_tuples;
         

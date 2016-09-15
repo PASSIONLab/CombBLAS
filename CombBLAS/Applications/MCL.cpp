@@ -50,6 +50,14 @@ using namespace std;
 
 #define EPS 0.001
 
+double mcl_Abcasttime;
+double mcl_Bbcasttime;
+double mcl_localspgemmtime;
+double mcl_multiwaymergetime;
+double mcl_kselecttime;
+double mcl_prunecolumntime;
+
+
 
 class Dist
 { 
@@ -246,7 +254,14 @@ int main(int argc, char* argv[])
         A.PrintInfo();
         
 
-	
+#ifdef TIMING
+        mcl_Abcasttime = 0;
+        mcl_Bbcasttime = 0;
+        mcl_localspgemmtime = 0;
+        mcl_multiwaymergetime = 0;
+        mcl_kselecttime = 0;
+        mcl_prunecolumntime = 0;
+#endif
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
 		float chaos = 1;
@@ -255,16 +270,32 @@ int main(int argc, char* argv[])
 		// while there is an epsilon improvement
 		while( chaos > EPS)
 		{
+#ifdef TIMING
+            double mcl_Abcasttime1=mcl_Abcasttime;
+            double mcl_Bbcasttime1=mcl_Bbcasttime;
+            double mcl_localspgemmtime1=mcl_localspgemmtime;
+            double mcl_multiwaymergetime1 = mcl_multiwaymergetime;
+            double mcl_kselecttime1=mcl_kselecttime;
+            double mcl_prunecolumntime1=mcl_prunecolumntime;
+#endif
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
             MakeColStochastic(A);
             double t2 = MPI_Wtime();
             stringstream ss;
+            ss << "=================================================" << endl;
             ss << "Squared in " << (t2-t1) << " seconds" << endl;
             SpParHelper::Print(ss.str());
-            A.PrintInfo();
+#ifdef TIMING
+            if(myrank==0)
+            {
+                cout << "Breakdown of squaring time: \n mcl_Abcast= " << mcl_Abcasttime - mcl_Abcasttime1 << "\n mcl_Bbcast= " << mcl_Bbcasttime - mcl_Bbcasttime1 << "\n mcl_localspgemm= " << mcl_localspgemmtime-mcl_localspgemmtime1 << "\n mcl_multiwaymergetime= "<< mcl_multiwaymergetime-mcl_multiwaymergetime1 << "\n mcl_kselect= " << mcl_kselecttime-mcl_kselecttime1 << "\n mcl_prunecolumn= " << mcl_prunecolumntime - mcl_prunecolumntime1 << endl;
+                cout << "=================================================" << endl;
+            }
+#endif
 
+            A.PrintInfo();
             chaos = Chaos(A);
             
 			Inflate(A, inflation);	// inflate (and renormalize)
