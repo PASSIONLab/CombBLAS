@@ -720,11 +720,11 @@ int main(int argc, char* argv[])
             ABool->ParallelReadMM(filename, false, maximum<bool>());
             double t02 = MPI_Wtime();
             int64_t bw = ABool->Bandwidth();
-            int64_t pf = ABool->Profile();
+            //int64_t pf = ABool->Profile(); //TODO: There is a bug in this function because it crashes on af_shell4.mtx
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             tinfo << "Bandwidth before random permutation " << bw << endl;
-            tinfo << "Profile before random permutation " << pf << endl;
+            //tinfo << "Profile before random permutation " << pf << endl;
             SpParHelper::Print(tinfo.str());
             
 #ifdef RAND_PERMUTE
