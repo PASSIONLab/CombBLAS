@@ -825,7 +825,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            float balance = ABool->LoadImbalance();
+            balance = ABool->LoadImbalance();
             ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
             ABoolCSC = new Par_CSC_Bool(*ABool);
         }
