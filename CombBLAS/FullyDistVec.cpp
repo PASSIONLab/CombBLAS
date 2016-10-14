@@ -889,7 +889,9 @@ void FullyDistVec<IT,NT>::RandPerm()
     }
 	NT * recvbuf = new NT[totrecv];
     MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<NT>(), recvbuf, recvcnt, rdispls, MPIType<NT>(), World);
-	std::random_shuffle(recvbuf, recvbuf+ totrecv);	// locally shuffle data
+	//std::random_shuffle(recvbuf, recvbuf+ totrecv);
+    std::default_random_engine gen(seed);
+    std::shuffle(recvbuf, recvbuf+ totrecv,gen); // locally shuffle data
     
 	int64_t * localcounts = new int64_t[nprocs];
 	localcounts[rank] = totrecv;
