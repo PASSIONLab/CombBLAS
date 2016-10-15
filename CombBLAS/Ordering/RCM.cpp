@@ -1,5 +1,3 @@
-//#define DETERMINISTIC 1
-
 #ifdef THREADED
 #ifndef _OPENMP
 #define _OPENMP // should be defined before any COMBBLAS header is included
@@ -19,7 +17,6 @@
 
 
 #define EDGEFACTOR 16
-#define RAND_PERMUTE 1
 
 #ifdef DETERMINISTIC
 MTRand GlobalMT(1);
@@ -696,15 +693,8 @@ int main(int argc, char* argv[])
     {
         Par_DCSC_Bool * ABool;
         Par_DCSC_Bool AAT;
-        bool unsym=false;
         ostringstream tinfo;
-        string allArg="";
-        for(int i=0; i<argc; i++)
-        {
-            allArg += string(argv[i]);
-        }
-        
-        if(allArg.find("unsymmetric")!=string::npos) unsym = true;
+
         
         if(string(argv[1]) == string("input")) // input option
         {
@@ -717,14 +707,12 @@ int main(int argc, char* argv[])
             
             SpParHelper::Print(tinfo.str());
             double t01 = MPI_Wtime();
-            ABool->ParallelReadMM(filename, false, maximum<bool>());
+            ABool->ParallelReadMM(filename, true, maximum<bool>());
             double t02 = MPI_Wtime();
-            int64_t bw = ABool->Bandwidth();
-            //int64_t pf = ABool->Profile(); //TODO: There is a bug in this function because it crashes on af_shell4.mtx
+            Symmetricize(*ABool);
             tinfo.str("");
+            tinfo << "matrix read and symmetricized " << endl;
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
-            tinfo << "Bandwidth before random permutation " << bw << endl;
-            //tinfo << "Profile before random permutation " << pf << endl;
             SpParHelper::Print(tinfo.str());
             
 #ifdef RAND_PERMUTE
@@ -741,27 +729,6 @@ int main(int argc, char* argv[])
                 SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
             }
 #endif
-
-            if(unsym)
-            {
-                SpParHelper::Print("Matrix is unsymmetric. Computing AAT for RCM\n");
-                Par_DCSC_Bool AT = *ABool;
-                AT.Transpose();
-                AAT = PSpGEMM<PlusTimesSRing<bool, int64_t>>(*ABool, AT);
-                //AAT = *ABool;
-                //AAT += (*ABool);
-                
-                SpParHelper::Print("Computed AAT\n");
-                
-#ifdef RAND_PERMUTE
-                
-                FullyDistVec<int64_t, int64_t> p1( AAT.getcommgrid());
-                p1.iota(AAT.getnrow(), 0);
-                p1.RandPerm();
-                (AAT)(p1,p1,true);// in-place permute to save memory
-                SpParHelper::Print("Applied symmetric permutationon AAT.\n");
-#endif
-            }
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -816,47 +783,9 @@ int main(int argc, char* argv[])
         Par_CSC_Bool * ABoolCSC;
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         float balance;
-        if(unsym)
-        {
-            AAT.RemoveLoops();
-            balance = AAT.LoadImbalance();
-            AAT.Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
-            ABoolCSC = new Par_CSC_Bool(AAT);
-        }
-        else
-        {
-            balance = ABool->LoadImbalance();
-            ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
-            ABoolCSC = new Par_CSC_Bool(*ABool);
-        }
-        
-    
-        
-        
-       
-        /*
-        FullyDistVec<int64_t, double> kth ( ABool->getcommgrid());
-        Par_DCSC_Double AInt = *ABool;
-        AInt.Apply([](double x){return GlobalMT.rand() + 1;});
-        AInt.PrintInfo();
-        double ktime = MPI_Wtime();
-        AInt.Kselect(kth, static_cast<int64_t>(2));
-        if(myrank==0)
-        {
-            cout << "kselect " << MPI_Wtime() - ktime << endl;
-        }
-        kth.DebugPrint();
-        AInt.PruneColumn(kth, less<double>(), true);
-        AInt.PrintInfo();
-        */
-        
-        
-        
-        
-        //ABoolCSC->PrintInfo();
-        
-        
-        
+        balance = ABool->LoadImbalance();
+        ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        ABoolCSC = new Par_CSC_Bool(*ABool);
         int nthreads = 1;
         int splitPerThread = 1;
         //if(argc==4)
