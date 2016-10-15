@@ -681,7 +681,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./rcm <rmat|er|input> <scale|filename> <splitPerThread>" << endl;
+            cout << "Usage: ./rcm <rmat|er|input> <scale|filename> " << "-rand <0|1>" << endl;
             cout << "Example: mpirun -np 4 ./rcm rmat 20" << endl;
             cout << "Example: mpirun -np 4 ./rcm er 20" << endl;
             cout << "Example: mpirun -np 4 ./rcm input a.mtx" << endl;
@@ -691,6 +691,16 @@ int main(int argc, char* argv[])
         return -1;
     }
     {
+        int randpermute = 0;
+        for (int i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i],"-rand")==0) {
+                randpermute = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
+            }
+        }
+        
+        
         Par_DCSC_Bool * ABool;
         Par_DCSC_Bool AAT;
         ostringstream tinfo;
@@ -715,20 +725,21 @@ int main(int argc, char* argv[])
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
-#ifdef RAND_PERMUTE
-            if(ABool->getnrow() == ABool->getncol())
+            if(randpermute)
             {
-                FullyDistVec<int64_t, int64_t> p( ABool->getcommgrid());
-                p.iota(ABool->getnrow(), 0);
-                p.RandPerm();
-                (*ABool)(p,p,true);// in-place permute to save memory
-                SpParHelper::Print("Applied symmetric permutation.\n");
+                if(ABool->getnrow() == ABool->getncol())
+                {
+                    FullyDistVec<int64_t, int64_t> p( ABool->getcommgrid());
+                    p.iota(ABool->getnrow(), 0);
+                    p.RandPerm();
+                    (*ABool)(p,p,true);// in-place permute to save memory
+                    SpParHelper::Print("Applied symmetric permutation.\n");
+                }
+                else
+                {
+                    SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+                }
             }
-            else
-            {
-                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
-            }
-#endif
         }
         else if(string(argv[1]) == string("rmat"))
         {
