@@ -1,5 +1,5 @@
 CXX := CC
-CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive -DNDEBUG -DTHREADED -DTIMING 
+CXXFLAGS := -std=c++11 -std=gnu++14 -O3 -fopenmp -fpermissive -DNDEBUG -DTHREADED -DTIMING #-DRAND_PERMUTE -DDETERMINISTIC
 
 
 
@@ -21,7 +21,8 @@ $(COMBBLAS)/usort/%.o : $(COMBBLAS)/usort/src/%.cpp
 clean:
 	rm -rf ../*.o
 	rm -f md 
-	rm -f rcm 
+	rm -f rcm
+	rm -f MatPermuteSave 
 	rm -f *.o
         
 
@@ -37,6 +38,13 @@ md: MD.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 rcm.o: RCM.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+MatPermuteSave: MatPermuteSave.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
+MatPermuteSave.o: MatPermuteSave.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 rcm: rcm.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
