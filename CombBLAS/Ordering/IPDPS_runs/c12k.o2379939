@@ -1,0 +1,135 @@
+
+Randomly permute the matrix? (1 or 0):1COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/MetinMatrices/Nm7.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 437368272
+File is 9184733795 bytes
+matrix read and symmetricized 
+Reader took 5.78877 seconds
+Applied symmetric permutation.
+Threading activated with 6
+--------------------------------------
+Number of MPI proceses: 2025
+Number of threads per procese: 6
+Number of splits of the matrix: 6
+Load balance: 1.00526
+Bandwidth after random permutation 4079605
+Profile after random permutation 0
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 5 Time: 0.128017 seconds.
+ iteration: 2 BFS levels: 5 Time: 0.070164 seconds.
+==================Overall Stats =======================
+vertex 2676039 is a pseudo peripheral vertex
+pseudo diameter: 5 iterations: 2
+SpMV time  Other time
+0.129072          0.0705986
+Total time: 0.199679 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.0368176        0.291292       0.0015595
+Total time: 0.329669 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 0.104693
+TOTAL (accounted) MAX: 0.112534
+TOTAL (accounted) MIN: 0.0935533
+TOTAL (accounted) MEDIAN: 0.0959671
+-------------------------------
+allgather median: 0.0386198
+all2all median: 0.0169089
+transposevector median: 0.00564981
+mergecontributions median: 0.00617838
+spmsv median: 0.0334446
+-------------------------------
+allgather fastest: 0.0362144
+all2all fastest: 0.0164893
+transposevector fastest: 0.000480175
+mergecontributions fastest: 0.00500298
+spmsv fastest: 0.0293725
+-------------------------------
+allgather slowest: 0.0387075
+all2all slowest: 0.0527823
+transposevector slowest: 0.0249949
+mergecontributions slowest: 0.00666618
+spmsv slowest: 0.031635
+summary statistics
+Nm7.mtx 2025 6 12150 0.129072 0.0705986 0.0368176 0.291292 0.0015595 0.0386198 0.0169089 0.00564981 0.00617838 0.0334446 
+SpMSpV detail statistics: 
+0 0 0 0 0 0 0 0 Bandwidth after RCM 3691957
+Profile after RCM 7631564888363
+
+Randomly permute the matrix? (1 or 0):1COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/nlpkkt240.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 401232976
+File is 8408721644 bytes
+matrix read and symmetricized 
+Reader took 5.35171 seconds
+Applied symmetric permutation.
+Threading activated with 6
+--------------------------------------
+Number of MPI proceses: 2025
+Number of threads per procese: 6
+Number of splits of the matrix: 6
+Load balance: 1.0315
+Bandwidth after random permutation 27993332
+Profile after random permutation 0
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 243 Time: 0.773281 seconds.
+ iteration: 2 BFS levels: 243 Time: 0.51407 seconds.
+==================Overall Stats =======================
+vertex 2424743 is a pseudo peripheral vertex
+pseudo diameter: 243 iterations: 2
+SpMV time  Other time
+1.0359          0.252184
+Total time: 1.28809 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.672741        4.38878       0.0661712
+Total time: 5.12769 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 1.0067
+TOTAL (accounted) MAX: 0.96026
+TOTAL (accounted) MIN: 0.928193
+TOTAL (accounted) MEDIAN: 0.959718
+-------------------------------
+allgather median: 0.321768
+all2all median: 0.34517
+transposevector median: 0.0279057
+mergecontributions median: 0.097106
+spmsv median: 0.204015
+-------------------------------
+allgather fastest: 0.27979
+all2all fastest: 0.33751
+transposevector fastest: 0.0037992
+mergecontributions fastest: 0.0927608
+spmsv fastest: 0.214333
+-------------------------------
+allgather slowest: 0.385413
+all2all slowest: 0.531761
+transposevector slowest: 0.0649283
+mergecontributions slowest: 0.102029
+spmsv slowest: 0.160595
+summary statistics
+nlpkkt240.mtx 2025 6 12150 1.0359 0.252184 0.672741 4.38878 0.0661712 0.321768 0.34517 0.0279057 0.097106 0.204015 
+SpMSpV detail statistics: 
+0 0 0 0 0 0 0 0 Bandwidth after RCM 461756
+Profile after RCM 5761225488567

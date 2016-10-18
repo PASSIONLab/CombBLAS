@@ -1,0 +1,54 @@
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/nd24k.mtx ******* 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/inline_1.mtx ******* 
+Matrix is symmetric
+Matrix is Float
+Total number of nonzeros expected across all processors is 14393817
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 18660027
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/af_shell4.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 9046865
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/boneS10.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 28191660
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/audikw_1.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 39297771
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/Flan_1565.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 59485419
+File is 348065919 bytes
+File is 227642140 bytes
+File is 603544811 bytes
+File is 602610410 bytes
+File is 1252770492 bytes
+File is 1616810608 bytes
+Reader took 9.28182 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/af_shell4.mtx_permuted ******* 
+Reader took 21.3161 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/inline_1.mtx_permuted ******* 
+Reader took 14.8527 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/nd24k.mtx_permuted ******* 
+Reader took 26.6035 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/boneS10.mtx_permuted ******* 
+Reader took 61.5011 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/Flan_1565.mtx_permuted ******* 
+Reader took 44.5867 seconds
+Applied symmetric permutation.
+**** Saved to output matrix: /project/projectdirs/m1982/ariful/symmetric/positive_definite/audikw_1.mtx_permuted ******* 

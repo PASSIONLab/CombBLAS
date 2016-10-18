@@ -1,0 +1,35 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 12
+#SBATCH -t 00:30:00
+#SBATCH -J permute_spd
+#SBATCH -o permute_spd.o%j
+
+MAT1=/project/projectdirs/m1982/ariful/symmetric/positive_definite/Flan_1565.mtx
+MAT2=/project/projectdirs/m1982/ariful/symmetric/positive_definite/G3_circuit.mtx
+MAT3=/project/projectdirs/m1982/ariful/symmetric/positive_definite/TSOPF_FS_b300_c2.mtx 
+MAT4=/project/projectdirs/m1982/ariful/symmetric/positive_definite/af_shell4.mtx
+MAT5=/project/projectdirs/m1982/ariful/symmetric/positive_definite/audikw_1.mtx
+MAT6=/project/projectdirs/m1982/ariful/symmetric/positive_definite/boneS10.mtx
+MAT7=/project/projectdirs/m1982/ariful/symmetric/positive_definite/inline_1.mtx
+MAT8=/project/projectdirs/m1982/ariful/symmetric/positive_definite/nd24k.mtx
+MAT9=/project/projectdirs/m1982/ariful/symmetric/positive_definite/parabolic_fem.mtx
+MAT10=/project/projectdirs/m1982/ariful/symmetric/positive_definite/pattern1.mtx
+MAT11=/project/projectdirs/m1982/ariful/symmetric/positive_definite/thermal2.mtx
+MAT12=/project/projectdirs/m1982/ariful/symmetric/positive_definite/tmt_sym.mtx
+
+export OMP_NUM_THREADS=1
+srun -n 1  -N 1 ../MatPermuteSave $MAT1 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT2 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT3 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT4 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT5 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT6 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT7 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT8 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT9 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT10 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT11 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT12 &
+wait

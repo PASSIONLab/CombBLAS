@@ -1,0 +1,32 @@
+#!/bin/bash -l
+
+#SBATCH -p regular
+#SBATCH --qos=premium 
+#SBATCH -N 6
+#SBATCH -t 03:30:00
+#SBATCH -J permute
+#SBATCH -o permute.o%j
+
+MAT1=/project/projectdirs/m1982/ariful/symmetric/dielFilterV3real.mtx
+MAT2=/project/projectdirs/m1982/ariful/symmetric/hugetrace-00020.mtx
+MAT3=/project/projectdirs/m1982/ariful/symmetric/delaunay_n24.mtx
+MAT4=/project/projectdirs/m1982/ariful/symmetric/rgg_n_2_24_s0.mtx
+MAT5=/project/projectdirs/m1982/ariful/symmetric/nlpkkt240.mtx
+MAT6=/project/projectdirs/m1982/ariful/symmetric/ldoor.mtx
+MAT7=/project/projectdirs/m1982/ariful/symmetric/Serena.mtx
+MAT8=/project/projectdirs/m1982/ariful/symmetric/thermal2/thermal2.mtx
+MAT9=/project/projectdirs/m1982/ariful/symmetric/af_shell4/af_shell4.mtx
+MAT10=/project/projectdirs/m1982/ariful/symmetric/parabolic_fem/parabolic_fem.mtx
+
+export OMP_NUM_THREADS=1
+srun -n 1  -N 1 ../MatPermuteSave $MAT1 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT2 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT3 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT4 &
+#srun -n 144  -N 10 ../MatPermuteSave $MAT5 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT6 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT7 &
+#srun -n 1  -N 1 ../MatPermuteSave $MAT8 &
+#srun -n 1  -N 1 ../MatPermuteSave $MAT9 &
+#srun -n 1  -N 1 ../MatPermuteSave $MAT10 &
+wait

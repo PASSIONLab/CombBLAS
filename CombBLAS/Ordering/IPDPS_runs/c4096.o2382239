@@ -1,0 +1,68 @@
+
+Randomly permute the matrix? (1 or 0):1COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/symmetric/Li7Nmax6.mtx ******* 
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 212231210
+File is 8489248519 bytes
+matrix read and symmetricized 
+Reader took 19.0913 seconds
+Applied symmetric permutation.
+Threading activated with 6
+--------------------------------------
+Number of MPI proceses: 676
+Number of threads per procese: 6
+Number of splits of the matrix: 6
+Load balance: 1.01167
+Bandwidth after random permutation 663461
+Profile after random permutation 0
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+ iteration: 1 BFS levels: 7 Time: 0.0277059 seconds.
+ iteration: 2 BFS levels: 7 Time: 0.021322 seconds.
+==================Overall Stats =======================
+vertex 63700 is a pseudo peripheral vertex
+pseudo diameter: 7 iterations: 2
+SpMV time  Other time
+0.0387001          0.0108328
+Total time: 0.049541 seconds.
+======================================================
+==================Ordering time =======================
+SpMV time  Sort time  Other time
+0.0168877        0.0543787       0.00105357
+Total time: 0.07232 seconds.
+=======================================================
+TOTAL (accounted) MEAN: 0.0464553
+TOTAL (accounted) MAX: 0.0459595
+TOTAL (accounted) MIN: 0.0466852
+TOTAL (accounted) MEDIAN: 0.0456696
+-------------------------------
+allgather median: 0.0055964
+all2all median: 0.0143478
+transposevector median: 0.00177217
+mergecontributions median: 0.00299239
+spmsv median: 0.021415
+-------------------------------
+allgather fastest: 0.00517631
+all2all fastest: 0.0137758
+transposevector fastest: 0.000544786
+mergecontributions fastest: 0.00300145
+spmsv fastest: 0.0197887
+-------------------------------
+allgather slowest: 0.00781727
+all2all slowest: 0.0213089
+transposevector slowest: 0.0015316
+mergecontributions slowest: 0.00320172
+spmsv slowest: 0.0223062
+summary statistics
+Li7Nmax6.mtx 676 6 4056 0.0387001 0.0108328 0.0168877 0.0543787 0.00105357 0.0055964 0.0143478 0.00177217 0.00299239 0.021415 
+SpMSpV detail statistics: 
+0 0 0 0 0 0 0 0 Bandwidth after RCM 490015
+Profile after RCM 190303230954
