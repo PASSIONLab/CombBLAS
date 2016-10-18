@@ -1,0 +1,30 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 169
+#SBATCH -t 00:30:00
+#SBATCH -J c4096
+#SBATCH -o c4096_1t.o%j
+
+MAT1=/project/projectdirs/m1982/ariful/symmetric/dielFilterV3real.mtx
+MAT2=/project/projectdirs/m1982/ariful/symmetric/coPapersDBLP.mtx
+MAT3=/project/projectdirs/m1982/ariful/symmetric/hugetrace-00020.mtx
+MAT4=/project/projectdirs/m1982/ariful/symmetric/delaunay_n24.mtx
+MAT5=/project/projectdirs/m1982/ariful/symmetric/road_usa.mtx
+MAT6=/project/projectdirs/m1982/ariful/symmetric/rgg_n_2_24_s0.mtx
+MAT7=/project/projectdirs/m1982/ariful/symmetric/nlpkkt240.mtx
+MAT8=/project/projectdirs/m1982/ariful/symmetric/ldoor.mtx
+MAT9=/project/projectdirs/m1982/ariful/symmetric/Serena.mtx
+MAT10=/project/projectdirs/mp127/GradedL/GradedL_500.mtx
+MAT11=/project/projectdirs/mp127/GradedL/Hole3_0500.mtx
+
+export OMP_NUM_THREADS=1
+N=169
+n=4096
+srun -N $N -n $n ./gathertest input $MAT1
+srun -N $N -n $n ./gathertest input $MAT3
+srun -N $N -n $n ./gathertest input $MAT4
+srun -N $N -n $n ./gathertest input $MAT6
+srun -N $N -n $n ./gathertest input $MAT7
+srun -N $N -n $n ./gathertest input $MAT8
+srun -N $N -n $n ./gathertest input $MAT9

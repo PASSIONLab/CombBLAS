@@ -1,0 +1,13 @@
+
+Randomly permute the matrix? (1 or 0):1COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/MetinMatrices/Nm7.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 437368272
+File is 9184733795 bytes
+matrix read and symmetricized 
+Reader took 258.29 seconds
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+srun: error: nid00293: task 0: Aborted
+srun: Terminating job step 2378871.0

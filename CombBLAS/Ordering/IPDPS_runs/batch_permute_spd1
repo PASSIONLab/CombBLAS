@@ -1,0 +1,24 @@
+#!/bin/bash -l
+
+#SBATCH -p regular
+#SBATCH -N 6
+#SBATCH --qos=premium
+#SBATCH -t 03:30:00
+#SBATCH -J permute_spd
+#SBATCH -o permute_spd.o%j
+
+MAT1=/project/projectdirs/m1982/ariful/symmetric/positive_definite/Flan_1565.mtx
+MAT4=/project/projectdirs/m1982/ariful/symmetric/positive_definite/af_shell4.mtx
+MAT5=/project/projectdirs/m1982/ariful/symmetric/positive_definite/audikw_1.mtx
+MAT6=/project/projectdirs/m1982/ariful/symmetric/positive_definite/boneS10.mtx
+MAT7=/project/projectdirs/m1982/ariful/symmetric/positive_definite/inline_1.mtx
+MAT8=/project/projectdirs/m1982/ariful/symmetric/positive_definite/nd24k.mtx
+
+export OMP_NUM_THREADS=1
+srun -n 1  -N 1 ../MatPermuteSave $MAT1 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT4 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT5 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT6 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT7 &
+srun -n 1  -N 1 ../MatPermuteSave $MAT8 &
+wait

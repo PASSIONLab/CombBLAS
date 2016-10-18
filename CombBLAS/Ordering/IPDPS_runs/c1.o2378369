@@ -1,0 +1,29 @@
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+**** Reading input matrix: /project/projectdirs/m1982/ariful/MetinMatrices/Nm7.mtx ******* 
+Matrix is Float
+Total number of nonzeros expected across all processors is 437368272
+File is 9184733795 bytes
+matrix read and symmetricized 
+Reader took 260.135 seconds
+Threading activated with 1
+--------------------------------------
+Number of MPI proceses: 1
+Number of threads per procese: 1
+Number of splits of the matrix: 1
+Load balance: 1
+Bandwidth after random permutation 4073382
+Profile after random permutation 0
+--------------------------------------
+Pre allocating SPA
+Pre allocated SPA
+
+*********** Connected component # 1 *****************
+Discovering Pseudo-peripheral vertex
+Creating a new MPI Op for 7minimumISt4pairIllEE
+Creating a new MPI data type for St4pairIllE
+slurmstepd: error: *** STEP 2378369.0 ON nid00014 CANCELLED AT 2016-10-17T20:10:37 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 2378369 ON nid00014 CANCELLED AT 2016-10-17T20:10:37 DUE TO TIME LIMIT ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+srun: forcing job termination

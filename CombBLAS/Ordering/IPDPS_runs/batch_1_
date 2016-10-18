@@ -1,0 +1,35 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 1
+#SBATCH -t 00:30:00
+#SBATCH -J c1_1
+#SBATCH -o c1_1.o%j
+
+
+MAT1=/project/projectdirs/m1982/ariful/symmetric/positive_definite/G3_circuit.mtx_permuted
+MAT2=/project/projectdirs/m1982/ariful/symmetric/positive_definite/parabolic_fem.mtx_permuted
+MAT3=/project/projectdirs/m1982/ariful/symmetric/positive_definite/TSOPF_FS_b300_c2.mtx_permuted
+MAT4=/project/projectdirs/m1982/ariful/symmetric/positive_definite/pattern1.mtx_permuted
+MAT5=/project/projectdirs/m1982/ariful/symmetric/positive_definite/thermal2.mtx_permuted
+MAT6=/project/projectdirs/m1982/ariful/symmetric/positive_definite/tmt_sym.mtx_permuted
+MAT7=/project/projectdirs/m1982/ariful/symmetric/positive_definite/Flan_1565.mtx 
+MAT8=/project/projectdirs/m1982/ariful/symmetric/positive_definite/af_shell4.mtx 
+MAT9=/project/projectdirs/m1982/ariful/symmetric/positive_definite/audikw_1.mtx
+MAT10=/project/projectdirs/m1982/ariful/symmetric/positive_definite/boneS10.mtx 
+MAT11=/project/projectdirs/m1982/ariful/symmetric/positive_definite/inline_1.mtx 
+MAT12=/project/projectdirs/m1982/ariful/symmetric/positive_definite/nd24k.mtx 
+MAT13=/project/projectdirs/m1982/ariful/symmetric/dielFilterV3real.mtx_permuted
+MAT14=/project/projectdirs/m1982/ariful/symmetric/ldoor.mtx_permuted
+MAT15=/project/projectdirs/m1982/ariful/symmetric/Serena.mtx_permuted
+MAT16=/project/projectdirs/m1982/ariful/MetinMatrices/Nm7.mtx 
+MAT17=/project/projectdirs/m1982/ariful/symmetric/nlpkkt240.mtx 
+
+
+export OMP_NUM_THREADS=1
+
+N=1
+n=1
+srun -N $N -n $n -c 1  --cpu_bind=cores ../rcm input $MAT16 -permute 1
+#srun -N $N -n $n -c 6  --cpu_bind=cores ../rcm input $MAT17 -permute 1
+
