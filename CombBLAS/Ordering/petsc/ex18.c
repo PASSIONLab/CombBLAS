@@ -262,7 +262,9 @@ int main(int argc,char **args)
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                       Solve the linear system
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
+  //PC prec;
+ // KSPGetPC(ksp,&prec);
+//	PetscPrintf(PETSC_COMM_WORLD," %s\n",prec->PCType);
   double tstart = MPI_Wtime();
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   ierr = KSPGetIterationNumber(ksp,&its);CHKERRQ(ierr);

@@ -86,8 +86,10 @@ int main(int argc, char* argv[])
 
         filename += "_permuted";
         ABool->SaveGathered(filename);
+	tinfo.str("");
         tinfo << "**** Saved to output matrix: " << filename << " ******* " << endl;
-        delete ABool;
+        SpParHelper::Print(tinfo.str());
+	delete ABool;
         
     }
     MPI_Finalize();
