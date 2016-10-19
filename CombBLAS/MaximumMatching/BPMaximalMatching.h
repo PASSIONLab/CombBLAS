@@ -88,17 +88,11 @@ struct Select2ndMinSR
 
 
 
-typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
-typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t, int64_t> > Par_DCSC_int64_t;
-typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
-typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
-
-
 
 
 //typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 //typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
-
+template <typename Par_DCSC_Bool>
 void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
             FullyDistVec<int64_t, int64_t>& mateCol2Row, FullyDistVec<int64_t, int64_t>& degColRecv, int type, bool rand=true)
 {
@@ -311,7 +305,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t
 
 
 
-template <class IT, class NT>
+template <class Par_DCSC_Bool, class IT, class NT>
 bool isMaximalmatching(Par_DCSC_Bool & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row)
 {
     int myrank;
