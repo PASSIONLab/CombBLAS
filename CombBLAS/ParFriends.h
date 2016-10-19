@@ -867,7 +867,7 @@ template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typ
 void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
 			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
 {
-	if(optbuf.totmax > 0)	// graph500 optimization enabled
+    if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
 		if(A.spSeq->getnsplit() > 0)
 		{
