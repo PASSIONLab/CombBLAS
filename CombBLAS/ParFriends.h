@@ -894,41 +894,82 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 		}
 		else
 		{
-            vector< int32_t > indy;
-            vector< OVT >  numy;
-            
-            #ifdef THREADED
+
+#ifdef THREADED
             // multithreaded SpMV without splitting the matrix
             // skipping the intermadiate layer of Friends.h
-            SpMXSpV_Threaded_2D<SR>(*(A.spSeq->GetInternal()), (int32_t) A.getnrow(), indacc, numacc, accnz, indy, numy, SPA);
-            #else
-                // serial SpMV
-                generic_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
-            #endif
+            int32_t* indy;
+            OVT*  numy;
+            int nnzy;
+            SpMXSpV_Threaded_2D<SR>(*(A.spSeq->GetInternal()), (int32_t) A.getnrow(), indacc, numacc, accnz, indy, numy, nnzy, SPA);
+            DeleteAll(indacc, numacc);
+            
+            if(rowneighs==1) // shared memory version, simply steal memory from indy and numy
+            {
+                sendindbuf = indy;
+                sendnumbuf = numy;
+                sendcnt[0] = nnzy;
+                sdispls = new int[rowneighs]();
+                partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+                return;
+            }
+            else // TODO: parallelize this
+            {
+                sendindbuf = new int32_t[nnzy];
+                sendnumbuf = new OVT[nnzy];
+                int32_t perproc = A.getlocalrows() / rowneighs;
+                
+                int k = 0;	// index to buffer
+                for(int i=0; i<rowneighs; ++i)
+                {
+                    int32_t end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
+                    while(k < nnzy && indy[k] < end_this)
+                    {
+                        sendindbuf[k] = indy[k] - i*perproc;
+                        sendnumbuf[k] = numy[k];
+                        ++sendcnt[i];
+                        ++k;
+                    }
+                }
+                DeleteAll(indy, numy);
+                sdispls = new int[rowneighs]();
+                partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+            }
+            
 
-			DeleteAll(indacc, numacc);
-			
-			int32_t bufsize = indy.size();	// as compact as possible
-			sendindbuf = new int32_t[bufsize];	
-			sendnumbuf = new OVT[bufsize];
-			int32_t perproc = A.getlocalrows() / rowneighs;	
-			
-			int k = 0;	// index to buffer
-			for(int i=0; i<rowneighs; ++i)		
-			{
-				int32_t end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
-				while(k < bufsize && indy[k] < end_this) 
-				{
-					sendindbuf[k] = indy[k] - i*perproc;
-					sendnumbuf[k] = numy[k];
-					++sendcnt[i];
-					++k; 
-				}
-			}
-			sdispls = new int[rowneighs]();	
-			partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1); 
+#else
+            // serial SpMV
+            vector< int32_t > indy;
+            vector< OVT >  numy;
+            generic_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
+            
+            DeleteAll(indacc, numacc);
+            
+            int32_t bufsize = indy.size();	// as compact as possible
+            sendindbuf = new int32_t[bufsize];
+            sendnumbuf = new OVT[bufsize];
+            int32_t perproc = A.getlocalrows() / rowneighs;
+            
+            int k = 0;	// index to buffer
+            for(int i=0; i<rowneighs; ++i)
+            {
+                int32_t end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
+                while(k < bufsize && indy[k] < end_this)
+                {
+                    sendindbuf[k] = indy[k] - i*perproc;
+                    sendnumbuf[k] = numy[k];
+                    ++sendcnt[i];
+                    ++k;
+                }
+            }
+            sdispls = new int[rowneighs]();
+            partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+            
+#endif
+
 		}
 	}
+
 }
 
 
