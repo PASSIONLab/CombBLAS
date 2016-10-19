@@ -519,7 +519,7 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                 // set value to the current level
                 fringe=curLevel;
                 curLevel++;
-                level.Set(fringe);
+                level.Set(fringe);    
             }
             curLevel = curLevel-2;
             
