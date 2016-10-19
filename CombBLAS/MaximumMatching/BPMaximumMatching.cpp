@@ -22,6 +22,14 @@ int cblas_splits = 1;
 #include "BPMaximalMatching.h"
 #include "BPMaximumMatching.h"
 
+typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
+typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t, int64_t> > Par_DCSC_int64_t;
+typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
+typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
+
+
+
+
 using namespace std;
 
 // algorithmic options
