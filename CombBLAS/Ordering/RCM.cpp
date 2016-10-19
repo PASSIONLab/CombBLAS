@@ -694,7 +694,7 @@ int main(int argc, char* argv[])
         int randpermute = 0;
         for (int i = 1; i < argc; i++)
         {
-            if (strcmp(argv[i],"-rand")==0) {
+            if (strcmp(argv[i],"-permute")==0) {
                 randpermute = atoi(argv[i + 1]);
                 if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
             }
