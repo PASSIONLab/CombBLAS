@@ -198,7 +198,15 @@ public:
 			return SpColIter(dcsc->cp, dcsc->jc); 
 		else	
 			return SpColIter(NULL, NULL);
-	}	
+	}
+    SpColIter begcol(int i)  // multithreaded version
+    {
+        if( dcscarr[i] )
+            return SpColIter(dcscarr[i]->cp, dcscarr[i]->jc);
+        else
+            return SpColIter(NULL, NULL);
+    }
+
 	SpColIter endcol()
 	{
 		if( nnz > 0 )
@@ -206,6 +214,14 @@ public:
 		else
 			return SpColIter(NULL, NULL);
 	}
+    
+    SpColIter endcol(int i)  //multithreaded version
+    {
+        if( dcscarr[i] )
+            return SpColIter(dcscarr[i]->cp + dcscarr[i]->nzc, NULL);
+        else
+            return SpColIter(NULL, NULL);
+    }
 
 	typename SpColIter::NzIter begnz(const SpColIter & ccol)	//!< Return the beginning iterator for the nonzeros of the current column
 	{
@@ -217,6 +233,16 @@ public:
 		return typename SpColIter::NzIter( dcsc->ir + ccol.colptrnext(), NULL );
 	}			
 
+    typename SpColIter::NzIter begnz(const SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return typename SpColIter::NzIter( dcscarr[i]->ir + ccol.colptr(), dcscarr[i]->numx + ccol.colptr() );
+    }
+    
+    typename SpColIter::NzIter endnz(const SpColIter & ccol, int i)	//!< multithreaded version
+    {
+        return typename SpColIter::NzIter( dcscarr[i]->ir + ccol.colptrnext(), NULL );
+    }
+    
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{

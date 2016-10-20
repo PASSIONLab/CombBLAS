@@ -237,6 +237,8 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
     Aeff.ActivateThreading(cblas_splits);
 #endif
     
+    PreAllocatedSPA<int64_t,bool,int64_t> SPA(Aeff.seq());
+    
     double tspmvall=0;
     int iterall = 0;
     int visitedE = 0;
@@ -262,7 +264,7 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
             int64_t xnnz = fringe.getnnz();
             fringe.setNumToInd();
             double tstart = MPI_Wtime();
-            SpMV<SelectMinSR>(Aeff, fringe, fringe, false);
+            SpMV<SelectMinSR>(Aeff, fringe, fringe, false, SPA);
             //fringe = SpMV(Aeff, fringe,optbuf);	// SpMV with sparse vector (with indexisvalue flag preset), optimization enabled
             double tspmv = MPI_Wtime()-tstart;
             tspmvall += tspmv;
@@ -327,6 +329,7 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
     ABoolCSC->ActivateThreading(cblas_splits);
 #endif
 
+    PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq());
     
     double tspmvall=0;
     int iterall = 0;
@@ -353,7 +356,7 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
             int64_t xnnz = fringe.getnnz();
             fringe.setNumToInd();
             double tstart = MPI_Wtime();
-            SpMV<SelectMinSR>(*ABoolCSC, fringe, fringe, false);
+            SpMV<SelectMinSR>(*ABoolCSC, fringe, fringe, false, SPA);
             double tspmv = MPI_Wtime()-tstart;
             tspmvall += tspmv;
             int64_t ynnz = fringe.getnnz();

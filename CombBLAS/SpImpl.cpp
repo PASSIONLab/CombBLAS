@@ -270,15 +270,24 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 }
 
 
+// this version is still very good with splitters
+template <typename SR, typename IT, typename IVT, typename OVT>
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
+{
+    vector<OVT> localy(mA);
+    BitMap isthere(mA);
+    vector<uint32_t> nzinds;	// nonzero indices
+    
+    SpMXSpV_ForThreading(Adcsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);
+}
+
+
+
 //! We can safely use a SPA here because Adcsc is short (::RowSplit() has already been called on it)
 template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
 {
-	OVT * localy = new OVT[mA];
-    BitMap isthere(mA);
-	vector<uint32_t> nzinds;	// nonzero indices
-
 	// The following piece of code is not general, but it's more memory efficient than FillColInds
 	int32_t k = 0; 	// index to indx vector
 	IT i = 0; 	// index to columns of matrix
@@ -314,8 +323,9 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
 		numy[i] = localy[nzinds[i]]; 	
 	}
-    delete [] localy;
 }
+
+
 
 
 
