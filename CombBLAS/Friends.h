@@ -109,10 +109,21 @@ int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, 
 			#endif
 			for(int i=0; i<splits; ++i)
 			{
-				if(i != splits-1)
-					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
-				else
-					SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+                if(SPA.initialized)
+                {
+                    cout << "using this" << endl;
+                    if(i != splits-1)
+                         SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece, SPA.V_localy[i], SPA.V_isthere[i], SPA.V_inds[i]);
+                    else
+                        SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece, SPA.V_localy[i], SPA.V_isthere[i], SPA.V_inds[i]);
+                }
+                else
+                {
+                    if(i != splits-1)
+                        SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+                    else
+                        SpMXSpV_ForThreading<SR>(*(A.GetInternal(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+                }
 			}
 
 			vector<int> accum(splits+1, 0);
