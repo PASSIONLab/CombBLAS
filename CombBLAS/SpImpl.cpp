@@ -840,7 +840,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
         if(bufferMem>L2_CACHE_SIZE ) THREAD_BUF_LEN/=2;
         else break;
     }
-    THREAD_BUF_LEN = min(maxBucketSize+1,256);
+    THREAD_BUF_LEN = min(maxBucketSize+1,THREAD_BUF_LEN);
     
 #ifdef TIMING
     t0 = MPI_Wtime();
