@@ -402,19 +402,15 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
 int main(int argc, char* argv[])
 {
     int nprocs, myrank;
-#ifdef _OPENMP
-    int provided, flag, claimed;
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
-    MPI_Is_thread_main( &flag );
-    if (!flag)
-        SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
-    MPI_Query_thread( &claimed );
-    if (claimed != provided)
-        SpParHelper::Print("Query thread gave different thread level than requested\n");
-#else
-    MPI_Init(&argc, &argv);
-#endif
-    
+
+    int provided;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
+    {
+        printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(argc < 3)
