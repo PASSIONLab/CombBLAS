@@ -1,9 +1,9 @@
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -std=gnu++14 -O3 -fopenmp -fpermissive  -DNDEBUG -DTHREADED -DDETERMINISTIC  -DTIMING 
+CXXFLAGS := -std=c++11 -std=gnu++14 -O3 -fopenmp -fpermissive  -DNDEBUG -DTHREADED -DDETERMINISTIC  -DTIMING -DBENCHMARK_SPMSPV
 
 
 
-COMBBLAS = ../../
+COMBBLAS = ../..
 
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator

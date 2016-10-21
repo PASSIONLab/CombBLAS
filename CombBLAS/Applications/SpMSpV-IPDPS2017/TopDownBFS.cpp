@@ -48,8 +48,9 @@ double cblas_mergeconttime;
 double cblas_transvectime;
 double cblas_localspmvtime;
 
-#define ITERS 10
+
 #define EDGEFACTOR 16
+int ITERS;
 using namespace std;
 
 
@@ -264,7 +265,8 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
             int64_t xnnz = fringe.getnnz();
             fringe.setNumToInd();
             double tstart = MPI_Wtime();
-            SpMV<SelectMinSR>(Aeff, fringe, fringe, false, SPA);
+            //SpMV<SelectMinSR>(Aeff, fringe, fringe, false, SPA);
+            SpMV<SelectMinSR>(Aeff, fringe, fringe, false);
             //fringe = SpMV(Aeff, fringe,optbuf);	// SpMV with sparse vector (with indexisvalue flag preset), optimization enabled
             double tspmv = MPI_Wtime()-tstart;
             tspmvall += tspmv;
@@ -356,7 +358,8 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
             int64_t xnnz = fringe.getnnz();
             fringe.setNumToInd();
             double tstart = MPI_Wtime();
-            SpMV<SelectMinSR>(*ABoolCSC, fringe, fringe, false, SPA);
+            //SpMV<SelectMinSR>(*ABoolCSC, fringe, fringe, false, SPA);
+            SpMV<SelectMinSR>(*ABoolCSC, fringe, fringe, false);
             double tspmv = MPI_Wtime()-tstart;
             tspmvall += tspmv;
             int64_t ynnz = fringe.getnnz();
@@ -446,7 +449,8 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> nonisov(fullWorld);	// id's of non-isolated (connected) vertices
         unsigned scale;
         bool scramble = false;
-        int source = 0, iter = 1;
+        int source = 0;
+        ITERS = 1;
         bool randpermute = false;
         bool symm = false;
         int maxthreads = 1;
@@ -471,8 +475,8 @@ int main(int argc, char* argv[])
             }
             if (strcmp(argv[i],"-iter")==0)
             {
-                iter = atoi(argv[i + 1]);
-                if(myrank == 0) cout << "Number of iterations: " << iter << endl;
+                ITERS = atoi(argv[i + 1]);
+                if(myrank == 0) cout << "Number of iterations: " << ITERS << endl;
             }
             if (strcmp(argv[i],"-maxthread")==0)
             {
