@@ -829,10 +829,6 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
 #ifdef TIMING
     double  tseq = MPI_Wtime() - t0;
 #endif
-    //cout << "total nnz: "  << disp[rowSplits] << " memory: " << disp[rowSplits] * 8.0/1000.0 << " KB"<< endl;
-    //for(int i=0; i<rowSplits; i++) cout << i<<":"<< 100.0 * (double) sendSize[i]/disp[rowSplits] << "% ";
-    //cout << endl;
-    
     //------------------------------------------------------
     // Step2: The matrix is traversed column by column and
     // nonzeros each rowsplit of the matrix are compiled together
@@ -949,7 +945,9 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
             }
         }
         
+#ifndef BENCHMARK_SPMSPV
         integerSort(nzinds + disp[rs], tMergeDisp - disp[rs]);
+#endif
         nzInRowSplits[rs] = tMergeDisp - disp[rs];
         
     }
