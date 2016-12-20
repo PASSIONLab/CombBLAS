@@ -926,7 +926,7 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 {
-#ifdef COMBBLAS_DEBUG
+/*#ifdef COMBBLAS_DEBUG
     FullyDistVec<GIT,VT> test1(rvec.getcommgrid());
     FullyDistVec<GIT,VT> test2(rvec.getcommgrid());
     Kselect1(test1, k_limit, myidentity<NT>());
@@ -939,7 +939,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
         //test1.PrintToFile("test1");
         //test2.PrintToFile("test2");
     }
-#endif
+#endif*/
     
     if(k_limit > KSELECTLIMIT)
     {
