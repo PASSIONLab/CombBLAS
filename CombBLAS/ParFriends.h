@@ -182,6 +182,12 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 template <typename IT, typename NT, typename DER>
 bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct)
 {
+#ifdef COMBBLAS_DEBUG
+    ostringstream ss;
+    ss << "MCLRecovery with " << recoverNum << endl;
+    SpParHelper::Print(ss.str());
+#endif
+    
     FullyDistVec<IT,NT> colSums = A.Reduce(Column, plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     
@@ -228,6 +234,12 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
 template <typename IT, typename NT, typename DER>
 bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
 {
+#ifdef COMBBLAS_DEBUG
+    ostringstream ss;
+    ss << "MCLSelect with " << selectNum << endl;
+    SpParHelper::Print(ss.str());
+#endif
+    
     FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
     if(selectCols.getnnz() > 0)
