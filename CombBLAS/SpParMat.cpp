@@ -293,7 +293,8 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     
     int64_t totactcols, totactnnzs;
     MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
-    if(myrank == 0)   cout << "Number of active columns are " << totactcols << endl;
+    if(myrank == 0)   cout << "Number of initial active columns are " << totactcols << endl;
+    
     
 #ifdef COMBBLAS_DEBUG
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
@@ -305,10 +306,11 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     if(totactcols == 0)
     {
         ostringstream ss;
-        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn. Calling Reduce instead..." << endl;
+        ss << "TopK: k_limit (" << k_limit <<")" << " >= maxNnzInColumn. Returning the result of Reduce(Column, minimum<NT>()) instead..." << endl;
         SpParHelper::Print(ss.str());
-        return false;
+        return false;   // no prune needed
     }
+   
     
     vector<IT> actcolsmap(activecols);  // the map that gives the original index of that active column (this map will shrink over iterations)
     for (IT i=0, j=0; i< locm; ++i) {
@@ -457,7 +459,11 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     }
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_pair);
-    return true;
+    
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)   cout << "Exiting kselect2"<< endl;
+#endif
+    return true;    // prune needed
 }
 
 
