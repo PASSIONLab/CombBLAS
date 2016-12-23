@@ -348,7 +348,7 @@ private:
     void TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
                     const vector<NT> & medians, const vector<IT> & nnzperc, int itersuntil, vector< vector<NT> > & localmat,
                     const vector<IT> & actcolsmap, vector<IT> & klimits, vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair,
-                    IT coffset, FullyDistVec<GIT,VT> & rvec) const;
+                    IT coffset, const FullyDistVec<GIT,VT> & rvec) const;
     
 	template <typename LIT>
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
