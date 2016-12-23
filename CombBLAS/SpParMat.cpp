@@ -127,7 +127,7 @@ template <typename VT, typename GIT>	// GIT: global index type of vector
 void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
                                      const vector<NT> & activemedians, const vector<IT> & activennzperc, int itersuntil,
                                      vector< vector<NT> > & localmat, const vector<IT> & actcolsmap, vector<IT> & klimits,
-                                     vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair, IT coffset, FullyDistVec<GIT,VT> & rvec) const
+                                     vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair, IT coffset, const FullyDistVec<GIT,VT> & rvec) const
 {
     int rankincol = commGrid->GetRankInProcCol();
     int myrank = commGrid->GetRank();
@@ -301,7 +301,12 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
 #endif
     
-    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready
+    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready, this should also set the glen of rvec correctly
+    
+    
+#ifdef COMBBLAS_DEBUG
+    rvec.PrintInfo("rvector");
+#endif
     
     if(totactcols == 0)
     {
