@@ -305,6 +305,7 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     
     
 #ifdef COMBBLAS_DEBUG
+    PrintInfo();
     rvec.PrintInfo("rvector");
 #endif
     
