@@ -1824,8 +1824,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     int * dpls = new int[colneighs]();	// displacements (zero initialized pid)
     std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
     int accsize = std::accumulate(colsize, colsize+colneighs, 0);
-    //NT * numacc = new NT[accsize];
     vector<NT> numacc(accsize);
+    
     
     
     MPI_Allgatherv(trxnums, trxsize, MPIType<NT>(), numacc.data(), colsize, dpls, MPIType<NT>(), ColWorld);
@@ -1837,7 +1837,10 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     assert(accsize == getlocalcols());
     if (inPlace)
     {
+        SpParHelper::Print("PruneColumn in place\n");
         spSeq->PruneColumn(numacc.data(), __binary_op, inPlace);
+        SpParHelper::Print("PruneColumn in placed\n");
+
         return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
     }
     else
