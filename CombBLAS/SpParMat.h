@@ -264,7 +264,6 @@ public:
 	void SaveGathered(string filename) const { SaveGathered(filename, ScalarReadSaveHandler(), false); }
 	
 	ofstream& put(ofstream& outfile) const;
-	void PrintForPatoh(string filename) const;
 
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
 	typename DER::LocalIT getlocalrows() const { return spSeq->getnrow(); }
