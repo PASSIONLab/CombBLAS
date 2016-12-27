@@ -139,8 +139,8 @@ int main(int argc, char* argv[])
 		//ptopk.second.DebugPrint();
 
 		// generate random permutations
-        	FullyDistVec<int,int> p(fullWorld);
-        	FullyDistVec<int,int> q(fullWorld);
+        FullyDistVec<int,int> p(fullWorld);
+        FullyDistVec<int,int> q(fullWorld);
 		p.iota(A.getnrow(), 0);
 		q.iota(A.getncol(), 0);
 		p.RandPerm();	
@@ -170,9 +170,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			//A.PrintForPatoh("Original.patoh");
-			//B.PrintForPatoh("Permuted.patoh");	
-			//C.PrintForPatoh("Restored.patoh");
+			SpParHelper::Print("Error in permutation\n");
 		}
 
 		inputvec1.clear();
