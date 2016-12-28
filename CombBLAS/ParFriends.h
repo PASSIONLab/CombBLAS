@@ -211,6 +211,13 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         
 #ifdef COMBBLAS_DEBUG
         kth.PrintInfo("kth vector");
+	float balance = AOriginal.LoadImbalance();
+        int64_t nnz = AOriginal.getnnz();
+        outs.str("");
+        outs.clear();
+        outs << "Load balance: " << balance << endl;
+        outs << "Nonzeros: " << nnz << endl;
+        SpParHelper::Print(outs.str());
 #endif
         
         
@@ -225,6 +232,14 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
 #endif
 
             AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+
+	    float balance = AOriginal.LoadImbalance();
+            int64_t nnz = AOriginal.getnnz();
+            outs.str("");
+            outs.clear();
+            outs << "Load balance: " << balance << endl;
+            outs << "Nonzeros: " << nnz << endl;
+            SpParHelper::Print(outs.str());
 #ifdef TIMING
             double t3=MPI_Wtime();
             mcl_prunecolumntime += (t3-t2);
