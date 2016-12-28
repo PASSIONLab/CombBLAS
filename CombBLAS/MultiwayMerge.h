@@ -115,7 +115,9 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         {
             tuple<IT, IT, NT>* mergeTups = static_cast<tuple<IT, IT, NT>*>
                     (::operator new (sizeof(tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+	#ifdef THREADED
             #pragma omp parallel for
+	#endif
             for(int i=0; i<ArrSpTups[0]->getnnz(); i++)
                 mergeTups[i] = ArrSpTups[0]->tuples[i];
 
@@ -133,11 +135,13 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         }
     }
 
-    int nthreads;
+    int nthreads = 1;	// in case THREADED is not defined
+#ifdef THREADED
 #pragma omp parallel
     {
         nthreads = omp_get_num_threads();
     }
+#endif
     int nsplits = 4*nthreads; // oversplit for load balance
     nsplits = min(nsplits, (int)ndim); // we cannot split a column
     vector< vector<IT> > colPtrs;

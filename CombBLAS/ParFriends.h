@@ -207,6 +207,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         double t0=MPI_Wtime();
 #endif
         bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
+	MPI_Barrier(MPI_COMM_WORLD);
         
 #ifdef COMBBLAS_DEBUG
         kth.PrintInfo("kth vector");
