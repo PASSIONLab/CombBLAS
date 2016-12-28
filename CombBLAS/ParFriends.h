@@ -213,8 +213,8 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         kth.PrintInfo("kth vector");
 	float balance = AOriginal.LoadImbalance();
         int64_t nnz = AOriginal.getnnz();
-        outs.str("");
-        outs.clear();
+        
+        ostringstream outs;
         outs << "Load balance: " << balance << endl;
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
@@ -235,8 +235,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
 
 	    float balance = AOriginal.LoadImbalance();
             int64_t nnz = AOriginal.getnnz();
-            outs.str("");
-            outs.clear();
+            ostringstream outs;
             outs << "Load balance: " << balance << endl;
             outs << "Nonzeros: " << nnz << endl;
             SpParHelper::Print(outs.str());

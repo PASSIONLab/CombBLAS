@@ -82,7 +82,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
     Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
     Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
     IT nA = A.getncol();
-    IT cnzmax = Adcsc->nz + Bdcsc->nz;	// estimate on the size of resulting matrix C
     float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
@@ -116,7 +115,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
 #pragma omp parallel for
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
-        IT nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+        size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
 	#ifdef THREADED
         int myThread = omp_get_thread_num();
 	#else
@@ -241,11 +240,11 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
 #pragma omp parallel for
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
-        IT nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+        size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
 	#ifdef THREADED
         int myThread = omp_get_thread_num();
 	#else
-	int myThread = 0;
+        int myThread = 0;
 	#endif
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {

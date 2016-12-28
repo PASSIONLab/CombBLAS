@@ -882,7 +882,7 @@ void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
 
 
 /**
- * Concatenates (merges) multuple matrices (cut along the columns) into 1 piece
+ * Concatenates (merges) multiple matrices (cut along the columns) into 1 piece
  * ColSplit() method should have been executed on the object beforehand
  */
 template <class IT, class NT>
@@ -893,7 +893,7 @@ void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
     vector< IT > offsets;
     IT runningoffset = 0;
 
-    for(int i=0; i< matrices.size(); ++i)
+    for(size_t i=0; i< matrices.size(); ++i)
     {
         if(matrices[i].nnz != 0)
         {
@@ -924,7 +924,7 @@ void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
     }
     
     // destruct parameters
-    for(int i=0; i< matrices.size(); ++i)
+    for(size_t i=0; i< matrices.size(); ++i)
     {
         matrices[i] = SpDCCols<IT,NT>();
     }
