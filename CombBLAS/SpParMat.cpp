@@ -463,8 +463,10 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         if(myrank  == 0) cout << "Number of active columns are " << totactcols << endl;
 #endif
     }
+    MPI_Barrier(MPI_COMM_WORLD);
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_pair);
+    MPI_Barrier(MPI_COMM_WORLD);
     
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)   cout << "Exiting kselect2"<< endl;
@@ -1787,6 +1789,8 @@ template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
 
+    SpParHelper::Print("PruneColumn1\n");
+    MPI_Barrier(MPI_COMM_WORLD);
     if(getncol() != pvals.TotalLength())
     {
         ostringstream outs;
@@ -1804,13 +1808,25 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
     MPI_Comm RowWorld = pvals.commGrid->GetRowWorld();
+
+    SpParHelper::Print("PruneColumn2\n");
     
     int xsize = (int) pvals.LocArrSize();
     int trxsize = 0;
+
+    ostringstream outs;
+    outs << "xsize: " << xsize << endl;
+    SpParHelper::Print(outs.str());
+    MPI_Barrier(World);
+
     
     int diagneigh = pvals.commGrid->GetComplementRank();
     MPI_Status status;
     MPI_Sendrecv(&xsize, 1, MPI_INT, diagneigh, TRX, &trxsize, 1, MPI_INT, diagneigh, TRX, World, &status);
+
+
+    SpParHelper::Print("PruneColumn4\n");
+    MPI_Barrier(World);
     
     NT * trxnums = new NT[trxsize];
     MPI_Sendrecv(const_cast<NT*>(SpHelper::p2a(pvals.arr)), xsize, MPIType<NT>(), diagneigh, TRX, trxnums, trxsize, MPIType<NT>(), diagneigh, TRX, World, &status);
@@ -1825,6 +1841,15 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
     int accsize = std::accumulate(colsize, colsize+colneighs, 0);
     vector<NT> numacc(accsize);
+
+    ostringstream outs2;
+    for(int i=0; i< colneighs; ++i)
+    {
+	outs2 << dpls[i] << " ";
+    }
+    outs2 << "PruneColumn5" << endl;
+    SpParHelper::Print(outs2.str());
+    MPI_Barrier(World);
     
     
     

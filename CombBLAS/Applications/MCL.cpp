@@ -111,11 +111,13 @@ int main(int argc, char* argv[])
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     
-    int nthreads;
+    int nthreads = 1;
+#ifdef THREADED
 #pragma omp parallel
     {
         nthreads = omp_get_num_threads();
     }
+#endif
 
 	int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);

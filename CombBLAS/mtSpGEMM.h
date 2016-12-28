@@ -30,7 +30,12 @@ T* prefixsum(T* in, int size, int nthreads)
     
 #pragma omp parallel
     {
+	#ifdef THREADED
         int ithread = omp_get_thread_num();
+	#else
+	int ithread = 0;
+	#endif
+
         T sum = 0;
 #pragma omp for schedule(static)
         for (int i=0; i<size; i++)
@@ -83,11 +88,13 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT * aux;
     Adcsc->ConstructAux(nA, aux);
     
-    int numThreads;
+    int numThreads = 1;
+#ifdef THREADED
 #pragma omp parallel
     {
         numThreads = omp_get_num_threads();
     }
+#endif
    
     IT* colnnzC = estimateNNZ(A, B);
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
@@ -110,7 +117,11 @@ SpTuples<IT, NTO> * LocalSpGEMM
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
         IT nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+	#ifdef THREADED
         int myThread = omp_get_thread_num();
+	#else
+	int myThread = 0;
+	#endif
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
             colindsVec[myThread].resize(nnzcolB);
@@ -201,11 +212,13 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     Adcsc->ConstructAux(A.getncol(), aux);
     
     
-    int numThreads;
+    int numThreads = 1;
+#ifdef THREADED
 #pragma omp parallel
     {
         numThreads = omp_get_num_threads();
     }
+#endif
     
 
     IT* colnnzC = new IT[Bdcsc->nzc]; // nnz in every nonempty column of C
@@ -229,7 +242,11 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
         IT nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+	#ifdef THREADED
         int myThread = omp_get_thread_num();
+	#else
+	int myThread = 0;
+	#endif
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
             colindsVec[myThread].resize(nnzcolB);

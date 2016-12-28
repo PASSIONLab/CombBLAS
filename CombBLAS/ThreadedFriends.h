@@ -76,11 +76,13 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT * aux;
     Adcsc->ConstructAux(nA, aux);
     
-    int numThreads;
+    int numThreads = 1;	// default case
+#ifdef THREADED
 #pragma omp parallel
     {
         numThreads = omp_get_num_threads();
     }
+#endif
     
     IT* colnnzC = estimateNNZ(A, B);
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
