@@ -226,13 +226,13 @@ int main(int argc, char* argv[])
         }
         
         
-		float balance = A.LoadImbalance();
-		int64_t nnz = A.getnnz();
+	float balance = A.LoadImbalance();
+	int64_t nnz = A.getnnz();
         outs.str("");
         outs.clear();
-		outs << "Load balance: " << balance << endl;
-		outs << "Nonzeros: " << nnz << endl;
-		SpParHelper::Print(outs.str());
+	outs << "Load balance: " << balance << endl;
+	outs << "Nonzeros: " << nnz << endl;
+	SpParHelper::Print(outs.str());
         
         
         double tstart = MPI_Wtime();
