@@ -130,7 +130,6 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                                      vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair, IT coffset, const FullyDistVec<GIT,VT> & rvec) const
 {
     int rankincol = commGrid->GetRankInProcCol();
-    int myrank = commGrid->GetRank();
     int colneighs = commGrid->GetGridRows();
     vector<double> finalWeightedMedians(thischunk, 0.0);
     
@@ -194,6 +193,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
         size_t clmapindex = j+itersuntil*chunksize;     // klimits is of the same length as actcolsmap
         size_t fetchindex = actcolsmap[clmapindex];     // localmat can only be dereferenced using the original indices.
         
+        // these following if/else checks are the same (because klimits/large/equal vectors are mirrored) on every processor along ColWorld
         if(klimits[clmapindex] <= larger[j]) // the entries larger than Weighted-Median are plentiful, we can discard all the smaller/equal guys
         {
             vector<NT> survivors;
@@ -278,9 +278,6 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     int myrank = commGrid->GetRank();
     int nprocs = commGrid->GetSize();
     
-#ifdef THREADED
-#pragma omp parallel for
-#endif
     for(IT i=0; i<locm; i++)
         nnzperc[i] = localmat[i].size();
     
@@ -1066,8 +1063,6 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
-    int rank = commGrid->GetRank();
-    
     
     for(int p=2; p <= colneighs; p*=2)
     {
@@ -1805,8 +1800,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     
     MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
-    MPI_Comm RowWorld = pvals.commGrid->GetRowWorld();
-
     
     int xsize = (int) pvals.LocArrSize();
     int trxsize = 0;

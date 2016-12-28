@@ -136,30 +136,26 @@ SpTuples<IU, NUO> * MultiplyReturnTuples
 					bool clearA = false, bool clearB = false)
 
 {
-	IU A_m, A_n, B_m, B_n;
+	IU A_n, B_m;
  
 	if(isAT)
 	{
-		A_m = A.getncol();
 		A_n = A.getnrow();
 	}
 	else
 	{
-		A_m = A.getnrow();
 		A_n = A.getncol();
 	}
 	if(isBT)
 	{
 		B_m = B.getncol();
-		B_n = B.getnrow();
 	}
 	else
 	{
 		B_m = B.getnrow();
-		B_n = B.getncol();
 	}
 		
-        if(A_n == B_m)
+    if(A_n == B_m)
 	{
 		if(isAT && isBT)
 		{

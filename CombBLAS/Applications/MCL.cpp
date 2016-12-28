@@ -170,10 +170,10 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("\nCutoff:%f",prunelimit);
             } else if (strcmp(argv[i],"-S")==0) {
                 select = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nSelection Number:%d",select);
+                if(myrank == 0) printf("\nSelection Number:%lld",select);
             } else if (strcmp(argv[i],"-R")==0) {
                 recover_num = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nRecovery Number:%d",recover_num);
+                if(myrank == 0) printf("\nRecovery Number:%lld",recover_num);
             } else if (strcmp(argv[i],"-pct")==0) {
                 recover_pct = atof(argv[i + 1]);
                 if(myrank == 0) printf("\nRecovery Percentage:%f",recover_pct);
