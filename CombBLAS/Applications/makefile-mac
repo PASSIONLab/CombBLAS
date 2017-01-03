@@ -36,8 +36,8 @@ BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h
 MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
 
-APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp 
+CC.o:  CC.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
 TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TopDownBFS.o TopDownBFS.cpp 
@@ -54,8 +54,8 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
 
-apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o 
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
 
 tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
@@ -93,7 +93,7 @@ clean:
 	rm -f driver
 	rm -f mcl
 	rm -f fbfs
-	rm -f apowers
+	rm -f cc
 	rm -f dobfs
 	rm -f tdbfs
 	rm -f *.o

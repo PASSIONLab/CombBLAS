@@ -360,7 +360,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator-=(const FullyDistSpVec< I
 
 
 /**
-  * Perform __binary_op(*this, v2) for every element in rhs, *this, 
+  * Perform __binary_op(*this[i], rhs[i]) for every element in rhs, *this,
   * which are of the same size. and write the result back to *this
   */ 
 template <class IT, class NT>
@@ -368,6 +368,17 @@ template <typename _BinaryOperation>
 void FullyDistVec<IT,NT>::EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op)
 {
 	transform ( arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), __binary_op );
+};
+
+/**
+ * Perform __binary_op(*this[i], rhs[i]) for every element in rhs and *this, which are of the same size.
+ * write the result output vector, hence the name EWiseOut
+ */
+template <class IT, class NT>
+template <typename _BinaryOperation, typename OUT>
+void FullyDistVec<IT,NT>::EWiseOut(const FullyDistVec<IT,NT> & rhs, _BinaryOperation __binary_op, FullyDistVec<IT,OUT> & result)
+{
+    transform ( arr.begin(), arr.end(), rhs.arr.begin(), result.arr.begin(), __binary_op );
 };
 
 
