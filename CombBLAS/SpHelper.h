@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 11/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,24 @@ class Dcsc;
 class SpHelper
 {
 public:
+    
+    template <typename T>
+    static vector<size_t> find_order(const vector<T> & values)
+    {
+        size_t index = 0;
+        vector< pair<T, size_t> > tosort;
+        for(auto & val: values)
+        {
+            tosort.push_back(make_pair(val,index++));
+        }
+        sort(tosort.begin(), tosort.end());
+        vector<size_t> permutation;
+        for(auto & sorted: tosort)
+        {
+            permutation.push_back(sorted.second);
+        }
+        return permutation;
+    }
     
     template <typename IT1, typename NT1, typename IT2, typename NT2>
     static void push_to_vectors(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, IT2 ii, IT2 jj, NT2 vv, int symmetric, bool onebased = true)

@@ -287,15 +287,9 @@ private:
 #if __cplusplus > 199711L
 	template <typename _BinaryOperation = minimum<NT> >
 	FullyDistSpVec<IT, NT> UniqAll2All(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);
-    
-    template <typename _BinaryOperation = minimum<NT> >
-	FullyDistSpVec<IT, NT> Uniq2D(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);
 #else
 	template <typename _BinaryOperation >
 	FullyDistSpVec<IT, NT> UniqAll2All(_BinaryOperation __binary_op, MPI_Op mympiop);
-    
-    template <typename _BinaryOperation >
-	FullyDistSpVec<IT, NT> Uniq2D(_BinaryOperation __binary_op, MPI_Op mympiop);
 #endif
     
 

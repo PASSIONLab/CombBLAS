@@ -1,7 +1,7 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 11/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
@@ -162,11 +162,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}	
 	{
-		typedef SelectMaxSRing<bool, int32_t> SR;
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
 		typedef SpParMat < int64_t, int, SpDCCols<int32_t,int> > PSpMat_s32p64_Int;	// similarly mixed, but holds integers as upposed to booleans
-		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 
 		// Declare objects
 		PSpMat_Bool A;	
@@ -178,7 +176,6 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> nonisov(fullWorld);	// id's of non-isolated (connected) vertices
 		unsigned scale;
 		OptBuf<int32_t, int64_t> optbuf;	// let indices be 32-bits
-		bool scramble = false;
 
 		scale = static_cast<unsigned>(atoi(argv[1]));
 		ostringstream outs;
@@ -186,7 +183,6 @@ int main(int argc, char* argv[])
 		SpParHelper::Print(outs.str());
 
 		SpParHelper::Print("Using fast vertex permutations; skipping edge permutations (like v2.1)\n");	
-		scramble = true;
 		
 		// this is an undirected graph, so A*x does indeed BFS
 		double initiator[4] = {.57, .19, .19, .05};
@@ -260,8 +256,7 @@ int main(int argc, char* argv[])
 		
 		Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		ALocalT = PSpMat_s32p64(Aeff.seq().TransposeConstPtr(), Aeff.getcommgrid());	// this should be copied before the threading is activated
-	#ifdef THREADED	
-		tinfo;
+	#ifdef THREADED
 		tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
 		SpParHelper::Print(tinfo.str());
 		Aeff.ActivateThreading(cblas_splits);	
@@ -520,11 +515,11 @@ int main(int argc, char* argv[])
 				vector<double> total_time(nprocs, 0);
 				for(int i=0; i< nprocs; ++i) 				// find the mean performing guy
 					total_time[i] += bu_total[i] + bu_convert[i] + td_ag_all[i] +  td_a2a_all[i] + td_tv_all[i] + td_mc_all[i] + td_spmv_all[i] + td_ewm_all[i];
-					
-				vector<int> permutation = SpHelper::order(total_time);
-				int smallest = permutation[0];
-				int largest = permutation[nprocs-1];
-				int median = permutation[nprocs/2];
+                
+				vector<size_t> permutation = SpHelper::find_order(total_time);
+				size_t smallest = permutation[0];
+				size_t largest = permutation[nprocs-1];
+				size_t median = permutation[nprocs/2];
 				
 				cout << "TOTAL (accounted) MEAN: " << accumulate( total_time.begin(), total_time.end(), 0.0 )/ static_cast<double> (nprocs) << endl;
 				cout << "TOTAL (accounted) MAX: " << total_time[0] << endl;

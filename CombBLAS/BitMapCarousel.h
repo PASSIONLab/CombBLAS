@@ -142,17 +142,12 @@ class BitMapCarousel {
     rotation_index = (rotation_index + 1) % proccols;
     long send_words = (local_size + 63 + curr_subword_disp)>>6;
     long recv_words = (SizeOfChunk() + 63 + sub_disps[(my_proccol+rotation_index)%proccols])>>6;
-#ifdef TIMING
-    double t1 = MPI_Wtime();
-#endif
+
     MPI_Comm RowWorld = commGrid->GetRowWorld();
 	MPI_Status status;
 	MPI_Sendrecv(bm->data(), send_words, MPIType<uint64_t>(), dest, ROTATE,
 				   recv_buff->data(), recv_words, MPIType<uint64_t>(), source, ROTATE, RowWorld, &status);
-#ifdef TIMING
-    double t2 = MPI_Wtime();
-    //bottomup_sendrecv += t2-t1; // Ariful: I am getting compilation error. Disabling it 
-#endif
+
     local_size = SizeOfChunk();
     rotlenuntil = RotLengthUntil();
     swap(bm, recv_buff);
@@ -161,11 +156,10 @@ class BitMapCarousel {
 
   void UpdateFringe(BitMapFringe<IT,NT> &bm_fringe) {
     uint64_t* dest = bm_fringe.AccessBM()->data();
-    IT biggest_size = global_size - RotLengthUntil(procrows-1, proccols-1) + 63;
     uint64_t* curr = bm->data();
     uint64_t* old = old_bm->data();
     IT num_words = (local_size + 63 + curr_subword_disp) / 64;
-    for (uint64_t i=0; i<num_words; i++) {
+    for (IT i=0; i<num_words; i++) {
       dest[i] = curr[i] ^ old[i];
     }
   }

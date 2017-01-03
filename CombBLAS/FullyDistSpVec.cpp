@@ -995,145 +995,16 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::UniqAll2All(_BinaryOperation __bin
     
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     DeleteAll(recvindbuf, recvdatbuf);
-    return Indexed;
-    
+    return Indexed;    
 }
 
-//! Only works for cases where the range of *this is [0,n) where n=length(*this)
-template <class IT, class NT>
-template <typename _BinaryOperation >
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq2D(_BinaryOperation __binary_op, MPI_Op mympiop)
-{
-    // The indices for FullyDistVec are offset'd to 1/p pieces
-	// The matrix indices are offset'd to 1/sqrt(p) pieces
-	// Add the corresponding offset before sending the data
-	IT roffset = RowLenUntil();
-	IT rrowlen = MyRowLength();
-    
-    // Get the right local dimensions
-	IT diagneigh = commGrid->GetComplementRank();
-	IT ccollen;
-	MPI_Status status;
-	MPI_Sendrecv(&rrowlen, 1, MPIType<IT>(), diagneigh, TRROWX, &ccollen, 1, MPIType<IT>(), diagneigh, TRROWX, commGrid->GetWorld(), &status);
-    
-    
-	// We create n-by-n matrix B from length-n vector
-	// Rows(B): indices of nonzeros in vector
-    // Columns(B): values in vector
-    // Values(B): same as Rows(B)
-    
-	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-    IT glen = TotalLength();
-	IT m_perproccol = glen / rowneighs;
-    
-	vector< vector<IT> > rowid(rowneighs);
-	vector< vector<IT> > colid(rowneighs);
-    
-	size_t locvec = num.size();	// nnz in local vector
-    IT lenuntil = LengthUntil();
-	for(size_t i=0; i< locvec; ++i)
-	{
-		// numerical values (permutation indices) are 0-based
-		IT rowrec = (m_perproccol!=0) ? std::min(num[i] / m_perproccol, rowneighs-1) : (rowneighs-1); 	// recipient along processor row
-        
-		// vector's numerical values give the colids and its indices give rowids
-		rowid[rowrec].push_back( ind[i] + roffset);
-		colid[rowrec].push_back( num[i] - (rowrec * m_perproccol));
-	}
-    
-	int * sendcnt = new int[rowneighs];
-	int * recvcnt = new int[rowneighs];
-	for(IT i=0; i<rowneighs; ++i)
-		sendcnt[i] = rowid[i].size();
-    
-	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, commGrid->GetRowWorld()); // share the counts
-	int * sdispls = new int[rowneighs]();
-	int * rdispls = new int[rowneighs]();
-	partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
-	partial_sum(recvcnt, recvcnt+rowneighs-1, rdispls+1);
-	IT p_nnz = accumulate(recvcnt,recvcnt+rowneighs, static_cast<IT>(0));
-    
-	// create space for incoming data ...
-	IT * p_rows = new IT[p_nnz];
-	IT * p_cols = new IT[p_nnz];
-  	IT * senddata = new IT[locvec];	// re-used for both rows and columns
-	for(int i=0; i<rowneighs; ++i)
-	{
-		copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
-		vector<IT>().swap(rowid[i]);	// clear memory of rowid
-	}
-	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
-    
-	for(int i=0; i<rowneighs; ++i)
-	{
-		copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
-		vector<IT>().swap(colid[i]);	// clear memory of colid
-	}
-	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
-	delete [] senddata;
-    
-	tuple<IT,IT,NT> * p_tuples = new tuple<IT,IT,NT>[p_nnz];
-    
-    int procrows = commGrid->GetGridRows();
-	int my_procrow = commGrid->GetRankInProcCol();
-	IT n_perprocrow = glen / procrows;	// length on a typical processor row
-	for(IT i=0; i< p_nnz; ++i)
-		p_tuples[i] = make_tuple(p_rows[i], p_cols[i], p_rows[i]+(n_perprocrow * my_procrow));
-    
-	DeleteAll(p_rows, p_cols);
-    
-	SpDCCols<IT,NT> * PSeq = new SpDCCols<IT,NT>();
-	PSeq->Create( p_nnz, rrowlen, ccollen, p_tuples);		// square matrix
-    SpParMat<IT,NT, SpDCCols<IT,NT> > B (PSeq, commGrid);
-    //B.PrintInfo();
-    
-    FullyDistVec<IT,NT> colmin;
-    B.Reduce(colmin, Column, __binary_op, glen+1, mympiop);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
-    //colmin.DebugPrint();
-    
-    // at this point, colmin[i] is semantically zero iff colmin[i] >= glen
-    SetIfNotEqual<NT> setter(glen+1);
-    B.DimApply(Column, colmin, setter); // B[i][j] to be pruned if B[i][j] >= glen
-    B.Prune(bind2nd(greater<NT>(), glen));
-    //B.PrintInfo();
-    
-    FullyDistVec<IT,NT> colind2val;
-    colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
-    B.DimApply(Column, colind2val, sel2nd<NT>());
-    //B.PrintInfo();
-    
-    FullyDistVec<IT,NT> pruned;
-    B.Reduce(pruned, Row, plus<NT>(), (NT) 0);
-    //pruned.DebugPrint();
-    
-    FullyDistSpVec<IT,NT> UniqInds(pruned, bind2nd(greater<NT>(), 0));    // only retain [< glen] entries
-    //UniqInds.DebugPrint();
-    
-    return EWiseApply<NT>(UniqInds, *this, sel2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
-}
-
-    
 
 // ABAB: \todo Concept control so it only gets called in integers
 template <class IT, class NT>
 template <typename _BinaryOperation >
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op, MPI_Op mympiop)
 {
-#ifndef _2DUNIQ_
     return UniqAll2All(__binary_op, mympiop);
-#else
-    
-    NT mymax = Reduce(maximum<NT>(), (NT) 0);
-    NT mymin = Reduce(minimum<NT>(), TotalLength());
-    if(mymax >= TotalLength() || mymin < (NT) 0)
-    {
-        return UniqAll2All(__binary_op, mympiop);
-    }
-    else
-    {
-        return Uniq2D(__binary_op, mympiop);
-    }
-#endif
 }
 
 template <class IT, class NT>
