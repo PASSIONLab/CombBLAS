@@ -765,12 +765,6 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );				
 }
 
-template <class IT, class NT, class DER>
-template <typename VT, typename GIT, typename _BinaryOperation>
-void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const
-{
-	Reduce(rvec, dim, __binary_op, id, myidentity<NT>(), mympiop );
-}
 
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector	
