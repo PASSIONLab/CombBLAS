@@ -250,6 +250,9 @@ public:
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const;
 
 	void SelectCandidates(double nver);
+    
+    template <typename _BinaryOperation, typename OUT = typename std::result_of<_BinaryOperation&(NT,NT)>::type>
+    void EWiseOut(const FullyDistVec<IT,NT> & rhs, _BinaryOperation __binary_op, FullyDistVec<IT,OUT> & result);
 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
