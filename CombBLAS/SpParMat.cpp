@@ -378,9 +378,10 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
             else
             {
                 // this actually *sorts* increasing but doesn't matter as long we solely care about the median as opposed to a general nth element
-                std::nth_element(localmat[orgindex].begin(), localmat[orgindex].begin() + localmat[orgindex].size()/2, localmat[orgindex].end());
-                activemedians[i] = localmat[orgindex][localmat[orgindex].size()/2];
-                activennzperc[i] = localmat[orgindex].size();
+                auto entriesincol(localmat[orgindex]);   // create a temporary vector as nth_element modifies the vector
+                std::nth_element(entriesincol.begin(), entriesincol.begin() + entriesincol.size()/2, entriesincol.end());
+                activemedians[i] = entriesincol[entriesincol.size()/2];
+                activennzperc[i] = entriesincol.size();
             }
         }
         
@@ -434,6 +435,10 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         for(auto & update : recvpair )    // Now, write these to rvec
         {
             updated++;
+            if(update.first < 0 || update.first >= rvec.arr.size())
+            {
+                cout << "update to " << update.first << " is out of bounds for vector of length " << rvec.arr.size() << endl;
+            }
             rvec.arr[update.first] =  update.second;
         }
 #ifdef COMBBLAS_DEBUG
