@@ -63,8 +63,7 @@ public:
 	FullyDistVec ( shared_ptr<CommGrid> grid);
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    FullyDistVec ( const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
-	FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
+    FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
 	
 
 	template <class ITRHS, class NTRHS>
@@ -103,7 +102,6 @@ public:
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
-	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
     
     FullyDistVec<IT,NT> &  operator=(NT fixedval) // assign fixed value
     {
@@ -116,9 +114,6 @@ public:
     }
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
 	
-	//! like operator=, but instead of making a deep copy it just steals the contents. 
-	//! Useful for places where the "victim" will be distroyed immediately after the call.
-	FullyDistVec<IT,NT> & stealFrom(FullyDistVec<IT,NT> & victim); 
 	FullyDistVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);		
 	FullyDistVec<IT,NT> & operator+=(const FullyDistVec<IT,NT> & rhs);
 	FullyDistVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);		

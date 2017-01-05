@@ -63,12 +63,6 @@ FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conver
 	*this = rhs;
 }
 
-template <class IT, class NT>
-FullyDistVec<IT,NT>::FullyDistVec (const DenseParVec<IT,NT> & rhs)		// Conversion copy-constructor
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid)
-{
-	*this = rhs;
-}
 
 template <class IT, class NT>
 template <class ITRHS, class NTRHS>
@@ -283,50 +277,13 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	return *this;
 }
 
-template <class IT, class NT>
-FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)		// DenseParVec->FullyDistVec conversion operator
-{
-	if(*commGrid != *rhs.commGrid) 		
-	{
-		cout << "Grids are not comparable elementwise addition" << endl; 
-		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-	}
-	else
-	{
-		glen = rhs.getTotalLength();
-		arr.resize(MyLocLength());	// once glen is set, MyLocLength() works
-		fill(arr.begin(), arr.end(), NT());	
-
-		int * sendcnts = NULL;
-		int * dpls = NULL;
-		if(rhs.diagonal)
-		{
-			int proccols = commGrid->GetGridCols();	
-            IT n_perproc = rhs.getLocalLength() / proccols;
-			sendcnts = new int[proccols];
-			fill(sendcnts, sendcnts+proccols-1, n_perproc);
-			sendcnts[proccols-1] = rhs.getLocalLength() - (n_perproc * (proccols-1));
-			dpls = new int[proccols]();	// displacements (zero initialized pid) 
-			partial_sum(sendcnts, sendcnts+proccols-1, dpls+1);
-		}
-
-		int rowroot = commGrid->GetDiagOfProcRow();
-		MPI_Scatterv((void*) &(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot, commGrid->GetRowWorld());
-	}
-	return *this;
-}
 
 
-// Let the compiler create an assignment operator and call base class' 
-// assignment operator automatically
+/**
+ ** Let the compiler create an assignment operator and call base class'
+ ** assignment operator automatically
+ **/
 
-template <class IT, class NT>
-FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & victim)
-{
-	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
-	arr.swap(victim.arr);
-	return *this;
-}
 
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< IT,NT > & rhs)		
@@ -1110,11 +1067,7 @@ void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
 
 
 
-
-
-
 // General purpose set operation on dense vector by a sparse vector
-
 
 template <class IT, class NT>
 template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>

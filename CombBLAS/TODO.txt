@@ -1,4 +1,4 @@
-- Remove SpParVec and DenseParVec classes
+- Implement move constructors for FullyDistSpVec and FullyDistVec (like the old stealFrom functions)
 - Name Sparse SpMV "SpMSpV"
 - Name BFSFriends versions to SpMV_NoSR(...) and SpMSpV_NoSR(...)
 - Implement SpMM and SpMV using CSB

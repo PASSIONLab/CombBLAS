@@ -35,14 +35,14 @@ using namespace std;
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
-DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const
+FullyDistVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const
 {
-	DenseParVec<IT,NT> parvec(commGrid, identity);
 
 	switch(dim)
 	{
 		case Column:	// pack along the columns, result is a vector of size n
 		{
+            FullyDistVec<IT,NT> parvec(commGrid, gcols(), identity);
 			NT * sendbuf = new NT[n];
 			for(int j=0; j < n; ++j)
 			{
@@ -52,42 +52,54 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 					sendbuf[j] = __binary_op(array[i][j], sendbuf[j]); 
 				}
 			}
-			NT * recvbuf = NULL;
-			int root = commGrid->GetDiagOfProcCol();
-			if(parvec.diagonal)
-			{
-				parvec.arr.resize(n);
-				recvbuf = &parvec.arr[0];	
-			}
+            /* ABAB: to complete
+			NT * recvbuf = parvec.arr.data();// MIGHT NOT WORK AS THE RESULTING VECTOR NEEDS A TRANSPOSE IN THE END... (ROWS V COLS)
+            
+            int colneighs = commGrid->GetGridRows();	// including oneself
+            int colrank = commGrid->GetRankInProcCol();
+            IT * loclens = new IT[colneighs];
+            
+            MPI_Reduce_scatter...
 			MPI_Reduce(sendbuf, recvbuf, n, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root,commGrid->GetColWorld());
 			delete sendbuf;
+             */
+            return parvec;
 			break;
 		}
 		case Row:	// pack along the rows, result is a vector of size m
 		{
+            FullyDistVec<IT,NT> parvec(commGrid, grows(), identity);
+
 			NT * sendbuf = new NT[m];
 			for(int i=0; i < m; ++i)
 			{
 				sendbuf[i] = std::accumulate( array[i], array[i]+n, identity, __binary_op);
 			}
-			NT * recvbuf = NULL;
-			int root = commGrid->GetDiagOfProcRow();
-			if(parvec.diagonal)
-			{
-				parvec.arr.resize(m);
-				recvbuf = &parvec.arr[0];	
-			}
-			MPI_Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root,commGrid->GetRowWorld());
+			NT * recvbuf = parvec.arr.data();
+            
+            
+            int rowneighs = commGrid->GetGridCols();
+            int rowrank = commGrid->GetRankInProcRow();
+            IT * recvcounts = new IT[rowneighs];
+            recvcounts[rowrank] = parvec.MyLocLength();  // local vector lengths are the ultimate receive counts
+            MPI_Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), recvcounts, 1, MPIType<IT>(), commGrid->GetRowWorld());
+            
+            // "The MPI_REDUCE_SCATTER routine is functionally equivalent to:
+            // an MPI_REDUCE collective operation with count equal to the sum of recvcounts[i]
+            // followed by MPI_SCATTERV with sendcounts equal to recvcounts."
+            MPI_Reduce_scatter(sendbuf, recvbuf, recvcounts, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), commGrid->GetRowWorld());
 			delete [] sendbuf;
+            delete [] recvcounts;
+            return parvec;
 			break;
 		}
 		default:
 		{
 			cout << "Unknown reduction dimension, returning empty vector" << endl;
+            return FullyDistVec<IT,NT>(commGrid);
 			break;
 		}
 	}
-	return parvec;
 }
 
 template <class IT, class NT>
