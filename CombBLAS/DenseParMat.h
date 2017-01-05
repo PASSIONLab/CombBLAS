@@ -34,12 +34,16 @@
 #include <cmath>
 #include <mpi.h>
 #include <vector>
-#include "SpParMat.h"
-#include "DenseParVec.h"
+
 #include "CombBLAS.h"
+#include "Operations.h"
+#include "MPIOp.h"
+#include "FullyDistVec.h"
 
 template <class IU, class NU, class DER>
 class SpParMat;
+
+using namespace std;
 
 
 template <class IT, class NT>
@@ -84,7 +88,7 @@ public:
 	DenseParMat< IT,NT > & operator+=(const SpParMat< IT,NT,DER > & rhs);		// add a sparse matrix
 	
 	template <typename _BinaryOperation>
-	DenseParVec< IT,NT > Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
+	FullyDistVec< IT,NT > Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
 
 	~DenseParMat ()
 	{
@@ -92,12 +96,26 @@ public:
 			SpHelper::deallocate2D(array, m);
 	}					
 
-	shared_ptr<CommGrid> getcommgrid () { return commGrid; }	
+	shared_ptr<CommGrid> getcommgrid () { return commGrid; }
+    
+    IT grows()
+    {
+        IT glrows;
+        MPI_Allreduce(&m, &glrows, 1, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
+        return glrows;
+    }
+    
+    IT gcols()
+    {
+        IT glcols;
+        MPI_Allreduce(&n, &glcols, 1, MPIType<IT>(), MPI_SUM, commGrid->GetRowWorld());
+        return glcols;
+    }
 
 private:
 	shared_ptr<CommGrid> commGrid; 
 	NT ** array;
-	IT m, n;	// Local columns and rows
+	IT m, n;	// Local row and columns
 
 	template <class IU, class NU, class DER>
 	friend class SpParMat; 

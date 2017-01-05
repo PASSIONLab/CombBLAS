@@ -1729,58 +1729,6 @@ EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, 
 }
 // end adapter
 
-
-/**
- * if exclude is true, then we prune all entries W[i] != zero from V 
- * if exclude is false, then we perform a proper elementwise multiplication
-**/
-template <typename IU, typename NU1, typename NU2>
-SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult 
-	(const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero)
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
-
-	if(*(V.commGrid) == *(W.commGrid))	
-	{
-		SpParVec< IU, T_promote> Product(V.commGrid);
-		Product.length = V.length;
-		if(Product.diagonal)
-		{
-			if(exclude)
-			{
-				IU size= V.ind.size();
-				for(IU i=0; i<size; ++i)
-				{
-					if(W.arr.size() <= V.ind[i] || W.arr[V.ind[i]] == zero) 	// keep only those
-					{
-						Product.ind.push_back(V.ind[i]);
-						Product.num.push_back(V.num[i]);
-					}
-				}		
-			}	
-			else
-			{
-				IU size= V.ind.size();
-				for(IU i=0; i<size; ++i)
-				{
-					if(W.arr.size() > V.ind[i] && W.arr[V.ind[i]] != zero) 	// keep only those
-					{
-						Product.ind.push_back(V.ind[i]);
-						Product.num.push_back(V.num[i] * W.arr[V.ind[i]]);
-					}
-				}
-			}
-		}
-		return Product;
-	}
-	else
-	{
-		cout << "Grids are not comparable elementwise multiplication" << endl; 
-		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-		return SpParVec< IU,T_promote>();
-	}
-}
-
 /**
  * if exclude is true, then we prune all entries W[i] != zero from V 
  * if exclude is false, then we perform a proper elementwise multiplication

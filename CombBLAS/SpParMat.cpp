@@ -793,6 +793,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 		case Column:	// pack along the columns, result is a vector of size n
 		{
 			// We can't use rvec's distribution (rows first, columns later) here
+            // ABAB (2017): Why not? I can't think of a counter example where it wouldn't work
             IT n_thiscol = getlocalcols();   // length assigned to this processor column
 			int colneighs = commGrid->GetGridRows();	// including oneself
             int colrank = commGrid->GetRankInProcCol();

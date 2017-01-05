@@ -208,8 +208,6 @@ public:
 	void Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);	//!< prune all entries whose row indices are in ri and column indices are in ci
 	void SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, SpParMat<IT,NT,DER> & B);
 	
-	SpParMat<IT,NT,DER> operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const;
-
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
 	class ScalarReadSaveHandler
@@ -290,10 +288,6 @@ public:
     template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
     friend SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct);
-
-	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
-	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
@@ -391,5 +385,4 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 #include "SpParMat.cpp"
-#include "SpParMatExt.cpp"
 #endif
