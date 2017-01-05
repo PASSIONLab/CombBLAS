@@ -435,6 +435,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC, GridC);   // making a deep copy needed for recovery after selection
         
 
         
@@ -445,9 +446,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
         else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum))
         {
-            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+            // PrunedPieceOfC_mat: after prune and selection
+            // PrunedPieceOfC_rec: after prune before selection
+            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, PrunedPieceOfC_rec, recoverNum, recoverPct))
             {
-                toconcatenate.push_back(*OnePieceOfC);
+                toconcatenate.push_back(PrunedPieceOfC_rec.seq());
             }
             else
             {
