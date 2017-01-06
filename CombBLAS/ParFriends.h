@@ -203,18 +203,22 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     {
         FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
         
-#ifdef TIMING
         double t0=MPI_Wtime();
-#endif
         bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
 	MPI_Barrier(MPI_COMM_WORLD);
         
 #ifdef COMBBLAS_DEBUG
         kth.PrintInfo("kth vector");
+
 	float balance = AOriginal.LoadImbalance();
         int64_t nnz = AOriginal.getnnz();
-        
+
+	ostringstream name;
+	name << "testing_ " << nnz << "_id_";
+	kth.PrintToFile(name.str());
+
         ostringstream outs;
+	outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
         outs << "Load balance: " << balance << endl;
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
