@@ -436,6 +436,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // Recover using OnePieceOfC if too sparse
         //delete OnePieceOfC;
         
+        /*
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
         
@@ -461,12 +462,12 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         {
             toconcatenate.push_back(*PrunedPieceOfC);
         }
+        */
         
-        /*
         
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC, GridC);   // making a deep copy needed for recovery after selection
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC_mat);   // making a deep copy needed for recovery after selection
         
 
         
@@ -491,7 +492,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         else
         {
             toconcatenate.push_back(*PrunedPieceOfC);
-        }*/
+        }
     }
     
     
