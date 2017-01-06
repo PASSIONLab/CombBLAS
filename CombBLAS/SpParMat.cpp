@@ -435,10 +435,12 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         for(auto & update : recvpair )    // Now, write these to rvec
         {
             updated++;
+            
+        #ifdef COMBBLAS_DEBUG
             if(update.first < 0 || update.first >= rvec.arr.size())
-            {
                 cout << "update to " << update.first << " is out of bounds for vector of length " << rvec.arr.size() << endl;
-            }
+        #endif
+            
             rvec.arr[update.first] =  update.second;
         }
 #ifdef COMBBLAS_DEBUG

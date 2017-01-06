@@ -436,6 +436,33 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // Recover using OnePieceOfC if too sparse
         //delete OnePieceOfC;
         
+        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
+        SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
+        
+        
+        
+        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+        {
+            // ABAB: Change this to accept pointers to objects
+            toconcatenate.push_back(*OnePieceOfC); // making a copy here
+        }
+        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum))
+        {
+            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+            {
+                toconcatenate.push_back(*OnePieceOfC);
+            }
+            else
+            {
+                toconcatenate.push_back(*PrunedPieceOfC);
+            }
+        }
+        else
+        {
+            toconcatenate.push_back(*PrunedPieceOfC);
+        }
+        
+        /*
         
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
@@ -464,7 +491,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         else
         {
             toconcatenate.push_back(*PrunedPieceOfC);
-        }
+        }*/
     }
     
     
