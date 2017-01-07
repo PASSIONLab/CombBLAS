@@ -237,7 +237,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
             double t2=MPI_Wtime();
 #endif
 
-            AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+            AOriginal.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
 
             float balance = AOriginal.LoadImbalance();
             int64_t nnz = AOriginal.getnnz();
@@ -286,7 +286,7 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
             double t2=MPI_Wtime();
 #endif
 
-            A.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+            A.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
 #ifdef TIMING
             double t3=MPI_Wtime();
             mcl_prunecolumntime += (t3-t2);
