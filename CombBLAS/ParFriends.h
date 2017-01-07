@@ -205,23 +205,25 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         
         double t0=MPI_Wtime();
         bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
-	MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
         
 #ifdef COMBBLAS_DEBUG
         kth.PrintInfo("kth vector");
 
-	float balance = AOriginal.LoadImbalance();
+        float balance = AOriginal.LoadImbalance();
         int64_t nnz = AOriginal.getnnz();
 
-	ostringstream name;
-	name << "testing_ " << nnz << "_id_";
-	kth.PrintToFile(name.str());
+        ostringstream name;
+        name << "testing_ " << nnz << "_id_";
+        kth.PrintToFile(name.str());
 
         ostringstream outs;
-	outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
+        outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
         outs << "Load balance: " << balance << endl;
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
+        MPI_Barrier(MPI_COMM_WORLD);
+
 #endif
         
         
@@ -237,7 +239,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
 
             AOriginal.PruneColumn(kth, less<float>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
 
-	    float balance = AOriginal.LoadImbalance();
+            float balance = AOriginal.LoadImbalance();
             int64_t nnz = AOriginal.getnnz();
             ostringstream outs;
             outs << "Load balance: " << balance << endl;
@@ -436,39 +438,10 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // Recover using OnePieceOfC if too sparse
         //delete OnePieceOfC;
         
-        /*
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
-        SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        
-        
-        
-        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
-        {
-            // ABAB: Change this to accept pointers to objects
-            toconcatenate.push_back(*OnePieceOfC); // making a copy here
-        }
-        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum))
-        {
-            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
-            {
-                toconcatenate.push_back(*OnePieceOfC);
-            }
-            else
-            {
-                toconcatenate.push_back(*PrunedPieceOfC);
-            }
-        }
-        else
-        {
-            toconcatenate.push_back(*PrunedPieceOfC);
-        }
-        */
-        
         
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC_mat);   // making a deep copy needed for recovery after selection
-        
 
         
         if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
