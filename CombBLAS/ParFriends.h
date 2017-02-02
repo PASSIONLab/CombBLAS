@@ -213,9 +213,9 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         float balance = AOriginal.LoadImbalance();
         int64_t nnz = AOriginal.getnnz();
 
-        ostringstream name;
-        name << "testing_" << nnz << "_id_";
-        kth.PrintToFile(name.str());
+        //ostringstream name;
+        //name << "testing_" << nnz << "_id_";
+        //kth.PrintToFile(name.str());
 
         ostringstream outs;
         outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
