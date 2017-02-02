@@ -213,9 +213,9 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         float balance = AOriginal.LoadImbalance();
         int64_t nnz = AOriginal.getnnz();
 
-        ostringstream name;
-        name << "testing_ " << nnz << "_id_";
-        kth.PrintToFile(name.str());
+        //ostringstream name;
+        //name << "testing_" << nnz << "_id_";
+        //kth.PrintToFile(name.str());
 
         ostringstream outs;
         outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
@@ -223,7 +223,6 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
         MPI_Barrier(MPI_COMM_WORLD);
-
 #endif
         
         
@@ -443,7 +442,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
         SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC_mat);   // making a deep copy needed for recovery after selection
 
-        
+        // ABAB: Ariful, I think this logic is correct but fragile
+	// in particular, there is no guarentee that a handle to OnePieceOfC (within OnePieceOfC_mat) will stay  
+	// valid and correctly updated after a call to SpParMat::PruneColumn
+	// it just happens to be valid but it could have also been implemented as
+	// oldspSeq = spSeq; spSeq = new SpDCCols<>(...); delete oldspSeq;
         if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
         {
             // ABAB: Change this to accept pointers to objects
