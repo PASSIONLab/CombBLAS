@@ -131,6 +131,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 {
     int rankincol = commGrid->GetRankInProcCol();
     int colneighs = commGrid->GetGridRows();
+    int nprocs = commGrid->GetSize();
     vector<double> finalWeightedMedians(thischunk, 0.0);
     
     MPI_Gather(activemedians.data() + itersuntil*chunksize, thischunk, MPIType<NT>(), all_medians.data(), thischunk, MPIType<NT>(), 0, commGrid->GetColWorld());
@@ -191,9 +192,31 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     MPI_Allreduce(MPI_IN_PLACE, smaller.data(), thischunk, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
     MPI_Allreduce(MPI_IN_PLACE, equal.data(), thischunk, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
     
+    int numThreads = 1;	// default case
+#ifdef THREADED
+    omp_lock_t lock[nprocs];    // a lock per recipient
+    for (int i=0; i<nprocs; i++)
+        omp_init_lock(&(lock[i]));
+#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+#endif
+    
+    vector < vector<IT> > perthread2retain(numThreads);
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
     for(int j = 0; j < thischunk; ++j)  // for each active column
     {
-	// both clmapindex and fetchindex are unique for a given j (hence not shared among threads)
+#ifdef THREADED
+        int myThread = omp_get_thread_num();
+#else
+        int myThread = 0;
+#endif
+        
+        // both clmapindex and fetchindex are unique for a given j (hence not shared among threads)
         size_t clmapindex = j+itersuntil*chunksize;     // klimits is of the same length as actcolsmap
         size_t fetchindex = actcolsmap[clmapindex];     // localmat can only be dereferenced using the original indices.
         
@@ -207,7 +230,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
                     survivors.push_back(localmat[fetchindex][k]);
             }
             localmat[fetchindex].swap(survivors);
-            toretain.push_back(clmapindex);    // items to retain in actcolsmap
+            perthread2retain[myThread].push_back(clmapindex);    // items to retain in actcolsmap
         }
         else if (klimits[clmapindex] > larger[j] + equal[j]) // the elements that are either larger or equal-to are surely keepers, no need to reprocess them
         {
@@ -220,7 +243,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             localmat[fetchindex].swap(survivors);
             
             klimits[clmapindex] -= (larger[j] + equal[j]);   // update the k limit for this column only
-            toretain.push_back(clmapindex);    // items to retain in actcolsmap
+            perthread2retain[myThread].push_back(clmapindex);    // items to retain in actcolsmap
         }
         else  // larger[j] < klimits[clmapindex] &&  klimits[clmapindex] <= larger[j] + equal[j]
         {
@@ -240,9 +263,30 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             {
                 IT locid;
                 int owner = rvec.Owner(coffset + fetchindex, locid);
+                
+            #ifdef THREADED
+                omp_set_lock(&(lock[owner]));
+            #endif
                 tmppair[owner].emplace_back(make_pair(locid, finalWeightedMedians[j]));
+            #ifdef THREADED
+                omp_unset_lock(&(lock[owner]));
+            #endif
             }
-        }
+        } // end_else
+    } // end_for
+    // ------ concatenate toretain "indices" processed by threads ------
+    vector<IT> tdisp(numThreads+1);
+    tdisp[0] = 0;
+    for(int i=0; i<numThreads; ++i)
+    {
+        tdisp[i+1] = tdisp[i] + perthread2retain[i].size();
+    }
+    toretain.resize(tdisp[numThreads]);
+    
+#pragma omp parallel for
+    for(int i=0; i< numThreads; i++)
+    {
+        std::copy(perthread2retain[i].data() , perthread2retain[i].data()+ perthread2retain[i].size(), toretain.data() + tdisp[i]);
     }
 }
 
@@ -287,20 +331,19 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     
     vector<IT> percsum(locm, 0);
     MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
-    int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
-    int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
+
     nnzperc.resize(0);
     nnzperc.shrink_to_fit();
+    
+    int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
+    int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
     
     int64_t totactcols, totactnnzs;
     MPI_Allreduce(&activecols, &totactcols, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial active columns are " << totactcols << endl;
-    
-    
-#ifdef COMBBLAS_DEBUG
+
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
-#endif
     
     Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready, this should also set the glen of rvec correctly
     
@@ -928,7 +971,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 
-#define KSELECTLIMIT 50
+#define KSELECTLIMIT 4
 
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
