@@ -64,6 +64,7 @@ public:
 void StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 {
     // FullyDistVec doesn't support "bool" due to crippled vector<bool> semantics
+    //TODO: change the value of star entries to grandfathers so it will be int64_t as well.
     
     FullyDistVec<int64_t,short> star(A.getcommgrid(), A.getnrow(), 1);    // all initialized to true
     FullyDistVec<int64_t, int64_t> grandfather = father(father); // find grandparents
