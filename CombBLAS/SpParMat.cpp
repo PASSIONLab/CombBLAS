@@ -288,6 +288,11 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     {
         std::copy(perthread2retain[i].data() , perthread2retain[i].data()+ perthread2retain[i].size(), toretain.data() + tdisp[i]);
     }
+    
+#ifdef THREADED
+    for (int i=0; i<nprocs; i++)    // destroy the locks
+        omp_destroy_lock(&(lock[i]));
+#endif
 }
 
 
@@ -971,7 +976,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 
-#define KSELECTLIMIT 4
+#define KSELECTLIMIT 50
 
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
