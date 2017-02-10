@@ -170,6 +170,9 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     vector<IT> smaller(thischunk, 0);
     vector<IT> equal(thischunk, 0);
 
+#ifdef THREADED
+#pragma omp parallel for
+#endif
     for(int j = 0; j < thischunk; ++j)  // for each active column
     {
         size_t fetchindex = actcolsmap[j+itersuntil*chunksize];        
@@ -190,6 +193,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
     
     for(int j = 0; j < thischunk; ++j)  // for each active column
     {
+	// both clmapindex and fetchindex are unique for a given j (hence not shared among threads)
         size_t clmapindex = j+itersuntil*chunksize;     // klimits is of the same length as actcolsmap
         size_t fetchindex = actcolsmap[clmapindex];     // localmat can only be dereferenced using the original indices.
         
