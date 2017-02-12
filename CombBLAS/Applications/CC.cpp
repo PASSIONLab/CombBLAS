@@ -54,10 +54,10 @@ using namespace std;
 
 
 class Dist
-{ 
-public: 
-	typedef SpDCCols < int64_t, double > DCCols;
-	typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
+{
+public:
+    typedef SpDCCols < int64_t, double > DCCols;
+    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
 };
 
 
@@ -99,7 +99,7 @@ FullyDistVec<int64_t,short> StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<i
     grandfather.EWiseOut(father,
                          [](int64_t pv, int64_t gpv) -> short { return static_cast<short>(pv == gpv); },
                          star); // remove some stars
-
+    
     // FullyDistSpVec FullyDistVec::Find() requires no communication
     // because FullyDistSpVec (the return object) is distributed based on length, not nonzero counts
     return star;
@@ -111,12 +111,12 @@ void ConditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fath
     
     FullyDistVec<int64_t, int64_t> minNeighborFather ( A.getcommgrid());
     minNeighborFather = SpMV<Select2ndMinSR<double, int64_t>>(A, father); // value is the minimum of all neighbors' fatthers
-
+    
     FullyDistSpVec<int64_t, pair<int64_t, int64_t>> hooks(A.getcommgrid(), A.getnrow());
     // create entries belonging to stars
     hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, stars,
-                                           [](pair<int64_t, int64_t> x, short isStar){return make_pair(0,0);},
-                                           [](pair<int64_t, int64_t> x, short isStar){return isStar==1;},
+                                               [](pair<int64_t, int64_t> x, short isStar){return make_pair(0,0);},
+                                               [](pair<int64_t, int64_t> x, short isStar){return isStar==1;},
                                                true, {0,0});
     
     
@@ -134,16 +134,16 @@ void ConditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fath
                                                false, {0,0});
     //Invert
     FullyDistSpVec<int64_t, pair<int64_t, int64_t>> starhooks= hooks.Invert(hooks.TotalLength(),
-                 [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
-                 [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
-                 [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
+                                                                            [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
     
     
     // drop the send field of the par
     FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
-                                       [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
-                                       [](pair<int64_t, int64_t> x, int64_t f){return true;},
-                                       false, {0,0});
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return true;},
+                                                                      false, {0,0});
     father.Set(finalhooks);
 }
 
@@ -168,10 +168,10 @@ int main(int argc, char* argv[])
         nthreads = omp_get_num_threads();
     }
 #endif
-
-	int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
         MPI_Finalize();
         return -1;
     }
-	{
+    {
         string ifilename = "";
         int base = 1;
         int randpermute = 0;
@@ -213,15 +213,15 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
             }
         }
-
+        
         double tIO = MPI_Wtime();
-		Dist::MPI_DCCols A;	// construct object
+        Dist::MPI_DCCols A;	// construct object
         A.ParallelReadMM(ifilename, base, maximum<bool>());	// if base=0, then it is implicitly converted to Boolean false
-    
-						
+        
+        
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
-		SpParHelper::Print(outs.str());
+        SpParHelper::Print(outs.str());
         
         if(randpermute)
         {
@@ -246,16 +246,16 @@ int main(int argc, char* argv[])
         outs << "Load balance: " << balance << endl;
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
-    
+        
         A.AddLoops(1.0);    // the loop value doesn't really matter anyway
         SpParHelper::Print("Added loops");
         A.PrintInfo();
-    
+        
         FullyDistVec<int64_t,int64_t> father(A.getcommgrid());
         father.iota(A.getnrow(), 0);    // father(i)=i initially
         ConditionalHook(A, father);
-	}	
-
-	MPI_Finalize();
-	return 0;
+    }	
+    
+    MPI_Finalize();
+    return 0;
 }
