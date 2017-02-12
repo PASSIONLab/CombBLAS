@@ -147,8 +147,54 @@ void ConditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fath
     father.Set(finalhooks);
 }
 
-void UnconditionalHook(Dist::MPI_DCCols & A)
+
+void UnconditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 {
+    FullyDistVec<int64_t,short> stars = StarCheck(A, father);
+    
+    FullyDistVec<int64_t, int64_t> minNeighborFather ( A.getcommgrid());
+    minNeighborFather = SpMV<Select2ndMinSR<double, int64_t>>(A, father); // value is the minimum of all neighbors' fatthers
+    
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> hooks(A.getcommgrid(), A.getnrow());
+    // create entries belonging to stars
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, stars,
+                                               [](pair<int64_t, int64_t> x, short isStar){return make_pair(0,0);},
+                                               [](pair<int64_t, int64_t> x, short isStar){return isStar==1;},
+                                               true, {0,0});
+    
+    
+    // include father information
+    
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, father,
+                                               [](pair<int64_t, int64_t> x, short f){return make_pair(f,0);},
+                                               [](pair<int64_t, int64_t> x, short f){return true;},
+                                               false, {0,0});
+    
+    //keep entries with father>minNeighborFather and insert minNeighborFather information
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks,  minNeighborFather,
+                                               [](pair<int64_t, int64_t> x, short mnf){return make_pair(get<0>(x), mnf);},
+                                               [](pair<int64_t, int64_t> x, short mnf){return get<0>(x) != mnf;},
+                                               false, {0,0});
+    //Invert
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> starhooks= hooks.Invert(hooks.TotalLength(),
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
+                                                                            [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
+    
+    
+    // drop the send field of the par
+    FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return true;},
+                                                                      false, {0,0});
+    father.Set(finalhooks);
+}
+
+
+void Shortcut(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
+{
+    FullyDistVec<int64_t, int64_t> grandfather = father(father);
+    father = grandfather; // we can do it unconditionally because it is trivially true for stars
 }
 
 int main(int argc, char* argv[])
