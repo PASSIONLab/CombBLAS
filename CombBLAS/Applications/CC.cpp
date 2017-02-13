@@ -100,8 +100,22 @@ FullyDistVec<int64_t,short> StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<i
                          [](int64_t pv, int64_t gpv) -> short { return static_cast<short>(pv == gpv); },
                          star); // remove some stars
     
-    // FullyDistSpVec FullyDistVec::Find() requires no communication
-    // because FullyDistSpVec (the return object) is distributed based on length, not nonzero counts
+    // nostars
+    FullyDistSpVec<int64_t,short> nonstar = star.Find([](short isStar){return isStar==0;});
+    // grandfathers of nonstars
+    FullyDistSpVec<int64_t, int64_t> nonstarGF = EWiseApply<int64_t>(nonstar, grandfather,
+                                            [](short isStar, int64_t gf){return gf;},
+                                            [](short isStar, int64_t gf){return true;},
+                                            false, static_cast<short>(0));
+    // grandfather pointing to a grandchild
+    FullyDistSpVec<int64_t, int64_t> gfNonstar = nonstarGF.Invert(nonstarGF.TotalLength()); // for duplicates, keep the first one
+    
+    // star(GF) = 0
+    star.EWiseApply(gfNonstar, [](short isStar, int64_t x){return static_cast<short>(0);},
+                    false, static_cast<int64_t>(0));
+    
+    
+    star = star(father);
     return star;
 }
 
