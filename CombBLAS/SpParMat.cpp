@@ -979,6 +979,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 #define KSELECTLIMIT 50
 
 
+/*
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
 //! if false, rvec contains either contains the minimum entry in each column or zero
@@ -997,7 +998,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
         return Kselect1(rvec, k_limit, myidentity<NT>());
     }
 }
-
+*/
 
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
