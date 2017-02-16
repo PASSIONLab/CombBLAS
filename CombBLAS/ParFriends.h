@@ -180,7 +180,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 
 // local function
 template <typename IT, typename NT, typename DER>
-bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct)
+bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct, NT hardThreshold)
 {
 #ifdef COMBBLAS_DEBUG
     ostringstream ss;
@@ -193,11 +193,18 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
     
     // columns with nnz < recoverNum (r)
     FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(less<NT>(), recoverNum));
+    recoverCols = recoverPct;
     // columns with nnz < r AND sum < recoverPct (pct)
     recoverCols = EWiseApply<NT>(recoverCols, colSums,
-                                  [](NT degree, NT sum){return degree;},
-                                  bind(less<NT>(), placeholders::_1, recoverPct),
-                                  true, NT());
+                                  [](NT spval, NT dval){return spval;},
+                                  [](NT spval, NT dval){return dval < spval;},
+                                  false, NT());
+    
+    FullyDistSpVec<IT,NT> nonRecoverCols = EWiseApply<NT>(recoverCols, colSums,
+                                 [](NT spval, NT dval){return spval;},
+                                 [](NT spval, NT dval){return spval==-1;},
+                                 true, static_cast<NT>(-1));
+    nonRecoverCols = hardThreshold;
     
     if(recoverCols.getnnz() > 0) // at least one column needs recovery
     {
@@ -238,6 +245,8 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
             double t2=MPI_Wtime();
 #endif
 
+            
+            kth.Set(nonRecoverCols);
             AOriginal.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
 
             float balance = AOriginal.LoadImbalance();
@@ -259,7 +268,7 @@ bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT re
 
 // local function
 template <typename IT, typename NT, typename DER>
-bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
+bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum, NT hardThreshold)
 {
 #ifdef COMBBLAS_DEBUG
     ostringstream ss;
@@ -269,6 +278,11 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
     
     FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
+    FullyDistSpVec<IT,NT> nonSelectCols = EWiseApply<NT>(selectCols, nnzPerColumn,
+                                                          [](NT spval, NT dval){return spval;},
+                                                          [](NT spval, NT dval){return spval==-1;},
+                                                          true, static_cast<NT>(-1));
+    nonSelectCols = hardThreshold;
     if(selectCols.getnnz() > 0)
     {
         FullyDistVec<IT, NT> kth ( A.getcommgrid());
@@ -287,6 +301,7 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum)
             double t2=MPI_Wtime();
 #endif
 
+            kth.Set(nonSelectCols);
             A.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
 #ifdef TIMING
             double t3=MPI_Wtime();
@@ -449,16 +464,16 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 	// valid and correctly updated after a call to SpParMat::PruneColumn
 	// it just happens to be valid but it could have also been implemented as
 	// oldspSeq = spSeq; spSeq = new SpDCCols<>(...); delete oldspSeq;
-        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct))
+        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct, hardThreshold))
         {
             // ABAB: Change this to accept pointers to objects
             toconcatenate.push_back(*OnePieceOfC); // making a copy here
         }
-        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum))
+        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum, hardThreshold))
         {
             // PrunedPieceOfC_mat: after prune and selection
             // PrunedPieceOfC_rec: after prune before selection
-            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, PrunedPieceOfC_rec, recoverNum, recoverPct))
+            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, PrunedPieceOfC_rec, recoverNum, recoverPct, hardThreshold))
             {
                 toconcatenate.push_back(PrunedPieceOfC_rec.seq());
             }
