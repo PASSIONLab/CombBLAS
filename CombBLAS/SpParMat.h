@@ -182,6 +182,9 @@ public:
     template <typename _BinaryOperation>
     SpParMat<IT,NT,DER> PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace=true);
     
+    template <typename _BinaryOperation>
+    SpParMat<IT,NT,DER> PruneColumn(const FullyDistSpVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace=true);
+    
 	template <typename _BinaryOperation>
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 
