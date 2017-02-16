@@ -256,6 +256,8 @@ public:
 	SpDCCols<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
     template <typename _BinaryOperation>
     SpDCCols<IT,NT>* PruneColumn(NT* pvals, _BinaryOperation __binary_op, bool inPlace);
+    template <typename _BinaryOperation>
+    SpDCCols<IT,NT>* PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace);
 
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const

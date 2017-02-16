@@ -1826,7 +1826,7 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 	EWiseMult(SAT, true);	// In-place EWiseMult with not(SAT)
 }
 
-
+//! Prune every column of a sparse matrix based on pvals
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
@@ -1851,11 +1851,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     
     int xsize = (int) pvals.LocArrSize();
     int trxsize = 0;
-
-    ostringstream outs;
-    outs << "xsize: " << xsize << endl;
-    SpParHelper::Print(outs.str());
-    MPI_Barrier(World);
 
     
     int diagneigh = pvals.commGrid->GetComplementRank();
@@ -1907,6 +1902,79 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
         return SpParMat<IT,NT,DER>(spSeq->PruneColumn(numacc.data(), __binary_op, inPlace), commGrid);
     }
 }
+
+
+//! Prune columns of a sparse matrix selected by nonzero indices of pvals
+//! Each selected column is pruned by corresponding values in pvals
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
+{
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(getncol() != pvals.TotalLength())
+    {
+        ostringstream outs;
+        outs << "Can not prune column-by-column, dimensions does not match"<< endl;
+        outs << getncol() << " != " << pvals.TotalLength() << endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+    if(! ( *(getcommgrid()) == *(pvals.getcommgrid())) )
+    {
+        cout << "Grids are not comparable for PurneColumn" << endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
+    int diagneigh = pvals.commGrid->GetComplementRank();
+    
+    IT xlocnz = pvals.getlocnnz();
+    IT roffst = pvals.RowLenUntil();
+    IT roffset;
+    IT trxlocnz = 0;
+    
+    MPI_Status status;
+    MPI_Sendrecv(&roffst, 1, MPIType<IT>(), diagneigh, TROST, &roffset, 1, MPIType<IT>(), diagneigh, TROST, World, &status);
+    MPI_Sendrecv(&xlocnz, 1, MPIType<IT>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<IT>(), diagneigh, TRNNZ, World, &status);
+    
+    vector<IT> trxinds (trxlocnz);
+    vector<NT> trxnums (trxlocnz);
+    MPI_Sendrecv(pvals.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, &status);
+    MPI_Sendrecv(pvals.num.data(), xlocnz, MPIType<NT>(), diagneigh, TRX, trxnums.data(), trxlocnz, MPIType<NT>(), diagneigh, TRX, World, &status);
+    transform(trxinds.data(), trxinds.data()+trxlocnz, trxinds.data(), bind2nd(plus<IT>(), roffset));
+
+    
+    int colneighs, colrank;
+    MPI_Comm_size(ColWorld, &colneighs);
+    MPI_Comm_rank(ColWorld, &colrank);
+    int * colnz = new int[colneighs];
+    colnz[colrank] = trxlocnz;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colnz, 1, MPI_INT, ColWorld);
+    int * dpls = new int[colneighs]();	// displacements (zero initialized pid)
+    std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
+    IT accnz = std::accumulate(colnz, colnz+colneighs, 0);
+ 
+    vector<IT> indacc(accnz);
+    vector<NT> numacc(accnz);
+    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc, colnz, dpls, MPIType<IT>(), ColWorld);
+    MPI_Allgatherv(trxnums.data(), trxlocnz, MPIType<NT>(), numacc, colnz, dpls, MPIType<NT>(), ColWorld);
+    
+    delete [] colnz;
+    delete [] dpls;
+    
+
+    if (inPlace)
+    {
+        spSeq->PruneColumn(indacc.data(), numacc.data(), __binary_op, inPlace);
+        return SpParMat<IT,NT,DER>(getcommgrid()); // return blank to match signature
+    }
+    else
+    {
+        return SpParMat<IT,NT,DER>(spSeq->PruneColumn(indacc.data(), numacc.data(), __binary_op, inPlace), commGrid);
+    }
+}
+
 
 
 // In-place version where rhs type is the same (no need for type promotion)

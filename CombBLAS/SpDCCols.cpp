@@ -570,6 +570,55 @@ SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneColumn(NT* pvals, _BinaryOperation __bina
 
 
 template <class IT, class NT>
+template <typename _BinaryOperation>
+SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace)
+{
+    if(nnz > 0)
+    {
+        Dcsc<IT,NT>* ret = dcsc->PruneColumn (pinds, pvals, __binary_op, inPlace);
+        if (inPlace)
+        {
+            nnz = dcsc->nz;
+            
+            if(nnz == 0)
+            {
+                delete dcsc;
+                dcsc = NULL;
+            }
+            return NULL;
+        }
+        else
+        {
+            // wrap the new pruned Dcsc into a new SpDCCols
+            SpDCCols<IT,NT>* retcols = new SpDCCols<IT, NT>();
+            retcols->dcsc = ret;
+            retcols->nnz = retcols->dcsc->nz;
+            retcols->n = n;
+            retcols->m = m;
+            return retcols;
+        }
+    }
+    else
+    {
+        if (inPlace)
+        {
+            return NULL;
+        }
+        else
+        {
+            SpDCCols<IT,NT>* retcols = new SpDCCols<IT, NT>();
+            retcols->dcsc = NULL;
+            retcols->nnz = 0;
+            retcols->n = n;
+            retcols->m = m;
+            return retcols;
+        }
+    }
+}
+
+
+
+template <class IT, class NT>
 void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 {
 	if(this != &rhs)		
