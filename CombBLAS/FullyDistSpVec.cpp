@@ -2701,57 +2701,6 @@ void FullyDistSpVec<IT,NT>::Setminus (const FullyDistSpVec<IT,NT1> & other)
 
 
 
-
-
-//
-template <typename IT, typename NT>
-template <typename NT1, typename _UnaryOperation1, typename _UnaryOperation2>
-FullyDistSpVec<IT,NT1> FullyDistSpVec<IT,NT>::SelectNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2)
-{
-    FullyDistSpVec<IT,NT1> composed(commGrid, TotalLength());
-	if(*commGrid == *(denseVec.commGrid))
-	{
-		if(TotalLength() != denseVec.TotalLength())
-		{
-			ostringstream outs;
-			outs << "Vector dimensions don't match (" << TotalLength() << " vs " << denseVec.TotalLength() << ") for Select\n";
-			SpParHelper::Print(outs.str());
-			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
-		}
-		else
-		{
-            
-			IT spsize = getlocnnz();
-            //IT k = 0;
-            // iterate over the sparse vector
-            for(IT i=0; i< spsize; ++i)
-            {
-                if(__unop1(denseVec.arr[ind[i]]))
-                {
-                    composed.ind.push_back(ind[i]);
-                    composed.num.push_back(__unop2(num[i]));
-                    //ind[k] = ind[i];
-                    //num[k++] = num[i];
-                }
-            }
-            //ind.resize(k);
-            //num.resize(k);
-		}
-	}
-	else
-	{
-        ostringstream outs;
-        outs << "Grids are not comparable for Select" << endl;
-        SpParHelper::Print(outs.str());
-		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-	}
-    
-    return composed;
-}
-
-
-
-
 template <typename IT, typename NT>
 template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
 void FullyDistSpVec<IT,NT>::SelectApply (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop)
@@ -2790,51 +2739,6 @@ void FullyDistSpVec<IT,NT>::SelectApply (const FullyDistVec<IT,NT1> & denseVec, 
         SpParHelper::Print(outs.str());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
-}
-
-
-
-
-template <typename IT, typename NT>
-template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::SelectApplyNew(const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop)
-{
-    FullyDistSpVec<IT,NT> composed(commGrid, TotalLength());
-	if(*commGrid == *(denseVec.commGrid))
-	{
-		if(TotalLength() != denseVec.TotalLength())
-		{
-			ostringstream outs;
-			outs << "Vector dimensions don't match (" << TotalLength() << " vs " << denseVec.TotalLength() << ") for Select\n";
-			SpParHelper::Print(outs.str());
-			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
-		}
-		else
-		{
-            
-			IT spsize = getlocnnz();
-            //IT k = 0;
-            // iterate over the sparse vector
-            for(IT i=0; i< spsize; ++i)
-            {
-                if(__unop(denseVec.arr[ind[i]]))
-                {
-                    composed.ind.push_back(ind[i]);
-                    composed.num.push_back( __binop(num[i], denseVec.arr[ind[i]]));
-                }
-            }
-            //ind.resize(k);
-            //num.resize(k);
-		}
-	}
-	else
-	{
-        ostringstream outs;
-        outs << "Grids are not comparable for Select" << endl;
-        SpParHelper::Print(outs.str());
-		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
-	}
-    return composed;
 }
 
 

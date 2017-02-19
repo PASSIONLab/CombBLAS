@@ -54,14 +54,42 @@ using namespace std;
 
 
 class Dist
-{ 
-public: 
-	typedef SpDCCols < int64_t, float > DCCols;
-	typedef SpParMat < int64_t, float, DCCols > MPI_DCCols;
+{
+public:
+    typedef SpDCCols < int64_t, double > DCCols;
+    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
 };
 
 
-void StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
+template <typename T1, typename T2>
+struct Select2ndMinSR
+{
+    typedef typename promote_trait<T1,T2>::T_promote T_promote;
+    static T_promote id(){ return numeric_limits<T_promote>::max(); };
+    static bool returnedSAID() { return false; }
+    static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static T_promote add(const T_promote & arg1, const T_promote & arg2)
+    {
+        return std::min(arg1, arg2);
+    }
+    
+    static T_promote multiply(const T1 & arg1, const T2 & arg2)
+    {
+        return static_cast<T_promote> (arg2);
+    }
+    
+    static void axpy(const T1 a, const T2 & x, T_promote & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
+
+
+
+
+
+FullyDistVec<int64_t,short> StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 {
     // FullyDistVec doesn't support "bool" due to crippled vector<bool> semantics
     //TODO: change the value of star entries to grandfathers so it will be int64_t as well.
@@ -71,18 +99,116 @@ void StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fath
     grandfather.EWiseOut(father,
                          [](int64_t pv, int64_t gpv) -> short { return static_cast<short>(pv == gpv); },
                          star); // remove some stars
-
-    // FullyDistSpVec FullyDistVec::Find() requires no communication
-    // because FullyDistSpVec (the return object) is distributed based on length, not nonzero counts
+    
+    // nostars
+    FullyDistSpVec<int64_t,short> nonstar = star.Find([](short isStar){return isStar==0;});
+    // grandfathers of nonstars
+    FullyDistSpVec<int64_t, int64_t> nonstarGF = EWiseApply<int64_t>(nonstar, grandfather,
+                                            [](short isStar, int64_t gf){return gf;},
+                                            [](short isStar, int64_t gf){return true;},
+                                            false, static_cast<short>(0));
+    // grandfather pointing to a grandchild
+    FullyDistSpVec<int64_t, int64_t> gfNonstar = nonstarGF.Invert(nonstarGF.TotalLength()); // for duplicates, keep the first one
+    
+    // star(GF) = 0
+    star.EWiseApply(gfNonstar, [](short isStar, int64_t x){return static_cast<short>(0);},
+                    false, static_cast<int64_t>(0));
+    
+    
+    star = star(father);
+    return star;
 }
 
 void ConditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 {
-    StarCheck(A, father);
+    FullyDistVec<int64_t,short> stars = StarCheck(A, father);
+    
+    FullyDistVec<int64_t, int64_t> minNeighborFather ( A.getcommgrid());
+    minNeighborFather = SpMV<Select2ndMinSR<double, int64_t>>(A, father); // value is the minimum of all neighbors' fatthers
+    
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> hooks(A.getcommgrid(), A.getnrow());
+    // create entries belonging to stars
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, stars,
+                                               [](pair<int64_t, int64_t> x, short isStar){return make_pair(0,0);},
+                                               [](pair<int64_t, int64_t> x, short isStar){return isStar==1;},
+                                               true, {0,0});
+    
+    
+    // include father information
+    
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, father,
+                                               [](pair<int64_t, int64_t> x, short f){return make_pair(f,0);},
+                                               [](pair<int64_t, int64_t> x, short f){return true;},
+                                               false, {0,0});
+    
+    //keep entries with father>minNeighborFather and insert minNeighborFather information
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks,  minNeighborFather,
+                                               [](pair<int64_t, int64_t> x, short mnf){return make_pair(get<0>(x), mnf);},
+                                               [](pair<int64_t, int64_t> x, short mnf){return get<0>(x) > mnf;},
+                                               false, {0,0});
+    //Invert
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> starhooks= hooks.Invert(hooks.TotalLength(),
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
+                                                                            [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
+    
+    
+    // drop the send field of the par
+    FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return true;},
+                                                                      false, {0,0});
+    father.Set(finalhooks);
 }
 
-void UnconditionalHook(Dist::MPI_DCCols & A)
+
+void UnconditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 {
+    FullyDistVec<int64_t,short> stars = StarCheck(A, father);
+    
+    FullyDistVec<int64_t, int64_t> minNeighborFather ( A.getcommgrid());
+    minNeighborFather = SpMV<Select2ndMinSR<double, int64_t>>(A, father); // value is the minimum of all neighbors' fatthers
+    
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> hooks(A.getcommgrid(), A.getnrow());
+    // create entries belonging to stars
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, stars,
+                                               [](pair<int64_t, int64_t> x, short isStar){return make_pair(0,0);},
+                                               [](pair<int64_t, int64_t> x, short isStar){return isStar==1;},
+                                               true, {0,0});
+    
+    
+    // include father information
+    
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks, father,
+                                               [](pair<int64_t, int64_t> x, short f){return make_pair(f,0);},
+                                               [](pair<int64_t, int64_t> x, short f){return true;},
+                                               false, {0,0});
+    
+    //keep entries with father>minNeighborFather and insert minNeighborFather information
+    hooks = EWiseApply<pair<int64_t, int64_t>>(hooks,  minNeighborFather,
+                                               [](pair<int64_t, int64_t> x, short mnf){return make_pair(get<0>(x), mnf);},
+                                               [](pair<int64_t, int64_t> x, short mnf){return get<0>(x) != mnf;},
+                                               false, {0,0});
+    //Invert
+    FullyDistSpVec<int64_t, pair<int64_t, int64_t>> starhooks= hooks.Invert(hooks.TotalLength(),
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
+                                                                            [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
+    
+    
+    // drop the send field of the par
+    FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
+                                                                      [](pair<int64_t, int64_t> x, int64_t f){return true;},
+                                                                      false, {0,0});
+    father.Set(finalhooks);
+}
+
+
+void Shortcut(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
+{
+    FullyDistVec<int64_t, int64_t> grandfather = father(father);
+    father = grandfather; // we can do it unconditionally because it is trivially true for stars
 }
 
 int main(int argc, char* argv[])
@@ -102,10 +228,10 @@ int main(int argc, char* argv[])
         nthreads = omp_get_num_threads();
     }
 #endif
-
-	int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
@@ -124,7 +250,7 @@ int main(int argc, char* argv[])
         MPI_Finalize();
         return -1;
     }
-	{
+    {
         string ifilename = "";
         int base = 1;
         int randpermute = 0;
@@ -147,15 +273,15 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
             }
         }
-
+        
         double tIO = MPI_Wtime();
-		Dist::MPI_DCCols A;	// construct object
+        Dist::MPI_DCCols A;	// construct object
         A.ParallelReadMM(ifilename, base, maximum<bool>());	// if base=0, then it is implicitly converted to Boolean false
-    
-						
+        
+        
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
-		SpParHelper::Print(outs.str());
+        SpParHelper::Print(outs.str());
         
         if(randpermute)
         {
@@ -180,16 +306,16 @@ int main(int argc, char* argv[])
         outs << "Load balance: " << balance << endl;
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
-    
+        
         A.AddLoops(1.0);    // the loop value doesn't really matter anyway
         SpParHelper::Print("Added loops");
         A.PrintInfo();
-    
+        
         FullyDistVec<int64_t,int64_t> father(A.getcommgrid());
         father.iota(A.getnrow(), 0);    // father(i)=i initially
         ConditionalHook(A, father);
-	}	
-
-	MPI_Finalize();
-	return 0;
+    }	
+    
+    MPI_Finalize();
+    return 0;
 }

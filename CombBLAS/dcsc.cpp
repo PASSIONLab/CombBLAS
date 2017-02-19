@@ -763,6 +763,112 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneColumn(NT* pvals, _BinaryOperation __binary_op, b
 }
 
 
+// prune selected columns indexed by pinds
+template <class IT, class NT>
+template <typename _BinaryOperation>
+Dcsc<IT,NT>* Dcsc<IT,NT>::PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace)
+{
+    // Two-pass algorithm
+    IT prunednnz = 0;
+    IT prunednzc = 0;
+    IT k = 0;
+    for(IT i=0; i<nzc; ++i)
+    {
+        bool colexists = false;
+        IT colid = jc[i];
+        if(colid==pinds[k]) // pinds is sorted
+        {
+            for(IT j=cp[i]; j < cp[i+1]; ++j)
+            {
+                if(!(__binary_op(numx[j], pvals[k]))) 	// keep this nonzero
+                {
+                    ++prunednnz;
+                    colexists = true;
+                }
+            }
+            k++;
+        }
+        else // untouched columns
+        {
+            colexists = true;
+            prunednnz += (cp[i+1] - cp[i]);
+        }
+        if(colexists) 	++prunednzc;
+    }
+    IT * oldcp = cp;
+    IT * oldjc = jc;
+    IT * oldir = ir;
+    NT * oldnumx = numx;
+    
+    cp = new IT[prunednzc+1];
+    jc = new IT[prunednzc];
+    ir = new IT[prunednnz];
+    numx = new NT[prunednnz];
+    
+    IT cnzc = 0;
+    IT cnnz = 0;
+    cp[cnzc] = 0;
+    k = 0;
+    for(IT i=0; i<nzc; ++i)
+    {
+        IT colid = oldjc[i];
+        if(colid==pinds[k]) // prunned columns
+        {
+            for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
+            {
+                if(!(__binary_op(oldnumx[j], pvals[k])))
+                {
+                    ir[cnnz] = oldir[j];
+                    numx[cnnz++] = 	oldnumx[j];
+                }
+            }
+            k++;
+        }
+        else // copy other columns
+        {
+            for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
+            {
+                ir[cnnz] = oldir[j];
+                numx[cnnz++] = 	oldnumx[j];
+            }
+        }
+        if(cnnz > cp[cnzc])
+        {
+            jc[cnzc] = oldjc[i];
+            cp[cnzc+1] = cnnz;
+            ++cnzc;
+        }
+    }
+    assert(cnzc == prunednzc);
+    if (inPlace)
+    {
+        // delete the memory pointed by previous pointers
+        DeleteAll(oldnumx, oldir, oldjc, oldcp);
+        nz = cnnz;
+        nzc = cnzc;
+        return NULL;
+    }
+    else
+    {
+        // create a new object to store the data
+        Dcsc<IT,NT>* ret = new Dcsc<IT,NT>();
+        ret->cp = cp;
+        ret->jc = jc;
+        ret->ir = ir;
+        ret->numx = numx;
+        ret->nz = cnnz;
+        ret->nzc = cnzc;
+        
+        // put the previous pointers back
+        cp = oldcp;
+        jc = oldjc;
+        ir = oldir;
+        numx = oldnumx;
+        
+        return ret;
+    }
+}
+
 template <class IT, class NT>
 void Dcsc<IT,NT>::EWiseScale(NT ** scaler)	
 {
