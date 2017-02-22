@@ -979,30 +979,35 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 #define KSELECTLIMIT 50
 
 
-/*
+
+//! Kselect wrapper for a select columns of the matrix
+//! Indices of the input sparse vectors kth denote the queried columns of the matrix
+//! Upon return, values of kth stores the kth entries of the queried columns
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
-//! if false, rvec contains either contains the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const
 {
-    // TODO: kselect1 and kselect2
-    FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
+    bool ret;
+    FullyDistVec<GIT,VT> kthAll ( getcommgrid());
     if(k_limit > KSELECTLIMIT)
     {
-        return Kselect2(rvec, k_limit);
+        ret = Kselect2(kthAll, k_limit);
     }
     else
     {
-        return Kselect1(rvec, k_limit, myidentity<NT>());
+        ret = Kselect1(kthAll, k_limit, myidentity<NT>());
     }
+    FullyDistSpVec<GIT,VT> temp(kthAll, myidentity<VT>());
+    kth = temp;
+    return ret;
 }
-*/
+
 
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
-//! if false, rvec contains either contains the minimum entry in each column or zero
+//! if false, rvec contains either the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const

@@ -119,6 +119,8 @@ public:
 
     template <typename VT, typename GIT>
     bool Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const;
+    template <typename VT, typename GIT>
+    bool Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const; //sparse case
     
     template <typename VT, typename GIT, typename _UnaryOperation>
     bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
