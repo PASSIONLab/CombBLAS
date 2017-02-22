@@ -81,6 +81,8 @@ public:
 	Dcsc<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
     template <typename _BinaryOperation>
     Dcsc<IT,NT>* PruneColumn(NT* pvals, _BinaryOperation __binary_op, bool inPlace);
+    template <typename _BinaryOperation>
+    Dcsc<IT,NT>* PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace);
 
     
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
