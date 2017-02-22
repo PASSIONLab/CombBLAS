@@ -156,12 +156,17 @@ int main(int argc, char* argv[])
         int base = 1;
         int randpermute = 0;
         int phases = 1;
+        bool show = false;
         
         for (int i = 1; i < argc; i++)
         {
             if (strcmp(argv[i],"-M")==0){
                 ifilename = string(argv[i+1]);
                 if(myrank == 0) printf("filename: %s",ifilename.c_str());}
+            else if (strcmp(argv[i],"--show")==0){
+                show = true;
+                if(myrank == 0) printf("Show matrices after major steps");
+            }
             else if (strcmp(argv[i],"-I")==0){
                 inflation = atof(argv[i + 1]);
                 if(myrank == 0) printf("Inflation: %f",inflation);
@@ -237,23 +242,37 @@ int main(int argc, char* argv[])
         
         double tstart = MPI_Wtime();
         
-        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 1.0);
+        // Precossing: default adjustloop setting
+        // 1. Remove loops
+        // 2. set loops to max of all arc weights
+        // 3. for isolated vertices, add a loop with weight =1
+        A.RemoveLoops();
+        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), numeric_limits<float>::min());
+        A.Apply([](float val){return val==numeric_limits<float>::min() ? 1.0 : val;});
         A.AddLoops(colmaxs);
-		//A.AddLoops(1.0);	// matrix_add_loops($mx); // with weight 1.0
         outs.str("");
         outs.clear();
-        outs << "Added loops" << endl;
+        outs << "Adjusted loops according to default mcl parameters" << endl;
         SpParHelper::Print(outs.str());
-        A.PrintInfo();
+        if(show)
+        {
+            SpParHelper::Print("After adjusting loops\n");
+            A.PrintInfo();
+        }
         
-        Inflate(A, 1); 		// matrix_make_stochastic($mx);
+        MakeColStochastic(A);
+        //Inflate(A, 1); 		// matrix_make_stochastic($mx);
         float initChaos = Chaos(A);
         outs.str("");
         outs.clear();
         outs << "Made stochastic" << endl;
         outs << "Initial chaos = " << initChaos << endl;
         SpParHelper::Print(outs.str());
-        A.PrintInfo();
+        if(show)
+        {
+            SpParHelper::Print("After making stochastic\n");
+            A.PrintInfo();
+        }
         
 
 #ifdef TIMING
@@ -283,7 +302,6 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
-	    A.PrintInfo();
 
             MakeColStochastic(A);
             double t2 = MPI_Wtime();
@@ -299,7 +317,11 @@ int main(int argc, char* argv[])
             }
 #endif
 
-            A.PrintInfo();
+            if(show)
+            {
+                SpParHelper::Print("After expansion\n");
+                A.PrintInfo();
+            }
             chaos = Chaos(A);
             
 	    Inflate(A, inflation);	// inflate (and renormalize)
@@ -308,7 +330,11 @@ int main(int argc, char* argv[])
             stringstream sss;
             sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
             SpParHelper::Print(sss.str());
-            A.PrintInfo();
+            if(show)
+            {
+                SpParHelper::Print("After inflation\n");
+                A.PrintInfo();
+            }
             
 			
             // Prunning is performed inside MemEfficientSpGEMM
@@ -327,10 +353,7 @@ int main(int argc, char* argv[])
             SpParHelper::Print(s.str());
             it++;
 
-#ifdef DEBUG	
-			SpParHelper::Print("After pruning...\n");
-			A.PrintInfo();
-#endif
+
 		}
 		Interpret(A);
         
