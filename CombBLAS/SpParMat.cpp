@@ -999,7 +999,14 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
     {
         ret = Kselect1(kthAll, k_limit, myidentity<NT>());
     }
-    FullyDistSpVec<GIT,VT> temp(kthAll, myidentity<VT>());
+    
+    //kth.DebugPrint();
+    //kthAll.DebugPrint();
+    FullyDistSpVec<GIT,VT> temp = EWiseApply<VT>(kth, kthAll,
+                                                 [](VT spval, VT dval){return dval;},
+                                                 [](VT spval, VT dval){return true;},
+                                                 false, NT());
+    //temp.DebugPrint();
     kth = temp;
     return ret;
 }
@@ -1984,8 +1991,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
  
     vector<IT> indacc(accnz);
     vector<NT> numacc(accnz);
-    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc, colnz, dpls, MPIType<IT>(), ColWorld);
-    MPI_Allgatherv(trxnums.data(), trxlocnz, MPIType<NT>(), numacc, colnz, dpls, MPIType<NT>(), ColWorld);
+    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc.data(), colnz, dpls, MPIType<IT>(), ColWorld);
+    MPI_Allgatherv(trxnums.data(), trxlocnz, MPIType<NT>(), numacc.data(), colnz, dpls, MPIType<NT>(), ColWorld);
     
     delete [] colnz;
     delete [] dpls;

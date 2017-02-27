@@ -157,6 +157,7 @@ int main(int argc, char* argv[])
         int randpermute = 0;
         int phases = 1;
         bool show = false;
+        bool keep_isolated = false; // mcl removes isolated vertices by default
         
         for (int i = 1; i < argc; i++)
         {
@@ -165,7 +166,11 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("filename: %s",ifilename.c_str());}
             else if (strcmp(argv[i],"--show")==0){
                 show = true;
-                if(myrank == 0) printf("Show matrices after major steps");
+                if(myrank == 0) printf("\nShow matrices after major steps");
+            }
+            else if (strcmp(argv[i],"--keep-isolated")==0){
+                keep_isolated = true;
+                if(myrank == 0) printf("\nKeep isolated vertices at the beginning");
             }
             else if (strcmp(argv[i],"-I")==0){
                 inflation = atof(argv[i + 1]);
@@ -212,6 +217,20 @@ int main(int argc, char* argv[])
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
 		SpParHelper::Print(outs.str());
+        if(show)
+            A.PrintInfo();
+        
+        if(!keep_isolated)
+        {
+            FullyDistVec<int64_t,float> ColSums = A.Reduce(Column, plus<float>(), 0.0);
+            FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<float>(), 0));
+            A(nonisov, nonisov, true);
+            SpParHelper::Print("Removed isolated vertices.\n");
+            if(show)
+            {
+                A.PrintInfo();
+            }
+        }
         
         if(randpermute)
         {
@@ -245,7 +264,6 @@ int main(int argc, char* argv[])
         // Precossing: default adjustloop setting
         // 1. Remove loops
         // 2. set loops to max of all arc weights
-        // 3. for isolated vertices, add a loop with weight =1
         A.RemoveLoops();
         Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), numeric_limits<float>::min());
         A.Apply([](float val){return val==numeric_limits<float>::min() ? 1.0 : val;});
@@ -256,21 +274,16 @@ int main(int argc, char* argv[])
         SpParHelper::Print(outs.str());
         if(show)
         {
-            SpParHelper::Print("After adjusting loops\n");
             A.PrintInfo();
         }
         
         MakeColStochastic(A);
         //Inflate(A, 1); 		// matrix_make_stochastic($mx);
-        float initChaos = Chaos(A);
-        outs.str("");
-        outs.clear();
-        outs << "Made stochastic" << endl;
-        outs << "Initial chaos = " << initChaos << endl;
-        SpParHelper::Print(outs.str());
+        //float initChaos = Chaos(A);
+        //outs << "Initial chaos = " << initChaos << endl;
+        SpParHelper::Print("Made stochastic\n");
         if(show)
         {
-            SpParHelper::Print("After making stochastic\n");
             A.PrintInfo();
         }
         

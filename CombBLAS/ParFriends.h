@@ -178,140 +178,151 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 }	
 
 
-// local function
+// Combined logic for prune, recovery, and select
 template <typename IT, typename NT, typename DER>
-bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct, NT hardThreshold)
+void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct)
 {
-#ifdef COMBBLAS_DEBUG
-    ostringstream ss;
-    ss << "MCLRecovery with " << recoverNum << endl;
-    SpParHelper::Print(ss.str());
+    
+#ifdef TIMING
+    double t0, t1;
 #endif
+    // Prune and create a new pruned matrix
+    SpParMat<IT,NT,DER> PrunedA = A.Prune(bind2nd(less_equal<NT>(), hardThreshold), false);
+    // column-wise statistics of the pruned matrix
+    FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, plus<NT>(), 0.0);
+    FullyDistVec<IT,NT> nnzPerColumn = PrunedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+    FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
+   
     
-    FullyDistVec<IT,NT> colSums = A.Reduce(Column, plus<NT>(), 0.0);
-    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     
+    // Check if we need recovery
     // columns with nnz < recoverNum (r)
     FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(less<NT>(), recoverNum));
     recoverCols = recoverPct;
     // columns with nnz < r AND sum < recoverPct (pct)
     recoverCols = EWiseApply<NT>(recoverCols, colSums,
-                                  [](NT spval, NT dval){return spval;},
-                                  [](NT spval, NT dval){return dval < spval;},
-                                  false, NT());
-    
-    FullyDistSpVec<IT,NT> nonRecoverCols = EWiseApply<NT>(recoverCols, colSums,
                                  [](NT spval, NT dval){return spval;},
-                                 [](NT spval, NT dval){return spval==-1;},
-                                 true, static_cast<NT>(-1));
-    nonRecoverCols = hardThreshold;
+                                 [](NT spval, NT dval){return dval < spval;},
+                                 false, NT());
     
-    if(recoverCols.getnnz() > 0) // at least one column needs recovery
+    IT nrecover = recoverCols.getnnz();
+    if(nrecover > 0)
     {
-        FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
-        
 #ifdef TIMING
-        double t0=MPI_Wtime();
+        t0=MPI_Wtime();
 #endif
-        bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
-        MPI_Barrier(MPI_COMM_WORLD);
-        
-#ifdef COMBBLAS_DEBUG
-        kth.PrintInfo("kth vector");
+        A.Kselect(recoverCols, recoverNum);
 
-        float balance = AOriginal.LoadImbalance();
-        int64_t nnz = AOriginal.getnnz();
-
-        //ostringstream name;
-        //name << "testing_" << nnz << "_id_";
-        //kth.PrintToFile(name.str());
-
-        ostringstream outs;
-        outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
-        outs << "Load balance: " << balance << endl;
-        outs << "Nonzeros: " << nnz << endl;
-        SpParHelper::Print(outs.str());
-        MPI_Barrier(MPI_COMM_WORLD);
-#endif
-        
-        
 #ifdef TIMING
-        double t1=MPI_Wtime();
+        t1=MPI_Wtime();
         mcl_kselecttime += (t1-t0);
 #endif
-        if(pruneNeeded)
-        {
-#ifdef TIMING
-            double t2=MPI_Wtime();
-#endif
 
-            
-            kth.Set(nonRecoverCols);
-            AOriginal.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
-
-            float balance = AOriginal.LoadImbalance();
-            int64_t nnz = AOriginal.getnnz();
-            ostringstream outs;
-            outs << "Load balance: " << balance << endl;
-            outs << "Nonzeros: " << nnz << endl;
-            SpParHelper::Print(outs.str());
-#ifdef TIMING
-            double t3=MPI_Wtime();
-            mcl_prunecolumntime += (t3-t2);
-#endif
-        }
-        return true;
+        pruneCols.Set(recoverCols);
+        ostringstream outs;
+        outs << "Number of columns needing recovery: " << nrecover << endl;
+        SpParHelper::Print(outs.str());
+        
     }
-    else return false;
-}
-
-
-// local function
-template <typename IT, typename NT, typename DER>
-bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum, NT hardThreshold)
-{
-#ifdef COMBBLAS_DEBUG
-    ostringstream ss;
-    ss << "MCLSelect with " << selectNum << endl;
-    SpParHelper::Print(ss.str());
-#endif
     
-    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-    FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
-    FullyDistSpVec<IT,NT> nonSelectCols = EWiseApply<NT>(selectCols, nnzPerColumn,
+    
+    if(selectNum>0)
+    {
+        // remaining columns will be up for selection
+        FullyDistSpVec<IT,NT> selectCols = EWiseApply<NT>(recoverCols, colSums,
                                                           [](NT spval, NT dval){return spval;},
                                                           [](NT spval, NT dval){return spval==-1;},
                                                           true, static_cast<NT>(-1));
-    nonSelectCols = hardThreshold;
-    if(selectCols.getnnz() > 0)
-    {
-        FullyDistVec<IT, NT> kth ( A.getcommgrid());
-#ifdef TIMING
-        double t0=MPI_Wtime();
-#endif
-        bool pruneNeeded = A.Kselect(kth, selectNum);
         
-#ifdef TIMING
-        double t1=MPI_Wtime();
-        mcl_kselecttime += (t1-t0);
-#endif
-        if(pruneNeeded)
+        selectCols = selectNum;
+        selectCols = EWiseApply<NT>(selectCols, nnzPerColumn,
+                                    [](NT spval, NT dval){return spval;},
+                                    [](NT spval, NT dval){return dval > spval;},
+                                    false, NT());
+        IT nselect = selectCols.getnnz();
+        
+        if(nselect > 0 )
         {
 #ifdef TIMING
-            double t2=MPI_Wtime();
+            t0=MPI_Wtime();
 #endif
-
-            kth.Set(nonSelectCols);
-            A.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+            A.Kselect(selectCols, selectNum); // PrunedA would also work
 #ifdef TIMING
-            double t3=MPI_Wtime();
-            mcl_prunecolumntime += (t3-t2);
+            t1=MPI_Wtime();
+            mcl_kselecttime += (t1-t0);
 #endif
-            return true;
+            pruneCols.Set(selectCols);
+            ostringstream outs;
+            outs << "Number of columns needing selection: " << nselect << endl;
+            SpParHelper::Print(outs.str());
+            
+#ifdef TIMING
+            t0=MPI_Wtime();
+#endif
+            SpParMat<IT,NT,DER> selectedA = A.PruneColumn(pruneCols, less<NT>(), false);
+#ifdef TIMING
+            t1=MPI_Wtime();
+            mcl_prunecolumntime += (t1-t0);
+#endif
+            if(recoverNum>0 ) // recovery can be attempted after selection
+            {
+
+                FullyDistVec<IT,NT> nnzPerColumn1 = selectedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+                FullyDistVec<IT,NT> colSums1 = selectedA.Reduce(Column, plus<NT>(), 0.0);
+                
+  
+                // slected columns with nnz < recoverNum (r)
+                selectCols = recoverNum;
+                selectCols = EWiseApply<NT>(selectCols, nnzPerColumn1,
+                                            [](NT spval, NT dval){return spval;},
+                                            [](NT spval, NT dval){return dval < spval;},
+                                            false, NT());
+                
+                // selected columns with sum < recoverPct (pct)
+                selectCols = recoverPct;
+                selectCols = EWiseApply<NT>(selectCols, colSums1,
+                                            [](NT spval, NT dval){return spval;},
+                                            [](NT spval, NT dval){return dval < spval;},
+                                            false, NT());
+                
+                IT n_recovery_after_select = selectCols.getnnz();
+                if(n_recovery_after_select>0)
+                {
+                    // mclExpandVector2 does it on the original vector
+                    // mclExpandVector1 does it one pruned vector
+#ifdef TIMING
+                    t0=MPI_Wtime();
+#endif
+                    A.Kselect(selectCols, recoverNum); // Kselect on PrunedA might give different result
+#ifdef TIMING
+                    t1=MPI_Wtime();
+                    mcl_kselecttime += (t1-t0);
+#endif
+                    pruneCols.Set(selectCols);
+                    ostringstream outs1;
+                    outs1 << "Number of columns needing recovery after selection: " << nselect << endl;
+                    SpParHelper::Print(outs1.str());
+                }
+                
+            }
         }
     }
-    return false;
+    
+
+    // final prune
+#ifdef TIMING
+    t0=MPI_Wtime();
+#endif
+    A.PruneColumn(pruneCols, less<NT>(), true);
+#ifdef TIMING
+    t1=MPI_Wtime();
+    mcl_prunecolumntime += (t1-t0);
+#endif
+    // Add loops for empty columns
+    A.AddLoops(1.00); // does not alter existing loops
 }
+
+
 
 
 /**
@@ -449,43 +460,10 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
         delete OnePieceOfC_tuples;
         
-        // Prune
-        UDERO * PrunedPieceOfC  = OnePieceOfC->Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
-        // Recover using OnePieceOfC if too sparse
-        //delete OnePieceOfC;
-        
-        
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC_mat);   // making a deep copy needed for recovery after selection
-
-        // ABAB: Ariful, I think this logic is correct but fragile
-	// in particular, there is no guarentee that a handle to OnePieceOfC (within OnePieceOfC_mat) will stay  
-	// valid and correctly updated after a call to SpParMat::PruneColumn
-	// it just happens to be valid but it could have also been implemented as
-	// oldspSeq = spSeq; spSeq = new SpDCCols<>(...); delete oldspSeq;
-        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct, hardThreshold))
-        {
-            // ABAB: Change this to accept pointers to objects
-            toconcatenate.push_back(*OnePieceOfC); // making a copy here
-        }
-        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum, hardThreshold))
-        {
-            // PrunedPieceOfC_mat: after prune and selection
-            // PrunedPieceOfC_rec: after prune before selection
-            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, PrunedPieceOfC_rec, recoverNum, recoverPct, hardThreshold))
-            {
-                toconcatenate.push_back(PrunedPieceOfC_rec.seq());
-            }
-            else
-            {
-                toconcatenate.push_back(*PrunedPieceOfC);
-            }
-        }
-        else
-        {
-            toconcatenate.push_back(*PrunedPieceOfC);
-        }
+        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct);
+        // ABAB: Change this to accept pointers to objects
+        toconcatenate.push_back(OnePieceOfC_mat.seq());
     }
     
     
