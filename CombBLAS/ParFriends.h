@@ -319,7 +319,14 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     mcl_prunecolumntime += (t1-t0);
 #endif
     // Add loops for empty columns
-    A.AddLoops(1.00); // does not alter existing loops
+    if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
+    {
+        FullyDistVec<IT,NT> nnzPerColumnA = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+        FullyDistSpVec<IT,NT> emptyColumns(nnzPerColumnA, bind2nd(equal_to<NT>(), 0.0));
+        emptyColumns = 1.00;
+        //Ariful: We need a selective AddLoops function with a sparse vector
+        //A.AddLoops(emptyColumns);
+    }
 }
 
 
