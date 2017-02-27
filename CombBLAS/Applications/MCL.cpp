@@ -337,7 +337,7 @@ int main(int argc, char* argv[])
             }
             chaos = Chaos(A);
             
-			Inflate(A, inflation);	// inflate (and renormalize)
+	    Inflate(A, inflation);	// inflate (and renormalize)
             MakeColStochastic(A);
             
             stringstream sss;
