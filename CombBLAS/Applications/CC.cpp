@@ -96,6 +96,9 @@ FullyDistVec<int64_t,short> StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<i
     
     FullyDistVec<int64_t,short> star(A.getcommgrid(), A.getnrow(), 1);    // all initialized to true
     FullyDistVec<int64_t, int64_t> grandfather = father(father); // find grandparents
+    
+  
+    
     grandfather.EWiseOut(father,
                          [](int64_t pv, int64_t gpv) -> short { return static_cast<short>(pv == gpv); },
                          star); // remove some stars
@@ -114,8 +117,10 @@ FullyDistVec<int64_t,short> StarCheck(const Dist::MPI_DCCols & A, FullyDistVec<i
     star.EWiseApply(gfNonstar, [](short isStar, int64_t x){return static_cast<short>(0);},
                     false, static_cast<int64_t>(0));
     
-    
-    star = star(father);
+   
+    // at this point vertices at level 1 (children of the root) can still be stars
+    FullyDistVec<int64_t,short> star_l1 = star(father);
+    star.EWiseApply(star_l1, multiplies<short>());
     return star;
 }
 
@@ -149,11 +154,11 @@ void ConditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fath
     //Invert
     FullyDistSpVec<int64_t, pair<int64_t, int64_t>> starhooks= hooks.Invert(hooks.TotalLength(),
                                                                             [](pair<int64_t, int64_t> val, int64_t ind){return get<0>(val);},
-                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<0>(val));},
+                                                                            [](pair<int64_t, int64_t> val, int64_t ind){return make_pair(ind, get<1>(val));},
                                                                             [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
     
     
-    // drop the send field of the par
+    // drop the index informaiton
     FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
                                                                       [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
                                                                       [](pair<int64_t, int64_t> x, int64_t f){return true;},
@@ -184,7 +189,7 @@ void UnconditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fa
                                                [](pair<int64_t, int64_t> x, short f){return true;},
                                                false, {0,0});
     
-    //keep entries with father>minNeighborFather and insert minNeighborFather information
+    //keep entries with father!minNeighborFather and insert minNeighborFather information
     hooks = EWiseApply<pair<int64_t, int64_t>>(hooks,  minNeighborFather,
                                                [](pair<int64_t, int64_t> x, short mnf){return make_pair(get<0>(x), mnf);},
                                                [](pair<int64_t, int64_t> x, short mnf){return get<0>(x) != mnf;},
@@ -196,7 +201,7 @@ void UnconditionalHook(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & fa
                                                                             [](pair<int64_t, int64_t> val1, pair<int64_t, int64_t> val2){return val1;} );
     
     
-    // drop the send field of the par
+    // drop the index informaiton
     FullyDistSpVec<int64_t, int64_t> finalhooks = EWiseApply<int64_t>(starhooks,  father,
                                                                       [](pair<int64_t, int64_t> x, int64_t f){return get<1>(x);},
                                                                       [](pair<int64_t, int64_t> x, int64_t f){return true;},
@@ -244,7 +249,6 @@ int main(int argc, char* argv[])
             cout << "Usage: ./cc -M <FILENAME_MATRIX_MARKET> (required)\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
             cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
-            cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
             cout << "Example (0-indexed mtx with random permutation): ./cc -M input.mtx -base 0 -rand 1" << endl;
         }
         MPI_Finalize();
@@ -307,13 +311,27 @@ int main(int argc, char* argv[])
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
         
-        A.AddLoops(1.0);    // the loop value doesn't really matter anyway
-        SpParHelper::Print("Added loops");
-        A.PrintInfo();
+        A.RemoveLoops();
+        SpParHelper::Print("Removed loops\n");
+        //A.PrintInfo();
         
         FullyDistVec<int64_t,int64_t> father(A.getcommgrid());
         father.iota(A.getnrow(), 0);    // father(i)=i initially
-        ConditionalHook(A, father);
+        int64_t nonstars = 1;
+        int iteration = 0;
+        do{
+            ConditionalHook(A, father);
+            UnconditionalHook(A, father);
+            Shortcut(A, father);
+            FullyDistVec<int64_t,short> stars = StarCheck(A, father);
+            nonstars = stars.Reduce(plus<int64_t>(), static_cast<int64_t>(0), [](short isStar){return static_cast<int64_t>(isStar==0);});
+            outs.str("");
+            outs.clear();
+            outs << "Iteration: " << ++iteration << " Non stars: " << nonstars << endl;
+            SpParHelper::Print(outs.str());
+        }while(nonstars>0);
+
+        
     }	
     
     MPI_Finalize();
