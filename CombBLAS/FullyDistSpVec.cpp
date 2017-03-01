@@ -681,7 +681,7 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 }
 
 
-//! iota over existing nonzero entries
+//! iota over existing nonzero entries 
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::nziota(NT first)
 {

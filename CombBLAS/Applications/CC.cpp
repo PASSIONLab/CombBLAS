@@ -217,6 +217,32 @@ void Shortcut(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & father)
 }
 
 
+bool Correctness(Dist::MPI_DCCols & A, FullyDistVec<int64_t, int64_t> & cclabel, int64_t nCC)
+{
+    for(int64_t i=0; i<nCC; i++)
+    {
+        FullyDistSpVec<int64_t, int64_t> vtx (cclabel, bind2nd(equal_to<int64_t>(), i));
+        FullyDistSpVec<int64_t, int64_t> vtx1(vtx.getcommgrid());
+        //TODO: fix the broken SpMV interface for non-Boolean matrices
+        SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > A1 = A;
+        SpMV<Select2ndMinSR<bool, int64_t>>(A1, vtx, vtx1, false);
+        
+        //vtx1 \setminus vtx
+        
+        FullyDistSpVec<int64_t, int64_t> vtx2 = EWiseApply<int64_t>(vtx1, vtx,
+                                                           [](int64_t x, int64_t y){return x;},
+                                                           [](int64_t x, int64_t y){return true;},
+                                                           true, false, (int64_t)0, (int64_t)0, false);
+        if(vtx2.getnnz()!=0)
+        {
+            cout << "Component " << i << " is not a propoer component\n";
+        }
+        
+        
+    }
+}
+
+
 // Input:
 // father: father of each vertex. Father is essentilly the root of the star
 //          father of the root is itself
@@ -323,6 +349,11 @@ int main(int argc, char* argv[])
                 SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
             }
         }
+        
+        FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
+        FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
+        cout << "isolated: " << nonisov.TotalLength() << endl;
+        
         float balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
         outs.str("");
@@ -333,9 +364,9 @@ int main(int argc, char* argv[])
         
         A.AddLoops(1); // needed for isolated vertices
         //A.RemoveLoops();
-        SpParHelper::Print("Added loops\n");
+        //SpParHelper::Print("Added loops\n");
         //A.PrintInfo();
-        
+     
         FullyDistVec<int64_t,int64_t> father(A.getcommgrid());
         father.iota(A.getnrow(), 0);    // father(i)=i initially
         int64_t nonstars = 1;
@@ -361,13 +392,19 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> cc(father.getcommgrid());
         int64_t nCC = LabelCC(father, cc);
         
+        //Correctness(A, cc, nCC);
+        
         FullyDistSpVec<int64_t, int64_t> cc1 = cc.Find([](int64_t label){return label==0;});
         FullyDistSpVec<int64_t, int64_t> cc2 = cc.Find([](int64_t label){return label==1;});
+        FullyDistSpVec<int64_t, int64_t> cc3 = cc.Find([](int64_t label){return label==2;});
+        FullyDistSpVec<int64_t, int64_t> cc4 = cc.Find([](int64_t label){return label==3;});
         outs.str("");
         outs.clear();
         outs << "Number of components: " << nCC << endl;
         outs << "Size of the first component: " << cc1.getnnz() << endl;
         outs << "Size of the second component: " << cc2.getnnz() << endl;
+        outs << "Size of the third component: " << cc3.getnnz() << endl;
+        outs << "Size of the fourth component: " << cc4.getnnz() << endl;
         SpParHelper::Print(outs.str());
     }
     
