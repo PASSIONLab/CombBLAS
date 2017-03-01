@@ -36,7 +36,7 @@ BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h
 MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
 
-CC.o:  CC.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
 TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
