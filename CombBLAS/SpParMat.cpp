@@ -979,30 +979,42 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 #define KSELECTLIMIT 50
 
 
-/*
+
+//! Kselect wrapper for a select columns of the matrix
+//! Indices of the input sparse vectors kth denote the queried columns of the matrix
+//! Upon return, values of kth stores the kth entries of the queried columns
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
-//! if false, rvec contains either contains the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const
 {
-    // TODO: kselect1 and kselect2
-    FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
+    bool ret;
+    FullyDistVec<GIT,VT> kthAll ( getcommgrid());
     if(k_limit > KSELECTLIMIT)
     {
-        return Kselect2(rvec, k_limit);
+        ret = Kselect2(kthAll, k_limit);
     }
     else
     {
-        return Kselect1(rvec, k_limit, myidentity<NT>());
+        ret = Kselect1(kthAll, k_limit, myidentity<NT>());
     }
+    
+    //kth.DebugPrint();
+    //kthAll.DebugPrint();
+    FullyDistSpVec<GIT,VT> temp = EWiseApply<VT>(kth, kthAll,
+                                                 [](VT spval, VT dval){return dval;},
+                                                 [](VT spval, VT dval){return true;},
+                                                 false, NT());
+    //temp.DebugPrint();
+    kth = temp;
+    return ret;
 }
-*/
+
 
 //! Returns true if Kselect algorithm is invoked for at least one column
 //! Otherwise, returns false
-//! if false, rvec contains either contains the minimum entry in each column or zero
+//! if false, rvec contains either the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
@@ -1979,8 +1991,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
  
     vector<IT> indacc(accnz);
     vector<NT> numacc(accnz);
-    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc, colnz, dpls, MPIType<IT>(), ColWorld);
-    MPI_Allgatherv(trxnums.data(), trxlocnz, MPIType<NT>(), numacc, colnz, dpls, MPIType<NT>(), ColWorld);
+    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc.data(), colnz, dpls, MPIType<IT>(), ColWorld);
+    MPI_Allgatherv(trxnums.data(), trxlocnz, MPIType<NT>(), numacc.data(), colnz, dpls, MPIType<NT>(), ColWorld);
     
     delete [] colnz;
     delete [] dpls;
