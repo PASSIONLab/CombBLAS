@@ -161,7 +161,7 @@ void ConditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & fathe
                                         [](pair<IT, IT> val, IT ind){return get<0>(val);},
                                         [](pair<IT, IT> val, IT ind){return make_pair(ind, get<1>(val));},
                                                 [](pair<IT, IT> val1, pair<IT, IT> val2){return val2;} );
-    // allowing the last vertex to pick the parent of stars gives the correct output!!
+    // allowing the last vertex to pick the parent of the root of a star gives the correct output!!
     // [](pair<IT, IT> val1, pair<IT, IT> val2){return val1;} does not give the correct output. why?
     
     
