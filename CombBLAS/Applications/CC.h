@@ -97,7 +97,7 @@ FullyDistVec<IT,short> StarCheck(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT,
     
     // nostars
     FullyDistSpVec<IT,short> nonstar = star.Find([](short isStar){return isStar==0;});
-    // grandfathers of nonstars
+      // grandfathers of nonstars
     FullyDistSpVec<IT, IT> nonstarGF = EWiseApply<IT>(nonstar, grandfather,
                                             [](short isStar, IT gf){return gf;},
                                             [](short isStar, IT gf){return true;},
@@ -105,14 +105,26 @@ FullyDistVec<IT,short> StarCheck(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT,
     // grandfather pointing to a grandchild
     FullyDistSpVec<IT, IT> gfNonstar = nonstarGF.Invert(nonstarGF.TotalLength()); // for duplicates, keep the first one
     
+    
+   
+    
     // star(GF) = 0
     star.EWiseApply(gfNonstar, [](short isStar, IT x){return static_cast<short>(0);},
                     false, static_cast<IT>(0));
     
-   
     // at this point vertices at level 1 (children of the root) can still be stars
-    FullyDistVec<IT,short> star_l1 = star(father);
-    star.EWiseApply(star_l1, multiplies<short>());
+    FullyDistVec<IT,short> starFather = star(father);
+    star.EWiseApply(starFather, multiplies<short>());
+    
+    /* alternative approach (used in the Matlab code)
+     // fathers of nonstars
+     FullyDistSpVec<IT, IT> nonstarF = EWiseApply<IT>(nonstar, father,[](short isStar, IT f){return f;}, [](short isStar, IT f){return true;},false, static_cast<short>(0));
+     // father pointing to a child
+     FullyDistSpVec<IT, IT> fNonstar = nonstarF.Invert(nonstarF.TotalLength());
+     // star(F) = 0
+     star.EWiseApply(fNonstar, [](short isStar, IT x){return static_cast<short>(0);},false, static_cast<IT>(0));
+     star = star(father);
+     */
     return star;
 }
 
@@ -146,9 +158,11 @@ void ConditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & fathe
                                                false, {0,0});
     //Invert
     FullyDistSpVec<IT, pair<IT, IT>> starhooks= hooks.Invert(hooks.TotalLength(),
-                                                                            [](pair<IT, IT> val, IT ind){return get<0>(val);},
-                                                                            [](pair<IT, IT> val, IT ind){return make_pair(ind, get<1>(val));},
-                                                                            [](pair<IT, IT> val1, pair<IT, IT> val2){return val1;} );
+                                        [](pair<IT, IT> val, IT ind){return get<0>(val);},
+                                        [](pair<IT, IT> val, IT ind){return make_pair(ind, get<1>(val));},
+                                                [](pair<IT, IT> val1, pair<IT, IT> val2){return val2;} );
+    // allowing the last vertex to pick the parent of stars gives the correct output!!
+    // [](pair<IT, IT> val1, pair<IT, IT> val2){return val1;} does not give the correct output. why?
     
     
     // drop the index informaiton
