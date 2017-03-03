@@ -115,7 +115,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for(IT i=0; i < ind.size(); ++i)
+        for(size_t i=0; i < ind.size(); ++i)
             num[i] = fixedval;
         return *this;
     }
