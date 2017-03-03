@@ -52,8 +52,11 @@ MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
-MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+MCL.o:  MCL.cpp CC.h /SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(FLAGS) -c -o MCL.o MCL.cpp
+
+CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
 APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o APowers.o APowers.cpp
@@ -76,8 +79,11 @@ nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFr
 mcl:	CommGrid.o MPIType.o MCL.o mmio.o
 	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o
 
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
+	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o
+
 nqp:	CommGrid.o MPIType.o nqp.o
-	$(COMPILER) $(FLAGS) -o mcl nqp.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o nqp nqp.o CommGrid.o MPIType.o
 
 apowers:	CommGrid.o MPIType.o APowers.o
 	$(COMPILER) $(FLAGS) -o apowers APowers.o CommGrid.o MPIType.o
