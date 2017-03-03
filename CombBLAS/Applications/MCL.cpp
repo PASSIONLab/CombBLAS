@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
         // 2. set loops to max of all arc weights
         A.RemoveLoops();
         Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), numeric_limits<float>::min());
-        A.Apply([](float val){return val==numeric_limits<float>::min() ? 1.0 : val;});
+        A.Apply([](float val){return val==numeric_limits<float>::min() ? 1.0 : val;}); // for isolated vertices
         A.AddLoops(colmaxs);
         outs.str("");
         outs.clear();

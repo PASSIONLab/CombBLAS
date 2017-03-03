@@ -153,8 +153,11 @@ int main(int argc, char* argv[])
         }
         
         FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
-        FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
-        cout << "isolated: " << nonisov.TotalLength() << endl;
+        FullyDistVec<int64_t, int64_t> isov = ColSums.FindInds(bind2nd(equal_to<double>(), 0));
+        outs.str("");
+        outs.clear();
+        outs << "isolated vertice: " << isov.TotalLength() << endl;
+        SpParHelper::Print(outs.str());
         
         float balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
