@@ -72,6 +72,8 @@ public:
 void Interpret(Dist::MPI_DCCols & A)
 {
     int64_t nCC;
+    A.Transpose();
+    // since CC is discovering strongly connected compoents, we are transposing it
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
 }
 
