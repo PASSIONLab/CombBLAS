@@ -145,18 +145,19 @@ int main(int argc, char* argv[])
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
             cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
             cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
-            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 500 -R 600 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
+            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 1100 -R 1400 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
         }
         MPI_Finalize();
         return -1;
     }
 	{
+        // default parameters of mac can be found by #mcl -z
         string ifilename = "";
         double inflation = 2.0;
         double prunelimit = 1.0/10000.0;
         int64_t select = 1100;
-        int64_t recover_num = 900;
-        double recover_pct = 90.0;
+        int64_t recover_num = 1400;
+        double recover_pct = .9; // TODO: make it consistent with mcl by representing it as percentage
         int base = 1;
         int randpermute = 0;
         int phases = 1;
