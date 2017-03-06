@@ -31,6 +31,50 @@ vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 }
 
 
+// Symbolic serial merge : only estimates nnz
+template<class IT, class NT>
+IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
+{
+    int nlists =  ArrSpTups.size();
+    ColLexiCompare<IT,int> heapcomp;
+    vector<tuple<IT, IT, int>> heap(nlists);
+    vector<IT> curptr(nlists, static_cast<IT>(0));
+    IT hsize = 0;
+    for(int i=0; i< nlists; ++i)
+    {
+        if(ArrSpTups[i]->getnnz()>0)
+        {
+            heap[hsize++] = make_tuple(get<0>(ArrSpTups[i]->tuples[0]), get<1>(ArrSpTups[i]->tuples[0]), i);
+        }
+        
+    }
+    make_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+    
+    tuple<IT, IT, NT> curTuple;
+    IT estnnz = 0;
+    while(hsize > 0)
+    {
+        pop_heap(heap.data(), heap.data() + hsize, not2(heapcomp));   // result is stored in heap[hsize-1]
+        int source = get<2>(heap[hsize-1]);
+        if( (estnnz ==0) || (get<0>(curTuple) != get<0>(heap[hsize-1])) || (get<1>(curTuple) != get<1>(heap[hsize-1])))
+        {
+            curTuple = ArrSpTups[source]->tuples[curptr[source]];
+            estnnz++;
+        }
+        curptr[source]++;
+        if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
+        {
+            heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]),
+                                       get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
+            push_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+        }
+        else
+        {
+            --hsize;
+        }
+    }
+    return estnnz;
+}
 
 
 /*
@@ -114,13 +158,13 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         else // copy input to output
         {
             tuple<IT, IT, NT>* mergeTups = static_cast<tuple<IT, IT, NT>*>
-                    (::operator new (sizeof(tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
-	#ifdef THREADED
-            #pragma omp parallel for
-	#endif
+            (::operator new (sizeof(tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+#ifdef THREADED
+#pragma omp parallel for
+#endif
             for(int i=0; i<ArrSpTups[0]->getnnz(); i++)
                 mergeTups[i] = ArrSpTups[0]->tuples[i];
-
+            
             return new SpTuples<IT,NT> (ArrSpTups[0]->getnnz(), mdim, ndim, mergeTups, true);
         }
     }
@@ -134,7 +178,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
             return new SpTuples<IT,NT>(0,0,0);
         }
     }
-
+    
     int nthreads = 1;	// in case THREADED is not defined
 #ifdef THREADED
 #pragma omp parallel
@@ -150,6 +194,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         colPtrs.push_back(findColSplitters<IT>(ArrSpTups[i], nsplits)); // in parallel
     }
     
+    /*
     // ------ estimate memory requirement after merge in each split ------
     vector<IT> nnzPerSplit(nsplits);
     IT nnzAll = static_cast<IT>(0);
@@ -162,20 +207,52 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         nnzPerSplit[i] = t;
         nnzAll += t;
     }
+    */
+    
 
+    vector<IT> mergedNnzPerSplit(nsplits);
+    vector<IT> inputNnzPerSplit(nsplits);
+// ------ estimate memory requirement after merge in each split ------
+#ifdef THREADED
+#pragma omp parallel for schedule(dynamic)
+#endif
+    for(int i=0; i< nsplits; i++) // for each part
+    {
+        vector<SpTuples<IT,NT> *> listSplitTups(nlists);
+        IT t = static_cast<IT>(0);
+        for(int j=0; j< nlists; ++j)
+        {
+            IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];
+            listSplitTups[j] = new SpTuples<IT, NT> (curnnz, mdim, ndim, ArrSpTups[j]->tuples + colPtrs[j][i], true);
+            t += colPtrs[j][i+1] - colPtrs[j][i];
+        }
+        mergedNnzPerSplit[i] = SerialMergeNNZ(listSplitTups);
+        inputNnzPerSplit[i] = t;
+    }
+
+#ifdef COMBBLAS_DEBUG
+    IT mergedNnzAll = accumulate(mergedNnzPerSplit.begin(), mergedNnzPerSplit.end(), static_cast<IT>(0));
+    IT inputNnzAll = accumulate(inputNnzPerSplit.begin(), inputNnzPerSplit.end(), static_cast<IT>(0));
+    double ratio = inputNnzAll / (double) mergedNnzAll;
+    ostringstream outs;
+    outs << "Multiwaymerge: inputNnz/mergedNnz = " << ratio << endl;
+    SpParHelper::Print(outs.str());
+#endif
     
     
     // ------ allocate memory in a serial region ------
     vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
     for(int i=0; i< nsplits; i++)
     {
-        mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[nnzPerSplit[i]])));
+        mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedNnzPerSplit[i]])));
     }
-
-
-     // ------ perform merge in parallel ------
+    
+    
+    // ------ perform merge in parallel ------
     vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
+#ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
+#endif
     for(int i=0; i< nsplits; i++) // serially merge part by part
     {
         vector<SpTuples<IT,NT> *> listSplitTups(nlists);
@@ -195,16 +272,17 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     {
         tdisp[i+1] = tdisp[i] + listMergeTups[i]->getnnz();
     }
-
+    
     IT mergedListSize = tdisp[nsplits];
     tuple<IT, IT, NT>* shrunkTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedListSize])));
-    
+#ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
+#endif
     for(int i=0; i< nsplits; i++)
     {
         std::copy(listMergeTups[i]->tuples , listMergeTups[i]->tuples + listMergeTups[i]->getnnz(), shrunkTuples + tdisp[i]);
     }
-
+    
     
     for(int i=0; i< nsplits; i++)
     {
