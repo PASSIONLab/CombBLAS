@@ -2306,7 +2306,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen, _BinaryOperat
     
     // identify the max index in the composed vector
     IT localmax = (IT) 0;
-    for(IT k=0; k < num.size(); ++k)
+    for(size_t k=0; k < num.size(); ++k)
     {
         localmax = std::max(localmax, __binopIdx(num[k], ind[k] + LengthUntil()));
     }
@@ -2452,7 +2452,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::InvertRMA (IT globallen, _BinaryOpe
     
     // identify the max index in the composed vector
     IT localmax = (IT) 0;
-    for(IT k=0; k < num.size(); ++k)
+    for(size_t k=0; k < num.size(); ++k)
     {
         localmax = std::max(localmax, __binopIdx(num[k], ind[k] + LengthUntil()));
     }

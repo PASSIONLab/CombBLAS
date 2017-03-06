@@ -45,6 +45,7 @@
 #include <ctime>
 #include <cmath>
 #include "../CombBLAS.h"
+#include "CC.h"
 
 using namespace std;
 
@@ -62,41 +63,44 @@ double mcl_prunecolumntime;
 class Dist
 { 
 public: 
-	typedef SpDCCols < int64_t, float > DCCols;
-	typedef SpParMat < int64_t, float, DCCols > MPI_DCCols;
-	typedef FullyDistVec < int64_t, float> MPI_DenseVec;
+	typedef SpDCCols < int64_t, double > DCCols;
+	typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
+	typedef FullyDistVec < int64_t, double> MPI_DenseVec;
 };
 
 
-void Interpret(const Dist::MPI_DCCols & A)
+void Interpret(Dist::MPI_DCCols & A)
 {
-	// Placeholder
+    int64_t nCC;
+    A.Transpose();
+    // since CC is discovering strongly connected compoents, we are transposing it
+    FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
 {
-    Dist::MPI_DenseVec colsums = A.Reduce(Column, plus<float>(), 0.0);
-    colsums.Apply(safemultinv<float>());
-    A.DimApply(Column, colsums, multiplies<float>());	// scale each "Column" with the given vector
+    Dist::MPI_DenseVec colsums = A.Reduce(Column, plus<double>(), 0.0);
+    colsums.Apply(safemultinv<double>());
+    A.DimApply(Column, colsums, multiplies<double>());	// scale each "Column" with the given vector
 }
 
-float Chaos(Dist::MPI_DCCols & A)
+double Chaos(Dist::MPI_DCCols & A)
 {
     // sums of squares of columns
-    Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<float>(), 0.0, bind2nd(exponentiate(), 2));
+    Dist::MPI_DenseVec colssqs = A.Reduce(Column, plus<double>(), 0.0, bind2nd(exponentiate(), 2));
     // Matrix entries are non-negative, so max() can use zero as identity
-    Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), 0.0);
+    Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), 0.0);
     colmaxs -= colssqs;
     
     // multiplu by number of nonzeros in each column
-    Dist::MPI_DenseVec nnzPerColumn = A.Reduce(Column, plus<float>(), 0.0, [](float val){return 1.0;});
-    colmaxs.EWiseApply(nnzPerColumn, multiplies<float>());
+    Dist::MPI_DenseVec nnzPerColumn = A.Reduce(Column, plus<double>(), 0.0, [](double val){return 1.0;});
+    colmaxs.EWiseApply(nnzPerColumn, multiplies<double>());
     
-    return colmaxs.Reduce(maximum<float>(), 0.0);
+    return colmaxs.Reduce(maximum<double>(), 0.0);
 }
 
 
-void Inflate(Dist::MPI_DCCols & A, float power)
+void Inflate(Dist::MPI_DCCols & A, double power)
 {
 	A.Apply(bind2nd(exponentiate(), power));
 }
@@ -127,7 +131,7 @@ int main(int argc, char* argv[])
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
     
-	typedef PlusTimesSRing<float, float> PTFF;
+	typedef PlusTimesSRing<double, double> PTFF;
     if(argc < 3)
     {
         if(myrank == 0)
@@ -141,18 +145,19 @@ int main(int argc, char* argv[])
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
             cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
             cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
-            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 500 -R 600 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
+            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 1100 -R 1400 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
         }
         MPI_Finalize();
         return -1;
     }
 	{
+        // default parameters of mac can be found by #mcl -z
         string ifilename = "";
-        float inflation = 2.0;
-        float prunelimit = 1.0/10000.0;
+        double inflation = 2.0;
+        double prunelimit = 1.0/10000.0;
         int64_t select = 1100;
-        int64_t recover_num = 900;
-        float recover_pct = 90.0;
+        int64_t recover_num = 1400;
+        double recover_pct = .9; // TODO: make it consistent with mcl by representing it as percentage
         int base = 1;
         int randpermute = 0;
         int phases = 1;
@@ -212,7 +217,7 @@ int main(int argc, char* argv[])
 
         double tIO = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
-        A.ParallelReadMM(ifilename, base, maximum<float>());	// if base=0, then it is implicitly converted to Boolean false
+        A.ParallelReadMM(ifilename, base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
 						
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
@@ -222,8 +227,8 @@ int main(int argc, char* argv[])
         
         if(!keep_isolated)
         {
-            FullyDistVec<int64_t,float> ColSums = A.Reduce(Column, plus<float>(), 0.0);
-            FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<float>(), 0));
+            FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
+            FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
             A(nonisov, nonisov, true);
             SpParHelper::Print("Removed isolated vertices.\n");
             if(show)
@@ -250,7 +255,7 @@ int main(int argc, char* argv[])
         }
         
         
-	float balance = A.LoadImbalance();
+	double balance = A.LoadImbalance();
 	int64_t nnz = A.getnnz();
         outs.str("");
         outs.clear();
@@ -265,8 +270,8 @@ int main(int argc, char* argv[])
         // 1. Remove loops
         // 2. set loops to max of all arc weights
         A.RemoveLoops();
-        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<float>(), numeric_limits<float>::min());
-        A.Apply([](float val){return val==numeric_limits<float>::min() ? 1.0 : val;});
+        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), numeric_limits<double>::min());
+        A.Apply([](double val){return val==numeric_limits<double>::min() ? 1.0 : val;}); // for isolated vertices
         A.AddLoops(colmaxs);
         outs.str("");
         outs.clear();
@@ -279,7 +284,7 @@ int main(int argc, char* argv[])
         
         MakeColStochastic(A);
         //Inflate(A, 1); 		// matrix_make_stochastic($mx);
-        //float initChaos = Chaos(A);
+        //double initChaos = Chaos(A);
         //outs << "Initial chaos = " << initChaos << endl;
         SpParHelper::Print("Made stochastic\n");
         if(show)
@@ -298,7 +303,7 @@ int main(int argc, char* argv[])
 #endif
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
-		float chaos = 1;
+		double chaos = 1;
         int it=1;
 
 		// while there is an epsilon improvement
@@ -314,7 +319,7 @@ int main(int argc, char* argv[])
 #endif
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, float, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
+            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
 
             MakeColStochastic(A);
             double t2 = MPI_Wtime();
@@ -356,10 +361,10 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Before pruning...\n");
 			A.PrintInfo();
 #endif
-			A.Prune(bind2nd(less<float>(), prunelimit));
+			A.Prune(bind2nd(less<double>(), prunelimit));
              */
             
-            float newbalance = A.LoadImbalance();
+            double newbalance = A.LoadImbalance();
 			double t3=MPI_Wtime();
             stringstream s;
             s << "Iteration: " << it << " chaos: " << chaos << "  load-balance: "<< newbalance << " time: " << (t3-t1) << endl;
