@@ -325,7 +325,7 @@ int main(int argc, char* argv[])
             A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
 
             MakeColStochastic(A);
-            double t2 = MPI_Wtime();
+            //double t2 = MPI_Wtime();
             //stringstream ss;
             //ss << "=================================================" << endl;
             //ss << "Squared in " << (t2-t1) << " seconds" << endl;
