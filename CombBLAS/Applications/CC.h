@@ -269,6 +269,8 @@ IT LabelCC(FullyDistVec<IT, IT> & father, FullyDistVec<IT, IT> & cclabel)
     return roots.getnnz();
 }
 
+// Compute strongly connected components
+// If you need weakly connected components, symmetricize the matrix beforehand
 template <typename IT, typename NT, typename DER>
 FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
 {
@@ -297,6 +299,8 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     FullyDistVec<IT, IT> cc(father.getcommgrid());
     nCC = LabelCC(father, cc);
     
+    // TODO: Print to file
+    //PrintCC(cc, nCC);
     //Correctness(A, cc, nCC);
     
     FullyDistSpVec<IT, IT> cc1 = cc.Find([](IT label){return label==0;});
@@ -312,6 +316,16 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     outs << "Size of the fourth component: " << cc4.getnnz() << endl;
     SpParHelper::Print(outs.str());
     return cc;
+}
+
+template <typename IT>
+void PrintCC(FullyDistVec<IT, IT> CC, IT nCC)
+{
+    for(IT i=0; i< nCC; i++)
+    {
+        FullyDistVec<IT, IT> ith = CC.FindInds(bind2nd(equal_to<IT>(), i));
+        ith.DebugPrint();
+    }
 }
 
 

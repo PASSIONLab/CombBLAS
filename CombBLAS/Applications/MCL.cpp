@@ -49,7 +49,7 @@
 
 using namespace std;
 
-#define EPS 0.001
+#define EPS 0.0001
 
 double mcl_Abcasttime;
 double mcl_Bbcasttime;
@@ -72,8 +72,11 @@ public:
 void Interpret(Dist::MPI_DCCols & A)
 {
     int64_t nCC;
-    A.Transpose();
-    // since CC is discovering strongly connected compoents, we are transposing it
+    // A is a directed graph
+    // Since we need weekly connected components, we symmetricize A
+    Dist::MPI_DCCols AT = A;
+    AT.Transpose();
+    A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
 }
 
@@ -322,16 +325,16 @@ int main(int argc, char* argv[])
             A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
 
             MakeColStochastic(A);
-            double t2 = MPI_Wtime();
-            stringstream ss;
-            ss << "=================================================" << endl;
-            ss << "Squared in " << (t2-t1) << " seconds" << endl;
-            SpParHelper::Print(ss.str());
+            //double t2 = MPI_Wtime();
+            //stringstream ss;
+            //ss << "=================================================" << endl;
+            //ss << "Squared in " << (t2-t1) << " seconds" << endl;
+            //SpParHelper::Print(ss.str());
 #ifdef TIMING
             if(myrank==0)
             {
                 cout << "Breakdown of squaring time: \n mcl_Abcast= " << mcl_Abcasttime - mcl_Abcasttime1 << "\n mcl_Bbcast= " << mcl_Bbcasttime - mcl_Bbcasttime1 << "\n mcl_localspgemm= " << mcl_localspgemmtime-mcl_localspgemmtime1 << "\n mcl_multiwaymergetime= "<< mcl_multiwaymergetime-mcl_multiwaymergetime1 << "\n mcl_kselect= " << mcl_kselecttime-mcl_kselecttime1 << "\n mcl_prunecolumn= " << mcl_prunecolumntime - mcl_prunecolumntime1 << endl;
-                cout << "=================================================" << endl;
+                //cout << "=================================================" << endl;
             }
 #endif
 
@@ -342,12 +345,13 @@ int main(int argc, char* argv[])
             }
             chaos = Chaos(A);
             
-	    Inflate(A, inflation);	// inflate (and renormalize)
+	    
+            Inflate(A, inflation);	// inflate (and renormalize)
             MakeColStochastic(A);
             
-            stringstream sss;
-            sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
-            SpParHelper::Print(sss.str());
+            //stringstream sss;
+            //sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
+            //SpParHelper::Print(sss.str());
             if(show)
             {
                 SpParHelper::Print("After inflation\n");
@@ -355,21 +359,14 @@ int main(int argc, char* argv[])
             }
             
 			
-            // Prunning is performed inside MemEfficientSpGEMM
-            /*
-#ifdef DEBUG	
-			SpParHelper::Print("Before pruning...\n");
-			A.PrintInfo();
-#endif
-			A.Prune(bind2nd(less<double>(), prunelimit));
-             */
             
             double newbalance = A.LoadImbalance();
 			double t3=MPI_Wtime();
             stringstream s;
-            s << "Iteration: " << it << " chaos: " << chaos << "  load-balance: "<< newbalance << " time: " << (t3-t1) << endl;
+            s << "Iteration: " << std::setw(3) << it << " chaos: " << setprecision(3) << chaos << " nnz: " << A.getnnz() << "  load-balance: "<< newbalance << " Total time: " << (t3-t1) << endl;
             SpParHelper::Print(s.str());
             it++;
+            
 
 
 		}
