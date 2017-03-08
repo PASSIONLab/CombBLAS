@@ -312,6 +312,7 @@ int main(int argc, char* argv[])
 		// while there is an epsilon improvement
 		while( chaos > EPS)
 		{
+            /*
 #ifdef TIMING
             double mcl_Abcasttime1=mcl_Abcasttime;
             double mcl_Bbcasttime1=mcl_Bbcasttime;
@@ -320,6 +321,7 @@ int main(int argc, char* argv[])
             double mcl_kselecttime1=mcl_kselecttime;
             double mcl_prunecolumntime1=mcl_prunecolumntime;
 #endif
+             */
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
             A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
@@ -330,6 +332,7 @@ int main(int argc, char* argv[])
             //ss << "=================================================" << endl;
             //ss << "Squared in " << (t2-t1) << " seconds" << endl;
             //SpParHelper::Print(ss.str());
+/*
 #ifdef TIMING
             if(myrank==0)
             {
@@ -337,6 +340,7 @@ int main(int argc, char* argv[])
                 //cout << "=================================================" << endl;
             }
 #endif
+ */
 
             if(show)
             {
@@ -370,15 +374,25 @@ int main(int argc, char* argv[])
 
 
 		}
+        
+        double tcc1 = MPI_Wtime();
 		Interpret(A);
+        double tcc = MPI_Wtime() - tcc1;
         
         double tend = MPI_Wtime();
         stringstream s2;
         s2 << "=====================================\n" ;
         s2 << "Total time: " << (tend-tstart) << endl;
         SpParHelper::Print(s2.str());
+        
+        if(myrank==0)
+        {
+            cout << "Breakdown of squaring time: \n mcl_Abcast= " << mcl_Abcasttime << "\n mcl_Bbcast= " << mcl_Bbcasttime << "\n mcl_localspgemm= " << mcl_localspgemmtime << "\n mcl_multiwaymergetime= "<< mcl_multiwaymergetime << "\n mcl_kselect= " << mcl_kselecttime << "\n mcl_prunecolumn= " << mcl_prunecolumntime << endl;
+            cout << "Connected Component time: " << tcc << endl;
+            cout << "=================================================" << endl;
+        }
 
-	}	
+	}
 
     
     
