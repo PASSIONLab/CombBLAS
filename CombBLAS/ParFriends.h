@@ -219,9 +219,12 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #endif
 
         pruneCols.Set(recoverCols);
+
+#ifdef COMBBLAS_DEBUG
         ostringstream outs;
         outs << "Number of columns needing recovery: " << nrecover << endl;
         SpParHelper::Print(outs.str());
+#endif
         
     }
     
@@ -251,11 +254,13 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             t1=MPI_Wtime();
             mcl_kselecttime += (t1-t0);
 #endif
+        
             pruneCols.Set(selectCols);
+#ifdef COMBBLAS_DEBUG
             ostringstream outs;
             outs << "Number of columns needing selection: " << nselect << endl;
             SpParHelper::Print(outs.str());
-            
+#endif
 #ifdef TIMING
             t0=MPI_Wtime();
 #endif
@@ -299,9 +304,12 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                     mcl_kselecttime += (t1-t0);
 #endif
                     pruneCols.Set(selectCols);
+                    
+#ifdef COMBBLAS_DEBUG
                     ostringstream outs1;
                     outs1 << "Number of columns needing recovery after selection: " << nselect << endl;
                     SpParHelper::Print(outs1.str());
+#endif
                 }
                 
             }
