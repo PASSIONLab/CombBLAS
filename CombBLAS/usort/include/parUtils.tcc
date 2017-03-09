@@ -993,7 +993,8 @@ return 1;
             // XXX case not handled 
             char* nbuff1= new char[nbuff_size];
             omp_par::merge<T*>((T*)nbuff, (T*)&nbuff[lsize+rsize], (T*)ext_rbuff, (T*)&ext_rbuff[ext_rsize], (T*)nbuff1, omp_p, std::less<T>());
-            if(nbuff!=NULL) delete[] nbuff; nbuff=nbuff1;
+            if(nbuff!=NULL) delete[] nbuff;
+            nbuff=nbuff1;
           }
 
           // Copy new data.
@@ -1193,7 +1194,8 @@ return 1;
           if(ext_rsize>0 && nbuff!=NULL){
             char* nbuff1= new char[nbuff_size];
             omp_par::merge<T*>((T*)nbuff, (T*)&nbuff[lsize+rsize], (T*)ext_rbuff, (T*)&ext_rbuff[ext_rsize], (T*)nbuff1, omp_p, std::less<T>());
-            if(nbuff!=NULL) delete[] nbuff; nbuff=nbuff1;
+            if(nbuff!=NULL) delete[] nbuff;
+            nbuff=nbuff1;
           }
 
           // Copy new data.
