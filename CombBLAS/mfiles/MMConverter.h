@@ -255,9 +255,9 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<string>().swap(lines);
     }
     cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
-    uint32_t ranges[6] = {vertexid/64, vertexid/32, vertexid/16, vertexid/8, vertexid/4, vertexid/2};
+    uint32_t ranges[7] = {vertexid, vertexid/2, vertexid/4, vertexid/8, vertexid/16, vertexid/32, vertexid/64};
     cout << "Printing submatrices with the following numbers of vertices: ";
-    copy(ranges, ranges+6, ostream_iterator<uint32_t>(cout," ")); cout << endl;
+    copy(ranges, ranges+7, ostream_iterator<uint32_t>(cout," ")); cout << endl;
 
     uint32_t nvertices = vertexid;
     vector< uint32_t > shuffler(nvertices);
@@ -270,7 +270,16 @@ void MMConverter(const string & filename, ofstream & dictout)
     cout << "Shuffled and wrote dictionary " << endl;
     fclose(f);
 
-    for(int = 
+    string names[7];
+    ofstream outfiles[7];
+    for(int i= 0; i<7; i++)
+    {
+        string names[i] = "Renamed_subgraph";
+        names[i] += std::to_string(i);
+        names[i] += filename;
+        names[i] += std::to_string(this_thread);
+        outfiles[i].open(names[i]);
+    }
     
 #pragma omp parallel
     {
@@ -292,18 +301,21 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<float> vals;
         ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
         
-        name += filename;
-        name += std::to_string(this_thread);
-        ofstream outfile(name);
-        
         if(this_thread == 0)
         {
-            outfile << "%%MatrixMarket matrix coordinate real symmetric\n";
-            outfile << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
+            for(int i= 0; i<7; i++)
+            {
+                outfiles[i] << "%%MatrixMarket matrix coordinate real symmetric\n";
+                outfiles[i] << nvertices << "\t" << ranges[i] << "\t" << entriesread << "\n";
+            }
         }
         for(size_t k=0; k< nnz; ++k)
         {
-            outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+            for(int i= 0; i<7; i++)
+            {
+                if(rows[k] < ranges[i] && cols[k] < ranges[i])
+                    outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+            }
         }
         rows.clear();
         cols.clear();
@@ -317,12 +329,20 @@ void MMConverter(const string & filename, ofstream & dictout)
             
             for(size_t k=0; k< nnz; ++k)
             {
-                outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+                for(int i= 0; i<7; i++)
+                {
+                    if(rows[k] < ranges[i] && cols[k] < ranges[i])
+                        outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+                }
             }
             rows.clear();
             cols.clear();
             vals.clear();
         }
+    }
+    for(int i= 0; i<7; i++)
+    {
+        outfiles[i].close();
     }
 
     tommy_hashdyn_foreach(&hashdyn, operator delete);
