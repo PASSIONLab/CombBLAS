@@ -104,6 +104,7 @@ extern double mcl_localspgemmtime;
 extern double mcl_multiwaymergetime;
 extern double mcl_kselecttime;
 extern double mcl_prunecolumntime;
+extern int64_t mcl_memory;
 
 
 

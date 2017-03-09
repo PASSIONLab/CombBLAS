@@ -57,6 +57,7 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+int64_t mcl_memory;
 
 
 
@@ -218,6 +219,7 @@ int main(int argc, char* argv[])
         runinfo << "Selection number: " << select << " in " << phases << " phases "<< endl;
         SpParHelper::Print(runinfo.str());
 
+        
         double tIO = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
         A.ParallelReadMM(ifilename, base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
@@ -296,6 +298,7 @@ int main(int argc, char* argv[])
         }
         
 
+        
 #ifdef TIMING
         mcl_Abcasttime = 0;
         mcl_Bbcasttime = 0;
@@ -304,7 +307,22 @@ int main(int argc, char* argv[])
         mcl_kselecttime = 0;
         mcl_prunecolumntime = 0;
 #endif
-		// chaos doesn't make sense for non-stochastic matrices	
+#ifdef MCLMEMORY
+        int64_t lnnz = A.getlocalnnz();
+        int64_t gnnz;
+        MPI_Allreduce(&lnnz, &gnnz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        mcl_memory = gnnz*20; // 20 bytes per nonzeros
+        if(myrank==0)
+        {
+            if(mcl_memory>1000000000)
+                cout << "Initial memory (max per processor): " << mcl_memory/1000000000.00 << " GB" << endl;
+            else
+                cout << "Initial memory (max per processor): " << mcl_memory/1000000.00 << " MB" << endl;
+                
+        }
+#endif
+
+		// chaos doesn't make sense for non-stochastic matrices
 		// it is in the range {0,1} for stochastic matrices
 		double chaos = 1;
         int it=1;
