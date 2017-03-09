@@ -255,6 +255,9 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<string>().swap(lines);
     }
     cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
+    uint32_t ranges[6] = {vertexid/64, vertexid/32, vertexid/16, vertexid/8, vertexid/4, vertexid/2};
+    cout << "Printing submatrices with the following numbers of vertices: ";
+    copy(ranges, ranges+6, ostream_iterator<uint32_t>(cout," ")); cout << endl;
 
     uint32_t nvertices = vertexid;
     vector< uint32_t > shuffler(nvertices);
@@ -266,6 +269,8 @@ void MMConverter(const string & filename, ofstream & dictout)
  
     cout << "Shuffled and wrote dictionary " << endl;
     fclose(f);
+
+    for(int = 
     
 #pragma omp parallel
     {
@@ -287,7 +292,6 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<float> vals;
         ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
         
-        string name = "Renamed_";
         name += filename;
         name += std::to_string(this_thread);
         ofstream outfile(name);
