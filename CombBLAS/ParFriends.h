@@ -484,7 +484,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
 #ifdef MCLMEMORY
         int64_t gcnnz_unmerged, lcnnz_unmerged = 0;
-         for(int i = 0; i < stages; ++i)
+         for(size_t i = 0; i < tomerge.size(); ++i)
          {
               lcnnz_unmerged += tomerge[i]->getnnz();
          }
