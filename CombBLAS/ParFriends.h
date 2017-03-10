@@ -374,8 +374,28 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     vector< UDERB > PiecesOfB;
     UDERB CopyB = *(B.spSeq); // we allow alias matrices as input because of this local copy
+    
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
+    
+#ifdef MCLMEMORY
+    int64_t lannz = A.getlocalnnz();
+    int64_t gannz;
+    MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+    int64_t phase_nnz = 0; // intermediate
+    int64_t split_memory = 3*gannz*20;
+    
+    if(myrank==0)
+    {
+        if(split_memory>1000000000)
+            cout << "split: " << split_memory/1000000000.00 << "GB" << endl;
+        else
+            cout << "split: " << split_memory/1000000.00 << " MB " << endl;
+        
+    }
+#endif
+    
+
     
     IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
     IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -449,6 +469,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             double t4=MPI_Wtime();
 #endif
             SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+
 #ifdef TIMING
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
@@ -461,6 +482,24 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }   // all stages executed
         
+#ifdef MCLMEMORY
+        int64_t gcnnz_unmerged, lcnnz_unmerged = 0;
+         for(int i = 0; i < stages; ++i)
+         {
+              lcnnz_unmerged += tomerge[i]->getnnz();
+         }
+        MPI_Allreduce(&lcnnz_unmerged, &gcnnz_unmerged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        int64_t summa_memory = (gannz*2 + phase_nnz + gcnnz_unmerged + gannz + gannz/phases) * 20; // last two for broadcasts
+        
+        if(myrank==0)
+        {
+            if(summa_memory>1000000000)
+                cout << p+1 << ". SUMMA: " << summa_memory/1000000000.00 << "GB" ;
+            else
+                cout << p+1 << ". SUMMA: " << summa_memory/1000000.00 << " MB " ;
+            
+        }
+#endif
 
 #ifdef TIMING
         double t6=MPI_Wtime();
@@ -468,6 +507,26 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
         // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
         SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
+        
+#ifdef MCLMEMORY
+        int64_t gcnnz_merged, lcnnz_merged ;
+        lcnnz_merged = OnePieceOfC_tuples->getnnz();
+        MPI_Allreduce(&lcnnz_merged, &gcnnz_merged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+       
+        // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
+        int64_t merge_memory = (gannz*2 + phase_nnz + gcnnz_unmerged + gcnnz_merged*2) * 20;
+        
+        if(myrank==0)
+        {
+            if(merge_memory>1000000000)
+                cout << "Merge: " << merge_memory/1000000000.00 << "GB" ;
+            else
+                cout << "Merge: " << merge_memory/1000000.00 << " MB " ;
+            
+        }
+#endif
+        
+        
 #ifdef TIMING
         double t7=MPI_Wtime();
         mcl_multiwaymergetime += (t7-t6);
@@ -477,6 +536,27 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
         MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct);
+        
+#ifdef MCLMEMORY
+        int64_t gcnnz_pruned, lcnnz_pruned ;
+        lcnnz_pruned = OnePieceOfC_mat.getlocalnnz();
+        MPI_Allreduce(&lcnnz_pruned, &gcnnz_pruned, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        int64_t kselectmem = OnePieceOfC_mat.getlocalcols() * stages * max(selectNum, recoverNum) * 8; // stages = sqrt(p)
+        
+        // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
+        int64_t prune_memory = (gannz*2 + phase_nnz + gcnnz_merged*4) * 20 + kselectmem; // 3 extra copies of OnePieceOfC_mat, we can make it one extra copy!
+        phase_nnz += gcnnz_pruned;
+        
+        if(myrank==0)
+        {
+            if(prune_memory>1000000000)
+                cout << "Prune: " << prune_memory/1000000000.00 << "GB " << endl ;
+            else
+                cout << "Prune: " << prune_memory/1000000.00 << " MB " << endl ;
+            
+        }
+#endif
+        
         // ABAB: Change this to accept pointers to objects
         toconcatenate.push_back(OnePieceOfC_mat.seq());
     }
@@ -484,6 +564,23 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate); // ABAB: Change this to accept a vector of pointers to pointers to DER objects
+
+#ifdef MCLMEMORY
+    int64_t gcnnz_concat, lcnnz_concat ;
+    lcnnz_concat = C->getnnz();
+    MPI_Allreduce(&lcnnz_concat, &gcnnz_concat, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+    int64_t concat_memory = (gcnnz_concat*2 + gannz*2) * 20 ;
+
+    
+    if(myrank==0)
+    {
+        if(concat_memory>1000000000)
+            cout << "Concat: " << concat_memory/1000000000.00 << "GB " << endl;
+        else
+            cout << "Concat: " << concat_memory/1000000.00 << " MB " << endl;
+        
+    }
+#endif
     
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERA::esscount);

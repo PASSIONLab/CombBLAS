@@ -307,20 +307,6 @@ int main(int argc, char* argv[])
         mcl_kselecttime = 0;
         mcl_prunecolumntime = 0;
 #endif
-#ifdef MCLMEMORY
-        int64_t lnnz = A.getlocalnnz();
-        int64_t gnnz;
-        MPI_Allreduce(&lnnz, &gnnz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-        mcl_memory = gnnz*20; // 20 bytes per nonzeros
-        if(myrank==0)
-        {
-            if(mcl_memory>1000000000)
-                cout << "Initial memory (max per processor): " << mcl_memory/1000000000.00 << " GB" << endl;
-            else
-                cout << "Initial memory (max per processor): " << mcl_memory/1000000.00 << " MB" << endl;
-                
-        }
-#endif
 
 		// chaos doesn't make sense for non-stochastic matrices
 		// it is in the range {0,1} for stochastic matrices
