@@ -1,6 +1,6 @@
 CFLAGS = -Drestrict=__restrict__ -O2 -fopenmp -DNDEBUG 
 COMBBLAS = ..
-CC = g++-4.7
+CC = g++
 
 gzstream/libgzstream.a: 
 	$(MAKE) -C gzstream
