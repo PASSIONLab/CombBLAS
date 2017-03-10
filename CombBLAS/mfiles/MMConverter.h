@@ -255,6 +255,10 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<string>().swap(lines);
     }
     cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
+#define NSUBGRAPHS 6
+    uint32_t ranges[NSUBGRAPHS] = {vertexid, vertexid/2, vertexid/4, vertexid/8, vertexid/16, vertexid/32};
+    cout << "Printing submatrices with the following numbers of vertices: ";
+    copy(ranges, ranges+NSUBGRAPHS, ostream_iterator<uint32_t>(cout," ")); cout << endl;
 
     uint32_t nvertices = vertexid;
     vector< uint32_t > shuffler(nvertices);
@@ -266,14 +270,29 @@ void MMConverter(const string & filename, ofstream & dictout)
  
     cout << "Shuffled and wrote dictionary " << endl;
     fclose(f);
+
     
 #pragma omp parallel
     {
         long int fpos, end_fpos; // override
         int this_thread = omp_get_thread_num();
         int num_threads = omp_get_num_threads();
+
         if(this_thread == 0) fpos = ffirst;
         else fpos = this_thread * file_size / num_threads;
+        
+        string names[NSUBGRAPHS];
+        ofstream outfiles[NSUBGRAPHS];
+        for(int i= 0; i<NSUBGRAPHS; i++)
+        {
+            names[i] = "Renamed_subgraph";
+            names[i] += std::to_string(i);
+            names[i] += "_";
+            names[i] += filename;
+            names[i] += std::to_string(this_thread);
+            cout << names[i] << endl;
+            outfiles[i].open(names[i]);
+        }
        
         if(this_thread != (num_threads-1)) end_fpos = (this_thread + 1) * file_size / num_threads;
         else end_fpos = file_size;
@@ -287,19 +306,22 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<float> vals;
         ProcessLines(rows, cols, vals, lines, hashdyn, shuffler);
         
-        string name = "Renamed_";
-        name += filename;
-        name += std::to_string(this_thread);
-        ofstream outfile(name);
-        
         if(this_thread == 0)
         {
-            outfile << "%%MatrixMarket matrix coordinate real symmetric\n";
-            outfile << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
+            cout << "there are " << num_threads << " threads" << endl;
+            for(int i= 0; i<NSUBGRAPHS; i++)
+            {
+                outfiles[i] << "%%MatrixMarket matrix coordinate real symmetric\n";
+                outfiles[i] << ranges[i] << "\t" << ranges[i] << "\t" << entriesread << "\n";
+            }
         }
         for(size_t k=0; k< nnz; ++k)
         {
-            outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+            for(int i= 0; i<NSUBGRAPHS; i++)
+            {
+                if(rows[k] < ranges[i] && cols[k] < ranges[i])
+                    outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+            }
         }
         rows.clear();
         cols.clear();
@@ -313,13 +335,22 @@ void MMConverter(const string & filename, ofstream & dictout)
             
             for(size_t k=0; k< nnz; ++k)
             {
-                outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+                for(int i= 0; i<NSUBGRAPHS; i++)
+                {
+                    if(rows[k] < ranges[i] && cols[k] < ranges[i])
+                        outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+                }
             }
             rows.clear();
             cols.clear();
             vals.clear();
         }
+        for(int i= 0; i<NSUBGRAPHS; i++)
+        {
+            outfiles[i].close();
+        }
     }
+    
 
     tommy_hashdyn_foreach(&hashdyn, operator delete);
     tommy_hashdyn_done(&hashdyn);
