@@ -328,7 +328,7 @@ int main(int argc, char* argv[])
              */
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct);
+            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, 64); // 64 GB memory
 
             MakeColStochastic(A);
             //double t2 = MPI_Wtime();

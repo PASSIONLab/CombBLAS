@@ -192,7 +192,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumn = PrunedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
-   
+    PrunedA.FreeMemory();
     
     
     // Check if we need recovery
@@ -274,7 +274,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 
                 FullyDistVec<IT,NT> nnzPerColumn1 = selectedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
                 FullyDistVec<IT,NT> colSums1 = selectedA.Reduce(Column, plus<NT>(), 0.0);
-                
+                selectedA.FreeMemory();
   
                 // slected columns with nnz < recoverNum (r)
                 selectCols = recoverNum;
@@ -346,7 +346,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct)
+                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t pernodeMemory)
 {
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -369,6 +369,41 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
     shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+    
+    
+#ifdef MCLMEMORY
+    int p;
+    MPI_Comm_size(MPI_COMM_WORLD,&p);
+    int64_t lannz = A.getlocalnnz();
+    int64_t gannz;
+    int64_t k = max(selectNum, recoverNum);
+    MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+    
+    double d = A.getnnz() / (double)A.getncol();
+    int64_t asquareNNZ = (A.getncol() * d * d) /p ;
+    
+    int64_t kselectmem = A.getlocalcols() * k * 8 * 3;
+    int64_t outputNNZ = min((A.getncol() * k)/p, asquareNNZ);
+    
+    int64_t inputMem = gannz * 20 * 3;
+    int64_t asquareMem = asquareNNZ * 20 * 2;
+    int64_t outputMem = outputNNZ * 20 * 2;
+    
+    //(3* inputNNZ + 2 * outputNNZ + 3*asquareNNZ/phases)*20 + kselectmem < memory
+    phases = 1 + asquareMem / (pernodeMemory*1000000000 - kselectmem - inputMem - outputMem);
+    int64_t maxMemory = kselectmem + inputMem + outputMem + asquareMem / phases;
+    
+    if(myrank==0)
+    {
+        if(maxMemory>1000000000)
+            cout << "phases " << phases << " asquareMem " << asquareMem/1000000000.00 << "GB" << " inputMem " << inputMem/1000000000.00 << "GB" << " outputMem " << outputMem/1000000000.00 << "GB" << " kselectmem " << kselectmem/1000000000.00 << "GB" << endl;
+        else
+            cout << "phases " << phases << " asquareMem " << asquareMem/1000000.00 << "MB" << " inputMem " << inputMem/1000000.00 << "MB" << " outputMem " << outputMem/1000000.00 << "MB" << " kselectmem " << kselectmem/1000000.00 << "MB" << endl;
+        
+    }
+#endif
+    
+    
     IU C_m = A.spSeq->getnrow();
     IU C_n = B.spSeq->getncol();
     
@@ -378,22 +413,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
     
-#ifdef MCLMEMORY
-    int64_t lannz = A.getlocalnnz();
-    int64_t gannz;
-    MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-    int64_t phase_nnz = 0; // intermediate
-    int64_t split_memory = 3*gannz*20;
-    
-    if(myrank==0)
-    {
-        if(split_memory>1000000000)
-            cout << "split: " << split_memory/1000000000.00 << "GB" << endl;
-        else
-            cout << "split: " << split_memory/1000000.00 << " MB " << endl;
-        
-    }
-#endif
+
     
 
     
@@ -489,14 +509,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
               lcnnz_unmerged += tomerge[i]->getnnz();
          }
         MPI_Allreduce(&lcnnz_unmerged, &gcnnz_unmerged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-        int64_t summa_memory = (gannz*2 + phase_nnz + gcnnz_unmerged + gannz + gannz/phases) * 20; // last two for broadcasts
+        int64_t summa_memory = gcnnz_unmerged*20;//(gannz*2 + phase_nnz + gcnnz_unmerged + gannz + gannz/phases) * 20; // last two for broadcasts
         
         if(myrank==0)
         {
             if(summa_memory>1000000000)
-                cout << p+1 << ". SUMMA: " << summa_memory/1000000000.00 << "GB" ;
+                cout << p+1 << ". unmerged: " << summa_memory/1000000000.00 << "GB" ;
             else
-                cout << p+1 << ". SUMMA: " << summa_memory/1000000.00 << " MB " ;
+                cout << p+1 << ". unmerged: " << summa_memory/1000000.00 << " MB " ;
             
         }
 #endif
@@ -514,14 +534,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         MPI_Allreduce(&lcnnz_merged, &gcnnz_merged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
        
         // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
-        int64_t merge_memory = (gannz*2 + phase_nnz + gcnnz_unmerged + gcnnz_merged*2) * 20;
+        int64_t merge_memory = gcnnz_merged*2*20;//(gannz*2 + phase_nnz + gcnnz_unmerged + gcnnz_merged*2) * 20;
         
         if(myrank==0)
         {
             if(merge_memory>1000000000)
-                cout << "Merge: " << merge_memory/1000000000.00 << "GB" ;
+                cout << " merged: " << merge_memory/1000000000.00 << "GB" ;
             else
-                cout << "Merge: " << merge_memory/1000000.00 << " MB " ;
+                cout << " merged: " << merge_memory/1000000.00 << " MB " ;
             
         }
 #endif
@@ -541,11 +561,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         int64_t gcnnz_pruned, lcnnz_pruned ;
         lcnnz_pruned = OnePieceOfC_mat.getlocalnnz();
         MPI_Allreduce(&lcnnz_pruned, &gcnnz_pruned, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-        int64_t kselectmem = OnePieceOfC_mat.getlocalcols() * stages * max(selectNum, recoverNum) * 8; // stages = sqrt(p)
+        int64_t kselectmem = OnePieceOfC_mat.getlocalcols() * max(selectNum, recoverNum) * 8; // stages = sqrt(p)
         
         // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
-        int64_t prune_memory = (gannz*2 + phase_nnz + gcnnz_merged*4) * 20 + kselectmem; // 3 extra copies of OnePieceOfC_mat, we can make it one extra copy!
-        phase_nnz += gcnnz_pruned;
+        int64_t prune_memory = gcnnz_pruned*2*20;//(gannz*2 + phase_nnz + gcnnz_pruned*2) * 20 + kselectmem; // 3 extra copies of OnePieceOfC_mat, we can make it one extra copy!
+        //phase_nnz += gcnnz_pruned;
         
         if(myrank==0)
         {
@@ -571,7 +591,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     MPI_Allreduce(&lcnnz_concat, &gcnnz_concat, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
     int64_t concat_memory = (gcnnz_concat*2 + gannz*2) * 20 ;
 
-    
+    /*
     if(myrank==0)
     {
         if(concat_memory>1000000000)
@@ -579,7 +599,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         else
             cout << "Concat: " << concat_memory/1000000.00 << " MB " << endl;
         
-    }
+    }*/
 #endif
     
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
