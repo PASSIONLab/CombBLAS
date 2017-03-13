@@ -149,6 +149,7 @@ int main(int argc, char* argv[])
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
             cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
             cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
+            cout << "-per-process-mem <MEMORY (GB) AVAILABLE PER PROCESS> (default:0, number of phases is not estimated)\n";
             cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 1100 -R 1400 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
         }
         MPI_Finalize();
@@ -167,6 +168,7 @@ int main(int argc, char* argv[])
         int phases = 1;
         bool show = false;
         bool keep_isolated = false; // mcl removes isolated vertices by default
+        int perProcessMem = 0;
         
         for (int i = 1; i < argc; i++)
         {
@@ -207,6 +209,10 @@ int main(int argc, char* argv[])
             else if (strcmp(argv[i],"-phases")==0) {
                 phases = atoi(argv[i + 1]);
                 if(myrank == 0) printf("\nNumber of SpGEMM phases:%d",phases);
+            }
+            else if (strcmp(argv[i],"-per-process-mem")==0) {
+                perProcessMem = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nPer process memory:%d GB",perProcessMem);
             }
         }
 
@@ -328,7 +334,7 @@ int main(int argc, char* argv[])
              */
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, 64); // 64 GB memory
+            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, perProcessMem);
 
             MakeColStochastic(A);
             //double t2 = MPI_Wtime();
