@@ -346,7 +346,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t pernodeMemory)
+                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t perProcessMemory)
 {
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -376,29 +376,44 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     MPI_Comm_size(MPI_COMM_WORLD,&p);
     int64_t lannz = A.getlocalnnz();
     int64_t gannz;
-    int64_t k = max(selectNum, recoverNum);
+    
     MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
     
     double d = A.getnnz() / (double)A.getncol();
+    int64_t k = min(max(selectNum, recoverNum), (int64_t)(d*d));
     int64_t asquareNNZ = (A.getncol() * d * d) /p ;
     
     int64_t kselectmem = A.getlocalcols() * k * 8 * 3;
-    int64_t outputNNZ = min((A.getncol() * k)/p, asquareNNZ);
+    int64_t outputNNZ = (A.getncol() * k)/p;
     
     int64_t inputMem = gannz * 20 * 3;
     int64_t asquareMem = asquareNNZ * 20 * 2;
     int64_t outputMem = outputNNZ * 20 * 2;
     
-    //(3* inputNNZ + 2 * outputNNZ + 3*asquareNNZ/phases)*20 + kselectmem < memory
-    phases = 1 + asquareMem / (pernodeMemory*1000000000 - kselectmem - inputMem - outputMem);
-    int64_t maxMemory = kselectmem + inputMem + outputMem + asquareMem / phases;
+    //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+    int64_t remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+    if(remainingMem > 0)
+    {
+        phases = 1 + (asquareMem+kselectmem) / remainingMem;
+    }
+    
+    int64_t maxMemory = kselectmem/phases + inputMem + outputMem + asquareMem / phases;
     
     if(myrank==0)
     {
+        if(perProcessMemory==0)
+        {
+            cout << "Per-process memory is not provided. Number of phases is not estimated" << endl;
+        }
+        else if(remainingMem < 0)
+        {
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n Warning: input and output memory requirement is greater than per-process avaiable memory. Keeping phase to the value supplied at the command line. The program may go out of memory and crash! @@@@@@@@@ \n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+        }
+        
         if(maxMemory>1000000000)
-            cout << "phases " << phases << " asquareMem " << asquareMem/1000000000.00 << "GB" << " inputMem " << inputMem/1000000000.00 << "GB" << " outputMem " << outputMem/1000000000.00 << "GB" << " kselectmem " << kselectmem/1000000000.00 << "GB" << endl;
+            cout << "phases: " << phases << ": per process memory: " << perProcessMemory << " GB asquareMem: " << asquareMem/1000000000.00 << " GB" << " inputMem: " << inputMem/1000000000.00 << " GB" << " outputMem: " << outputMem/1000000000.00 << " GB" << " kselectmem: " << kselectmem/1000000000.00 << " GB" << endl;
         else
-            cout << "phases " << phases << " asquareMem " << asquareMem/1000000.00 << "MB" << " inputMem " << inputMem/1000000.00 << "MB" << " outputMem " << outputMem/1000000.00 << "MB" << " kselectmem " << kselectmem/1000000.00 << "MB" << endl;
+            cout << "phases: " << phases << ": per process memory: " << perProcessMemory << " GB asquareMem: " << asquareMem/1000000.00 << " MB" << " inputMem: " << inputMem/1000000.00 << " MB" << " outputMem: " << outputMem/1000000.00 << " MB" << " kselectmem: " << kselectmem/1000000.00 << " MB" << endl;
         
     }
 #endif
@@ -561,7 +576,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         int64_t gcnnz_pruned, lcnnz_pruned ;
         lcnnz_pruned = OnePieceOfC_mat.getlocalnnz();
         MPI_Allreduce(&lcnnz_pruned, &gcnnz_pruned, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-        int64_t kselectmem = OnePieceOfC_mat.getlocalcols() * max(selectNum, recoverNum) * 8; // stages = sqrt(p)
+        
         
         // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
         int64_t prune_memory = gcnnz_pruned*2*20;//(gannz*2 + phase_nnz + gcnnz_pruned*2) * 20 + kselectmem; // 3 extra copies of OnePieceOfC_mat, we can make it one extra copy!
@@ -585,22 +600,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate); // ABAB: Change this to accept a vector of pointers to pointers to DER objects
 
-#ifdef MCLMEMORY
-    int64_t gcnnz_concat, lcnnz_concat ;
-    lcnnz_concat = C->getnnz();
-    MPI_Allreduce(&lcnnz_concat, &gcnnz_concat, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-    int64_t concat_memory = (gcnnz_concat*2 + gannz*2) * 20 ;
-
-    /*
-    if(myrank==0)
-    {
-        if(concat_memory>1000000000)
-            cout << "Concat: " << concat_memory/1000000000.00 << "GB " << endl;
-        else
-            cout << "Concat: " << concat_memory/1000000.00 << " MB " << endl;
-        
-    }*/
-#endif
     
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERA::esscount);
