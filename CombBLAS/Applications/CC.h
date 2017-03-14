@@ -79,7 +79,6 @@ struct Select2ndMinSR
 
 
 
-
 template <typename IT, typename NT, typename DER>
 FullyDistVec<IT,short> StarCheck(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & father)
 {
