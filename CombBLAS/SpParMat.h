@@ -292,7 +292,7 @@ public:
     
     template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
     friend SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                               int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t pernodeMemory);
+                                               int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t perProcessMem);
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
