@@ -529,7 +529,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         if(myrank==0)
         {
             if(summa_memory>1000000000)
-                cout << p+1 << ". unmerged: " << summa_memory/1000000000.00 << "GB" ;
+                cout << p+1 << ". unmerged: " << summa_memory/1000000000.00 << "GB " ;
             else
                 cout << p+1 << ". unmerged: " << summa_memory/1000000.00 << " MB " ;
             
@@ -554,7 +554,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         if(myrank==0)
         {
             if(merge_memory>1000000000)
-                cout << " merged: " << merge_memory/1000000000.00 << "GB" ;
+                cout << " merged: " << merge_memory/1000000000.00 << "GB " ;
             else
                 cout << " merged: " << merge_memory/1000000.00 << " MB " ;
             
