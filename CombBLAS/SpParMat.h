@@ -124,6 +124,8 @@ public:
     
     template <typename VT, typename GIT, typename _UnaryOperation>
     bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
+    template <typename VT, typename GIT, typename _UnaryOperation>
+    bool Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
     template <typename VT, typename GIT>
     bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit) const; // TODO: make private
     template <typename VT, typename GIT>
