@@ -998,6 +998,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
     else
     {
         ret = Kselect1(kthAll, k_limit, myidentity<NT>());
+        //return Kselect1(kth, k_limit, myidentity<NT>());
     }
     
     //kth.DebugPrint();
@@ -1081,6 +1082,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     //displacement of local columns
     //local_coldisp is the displacement of all nonzeros per column
     //send_coldisp is the displacement of k nonzeros per column
+    IT nzc = 0;
     if(spSeq->getnnz()>0)
     {
         typename DER::SpColIter colit = spSeq->begcol();
@@ -1096,6 +1098,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
                 else
                     send_coldisp[i+1] += colit.nnz();
                 colit++;
+                nzc++;
             }
         }
     }
@@ -1105,17 +1108,14 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     // this can be avoided if we write our own local kselect function instead of using partial_sort
     vector<VT> localmat(spSeq->getnnz());
 
-/*
+
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-    for (IT i=0; i<spSeq->getnzc(); ++i) // for every nonzero column (defined in this way to help OpenMP)
-    typename DER::SpColIter colit = spSeq->begcol() + i;
- // Note: this was a problem because "::getnzc() is only defined for DCSC"
-*/
-    
-    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    for(IT i=0; i<nzc; i++)
+    //for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
     {
+        typename DER::SpColIter colit = spSeq->begcol() + i;
         IT colid = colit.colid();
         IT idx = local_coldisp[colid];
         for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
@@ -1273,6 +1273,274 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
     return true;
 }
 
+
+
+/* identify the k-th maximum element in each column of a matrix
+ ** if the number of nonzeros in a column is less than k, return minimum entry
+ ** Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
+ ** this memory requirement is too high for larger k
+ */
+template <class IT, class NT, class DER>
+template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
+bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
+{
+    if(*rvec.commGrid != *commGrid)
+    {
+        SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
+        MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
+    }
+    
+    /*
+    FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
+    Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
+    IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
+    if(k>maxnnzPerColumn)
+    {
+        SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Calling Reduce instead...\n");
+        Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));
+        return false;
+    }
+     */
+    
+    IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
+    MPI_Comm World = rvec.commGrid->GetWorld();
+    MPI_Comm ColWorld = rvec.commGrid->GetColWorld();
+    MPI_Comm RowWorld = rvec.commGrid->GetRowWorld();
+  
+    
+    //replicate sparse indices along processor column
+    int accnz;
+    int32_t trxlocnz;
+    GIT lenuntil;
+    int32_t *trxinds, *indacc;
+    VT *trxnums, *numacc;
+    TransposeVector(World, rvec, trxlocnz, lenuntil, trxinds, trxnums, true);
+    
+    if(rvec.commGrid->GetGridRows() > 1)
+    {
+        AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);  // trxindS/trxnums deallocated, indacc/numacc allocated, accnz set
+    }
+    else
+    {
+        accnz = trxlocnz;
+        indacc = trxinds;     //aliasing ptr
+        numacc = trxnums;     //aliasing ptr
+    }
+    
+    
+    vector<bool> isactive(n_thiscol,false);
+    for(int i=0; i<accnz ; i++)
+    {
+        isactive[indacc[i]] = true;
+        //cout << indacc[i] <<  " ";
+    }
+    // check, memory should be min(n_thiscol*k, local nnz)
+    // hence we will not overflow for very large k
+    vector<VT> sendbuf(n_thiscol*k);
+    vector<IT> send_coldisp(n_thiscol+1,0);
+    vector<IT> local_coldisp(n_thiscol+1,0);
+    
+    
+    //displacement of local columns
+    //local_coldisp is the displacement of all nonzeros per column
+    //send_coldisp is the displacement of k nonzeros per column
+    if(spSeq->getnnz()>0)
+    {
+        typename DER::SpColIter colit = spSeq->begcol();
+        for(IT i=0; i<n_thiscol; ++i)
+        {
+            local_coldisp[i+1] = local_coldisp[i];
+            send_coldisp[i+1] = send_coldisp[i];
+            if(i==colit.colid() && isactive[i])
+            {
+                local_coldisp[i+1] += colit.nnz();
+                if(colit.nnz()>=k)
+                    send_coldisp[i+1] += k;
+                else
+                    send_coldisp[i+1] += colit.nnz();
+                colit++;
+            }
+            else
+                isactive[i] = false;
+                
+        }
+    }
+    //assert(local_coldisp[n_thiscol] == spSeq->getnnz());
+    
+    // a copy of local part of the matrix
+    // this can be avoided if we write our own local kselect function instead of using partial_sort
+    vector<VT> localmat(spSeq->getnnz());
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    {
+        IT colid = colit.colid();
+        if(isactive[colid])
+        {
+            IT idx = local_coldisp[colid];
+            for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
+            {
+                localmat[idx++] = static_cast<VT>(__unary_op(nzit.value()));
+            }
+            
+            if(colit.nnz()<=k)
+            {
+                sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], greater<VT>());
+                copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], sendbuf.begin()+send_coldisp[colid]);
+            }
+            else
+            {
+                partial_sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, localmat.begin()+local_coldisp[colid+1], greater<VT>());
+                copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, sendbuf.begin()+send_coldisp[colid]);
+            }
+        }
+    }
+    
+    vector<VT>().swap(localmat);
+    vector<IT>().swap(local_coldisp);
+    
+    vector<VT> recvbuf(n_thiscol*k);
+    vector<VT> tempbuf(n_thiscol*k);
+    vector<IT> recv_coldisp(n_thiscol+1);
+    vector<IT> templen(n_thiscol);
+    
+    int colneighs = commGrid->GetGridRows();
+    int colrank = commGrid->GetRankInProcCol();
+    
+    for(int p=2; p <= colneighs; p*=2)
+    {
+        
+        if(colrank%p == p/2) // this processor is a sender in this round
+        {
+            int receiver = colrank - ceil(p/2);
+            MPI_Send(send_coldisp.data(), n_thiscol+1, MPIType<IT>(), receiver, 0, commGrid->GetColWorld());
+            MPI_Send(sendbuf.data(), send_coldisp[n_thiscol], MPIType<VT>(), receiver, 1, commGrid->GetColWorld());
+            //break;
+        }
+        else if(colrank%p == 0) // this processor is a receiver in this round
+        {
+            int sender = colrank + ceil(p/2);
+            if(sender < colneighs)
+            {
+                
+                MPI_Recv(recv_coldisp.data(), n_thiscol+1, MPIType<IT>(), sender, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+                MPI_Recv(recvbuf.data(), recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+                
+                
+                
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+                for(IT i=0; i<n_thiscol; ++i)
+                {
+                    // partial merge until first k elements
+                    IT j=send_coldisp[i], l=recv_coldisp[i];
+                    //IT templen[i] = k*i;
+                    IT offset = k*i;
+                    IT lid = 0;
+                    for(; j<send_coldisp[i+1] && l<recv_coldisp[i+1] && lid<k;)
+                    {
+                        if(sendbuf[j] > recvbuf[l])  // decision
+                            tempbuf[offset+lid++] = sendbuf[j++];
+                        else
+                            tempbuf[offset+lid++] = recvbuf[l++];
+                    }
+                    while(j<send_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = sendbuf[j++];
+                    while(l<recv_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = recvbuf[l++];
+                    templen[i] = lid;
+                }
+                
+                send_coldisp[0] = 0;
+                for(IT i=0; i<n_thiscol; i++)
+                {
+                    send_coldisp[i+1] = send_coldisp[i] + templen[i];
+                }
+                
+                
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+                for(IT i=0; i<n_thiscol; i++) // direct copy
+                {
+                    IT offset = k*i;
+                    copy(tempbuf.begin()+offset, tempbuf.begin()+offset+templen[i], sendbuf.begin() + send_coldisp[i]);
+                }
+            }
+        }
+    }
+    MPI_Barrier(commGrid->GetWorld());
+    vector<VT> kthItem(n_thiscol);
+    
+    int root = commGrid->GetDiagOfProcCol();
+    if(root==0 && colrank==0) // rank 0
+    {
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT i=0; i<n_thiscol; i++)
+        {
+            IT nitems = send_coldisp[i+1]-send_coldisp[i];
+            if(nitems >= k)
+                kthItem[i] = sendbuf[send_coldisp[i]+k-1];
+            else if (nitems==0)
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
+            else
+                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+        }
+    }
+    else if(root>0 && colrank==0) // send to the diagonl processor of this processor column
+    {
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT i=0; i<n_thiscol; i++)
+        {
+            IT nitems = send_coldisp[i+1]-send_coldisp[i];
+            if(nitems >= k)
+                kthItem[i] = sendbuf[send_coldisp[i]+k-1];
+            else if (nitems==0)
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
+            else
+                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+        }
+        MPI_Send(kthItem.data(), n_thiscol, MPIType<VT>(), root, 0, commGrid->GetColWorld());
+    }
+    else if(root>0 && colrank==root)
+    {
+        MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+    }
+    
+    vector <int> sendcnts;
+    vector <int> dpls;
+    if(colrank==root)
+    {
+        int proccols = commGrid->GetGridCols();
+        IT n_perproc = n_thiscol / proccols;
+        sendcnts.resize(proccols);
+        fill(sendcnts.data(), sendcnts.data()+proccols-1, n_perproc);
+        sendcnts[proccols-1] = n_thiscol - (n_perproc * (proccols-1));
+        dpls.resize(proccols,0);	// displacements (zero initialized pid)
+        partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
+    }
+    
+    int rowroot = commGrid->GetDiagOfProcRow();
+    int recvcnts = 0;
+    // scatter received data size
+    
+    MPI_Scatter(sendcnts.data(),1, MPI_INT, & recvcnts, 1, MPI_INT, rowroot, commGrid->GetRowWorld());
+    
+    // first populate the dense vector
+    FullyDistVec<GIT,VT> dvec(rvec.getcommgrid());
+    dvec.arr.resize(recvcnts);
+    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), dvec.arr.data(), dvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
+    dvec.glen = getncol();
+    
+    //populate the sparse vector
+    rvec = EWiseApply<VT>(rvec, dvec,
+                               [](VT sv, VT dv){return dv;},
+                               [](VT sv, VT dv){return true;},
+                               false, static_cast<VT>(0));
+    return true;
+}
 
 // only defined for symmetric matrix
 template <class IT, class NT, class DER>
