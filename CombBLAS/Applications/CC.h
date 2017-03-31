@@ -352,7 +352,38 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
         FullyDistSpVec<IT, IT> ith = CC.Find(bind2nd(equal_to<IT>(), i));
         ccSizes.SetElement(i, ith.getnnz());
     }
-    ccSizes.PrintToFile("histCC.txt");
+    
+    IT largestCCSise = ccSizes.Reduce(maximum<IT>(), static_cast<IT>(0));
+    
+    
+    IT * locCCSizes = ccSizes.GetLocArr();
+    int numBins = 200;
+    vector<IT> localHist(numBins,0);
+    for(IT i=0; i< ccSizes.LocArrSize(); i++)
+    {
+        IT bin = (locCCSizes[i]*(numBins-1))/largestCCSise;
+        localHist[bin]++;
+    }
+    
+    vector<IT> globalHist(numBins,0);
+    MPI_Comm world = CC.getcommgrid()->GetWorld();
+    MPI_Reduce(localHist.data(), globalHist.data(), numBins, MPIType<IT>(), MPI_SUM, 0, world);
+    
+    
+    int myrank;
+    MPI_Comm_rank(world,&myrank);
+    if(myrank==0)
+    {
+        cout << "The largest component size: " << largestCCSise  << endl;
+        ofstream output;
+        output.open("hist.txt", ios_base::app );
+        copy(globalHist.begin(), globalHist.end(), ostream_iterator<IT> (output, " "));
+        output << endl;
+        output.close();
+    }
+
+    
+    //ccSizes.PrintToFile("histCC.txt");
 }
 
 
