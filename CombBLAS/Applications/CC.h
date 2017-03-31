@@ -356,7 +356,7 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
     IT largestCCSise = ccSizes.Reduce(maximum<IT>(), static_cast<IT>(0));
     
     
-    IT * locCCSizes = ccSizes.GetLocArr();
+    const IT * locCCSizes = ccSizes.GetLocArr();
     int numBins = 200;
     vector<IT> localHist(numBins,0);
     for(IT i=0; i< ccSizes.LocArrSize(); i++)
