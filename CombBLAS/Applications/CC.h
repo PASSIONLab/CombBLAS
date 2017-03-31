@@ -280,16 +280,29 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     int iteration = 0;
     ostringstream outs;
     do{
+#ifdef TIMING
+        double t1 = MPI_Wtime();
+#endif
         ConditionalHook(A, father);
         UnconditionalHook(A, father);
         Shortcut(father);
         //father.DebugPrint();
         FullyDistVec<IT,short> stars = StarCheck(A, father);
         nonstars = stars.Reduce(plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==0);});
+#ifdef TIMING
+        double t2 = MPI_Wtime();
+#endif
+
         outs.str("");
         outs.clear();
-        outs << "Iteration: " << ++iteration << " Non stars: " << nonstars << endl;
+        outs << "Iteration: " << ++iteration << " Non stars: " << nonstars;
+#ifdef TIMING
+        outs << " Time: " << t2 - t1;
+#endif
+        outs<< endl;
         SpParHelper::Print(outs.str());
+
+
         //father.DebugPrint();
     }while(nonstars>0);
     
