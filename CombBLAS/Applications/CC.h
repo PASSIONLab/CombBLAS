@@ -317,6 +317,7 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     return cc;
 }
 
+
 template <typename IT>
 void PrintCC(FullyDistVec<IT, IT> CC, IT nCC)
 {
@@ -325,6 +326,20 @@ void PrintCC(FullyDistVec<IT, IT> CC, IT nCC)
         FullyDistVec<IT, IT> ith = CC.FindInds(bind2nd(equal_to<IT>(), i));
         ith.DebugPrint();
     }
+}
+
+
+
+template <typename IT>
+void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
+{
+    FullyDistVec<IT, IT> ccSizes(CC.getcommgrid(), nCC, 0);
+    for(IT i=0; i< nCC; i++)
+    {
+        FullyDistSpVec<IT, IT> ith = CC.Find(bind2nd(equal_to<IT>(), i));
+        ccSizes.SetElement(i, ith.getnnz());
+    }
+    ccSizes.PrintToFile("histCC.txt");
 }
 
 
