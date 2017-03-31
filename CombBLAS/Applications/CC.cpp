@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
         
         int64_t nCC = 0;
         FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
+        HistCC(cclabels, nCC);
     }
     
     MPI_Finalize();
