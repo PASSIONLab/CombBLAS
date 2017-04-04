@@ -997,8 +997,8 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
     }
     else
     {
-        ret = Kselect1(kthAll, k_limit, myidentity<NT>());
-        //return Kselect1(kth, k_limit, myidentity<NT>());
+        //ret = Kselect1(kthAll, k_limit, myidentity<NT>());
+        return Kselect1(kth, k_limit, myidentity<NT>());
     }
     
     //kth.DebugPrint();
@@ -1318,6 +1318,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     
     if(rvec.commGrid->GetGridRows() > 1)
     {
+        //TODO: we only need to communicate indices
         AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);  // trxindS/trxnums deallocated, indacc/numacc allocated, accnz set
     }
     else
@@ -1344,6 +1345,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     //displacement of local columns
     //local_coldisp is the displacement of all nonzeros per column
     //send_coldisp is the displacement of k nonzeros per column
+    IT nzc = 0;
     if(spSeq->getnnz()>0)
     {
         typename DER::SpColIter colit = spSeq->begcol();
@@ -1351,28 +1353,37 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
-            if(i==colit.colid() && isactive[i])
+            if(i==colit.colid())
             {
-                local_coldisp[i+1] += colit.nnz();
-                if(colit.nnz()>=k)
-                    send_coldisp[i+1] += k;
-                else
-                    send_coldisp[i+1] += colit.nnz();
+                if(isactive[i])
+                {
+                    local_coldisp[i+1] += colit.nnz();
+                    if(colit.nnz()>=k)
+                        send_coldisp[i+1] += k;
+                    else
+                        send_coldisp[i+1] += colit.nnz();
+                }
                 colit++;
+                nzc++;
             }
             else
                 isactive[i] = false;
                 
         }
     }
-    //assert(local_coldisp[n_thiscol] == spSeq->getnnz());
     
     // a copy of local part of the matrix
     // this can be avoided if we write our own local kselect function instead of using partial_sort
-    vector<VT> localmat(spSeq->getnnz());
+    vector<VT> localmat(local_coldisp[n_thiscol]);
     
-    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(IT i=0; i<nzc; i++)
+        //for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
     {
+        typename DER::SpColIter colit = spSeq->begcol() + i;
         IT colid = colit.colid();
         if(isactive[colid])
         {
@@ -1394,6 +1405,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             }
         }
     }
+
     
     vector<VT>().swap(localmat);
     vector<IT>().swap(local_coldisp);
