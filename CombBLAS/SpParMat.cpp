@@ -1337,7 +1337,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     
     vector<IT> send_coldisp(n_thiscol+1,0);
     vector<IT> local_coldisp(n_thiscol+1,0);
-    vector<VT> sendbuf(n_thiscol*k);
+    //vector<VT> sendbuf(nActiveCols*k);
+    VT * sendbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
     
     
     //displacement of local columns
@@ -1370,7 +1371,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     // a copy of local part of the matrix
     // this can be avoided if we write our own local kselect function instead of using partial_sort
    
-    vector<VT> localmat(local_coldisp[n_thiscol]);
+    //vector<VT> localmat(local_coldisp[n_thiscol]);
+    VT * localmat = static_cast<VT *> (::operator new (local_coldisp[n_thiscol]*sizeof(VT)));
     
     
 #ifdef THREADED
@@ -1391,23 +1393,26 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             
             if(colit.nnz()<=k)
             {
-                sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], greater<VT>());
-                copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid+1], sendbuf.begin()+send_coldisp[colid]);
+                sort(localmat+local_coldisp[colid], localmat+local_coldisp[colid+1], greater<VT>());
+                copy(localmat+local_coldisp[colid], localmat+local_coldisp[colid+1], sendbuf+send_coldisp[colid]);
             }
             else
             {
-                partial_sort(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, localmat.begin()+local_coldisp[colid+1], greater<VT>());
-                copy(localmat.begin()+local_coldisp[colid], localmat.begin()+local_coldisp[colid]+k, sendbuf.begin()+send_coldisp[colid]);
+                partial_sort(localmat+local_coldisp[colid], localmat+local_coldisp[colid]+k, localmat+local_coldisp[colid+1], greater<VT>());
+                copy(localmat+local_coldisp[colid], localmat+local_coldisp[colid]+k, sendbuf+send_coldisp[colid]);
             }
         }
     }
 
     
-    vector<VT>().swap(localmat);
+    //vector<VT>().swap(localmat);
+    ::operator delete(localmat);
     vector<IT>().swap(local_coldisp);
     
-    vector<VT> recvbuf(n_thiscol*k);
-    vector<VT> tempbuf(n_thiscol*k);
+    VT * recvbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    VT * tempbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //vector<VT> recvbuf(n_thiscol*k);
+    //vector<VT> tempbuf(n_thiscol*k);
     vector<IT> recv_coldisp(n_thiscol+1);
     vector<IT> templen(n_thiscol);
     
@@ -1421,7 +1426,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         {
             int receiver = colrank - ceil(p/2);
             MPI_Send(send_coldisp.data(), n_thiscol+1, MPIType<IT>(), receiver, 0, commGrid->GetColWorld());
-            MPI_Send(sendbuf.data(), send_coldisp[n_thiscol], MPIType<VT>(), receiver, 1, commGrid->GetColWorld());
+            MPI_Send(sendbuf, send_coldisp[n_thiscol], MPIType<VT>(), receiver, 1, commGrid->GetColWorld());
             //break;
         }
         else if(colrank%p == 0) // this processor is a receiver in this round
@@ -1431,7 +1436,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             {
                 
                 MPI_Recv(recv_coldisp.data(), n_thiscol+1, MPIType<IT>(), sender, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
-                MPI_Recv(recvbuf.data(), recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+                MPI_Recv(recvbuf, recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 
                 
                 
@@ -1470,7 +1475,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                 for(IT i=0; i<n_thiscol; i++) // direct copy
                 {
                     IT offset = k*i;
-                    copy(tempbuf.begin()+offset, tempbuf.begin()+offset+templen[i], sendbuf.begin() + send_coldisp[i]);
+                    copy(tempbuf+offset, tempbuf+offset+templen[i], sendbuf + send_coldisp[i]);
                 }
             }
         }
@@ -1516,6 +1521,10 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     {
         MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
+    
+    ::operator delete(sendbuf);
+    ::operator delete(recvbuf);
+    ::operator delete(tempbuf);
     
     vector <int> sendcnts;
     vector <int> dpls;
