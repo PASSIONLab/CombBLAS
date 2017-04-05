@@ -1274,12 +1274,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
 }
 
 
-
-/* identify the k-th maximum element in each column of a matrix
- ** if the number of nonzeros in a column is less than k, return minimum entry
- ** Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
- ** this memory requirement is too high for larger k
- */
+// TODO: 1. send and receive buffer proportional to active columns
+// 2. Check which parts are not maltithreaded. Going from 24 threads/node to 6 t/node make it twice faster
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
@@ -1335,11 +1331,13 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         isactive[indacc[i]] = true;
         //cout << indacc[i] <<  " ";
     }
+    IT nActiveCols = count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
-    vector<VT> sendbuf(n_thiscol*k);
+    
     vector<IT> send_coldisp(n_thiscol+1,0);
     vector<IT> local_coldisp(n_thiscol+1,0);
+    vector<VT> sendbuf(n_thiscol*k);
     
     
     //displacement of local columns
@@ -1366,14 +1364,12 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                 colit++;
                 nzc++;
             }
-            else
-                isactive[i] = false;
-                
         }
     }
     
     // a copy of local part of the matrix
     // this can be avoided if we write our own local kselect function instead of using partial_sort
+   
     vector<VT> localmat(local_coldisp[n_thiscol]);
     
     
