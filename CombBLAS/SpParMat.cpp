@@ -349,8 +349,7 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
     
-    Reduce(rvec, Column, minimum<NT>(), numeric_limits<NT>::min());    // get the vector ready, this should also set the glen of rvec correctly
-    
+    rvec = FullyDistVec<GIT,VT> ( rvec.getcommgrid(), getncol(), numeric_limits<NT>::min());	// set length of rvec correctly
     
 #ifdef COMBBLAS_DEBUG
     PrintInfo();
