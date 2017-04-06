@@ -1308,19 +1308,19 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int accnz;
     int32_t trxlocnz;
     GIT lenuntil;
-    int32_t *trxinds, *activeCols;
+    int32_t *trxinds, *indacc;
     VT *trxnums, *numacc;
     TransposeVector(World, rvec, trxlocnz, lenuntil, trxinds, trxnums, true);
     
     if(rvec.commGrid->GetGridRows() > 1)
     {
         //TODO: we only need to communicate indices
-        AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, activeCols, numacc, accnz, true);  // trxindS/trxnums deallocated, indacc/numacc allocated, accnz set
+        AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);  // trxindS/trxnums deallocated, indacc/numacc allocated, accnz set
     }
     else
     {
         accnz = trxlocnz;
-        activeCols = trxinds;     //aliasing ptr
+        indacc = trxinds;     //aliasing ptr
         numacc = trxnums;     //aliasing ptr
     }
     
@@ -1328,7 +1328,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     vector<bool> isactive(n_thiscol,false);
     for(int i=0; i<accnz ; i++)
     {
-        isactive[activeCols[i]] = true;
+        isactive[indacc[i]] = true;
         //cout << indacc[i] <<  " ";
     }
     IT nActiveCols = accnz;//count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
@@ -1480,58 +1480,87 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         }
     }
     MPI_Barrier(commGrid->GetWorld());
+    vector<VT> kthItem(n_thiscol);
     
-    
-    vector<VT> kthItem(nActiveCols);
     int root = commGrid->GetDiagOfProcCol();
-    
-    // At the first processor of each processor column
-    // Find the kth largest element in active columns
-    // For empty columns store the lowest numeric value
-    if(colrank==0)
+    if(root==0 && colrank==0) // rank 0
     {
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-        for(IT i=0; i<nActiveCols; i++)
+        for(IT i=0; i<n_thiscol; i++)
         {
-            IT ai = activeCols[i]; // active column index
-            IT nitems = send_coldisp[ai+1]-send_coldisp[ai];
+            IT nitems = send_coldisp[i+1]-send_coldisp[i];
             if(nitems >= k)
-                kthItem[i] = sendbuf[send_coldisp[ai]+k-1];
+                kthItem[i] = sendbuf[send_coldisp[i]+k-1];
             else if (nitems==0)
                 kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
             else
-                kthItem[i] = sendbuf[send_coldisp[ai+1]-1]; // returning the last entry if nnz in this column is less than k
-            
+                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
         }
     }
-    // send to the diagonl processor of this processor column (exclude first column)
-    if(root>0 && colrank==0)
+    else if(root>0 && colrank==0) // send to the diagonl processor of this processor column
     {
-        MPI_Send(kthItem.data(), nActiveCols, MPIType<VT>(), root, 0, commGrid->GetColWorld());
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT i=0; i<n_thiscol; i++)
+        {
+            IT nitems = send_coldisp[i+1]-send_coldisp[i];
+            if(nitems >= k)
+                kthItem[i] = sendbuf[send_coldisp[i]+k-1];
+            else if (nitems==0)
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
+            else
+                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+        }
+        MPI_Send(kthItem.data(), n_thiscol, MPIType<VT>(), root, 0, commGrid->GetColWorld());
     }
-    else if(root>0 && colrank==root) // receive at the diagonal processor
+    else if(root>0 && colrank==root)
     {
-        MPI_Recv(kthItem.data(), nActiveCols, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
+        MPI_Recv(kthItem.data(), n_thiscol, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
-    
-    // Scatter the kth largest element along the processor row from the doagonal processor
-    int rowroot = commGrid->GetDiagOfProcRow();
-    int proccols = commGrid->GetGridCols();
-    vector <int> sendcnts(proccols,0);
-    vector <int> dpls(proccols,0);
-    int lsize = rvec.ind.size();
-    // local sizes of the input vecotor will be sent
-    MPI_Gather(&lsize,1, MPI_INT, sendcnts.data(), 1, MPI_INT, rowroot, commGrid->GetRowWorld());
-    partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
-    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.num.data(), rvec.num.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
     
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
     
-   
+    vector <int> sendcnts;
+    vector <int> dpls;
+    vector<VT> kthItemActive(nActiveCols);
+
+    if(colrank==root)
+    {
+        int proccols = commGrid->GetGridCols();
+        IT n_perproc = n_thiscol / proccols;
+        
+        sendcnts.resize(proccols);
+        fill(sendcnts.data(), sendcnts.data()+proccols-1, n_perproc);
+        sendcnts[proccols-1] = n_thiscol - (n_perproc * (proccols-1));
+        dpls.resize(proccols,0);	// displacements (zero initialized pid)
+        partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
+    }
+    
+    int rowroot = commGrid->GetDiagOfProcRow();
+    int recvcnts = 0;
+    // scatter received data size
+    
+    MPI_Scatter(sendcnts.data(),1, MPI_INT, & recvcnts, 1, MPI_INT, rowroot, commGrid->GetRowWorld());
+
+    
+    
+    // first populate the dense vector
+    FullyDistVec<GIT,VT> dvec(rvec.getcommgrid());
+    dvec.arr.resize(recvcnts);
+    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), dvec.arr.data(), dvec.arr.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
+    dvec.glen = getncol();
+    
+    //populate the sparse vector
+    rvec = EWiseApply<VT>(rvec, dvec,
+                               [](VT sv, VT dv){return dv;},
+                               [](VT sv, VT dv){return true;},
+                               false, static_cast<VT>(0));
+     
     return true;
 }
 
