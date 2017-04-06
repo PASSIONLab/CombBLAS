@@ -297,15 +297,14 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 
 
 //! identify the k-th maximum element in each column of a matrix
-//! if the number of nonzeros in a column is less then k, return the minimum among the entries of that column (including the implicit zero)
+//! if the number of nonzeros in a column is less then k, return the numeric_limits<NT>::min()
 //! This is an efficient implementation of the Saukas/Song algorithm
 //! http://www.ime.usp.br/~einar/select/INDEX.HTM
 //! Preferred for large k values
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
-{
-    
+{ 
     if(*rvec.commGrid != *commGrid)
     {
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
@@ -350,7 +349,7 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
     
-    Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));    // get the vector ready, this should also set the glen of rvec correctly
+    Reduce(rvec, Column, minimum<NT>(), numeric_limits<NT>::min());    // get the vector ready, this should also set the glen of rvec correctly
     
     
 #ifdef COMBBLAS_DEBUG
@@ -1007,7 +1006,7 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 {
-/*#ifdef COMBBLAS_DEBUG
+#ifdef COMBBLAS_DEBUG
     FullyDistVec<GIT,VT> test1(rvec.getcommgrid());
     FullyDistVec<GIT,VT> test2(rvec.getcommgrid());
     Kselect1(test1, k_limit, myidentity<NT>());
@@ -1020,7 +1019,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
         //test1.PrintToFile("test1");
         //test2.PrintToFile("test2");
     }
-#endif*/
+#endif
     
     if(k_limit > KSELECTLIMIT)
     {
