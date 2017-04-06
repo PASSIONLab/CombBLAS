@@ -297,7 +297,7 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
 
 
 //! identify the k-th maximum element in each column of a matrix
-//! if the number of nonzeros in a column is less then k, return the numeric_limits<NT>::min()
+//! if the number of nonzeros in a column is less than k, return the numeric_limits<NT>::min()
 //! This is an efficient implementation of the Saukas/Song algorithm
 //! http://www.ime.usp.br/~einar/select/INDEX.HTM
 //! Preferred for large k values
@@ -977,7 +977,6 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 #define KSELECTLIMIT 50
 
 
-
 //! Kselect wrapper for a select columns of the matrix
 //! Indices of the input sparse vectors kth denote the queried columns of the matrix
 //! Upon return, values of kth stores the kth entries of the queried columns
@@ -987,6 +986,21 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
 bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const
 {
+#ifdef COMBBLAS_DEBUG
+    FullyDistVec<GIT,VT> test1(kth.getcommgrid());
+    FullyDistVec<GIT,VT> test2(kth.getcommgrid());
+    Kselect1(test1, k_limit, myidentity<NT>());
+    Kselect2(test2, k_limit);
+    if(test1 == test2)
+        SpParHelper::Print("Kselect1 and Kselect2 producing same results\n");
+    else
+    {
+        SpParHelper::Print("WARNING: Kselect1 and Kselect2 producing DIFFERENT results\n");
+        test1.PrintToFile("test1");
+        test2.PrintToFile("test2");
+    }
+#endif
+
     bool ret;
     FullyDistVec<GIT,VT> kthAll ( getcommgrid());
     if(k_limit > KSELECTLIMIT)
@@ -1044,7 +1058,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
 }
 
 /* identify the k-th maximum element in each column of a matrix
-** if the number of nonzeros in a column is less than k, return minimum entry
+** if the number of nonzeros in a column is less than or equal to k, return minimum entry
 ** Caution: this is a preliminary implementation: needs 3*(n/sqrt(p))*k memory per processor
 ** this memory requirement is too high for larger k
  */
@@ -1219,10 +1233,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
             IT nitems = send_coldisp[i+1]-send_coldisp[i];
             if(nitems >= k)
                 kthItem[i] = sendbuf[send_coldisp[i]+k-1];
-            else if (nitems==0)
-                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
             else
-                kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty or has less than k elements
         }
     }
     else if(root>0 && colrank==0) // send to the diagonl processor of this processor column
@@ -1235,10 +1247,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
             IT nitems = send_coldisp[i+1]-send_coldisp[i];
             if(nitems >= k)
                 kthItem[i] = sendbuf[send_coldisp[i]+k-1];
-            else if (nitems==0)
-                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty
             else
-               kthItem[i] = sendbuf[send_coldisp[i+1]-1]; // returning the last entry if nnz in this column is less than k
+                kthItem[i] = numeric_limits<VT>::min(); // return minimum possible value if a column is empty or has less than k elements
         }
         MPI_Send(kthItem.data(), n_thiscol, MPIType<VT>(), root, 0, commGrid->GetColWorld());
     }
