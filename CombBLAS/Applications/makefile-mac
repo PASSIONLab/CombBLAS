@@ -33,10 +33,10 @@ MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp 
 
-MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
+MCL.o:  MCL.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -DMCLMEMORY -c -o MCL.o MCL.cpp 
 
-CC.o:  CC.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
 TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
@@ -52,7 +52,7 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredMIS.o FilteredMIS.cpp
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
+	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
 
 cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o 

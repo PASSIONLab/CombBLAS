@@ -178,140 +178,166 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 }	
 
 
-// local function
+// Combined logic for prune, recovery, and select
 template <typename IT, typename NT, typename DER>
-bool MCLRecovery(SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & AOriginal, IT recoverNum, NT recoverPct, NT hardThreshold)
+void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct)
 {
-#ifdef COMBBLAS_DEBUG
-    ostringstream ss;
-    ss << "MCLRecovery with " << recoverNum << endl;
-    SpParHelper::Print(ss.str());
+    
+#ifdef TIMING
+    double t0, t1;
 #endif
+    // Prune and create a new pruned matrix
+    SpParMat<IT,NT,DER> PrunedA = A.Prune(bind2nd(less_equal<NT>(), hardThreshold), false);
+    // column-wise statistics of the pruned matrix
+    FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, plus<NT>(), 0.0);
+    FullyDistVec<IT,NT> nnzPerColumn = PrunedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+    FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
+    PrunedA.FreeMemory();
     
-    FullyDistVec<IT,NT> colSums = A.Reduce(Column, plus<NT>(), 0.0);
-    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
     
+    // Check if we need recovery
     // columns with nnz < recoverNum (r)
     FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, bind2nd(less<NT>(), recoverNum));
     recoverCols = recoverPct;
     // columns with nnz < r AND sum < recoverPct (pct)
     recoverCols = EWiseApply<NT>(recoverCols, colSums,
-                                  [](NT spval, NT dval){return spval;},
-                                  [](NT spval, NT dval){return dval < spval;},
-                                  false, NT());
-    
-    FullyDistSpVec<IT,NT> nonRecoverCols = EWiseApply<NT>(recoverCols, colSums,
                                  [](NT spval, NT dval){return spval;},
-                                 [](NT spval, NT dval){return spval==-1;},
-                                 true, static_cast<NT>(-1));
-    nonRecoverCols = hardThreshold;
+                                 [](NT spval, NT dval){return dval < spval;},
+                                 false, NT());
     
-    if(recoverCols.getnnz() > 0) // at least one column needs recovery
+    IT nrecover = recoverCols.getnnz();
+    if(nrecover > 0)
     {
-        FullyDistVec<IT, NT> kth ( AOriginal.getcommgrid());
-        
 #ifdef TIMING
-        double t0=MPI_Wtime();
+        t0=MPI_Wtime();
 #endif
-        bool pruneNeeded = AOriginal.Kselect(kth, recoverNum);
-        MPI_Barrier(MPI_COMM_WORLD);
-        
-#ifdef COMBBLAS_DEBUG
-        kth.PrintInfo("kth vector");
+        A.Kselect(recoverCols, recoverNum);
 
-        float balance = AOriginal.LoadImbalance();
-        int64_t nnz = AOriginal.getnnz();
-
-        //ostringstream name;
-        //name << "testing_" << nnz << "_id_";
-        //kth.PrintToFile(name.str());
-
-        ostringstream outs;
-        outs << "Kselect took " << MPI_Wtime() - t0 << " seconds" << endl;
-        outs << "Load balance: " << balance << endl;
-        outs << "Nonzeros: " << nnz << endl;
-        SpParHelper::Print(outs.str());
-        MPI_Barrier(MPI_COMM_WORLD);
-#endif
-        
-        
 #ifdef TIMING
-        double t1=MPI_Wtime();
+        t1=MPI_Wtime();
         mcl_kselecttime += (t1-t0);
 #endif
-        if(pruneNeeded)
-        {
-#ifdef TIMING
-            double t2=MPI_Wtime();
-#endif
 
-            
-            kth.Set(nonRecoverCols);
-            AOriginal.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+        pruneCols.Set(recoverCols);
 
-            float balance = AOriginal.LoadImbalance();
-            int64_t nnz = AOriginal.getnnz();
-            ostringstream outs;
-            outs << "Load balance: " << balance << endl;
-            outs << "Nonzeros: " << nnz << endl;
-            SpParHelper::Print(outs.str());
-#ifdef TIMING
-            double t3=MPI_Wtime();
-            mcl_prunecolumntime += (t3-t2);
-#endif
-        }
-        return true;
-    }
-    else return false;
-}
-
-
-// local function
-template <typename IT, typename NT, typename DER>
-bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum, NT hardThreshold)
-{
 #ifdef COMBBLAS_DEBUG
-    ostringstream ss;
-    ss << "MCLSelect with " << selectNum << endl;
-    SpParHelper::Print(ss.str());
+        ostringstream outs;
+        outs << "Number of columns needing recovery: " << nrecover << endl;
+        SpParHelper::Print(outs.str());
 #endif
+        
+    }
     
-    FullyDistVec<IT,NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-    FullyDistSpVec<IT,NT> selectCols(nnzPerColumn, bind2nd(greater<NT>(), selectNum));
-    FullyDistSpVec<IT,NT> nonSelectCols = EWiseApply<NT>(selectCols, nnzPerColumn,
+    
+    if(selectNum>0)
+    {
+        // remaining columns will be up for selection
+        FullyDistSpVec<IT,NT> selectCols = EWiseApply<NT>(recoverCols, colSums,
                                                           [](NT spval, NT dval){return spval;},
                                                           [](NT spval, NT dval){return spval==-1;},
                                                           true, static_cast<NT>(-1));
-    nonSelectCols = hardThreshold;
-    if(selectCols.getnnz() > 0)
-    {
-        FullyDistVec<IT, NT> kth ( A.getcommgrid());
-#ifdef TIMING
-        double t0=MPI_Wtime();
-#endif
-        bool pruneNeeded = A.Kselect(kth, selectNum);
         
-#ifdef TIMING
-        double t1=MPI_Wtime();
-        mcl_kselecttime += (t1-t0);
-#endif
-        if(pruneNeeded)
+        selectCols = selectNum;
+        selectCols = EWiseApply<NT>(selectCols, nnzPerColumn,
+                                    [](NT spval, NT dval){return spval;},
+                                    [](NT spval, NT dval){return dval > spval;},
+                                    false, NT());
+        IT nselect = selectCols.getnnz();
+        
+        if(nselect > 0 )
         {
 #ifdef TIMING
-            double t2=MPI_Wtime();
+            t0=MPI_Wtime();
 #endif
-
-            kth.Set(nonSelectCols);
-            A.PruneColumn(kth, less<NT>(), true);   // inplace prunning. PrunedPieceOfC is pruned automatically
+            A.Kselect(selectCols, selectNum); // PrunedA would also work
 #ifdef TIMING
-            double t3=MPI_Wtime();
-            mcl_prunecolumntime += (t3-t2);
+            t1=MPI_Wtime();
+            mcl_kselecttime += (t1-t0);
 #endif
-            return true;
+        
+            pruneCols.Set(selectCols);
+#ifdef COMBBLAS_DEBUG
+            ostringstream outs;
+            outs << "Number of columns needing selection: " << nselect << endl;
+            SpParHelper::Print(outs.str());
+#endif
+#ifdef TIMING
+            t0=MPI_Wtime();
+#endif
+            SpParMat<IT,NT,DER> selectedA = A.PruneColumn(pruneCols, less<NT>(), false);
+#ifdef TIMING
+            t1=MPI_Wtime();
+            mcl_prunecolumntime += (t1-t0);
+#endif
+            if(recoverNum>0 ) // recovery can be attempted after selection
+            {
+
+                FullyDistVec<IT,NT> nnzPerColumn1 = selectedA.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+                FullyDistVec<IT,NT> colSums1 = selectedA.Reduce(Column, plus<NT>(), 0.0);
+                selectedA.FreeMemory();
+  
+                // slected columns with nnz < recoverNum (r)
+                selectCols = recoverNum;
+                selectCols = EWiseApply<NT>(selectCols, nnzPerColumn1,
+                                            [](NT spval, NT dval){return spval;},
+                                            [](NT spval, NT dval){return dval < spval;},
+                                            false, NT());
+                
+                // selected columns with sum < recoverPct (pct)
+                selectCols = recoverPct;
+                selectCols = EWiseApply<NT>(selectCols, colSums1,
+                                            [](NT spval, NT dval){return spval;},
+                                            [](NT spval, NT dval){return dval < spval;},
+                                            false, NT());
+                
+                IT n_recovery_after_select = selectCols.getnnz();
+                if(n_recovery_after_select>0)
+                {
+                    // mclExpandVector2 does it on the original vector
+                    // mclExpandVector1 does it one pruned vector
+#ifdef TIMING
+                    t0=MPI_Wtime();
+#endif
+                    A.Kselect(selectCols, recoverNum); // Kselect on PrunedA might give different result
+#ifdef TIMING
+                    t1=MPI_Wtime();
+                    mcl_kselecttime += (t1-t0);
+#endif
+                    pruneCols.Set(selectCols);
+                    
+#ifdef COMBBLAS_DEBUG
+                    ostringstream outs1;
+                    outs1 << "Number of columns needing recovery after selection: " << nselect << endl;
+                    SpParHelper::Print(outs1.str());
+#endif
+                }
+                
+            }
         }
     }
-    return false;
+    
+
+    // final prune
+#ifdef TIMING
+    t0=MPI_Wtime();
+#endif
+    A.PruneColumn(pruneCols, less<NT>(), true);
+#ifdef TIMING
+    t1=MPI_Wtime();
+    mcl_prunecolumntime += (t1-t0);
+#endif
+    // Add loops for empty columns
+    if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
+    {
+        FullyDistVec<IT,NT> nnzPerColumnA = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+        FullyDistSpVec<IT,NT> emptyColumns(nnzPerColumnA, bind2nd(equal_to<NT>(), 0.0));
+        emptyColumns = 1.00;
+        //Ariful: We need a selective AddLoops function with a sparse vector
+        //A.AddLoops(emptyColumns);
+    }
 }
+
+
 
 
 /**
@@ -320,7 +346,7 @@ bool MCLSelect(SpParMat<IT,NT,DER> & A, IT selectNum, NT hardThreshold)
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold = 0.00025, IU selectNum = 500, IU recoverNum = 600, NUO recoverPct = .9)
+                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t perProcessMemory)
 {
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -343,13 +369,68 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
     shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+    
+    
+#ifdef MCLMEMORY
+    int p;
+    MPI_Comm_size(MPI_COMM_WORLD,&p);
+    int64_t lannz = A.getlocalnnz();
+    int64_t gannz;
+    
+    MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+    
+    double d = A.getnnz() / (double)A.getncol();
+    int64_t k = min(max(selectNum, recoverNum), (int64_t)(d*d));
+    int64_t asquareNNZ = (A.getncol() * d * d) /p ;
+    
+    int64_t kselectmem = A.getlocalcols() * k * 8 * 3;
+    int64_t outputNNZ = (A.getncol() * k)/p;
+    
+    int64_t inputMem = gannz * 20 * 3;
+    int64_t asquareMem = asquareNNZ * 20 * 2;
+    int64_t outputMem = outputNNZ * 20 * 2;
+    
+    //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+    int64_t remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+    if(remainingMem > 0)
+    {
+        phases = 1 + (asquareMem+kselectmem) / remainingMem;
+    }
+    
+    int64_t maxMemory = kselectmem/phases + inputMem + outputMem + asquareMem / phases;
+    
+    if(myrank==0)
+    {
+        if(perProcessMemory==0)
+        {
+            cout << "Per-process memory is not provided. Number of phases is not estimated" << endl;
+        }
+        else if(remainingMem < 0)
+        {
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n Warning: input and output memory requirement is greater than per-process avaiable memory. Keeping phase to the value supplied at the command line. The program may go out of memory and crash! @@@@@@@@@ \n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+        }
+        
+        if(maxMemory>1000000000)
+            cout << "phases: " << phases << ": per process memory: " << perProcessMemory << " GB asquareMem: " << asquareMem/1000000000.00 << " GB" << " inputMem: " << inputMem/1000000000.00 << " GB" << " outputMem: " << outputMem/1000000000.00 << " GB" << " kselectmem: " << kselectmem/1000000000.00 << " GB" << endl;
+        else
+            cout << "phases: " << phases << ": per process memory: " << perProcessMemory << " GB asquareMem: " << asquareMem/1000000.00 << " MB" << " inputMem: " << inputMem/1000000.00 << " MB" << " outputMem: " << outputMem/1000000.00 << " MB" << " kselectmem: " << kselectmem/1000000.00 << " MB" << endl;
+        
+    }
+#endif
+    
+    
     IU C_m = A.spSeq->getnrow();
     IU C_n = B.spSeq->getncol();
     
     vector< UDERB > PiecesOfB;
     UDERB CopyB = *(B.spSeq); // we allow alias matrices as input because of this local copy
+    
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
+    
+
+    
+
     
     IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
     IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -423,6 +504,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             double t4=MPI_Wtime();
 #endif
             SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+
 #ifdef TIMING
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
@@ -435,6 +517,24 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }   // all stages executed
         
+#ifdef MCLMEMORY
+        int64_t gcnnz_unmerged, lcnnz_unmerged = 0;
+         for(size_t i = 0; i < tomerge.size(); ++i)
+         {
+              lcnnz_unmerged += tomerge[i]->getnnz();
+         }
+        MPI_Allreduce(&lcnnz_unmerged, &gcnnz_unmerged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        int64_t summa_memory = gcnnz_unmerged*20;//(gannz*2 + phase_nnz + gcnnz_unmerged + gannz + gannz/phases) * 20; // last two for broadcasts
+        
+        if(myrank==0)
+        {
+            if(summa_memory>1000000000)
+                cout << p+1 << ". unmerged: " << summa_memory/1000000000.00 << "GB " ;
+            else
+                cout << p+1 << ". unmerged: " << summa_memory/1000000.00 << " MB " ;
+            
+        }
+#endif
 
 #ifdef TIMING
         double t6=MPI_Wtime();
@@ -442,6 +542,26 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
         // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
         SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
+        
+#ifdef MCLMEMORY
+        int64_t gcnnz_merged, lcnnz_merged ;
+        lcnnz_merged = OnePieceOfC_tuples->getnnz();
+        MPI_Allreduce(&lcnnz_merged, &gcnnz_merged, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+       
+        // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
+        int64_t merge_memory = gcnnz_merged*2*20;//(gannz*2 + phase_nnz + gcnnz_unmerged + gcnnz_merged*2) * 20;
+        
+        if(myrank==0)
+        {
+            if(merge_memory>1000000000)
+                cout << " merged: " << merge_memory/1000000000.00 << "GB " ;
+            else
+                cout << " merged: " << merge_memory/1000000.00 << " MB " ;
+            
+        }
+#endif
+        
+        
 #ifdef TIMING
         double t7=MPI_Wtime();
         mcl_multiwaymergetime += (t7-t6);
@@ -449,48 +569,37 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
         delete OnePieceOfC_tuples;
         
-        // Prune
-        UDERO * PrunedPieceOfC  = OnePieceOfC->Prune(bind2nd(less<NUO>(), hardThreshold), false);    // don't delete OnePieceOfC yet
-        // Recover using OnePieceOfC if too sparse
-        //delete OnePieceOfC;
-        
-        
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_mat(PrunedPieceOfC, GridC);   // making a copy here? No
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        SpParMat<IU,NUO,UDERO> PrunedPieceOfC_rec(PrunedPieceOfC_mat);   // making a deep copy needed for recovery after selection
-
-        // ABAB: Ariful, I think this logic is correct but fragile
-	// in particular, there is no guarentee that a handle to OnePieceOfC (within OnePieceOfC_mat) will stay  
-	// valid and correctly updated after a call to SpParMat::PruneColumn
-	// it just happens to be valid but it could have also been implemented as
-	// oldspSeq = spSeq; spSeq = new SpDCCols<>(...); delete oldspSeq;
-        if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, OnePieceOfC_mat, recoverNum, recoverPct, hardThreshold))
+        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct);
+        
+#ifdef MCLMEMORY
+        int64_t gcnnz_pruned, lcnnz_pruned ;
+        lcnnz_pruned = OnePieceOfC_mat.getlocalnnz();
+        MPI_Allreduce(&lcnnz_pruned, &gcnnz_pruned, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        
+        
+        // TODO: we can remove gcnnz_merged memory here because we don't need to concatenate anymore
+        int64_t prune_memory = gcnnz_pruned*2*20;//(gannz*2 + phase_nnz + gcnnz_pruned*2) * 20 + kselectmem; // 3 extra copies of OnePieceOfC_mat, we can make it one extra copy!
+        //phase_nnz += gcnnz_pruned;
+        
+        if(myrank==0)
         {
-            // ABAB: Change this to accept pointers to objects
-            toconcatenate.push_back(*OnePieceOfC); // making a copy here
-        }
-        else if(selectNum > 0 && MCLSelect(PrunedPieceOfC_mat, selectNum, hardThreshold))
-        {
-            // PrunedPieceOfC_mat: after prune and selection
-            // PrunedPieceOfC_rec: after prune before selection
-            if (recoverNum > 0 && MCLRecovery(PrunedPieceOfC_mat, PrunedPieceOfC_rec, recoverNum, recoverPct, hardThreshold))
-            {
-                toconcatenate.push_back(PrunedPieceOfC_rec.seq());
-            }
+            if(prune_memory>1000000000)
+                cout << "Prune: " << prune_memory/1000000000.00 << "GB " << endl ;
             else
-            {
-                toconcatenate.push_back(*PrunedPieceOfC);
-            }
+                cout << "Prune: " << prune_memory/1000000.00 << " MB " << endl ;
+            
         }
-        else
-        {
-            toconcatenate.push_back(*PrunedPieceOfC);
-        }
+#endif
+        
+        // ABAB: Change this to accept pointers to objects
+        toconcatenate.push_back(OnePieceOfC_mat.seq());
     }
     
     
     UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate); // ABAB: Change this to accept a vector of pointers to pointers to DER objects
+
     
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERA::esscount);
