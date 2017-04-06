@@ -136,9 +136,10 @@ namespace seq {
 
       nmin=nmax=0;
       for (i=0 ; i<n ; i++)
+      {
         if (a[i] < a[nmin]) nmin = i;
         else if (a[i] > a[nmax]) nmax = i;
-
+      }
         if ( (a[nmax]==a[nmin]) && (ctr==0) )
         {
           printf("All the numbers are identical, the list is sorted\n");

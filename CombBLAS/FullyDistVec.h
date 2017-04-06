@@ -143,7 +143,8 @@ public:
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::Owner;
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::MyLocLength;
 	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resized
-    NT * GetLocArr() const { return arr.data(); }	// = MyLocLength() once arr is resized
+    //TODO: we should change this function and return the vector directly
+    const NT * GetLocArr() const { return arr.data(); }	// = MyLocLength() once arr is resized
 
 	
 	template <typename _Predicate>
@@ -170,7 +171,7 @@ public:
 		#ifdef _OPENMP
 		#pragma omp parallel for
 		#endif
-		for(IT i=0; i < arr.size(); ++i)
+		for(size_t i=0; i < arr.size(); ++i)
 			arr[i] = __binary_op(arr[i], i + offset);
 	}
 

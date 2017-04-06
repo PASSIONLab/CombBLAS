@@ -172,6 +172,8 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, 
     }
 }
 
+
+
 // ABAB: This function probably operates differently than a user would immediately expect
 // ABAB: Write a well-posed description for it
 template <class IT, class NT>
@@ -677,6 +679,25 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 	SpHelper::iota(ind.begin(), ind.end(), 0);	// offset'd within processors
 	SpHelper::iota(num.begin(), num.end(), LengthUntil() + first);	// global across processors
 }
+
+
+//! iota over existing nonzero entries 
+template <class IT, class NT>
+void FullyDistSpVec<IT,NT>::nziota(NT first)
+{
+    std::iota(num.begin(), num.end(), NnzUntil() + first);	// global across processors
+}
+
+//! Returns the number of nonzeros until this processor
+template <class IT, class NT>
+IT FullyDistSpVec<IT,NT>::NnzUntil() const
+{
+    IT mynnz = ind.size();
+    IT prevnnz = 0;
+    MPI_Scan(&mynnz, &prevnnz, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
+    return (prevnnz - mynnz);
+}
+
 
 
 /* old version
@@ -2285,7 +2306,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen, _BinaryOperat
     
     // identify the max index in the composed vector
     IT localmax = (IT) 0;
-    for(IT k=0; k < num.size(); ++k)
+    for(size_t k=0; k < num.size(); ++k)
     {
         localmax = std::max(localmax, __binopIdx(num[k], ind[k] + LengthUntil()));
     }
@@ -2431,7 +2452,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::InvertRMA (IT globallen, _BinaryOpe
     
     // identify the max index in the composed vector
     IT localmax = (IT) 0;
-    for(IT k=0; k < num.size(); ++k)
+    for(size_t k=0; k < num.size(); ++k)
     {
         localmax = std::max(localmax, __binopIdx(num[k], ind[k] + LengthUntil()));
     }

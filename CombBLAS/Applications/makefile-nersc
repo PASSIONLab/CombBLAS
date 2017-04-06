@@ -25,10 +25,10 @@ GCCOPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
 GCCDEB = -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
 OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
 COMPILER = CC 
-GCCFLAGS = $(GCCOPT) #-DTIMING 
+GCCFLAGS = $(GCCOPT) -DTIMING 
 PGIFLAGS = $(INCADD) $(OPTPGI) -DCOMBBLAS_BOOST
 CRAYFLAGS = $(INCADD) -DCOMBBLAS_BOOST -DCRAYCOMP -h msglevel_4
-FLAGS = $(GCCFLAGS) -std=c++11 -std=gnu++14 -DCOMBBLAS_DEBUG -DTHREADED -fopenmp #-DRAND_PERMUTE
+FLAGS = $(GCCFLAGS) -std=c++11 -std=gnu++14 -DTHREADED -fopenmp #-DCOMBBLAS_DEBUG 
 COMBBLAS = ..
 
 #
@@ -52,8 +52,11 @@ MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
-MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(FLAGS) -c -o MCL.o MCL.cpp
+MCL.o:  MCL.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+	$(COMPILER) $(FLAGS) -DMCLMEMORY -c -o MCL.o MCL.cpp
+
+CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
 APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o APowers.o APowers.cpp
@@ -73,45 +76,48 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o nqp.o nqp.cpp
 
-mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o
-	$(COMPILER) $(FLAGS) -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o
+mcl:	CommGrid.o MPIType.o MCL.o mmio.o
+	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o
 
-nqp:	MemoryPool.o CommGrid.o MPIType.o nqp.o
-	$(COMPILER) $(FLAGS) -o mcl nqp.o MemoryPool.o CommGrid.o MPIType.o
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
+	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o
 
-apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
-	$(COMPILER) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
+nqp:	CommGrid.o MPIType.o nqp.o
+	$(COMPILER) $(FLAGS) -o nqp nqp.o CommGrid.o MPIType.o
 
-tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+apowers:	CommGrid.o MPIType.o APowers.o
+	$(COMPILER) $(FLAGS) -o apowers APowers.o CommGrid.o MPIType.o
 
-dobfs:	MemoryPool.o CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+tdbfs:	CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
-betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o 
+dobfs:	CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
-fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+betwcent: CommGrid.o MPIType.o BetwCent.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o CommGrid.o MPIType.o 
 
-fmis:	MemoryPool.o CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+fbfs:	CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o fbfs FilteredBFS.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+fmis:	CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
 BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
 
 
-BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+BPMaximalMatching: CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
 BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
-bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+bpmm:	CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 clean:
 	rm -f betwcent

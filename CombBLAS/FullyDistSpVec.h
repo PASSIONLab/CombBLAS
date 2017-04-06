@@ -80,7 +80,8 @@ public:
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
     FullyDistSpVec (IT globalsize, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates = false);
     FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, const vector<IT>& indvec, const vector<NT> & numvec, bool SumDuplicates = false, bool sorted=false);
-
+    
+    IT NnzUntil() const;
 
     FullyDistSpVec<IT,NT> Invert (IT globallen);
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal, typename _BinaryOperationDuplicate>
@@ -114,7 +115,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for(IT i=0; i < ind.size(); ++i)
+        for(size_t i=0; i < ind.size(); ++i)
             num[i] = fixedval;
         return *this;
     }
@@ -175,6 +176,7 @@ public:
 
 	void PrintInfo(string vecname) const;
 	void iota(IT globalsize, NT first);
+    void nziota(NT first);
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	void DelElement (IT indx); // element-wise deletion
