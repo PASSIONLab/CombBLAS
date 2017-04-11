@@ -1282,8 +1282,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
 }
 
 
-// TODO: 1. send and receive buffer proportional to active columns
-// 2. Check which parts are not maltithreaded. Going from 24 threads/node to 6 t/node make it twice faster
+
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
@@ -1295,22 +1294,25 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     }
     
     /*
-    FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
-    Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
-    IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
-    if(k>maxnnzPerColumn)
-    {
-        SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Calling Reduce instead...\n");
-        Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));
-        return false;
-    }
+     FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
+     Reduce(nnzPerColumn, Column, plus<IT>(), (IT)0, [](NT val){return (IT)1;});
+     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
+     if(k>maxnnzPerColumn)
+     {
+     SpParHelper::Print("Kselect: k is greater then maxNnzInColumn. Calling Reduce instead...\n");
+     Reduce(rvec, Column, minimum<NT>(), static_cast<NT>(0));
+     return false;
+     }
      */
     
     IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
     MPI_Comm World = rvec.commGrid->GetWorld();
     MPI_Comm ColWorld = rvec.commGrid->GetColWorld();
     MPI_Comm RowWorld = rvec.commGrid->GetRowWorld();
-  
+    int colneighs = commGrid->GetGridRows();
+    int colrank = commGrid->GetRankInProcCol();
+    int coldiagrank = commGrid->GetDiagOfProcCol();
+    
     
     //replicate sparse indices along processor column
     int accnz;
@@ -1410,7 +1412,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             }
         }
     }
-
+    
     
     //vector<VT>().swap(localmat);
     ::operator delete(localmat);
@@ -1423,8 +1425,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     vector<IT> recv_coldisp(n_thiscol+1);
     vector<IT> templen(n_thiscol);
     
-    int colneighs = commGrid->GetGridRows();
-    int colrank = commGrid->GetRankInProcCol();
+    
     
     for(int p=2; p <= colneighs; p*=2)
     {
@@ -1490,12 +1491,19 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     MPI_Barrier(commGrid->GetWorld());
     
     
-    vector<VT> kthItem(nActiveCols);
-    int root = commGrid->GetDiagOfProcCol();
     
-    // At the first processor of each processor column
-    // Find the kth largest element in active columns
-    // For empty columns store the lowest numeric value
+    
+    /*--------------------------------------------------------
+     At this point, top k elements in every active column
+     are gathered on the first processor row, P(0,:).
+     
+     Next step: At P(0,i) find the kth largest element in
+     active columns belonging to P(0,i).
+     If nnz in a column is less than k, keep the largest nonzero.
+     If a column is empty, keep the lowest numeric value.
+     --------------------------------------------------------*/
+    
+    vector<VT> kthItem(nActiveCols); // kth elements of local active columns
     if(colrank==0)
     {
 #ifdef THREADED
@@ -1514,32 +1522,47 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             
         }
     }
-    // send to the diagonl processor of this processor column (exclude first column)
-    if(root>0 && colrank==0)
+    
+    /*--------------------------------------------------------
+     At this point, kth largest elements in every active column
+     are gathered on the first processor row, P(0,:).
+     
+     Next step: Send the kth largest elements from P(0,i) to P(i,i)
+     Nothing to do for P(0,0)
+     --------------------------------------------------------*/
+    if(coldiagrank>0 && colrank==0)
     {
-        MPI_Send(kthItem.data(), nActiveCols, MPIType<VT>(), root, 0, commGrid->GetColWorld());
+        MPI_Send(kthItem.data(), nActiveCols, MPIType<VT>(), coldiagrank, 0, commGrid->GetColWorld());
     }
-    else if(root>0 && colrank==root) // receive at the diagonal processor
+    else if(coldiagrank>0 && colrank==coldiagrank) // receive in the diagonal processor
     {
         MPI_Recv(kthItem.data(), nActiveCols, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
     
-    // Scatter the kth largest element along the processor row from the doagonal processor
+    /*--------------------------------------------------------
+     At this point, kth largest elements in every active column
+     are gathered on the diagonal processors P(i,i).
+     
+     Next step: Scatter the kth largest elements from P(i,i)
+     to all processors in the ith row, P(i,:).
+     Each processor recevies exactly local nnz of rvec entries
+     so that the received data can be directly put in rvec.
+     --------------------------------------------------------*/
     int rowroot = commGrid->GetDiagOfProcRow();
     int proccols = commGrid->GetGridCols();
     vector <int> sendcnts(proccols,0);
     vector <int> dpls(proccols,0);
     int lsize = rvec.ind.size();
-    // local sizes of the input vecotor will be sent
-    MPI_Gather(&lsize,1, MPI_INT, sendcnts.data(), 1, MPI_INT, rowroot, commGrid->GetRowWorld());
+    // local sizes of the input vecotor will be sent from the doagonal processor
+    MPI_Gather(&lsize,1, MPI_INT, sendcnts.data(), 1, MPI_INT, rowroot, RowWorld);
     partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
-    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.num.data(), rvec.num.size(), MPIType<VT>(),rowroot, commGrid->GetRowWorld());
+    MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.num.data(), rvec.num.size(), MPIType<VT>(),rowroot, RowWorld);
     
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
     
-   
+    
     return true;
 }
 
