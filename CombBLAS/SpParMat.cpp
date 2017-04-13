@@ -245,8 +245,8 @@ void SpParMat<IT,NT,DER>::TopKGather(vector<NT> & all_medians, vector<IT> & nnz_
             klimits[clmapindex] -= (larger[j] + equal[j]);   // update the k limit for this column only
             perthread2retain[myThread].push_back(clmapindex);    // items to retain in actcolsmap
         }
-        else  // larger[j] < klimits[clmapindex] &&  klimits[clmapindex] <= larger[j] + equal[j]
-        {
+        else  	// larger[j] < klimits[clmapindex] &&  klimits[clmapindex] <= larger[j] + equal[j]
+        {	// we will always have equal[j] > 0 because the weighted median is part of the dataset so it has to be equal to itself.
             vector<NT> survivors;
             for(size_t k = 0; k < localmat[fetchindex].size(); ++k)
             {
@@ -339,7 +339,7 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     nnzperc.resize(0);
     nnzperc.shrink_to_fit();
     
-    int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i > k_limit;});
+    int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i >= k_limit;});
     int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
     
     int64_t totactcols, totactnnzs;
@@ -367,7 +367,7 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
     
     vector<IT> actcolsmap(activecols);  // the map that gives the original index of that active column (this map will shrink over iterations)
     for (IT i=0, j=0; i< locm; ++i) {
-        if(percsum[i] > k_limit)
+        if(percsum[i] >= k_limit)
             actcolsmap[j++] = i;
     }
     
