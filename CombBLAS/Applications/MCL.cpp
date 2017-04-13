@@ -57,6 +57,7 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+double cblas_allgathertime;	// for compilation (TODO: fix this dependency)
 int64_t mcl_memory;
 
 

@@ -311,34 +311,58 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
     
-    IT locm = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
-    vector< vector<NT> > localmat(locm);    // some sort of minimal local copy of matrix
-    
-    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
-    {
-        for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
-        {
-            localmat[colit.colid()].push_back(nzit.value());
-        }
-    }
-    
-    vector<IT> nnzperc(locm); // one per column
+     
     int rankincol = commGrid->GetRankInProcCol();
     int rankinrow = commGrid->GetRankInProcRow();
     int rowneighs = commGrid->GetGridCols();	// get # of processors on the row
     int colneighs = commGrid->GetGridRows();
     int myrank = commGrid->GetRank();
     int nprocs = commGrid->GetSize();
-    
-    for(IT i=0; i<locm; i++)
-        nnzperc[i] = localmat[i].size();
-    
-    vector<IT> percsum(locm, 0);
-    MPI_Allreduce(nnzperc.data(), percsum.data(), locm, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
 
-    nnzperc.resize(0);
-    nnzperc.shrink_to_fit();
+    FullyDistVec<GIT,IT> colcnt(commGrid);
+    Reduce(colcnt, Column, std::plus<IT>(), (IT) 0, [](NT i){ return (IT) 1;});
+
+    // <begin> Gather vector along columns (Logic copied from DimApply)
+    int xsize = (int) colcnt.LocArrSize();
+    int trxsize = 0;
+    int diagneigh = colcnt.commGrid->GetComplementRank();
+    MPI_Status status;
+    MPI_Sendrecv(&xsize, 1, MPI_INT, diagneigh, TRX, &trxsize, 1, MPI_INT, diagneigh, TRX, commGrid->GetWorld(), &status);
+	
+    IT * trxnums = new IT[trxsize];
+    MPI_Sendrecv(const_cast<IT*>(SpHelper::p2a(colcnt.arr)), xsize, MPIType<IT>(), diagneigh, TRX, trxnums, trxsize, MPIType<IT>(), diagneigh, TRX, commGrid->GetWorld(), &status);
+
+    int * colsize = new int[colneighs];
+    colsize[rankincol] = trxsize;		
+    MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colsize, 1, MPI_INT, commGrid->GetColWorld());	
+    int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+    std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
+    int accsize = std::accumulate(colsize, colsize+colneighs, 0);
+    vector<IT> percsum(accsize);	// per column sum of the number of entries 
+
+    MPI_Allgatherv(trxnums, trxsize, MPIType<IT>(), percsum.data(), colsize, dpls, MPIType<VT>(), commGrid->GetColWorld());
+    DeleteAll(trxnums,colsize, dpls);
+    // <end> Gather vector along columns
     
+    IT locm = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)    
+    vector< vector<NT> > localmat(locm);    // some sort of minimal local copy of matrix
+   
+#ifdef COMBBLAS_DEBUG
+    if(accsize != locm) 	cout << "Gather vector along columns logic is wrong" << endl;
+#endif
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+    {
+	if(percsum[colit.colid()] >= k_limit)	// don't make a copy of an inactive column
+	{
+		localmat[colit.colid()].reserve(colit.nnz());
+        	for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
+       	 	{
+            		localmat[colit.colid()].push_back(nzit.value());
+        	}
+	}
+    }
+        
     int64_t activecols = std::count_if(percsum.begin(), percsum.end(), [k_limit](IT i){ return i >= k_limit;});
     int64_t activennz = std::accumulate(percsum.begin(), percsum.end(), (int64_t) 0);
     
@@ -348,6 +372,13 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
 
     MPI_Allreduce(&activennz, &totactnnzs, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetRowWorld());
     if(myrank == 0)   cout << "Number of initial nonzeros are " << totactnnzs << endl;
+
+#ifdef COMBBLAS_DEBUG
+    IT glactcols = colcnt.Count([k_limit](IT i){ return i >= k_limit;});
+    if(myrank == 0)   cout << "Number of initial active columns are " << glactcols << endl;
+    if(glactcols != totactcols)  if(myrank == 0) cout << "Wrong number of active columns are computed" << endl;
+#endif
+
     
     rvec = FullyDistVec<GIT,VT> ( rvec.getcommgrid(), getncol(), numeric_limits<NT>::min());	// set length of rvec correctly
     
@@ -511,10 +542,8 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         if(myrank  == 0) cout << "Number of active columns are " << totactcols << endl;
 #endif
     }
-    MPI_Barrier(MPI_COMM_WORLD);
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_pair);
-    MPI_Barrier(MPI_COMM_WORLD);
     
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)   cout << "Exiting kselect2"<< endl;
@@ -974,7 +1003,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 
-#define KSELECTLIMIT 50
+#define KSELECTLIMIT 5
 
 
 //! Kselect wrapper for a select columns of the matrix
