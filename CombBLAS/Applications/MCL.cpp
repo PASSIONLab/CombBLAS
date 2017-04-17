@@ -80,6 +80,7 @@ void Interpret(Dist::MPI_DCCols & A)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
+    cclabels.ParallelWrite("MCL_clusters.txt", 0);	// Ariful, please change accordingly
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)

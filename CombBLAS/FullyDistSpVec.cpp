@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 11/15/2016 --------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2016, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,8 @@
 #include "SpHelper.h"
 #include "hash.hpp"
 #include "FileHeader.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef GNU_PARALLEL
 #include <parallel/algorithm>
@@ -1145,523 +1147,76 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 	return *this;
 };
 
-/**
- * Private subroutine of ReadDistribute.
- */
-template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::BcastEssentials(MPI_Comm & world, IT & total_m, IT & total_n, IT & total_nnz, int master)
-{
-	MPI_Bcast(&total_m, 1, MPIType<IT>(), master, world);
-	MPI_Bcast(&total_n, 1, MPIType<IT>(), master, world);
-	MPI_Bcast(&total_nnz, 1, MPIType<IT>(), master, world);
-}
+
 
 template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::AllocateSetBuffers(IT * & myinds, NT * & myvals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh)
+void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased)
 {
-	// allocate buffers on the heap as stack space is usually limited
-	myinds = new IT [ buffpercolneigh * colneighs ];
-	myvals = new NT [ buffpercolneigh * colneighs ];
-	
-	ccurptrs = new int[colneighs];
-	rcurptrs = new int[rowneighs];
-	fill_n(ccurptrs, colneighs, 0);	// fill with zero
-	fill_n(rcurptrs, rowneighs, 0);
-}
+       	int myrank = commGrid->GetRank();
+    	int nprocs = commGrid->GetSize();
+	IT totalLength = TotalLength();
+	IT totalNNZ = getnnz();
 
-/**
- * Private subroutine of ReadDistribute
- * @param[in] rankinrow {Row head's rank in its processor row}
- * Initially temp_xxx arrays carry data received along the proc. column AND needs to be sent along the proc. row
- * After usage, function frees the memory of temp_xxx arrays and then creates and frees memory of all the six arrays itself
- */
-template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::HorizontalSend(IT * & inds, NT * & vals, IT * & tempinds, NT * & tempvals, vector < pair <IT,NT> > & localpairs,
-                                         int * rcurptrs, int * rdispls, IT buffperrowneigh, int recvcount, int rankinrow)
-{
-    int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-
-	inds = new IT [ buffperrowneigh * rowneighs ];
-	vals = new NT [ buffperrowneigh * rowneighs ];
-	
-	// prepare to send the data along the horizontal
-	for(int i=0; i< recvcount; ++i)
+	std::stringstream ss;
+	if(myrank == 0)
 	{
-        IT localind;
-        int globalowner = Owner(tempinds[i], localind);
-        int rowrec = commGrid->GetRankInProcRow(globalowner); // recipient processor along the row
-        
-		inds[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = localind; // use the local index
-		vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
-		++ (rcurptrs[rowrec]);
+		ss << totalLength << '\t' << totalNNZ << '\n';	// rank-0 has the header
+	}	
+	IT entries =  getlocnnz();
+	IT sizeuntil = 0;
+	MPI_Exscan( &entries, &sizeuntil, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld() );
+	if(myrank == 0) sizeuntil = 0;	// because MPI_Exscan says the recvbuf in process 0 is undefined
+
+	if(onebased)
+	{	
+		for(IT i=0; i< entries; ++i)
+			ss << ind[i]+sizeuntil+1 << '\t' << num[i] << '\n';
 	}
-    
-#ifdef IODEBUG
-	ofstream oput;
-	commGrid->OpenDebugFile("Read", oput);
-	oput << "To row neighbors: ";
-	copy(rcurptrs, rcurptrs+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-	oput << "Row displacements were: ";
-	copy(rdispls, rdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-	oput.close();
-#endif
-    
-	MPI_Scatter(rcurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankinrow, commGrid->GetRowWorld()); // Send the receive counts for horizontal communication
-    
-	// the data is now stored in rows/cols/vals, can reset temporaries
-	// sets size and capacity to *new* recvcount
-	DeleteAll(tempinds, tempvals);
-	tempinds = new IT[recvcount];
-	tempvals = new NT[recvcount];
-	
-	// then, send all buffers that to their recipients ...
-	MPI_Scatterv(inds, rcurptrs, rdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankinrow, commGrid->GetRowWorld());
-	MPI_Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankinrow, commGrid->GetRowWorld());
-	
-	for(int i=0; i< recvcount; ++i)
+	else
 	{
-		localpairs.push_back( 	make_pair(tempinds[i], tempvals[i]) );  // no need to offset-adjust as we received the local index
-	}
-	
-	fill_n(rcurptrs, rowneighs, 0);
-	DeleteAll(inds, vals, tempinds, tempvals);
-}
-
-
-/*
- * Private subroutine of ReadDistribute.
- * @post {rows, cols, vals are pre-allocated on the heap after this call}
- * @post {ccurptrs are set to zero; so that if another call is made to this function without modifying ccurptrs, no data will be send from this procesor}
- */
-template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::VerticalSend(IT * & inds, NT * & vals, vector< pair<IT,NT> > & localpairs, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls,
-                                        IT buffperrowneigh, IT buffpercolneigh, int rankinrow)
-{
-    int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-    
-	// first, send/recv the counts ...
-	int * colrecvdispls = new int[colneighs];
-	int * colrecvcounts = new int[colneighs];
-	MPI_Alltoall(ccurptrs, 1, MPI_INT, colrecvcounts, 1, MPI_INT, commGrid->GetColWorld());      // share the request counts
-	int totrecv = accumulate(colrecvcounts,colrecvcounts+colneighs,0);  // ABAB: This might overflow in 1 MPI thread to 1 node/socket world
-	colrecvdispls[0] = 0; 		// receive displacements are exact whereas send displacements have slack
-	for(int i=0; i<colneighs-1; ++i)
-		colrecvdispls[i+1] = colrecvdispls[i] + colrecvcounts[i];
-	
-	// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
-	IT * tempinds = new IT[totrecv];
-	NT * tempvals = new NT[totrecv];
-	
-	// then, exchange all buffers that to their recipients ...
-	MPI_Alltoallv(inds, ccurptrs, cdispls, MPIType<IT>(), tempinds, colrecvcounts, colrecvdispls, MPIType<IT>(), commGrid->GetColWorld());
-	MPI_Alltoallv(vals, ccurptrs, cdispls, MPIType<NT>(), tempvals, colrecvcounts, colrecvdispls, MPIType<NT>(), commGrid->GetColWorld());
-    
-	// finally, reset current pointers !
-	fill_n(ccurptrs, colneighs, 0);
-	DeleteAll(colrecvdispls, colrecvcounts);
-	DeleteAll(inds, vals);
-	
-	// rcurptrs/rdispls are zero initialized scratch space
-	HorizontalSend(inds, vals, tempinds , tempvals, localpairs, rcurptrs, rdispls, buffperrowneigh, totrecv, rankinrow);
-	
-	// reuse these buffers for the next vertical communication
-	inds = new IT [ buffpercolneigh * colneighs ];
-	vals = new NT [ buffpercolneigh * colneighs ];
-}
-
-
-/**
- * Private subroutine of ReadDistribute.
- * Executed by p_r processors on the first processor column.
- * @pre {inds, vals are pre-allocated on the heap before this call}
- * @param[in] rankinrow {row head's rank in its processor row - determines the scatter person}
- */
-template <class IT, class NT>
-template <class HANDLER>
-void FullyDistSpVec<IT,NT>::ReadAllMine(FILE * binfile, IT * & inds, NT * & vals, vector< pair<IT,NT> > & localpairs, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls,
-                                    IT buffperrowneigh, IT buffpercolneigh, IT entriestoread, HANDLER handler, int rankinrow)
-{
-	assert(entriestoread != 0);
-    int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-    
-	IT cnz = 0;
-	IT tempind;
-	NT tempval;
-	int finishedglobal = 1;
-	while(cnz < entriestoread && !feof(binfile))	// this loop will execute at least once
-	{
-		handler.binaryfill(binfile, tempind, tempval);
-        IT localind;
-        int globalowner = Owner(tempind, localind);
-        int colrec = commGrid->GetRankInProcCol(globalowner); // recipient processor along the column
-        
-		size_t commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
-		inds[ commonindex ] = tempind;  // keep the indices global for now (row heads will call the ::Owner function later again)
-		vals[ commonindex ] = tempval;
-		++ (ccurptrs[colrec]);
-		if(ccurptrs[colrec] == buffpercolneigh || (cnz == (entriestoread-1)) )		// one buffer is full, or this processor's share is done !
-		{
-#ifdef IODEBUG
-			ofstream oput;
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "To column neighbors: ";
-			copy(ccurptrs, ccurptrs+colneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-			oput.close();
-#endif
-            
-			VerticalSend(inds, vals, localpairs, rcurptrs, ccurptrs, rdispls, cdispls, buffperrowneigh, buffpercolneigh, rankinrow);
-            
-			if(cnz == (entriestoread-1))	// last execution of the outer loop
-			{
-				int finishedlocal = 1;	// I am done, but let me check others
-				MPI_Allreduce( &finishedlocal, &finishedglobal, 1, MPI_INT, MPI_BAND, commGrid->GetColWorld());
-				while(!finishedglobal)
-				{
-#ifdef DEBUG
-					ofstream oput;
-					commGrid->OpenDebugFile("Read", oput);
-					oput << "To column neighbors: ";
-					copy(ccurptrs, ccurptrs+colneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-					oput.close();
-#endif
-                    
-					// postcondition of VerticalSend: ccurptrs are set to zero
-					// if another call is made to this function without modifying ccurptrs, no data will be send from this procesor
-					VerticalSend(inds, vals, localpairs, rcurptrs, ccurptrs, rdispls, cdispls, buffperrowneigh, buffpercolneigh, rankinrow);
-                    
-					MPI_Allreduce( &finishedlocal, &finishedglobal, 1, MPI_INT, MPI_BAND, commGrid->GetColWorld());
-				}
-			}
-			else // the other loop will continue executing
-			{
-				int finishedlocal = 0;
-				MPI_Allreduce( &finishedlocal, &finishedglobal, 1, MPI_INT, MPI_BAND, commGrid->GetColWorld());
-			}
-		} // end_if for "send buffer is full" case
-		++cnz;
-	}
-    
-	// signal the end to row neighbors
-	fill_n(rcurptrs, rowneighs, numeric_limits<int>::max());
-	int recvcount;
-	MPI_Scatter(rcurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankinrow, commGrid->GetRowWorld());
-}
-
-
-
-//! Called on an existing object
-//! New generalized (parallel/binary/etc) version as of 2014
-template <class IT, class NT>
-template <class HANDLER>
-void FullyDistSpVec<IT,NT>::ReadDistribute (const string & filename, int master, HANDLER handler, bool pario)
-{
-    ifstream infile;
-	FILE * binfile = NULL;	// points to "past header" if the file is binary
-	int seeklength = 0;
-	HeaderInfo hfile;
-	if(commGrid->GetRank() == master)	// 1 processor
-	{
-		hfile = ParseHeader(filename, binfile, seeklength);
-	}
-    MPI_Bcast(&seeklength, 1, MPI_INT, master, commGrid->GetWorld());
-    
-	IT total_m, total_n, total_nnz;
-	IT m_perproc = 0, n_perproc = 0;
-    
-	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-    
-	IT buffpercolneigh = MEMORYINBYTES / (colneighs * (sizeof(IT) + sizeof(NT)));
-	IT buffperrowneigh = MEMORYINBYTES / (rowneighs * (sizeof(IT) + sizeof(NT)));
-	if(pario)
-	{
-		// since all colneighs will be reading the data at the same time
-		// chances are they might all read the data that should go to one
-		// in that case buffperrowneigh > colneighs * buffpercolneigh
-		// in order not to overflow
-		buffpercolneigh /= colneighs;
-		if(seeklength == 0)
-			SpParHelper::Print("COMBBLAS: Parallel I/O requested but binary header is corrupted\n");
+		for(IT i=0; i< entries; ++i)
+			ss << ind[i]+sizeuntil << '\t' << num[i] << '\n';
 	}
 
+	std::string text = ss.str();
 
-    // make sure that buffperrowneigh >= buffpercolneigh to cover for this patological case:
-	//   	-- all data received by a given column head (by vertical communication) are headed to a single processor along the row
-	//   	-- then making sure buffperrowneigh >= buffpercolneigh guarantees that the horizontal buffer will never overflow
-	buffperrowneigh = std::max(buffperrowneigh, buffpercolneigh);
-	if(std::max(buffpercolneigh * colneighs, buffperrowneigh * rowneighs) > numeric_limits<int>::max())
+	int64_t * bytes = new int64_t[nprocs];
+    	bytes[myrank] = text.size();
+    	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), bytes, 1, MPIType<int64_t>(), commGrid->GetWorld());
+	int64_t bytesuntil = accumulate(bytes, bytes+myrank, static_cast<int64_t>(0));
+	int64_t bytestotal = accumulate(bytes, bytes+nprocs, static_cast<int64_t>(0));
+
+    	if(myrank == 0)	// only leader rights the original file with no content
+    	{
+		std::ofstream ofs(filename.c_str(), std::ios::binary | std::ios::out);
+		cout << "Creating file with " << bytestotal << " bytes" << endl;
+    		ofs.seekp(bytestotal - 1);
+    		ofs.write("", 1);	// this will likely create a sparse file so the actual disks won't spin yet
+		ofs.close();
+   	}
+     	MPI_Barrier(commGrid->GetWorld());
+    
+	struct stat st;     // get file size
+    	if (stat(filename.c_str(), &st) == -1)
+    	{
+       		MPI_Abort(commGrid->GetWorld(), NOFILE);
+    	}
+	if(myrank == nprocs-1)	// let some other processor do the testing
 	{
-		SpParHelper::Print("COMBBLAS: MPI doesn't support sending int64_t send/recv counts or displacements\n");
+		cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << endl;	
 	}
-    
-	int * cdispls = new int[colneighs];
-	for (IT i=0; i<colneighs; ++i)  cdispls[i] = i*buffpercolneigh;
-	int * rdispls = new int[rowneighs];
-	for (IT i=0; i<rowneighs; ++i)  rdispls[i] = i*buffperrowneigh;
-    
-	// Note: all other column heads that initiate the horizontal communication has the same "rankinrow" with the master
-	int rankincol = commGrid->GetRankInProcCol(master);	// get master's rank in its processor column
-	int rankinrow = commGrid->GetRankInProcRow(master);
-	vector< pair<IT, NT> > localpairs;
-    
-    int *ccurptrs = NULL, *rcurptrs = NULL;
-    int recvcount = 0;
-    IT * inds = NULL;
-    NT * vals = NULL;
-    
-    if(commGrid->GetRank() == master)	// 1 processor
-	{
-		if( !hfile.fileexists )
-		{
-			SpParHelper::Print( "COMBBLAS: Input file doesn't exist\n");
-            total_n = 0; total_m = 0;
-			BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-			return;
-		}
-		if (hfile.headerexists && hfile.format == 1)
-		{
-			SpParHelper::Print("COMBBLAS: Ascii input with binary headers is not supported");
-			total_n = 0; total_m = 0;
-			BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-			return;
-		}
-		if ( !hfile.headerexists )	// no header - ascii file (at this point, file exists)
-		{
-			infile.open(filename.c_str());
-			char comment[256];
-			infile.getline(comment,256);
-			while(comment[0] == '%')
-			{
-				infile.getline(comment,256);
-			}
-			stringstream ss;
-			ss << string(comment);
-			ss >> total_m >> total_n >> total_nnz;
-			if(pario)
-			{
-				SpParHelper::Print("COMBBLAS: Trying to read binary headerless file in parallel, aborting\n");
-				total_n = 0; total_m = 0;
-				BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-				return;
-			}
-		}
-		else // hfile.headerexists && hfile.format == 0
-		{
-			total_m = hfile.m;
-			total_n = hfile.n;
-			total_nnz = hfile.nnz;
-		}
-        BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-        
-        bool rowvector = false;
-        if( total_m != 1 && total_n != 1)
+
+    	FILE *ffinal;
+	if ((ffinal = fopen(filename.c_str(), "rb+")) == NULL)	// then everyone fills it
         {
-            SpParHelper::Print("COMBBLAS: One of the dimensions should be 1 for this to be a vector, can't read\n");
-            return;
-        }
-        else if(total_m == 1)
-        {
-            glen = total_n;
-            rowvector = true;
-        }
-        else
-        {
-            glen = total_m;
-        }
-        
-        AllocateSetBuffers(inds, vals,  rcurptrs, ccurptrs, rowneighs, colneighs, buffpercolneigh);
-        
-		if(seeklength > 0 && pario)   // sqrt(p) processors also do parallel binary i/o
-		{
-			IT entriestoread =  total_nnz / colneighs;
-#ifdef IODEBUG
-			ofstream oput;
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << endl;
-			oput.close();
-#endif
-			ReadAllMine(binfile, inds, vals, localpairs, rcurptrs, ccurptrs, rdispls, cdispls,
-                        buffperrowneigh, buffpercolneigh, entriestoread, handler, rankinrow);
-		}
-		else	// only this (master) is doing I/O (text or binary)
-		{
-			IT tempind, temprow, tempcol;
-			NT tempval;
-			char line[1024];
-			bool nonumline = false; // ABAB: we don't support vector files without values at the moment
-			IT cnz = 0;
-			for(; cnz < total_nnz; ++cnz)
-			{
-				size_t commonindex;
-				stringstream linestream;
-				if( (!hfile.headerexists) && (!infile.eof()))
-				{
-					// read one line at a time so that missing numerical values can be detected
-					infile.getline(line, 1024);
-					linestream << line;
-					linestream >> temprow >> tempcol;
-                    --temprow;	// file is 1-based where C-arrays are 0-based
-					--tempcol;
-                    tempind = rowvector ? tempcol : temprow;
-					if (!nonumline)
-					{
-						// see if this line has a value
-						linestream >> skipws;
-						nonumline = linestream.eof();
-					}
-    
-				}
-				else if(hfile.headerexists && (!feof(binfile)) )
-				{
-					handler.binaryfill(binfile, tempind, tempval);
-				}
-                IT localind;
-                int globalowner = Owner(tempind, localind);
-                int colrec = commGrid->GetRankInProcCol(globalowner); // recipient processor along the column
-                commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
-                
-				inds[ commonindex ] = tempind;
-				if( (!hfile.headerexists) && (!infile.eof()))
-				{
-					vals[ commonindex ] = nonumline ? handler.getNoNum(tempind) : handler.read(linestream, tempind); //tempval;
-				}
-				else if(hfile.headerexists && (!feof(binfile)) )
-				{
-					vals[ commonindex ] = tempval;
-				}
-				++ (ccurptrs[colrec]);
-				if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
-				{
-					MPI_Scatter(ccurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankincol, commGrid->GetColWorld()); // first, send the receive counts
-                    
-					// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
-					IT * tempinds = new IT[recvcount];
-					NT * tempvals = new NT[recvcount];
-					
-					// then, send all buffers that to their recipients ...
-					MPI_Scatterv(inds, ccurptrs, cdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankincol, commGrid->GetColWorld());
-					MPI_Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankincol, commGrid->GetColWorld());
-                    
-					fill_n(ccurptrs, colneighs, 0);  				// finally, reset current pointers !
-					DeleteAll(inds, vals);
-					
-					HorizontalSend(inds, vals,tempinds, tempvals, localpairs, rcurptrs, rdispls, buffperrowneigh, recvcount, rankinrow);
-					
-					if( cnz != (total_nnz-1) )	// otherwise the loop will exit with noone to claim memory back
-					{
-						// reuse these buffers for the next vertical communication
-						inds = new IT [ buffpercolneigh * colneighs ];
-						vals = new NT [ buffpercolneigh * colneighs ];
-					}
-				} // end_if for "send buffer is full" case
-			} // end_for for "cnz < entriestoread" case
-			assert (cnz == total_nnz);
-			
-			// Signal the end of file to other processors along the column
-			fill_n(ccurptrs, colneighs, numeric_limits<int>::max());
-			MPI_Scatter(ccurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankincol, commGrid->GetColWorld());
-            
-			// And along the row ...
-			fill_n(rcurptrs, rowneighs, numeric_limits<int>::max());
-			MPI_Scatter(rcurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankinrow, commGrid->GetRowWorld());
-		}	// end of "else" (only one processor reads) block
-	}	// end_if for "master processor" case
-	else if( commGrid->OnSameProcCol(master) ) 	// (r-1) processors
-	{
-		BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-        
-		if(seeklength > 0 && pario)   // these processors also do parallel binary i/o
-		{
-			binfile = fopen(filename.c_str(), "rb");
-			IT entrysize = handler.entrylength();
-			int myrankincol = commGrid->GetRankInProcCol();
-			IT perreader = total_nnz / colneighs;
-			IT read_offset = entrysize * static_cast<IT>(myrankincol) * perreader + seeklength;
-			IT entriestoread = perreader;
-			if (myrankincol == colneighs-1)
-				entriestoread = total_nnz - static_cast<IT>(myrankincol) * perreader;
-			fseek(binfile, read_offset, SEEK_SET);
-            
-#ifdef IODEBUG
-			ofstream oput;
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "Total nnz: " << total_nnz << " OFFSET : " << read_offset << " entries to read: " << entriestoread << endl;
-			oput.close();
-#endif
-			
-			AllocateSetBuffers(inds, vals,  rcurptrs, ccurptrs, rowneighs, colneighs, buffpercolneigh);
-			ReadAllMine(binfile, inds, vals, localpairs, rcurptrs, ccurptrs, rdispls, cdispls,
-                        buffperrowneigh, buffpercolneigh, entriestoread, handler, rankinrow);
-		}
-		else // only master does the I/O
-		{
-			while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
-            {
-				
-				MPI_Scatter(ccurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankincol, commGrid->GetColWorld());        // first receive the receive counts ...
-				if( recvcount == numeric_limits<int>::max()) break;
-                
-				// create space for incoming data ...
-				IT * tempinds = new IT[recvcount];
-				NT * tempvals = new NT[recvcount];
-				
-				// receive actual data ... (first 4 arguments are ignored in the receiver side)
-				MPI_Scatterv(inds, ccurptrs, cdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankincol, commGrid->GetColWorld());
-				MPI_Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankincol, commGrid->GetColWorld());
-                
-				// now, send the data along the horizontal
-				rcurptrs = new int[rowneighs]();    // zero initialized via ()
-				
-				// HorizontalSend frees the memory of temp_xxx arrays and then creates and frees memory of all the four arrays itself
-				HorizontalSend(inds, vals, tempinds, tempvals, localpairs, rcurptrs, rdispls,
-                               buffperrowneigh, recvcount, rankinrow);
-			}
-		}
-		
-		// Signal the end of file to other processors along the row
-		fill_n(rcurptrs, rowneighs, numeric_limits<int>::max());
-		MPI_Scatter(rcurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankinrow, commGrid->GetRowWorld());
-		delete [] rcurptrs;
-	}
-	else		// r * (s-1) processors that only participate in the horizontal communication step
-	{
-		BcastEssentials(commGrid->GetWorld(), total_m, total_n, total_nnz, master);
-		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
-		{
-			// receive the receive count
-			MPI_Scatter(rcurptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, rankinrow, commGrid->GetRowWorld());
-			if( recvcount == numeric_limits<int>::max())
-				break;
-            
-			// create space for incoming data ...
-			IT * tempinds = new IT[recvcount];
-			NT * tempvals = new NT[recvcount];
-            
-			MPI_Scatterv(inds, rcurptrs, rdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankinrow, commGrid->GetRowWorld());
-			MPI_Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankinrow, commGrid->GetRowWorld());
-            
-            for(int i=0; i< recvcount; ++i)
-            {
-                localpairs.push_back( 	make_pair(tempinds[i], tempvals[i]) );  // no need to offset-adjust as we received the local index
-            }
-            
-            DeleteAll(tempinds, tempvals);
-		}
-	}
-    // ABAB: Sort localpairs and copy the sorted result to ind/num
-#ifdef IODEBUG
-    ofstream oput;
-    commGrid->OpenDebugFile("Read", oput);
-    for(auto litr = localpairs.begin(); litr != localpairs.end(); litr++)
-    {
-        oput << "(" << litr->first << "," <<  litr->second << ")" << endl;
-    }
-    oput.close();
-#endif
-    
+		printf("COMBBLAS: Vector output file %s failed to open at process %d\n", filename.c_str(), myrank);
+            	MPI_Abort(commGrid->GetWorld(), NOFILE);
+       	}
+	fseek (ffinal , bytesuntil , SEEK_SET );
+	fwrite(text.c_str(),1, bytes[myrank] ,ffinal);
+	fflush(ffinal);
+	delete [] bytes;
 }
-
 
 //! Called on an existing object
 //! ABAB: Obsolete, will be deleted once moved to Github (and becomes independent of KDT)
