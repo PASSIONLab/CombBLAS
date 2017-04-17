@@ -88,7 +88,13 @@ public:
 			os << v;
 		}
 	};
-	
+
+	void ParallelWrite(const string & filename, bool onebased)
+	{
+        	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
+        	tmpSpVec.ParallelWrite(filename, onebased);
+	}  
+
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
 	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
