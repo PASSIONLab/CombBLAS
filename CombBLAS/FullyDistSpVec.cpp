@@ -1215,6 +1215,7 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
 	fseek (ffinal , bytesuntil , SEEK_SET );
 	fwrite(text.c_str(),1, bytes[myrank] ,ffinal);
 	fflush(ffinal);
+	fclose(ffinal);
 	delete [] bytes;
 }
 
