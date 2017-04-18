@@ -57,6 +57,7 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+double cblas_allgathertime;	// for compilation (TODO: fix this dependency)
 int64_t mcl_memory;
 
 
@@ -79,6 +80,7 @@ void Interpret(Dist::MPI_DCCols & A)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
+    cclabels.ParallelWrite("MCL_clusters.txt", 0);	// Ariful, please change accordingly
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
