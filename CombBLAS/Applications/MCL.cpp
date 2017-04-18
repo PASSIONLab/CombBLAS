@@ -80,7 +80,7 @@ void Interpret(Dist::MPI_DCCols & A, string ofilename)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
-    cclabels.ParallelWrite(ofilename, 1);	
+    cclabels.ParallelWrite(ofilename, 0);
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
