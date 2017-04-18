@@ -20,7 +20,7 @@ vector<size_t> sortIndices(const vector<T> &v) {
     return idx;
 }
 
-void convert(string fname, int64_t nclust = 0, int base = 1, string sort = "revsize")
+void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revsize")
 {
     ifstream infile (fname);
     string line;
@@ -101,16 +101,16 @@ int main(int argc, char* argv[])
     
     string ifilename = "";
     string sort = "revsize";
-    int base = 1;
+    int base = 0;
     int nclust = 0;
     
     if(argc < 2)
     {
         cout << "Usage: ./ConverCC -M <FILENAME_Output_HipMCL> (required)\n";
-        cout << "-base <Starting index of clusters and items> (default:1)\n";
+        cout << "-base <Starting index of clusters and items> (default:0)\n";
         cout << "-nclust <Number of clusters> (default:0)\n";
         cout << "-sort <Sort clusters by their sizes> (default:revsize)\n";
-        cout << "Example (1-indexed 100 clusters): ./cc -M input.mtx -base 1 -nclust 100" << endl;
+        cout << "Example (0-indexed 100 clusters): ./cc -M input.mtx -base 0 -nclust 100" << endl;
         return -1;
     }
     
