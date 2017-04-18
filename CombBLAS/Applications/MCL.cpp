@@ -71,7 +71,7 @@ public:
 };
 
 
-void Interpret(Dist::MPI_DCCols & A)
+void Interpret(Dist::MPI_DCCols & A, string ofilename)
 {
     int64_t nCC;
     // A is a directed graph
@@ -80,7 +80,7 @@ void Interpret(Dist::MPI_DCCols & A)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
-    cclabels.ParallelWrite("MCL_clusters.txt", 0);	// Ariful, please change accordingly
+    cclabels.ParallelWrite(ofilename, 1);	
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
@@ -160,6 +160,7 @@ int main(int argc, char* argv[])
 	{
         // default parameters of mac can be found by #mcl -z
         string ifilename = "";
+        string ofilename = "";
         double inflation = 2.0;
         double prunelimit = 1.0/10000.0;
         int64_t select = 1100;
@@ -176,7 +177,12 @@ int main(int argc, char* argv[])
         {
             if (strcmp(argv[i],"-M")==0){
                 ifilename = string(argv[i+1]);
-                if(myrank == 0) printf("filename: %s",ifilename.c_str());}
+                if(myrank == 0) printf("input filename: %s",ifilename.c_str());
+            }
+            else if (strcmp(argv[i],"-o")==0){
+                ofilename = string(argv[i+1]);
+                if(myrank == 0) printf("Output filename: %s",ofilename.c_str());
+            }
             else if (strcmp(argv[i],"--show")==0){
                 show = true;
                 if(myrank == 0) printf("\nShow matrices after major steps");
@@ -218,6 +224,10 @@ int main(int argc, char* argv[])
             }
         }
 
+        if(ofilename=="") // construct output file name if it is not provided
+        {
+            ofilename = ifilename + ".out";
+        }
         ostringstream runinfo;
         runinfo << "\nRunning HipMCL with... " << endl;
         runinfo << "Inflation: " << inflation << endl;
@@ -388,7 +398,7 @@ int main(int argc, char* argv[])
 		}
         
         double tcc1 = MPI_Wtime();
-		Interpret(A);
+		Interpret(A, ofilename);
         double tcc = MPI_Wtime() - tcc1;
         
         double tend = MPI_Wtime();
