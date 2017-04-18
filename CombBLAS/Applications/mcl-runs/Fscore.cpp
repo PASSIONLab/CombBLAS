@@ -105,15 +105,15 @@ double Fscore(string fname1, string fname2)
     }
     
     assert(N1==N2);
-#pragma OMP parallel for
+#pragma omp parallel for
     for(int i=0; i<nclust1; i++)
         sort(clusters1[i].begin(), clusters1[i].end());
-#pragma OMP parallel for
+#pragma omp parallel for
     for(int i=0; i<nclust2; i++)
         sort(clusters2[i].begin(), clusters2[i].end());
         
     vector<double> F(nclust1);
-#pragma OMP parallel for
+#pragma omp parallel for
     for(int i=0; i<nclust1; i++)
     {
         double Fi = 0;
@@ -140,8 +140,8 @@ int main(int argc, char* argv[])
     
     if(argc < 2)
     {
-        cout << "Usage: ./Fscore -M1 <FILENAME_Output_ MCL> -M2 <FILENAME_Output_HipMCL>\n";
-        cout << "Example: ./cc -M1 input1.txt -M2 input2.txt " << endl;
+        cout << "Usage: ./fscore -M1 <FILENAME_Output_ MCL> -M2 <FILENAME_Output_HipMCL>\n";
+        cout << "Example: ./fscore -M1 input1.txt -M2 input2.txt " << endl;
         return -1;
     }
     
