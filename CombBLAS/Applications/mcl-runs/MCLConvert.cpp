@@ -51,8 +51,6 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
         return;
     }
     
-    bool reorder = false;
-    if(mclorder.size()>0) reorder = true;
     
     string outname = fname + ".mcl";
     ofstream outfile (outname);
@@ -69,10 +67,7 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
                 int64_t cl = sidx[i];
                 for(int64_t j=0; j<clusters[cl].size() ; j++)
                 {
-                    if(reorder)
-                        outfile << mclorder[clusters[cl][j]] << "\t";
-                    else
-                        outfile << clusters[cl][j] << "\t";
+                    outfile << clusters[cl][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -88,10 +83,7 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
             {
                 for(int64_t j=0; j<clusters[i].size() ; j++)
                 {
-                    if(reorder)
-                        outfile << mclorder[clusters[i][j]] << "\t";
-                    else
-                        outfile << clusters[i][j] << "\t";
+                    outfile << clusters[i][j] << "\t";
                 }
                 outfile << endl;
             }
