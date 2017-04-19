@@ -4,6 +4,7 @@
 #include <numeric>
 #include <algorithm>
 #include <string.h>
+#include <assert.h>
 using namespace std;
 
 template <typename T>
@@ -20,10 +21,10 @@ vector<size_t> sortIndices(const vector<T> &v) {
     return idx;
 }
 
+
 void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revsize")
 {
     ifstream infile (fname);
-    string line;
     int64_t item, clustID;
     vector<vector<int64_t>> clusters;
     if(nclust > 0) clusters.resize(nclust);
@@ -50,6 +51,8 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
         return;
     }
     
+    bool reorder = false;
+    if(mclorder.size()>0) reorder = true;
     
     string outname = fname + ".mcl";
     ofstream outfile (outname);
@@ -66,7 +69,10 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
                 int64_t cl = sidx[i];
                 for(int64_t j=0; j<clusters[cl].size() ; j++)
                 {
-                    outfile << clusters[cl][j] << "\t";
+                    if(reorder)
+                        outfile << mclorder[clusters[cl][j]] << "\t";
+                    else
+                        outfile << clusters[cl][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -82,7 +88,10 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
             {
                 for(int64_t j=0; j<clusters[i].size() ; j++)
                 {
-                    outfile << clusters[i][j] << "\t";
+                    if(reorder)
+                        outfile << mclorder[clusters[i][j]] << "\t";
+                    else
+                        outfile << clusters[i][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -106,11 +115,11 @@ int main(int argc, char* argv[])
     
     if(argc < 2)
     {
-        cout << "Usage: ./ConverCC -M <FILENAME_Output_HipMCL> (required)\n";
+        cout << "Usage: ./mclconvert -M <FILENAME_Output_HipMCL> (required)\n";
         cout << "-base <Starting index of clusters and items> (default:0)\n";
         cout << "-nclust <Number of clusters> (default:0)\n";
         cout << "-sort <Sort clusters by their sizes> (default:revsize)\n";
-        cout << "Example (0-indexed 100 clusters): ./cc -M input.mtx -base 0 -nclust 100" << endl;
+        cout << "Example (0-indexed 100 clusters): ./mclconvert -M HipMCL.out -base 0 -nclust 100" << endl;
         return -1;
     }
     

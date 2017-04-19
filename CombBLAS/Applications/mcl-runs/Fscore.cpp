@@ -112,7 +112,7 @@ double Fscore(string fname1, string fname2)
     for(int i=0; i<nclust2; i++)
         sort(clusters2[i].begin(), clusters2[i].end());
     
-    cout << "File reading and sorting done. Now calculate F score.\n"
+    cout << "File reading and sorting done. Now calculate F score.\n";
     vector<double> F(nclust1);
 #pragma omp parallel for
     for(int i=0; i<nclust1; i++)
