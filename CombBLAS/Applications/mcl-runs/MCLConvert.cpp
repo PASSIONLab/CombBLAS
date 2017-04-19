@@ -51,7 +51,7 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
     }
     
     
-    string outname = fname + ".out";
+    string outname = fname + ".mcl";
     ofstream outfile (outname);
     if(sort == "revsize")
     {
