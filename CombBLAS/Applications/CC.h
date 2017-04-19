@@ -314,18 +314,25 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     // TODO: Print to file
     //PrintCC(cc, nCC);
     //Correctness(A, cc, nCC);
+    A.RemoveLoops();
+    FullyDistVec<IT,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
+    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
+    int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
+                                              
     
     FullyDistSpVec<IT, IT> cc1 = cc.Find([](IT label){return label==0;});
     FullyDistSpVec<IT, IT> cc2 = cc.Find([](IT label){return label==1;});
     FullyDistSpVec<IT, IT> cc3 = cc.Find([](IT label){return label==2;});
     FullyDistSpVec<IT, IT> cc4 = cc.Find([](IT label){return label==3;});
+    
     outs.str("");
     outs.clear();
     outs << "Number of components: " << nCC << endl;
-    outs << "Size of the first component: " << cc1.getnnz() << endl;
-    outs << "Size of the second component: " << cc2.getnnz() << endl;
-    outs << "Size of the third component: " << cc3.getnnz() << endl;
-    outs << "Size of the fourth component: " << cc4.getnnz() << endl;
+    outs << "Number of components excluding isolated vertices: " << nCC - numIsolated  << endl;
+    //outs << "Size of the first component: " << cc1.getnnz() << endl;
+    //outs << "Size of the second component: " << cc2.getnnz() << endl;
+    //outs << "Size of the third component: " << cc3.getnnz() << endl;
+    //outs << "Size of the fourth component: " << cc4.getnnz() << endl;
     SpParHelper::Print(outs.str());
     return cc;
 }

@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
         int randpermute = 0;
         int phases = 1;
         bool show = false;
-        bool keep_isolated = false; // mcl removes isolated vertices by default
+        bool remove_isolated = false; // mcl removes isolated vertices by default
         int perProcessMem = 0;
         
         for (int i = 1; i < argc; i++)
@@ -187,9 +187,9 @@ int main(int argc, char* argv[])
                 show = true;
                 if(myrank == 0) printf("\nShow matrices after major steps");
             }
-            else if (strcmp(argv[i],"--keep-isolated")==0){
-                keep_isolated = true;
-                if(myrank == 0) printf("\nKeep isolated vertices at the beginning");
+            else if (strcmp(argv[i],"--remove-isolated")==0){
+                remove_isolated = true;
+                if(myrank == 0) printf("\nRemove isolated vertices at the beginning");
             }
             else if (strcmp(argv[i],"-I")==0){
                 inflation = atof(argv[i + 1]);
@@ -248,10 +248,17 @@ int main(int argc, char* argv[])
         if(show)
             A.PrintInfo();
         
-        if(!keep_isolated)
+        FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
+        FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
+        int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
+        outs.str("");
+        outs.clear();
+        outs << "Isolated vertices: " << numIsolated << endl;
+        SpParHelper::Print(outs.str());
+
+        
+        if(remove_isolated)
         {
-            FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
-            FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
             A(nonisov, nonisov, true);
             SpParHelper::Print("Removed isolated vertices.\n");
             if(show)
@@ -280,8 +287,8 @@ int main(int argc, char* argv[])
         
 	double balance = A.LoadImbalance();
 	int64_t nnz = A.getnnz();
-        outs.str("");
-        outs.clear();
+    outs.str("");
+    outs.clear();
 	outs << "Load balance: " << balance << endl;
 	outs << "Nonzeros: " << nnz << endl;
 	SpParHelper::Print(outs.str());
