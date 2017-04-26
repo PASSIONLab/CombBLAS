@@ -71,7 +71,9 @@ public:
 };
 
 
-void Interpret(Dist::MPI_DCCols & A, string ofilename)
+// base: base of items
+// clusters are always numbered 0-based
+void Interpret(Dist::MPI_DCCols & A, string ofilename, int base)
 {
     int64_t nCC;
     // A is a directed graph
@@ -80,7 +82,7 @@ void Interpret(Dist::MPI_DCCols & A, string ofilename)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
-    cclabels.ParallelWrite(ofilename, 0);
+    cclabels.ParallelWrite(ofilename, base); // clusters are always numbered 0-based
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
@@ -405,7 +407,7 @@ int main(int argc, char* argv[])
 		}
         
         double tcc1 = MPI_Wtime();
-		Interpret(A, ofilename);
+		Interpret(A, ofilename, base);
         double tcc = MPI_Wtime() - tcc1;
         
         double tend = MPI_Wtime();
