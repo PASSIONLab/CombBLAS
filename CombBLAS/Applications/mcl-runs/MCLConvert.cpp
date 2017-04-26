@@ -22,7 +22,47 @@ vector<size_t> sortIndices(const vector<T> &v) {
 }
 
 
-void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revsize")
+// simply order vertices by considering isolated vertices
+vector<int64_t> MCLOrder(string fname)
+{
+    ifstream mtxfile (fname);
+    string line;
+    int64_t m, n, nnz;
+    int64_t v1, v2;
+    double val;
+    vector<int64_t> mclorder;
+    if (mtxfile.is_open())
+    {
+        while(mtxfile.peek()=='%') getline (mtxfile,line); // ignore comments
+        mtxfile >> m >> n >> nnz;
+        assert(m==n);
+        vector<bool> nonisolated (m,false);
+        int64_t count = 0;
+        while( mtxfile >> v1 >> v2 >> val)
+        {
+            if(!nonisolated[v1]) {nonisolated[v1] = true; count++;}
+            if(!nonisolated[v2]) {nonisolated[v2] = true; count++;}
+        }
+        mtxfile.close();
+        
+        
+        cout << "vertices: " << m << " and non isolated vertices: " << count << endl;
+        if(m != count)
+        {
+            mclorder.resize(count);
+            for(int64_t i=0, j=0; i<m ; i++)
+            {
+                if(nonisolated[i])
+                    mclorder[j++] = i;
+            }
+            
+        }
+    }
+    return mclorder; // empty here
+
+}
+
+void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string sort = "revsize")
 {
     ifstream infile (fname);
     int64_t item, clustID;
@@ -33,9 +73,9 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
         infile >> item >> clustID; // get rid of the header;
         while(infile >> item >> clustID)
         {
-            if(base==0)
-                item ++; // 1-based item indexing to match MCL
-            else clustID--; // for 0-based indexing of the vector
+            //if(base==0)
+            //    item ++; // 1-based item indexing to match MCL
+            //else clustID--; // for 0-based indexing of the vector
             nclust = max(nclust, clustID+1);
             if(clustID >= clusters.size())
             {
@@ -51,6 +91,8 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
         return;
     }
     
+    bool reorder = false;
+    if(mclorder.size()>0) reorder = true;
     
     string outname = fname + ".mcl";
     ofstream outfile (outname);
@@ -67,7 +109,10 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
                 int64_t cl = sidx[i];
                 for(int64_t j=0; j<clusters[cl].size() ; j++)
                 {
-                    outfile << clusters[cl][j] << "\t";
+                    if(reorder)
+                        outfile << mclorder[clusters[cl][j]] << "\t";
+                    else
+                        outfile << clusters[cl][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -83,7 +128,10 @@ void convert(string fname, int64_t nclust = 0, int base = 0, string sort = "revs
             {
                 for(int64_t j=0; j<clusters[i].size() ; j++)
                 {
-                    outfile << clusters[i][j] << "\t";
+                    if(reorder)
+                        outfile << mclorder[clusters[i][j]] << "\t";
+                    else
+                        outfile << clusters[i][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -102,16 +150,16 @@ int main(int argc, char* argv[])
     
     string ifilename = "";
     string sort = "revsize";
-    int base = 0;
     int nclust = 0;
+    string mtxfile = "";
     
     if(argc < 2)
     {
         cout << "Usage: ./mclconvert -M <FILENAME_Output_HipMCL> (required)\n";
-        cout << "-base <Starting index of clusters and items> (default:0)\n";
         cout << "-nclust <Number of clusters> (default:0)\n";
         cout << "-sort <Sort clusters by their sizes> (default:revsize)\n";
-        cout << "Example (0-indexed 100 clusters): ./mclconvert -M HipMCL.out -base 0 -nclust 100" << endl;
+        cout << "-mtxfile <Matrix market file (used only if isolated vertices are removed by HipMCL)> \n";
+        cout << "Example (0-indexed 100 clusters): ./mclconvert -M input.mtx -base 0 -nclust 100" << endl;
         return -1;
     }
     
@@ -121,11 +169,6 @@ int main(int argc, char* argv[])
         {
             ifilename = string(argv[i+1]);
             printf("filename: %s",ifilename.c_str());
-        }
-        else if (strcmp(argv[i],"-base")==0)
-        {
-            base = atoi(argv[i + 1]);
-            printf("\nStarting index of clusters and items (1 or 0):%d",base);
         }
         else if (strcmp(argv[i],"-nclust")==0)
         {
@@ -137,8 +180,18 @@ int main(int argc, char* argv[])
             sort = string(argv[i + 1]);
             printf("\nSorting clusters by their size (revsize or none)? :%s",sort);
         }
+        else if (strcmp(argv[i],"-mtxfile")==0)
+        {
+            mtxfile= string(argv[i + 1]);
+            printf("\nMatrix market file (used to order vertices to match MCL) :%s",mtxfile.c_str());
+        }
     }
     printf("\n");
-    convert(ifilename, nclust, base, sort);
+    vector<int64_t> mclorder;
+    if(mtxfile!="")
+    {
+        mclorder = MCLOrder(mtxfile);
+    }
+    convert(ifilename, mclorder, nclust, sort);
     return 0;
 }
