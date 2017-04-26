@@ -40,7 +40,7 @@ int64_t intersect(vector<int64_t> vec1, vector<int64_t> vec2)
 }
 
 // fname1 is the reference (form MCL)
-double Fscore(string fname1, string fname2)
+double Fscore(string fname1, string fname2, int base)
 {
     ifstream infile1 (fname1);
     ifstream infile2 (fname2);
@@ -48,9 +48,9 @@ double Fscore(string fname1, string fname2)
     int64_t item, clustID = 0;
     int64_t nclust1, nclust2;
     int64_t N1 = 0, N2 = 0; // total items
+    // item 0-based
     
     vector<vector<int64_t>> clusters1;
-    vector<vector<int64_t>> clusters2;
     
     if (infile1.is_open())
     {
@@ -63,6 +63,7 @@ double Fscore(string fname1, string fname2)
             }
             while ( iss >> item)
             {
+                if(base==1) item --;
                 clusters1[clustID].push_back(item);
             }
             
@@ -78,21 +79,18 @@ double Fscore(string fname1, string fname2)
         return -1;
     }
     
+    vector<int64_t> clust2(N1, -1);
     clustID = 0;
     if (infile2.is_open())
     {
         while ( getline (infile2,line) )
         {
             istringstream iss(line);
-            if(clustID >= clusters2.size())
-            {
-                clusters2.resize(clustID * 2 + 1);
-            }
             while ( iss >> item)
             {
-                clusters2[clustID].push_back(item);
+                if(base==1) item --;
+                clust2[item] = clustID;
             }
-            N2 += clusters2[clustID].size();
             clustID++;
         }
         infile2.close();
@@ -104,28 +102,39 @@ double Fscore(string fname1, string fname2)
         return -1;
     }
     
-    assert(N1==N2);
-#pragma omp parallel for
-    for(int i=0; i<nclust1; i++)
-        sort(clusters1[i].begin(), clusters1[i].end());
-#pragma omp parallel for
-    for(int i=0; i<nclust2; i++)
-        sort(clusters2[i].begin(), clusters2[i].end());
+    vector<int64_t> clusterSizes2(nclust2,0);
+    for(int i=0; i<N1; i++)
+    {
+        clusterSizes2[clust2[i]]++;
+    }
     
-    cout << "File reading and sorting done. Now calculate F score.\n";
+    
     vector<double> F(nclust1);
-#pragma omp parallel for
+    vector<int64_t> nisect(nclust2); // number of items in the intersection
+    vector<int64_t> isect(nclust2); // clusters with nonzero intersection with the current cluster
+    
+
     for(int i=0; i<nclust1; i++)
     {
-        double Fi = 0;
-        for(int j=0; j<nclust2; j++)
+        int64_t isectCount = 0;
+        fill(nisect.begin(), nisect.end(), 0);
+        for(int j=0; j<clusters1[i].size(); j++)
         {
-            int64_t isect = intersect(clusters1[i], clusters2[j]);
-            double precision = (double) isect / clusters2[j].size();
-            double recall = (double) isect / clusters1[i].size();
+            int64_t item1 = clusters1[i][j];
+            int64_t c2 = clust2[item1];
+            if(nisect[c2]==0) isect[isectCount++] = c2;
+            nisect[c2] ++;
+        }
+        double Fi = 0;
+        for(int j=0; j<isectCount; j++)
+        {
+            int64_t c2 = isect[j];
+            double precision = (double) nisect[c2] / clusterSizes2[j]; //
+            double recall = (double) nisect[c2] / clusters1[i].size();
             double Fij = 2 * precision * recall / (precision + recall);
             Fi = max(Fi, Fij);
         }
+        
         Fi = Fi * clusters1[i].size()/ N1;
         F[i] = Fi;
     }
@@ -137,12 +146,13 @@ int main(int argc, char* argv[])
     
     string ifilename1 = "";
     string ifilename2 = "";
+    int base = 0;
   
     
     if(argc < 2)
     {
-        cout << "Usage: ./fscore -M1 <FILENAME_Output_ MCL> -M2 <FILENAME_Output_HipMCL>\n";
-        cout << "Example: ./fscore -M1 input1.txt -M2 input2.txt " << endl;
+        cout << "Usage: ./fscore -M1 <FILENAME_Output_ MCL> -M2 <FILENAME_Output_HipMCL> -base <Base of indices 1 or 0>\n";
+        cout << "Example: ./fscore -M1 input1.txt -M2 input2.txt -base 0 " << endl;
         return -1;
     }
     
@@ -158,9 +168,14 @@ int main(int argc, char* argv[])
             ifilename2 = string(argv[i+1]);
             printf("\nfilename2: %s",ifilename2.c_str());
         }
+        else if (strcmp(argv[i],"-base")==0)
+        {
+            base = atoi(argv[i+1]);
+            printf("\nbase: %d",base);
+        }
     }
     printf("\n");
-    double F = Fscore(ifilename1, ifilename2);
+    double F = Fscore(ifilename1, ifilename2, base);
     cout << "F score: " << F << endl;
     return 0;
 }
