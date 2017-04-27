@@ -62,21 +62,18 @@ vector<int64_t> MCLOrder(string fname)
 
 }
 
-void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string sort = "revsize")
+void convert(string fname, string sort = "revsize")
 {
     ifstream infile (fname);
     int64_t item, clustID;
+    int64_t nclust = 0;
     vector<vector<int64_t>> clusters;
-    if(nclust > 0) clusters.resize(nclust);
     if (infile.is_open())
     {
         infile >> item >> clustID; // get rid of the header;
         while(infile >> item >> clustID)
         {
-            //if(base==0)
-            //    item ++; // 1-based item indexing to match MCL
-            //else clustID--; // for 0-based indexing of the vector
-            nclust = max(nclust, clustID+1);
+            nclust = max(nclust, clustID); // because clustID is zero-based
             if(clustID >= clusters.size())
             {
                 clusters.resize(clustID * 2 + 1);
@@ -90,9 +87,6 @@ void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string 
         cout << "Unable to open " << fname << endl;
         return;
     }
-    
-    bool reorder = false;
-    if(mclorder.size()>0) reorder = true;
     
     string outname = fname + ".mcl";
     ofstream outfile (outname);
@@ -109,10 +103,7 @@ void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string 
                 int64_t cl = sidx[i];
                 for(int64_t j=0; j<clusters[cl].size() ; j++)
                 {
-                    if(reorder)
-                        outfile << mclorder[clusters[cl][j]] << "\t";
-                    else
-                        outfile << clusters[cl][j] << "\t";
+                    outfile << clusters[cl][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -128,10 +119,7 @@ void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string 
             {
                 for(int64_t j=0; j<clusters[i].size() ; j++)
                 {
-                    if(reorder)
-                        outfile << mclorder[clusters[i][j]] << "\t";
-                    else
-                        outfile << clusters[i][j] << "\t";
+                    outfile << clusters[i][j] << "\t";
                 }
                 outfile << endl;
             }
@@ -140,7 +128,6 @@ void convert(string fname, vector<int64_t> mclorder, int64_t nclust = 0, string 
         else cout << "Unable to open " << outname << endl;
     }
     
-  
     
     
 }
@@ -150,16 +137,12 @@ int main(int argc, char* argv[])
     
     string ifilename = "";
     string sort = "revsize";
-    int nclust = 0;
-    string mtxfile = "";
     
-    if(argc < 2)
+    if(argc < 3)
     {
         cout << "Usage: ./mclconvert -M <FILENAME_Output_HipMCL> (required)\n";
-        cout << "-nclust <Number of clusters> (default:0)\n";
         cout << "-sort <Sort clusters by their sizes> (default:revsize)\n";
-        cout << "-mtxfile <Matrix market file (used only if isolated vertices are removed by HipMCL)> \n";
-        cout << "Example (0-indexed 100 clusters): ./mclconvert -M input.mtx -base 0 -nclust 100" << endl;
+        cout << "Example: ./mclconvert -M input.mtx" << endl;
         return -1;
     }
     
@@ -170,28 +153,13 @@ int main(int argc, char* argv[])
             ifilename = string(argv[i+1]);
             printf("filename: %s",ifilename.c_str());
         }
-        else if (strcmp(argv[i],"-nclust")==0)
-        {
-            nclust = atoi(argv[i + 1]);
-            printf("\nNumber of clusters? :%d",nclust);
-        }
         else if (strcmp(argv[i],"-sort")==0)
         {
             sort = string(argv[i + 1]);
             printf("\nSorting clusters by their size (revsize or none)? :%s",sort);
         }
-        else if (strcmp(argv[i],"-mtxfile")==0)
-        {
-            mtxfile= string(argv[i + 1]);
-            printf("\nMatrix market file (used to order vertices to match MCL) :%s",mtxfile.c_str());
-        }
     }
     printf("\n");
-    vector<int64_t> mclorder;
-    if(mtxfile!="")
-    {
-        mclorder = MCLOrder(mtxfile);
-    }
-    convert(ifilename, mclorder, nclust, sort);
+    convert(ifilename, sort);
     return 0;
 }
