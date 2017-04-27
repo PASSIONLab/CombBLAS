@@ -88,7 +88,7 @@ void convert(string fname, string sort = "revsize")
         return;
     }
     
-    string outname = fname + ".mcl";
+    string outname = fname + ".hipmcl";
     ofstream outfile (outname);
     if(sort == "revsize")
     {
