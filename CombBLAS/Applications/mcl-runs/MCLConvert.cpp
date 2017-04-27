@@ -59,7 +59,7 @@ vector<int64_t> MCLOrder(string fname)
         }
     }
     return mclorder; // empty here
-
+    
 }
 
 void convert(string fname, string sort = "revsize")
@@ -73,7 +73,7 @@ void convert(string fname, string sort = "revsize")
         infile >> item >> clustID; // get rid of the header;
         while(infile >> item >> clustID)
         {
-            nclust = max(nclust, clustID); // because clustID is zero-based
+            nclust = max(nclust, clustID+1); // because clustID is zero-based
             if(clustID >= clusters.size())
             {
                 clusters.resize(clustID * 2 + 1);
@@ -87,6 +87,8 @@ void convert(string fname, string sort = "revsize")
         cout << "Unable to open " << fname << endl;
         return;
     }
+    
+     cout << "Number of clusters from HipMCL: " << nclust << endl;
     
     string outname = fname + ".hipmcl";
     ofstream outfile (outname);

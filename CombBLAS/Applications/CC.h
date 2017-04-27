@@ -250,7 +250,7 @@ void Correctness(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel, 
 
 
 // Input:
-// father: father of each vertex. Father is essentilly the root of the star
+// father: father of each vertex. Father is essentilly the root of the star which a vertex belongs to.
 //          father of the root is itself
 // Output:
 // cclabel: connected components are incrementally labeled
