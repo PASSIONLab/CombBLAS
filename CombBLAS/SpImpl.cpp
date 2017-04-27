@@ -33,6 +33,7 @@
 #include "Tommy/tommyhashdyn.h"
 using namespace std;
 
+
 /**
  * Base template version [full use of the semiring add() and multiply()]
  * @param[in] indx { vector that practically keeps column numbers requested from A }
