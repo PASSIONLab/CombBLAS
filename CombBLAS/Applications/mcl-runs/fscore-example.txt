@@ -7,7 +7,6 @@ mcl hep-th-mcl.mtx --abc -I 2 -p .01 -S 5 -R 6 -pct 0.9 -o hep-th-mcl.out
 
 
 
-srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT5 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64 -o subgraph5.out
-./mclconvert -M edison-runs/subgraph5.out -base 0
+sbatch batch_edison_16node_euk
 ./mclconvert -M euk.out 
-./fscore -M1 euk.mcl -M2 euk.hipmcl -base 0
+./fscore -M1 euk.mcl -M2 euk.out.hipmcl -base 0
