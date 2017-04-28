@@ -1,0 +1,18 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 256
+#SBATCH -t 00:30:00
+#SBATCH -J c256
+#SBATCH -o edison_256.o%j
+
+MAT=/global/cscratch1/sd/azad/mclFiles/Renamed_alignments_isolates_only_30_correct_copy.txt
+#MCL_PARAM=2 0.0001 500 1 20
+
+export OMP_NUM_THREADS=24
+N=256
+n=256
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+
+

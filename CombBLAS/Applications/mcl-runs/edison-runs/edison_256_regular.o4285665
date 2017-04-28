@@ -1,0 +1,399 @@
+Process Grid (p x p x t): 16 x 16 x 24
+filename: /global/cscratch1/sd/azad/mclFiles/Renamed_alignments_isolates_only_30_correct_copy.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):1
+Number of SpGEMM phases:20
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 20 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 7325674843
+File is 178633004090 bytes
+Reading finished. Total number of entries read across all processors is 7325674843
+Packing to recepients finished, about to send...
+57171236 57149517 57075253 57125413 57122450 57111430 57126489 57198856 57190796 57167002 57267801 57266820 57230726 57306376 57417746 57388192 57149517 57094384 57018996 57081648 57094521 57057284 57097591 57152474 57154667 57144500 57235269 57214255 57198508 57276069 57387931 57348145 57075253 57018996 56955220 57008110 57029285 56989214 57007392 57098874 57078374 57056696 57158369 57131695 57136842 57194625 57306189 57289879 57125413 57081648 57008110 57041198 57078910 57029434 57062110 57137745 57132191 57097171 57203240 57199323 57186744 57243931 57376010 57327185 57122450 57094521 57029285 57078910 57045212 57045266 57097269 57141936 57132033 57082801 57213431 57209509 57193063 57232208 57379933 57328822 57111430 57057284 56989214 57029434 57045266 57020982 57049557 57114297 57101264 57085986 57178291 57195424 57157504 57233850 57353777 57306577 57126489 57097591 57007392 57062110 57097269 57049557 57078598 57147725 57130334 57122305 57222895 57216411 57192405 57247326 57364886 57317882 57198856 57152474 57098874 57137745 57141936 57114297 57147725 57167194 57199716 57166269 57290375 57271766 57248373 57310608 57436669 57400259 57190796 57154667 57078374 57132191 57132033 57101264 57130334 57199716 57199648 57177038 57278133 57270080 57245042 57301059 57427100 57376561 57167002 57144500 57056696 57097171 57082801 57085986 57122305 57166269 57177038 57151858 57257815 57253294 57225182 57289857 57410044 57371022 57267801 57235269 57158369 57203240 57213431 57178291 57222895 57290375 57278133 57257815 57373794 57348279 57334017 57400735 57504040 57472002 57266820 57214255 57131695 57199323 57209509 57195424 57216411 57271766 57270080 57253294 57348279 57328830 57332570 57382842 57510097 57457602 57230726 57198508 57136842 57186744 57193063 57157504 57192405 57248373 57245042 57225182 57334017 57332570 57290692 57353925 57501305 57435671 57306376 57276069 57194625 57243931 57232208 57233850 57247326 57310608 57301059 57289857 57400735 57382842 57353925 57421628 57549853 57495913 57417746 57387931 57306189 57376010 57379933 57353777 57364886 57436669 57427100 57410044 57504040 57510097 57501305 57549853 57689052 57622158 57388192 57348145 57289879 57327185 57328822 57306577 57317882 57400259 57376561 57371022 57472002 57457602 57435671 57495913 57622158 57561330 
+File Read time: 119.979
+Removed isolated vertices.
+Applied symmetric permutation.
+Load balance: 1.00331
+Nonzeros: 10185395802
+Adjusted loops according to default mcl parameters
+Made stochastic
+Multiwaymerge: inputNnz/mergedNnz = 4.87245
+Number of columns needing recovery: 205849
+Number of columns needing selection: 959153
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959153
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.88812
+Number of columns needing recovery: 206426
+Number of columns needing selection: 959893
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959893
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.85442
+Number of columns needing recovery: 205240
+Number of columns needing selection: 959730
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959730
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.89385
+Number of columns needing recovery: 205967
+Number of columns needing selection: 961077
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 961077
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.88685
+Number of columns needing recovery: 206205
+Number of columns needing selection: 958539
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 958539
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.86455
+Number of columns needing recovery: 205772
+Number of columns needing selection: 961618
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 961618
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.88359
+Number of columns needing recovery: 205533
+Number of columns needing selection: 961255
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 961255
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.87116
+Number of columns needing recovery: 205991
+Number of columns needing selection: 959648
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959648
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.86419
+Number of columns needing recovery: 206026
+Number of columns needing selection: 959820
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959820
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.84792
+Number of columns needing recovery: 206898
+Number of columns needing selection: 960000
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 960000
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.8622
+Number of columns needing recovery: 205633
+Number of columns needing selection: 959888
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959888
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.85169
+Number of columns needing recovery: 206133
+Number of columns needing selection: 960261
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 960261
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.84685
+Number of columns needing recovery: 206725
+Number of columns needing selection: 959960
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959960
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.86119
+Number of columns needing recovery: 205554
+Number of columns needing selection: 961582
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 961582
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.88191
+Number of columns needing recovery: 205881
+Number of columns needing selection: 959195
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959195
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.90486
+Number of columns needing recovery: 206511
+Number of columns needing selection: 957837
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 957837
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.87455
+Number of columns needing recovery: 205631
+Number of columns needing selection: 960475
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 960475
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.89909
+Number of columns needing recovery: 206028
+Number of columns needing selection: 959725
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Number of columns needing recovery after selection: 959725
+PruneColumn displacements: 0 9126 18252 27378 36504 45630 54756 63882 73008 82134 91260 100386 109512 118638 127764 136890 
+Multiwaymerge: inputNnz/mergedNnz = 4.87256
+Number of columns needing recovery: 205633
+Number of columns needing selsrun: error: nid00926: task 13: Killed
+srun: Terminating job step 4285665.0
+slurmstepd: error: *** STEP 4285665.0 ON nid00913 CANCELLED AT 2017-03-08T00:00:14 ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: nid03249: task 82: Killed
+srun: error: nid05356: task 194: Killed
+srun: error: nid05330: task 168: Killed
+srun: error: nid05190: task 144: Killed
+srun: error: nid03247: task 80: Killed
+srun: error: nid03252: task 85: Killed
+srun: error: nid01111: task 44: Killed
+srun: error: nid00968: task 30: Killed
+srun: error: nid03250: task 83: Killed
+srun: error: nid03251: task 84: Killed
+srun: error: nid03248: task 81: Killed
+srun: error: nid05149: task 127: Killed
+srun: error: nid03268: task 93: Killed
+srun: error: nid02550: task 63: Killed
+srun: error: nid05369: task 207: Killed
+srun: error: nid00919: task 6: Killed
+srun: error: nid00969: task 31: Killed
+srun: error: nid05200: task 154: Killed
+srun: error: nid05140: task 118: Killed
+srun: error: nid06068: task 252: Killed
+srun: error: nid05362: task 200: Killed
+srun: error: nid02547: task 60: Killed
+srun: error: nid05151: task 129: Killed
+srun: error: nid05195: task 149: Killed
+srun: error: nid06064: task 248: Killed
+srun: error: nid02557: task 70: Killed
+srun: error: nid01110: task 43: Killed
+srun: error: nid01106: task 39: Killed
+srun: error: nid00929: task 16: Killed
+srun: error: nid02554: task 67: Killed
+srun: error: nid05987: task 237: Killed
+srun: error: nid05968: task 218: Killed
+srun: error: nid01118: task 51: Killed
+srun: error: nid03246: task 79: Killed
+srun: error: nid05364: task 202: Killed
+srun: error: nid02561: task 74: Killed
+srun: error: nid05991: task 241: Killed
+srun: error: nid03349: task 107: Killed
+srun: error: nid00914: task 1: Killed
+srun: error: nid03263: task 88: Killed
+srun: error: nid05204: task 158: Killed
+srun: error: nid05179: task 133: Killed
+srun: error: nid03264: task 89: Killed
+srun: error: nid01134: task 57: Killed
+srun: error: nid03253: task 86: Killed
+srun: error: nid05138: task 116: Killed
+srun: error: nid00936: task 23: Killed
+srun: error: nid01117: task 50: Killed
+srun: error: nid00915: task 2: Killed
+srun: error: nid02558: task 71: Killed
+srun: error: nid05328: task 166: Killed
+srun: error: nid03274: task 99: Killed
+srun: error: nid05971: task 221: Killed
+srun: error: nid05193: task 147: Killed
+srun: error: nid05181: task 135: Killed
+srun: error: nid02559: task 72: Killed
+srun: error: nid05198: task 152: Killed
+srun: error: nid00921: task 8: Killed
+srun: error: nid05331: task 169: Killed
+srun: error: nid05143: task 121: Killed
+srun: error: nid06066: task 250: Killed
+srun: error: nid05334: task 172: Killed
+srun: error: nid05347: task 185: Killed
+srun: error: nid05335: task 173: Killed
+srun: error: nid02549: task 62: Killed
+srun: error: nid00937: task 24: Killed
+srun: error: nid06069: task 253: Killed
+srun: error: nid00920: task 7: Killed
+srun: error: nid00932: task 19: Killed
+srun: error: nid05142: task 120: Killed
+srun: error: nid03271: task 96: Killed
+srun: error: nid03266: task 91: Killed
+srun: error: nid03277: task 102: Killed
+srun: error: nid05984: task 234: Killed
+srun: error: nid00975: task 37: Killed
+srun: error: nid01133: task 56: Killed
+srun: error: nid01108: task 41: Killed
+srun: error: nid05965: task 215: Killed
+srun: error: nid01109: task 42: Killed
+srun: error: nid00927: task 14: Killed
+srun: error: nid03275: task 100: Killed
+srun: error: nid02555: task 68: Killed
+srun: error: nid05144: task 122: Killed
+srun: error: nid05147: task 125: Killed
+srun: error: nid05346: task 184: Killed
+srun: error: nid05326: task 164: Killed
+srun: error: nid01136: task 59: Killed
+srun: error: nid00925: task 12: Killed
+srun: error: nid05988: task 238: Killed
+srun: error: nid05360: task 198: Killed
+srun: error: nid05978: task 228: Killed
+srun: error: nid03265: task 90: Killed
+srun: error: nid00970: task 32: Killed
+srun: error: nid03347: task 105: Killed
+srun: error: nid05368: task 206: Killed
+srun: error: nid01132: task 55: Killed
+srun: error: nid00918: task 5: Killed
+srun: error: nid05964: task 214: Killed
+srun: error: nid03351: task 109: Killed
+srun: error: nid05966: task 216: Killed
+srun: error: nid05332: task 170: Killed
+srun: error: nid05975: task 225: Killed
+srun: error: nid02560: task 73: Killed
+srun: error: nid05969: task 219: Killed
+srun: error: nid02562: task 75: Killed
+srun: error: nid03276: task 101: Killed
+srun: error: nid05979: task 229: Killed
+srun: error: nid00974: task 36: Killed
+srun: error: nid05184: task 138: Killed
+srun: error: nid00971: task 33: Killed
+srun: error: nid05202: task 156: Killed
+srun: error: nid00938: task 25: Killed
+srun: error: nid05990: task 240: Killed
+srun: error: nid05985: task 235: Killed
+srun: error: nid05146: task 124: Killed
+srun: error: nid05983: task 233: Killed
+srun: error: nid06058: task 242: Killed
+srun: error: nid05139: task 117: Killed
+srun: error: nid01113: task 46: Killed
+srun: error: nid05180: task 134: Killed
+srun: error: nid05986: task 236: Killed
+srun: error: nid05194: task 148: Killed
+srun: error: nid01135: task 58: Killed
+srun: error: nid01107: task 40: Killed
+srun: error: nid05327: task 165: Killed
+srun: error: nid00928: task 15: Killed
+srun: error: nid05350: task 188: Killed
+srun: error: nid00962: task 28: Killed
+srun: error: nid03269: task 94: Killed
+srun: error: nid05341: task 179: Killed
+srun: error: nid05342: task 180: Killed
+srun: error: nid00976: task 38: Killed
+srun: error: nid05186: task 140: Killed
+srun: error: nid02552: task 65: Killed
+srun: error: nid05981: task 231: Killed
+srun: error: nid03353: task 111: Killed
+srun: error: nid00922: task 9: Killed
+srun: error: nid00930: task 17: Killed
+srun: error: nid05192: task 146: Killed
+srun: error: nid03272: task 97: Killed
+srun: error: nid06060: task 244: Killed
+srun: error: nid05352: task 190: Killed
+srun: error: nid00916: task 3: Killed
+srun: error: nid00973: task 35: Killed
+srun: error: nid05970: task 220: Killed
+srun: error: nid00961: task 27: Killed
+srun: error: nid05148: task 126: Killed
+srun: error: nid05365: task 203: Killed
+srun: error: nid06059: task 243: Killed
+srun: error: nid00933: task 20: Killed
+srun: error: nid05960: task 210: Killed
+srun: error: nid00924: task 11: Killed
+srun: error: nid03244: task 77: Killed
+srun: error: nid05349: task 187: Killed
+srun: error: nid05185: task 139: Killed
+srun: error: nid00934: task 21: Killed
+srun: error: nid05353: task 191: Killed
+srun: error: nid00935: task 22: Killed
+srun: error: nid05963: task 213: Killed
+srun: error: nid05339: task 177: Killed
+srun: error: nid05329: task 167: Killed
+srun: error: nid05145: task 123: Killed
+srun: error: nid03355: task 113: Killed
+srun: error: nid06065: task 249: Killed
+srun: error: nid05977: task 227: Killed
+srun: error: nid05370: task 208: Killed
+srun: error: nid05196: task 150: Killed
+srun: error: nid05338: task 176: Killed
+srun: error: nid05354: task 192: Killed
+srun: error: nid05137: task 115: Killed
+srun: error: nid05337: task 175: Killed
+srun: error: nid05189: task 143: Killed
+srun: error: nid03346: task 104: Killed
+srun: error: nid05982: task 232: Killed
+srun: error: nid05351: task 189: Killed
+srun: error: nid02556: task 69: Killed
+srun: error: nid05141: task 119: Killed
+srun: error: nid05206: task 160: Killed
+srun: error: nid00931: task 18: Killed
+srun: error: nid03270: task 95: Killed
+srun: error: nid05363: task 201: Killed
+srun: error: nid00939: task 26: Killed
+srun: error: nid00972: task 34: Killed
+srun: error: nid05345: task 183: Killed
+srun: error: nid05974: task 224: Killed
+srun: error: nid00917: task 4: Killed
+srun: error: nid05336: task 174: Killed
+srun: error: nid06071: task 255: Killed
+srun: error: nid05201: task 155: Killed
+srun: error: nid01115: task 48: Killed
+srun: error: nid05366: task 204: Killed
+srun: error: nid05191: task 145: Killed
+srun: error: nid05207: task 161: Killed
+srun: error: nid05205: task 159: Killed
+srun: error: nid00923: task 10: Killed
+srun: error: nid03354: task 112: Killed
+srun: error: nid01116: task 49: Killed
+srun: error: nid05177: task 131: Killed
+srun: error: nid03348: task 106: Killed
+srun: error: nid02548: task 61: Killed
+srun: error: nid05962: task 212: Killed
+srun: error: nid01121: task 54: Killed
+srun: error: nid06067: task 251: Killed
+srun: error: nid05343: task 181: Killed
+srun: error: nid03345: task 103: Killed
+srun: error: nid05355: task 193: Killed
+srun: error: nid05183: task 137: Killed
+srun: error: nid05967: task 217: Killed
+srun: error: nid06061: task 245: Killed
+srun: error: nid03356: task 114: Killed
+srun: error: nid03350: task 108: Killed
+srun: error: nid05197: task 151: Killed
+srun: error: nid03273: task 98: Killed
+srun: error: nid05150: task 128: Killed
+srun: error: nid05367: task 205: Killed
+srun: error: nid03245: task 78: Killed
+srun: error: nid05989: task 239: Killed
+srun: error: nid03267: task 92: Killed
+srun: error: nid05973: task 223: Killed
+srun: error: nid00963: task 29: Killed
+srun: error: nid06070: task 254: Killed
+srun: error: nid05361: task 199: Killed
+srun: error: nid05972: task 222: Killed
+srun: error: nid05324: task 162: Killed
+srun: error: nid05152: task 130: Killed
+srun: error: nid05371: task 209: Killed
+srun: error: nid02551: task 64: Killed
+srun: error: nid02553: task 66: Killed
+srun: error: nid05348: task 186: Killed
+srun: error: nid05182: task 136: Killed
+srun: error: nid05199: task 153: Killed
+srun: error: nid05188: task 142: Killed
+srun: error: nid05980: task 230: Killed
+srun: error: nid01112: task 45: Killed
+srun: error: nid01120: task 53: Killed
+srun: error: nid03243: task 76: Killed
+srun: error: nid03352: task 110: Killed
+srun: error: nid05325: task 163: Killed
+srun: error: nid05333: task 171: Killed
+srun: error: nid06062: task 246: Killed
+srun: error: nid05203: task 157: Killed
+srun: error: nid05976: task 226: Killed
+srun: error: nid06063: task 247: Killed
+srun: error: nid05187: task 141: Killed
+srun: error: nid01114: task 47: Killed
+srun: error: nid05178: task 132: Killed
+srun: error: nid03254: task 87: Killed
+srun: error: nid05359: task 197: Killed
+srun: error: nid05344: task 182: Killed
+srun: error: nid05358: task 196: Killed
+srun: error: nid01119: task 52: Killed
+srun: error: nid05357: task 195: Killed
+srun: error: nid05340: task 178: Killed
+srun: error: nid05961: task 211: Killed
+srun: error: nid00913: task 0: Killed

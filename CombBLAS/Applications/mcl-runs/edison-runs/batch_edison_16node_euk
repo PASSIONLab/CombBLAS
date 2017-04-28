@@ -1,0 +1,17 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 16
+#SBATCH -t 00:30:00
+#SBATCH -J c16
+#SBATCH -o euk_16node.o%j
+
+MAT=/scratch3/scratchdirs/abuluc/georgios-matrices/2017/HipMCL/eukarya/subgraph0/Renamed_subgraph0_euk_vs_euk_30_50length.indexed.list
+
+export OMP_NUM_THREADS=6
+N=16
+n=64
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+srun -N $N -n $n -c 6  --ntasks-per-node=4 --cpu_bind=cores ../../mcl -M $MAT -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 16 -o euk.out
+
+

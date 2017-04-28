@@ -1,0 +1,26 @@
+#!/bin/bash -l
+
+#SBATCH -p regular
+#SBATCH -N 4
+#SBATCH -t 06:30:00
+#SBATCH -J c4
+#SBATCH -o edison_4node.o%j
+
+MAT1=/scratch3/scratchdirs/abuluc/georgios-matrices/subgraph1/Renamed_subgraph1_alignments_isolates_only_30_correct.txt
+MAT2=/scratch3/scratchdirs/abuluc/georgios-matrices/subgraph2/Renamed_subgraph2_alignments_isolates_only_30_correct.txt
+MAT3=/scratch3/scratchdirs/abuluc/georgios-matrices/subgraph3/Renamed_subgraph3_alignments_isolates_only_30_correct.txt
+MAT4=/scratch3/scratchdirs/abuluc/georgios-matrices/subgraph4/Renamed_subgraph4_alignments_isolates_only_30_correct.txt
+MAT5=/scratch3/scratchdirs/abuluc/georgios-matrices/subgraph5/Renamed_subgraph5_alignments_isolates_only_30_correct.txt
+
+export OMP_NUM_THREADS=24
+N=4
+n=4
+export MPICH_GNI_COLL_OPT_OFF=MPI_Alltoallv
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT1 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT2 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT3 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT4 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT5 -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 0 -rand 0 -phases 20 -per-process-mem 64
+
+
+

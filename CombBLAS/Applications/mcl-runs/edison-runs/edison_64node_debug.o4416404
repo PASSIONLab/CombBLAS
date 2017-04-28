@@ -1,0 +1,741 @@
+Process Grid (p x p x t): 8 x 8 x 24
+filename: /scratch3/scratchdirs/abuluc/georgios-matrices/subgraph5/Renamed_subgraph5_alignments_isolates_only_30_correct.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):0
+Number of SpGEMM phases:20
+Per process memory:64 GB
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 20 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 7161382
+File is 152800128 bytes
+File Read time: 0.703174
+Removed isolated vertices.
+Load balance: 1.00876
+Nonzeros: 9962298
+Adjusted loops according to default mcl parameters
+Made stochastic
+phases: 1: per process memory: 64 GB asquareMem: 65.4106 MB inputMem: 18.3295 MB outputMem: 65.3348 MB kselectmem: 313.607 MB
+1. unmerged: 63.272 MB  merged: 58.6109 MB Prune: 58.475 MB 
+Iteration:   1 chaos: 71.4 nnz: 84174799  load-balance: 1.11 Total time: 5.31
+phases: 1: per process memory: 64 GB asquareMem: 3.72788 GB inputMem: 0.0877126 GB outputMem: 1.03942 GB kselectmem: 4.9892 GB
+1. unmerged: 1.29923GB  merged: 698.463 MB Prune: 94.8669 MB 
+Iteration:   2 chaos: 348 nnz: 141690213  load-balance: 1.07 Total time: 13.4
+phases: 1: per process memory: 64 GB asquareMem: 10.5628 GB inputMem: 0.1423 GB outputMem: 1.03942 GB kselectmem: 4.9892 GB
+1. unmerged: 2.11091GB  merged: 1.02861GB Prune: 41.3881 MB 
+Iteration:   3 chaos: 106 nnz: 57349611  load-balance: 1.15 Total time: 7.7
+phases: 1: per process memory: 64 GB asquareMem: 1.73045 GB inputMem: 0.0620822 GB outputMem: 1.03942 GB kselectmem: 4.9892 GB
+1. unmerged: 404.712 MB  merged: 210.162 MB Prune: 17.215 MB 
+Iteration:   4 chaos: 34.6 nnz: 20340081  load-balance: 1.35 Total time: 1.22
+phases: 1: per process memory: 64 GB asquareMem: 0.217672 GB inputMem: 0.0258224 GB outputMem: 0.217535 GB kselectmem: 1.04417 GB
+1. unmerged: 76.6497 MB  merged: 38.0586 MB Prune: 8.16092 MB 
+Iteration:   5 chaos: 15.3 nnz: 8021079  load-balance: 1.63 Total time: 0.332
+phases: 1: per process memory: 64 GB asquareMem: 33.8504 MB inputMem: 12.2414 MB outputMem: 33.4098 MB kselectmem: 160.367 MB
+1. unmerged: 18.315 MB  merged: 10.474 MB Prune: 4.73692 MB 
+Iteration:   6 chaos: 5.82 nnz: 4008087  load-balance: 1.89 Total time: 0.17
+phases: 1: per process memory: 64 GB asquareMem: 8.45224 MB inputMem: 7.10538 MB outputMem: 8.16684 MB kselectmem: 39.2008 MB
+1. unmerged: 6.54192 MB  merged: 5.0616 MB Prune: 3.32264 MB 
+Iteration:   7 chaos: 3.12 nnz: 2522765  load-balance: 2.11 Total time: 0.145
+phases: 1: per process memory: 64 GB asquareMem: 3.34848 MB inputMem: 4.98396 MB outputMem: 2.96976 MB kselectmem: 14.2548 MB
+1. unmerged: 3.31788 MB  merged: 3.37756 MB Prune: 2.69416 MB 
+Iteration:   8 chaos: 1.77 nnz: 1902041  load-balance: 2.27 Total time: 0.128
+phases: 1: per process memory: 64 GB asquareMem: 1.9034 MB inputMem: 4.04124 MB outputMem: 1.48488 MB kselectmem: 7.12742 MB
+1. unmerged: 2.2119 MB  merged: 2.70524 MB Prune: 2.38252 MB 
+Iteration:   9 chaos: 1.37 nnz: 1616133  load-balance: 2.36 Total time: 0.112
+phases: 1: per process memory: 64 GB asquareMem: 1.3742 MB inputMem: 3.57378 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.73836 MB  merged: 2.3846 MB Prune: 2.22248 MB 
+Iteration:  10 chaos: 1.17 nnz: 1475502  load-balance: 2.41 Total time: 0.114
+phases: 1: per process memory: 64 GB asquareMem: 1.14544 MB inputMem: 3.33372 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.5145 MB  merged: 2.22304 MB Prune: 2.13132 MB 
+Iteration:  11 chaos: 1.05 nnz: 1398053  load-balance: 2.44 Total time: 0.109
+phases: 1: per process memory: 64 GB asquareMem: 1.02836 MB inputMem: 3.19698 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.3896 MB  merged: 2.1316 MB Prune: 2.0704 MB 
+Iteration:  12 chaos: 0.879 nnz: 1352676  load-balance: 2.45 Total time: 0.111
+phases: 1: per process memory: 64 GB asquareMem: 0.96268 MB inputMem: 3.1056 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.3111 MB  merged: 2.07044 MB Prune: 2.02776 MB 
+Iteration:  13 chaos: 0.701 nnz: 1321962  load-balance: 2.45 Total time: 0.116
+phases: 1: per process memory: 64 GB asquareMem: 0.91944 MB inputMem: 3.04164 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.25498 MB  merged: 2.02776 MB Prune: 1.99816 MB 
+Iteration:  14 chaos: 0.559 nnz: 1300910  load-balance: 2.46 Total time: 0.11
+phases: 1: per process memory: 64 GB asquareMem: 0.8904 MB inputMem: 2.99724 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.21608 MB  merged: 1.99808 MB Prune: 1.9798 MB 
+Iteration:  15 chaos: 0.466 nnz: 1287831  load-balance: 2.46 Total time: 0.115
+phases: 1: per process memory: 64 GB asquareMem: 0.8726 MB inputMem: 2.9697 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.19218 MB  merged: 1.9798 MB Prune: 1.9686 MB 
+Iteration:  16 chaos: 0.495 nnz: 1280649  load-balance: 2.46 Total time: 0.11
+phases: 1: per process memory: 64 GB asquareMem: 0.86288 MB inputMem: 2.9529 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.17714 MB  merged: 1.9686 MB Prune: 1.96456 MB 
+Iteration:  17 chaos: 0.397 nnz: 1277479  load-balance: 2.46 Total time: 0.109
+phases: 1: per process memory: 64 GB asquareMem: 0.8586 MB inputMem: 2.94684 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.17082 MB  merged: 1.96456 MB Prune: 1.96188 MB 
+Iteration:  18 chaos: 0.25 nnz: 1275877  load-balance: 2.46 Total time: 0.112
+phases: 1: per process memory: 64 GB asquareMem: 0.85644 MB inputMem: 2.94282 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16712 MB  merged: 1.96188 MB Prune: 1.96112 MB 
+Iteration:  19 chaos: 0.25 nnz: 1275194  load-balance: 2.46 Total time: 0.106
+phases: 1: per process memory: 64 GB asquareMem: 0.85552 MB inputMem: 2.94168 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.1659 MB  merged: 1.96112 MB Prune: 1.96032 MB 
+Iteration:  20 chaos: 0.25 nnz: 1274671  load-balance: 2.46 Total time: 0.107
+phases: 1: per process memory: 64 GB asquareMem: 0.85484 MB inputMem: 2.94048 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16498 MB  merged: 1.96032 MB Prune: 1.96016 MB 
+Iteration:  21 chaos: 0.247 nnz: 1274516  load-balance: 2.46 Total time: 0.105
+phases: 1: per process memory: 64 GB asquareMem: 0.85464 MB inputMem: 2.94024 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.1647 MB  merged: 1.96016 MB Prune: 1.96004 MB 
+Iteration:  22 chaos: 0.247 nnz: 1274450  load-balance: 2.46 Total time: 0.105
+phases: 1: per process memory: 64 GB asquareMem: 0.85456 MB inputMem: 2.94006 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16456 MB  merged: 1.96004 MB Prune: 1.95996 MB 
+Iteration:  23 chaos: 0.191 nnz: 1274357  load-balance: 2.46 Total time: 0.116
+phases: 1: per process memory: 64 GB asquareMem: 0.8544 MB inputMem: 2.93994 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16448 MB  merged: 1.95996 MB Prune: 1.95996 MB 
+Iteration:  24 chaos: 0.25 nnz: 1274346  load-balance: 2.46 Total time: 0.118
+phases: 1: per process memory: 64 GB asquareMem: 0.8544 MB inputMem: 2.93994 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16448 MB  merged: 1.95996 MB Prune: 1.95976 MB 
+Iteration:  25 chaos: 0.25 nnz: 1274325  load-balance: 2.46 Total time: 0.111
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  26 chaos: 0.161 nnz: 1274325  load-balance: 2.46 Total time: 0.11
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  27 chaos: 0.1 nnz: 1274325  load-balance: 2.46 Total time: 0.109
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  28 chaos: 0.191 nnz: 1274321  load-balance: 2.46 Total time: 0.112
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  29 chaos: 0.339 nnz: 1274313  load-balance: 2.46 Total time: 0.106
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  30 chaos: 0.482 nnz: 1274313  load-balance: 2.46 Total time: 0.108
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  31 chaos: 0.35 nnz: 1274313  load-balance: 2.46 Total time: 0.114
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  32 chaos: 0.058 nnz: 1274313  load-balance: 2.46 Total time: 0.114
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  33 chaos: 0.000643 nnz: 1274308  load-balance: 2.46 Total time: 0.112
+phases: 1: per process memory: 64 GB asquareMem: 0.85436 MB inputMem: 2.93964 MB outputMem: 0.74244 MB kselectmem: 3.56371 MB
+1. unmerged: 1.16434 MB  merged: 1.95976 MB Prune: 1.95976 MB 
+Iteration:  34 chaos: 1.52e-06 nnz: 1274303  load-balance: 2.46 Total time: 0.114
+Creating a new MPI data type for St4pairIllE
+Iteration: 1 Non stars: 0
+Number of components: 219582
+Size of the first component: 14
+Size of the second component: 2
+Size of the third component: 2
+Size of the fourth component: 2
+=====================================
+Total time: 31.4264
+Breakdown of squaring time: 
+ mcl_Abcast= 1.78386
+ mcl_Bbcast= 1.52016
+ mcl_localspgemm= 7.75254
+ mcl_multiwaymergetime= 1.78186
+ mcl_kselect= 13.0815
+ mcl_prunecolumn= 1.18305
+Connected Component time: 0.085542
+=================================================
+Process Grid (p x p x t): 8 x 8 x 24
+filename: /scratch3/scratchdirs/abuluc/georgios-matrices/subgraph4/Renamed_subgraph4_alignments_isolates_only_30_correct.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):0
+Number of SpGEMM phases:20
+Per process memory:64 GB
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 20 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 28586254
+File is 631684726 bytes
+File Read time: 0.645678
+Removed isolated vertices.
+Load balance: 1.00766
+Nonzeros: 39760284
+Adjusted loops according to default mcl parameters
+Made stochastic
+phases: 1: per process memory: 64 GB asquareMem: 0.434497 GB inputMem: 0.0568966 GB outputMem: 0.433505 GB kselectmem: 2.08082 GB
+1. unmerged: 368.881 MB  merged: 313.367 MB Prune: 293.242 MB 
+Iteration:   1 chaos: 129 nnz: 447603694  load-balance: 1.05 Total time: 19.3
+phases: 1: per process memory: 64 GB asquareMem: 48.563 GB inputMem: 0.439863 GB outputMem: 2.25616 GB kselectmem: 10.8295 GB
+1. unmerged: 9.87151GB  merged: 4.7153GB Prune: 339.539 MB 
+Iteration:   2 chaos: 349 nnz: 521037280  load-balance: 1.04 Total time: 70.2
+phases: 2: per process memory: 64 GB asquareMem: 65.8045 GB inputMem: 0.509309 GB outputMem: 2.25616 GB kselectmem: 10.8295 GB
+1. unmerged: 4.51705GB  merged: 2.22688GB Prune: 68.2752 MB 
+2. unmerged: 4.55717GB  merged: 2.24172GB Prune: 68.2887 MB 
+Iteration:   3 chaos: 171 nnz: 199319301  load-balance: 1.1 Total time: 40.2
+phases: 1: per process memory: 64 GB asquareMem: 9.62978 GB inputMem: 0.204846 GB outputMem: 2.25616 GB kselectmem: 10.8295 GB
+1. unmerged: 1.50488GB  merged: 743.696 MB Prune: 51.817 MB 
+Iteration:   4 chaos: 64 nnz: 68103375  load-balance: 1.22 Total time: 5.2
+phases: 1: per process memory: 64 GB asquareMem: 1.12423 GB inputMem: 0.0777256 GB outputMem: 1.12325 GB kselectmem: 5.39157 GB
+1. unmerged: 277.969 MB  merged: 123.298 MB Prune: 22.013 MB 
+Iteration:   5 chaos: 25.4 nnz: 25329923  load-balance: 1.39 Total time: 1.07
+phases: 1: per process memory: 64 GB asquareMem: 0.15552 GB inputMem: 0.0330196 GB outputMem: 0.154708 GB kselectmem: 0.742598 GB
+1. unmerged: 64.0697 MB  merged: 29.7786 MB Prune: 11.5767 MB 
+Iteration:   6 chaos: 10.3 nnz: 11741483  load-balance: 1.58 Total time: 0.406
+phases: 1: per process memory: 64 GB asquareMem: 33.4167 MB inputMem: 17.365 MB outputMem: 32.2309 MB kselectmem: 154.708 MB
+1. unmerged: 20.699 MB  merged: 12.6447 MB Prune: 7.4186 MB 
+Iteration:   7 chaos: 4.21 nnz: 6750812  load-balance: 1.76 Total time: 0.293
+phases: 1: per process memory: 64 GB asquareMem: 11.0466 MB inputMem: 11.1279 MB outputMem: 9.66924 MB kselectmem: 46.4124 MB
+1. unmerged: 9.03604 MB  merged: 7.60808 MB Prune: 5.56092 MB 
+Iteration:   8 chaos: 2.61 nnz: 4681594  load-balance: 1.9 Total time: 0.239
+phases: 1: per process memory: 64 GB asquareMem: 5.31256 MB inputMem: 8.34138 MB outputMem: 4.8346 MB kselectmem: 23.2062 MB
+1. unmerged: 5.15866 MB  merged: 5.60172 MB Prune: 4.6912 MB 
+Iteration:   9 chaos: 2.08 nnz: 3764962  load-balance: 1.99 Total time: 0.217
+phases: 1: per process memory: 64 GB asquareMem: 3.43588 MB inputMem: 7.0368 MB outputMem: 3.22308 MB kselectmem: 15.4708 MB
+1. unmerged: 3.68172 MB  merged: 4.69892 MB Prune: 4.23524 MB 
+Iteration:  10 chaos: 1.47 nnz: 3306846  load-balance: 2.05 Total time: 0.21
+phases: 1: per process memory: 64 GB asquareMem: 2.6506 MB inputMem: 6.35286 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.99394 MB  merged: 4.2374 MB Prune: 3.9846 MB 
+Iteration:  11 chaos: 1.37 nnz: 3072948  load-balance: 2.07 Total time: 0.195
+phases: 1: per process memory: 64 GB asquareMem: 2.28888 MB inputMem: 5.9769 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.63376 MB  merged: 3.98556 MB Prune: 3.82632 MB 
+Iteration:  12 chaos: 1.18 nnz: 2930415  load-balance: 2.09 Total time: 0.194
+phases: 1: per process memory: 64 GB asquareMem: 2.08148 MB inputMem: 5.73948 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.41446 MB  merged: 3.8266 MB Prune: 3.72324 MB 
+Iteration:  13 chaos: 0.747 nnz: 2839713  load-balance: 2.1 Total time: 0.194
+phases: 1: per process memory: 64 GB asquareMem: 1.9546 MB inputMem: 5.58486 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.2682 MB  merged: 3.72324 MB Prune: 3.65148 MB 
+Iteration:  14 chaos: 0.672 nnz: 2780508  load-balance: 2.1 Total time: 0.202
+phases: 1: per process memory: 64 GB asquareMem: 1.87396 MB inputMem: 5.47722 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.17292 MB  merged: 3.65152 MB Prune: 3.60664 MB 
+Iteration:  15 chaos: 0.5 nnz: 2744775  load-balance: 2.1 Total time: 0.198
+phases: 1: per process memory: 64 GB asquareMem: 1.82612 MB inputMem: 5.40996 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.11344 MB  merged: 3.60664 MB Prune: 3.58684 MB 
+Iteration:  16 chaos: 0.5 nnz: 2727851  load-balance: 2.1 Total time: 0.185
+phases: 1: per process memory: 64 GB asquareMem: 1.80364 MB inputMem: 5.38026 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.08582 MB  merged: 3.58684 MB Prune: 3.57464 MB 
+Iteration:  17 chaos: 0.5 nnz: 2719018  load-balance: 2.1 Total time: 0.198
+phases: 1: per process memory: 64 GB asquareMem: 1.792 MB inputMem: 5.36196 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.07128 MB  merged: 3.57464 MB Prune: 3.56928 MB 
+Iteration:  18 chaos: 0.418 nnz: 2714626  load-balance: 2.1 Total time: 0.201
+phases: 1: per process memory: 64 GB asquareMem: 1.7862 MB inputMem: 5.35392 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.06426 MB  merged: 3.56928 MB Prune: 3.56704 MB 
+Iteration:  19 chaos: 0.25 nnz: 2712114  load-balance: 2.1 Total time: 0.183
+phases: 1: per process memory: 64 GB asquareMem: 1.78292 MB inputMem: 5.35056 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.06038 MB  merged: 3.56704 MB Prune: 3.565 MB 
+Iteration:  20 chaos: 0.25 nnz: 2710989  load-balance: 2.1 Total time: 0.184
+phases: 1: per process memory: 64 GB asquareMem: 1.78144 MB inputMem: 5.3475 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.0579 MB  merged: 3.565 MB Prune: 3.56476 MB 
+Iteration:  21 chaos: 0.25 nnz: 2710570  load-balance: 2.1 Total time: 0.187
+phases: 1: per process memory: 64 GB asquareMem: 1.78088 MB inputMem: 5.34714 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05746 MB  merged: 3.56476 MB Prune: 3.56396 MB 
+Iteration:  22 chaos: 0.249 nnz: 2710284  load-balance: 2.1 Total time: 0.191
+phases: 1: per process memory: 64 GB asquareMem: 1.78052 MB inputMem: 5.34594 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05658 MB  merged: 3.56396 MB Prune: 3.56388 MB 
+Iteration:  23 chaos: 0.25 nnz: 2710158  load-balance: 2.1 Total time: 0.185
+phases: 1: per process memory: 64 GB asquareMem: 1.78032 MB inputMem: 5.34582 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05644 MB  merged: 3.56388 MB Prune: 3.56388 MB 
+Iteration:  24 chaos: 0.25 nnz: 2710091  load-balance: 2.1 Total time: 0.191
+phases: 1: per process memory: 64 GB asquareMem: 1.78024 MB inputMem: 5.34582 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05634 MB  merged: 3.56388 MB Prune: 3.56388 MB 
+Iteration:  25 chaos: 0.331 nnz: 2710040  load-balance: 2.1 Total time: 0.184
+phases: 1: per process memory: 64 GB asquareMem: 1.7802 MB inputMem: 5.34582 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05634 MB  merged: 3.56388 MB Prune: 3.56372 MB 
+Iteration:  26 chaos: 0.489 nnz: 2710002  load-balance: 2.1 Total time: 0.193
+phases: 1: per process memory: 64 GB asquareMem: 1.78012 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05618 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  27 chaos: 0.368 nnz: 2709968  load-balance: 2.1 Total time: 0.194
+phases: 1: per process memory: 64 GB asquareMem: 1.78008 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05618 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  28 chaos: 0.0904 nnz: 2709962  load-balance: 2.1 Total time: 0.187
+phases: 1: per process memory: 64 GB asquareMem: 1.78008 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  29 chaos: 0.00555 nnz: 2709954  load-balance: 2.1 Total time: 0.18
+phases: 1: per process memory: 64 GB asquareMem: 1.78008 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  30 chaos: 0.00029 nnz: 2709939  load-balance: 2.1 Total time: 0.193
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  31 chaos: 0.000579 nnz: 2709939  load-balance: 2.1 Total time: 0.188
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  32 chaos: 0.00116 nnz: 2709939  load-balance: 2.1 Total time: 0.19
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  33 chaos: 0.00231 nnz: 2709939  load-balance: 2.1 Total time: 0.199
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  34 chaos: 0.00462 nnz: 2709939  load-balance: 2.1 Total time: 0.194
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  35 chaos: 0.00919 nnz: 2709939  load-balance: 2.1 Total time: 0.204
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  36 chaos: 0.0182 nnz: 2709939  load-balance: 2.1 Total time: 0.194
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  37 chaos: 0.0357 nnz: 2709939  load-balance: 2.1 Total time: 0.192
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  38 chaos: 0.0686 nnz: 2709939  load-balance: 2.1 Total time: 0.203
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  39 chaos: 0.126 nnz: 2709939  load-balance: 2.1 Total time: 0.208
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  40 chaos: 0.205 nnz: 2709939  load-balance: 2.1 Total time: 0.197
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  41 chaos: 0.249 nnz: 2709939  load-balance: 2.1 Total time: 0.216
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  42 chaos: 0.25 nnz: 2709939  load-balance: 2.1 Total time: 0.197
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56372 MB 
+Iteration:  43 chaos: 0.153 nnz: 2709939  load-balance: 2.1 Total time: 0.198
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34558 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05616 MB  merged: 3.56372 MB Prune: 3.56368 MB 
+Iteration:  44 chaos: 0.175 nnz: 2709937  load-balance: 2.1 Total time: 0.195
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  45 chaos: 0.245 nnz: 2709937  load-balance: 2.1 Total time: 0.203
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  46 chaos: 0.2 nnz: 2709934  load-balance: 2.1 Total time: 0.193
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  47 chaos: 0.0472 nnz: 2709934  load-balance: 2.1 Total time: 0.2
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  48 chaos: 0.0433 nnz: 2709934  load-balance: 2.1 Total time: 0.197
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  49 chaos: 0.0824 nnz: 2709929  load-balance: 2.1 Total time: 0.2
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  50 chaos: 0.147 nnz: 2709929  load-balance: 2.1 Total time: 0.204
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  51 chaos: 0.227 nnz: 2709929  load-balance: 2.1 Total time: 0.189
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  52 chaos: 0.248 nnz: 2709929  load-balance: 2.1 Total time: 0.209
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  53 chaos: 0.283 nnz: 2709929  load-balance: 2.1 Total time: 0.202
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56368 MB 
+Iteration:  54 chaos: 0.518 nnz: 2709929  load-balance: 2.1 Total time: 0.189
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34552 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05612 MB  merged: 3.56368 MB Prune: 3.56364 MB 
+Iteration:  55 chaos: 0.736 nnz: 2709922  load-balance: 2.1 Total time: 0.211
+phases: 1: per process memory: 64 GB asquareMem: 1.78004 MB inputMem: 5.34546 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05608 MB  merged: 3.56364 MB Prune: 3.5634 MB 
+Iteration:  56 chaos: 0.669 nnz: 2709799  load-balance: 2.1 Total time: 0.195
+phases: 1: per process memory: 64 GB asquareMem: 1.77988 MB inputMem: 5.3451 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05572 MB  merged: 3.5634 MB Prune: 3.56232 MB 
+Iteration:  57 chaos: 0.448 nnz: 2708951  load-balance: 2.1 Total time: 0.197
+phases: 1: per process memory: 64 GB asquareMem: 1.77876 MB inputMem: 5.34348 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.05414 MB  merged: 3.56232 MB Prune: 3.55784 MB 
+Iteration:  58 chaos: 0.471 nnz: 2706506  load-balance: 2.1 Total time: 0.211
+phases: 1: per process memory: 64 GB asquareMem: 1.77556 MB inputMem: 5.33676 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.04856 MB  merged: 3.55784 MB Prune: 3.55352 MB 
+Iteration:  59 chaos: 0.436 nnz: 2703829  load-balance: 2.1 Total time: 0.182
+phases: 1: per process memory: 64 GB asquareMem: 1.77204 MB inputMem: 5.33028 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.04292 MB  merged: 3.55352 MB Prune: 3.54992 MB 
+Iteration:  60 chaos: 0.455 nnz: 2701526  load-balance: 2.1 Total time: 0.187
+phases: 1: per process memory: 64 GB asquareMem: 1.769 MB inputMem: 5.32488 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03794 MB  merged: 3.54992 MB Prune: 3.5472 MB 
+Iteration:  61 chaos: 0.25 nnz: 2700046  load-balance: 2.1 Total time: 0.209
+phases: 1: per process memory: 64 GB asquareMem: 1.76708 MB inputMem: 5.3208 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.0346 MB  merged: 3.5472 MB Prune: 3.54588 MB 
+Iteration:  62 chaos: 0.249 nnz: 2699206  load-balance: 2.1 Total time: 0.186
+phases: 1: per process memory: 64 GB asquareMem: 1.76596 MB inputMem: 5.31882 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03286 MB  merged: 3.54588 MB Prune: 3.54488 MB 
+Iteration:  63 chaos: 0.249 nnz: 2698664  load-balance: 2.1 Total time: 0.197
+phases: 1: per process memory: 64 GB asquareMem: 1.76528 MB inputMem: 5.31732 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03144 MB  merged: 3.54488 MB Prune: 3.54432 MB 
+Iteration:  64 chaos: 0.249 nnz: 2698343  load-balance: 2.1 Total time: 0.195
+phases: 1: per process memory: 64 GB asquareMem: 1.76484 MB inputMem: 5.31648 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03078 MB  merged: 3.54432 MB Prune: 3.5442 MB 
+Iteration:  65 chaos: 0.249 nnz: 2697927  load-balance: 2.1 Total time: 0.181
+phases: 1: per process memory: 64 GB asquareMem: 1.76432 MB inputMem: 5.3163 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03058 MB  merged: 3.5442 MB Prune: 3.544 MB 
+Iteration:  66 chaos: 0.185 nnz: 2697853  load-balance: 2.1 Total time: 0.182
+phases: 1: per process memory: 64 GB asquareMem: 1.7642 MB inputMem: 5.316 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03038 MB  merged: 3.544 MB Prune: 3.54396 MB 
+Iteration:  67 chaos: 0.249 nnz: 2697820  load-balance: 2.1 Total time: 0.195
+phases: 1: per process memory: 64 GB asquareMem: 1.76416 MB inputMem: 5.31594 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03028 MB  merged: 3.54396 MB Prune: 3.54392 MB 
+Iteration:  68 chaos: 0.249 nnz: 2697805  load-balance: 2.1 Total time: 0.203
+phases: 1: per process memory: 64 GB asquareMem: 1.76416 MB inputMem: 5.31588 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.03022 MB  merged: 3.54392 MB Prune: 3.54392 MB 
+Iteration:  69 chaos: 0.182 nnz: 2697802  load-balance: 2.1 Total time: 0.211
+phases: 1: per process memory: 64 GB asquareMem: 1.76412 MB inputMem: 5.31588 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.0302 MB  merged: 3.54392 MB Prune: 3.54392 MB 
+Iteration:  70 chaos: 0.0347 nnz: 2697802  load-balance: 2.1 Total time: 0.185
+phases: 1: per process memory: 64 GB asquareMem: 1.76412 MB inputMem: 5.31588 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.0302 MB  merged: 3.54392 MB Prune: 3.54392 MB 
+Iteration:  71 chaos: 0.00067 nnz: 2697796  load-balance: 2.1 Total time: 0.192
+phases: 1: per process memory: 64 GB asquareMem: 1.76412 MB inputMem: 5.31588 MB outputMem: 1.61152 MB kselectmem: 7.73539 MB
+1. unmerged: 2.0302 MB  merged: 3.54392 MB Prune: 3.54392 MB 
+Iteration:  72 chaos: 0 nnz: 2697793  load-balance: 2.1 Total time: 0.207
+Creating a new MPI data type for St4pairIllE
+Iteration: 1 Non stars: 0
+Number of components: 360012
+Size of the first component: 18
+Size of the second component: 5
+Size of the third component: 5
+Size of the fourth component: 7
+=====================================
+Total time: 149.736
+Breakdown of squaring time: 
+ mcl_Abcast= 5.35029
+ mcl_Bbcast= 15.2752
+ mcl_localspgemm= 60.0847
+ mcl_multiwaymergetime= 8.61865
+ mcl_kselect= 39.3308
+ mcl_prunecolumn= 3.16351
+Connected Component time: 0.182204
+=================================================
+Process Grid (p x p x t): 8 x 8 x 24
+filename: /scratch3/scratchdirs/abuluc/georgios-matrices/subgraph3/Renamed_subgraph3_alignments_isolates_only_30_correct.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):0
+Number of SpGEMM phases:20
+Per process memory:64 GB
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 20 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 114283761
+File is 2568930590 bytes
+File Read time: 2.02584
+Removed isolated vertices.
+Load balance: 1.00426
+Nonzeros: 158959425
+Adjusted loops according to default mcl parameters
+Made stochastic
+phases: 1: per process memory: 64 GB asquareMem: 3.10997 GB inputMem: 0.190386 GB outputMem: 3.10919 GB kselectmem: 14.9241 GB
+1. unmerged: 2.24013GB  merged: 1.7155GB Prune: 1.20767GB 
+Iteration:   1 chaos: 173 nnz: 1884018346  load-balance: 1.03 Total time: 50.3
+phases: 8: per process memory: 64 GB asquareMem: 408.487 GB inputMem: 1.81151 GB outputMem: 4.75204 GB kselectmem: 22.8098 GB
+1. unmerged: 6.08842GB  merged: 2.99009GB Prune: 133.672 MB 
+2. unmerged: 6.11815GB  merged: 3.0161GB Prune: 132.873 MB 
+3. unmerged: 6.05854GB  merged: 2.98038GB Prune: 132.991 MB 
+4. unmerged: 6.12206GB  merged: 3.00026GB Prune: 133.419 MB 
+5. unmerged: 6.07599GB  merged: 2.98505GB Prune: 133.198 MB 
+6. unmerged: 6.0957GB  merged: 2.9956GB Prune: 134.162 MB 
+7. unmerged: 6.1349GB  merged: 3.01727GB Prune: 133.252 MB 
+8. unmerged: 6.09035GB  merged: 2.99998GB Prune: 133.211 MB 
+Iteration:   2 chaos: 436 nnz: 1656716806  load-balance: 1.03 Total time: 377
+phases: 6: per process memory: 64 GB asquareMem: 315.867 GB inputMem: 1.59591 GB outputMem: 4.75204 GB kselectmem: 22.8098 GB
+1. unmerged: 5.06251GB  merged: 2.59895GB Prune: 72.8187 MB 
+2. unmerged: 5.03461GB  merged: 2.58744GB Prune: 72.3649 MB 
+3. unmerged: 5.05178GB  merged: 2.59979GB Prune: 72.4457 MB 
+4. unmerged: 5.05195GB  merged: 2.59132GB Prune: 72.6872 MB 
+5. unmerged: 5.03621GB  merged: 2.58543GB Prune: 72.5478 MB 
+6. unmerged: 5.05862GB  merged: 2.59341GB Prune: 72.5944 MB 
+Iteration:   3 chaos: 231 nnz: 656384535  load-balance: 1.06 Total time: 218
+phases: 2: per process memory: 64 GB asquareMem: 49.5821 GB inputMem: 0.652133 GB outputMem: 4.75204 GB kselectmem: 22.8098 GB
+1. unmerged: 2.64278GB  merged: 1.26328GB Prune: 79.5386 MB 
+2. unmerged: 2.65093GB  merged: 1.26891GB Prune: 79.7837 MB 
+Iteration:   4 chaos: 117 nnz: 225443045  load-balance: 1.13 Total time: 26.1
+phases: 1: per process memory: 64 GB asquareMem: 5.849 GB inputMem: 0.238983 GB outputMem: 4.75204 GB kselectmem: 22.8098 GB
+1. unmerged: 978.658 MB  merged: 397.074 MB Prune: 63.2136 MB 
+Iteration:   5 chaos: 34.6 nnz: 82061814  load-balance: 1.23 Total time: 3.95
+phases: 1: per process memory: 64 GB asquareMem: 0.77498 GB inputMem: 0.0948204 GB outputMem: 0.773904 GB kselectmem: 3.71473 GB
+1. unmerged: 229.375 MB  merged: 89.1674 MB Prune: 30.2966 MB 
+Iteration:   6 chaos: 16.4 nnz: 35900390  load-balance: 1.35 Total time: 1.16
+phases: 1: per process memory: 64 GB asquareMem: 0.148322 GB inputMem: 0.045445 GB outputMem: 0.145955 GB kselectmem: 0.700586 GB
+1. unmerged: 71.5995 MB  merged: 33.9178 MB Prune: 17.527 MB 
+Iteration:   7 chaos: 6.08 nnz: 18903142  load-balance: 1.48 Total time: 0.69
+phases: 1: per process memory: 64 GB asquareMem: 41.1222 MB inputMem: 26.2904 MB outputMem: 40.7318 MB kselectmem: 195.512 MB
+1. unmerged: 27.5294 MB  merged: 18.1694 MB Prune: 11.9628 MB 
+Iteration:   8 chaos: 4.12 nnz: 11949620  load-balance: 1.6 Total time: 0.542
+phases: 1: per process memory: 64 GB asquareMem: 16.433 MB inputMem: 17.9441 MB outputMem: 13.5772 MB kselectmem: 65.1708 MB
+1. unmerged: 13.4663 MB  merged: 12.0888 MB Prune: 9.42924 MB 
+Iteration:   9 chaos: 2.43 nnz: 8886811  load-balance: 1.7 Total time: 0.479
+phases: 1: per process memory: 64 GB asquareMem: 9.08864 MB inputMem: 14.1439 MB outputMem: 6.7886 MB kselectmem: 32.5854 MB
+1. unmerged: 8.35992 MB  merged: 9.46176 MB Prune: 8.2 MB 
+Iteration:  10 chaos: 1.68 nnz: 7453794  load-balance: 1.76 Total time: 0.412
+phases: 1: per process memory: 64 GB asquareMem: 6.39384 MB inputMem: 12.3 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 6.25718 MB  merged: 8.20908 MB Prune: 7.46908 MB 
+Iteration:  11 chaos: 1.64 nnz: 6689772  load-balance: 1.79 Total time: 0.425
+phases: 1: per process memory: 64 GB asquareMem: 5.15024 MB inputMem: 11.2036 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 5.13884 MB  merged: 7.47164 MB Prune: 7.03532 MB 
+Iteration:  12 chaos: 1.08 nnz: 6245033  load-balance: 1.8 Total time: 0.393
+phases: 1: per process memory: 64 GB asquareMem: 4.48824 MB inputMem: 10.553 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 4.49978 MB  merged: 7.03572 MB Prune: 6.75236 MB 
+Iteration:  13 chaos: 0.967 nnz: 5975092  load-balance: 1.81 Total time: 0.385
+phases: 1: per process memory: 64 GB asquareMem: 4.1086 MB inputMem: 10.1285 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 4.09476 MB  merged: 6.75252 MB Prune: 6.58236 MB 
+Iteration:  14 chaos: 0.667 nnz: 5813003  load-balance: 1.81 Total time: 0.38
+phases: 1: per process memory: 64 GB asquareMem: 3.88872 MB inputMem: 9.87354 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.864 MB  merged: 6.58232 MB Prune: 6.48604 MB 
+Iteration:  15 chaos: 0.597 nnz: 5721560  load-balance: 1.81 Total time: 0.379
+phases: 1: per process memory: 64 GB asquareMem: 3.76732 MB inputMem: 9.72906 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.73704 MB  merged: 6.48608 MB Prune: 6.43816 MB 
+Iteration:  16 chaos: 0.499 nnz: 5675058  load-balance: 1.82 Total time: 0.372
+phases: 1: per process memory: 64 GB asquareMem: 3.70636 MB inputMem: 9.65724 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.67402 MB  merged: 6.43816 MB Prune: 6.40652 MB 
+Iteration:  17 chaos: 0.5 nnz: 5651491  load-balance: 1.81 Total time: 0.374
+phases: 1: per process memory: 64 GB asquareMem: 3.67564 MB inputMem: 9.60978 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.63458 MB  merged: 6.40652 MB Prune: 6.39324 MB 
+Iteration:  18 chaos: 0.447 nnz: 5639517  load-balance: 1.81 Total time: 0.37
+phases: 1: per process memory: 64 GB asquareMem: 3.66008 MB inputMem: 9.58986 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.61668 MB  merged: 6.39324 MB Prune: 6.38604 MB 
+Iteration:  19 chaos: 0.269 nnz: 5632957  load-balance: 1.81 Total time: 0.386
+phases: 1: per process memory: 64 GB asquareMem: 3.65156 MB inputMem: 9.57906 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.60782 MB  merged: 6.38604 MB Prune: 6.3828 MB 
+Iteration:  20 chaos: 0.25 nnz: 5629447  load-balance: 1.81 Total time: 0.368
+phases: 1: per process memory: 64 GB asquareMem: 3.647 MB inputMem: 9.5742 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.6025 MB  merged: 6.3828 MB Prune: 6.38112 MB 
+Iteration:  21 chaos: 0.25 nnz: 5627778  load-balance: 1.81 Total time: 0.358
+phases: 1: per process memory: 64 GB asquareMem: 3.64484 MB inputMem: 9.57168 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.6 MB  merged: 6.38112 MB Prune: 6.3804 MB 
+Iteration:  22 chaos: 0.25 nnz: 5627264  load-balance: 1.81 Total time: 0.358
+phases: 1: per process memory: 64 GB asquareMem: 3.6442 MB inputMem: 9.5706 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.5992 MB  merged: 6.3804 MB Prune: 6.37952 MB 
+Iteration:  23 chaos: 0.249 nnz: 5626611  load-balance: 1.81 Total time: 0.358
+phases: 1: per process memory: 64 GB asquareMem: 3.64332 MB inputMem: 9.56928 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59778 MB  merged: 6.37952 MB Prune: 6.37932 MB 
+Iteration:  24 chaos: 0.25 nnz: 5626410  load-balance: 1.81 Total time: 0.365
+phases: 1: per process memory: 64 GB asquareMem: 3.64308 MB inputMem: 9.56898 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59714 MB  merged: 6.37932 MB Prune: 6.37916 MB 
+Iteration:  25 chaos: 0.25 nnz: 5626269  load-balance: 1.81 Total time: 0.381
+phases: 1: per process memory: 64 GB asquareMem: 3.64288 MB inputMem: 9.56874 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59702 MB  merged: 6.37916 MB Prune: 6.37904 MB 
+Iteration:  26 chaos: 0.247 nnz: 5626182  load-balance: 1.81 Total time: 0.385
+phases: 1: per process memory: 64 GB asquareMem: 3.6428 MB inputMem: 9.56856 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59684 MB  merged: 6.37904 MB Prune: 6.37896 MB 
+Iteration:  27 chaos: 0.25 nnz: 5626159  load-balance: 1.81 Total time: 0.358
+phases: 1: per process memory: 64 GB asquareMem: 3.64276 MB inputMem: 9.56844 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59674 MB  merged: 6.37896 MB Prune: 6.37876 MB 
+Iteration:  28 chaos: 0.248 nnz: 5626116  load-balance: 1.81 Total time: 0.357
+phases: 1: per process memory: 64 GB asquareMem: 3.64268 MB inputMem: 9.56814 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59648 MB  merged: 6.37876 MB Prune: 6.37876 MB 
+Iteration:  29 chaos: 0.237 nnz: 5626111  load-balance: 1.81 Total time: 0.369
+phases: 1: per process memory: 64 GB asquareMem: 3.64268 MB inputMem: 9.56814 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59648 MB  merged: 6.37876 MB Prune: 6.37876 MB 
+Iteration:  30 chaos: 0.239 nnz: 5626093  load-balance: 1.81 Total time: 0.366
+phases: 1: per process memory: 64 GB asquareMem: 3.64268 MB inputMem: 9.56814 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59648 MB  merged: 6.37876 MB Prune: 6.37876 MB 
+Iteration:  31 chaos: 0.25 nnz: 5626083  load-balance: 1.81 Total time: 0.354
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56814 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59648 MB  merged: 6.37876 MB Prune: 6.37876 MB 
+Iteration:  32 chaos: 0.165 nnz: 5626077  load-balance: 1.81 Total time: 0.355
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56814 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59648 MB  merged: 6.37876 MB Prune: 6.37872 MB 
+Iteration:  33 chaos: 0.0897 nnz: 5626074  load-balance: 1.81 Total time: 0.362
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  34 chaos: 0.158 nnz: 5626070  load-balance: 1.81 Total time: 0.361
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  35 chaos: 0.236 nnz: 5626065  load-balance: 1.81 Total time: 0.359
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  36 chaos: 0.223 nnz: 5626065  load-balance: 1.81 Total time: 0.346
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  37 chaos: 0.0852 nnz: 5626065  load-balance: 1.81 Total time: 0.335
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  38 chaos: 0.152 nnz: 5626065  load-balance: 1.81 Total time: 0.341
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  39 chaos: 0.231 nnz: 5626059  load-balance: 1.81 Total time: 0.355
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  40 chaos: 0.231 nnz: 5626059  load-balance: 1.81 Total time: 0.369
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  41 chaos: 0.187 nnz: 5626059  load-balance: 1.81 Total time: 0.356
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  42 chaos: 0.249 nnz: 5626059  load-balance: 1.81 Total time: 0.349
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  43 chaos: 0.203 nnz: 5626057  load-balance: 1.81 Total time: 0.341
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  44 chaos: 0.249 nnz: 5626057  load-balance: 1.81 Total time: 0.359
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37872 MB 
+Iteration:  45 chaos: 0.241 nnz: 5626057  load-balance: 1.81 Total time: 0.359
+phases: 1: per process memory: 64 GB asquareMem: 3.64264 MB inputMem: 9.56808 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59644 MB  merged: 6.37872 MB Prune: 6.37868 MB 
+Iteration:  46 chaos: 0.249 nnz: 5626052  load-balance: 1.81 Total time: 0.348
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.56802 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.5964 MB  merged: 6.37868 MB Prune: 6.37868 MB 
+Iteration:  47 chaos: 0.22 nnz: 5626050  load-balance: 1.81 Total time: 0.353
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.56802 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.5964 MB  merged: 6.37868 MB Prune: 6.37864 MB 
+Iteration:  48 chaos: 0.205 nnz: 5626046  load-balance: 1.81 Total time: 0.354
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.56796 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59636 MB  merged: 6.37864 MB Prune: 6.3786 MB 
+Iteration:  49 chaos: 0.249 nnz: 5626037  load-balance: 1.81 Total time: 0.37
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.5679 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.5963 MB  merged: 6.3786 MB Prune: 6.3786 MB 
+Iteration:  50 chaos: 0.25 nnz: 5626027  load-balance: 1.81 Total time: 0.355
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.5679 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59628 MB  merged: 6.3786 MB Prune: 6.3786 MB 
+Iteration:  51 chaos: 0.25 nnz: 5626027  load-balance: 1.81 Total time: 0.341
+phases: 1: per process memory: 64 GB asquareMem: 3.6426 MB inputMem: 9.5679 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59628 MB  merged: 6.3786 MB Prune: 6.37856 MB 
+Iteration:  52 chaos: 0.25 nnz: 5626018  load-balance: 1.81 Total time: 0.358
+phases: 1: per process memory: 64 GB asquareMem: 3.64256 MB inputMem: 9.56784 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59624 MB  merged: 6.37856 MB Prune: 6.37856 MB 
+Iteration:  53 chaos: 0.371 nnz: 5626010  load-balance: 1.81 Total time: 0.362
+phases: 1: per process memory: 64 GB asquareMem: 3.64256 MB inputMem: 9.56784 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59622 MB  merged: 6.37856 MB Prune: 6.37856 MB 
+Iteration:  54 chaos: 0.478 nnz: 5626008  load-balance: 1.81 Total time: 0.378
+phases: 1: per process memory: 64 GB asquareMem: 3.64256 MB inputMem: 9.56784 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59622 MB  merged: 6.37856 MB Prune: 6.37856 MB 
+Iteration:  55 chaos: 0.689 nnz: 5625991  load-balance: 1.81 Total time: 0.365
+phases: 1: per process memory: 64 GB asquareMem: 3.64252 MB inputMem: 9.56784 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.5962 MB  merged: 6.37856 MB Prune: 6.37752 MB 
+Iteration:  56 chaos: 0.684 nnz: 5625736  load-balance: 1.81 Total time: 0.346
+phases: 1: per process memory: 64 GB asquareMem: 3.6422 MB inputMem: 9.56628 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59518 MB  merged: 6.37752 MB Prune: 6.37424 MB 
+Iteration:  57 chaos: 0.553 nnz: 5623988  load-balance: 1.81 Total time: 0.341
+phases: 1: per process memory: 64 GB asquareMem: 3.63996 MB inputMem: 9.56136 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.59074 MB  merged: 6.37424 MB Prune: 6.36772 MB 
+Iteration:  58 chaos: 0.649 nnz: 5618954  load-balance: 1.81 Total time: 0.364
+phases: 1: per process memory: 64 GB asquareMem: 3.63344 MB inputMem: 9.55158 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.58228 MB  merged: 6.36772 MB Prune: 6.3576 MB 
+Iteration:  59 chaos: 0.468 nnz: 5613425  load-balance: 1.81 Total time: 0.359
+phases: 1: per process memory: 64 GB asquareMem: 3.62628 MB inputMem: 9.5364 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.56928 MB  merged: 6.3576 MB Prune: 6.35076 MB 
+Iteration:  60 chaos: 0.443 nnz: 5609227  load-balance: 1.81 Total time: 0.368
+phases: 1: per process memory: 64 GB asquareMem: 3.62084 MB inputMem: 9.52614 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.56028 MB  merged: 6.35076 MB Prune: 6.345 MB 
+Iteration:  61 chaos: 0.462 nnz: 5606214  load-balance: 1.81 Total time: 0.345
+phases: 1: per process memory: 64 GB asquareMem: 3.61696 MB inputMem: 9.5175 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.55274 MB  merged: 6.345 MB Prune: 6.343 MB 
+Iteration:  62 chaos: 0.402 nnz: 5604715  load-balance: 1.81 Total time: 0.343
+phases: 1: per process memory: 64 GB asquareMem: 3.61504 MB inputMem: 9.5145 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54936 MB  merged: 6.343 MB Prune: 6.34208 MB 
+Iteration:  63 chaos: 0.311 nnz: 5603857  load-balance: 1.81 Total time: 0.373
+phases: 1: per process memory: 64 GB asquareMem: 3.61392 MB inputMem: 9.51312 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54726 MB  merged: 6.34208 MB Prune: 6.3414 MB 
+Iteration:  64 chaos: 0.249 nnz: 5603272  load-balance: 1.81 Total time: 0.367
+phases: 1: per process memory: 64 GB asquareMem: 3.61316 MB inputMem: 9.5121 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54582 MB  merged: 6.3414 MB Prune: 6.341 MB 
+Iteration:  65 chaos: 0.249 nnz: 5603021  load-balance: 1.81 Total time: 0.377
+phases: 1: per process memory: 64 GB asquareMem: 3.61284 MB inputMem: 9.5115 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54528 MB  merged: 6.341 MB Prune: 6.3408 MB 
+Iteration:  66 chaos: 0.249 nnz: 5602879  load-balance: 1.81 Total time: 0.353
+phases: 1: per process memory: 64 GB asquareMem: 3.61268 MB inputMem: 9.5112 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54506 MB  merged: 6.3408 MB Prune: 6.34072 MB 
+Iteration:  67 chaos: 0.243 nnz: 5602810  load-balance: 1.81 Total time: 0.373
+phases: 1: per process memory: 64 GB asquareMem: 3.61256 MB inputMem: 9.51108 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54492 MB  merged: 6.34072 MB Prune: 6.34056 MB 
+Iteration:  68 chaos: 0.215 nnz: 5602766  load-balance: 1.81 Total time: 0.352
+phases: 1: per process memory: 64 GB asquareMem: 3.61252 MB inputMem: 9.51084 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54488 MB  merged: 6.34056 MB Prune: 6.34056 MB 
+Iteration:  69 chaos: 0.24 nnz: 5602738  load-balance: 1.81 Total time: 0.359
+phases: 1: per process memory: 64 GB asquareMem: 3.61248 MB inputMem: 9.51084 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54474 MB  merged: 6.34056 MB Prune: 6.34044 MB 
+Iteration:  70 chaos: 0.249 nnz: 5602718  load-balance: 1.81 Total time: 0.356
+phases: 1: per process memory: 64 GB asquareMem: 3.61248 MB inputMem: 9.51066 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54472 MB  merged: 6.34044 MB Prune: 6.34044 MB 
+Iteration:  71 chaos: 0.182 nnz: 5602714  load-balance: 1.81 Total time: 0.329
+phases: 1: per process memory: 64 GB asquareMem: 3.61244 MB inputMem: 9.51066 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54472 MB  merged: 6.34044 MB Prune: 6.34044 MB 
+Iteration:  72 chaos: 0.0347 nnz: 5602714  load-balance: 1.81 Total time: 0.351
+phases: 1: per process memory: 64 GB asquareMem: 3.61244 MB inputMem: 9.51066 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54472 MB  merged: 6.34044 MB Prune: 6.34044 MB 
+Iteration:  73 chaos: 0.00067 nnz: 5602710  load-balance: 1.81 Total time: 0.368
+phases: 1: per process memory: 64 GB asquareMem: 3.61244 MB inputMem: 9.51066 MB outputMem: 3.39428 MB kselectmem: 16.2927 MB
+1. unmerged: 3.54472 MB  merged: 6.34044 MB Prune: 6.34044 MB 
+Iteration:  74 chaos: 1.69e-05 nnz: 5602707  load-balance: 1.81 Total time: 0.39
+Creating a new MPI data type for St4pairIllE
+Iteration: 1 Non stars: 0
+Number of components: 554070
+Size of the first component: 311
+Size of the second component: 8
+Size of the third component: 10
+Size of the fourth component: 11
+=====================================
+Total time: 702.634
+Breakdown of squaring time: 
+ mcl_Abcast= 94.8184
+ mcl_Bbcast= 20.1224
+ mcl_localspgemm= 361.906
+ mcl_multiwaymergetime= 34.7321
+ mcl_kselect= 116.57
+ mcl_prunecolumn= 13.6072
+Connected Component time: 0.506876
+=================================================
+Process Grid (p x p x t): 8 x 8 x 24
+filename: /scratch3/scratchdirs/abuluc/georgios-matrices/subgraph2/Renamed_subgraph2_alignments_isolates_only_30_correct.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):0
+Number of SpGEMM phases:20
+Per process memory:64 GB
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 20 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 456592646
+File is 10481815922 bytes
+File Read time: 7.72852
+Removed isolated vertices.
+Load balance: 1.00416
+Nonzeros: 634949004
+Adjusted loops according to default mcl parameters
+Made stochastic
+phases: 2: per process memory: 64 GB asquareMem: 23.2325 GB inputMem: 0.681978 GB outputMem: 9.82879 GB kselectmem: 47.1782 GB
+1. unmerged: 6.65986GB  merged: 4.60067GB Prune: 1.93003GB 
+2. unmerged: 6.62665GB  merged: 4.56714GB Prune: 1.93016GB 
+Iteration:   1 chaos: 178 nnz: 6081962123  load-balance: 1.01 Total time: 145
+phases: 44: per process memory: 64 GB asquareMem: 2058.14 GB inputMem: 5.78711 GB outputMem: 9.82879 GB kselectmem: 47.1782 GB
+1. unmerged: 3.92771GB  merged: 2.06672GB Prune: 69.4219 MB 
+2. unmerged: 3.90685GB  merged: 2.04508GB Prune: 70.0536 MB 
+3. unmerged: 3.90557GB  merged: 2.06248GB Prune: 69.55 MB 
+4. unmerged: 3.89847GB  merged: 2.05147GB Prune: 69.7847 MB 
+5. unmerged: 3.88277GB  merged: 2.0327GB Prune: 69.4696 MB 
+6. unmerged: 3.86749GB  merged: 2.03689GB Prune: 69.4956 MB 
+7. unmerged: 3.87672GB  merged: 2.04283GB Prune: 69.5002 MB 
+8. unmerged: 3.85837GB  merged: 2.02544GB Prune: 69.513 MB 
+9. unmerged: 3.91378GB  merged: 2.05352GB Prune: 69.857 MB 
+10. unmerged: 3.87867GB  merged: 2.03831GB Prune: 69.4571 MB 
+11. unmerged: 3.90349GB  merged: 2.05075GB Prune: 69.5161 MB 
+12. unmerged: 3.90679GB  merged: 2.04651GB Prune: 69.9658 MB 
+13. unmerged: 3.86927GB  merged: 2.03493GB Prune: 69.6824 MB 
+14. unmerged: 3.91772GB  merged: 2.06197GB Prune: 69.7426 MB 
+15. unmerged: 3.8577GB  merged: 2.02416GB Prune: 70.0524 MB 
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 4416404.3 ON nid03548 CANCELLED AT 2017-03-15T13:25:24 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 4416404 ON nid03548 CANCELLED AT 2017-03-15T13:25:24 DUE TO TIME LIMIT ***
+srun: got SIGCONT
+srun: forcing job termination
