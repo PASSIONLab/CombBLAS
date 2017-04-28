@@ -1,0 +1,17 @@
+#!/bin/bash -l
+
+#SBATCH -p debug
+#SBATCH -N 16
+#SBATCH -t 00:30:00
+#SBATCH -J hepth
+#SBATCH -o hepth.o%j
+
+MAT=../hep-th.mtx
+#MCL_PARAM=2 0.0001 500 1 20
+
+export OMP_NUM_THREADS=24
+N=16
+n=16
+
+srun -N $N -n $n -c 24  --ntasks-per-node=1 --cpu_bind=cores ../../mcl -M $MAT -I 2 -p .0001 -S 1100 -R 1400 -pct .9 -base 1 -rand 0 -phases 1
+

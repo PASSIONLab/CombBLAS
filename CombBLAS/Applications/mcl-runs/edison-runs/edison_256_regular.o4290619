@@ -1,0 +1,693 @@
+Process Grid (p x p x t): 16 x 16 x 24
+filename: /global/cscratch1/sd/azad/mclFiles/Renamed_alignments_isolates_only_30_correct_copy.txtInflation: 2.000000
+Cutoff:0.000100
+Selection Number:1100
+Recovery Number:1400
+Recovery Percentage:0.900000
+Base of MM (1 or 0):0
+Randomly permute the matrix? (1 or 0):1
+Number of SpGEMM phases:60
+Running HipMCL with... 
+Inflation: 2
+Prunelimit: 0.0001
+Recover number: 1400
+Recover percent: 0.9
+Selection number: 1100 in 60 phases 
+COMBBLAS Warning: It is dangerous to create (matrix) objects without specifying the communicator, are you sure you want to create this object in MPI_COMM_WORLD?
+Matrix is Float
+Matrix is symmetric
+Total number of nonzeros expected across all processors is 7325674843
+File is 178633004090 bytes
+Reading finished. Total number of entries read across all processors is 7325674843
+Packing to recepients finished, about to send...
+57171236 57149517 57075253 57125413 57122450 57111430 57126489 57198856 57190796 57167002 57267801 57266820 57230726 57306376 57417746 57388192 57149517 57094384 57018996 57081648 57094521 57057284 57097591 57152474 57154667 57144500 57235269 57214255 57198508 57276069 57387931 57348145 57075253 57018996 56955220 57008110 57029285 56989214 57007392 57098874 57078374 57056696 57158369 57131695 57136842 57194625 57306189 57289879 57125413 57081648 57008110 57041198 57078910 57029434 57062110 57137745 57132191 57097171 57203240 57199323 57186744 57243931 57376010 57327185 57122450 57094521 57029285 57078910 57045212 57045266 57097269 57141936 57132033 57082801 57213431 57209509 57193063 57232208 57379933 57328822 57111430 57057284 56989214 57029434 57045266 57020982 57049557 57114297 57101264 57085986 57178291 57195424 57157504 57233850 57353777 57306577 57126489 57097591 57007392 57062110 57097269 57049557 57078598 57147725 57130334 57122305 57222895 57216411 57192405 57247326 57364886 57317882 57198856 57152474 57098874 57137745 57141936 57114297 57147725 57167194 57199716 57166269 57290375 57271766 57248373 57310608 57436669 57400259 57190796 57154667 57078374 57132191 57132033 57101264 57130334 57199716 57199648 57177038 57278133 57270080 57245042 57301059 57427100 57376561 57167002 57144500 57056696 57097171 57082801 57085986 57122305 57166269 57177038 57151858 57257815 57253294 57225182 57289857 57410044 57371022 57267801 57235269 57158369 57203240 57213431 57178291 57222895 57290375 57278133 57257815 57373794 57348279 57334017 57400735 57504040 57472002 57266820 57214255 57131695 57199323 57209509 57195424 57216411 57271766 57270080 57253294 57348279 57328830 57332570 57382842 57510097 57457602 57230726 57198508 57136842 57186744 57193063 57157504 57192405 57248373 57245042 57225182 57334017 57332570 57290692 57353925 57501305 57435671 57306376 57276069 57194625 57243931 57232208 57233850 57247326 57310608 57301059 57289857 57400735 57382842 57353925 57421628 57549853 57495913 57417746 57387931 57306189 57376010 57379933 57353777 57364886 57436669 57427100 57410044 57504040 57510097 57501305 57549853 57689052 57622158 57388192 57348145 57289879 57327185 57328822 57306577 57317882 57400259 57376561 57371022 57472002 57457602 57435671 57495913 57622158 57561330 
+File Read time: 120.513
+Removed isolated vertices.
+Applied symmetric permutation.
+Load balance: 1.00191
+Nonzeros: 10185395802
+Adjusted loops according to default mcl parameters
+Made stochastic
+Multiwaymerge: inputNnz/mergedNnz = 4.83403
+Number of columns needing recovery: 68815
+Number of columns needing selection: 319503
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319503
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87604
+Number of columns needing recovery: 68749
+Number of columns needing selection: 319337
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319337
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.9182
+Number of columns needing recovery: 68506
+Number of columns needing selection: 320732
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320732
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89289
+Number of columns needing recovery: 68422
+Number of columns needing selection: 319869
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319869
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87522
+Number of columns needing recovery: 68987
+Number of columns needing selection: 319179
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319179
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86735
+Number of columns needing recovery: 68716
+Number of columns needing selection: 320526
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320526
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.90433
+Number of columns needing recovery: 68435
+Number of columns needing selection: 319792
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319792
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89027
+Number of columns needing recovery: 68605
+Number of columns needing selection: 320512
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320512
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84389
+Number of columns needing recovery: 68921
+Number of columns needing selection: 319518
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319518
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88458
+Number of columns needing recovery: 68714
+Number of columns needing selection: 320048
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320048
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85743
+Number of columns needing recovery: 68612
+Number of columns needing selection: 320161
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320161
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84868
+Number of columns needing recovery: 68516
+Number of columns needing selection: 320215
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320215
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89365
+Number of columns needing recovery: 68649
+Number of columns needing selection: 320483
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320483
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84771
+Number of columns needing recovery: 68700
+Number of columns needing selection: 320458
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320458
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.91676
+Number of columns needing recovery: 68269
+Number of columns needing selection: 320172
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320172
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85294
+Number of columns needing recovery: 68506
+Number of columns needing selection: 319635
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319635
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88641
+Number of columns needing recovery: 68742
+Number of columns needing selection: 319351
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319351
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8509
+Number of columns needing recovery: 68536
+Number of columns needing selection: 320185
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320185
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85865
+Number of columns needing recovery: 68618
+Number of columns needing selection: 320084
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320084
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84526
+Number of columns needing recovery: 68854
+Number of columns needing selection: 319822
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319822
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86107
+Number of columns needing recovery: 68704
+Number of columns needing selection: 320053
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320053
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88105
+Number of columns needing recovery: 68777
+Number of columns needing selection: 319958
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319958
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88199
+Number of columns needing recovery: 68738
+Number of columns needing selection: 320170
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320170
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89943
+Number of columns needing recovery: 68976
+Number of columns needing selection: 319461
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319461
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.83477
+Number of columns needing recovery: 68838
+Number of columns needing selection: 320236
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320236
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8752
+Number of columns needing recovery: 68521
+Number of columns needing selection: 320092
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320092
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89954
+Number of columns needing recovery: 68813
+Number of columns needing selection: 320362
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320362
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.90888
+Number of columns needing recovery: 68739
+Number of columns needing selection: 319861
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319861
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87994
+Number of columns needing recovery: 68501
+Number of columns needing selection: 320323
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320323
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88696
+Number of columns needing recovery: 68462
+Number of columns needing selection: 319861
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319861
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.9157
+Number of columns needing recovery: 68460
+Number of columns needing selection: 319633
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319633
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89428
+Number of columns needing recovery: 68629
+Number of columns needing selection: 319942
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319942
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.82431
+Number of columns needing recovery: 68670
+Number of columns needing selection: 319426
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319426
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87592
+Number of columns needing recovery: 68280
+Number of columns needing selection: 320008
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320008
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8586
+Number of columns needing recovery: 68415
+Number of columns needing selection: 319807
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319807
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8509
+Number of columns needing recovery: 68562
+Number of columns needing selection: 319393
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319393
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87886
+Number of columns needing recovery: 68599
+Number of columns needing selection: 319993
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319993
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89879
+Number of columns needing recovery: 68530
+Number of columns needing selection: 319683
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319683
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.90573
+Number of columns needing recovery: 69057
+Number of columns needing selection: 319444
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319444
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85395
+Number of columns needing recovery: 68830
+Number of columns needing selection: 319823
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319823
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84251
+Number of columns needing recovery: 68401
+Number of columns needing selection: 320377
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320377
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8942
+Number of columns needing recovery: 68696
+Number of columns needing selection: 320401
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320401
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8935
+Number of columns needing recovery: 68054
+Number of columns needing selection: 319947
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319947
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.9058
+Number of columns needing recovery: 68848
+Number of columns needing selection: 320040
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320040
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86709
+Number of columns needing recovery: 68836
+Number of columns needing selection: 320241
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320241
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.89929
+Number of columns needing recovery: 68715
+Number of columns needing selection: 319644
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319644
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8717
+Number of columns needing recovery: 68771
+Number of columns needing selection: 319815
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319815
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84432
+Number of columns needing recovery: 68739
+Number of columns needing selection: 320106
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320106
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86629
+Number of columns needing recovery: 68239
+Number of columns needing selection: 320286
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320286
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86188
+Number of columns needing recovery: 68649
+Number of columns needing selection: 320081
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320081
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.84814
+Number of columns needing recovery: 68976
+Number of columns needing selection: 319874
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319874
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88499
+Number of columns needing recovery: 68444
+Number of columns needing selection: 320425
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320425
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.83889
+Number of columns needing recovery: 68568
+Number of columns needing selection: 319826
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319826
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.8902
+Number of columns needing recovery: 68317
+Number of columns needing selection: 320705
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320705
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.87154
+Number of columns needing recovery: 68906
+Number of columns needing selection: 320136
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320136
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85189
+Number of columns needing recovery: 68825
+Number of columns needing selection: 320036
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320036
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88108
+Number of columns needing recovery: 68709
+Number of columns needing selection: 320003
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320003
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.88912
+Number of columns needing recovery: 68947
+Number of columns needing selection: 319982
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 319982
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.85872
+Number of columns needing recovery: 68520
+Number of columns needing selection: 320049
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 320049
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 4.86185
+Number of columns needing recovery: 68887
+Number of columns needing selection: 319701
+PruneColumn displacements: 0 3044 6088 9132 12176 15220 18264 21308 24352 27396 30440 33484 36528 39572 42616 45660 
+Number of columns needing recovery after selection: 319701
+PruneColumn displacements: 0 3044 6088 9132 12176 15220 18264 21308 24352 27396 30440 33484 36528 39572 42616 45660 
+Iteration:   1 chaos: 244 nnz: 40649440334  load-balance: 1.02 Total time: 2.83e+03
+Multiwaymerge: inputNnz/mergedNnz = 5.31371
+Number of columns needing recovery: 64904
+Number of columns needing selection: 205088
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205088
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.32607
+Number of columns needing recovery: 64848
+Number of columns needing selection: 204910
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 204910
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.34279
+Number of columns needing recovery: 64803
+Number of columns needing selection: 205660
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205660
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.35343
+Number of columns needing recovery: 64288
+Number of columns needing selection: 205038
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205038
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.33886
+Number of columns needing recovery: 64328
+Number of columns needing selection: 205251
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205251
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.31021
+Number of columns needing recovery: 64741
+Number of columns needing selection: 205553
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205553
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.35981
+Number of columns needing recovery: 64599
+Number of columns needing selection: 205136
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Number of columns needing recovery after selection: 205136
+PruneColumn displacements: 0 3042 6084 9126 12168 15210 18252 21294 24336 27378 30420 33462 36504 39546 42588 45630 
+Multiwaymerge: inputNnz/mergedNnz = 5.36414
+Number of columns neesrun: error: nid03907: task 136: Killed
+srun: Terminating job step 4290619.0
+slurmstepd: error: *** STEP 4290619.0 ON nid03767 CANCELLED AT 2017-03-08T15:43:42 ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: nid03950: task 175: Killed
+srun: error: nid03934: task 159: Killed
+srun: error: nid03912: task 137: Killed
+srun: error: nid04006: task 231: Killed
+srun: error: nid03866: task 95: Killed
+srun: error: nid03921: task 146: Killed
+srun: error: nid03904: task 133: Killed
+srun: error: nid03811: task 44: Killed
+srun: error: nid03899: task 128: Killed
+srun: error: nid03848: task 77: Killed
+srun: error: nid03906: task 135: Killed
+srun: error: nid03937: task 162: Killed
+srun: error: nid03905: task 134: Killed
+srun: error: nid03920: task 145: Killed
+srun: error: nid03770: task 3: Killed
+srun: error: nid03872: task 101: Killed
+srun: error: nid03858: task 87: Killed
+srun: error: nid03818: task 51: Killed
+srun: error: nid03926: task 151: Killed
+srun: error: nid03928: task 153: Killed
+srun: error: nid03886: task 115: Killed
+srun: error: nid03903: task 132: Killed
+srun: error: nid03814: task 47: Killed
+srun: error: nid03876: task 105: Killed
+srun: error: nid03995: task 220: Killed
+srun: error: nid03788: task 21: Killed
+srun: error: nid03958: task 183: Killed
+srun: error: nid03891: task 120: Killed
+srun: error: nid03784: task 17: Killed
+srun: error: nid03968: task 193: Killed
+srun: error: nid03902: task 131: Killed
+srun: error: nid03970: task 195: Killed
+srun: error: nid03953: task 178: Killed
+srun: error: nid03865: task 94: Killed
+srun: error: nid03859: task 88: Killed
+srun: error: nid04003: task 228: Killed
+srun: error: nid03844: task 73: Killed
+srun: error: nid03922: task 147: Killed
+srun: error: nid03862: task 91: Killed
+srun: error: nid03780: task 13: Killed
+srun: error: nid04017: task 242: Killed
+srun: error: nid03830: task 63: Killed
+srun: error: nid03917: task 142: Killed
+srun: error: nid03779: task 12: Killed
+srun: error: nid03981: task 206: Killed
+srun: error: nid03875: task 104: Killed
+srun: error: nid03861: task 90: Killed
+srun: error: nid03812: task 45: Killed
+srun: error: nid03854: task 83: Killed
+srun: error: nid03986: task 211: Killed
+srun: error: nid04016: task 241: Killed
+srun: error: nid03771: task 4: Killed
+srun: error: nid03810: task 43: Killed
+srun: error: nid03916: task 141: Killed
+srun: error: nid03836: task 69: Killed
+srun: error: nid03824: task 57: Killed
+srun: error: nid03868: task 97: Killed
+srun: error: nid03972: task 197: Killed
+srun: error: nid03941: task 166: Killed
+srun: error: nid03982: task 207: Killed
+srun: error: nid03962: task 187: Killed
+srun: error: nid03924: task 149: Killed
+srun: error: nid03867: task 96: Killed
+srun: error: nid03918: task 143: Killed
+srun: error: nid03961: task 186: Killed
+srun: error: nid03887: task 116: Killed
+srun: error: nid04028: task 253: Killed
+srun: error: nid03960: task 185: Killed
+srun: error: nid03936: task 161: Killed
+srun: error: nid03900: task 129: Killed
+srun: error: nid03806: task 39: Killed
+srun: error: nid03890: task 119: Killed
+srun: error: nid03915: task 140: Killed
+srun: error: nid04030: task 255: Killed
+srun: error: nid03853: task 82: Killed
+srun: error: nid03855: task 84: Killed
+srun: error: nid03803: task 36: Killed
+srun: error: nid04013: task 238: Killed
+srun: error: nid03997: task 222: Killed
+srun: error: nid03878: task 107: Killed
+srun: error: nid03767: task 0: Killed
+srun: error: nid03834: task 67: Killed
+srun: error: nid03914: task 139: Killed
+srun: error: nid03772: task 5: Killed
+srun: error: nid04023: task 248: Killed
+srun: error: nid03952: task 177: Killed
+srun: error: nid03776: task 9: Killed
+srun: error: nid03769: task 2: Killed
+srun: error: nid03901: task 130: Killed
+srun: error: nid03826: task 59: Killed
+srun: error: nid03895: task 124: Killed
+srun: error: nid03833: task 66: Killed
+srun: error: nid03927: task 152: Killed
+srun: error: nid03947: task 172: Killed
+srun: error: nid03768: task 1: Killed
+srun: error: nid04029: task 254: Killed
+srun: error: nid03804: task 37: Killed
+srun: error: nid04005: task 230: Killed
+srun: error: nid03860: task 89: Killed
+srun: error: nid03976: task 201: Killed
+srun: error: nid03839: task 72: Killed
+srun: error: nid03989: task 214: Killed
+srun: error: nid03773: task 6: Killed
+srun: error: nid04009: task 234: Killed
+srun: error: nid03949: task 174: Killed
+srun: error: nid03930: task 155: Killed
+srun: error: nid03793: task 26: Killed
+srun: error: nid04012: task 237: Killed
+srun: error: nid03955: task 180: Killed
+srun: error: nid03946: task 171: Killed
+srun: error: nid03948: task 173: Killed
+srun: error: nid03971: task 196: Killed
+srun: error: nid04018: task 243: Killed
+srun: error: nid03993: task 218: Killed
+srun: error: nid03817: task 50: Killed
+srun: error: nid03822: task 55: Killed
+srun: error: nid03821: task 54: Killed
+srun: error: nid03985: task 210: Killed
+srun: error: nid04019: task 244: Killed
+srun: error: nid03807: task 40: Killed
+srun: error: nid04011: task 236: Killed
+srun: error: nid04014: task 239: Killed
+srun: error: nid03794: task 27: Killed
+srun: error: nid03846: task 75: Killed
+srun: error: nid03994: task 219: Killed
+srun: error: nid03815: task 48: Killed
+srun: error: nid03809: task 42: Killed
+srun: error: nid03852: task 81: Killed
+srun: error: nid03835: task 68: Killed
+srun: error: nid03789: task 22: Killed
+srun: error: nid03956: task 181: Killed
+srun: error: nid03933: task 158: Killed
+srun: error: nid04025: task 250: Killed
+srun: error: nid03774: task 7: Killed
+srun: error: nid03892: task 121: Killed
+srun: error: nid03800: task 33: Killed
+srun: error: nid03816: task 49: Killed
+srun: error: nid03783: task 16: Killed
+srun: error: nid03992: task 217: Killed
+srun: error: nid03775: task 8: Killed
+srun: error: nid03967: task 192: Killed
+srun: error: nid03980: task 205: Killed
+srun: error: nid03820: task 53: Killed
+srun: error: nid03781: task 14: Killed
+srun: error: nid04026: task 251: Killed
+srun: error: nid03801: task 34: Killed
+srun: error: nid03889: task 118: Killed
+srun: error: nid03884: task 113: Killed
+srun: error: nid04001: task 226: Killed
+srun: error: nid04007: task 232: Killed
+srun: error: nid03787: task 20: Killed
+srun: error: nid03978: task 203: Killed
+srun: error: nid03896: task 125: Killed
+srun: error: nid03939: task 164: Killed
+srun: error: nid03851: task 80: Killed
+srun: error: nid03871: task 100: Killed
+srun: error: nid03957: task 182: Killed
+srun: error: nid03945: task 170: Killed
+srun: error: nid03925: task 150: Killed
+srun: error: nid03792: task 25: Killed
+srun: error: nid03964: task 189: Killed
+srun: error: nid04004: task 229: Killed
+srun: error: nid03882: task 111: Killed
+srun: error: nid03877: task 106: Killed
+srun: error: nid03825: task 58: Killed
+srun: error: nid04020: task 245: Killed
+srun: error: nid03943: task 168: Killed
+srun: error: nid03782: task 15: Killed
+srun: error: nid03966: task 191: Killed
+srun: error: nid03831: task 64: Killed
+srun: error: nid03845: task 74: Killed
+srun: error: nid03802: task 35: Killed
+srun: error: nid03894: task 123: Killed
+srun: error: nid03869: task 98: Killed
+srun: error: nid03942: task 167: Killed
+srun: error: nid03913: task 138: Killed
+srun: error: nid03979: task 204: Killed
+srun: error: nid03998: task 223: Killed
+srun: error: nid03849: task 78: Killed
+srun: error: nid03999: task 224: Killed
+srun: error: nid03791: task 24: Killed
+srun: error: nid03797: task 30: Killed
+srun: error: nid03974: task 199: Killed
+srun: error: nid03973: task 198: Killed
+srun: error: nid03888: task 117: Killed
+srun: error: nid03969: task 194: Killed
+srun: error: nid04021: task 246: Killed
+srun: error: nid03885: task 114: Killed
+srun: error: nid03850: task 79: Killed
+srun: error: nid03940: task 165: Killed
+srun: error: nid03965: task 190: Killed
+srun: error: nid03880: task 109: Killed
+srun: error: nid04027: task 252: Killed
+srun: error: nid03785: task 18: Killed
+srun: error: nid03827: task 60: Killed
+srun: error: nid03898: task 127: Killed
+srun: error: nid03863: task 92: Killed
+srun: error: nid03991: task 216: Killed
+srun: error: nid03796: task 29: Killed
+srun: error: nid03988: task 213: Killed
+srun: error: nid03847: task 76: Killed
+srun: error: nid03778: task 11: Killed
+srun: error: nid03881: task 110: Killed
+srun: error: nid03832: task 65: Killed
+srun: error: nid03883: task 112: Killed
+srun: error: nid03977: task 202: Killed
+srun: error: nid03931: task 156: Killed
+srun: error: nid03919: task 144: Killed
+srun: error: nid03829: task 62: Killed
+srun: error: nid03799: task 32: Killed
+srun: error: nid03983: task 208: Killed
+srun: error: nid03944: task 169: Killed
+srun: error: nid03975: task 200: Killed
+srun: error: nid04000: task 225: Killed
+srun: error: nid03870: task 99: Killed
+srun: error: nid03856: task 85: Killed
+srun: error: nid03786: task 19: Killed
+srun: error: nid03987: task 212: Killed
+srun: error: nid04015: task 240: Killed
+srun: error: nid04008: task 233: Killed
+srun: error: nid03798: task 31: Killed
+srun: error: nid03879: task 108: Killed
+srun: error: nid03805: task 38: Killed
+srun: error: nid03951: task 176: Killed
+srun: error: nid03864: task 93: Killed
+srun: error: nid03963: task 188: Killed
+srun: error: nid03897: task 126: Killed
+srun: error: nid03874: task 103: Killed
+srun: error: nid03819: task 52: Killed
+srun: error: nid03959: task 184: Killed
+srun: error: nid03893: task 122: Killed
+srun: error: nid03838: task 71: Killed
+srun: error: nid03857: task 86: Killed
+srun: error: nid03777: task 10: Killed
+srun: error: nid04002: task 227: Killed
+srun: error: nid03935: task 160: Killed
+srun: error: nid03795: task 28: Killed
+srun: error: nid04010: task 235: Killed
+srun: error: nid03984: task 209: Killed
+srun: error: nid03790: task 23: Killed
+srun: error: nid03996: task 221: Killed
+srun: error: nid03828: task 61: Killed
+srun: error: nid03929: task 154: Killed
+srun: error: nid03990: task 215: Killed
+srun: error: nid03932: task 157: Killed
+srun: error: nid03837: task 70: Killed
+srun: error: nid03823: task 56: Killed
+srun: error: nid03808: task 41: Killed
+srun: error: nid03923: task 148: Killed
+srun: error: nid04022: task 247: Killed
+srun: error: nid03938: task 163: Killed
+srun: error: nid03873: task 102: Killed
+srun: error: nid03813: task 46: Killed
+srun: error: nid04024: task 249: Killed
+srun: error: nid03954: task 179: Killed
