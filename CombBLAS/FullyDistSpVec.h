@@ -143,13 +143,13 @@ public:
 	};
 
     	
-    void ParallelWrite(const string & filename, bool onebased);
+    	void ParallelWrite(const string & filename, bool onebased);
 
-    template <typename _BinaryOperation>
-    void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
+    	template <typename _BinaryOperation>
+   	void ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp);
 
 
-    //! Totally obsolete version that only accepts an ifstream object and ascii files
+    	//! Totally obsolete version that only accepts an ifstream object and ascii files
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
 	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
@@ -177,7 +177,7 @@ public:
 
 	void PrintInfo(string vecname) const;
 	void iota(IT globalsize, NT first);
-    void nziota(NT first);
+    	void nziota(NT first);
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	void DelElement (IT indx); // element-wise deletion
@@ -283,7 +283,12 @@ private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
 	bool wasFound; // true if the last GetElement operation returned an actual value
-    
+   
+
+	template <typename _BinaryOperation>
+	void SparseCommon(vector< vector < pair<IT,NT> > > & data, _BinaryOperation BinOp);
+
+
 #if __cplusplus > 199711L
 	template <typename _BinaryOperation = minimum<NT> >
 	FullyDistSpVec<IT, NT> UniqAll2All(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);

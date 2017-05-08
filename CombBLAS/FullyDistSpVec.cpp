@@ -1148,6 +1148,154 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 };
 
 
+template <class IT, class NT>
+template <typename _BinaryOperation>
+void FullyDistSpVec<IT,NT>::SparseCommon(vector< vector < pair<IT,NT> > > & data, _BinaryOperation BinOp)
+{
+	int nprocs = commGrid->GetSize();
+	int * sendcnt = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = data[i].size();	// sizes are all the same
+
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, commGrid->GetWorld()); // share the counts
+	int * sdispls = new int[nprocs]();
+	int * rdispls = new int[nprocs]();
+	partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+	partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+	IT totrecv = rdispls[nprocs-1]+recvcnt[nprocs-1];
+	IT totsend = sdispls[nprocs-1]+sendcnt[nprocs-1];	
+
+
+  	pair<IT,NT> * senddata = new pair<IT,NT>[totsend];	// re-used for both rows and columns
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(data[i].begin(), data[i].end(), senddata+sdispls[i]);
+		vector< pair<IT,NT> >().swap(data[i]);	// clear memory
+	}
+	MPI_Datatype MPI_pair;
+	MPI_Type_contiguous(sizeof(tuple<IT,NT>), MPI_CHAR, &MPI_pair);
+	MPI_Type_commit(&MPI_pair);
+
+	pair<IT,NT> * recvdata = new pair<IT,NT>[totrecv];	
+	MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_pair, recvdata, recvcnt, rdispls, MPI_pair, commGrid->GetWorld());
+
+	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+	MPI_Type_free(&MPI_pair);
+
+	if(!is_sorted(recvdata, recvdata+totrecv))
+		sort(recvdata, recvdata+totrecv);
+	
+	ind.push_back(recvdata[0].first);
+	num.push_back(recvdata[0].second);
+	for(IT i=1; i< recvcnt; ++i)
+       	{
+		if(ind.back() == recvdata[i].first)
+	   	{
+		      	num.back() = BinOp(num.back(), recvdata[i].second);
+	      	}
+	      	else
+	      	{
+			ind.push_back(recvdata[i].first);
+			num.push_back(recvdata[i].second);
+	      	} 
+	}
+	delete [] recvdata;	
+}
+
+template <class IT, class NT>
+template <typename _BinaryOperation>
+void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp)
+{
+    int64_t gnnz;	// global nonzeros (glen is already declared as part of this class's private data)
+    int64_t linesread = 0;
+    
+    FILE *f;
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    if(myrank == 0)
+    {
+	ifstream infile(filename.c_str());
+        if (infile.is_open())
+	{
+		infile.clear();
+		infile.seekg(0);
+		infile >> glen >> gnnz;
+		infile.seekg(0);		
+		infile.clear();
+		infile.close();
+	}
+        cout << "Total number of nonzeros expected across all processors is " << gnnz << endl;
+
+    }
+    MPI_Bcast(&glen, 1, MPIType<int64_t>(), 0, commGrid->commWorld);
+    MPI_Bcast(&gnnz, 1, MPIType<int64_t>(), 0, commGrid->commWorld);
+    
+
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(MPI_COMM_WORLD, NOFILE);
+    }
+    int64_t file_size = st.st_size;
+    MPI_Offset fpos, end_fpos;
+    if(myrank == 0)    // the offset needs to be for this rank
+    {
+        cout << "File is " << file_size << " bytes" << endl;
+        fpos = ftell(f);
+        fclose(f);
+    }
+    else
+    {
+        fpos = myrank * file_size / nprocs;
+    }
+    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    else end_fpos = file_size;
+
+    MPI_File mpi_fh;
+    MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
+	 
+    vector< vector < pair<IT,NT> > > data(nprocs);	// data to send
+    
+    vector<string> lines;
+    bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    int64_t entriesread = lines.size();
+
+    IT ii;
+    NT vv;
+    for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+    {
+	stringstream ss(*itr);
+	ss >> ii >> vv;
+	if(onebased)	ii--;
+	IT locind;
+	int owner = Owner(ii, locind);       // recipient (owner) processor
+        data[owner].push_back(make_pair(locind,vv));
+    }
+
+    while(!finished)
+    {
+        finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
+        entriesread += lines.size();
+        for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+    	{
+		stringstream ss(*itr);
+		ss >> ii >> vv;
+		if(onebased)	ii--;
+		IT locind;
+		int owner = Owner(ii, locind);       // recipient (owner) processor
+        	data[owner].push_back(make_pair(locind,vv));
+    	}
+    }
+    int64_t allentriesread;
+    MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+        cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
+#endif
+
+    SparseCommon(data, BinOp);
+}
 
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased)
@@ -1276,7 +1424,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 					tempind = tempcol;
 				tempind--;
 				IT locind;
-				int rec = Owner(tempind, locind);	// recipient (owner) processor
+				int rec = Owner(tempind, locind);	// recipient (owner) processor  (ABAB: But if the length is not set yet, this should be wrong)
 				inds[ rec * buffperneigh + curptrs[rec] ] = locind;
 				vals[ rec * buffperneigh + curptrs[rec] ] = handler.read(infile, tempind);
 				++ (curptrs[rec]);

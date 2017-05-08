@@ -95,6 +95,14 @@ public:
         	tmpSpVec.ParallelWrite(filename, onebased);
 	}  
 
+	template <typename _BinaryOperation>
+   	void ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp)
+	{
+        	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
+        	tmpSpVec.ParallelRead(filename, onebased, BinOp);
+		*this = tmpSpVec;	// sparse -> dense conversion
+	}  
+
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
 	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
