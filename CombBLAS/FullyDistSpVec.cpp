@@ -1184,11 +1184,11 @@ void FullyDistSpVec<IT,NT>::SparseCommon(vector< vector < pair<IT,NT> > > & data
 	MPI_Type_free(&MPI_pair);
 
 	if(!is_sorted(recvdata, recvdata+totrecv))
-		sort(recvdata, recvdata+totrecv);
+		std::sort(recvdata, recvdata+totrecv);
 	
 	ind.push_back(recvdata[0].first);
 	num.push_back(recvdata[0].second);
-	for(IT i=1; i< recvcnt; ++i)
+	for(IT i=1; i< totrecv; ++i)
        	{
 		if(ind.back() == recvdata[i].first)
 	   	{
@@ -1298,7 +1298,8 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
 }
 
 template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased)
+template <class HANDLER>	
+void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices)
 {
        	int myrank = commGrid->GetRank();
     	int nprocs = commGrid->GetSize();
@@ -1315,17 +1316,27 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
 	MPI_Exscan( &entries, &sizeuntil, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld() );
 	if(myrank == 0) sizeuntil = 0;	// because MPI_Exscan says the recvbuf in process 0 is undefined
 
-	if(onebased)
-	{	
-		for(IT i=0; i< entries; ++i)
-			ss << ind[i]+sizeuntil+1 << '\t' << num[i] << '\n';
-	}
-	else
+	if(includeindices)
 	{
+		if(onebased)	sizeuntil += 1;	// increment by 1
+		
 		for(IT i=0; i< entries; ++i)
-			ss << ind[i]+sizeuntil << '\t' << num[i] << '\n';
+		{
+			ss << ind[i]+sizeuntil << '\t';
+			handler.save(ss, num[i], ind[i]+sizeuntil);
+			ss << '\n';
+		}
 	}
-
+	else	// the base doesn't matter if we don't include indices
+	{
+		IT dummy = 0;	// dummy because we don't want indices to be printed
+		for(IT i=0; i< entries; ++i)
+		{
+			handler.save(ss, num[i], dummy);
+			ss << '\n';
+		}
+	}
+	
 	std::string text = ss.str();
 
 	int64_t * bytes = new int64_t[nprocs];
