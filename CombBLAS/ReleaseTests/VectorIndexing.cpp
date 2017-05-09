@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./VectorIndexing <BASEADDRESS> <Matrix> <IndexedMatrix> <VectorOne> <VectorTwo>" << endl;
+			cout << "Usage: ./VectorIndexing <BASEADDRESS> <VectorOne> <VectorTwo>" << endl;
 			cout << "Example: ./VectorIndexing ../TESTDATA sp10outta100.txt sp30outta100.txt" << endl;
 			cout << "Input files should be under <BASEADDRESS> in tuples format" << endl;
 		}
