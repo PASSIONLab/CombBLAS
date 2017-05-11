@@ -255,10 +255,13 @@ void MMConverter(const string & filename, ofstream & dictout)
         vector<string>().swap(lines);
     }
     cout << "There are " << vertexid << " vertices and " << entriesread << " edges" << endl;
+
+#ifdef SUBGRAPHS
 #define NSUBGRAPHS 6
     uint32_t ranges[NSUBGRAPHS] = {vertexid, vertexid/2, vertexid/4, vertexid/8, vertexid/16, vertexid/32};
     cout << "Printing submatrices with the following numbers of vertices: ";
     copy(ranges, ranges+NSUBGRAPHS, ostream_iterator<uint32_t>(cout," ")); cout << endl;
+#endif
 
     uint32_t nvertices = vertexid;
     vector< uint32_t > shuffler(nvertices);
@@ -281,6 +284,8 @@ void MMConverter(const string & filename, ofstream & dictout)
         if(this_thread == 0) fpos = ffirst;
         else fpos = this_thread * file_size / num_threads;
         
+	
+#ifdef SUBGRAPHS
         string names[NSUBGRAPHS];
         ofstream outfiles[NSUBGRAPHS];
         for(int i= 0; i<NSUBGRAPHS; i++)
@@ -293,6 +298,15 @@ void MMConverter(const string & filename, ofstream & dictout)
             cout << names[i] << endl;
             outfiles[i].open(names[i]);
         }
+#else
+	string name;
+        ofstream outfile;
+ 	name = "Renamed_graph_";
+	name += filename;
+	name += std::to_string(this_thread);
+	cout << name<< endl;
+	outfile.open(name);
+#endif
        
         if(this_thread != (num_threads-1)) end_fpos = (this_thread + 1) * file_size / num_threads;
         else end_fpos = file_size;
@@ -309,19 +323,29 @@ void MMConverter(const string & filename, ofstream & dictout)
         if(this_thread == 0)
         {
             cout << "there are " << num_threads << " threads" << endl;
+#ifdef SUBGRAPHS
             for(int i= 0; i<NSUBGRAPHS; i++)
             {
                 outfiles[i] << "%%MatrixMarket matrix coordinate real symmetric\n";
                 outfiles[i] << ranges[i] << "\t" << ranges[i] << "\t" << entriesread << "\n";
             }
+#else
+	     outfile << "%%MatrixMarket matrix coordinate real symmetric\n";
+	     outfile << nvertices << "\t" << nvertices << "\t" << entriesread << "\n";
+#endif
         }
         for(size_t k=0; k< nnz; ++k)
         {
+#ifdef SUBGRAPHS
             for(int i= 0; i<NSUBGRAPHS; i++)
             {
                 if(rows[k] < ranges[i] && cols[k] < ranges[i])
                     outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
             }
+#else
+	    outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+#endif
+
         }
         rows.clear();
         cols.clear();
@@ -335,20 +359,29 @@ void MMConverter(const string & filename, ofstream & dictout)
             
             for(size_t k=0; k< nnz; ++k)
             {
+#ifdef SUBGRAPHS
                 for(int i= 0; i<NSUBGRAPHS; i++)
                 {
                     if(rows[k] < ranges[i] && cols[k] < ranges[i])
                         outfiles[i] << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
                 }
+#else
+		outfile << rows[k] << "\t" << cols[k] << "\t" << vals[k] << "\n";
+#endif
             }
             rows.clear();
             cols.clear();
             vals.clear();
         }
+#ifdef SUBGRAPHS
         for(int i= 0; i<NSUBGRAPHS; i++)
         {
             outfiles[i].close();
         }
+#else
+	outfile.close();
+#endif
+		
     }
     
 
