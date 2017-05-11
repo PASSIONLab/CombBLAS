@@ -14,13 +14,16 @@ COMPILER = CC
 GCCFLAGS = $(GCCOPT) -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS  -std=c++14
 INTELFLAGS = $(GCCOPT) -w -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -std=c++11 -std=c++14
 PGIFLAGS = -I$(BOOST) $(OPTPGI) -DCOMBBLAS_BOOST -DBOOST_HAS_STDINT_H
-FLAGS = $(GCCFLAGS) -fopenmp -DTHREADED
+FLAGS = $(GCCFLAGS) -fopenmp -DTHREADED -DCOMBBLAS_DEBUG
 LINK = -lm
 COMBBLAS = ..
 
 
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
+
+mmio.o:	../mmio.c ../mmio.h
+	cc $(FLAGS) $(INCADD) -c -o mmio.o ../mmio.c
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
@@ -61,6 +64,12 @@ Galerkin.o: Galerkin.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelpe
 GalerkinNew.o: GalerkinNew.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o GalerkinNew.o GalerkinNew.cpp
 
+VectorIO.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+	$(COMPILER) $(FLAGS) -c -o VectorIO.o VectorIO.cpp
+
+ParIOTest.o: ParIOTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h  ../SpParHelper.cpp
+	$(COMPILER) $(FLAGS) -c -o ParIOTest.o ParIOTest.cpp
+
 ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
@@ -97,11 +106,17 @@ Galerkin: MemoryPool.o CommGrid.o MPIType.o Galerkin.o
 GalerkinNew: MemoryPool.o CommGrid.o MPIType.o GalerkinNew.o
 	$(COMPILER) $(FLAGS) -o GalerkinNew GalerkinNew.o MemoryPool.o CommGrid.o MPIType.o $(LINK)
 
+VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
+	$(COMPILER) $(FLAGS)  -o VectorIO VectorIO.o MemoryPool.o CommGrid.o MPIType.o mmio.o $(LINK)
+
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
 	$(COMPILER) $(FLAGS) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o $(LINK)
 
 Roofline: MemoryPool.o CommGrid.o MPIType.o Roofline.o
 	$(COMPILER) $(FLAGS) -o Roofline Roofline.o MemoryPool.o CommGrid.o MPIType.o $(LINK)
+
+ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o
+	$(COMPILER) $(FLAGS) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o $(LINK)
 
 clean:
 	rm -f IndexingTiming
@@ -114,6 +129,8 @@ clean:
 	rm -f ReduceTest
 	rm -f Galerkin
 	rm -f Roofline
+	rm -f VectorIO
+	rm -f ParIOMM
 	rm -f *.o
 	rm -f ../graph500-1.2/generator/*.o
 	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
