@@ -1003,7 +1003,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 
-#define KSELECTLIMIT 5000
+#define KSELECTLIMIT 50
 
 
 //! Kselect wrapper for a select columns of the matrix
