@@ -158,6 +158,9 @@ private:
 	
 	template <class IT, class NT, class DER>
 	friend class SpParMat;
+
+	template <class IT, class NT>
+	friend class FullyDistSpVec;
 };
 
 #endif

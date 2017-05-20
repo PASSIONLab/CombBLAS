@@ -89,11 +89,14 @@ public:
 		}
 	};
 
-	void ParallelWrite(const string & filename, bool onebased)
+	template <class HANDLER>
+	void ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices = true)
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
-        	tmpSpVec.ParallelWrite(filename, onebased);
+        	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices);
 	}  
+	void ParallelWrite(const string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
+	
 
 	template <typename _BinaryOperation>
    	void ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp)
