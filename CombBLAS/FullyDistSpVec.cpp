@@ -1184,11 +1184,11 @@ void FullyDistSpVec<IT,NT>::SparseCommon(vector< vector < pair<IT,NT> > > & data
 	MPI_Type_free(&MPI_pair);
 
 	if(!is_sorted(recvdata, recvdata+totrecv))
-		sort(recvdata, recvdata+totrecv);
+		std::sort(recvdata, recvdata+totrecv);
 	
 	ind.push_back(recvdata[0].first);
 	num.push_back(recvdata[0].second);
-	for(IT i=1; i< recvcnt; ++i)
+	for(IT i=1; i< totrecv; ++i)
        	{
 		if(ind.back() == recvdata[i].first)
 	   	{
@@ -1215,15 +1215,14 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
     int nprocs = commGrid->GetSize();
     if(myrank == 0)
     {
-	ifstream infile(filename.c_str());
-        if (infile.is_open())
+	if((f = fopen(filename.c_str(),"r"))==NULL)
 	{
-		infile.clear();
-		infile.seekg(0);
-		infile >> glen >> gnnz;
-		infile.seekg(0);		
-		infile.clear();
-		infile.close();
+		cout << "File failed to open\n";
+		MPI_Abort(commGrid->commWorld, NOFILE);
+	}
+	else
+	{
+		fscanf(f,"%lld %lld\n", &glen, &gnnz);
 	}
         cout << "Total number of nonzeros expected across all processors is " << gnnz << endl;
 
@@ -1235,7 +1234,7 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
     struct stat st;     // get file size
     if (stat(filename.c_str(), &st) == -1)
     {
-        MPI_Abort(MPI_COMM_WORLD, NOFILE);
+        MPI_Abort(commGrid->commWorld, NOFILE);
     }
     int64_t file_size = st.st_size;
     MPI_Offset fpos, end_fpos;
@@ -1251,6 +1250,7 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
     }
     if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
     else end_fpos = file_size;
+    MPI_Barrier(commGrid->commWorld);
 
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
@@ -1258,8 +1258,15 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
     vector< vector < pair<IT,NT> > > data(nprocs);	// data to send
     
     vector<string> lines;
+
+    SpParHelper::Print("Fetching first piece\n");
+	
+    MPI_Barrier(commGrid->commWorld);
     bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
     int64_t entriesread = lines.size();
+    SpParHelper::Print("Fetched first piece\n");
+
+    MPI_Barrier(commGrid->commWorld);
 
     IT ii;
     NT vv;
@@ -1298,7 +1305,8 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
 }
 
 template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased)
+template <class HANDLER>	
+void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices)
 {
        	int myrank = commGrid->GetRank();
     	int nprocs = commGrid->GetSize();
@@ -1315,17 +1323,27 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
 	MPI_Exscan( &entries, &sizeuntil, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld() );
 	if(myrank == 0) sizeuntil = 0;	// because MPI_Exscan says the recvbuf in process 0 is undefined
 
-	if(onebased)
-	{	
-		for(IT i=0; i< entries; ++i)
-			ss << ind[i]+sizeuntil+1 << '\t' << num[i] << '\n';
-	}
-	else
+	if(includeindices)
 	{
+		if(onebased)	sizeuntil += 1;	// increment by 1
+		
 		for(IT i=0; i< entries; ++i)
-			ss << ind[i]+sizeuntil << '\t' << num[i] << '\n';
+		{
+			ss << ind[i]+sizeuntil << '\t';
+			handler.save(ss, num[i], ind[i]+sizeuntil);
+			ss << '\n';
+		}
 	}
-
+	else	// the base doesn't matter if we don't include indices
+	{
+		IT dummy = 0;	// dummy because we don't want indices to be printed
+		for(IT i=0; i< entries; ++i)
+		{
+			handler.save(ss, num[i], dummy);
+			ss << '\n';
+		}
+	}
+	
 	std::string text = ss.str();
 
 	int64_t * bytes = new int64_t[nprocs];

@@ -43,8 +43,9 @@ ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParH
 VectorIndexing.o: VectorIndexing.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIndexing.o VectorIndexing.cpp
 
-VectorIOPermute.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIOPermute.o VectorIOPermute.cpp
+VectorIO.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIO.o VectorIO.cpp
+
 
 SplitMergeTest.o: SplitMergeTest.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o SplitMergeTest.o SplitMergeTest.cpp
@@ -73,8 +74,8 @@ ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o mmio.o
 VectorInd: MemoryPool.o CommGrid.o MPIType.o VectorIndexing.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o VectorInd VectorIndexing.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
-VectorIOPerm: MemoryPool.o CommGrid.o MPIType.o VectorIOPermute.o mmio.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o VectorIOPerm VectorIOPermute.o MemoryPool.o CommGrid.o MPIType.o mmio.o
+VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o VectorIO VectorIO.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
 ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o

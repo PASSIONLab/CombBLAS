@@ -1002,9 +1002,9 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 	}
 }
 
-
-#define KSELECTLIMIT 5000
-
+#ifndef KSELECTLIMIT
+#define KSELECTLIMIT 10000
+#endif
 
 //! Kselect wrapper for a select columns of the matrix
 //! Indices of the input sparse vectors kth denote the queried columns of the matrix
