@@ -192,6 +192,54 @@ vector<tuple<IT,IT,NT>> ExchangeData(vector<vector<tuple<IT,IT,NT>>> & tempTuple
      
 }
 
+
+
+template <class IT, class NT>
+vector<tuple<IT,IT,NT>> ExchangeData1(vector<vector<tuple<IT,IT,IT,NT>>> & tempTuples, MPI_Comm World)
+{
+    
+    /* Create/allocate variables for vector assignment */
+    MPI_Datatype MPI_tuple;
+    MPI_Type_contiguous(sizeof(tuple<IT,IT,IT,NT>), MPI_CHAR, &MPI_tuple);
+    MPI_Type_commit(&MPI_tuple);
+    
+    int nprocs;
+    MPI_Comm_size(World, &nprocs);
+    
+    int * sendcnt = new int[nprocs];
+    int * recvcnt = new int[nprocs];
+    int * sdispls = new int[nprocs]();
+    int * rdispls = new int[nprocs]();
+    
+    // Set the newly found vector entries
+    IT totsend = 0;
+    for(IT i=0; i<nprocs; ++i)
+    {
+        sendcnt[i] = tempTuples[i].size();
+        totsend += tempTuples[i].size();
+    }
+    
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+    
+    partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+    partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    
+    vector< tuple<IT,IT,IT,NT> > sendTuples(totsend);
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(tempTuples[i].begin(), tempTuples[i].end(), sendTuples.data()+sdispls[i]);
+        vector< tuple<IT,IT,IT,NT> >().swap(tempTuples[i]);	// clear memory
+    }
+    vector< tuple<IT,IT,IT,NT> > recvTuples(totrecv);
+    MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
+    DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
+    MPI_Type_free(&MPI_tuple);
+    return recvTuples;
+    
+}
+
+
 template <class IT, class NT,class DER>
 int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol)
 {
@@ -320,11 +368,14 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     vector<tuple<IT,IT,NT>> recvTuples = ExchangeData(tempTuples, World);
     //tempTuples are cleared in ExchangeData function
     
+    
+    vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
     // at the owner of (mj,mi)
     for(int k=0; k<recvTuples.size(); ++k)
     {
         IT mj = get<0>(recvTuples[k]) ;
         IT mi = get<1>(recvTuples[k]) ;
+        IT i = RepMateR2C[mi - moffset];
         NT weight = get<2>(recvTuples[k]);
         DER temp = (*spSeq)(mj - moffset, mi - noffset);
         if(!temp.isZero()) // this entry exists
@@ -335,7 +386,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             {
                 IT j = RepMateR2C[mj - moffset];
                 int owner = OwnerProcs(A,  mj, j); // (mj,j)
-                tempTuples[owner].push_back(make_tuple(mj, mi, cw)); // @@@@@ send i as well
+                tempTuples1[owner].push_back(make_tuple(mj, mi, i, cw)); // @@@@@ send i as well
                 //tempTuples[owner].push_back(make_tuple(mj, j, cw));
             }
         }
@@ -344,57 +395,106 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     vector< tuple<IT,IT,NT> >().swap(recvTuples);
     
     //exchange RC-requests via AllToAllv
-    recvTuples = ExchangeData(tempTuples, World);
+    vector<tuple<IT,IT,IT,NT>> recvTuples1 = ExchangeData1(tempTuples1, World);
     
     
     // at the owner of (mj,j)
     
-    vector<tuple<IT,IT,NT>> bestTuples (spSeq->getncol());
+    vector<tuple<IT,IT,IT,NT>> bestTuples (spSeq->getncol());
     for(int k=0; k<spSeq->getncol(); ++k)
     {
-        bestTuples[k] = make_tuple(-1,-1,0); // fix this
+        bestTuples[k] = make_tuple(-1,-1,-1,0); // fix this
     }
     
-    for(int k=0; k<recvTuples.size(); ++k)
+    for(int k=0; k<recvTuples1.size(); ++k)
     {
-        IT mj = get<0>(recvTuples[k]) ;
-        IT mi = get<1>(recvTuples[k]) ;
-        NT weight = get<2>(recvTuples[k]);
+        IT mj = get<0>(recvTuples1[k]) ;
+        IT mi = get<1>(recvTuples1[k]) ;
+        IT i = get<2>(recvTuples1[k]) ;
+        NT weight = get<3>(recvTuples1[k]);
         IT j = RepMateR2C[mj - moffset];
         IT lj = j - noffset;
-        IT i;
         // how can I get i from here ?? ***** // receive i as well
         
         // we can get rid of the first check if edge weights are non negative
-        if( (get<0>(bestTuples[lj]) == -1)  || (weight > get<2>(bestTuples[lj])) )
+        if( (get<0>(bestTuples[lj]) == -1)  || (weight > get<3>(bestTuples[lj])) )
         {
-            bestTuples[lj] = make_tuple(i,mi,weight);
+            bestTuples[lj] = make_tuple(i,mi,j,weight);
         }
     }
     
-    for(int k=0; k<spSeq->getnrow(); ++k)
+    for(int k=0; k<spSeq->getncol(); ++k)
     {
         if( get<0>(bestTuples[k]) != -1)
         {
-            IT j = RepMateR2C[mj - moffset]; /// fix me
+            //IT j = RepMateR2C[mj - moffset]; /// fix me
             int owner = OwnerProcs(A,  get<0>(bestTuples[k]), get<1>(bestTuples[k])); // (i,mi)
             tempTuples[owner].push_back(bestTuples[k]);
         }
     }
 
-    vector< tuple<IT,IT,NT> >().swap(recvTuples);
-    recvTuples = ExchangeData(tempTuples, World);
+    vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
+    recvTuples1 = ExchangeData1(tempTuples1, World);
     
-    // note: if I sent mc request, I will reject diag request
-    /*
-    vector<tuple<IT,IT,NT>> bestTuples1 (spSeq->getnrow());
+    vector<tuple<IT,IT,IT,IT, NT>> bestTuples1 (spSeq->getnrow());
+    
+    // Phase 4
     for(int k=0; k<spSeq->getnrow(); ++k)
     {
-        bestTuples = make_tuple(-1,-1,0);
+        bestTuples1[k] = make_tuple(-1,-1,-1,-1,0);
     }
-     */
+    
+    for(int k=0; k<recvTuples1.size(); ++k)
+    {
+        IT i = get<0>(recvTuples1[k]) ;
+        IT mi = get<1>(recvTuples1[k]) ;
+        IT j = get<2>(recvTuples1[k]) ;
+        NT weight = get<3>(recvTuples1[k]);
+        IT mj = RepMateC2R[j - moffset];
+        
+        IT lmj = mj - noffset;
+        
+        // we can get rid of the first check if edge weights are non negative
+        if( (get<0>(bestTuples1[lmj]) == -1)  || (weight > get<4>(bestTuples1[lj])) )
+        {
+            bestTuples1[lmj] = make_tuple(i,j,mi,mj,weight);
+        }
+    }
     
     
+    vector<vector<tuple<IT,IT,IT, IT>>> winnerTuples (nprocs);
+    vector<tuple<IT,IT>> col2rowBcastTuples; //(mi,mj)
+    vector<tuple<IT,IT>> row2colBcastTuples; //(i,j)
+
+    
+    for(int k=0; k<spSeq->getnrow(); ++k)
+    {
+        if( get<0>(bestTuples1[k]) != -1)
+        {
+            //int owner = OwnerProcs(A,  get<0>(bestTuples[k]), get<1>(bestTuples[k])); // (i,mi)
+            //tempTuples[owner].push_back(bestTuples[k]);
+            int owner = OwnerProcs(A,  get<3>(bestTuples[k]), get<1>(bestTuples[k]));
+            winnerTuples[owner].push_back(make_tuple(get<0>(bestTuples[k]), get<1>(bestTuples[k]), get<2>(bestTuples[k]), get<3>(bestTuples[k])));
+            col2rowBcastTuples.push_back(make_tuple(get<2>(bestTuples[k]), get<3>(bestTuples[k])));
+            row2colBcastTuples.push_back(make_tuple(get<0>(bestTuples[k]), get<1>(bestTuples[k])));
+        }
+    }
+    
+    vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
+    
+    
+    
+    vector<tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
+    
+    for(int k=0; k<recvWinnerTuples.size(); ++k)
+    {
+        IT i = get<0>(recvTuples1[k]) ;
+        IT j = get<1>(recvTuples1[k]) ;
+        IT mi = get<2>(recvTuples1[k]) ;
+        IT mj = get<3>(recvTuples1[k]);
+        col2rowBcastTuples.push_back(make_tuple(j,i));
+        row2colBcastTuples.push_back(make_tuple(mj,mi));
+    }
     
     
 }
