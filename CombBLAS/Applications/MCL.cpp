@@ -174,16 +174,17 @@ int main(int argc, char* argv[])
         bool show = false;
         bool remove_isolated = false; // mcl removes isolated vertices by default
         int perProcessMem = 0;
+        int kselectVersion = 1; // 0: adapt based on k, 1: kselect1, 2: kselect2
         
         for (int i = 1; i < argc; i++)
         {
             if (strcmp(argv[i],"-M")==0){
                 ifilename = string(argv[i+1]);
-                if(myrank == 0) printf("input filename: %s",ifilename.c_str());
+                if(myrank == 0) printf("\ninput filename: %s",ifilename.c_str());
             }
             else if (strcmp(argv[i],"-o")==0){
                 ofilename = string(argv[i+1]);
-                if(myrank == 0) printf("Output filename: %s",ofilename.c_str());
+                if(myrank == 0) printf("\nOutput filename: %s",ofilename.c_str());
             }
             else if (strcmp(argv[i],"--show")==0){
                 show = true;
@@ -193,9 +194,17 @@ int main(int argc, char* argv[])
                 remove_isolated = true;
                 if(myrank == 0) printf("\nRemove isolated vertices at the beginning");
             }
+            else if (strcmp(argv[i],"--tournament-select")==0){
+                kselectVersion = 1;
+                if(myrank == 0) printf("\nUse tournament selection algorithm");
+            }
+            else if (strcmp(argv[i],"--quick-select")==0){
+                kselectVersion = 2;
+                if(myrank == 0) printf("\nUse quickselect algorithm");
+            }
             else if (strcmp(argv[i],"-I")==0){
                 inflation = atof(argv[i + 1]);
-                if(myrank == 0) printf("Inflation: %f",inflation);
+                if(myrank == 0) printf("\nInflation: %f",inflation);
             } else if (strcmp(argv[i],"-p")==0) {
                 prunelimit = atof(argv[i + 1]);
                 if(myrank == 0) printf("\nCutoff:%f",prunelimit);
@@ -237,6 +246,10 @@ int main(int argc, char* argv[])
         runinfo << "Recover number: " << recover_num << endl;
         runinfo << "Recover percent: " << recover_pct << endl;
         runinfo << "Selection number: " << select << " in " << phases << " phases "<< endl;
+        runinfo << "Selection algorithm: ";
+        if(kselectVersion==1) runinfo << "tournament select" << endl;
+        else if(kselectVersion==2) runinfo << "quickselect" << endl;
+        else runinfo << "adaptive based on k" << endl;
         SpParHelper::Print(runinfo.str());
 
         
@@ -355,7 +368,7 @@ int main(int argc, char* argv[])
              */
 			double t1 = MPI_Wtime();
 			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, perProcessMem);
+            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, kselectVersion, perProcessMem);
 
             MakeColStochastic(A);
             //double t2 = MPI_Wtime();

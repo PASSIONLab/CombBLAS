@@ -1013,7 +1013,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 //! Otherwise, returns false
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
-bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const
+bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit, int kselectVersion) const
 {
 #ifdef COMBBLAS_DEBUG
     FullyDistVec<GIT,VT> test1(kth.getcommgrid());
@@ -1030,27 +1030,19 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
     }
 #endif
 
-    bool ret;
-    FullyDistVec<GIT,VT> kthAll ( getcommgrid());
-    if(k_limit > KSELECTLIMIT)
-    {
-        ret = Kselect2(kthAll, k_limit);
-    }
+    if(kselectVersion==1 || k_limit < KSELECTLIMIT)
+        return Kselect1(kth, k_limit, myidentity<NT>());
     else
     {
-        //ret = Kselect1(kthAll, k_limit, myidentity<NT>());
-        return Kselect1(kth, k_limit, myidentity<NT>());
+        FullyDistVec<GIT,VT> kthAll ( getcommgrid());
+        bool ret = Kselect2(kthAll, k_limit);
+        FullyDistSpVec<GIT,VT> temp = EWiseApply<VT>(kth, kthAll,
+                                                     [](VT spval, VT dval){return dval;},
+                                                     [](VT spval, VT dval){return true;},
+                                                     false, NT());
+        kth = temp;
+        return ret;
     }
-    
-    //kth.DebugPrint();
-    //kthAll.DebugPrint();
-    FullyDistSpVec<GIT,VT> temp = EWiseApply<VT>(kth, kthAll,
-                                                 [](VT spval, VT dval){return dval;},
-                                                 [](VT spval, VT dval){return true;},
-                                                 false, NT());
-    //temp.DebugPrint();
-    kth = temp;
-    return ret;
 }
 
 
@@ -1059,7 +1051,7 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) cons
 //! if false, rvec contains either the minimum entry in each column or zero
 template <class IT, class NT, class DER>
 template <typename VT, typename GIT>
-bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
+bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit, int kselectVersion) const
 {
 #ifdef COMBBLAS_DEBUG
     FullyDistVec<GIT,VT> test1(rvec.getcommgrid());
@@ -1076,14 +1068,11 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const
     }
 #endif
     
-    if(k_limit > KSELECTLIMIT)
-    {
-        return Kselect2(rvec, k_limit);
-    }
-    else
-    {
+    if(kselectVersion==1 || k_limit < KSELECTLIMIT)
         return Kselect1(rvec, k_limit, myidentity<NT>());
-    }
+    else
+        return Kselect2(rvec, k_limit);
+   
 }
 
 /* identify the k-th maximum element in each column of a matrix

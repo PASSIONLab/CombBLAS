@@ -118,9 +118,9 @@ public:
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
 
     template <typename VT, typename GIT>
-    bool Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit) const;
+    bool Kselect(FullyDistVec<GIT,VT> & rvec, IT k_limit, int kselectVersion) const;
     template <typename VT, typename GIT>
-    bool Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit) const; //sparse case
+    bool Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit, int kselectVersion) const; //sparse case
     
     template <typename VT, typename GIT, typename _UnaryOperation>
     bool Kselect1(FullyDistVec<GIT,VT> & rvec, IT k_limit, _UnaryOperation __unary_op) const; // TODO: make private
@@ -294,7 +294,7 @@ public:
     
     template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
     friend SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                               int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t perProcessMem);
+                                               int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMem);
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  

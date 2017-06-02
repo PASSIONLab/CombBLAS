@@ -180,7 +180,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 
 // Combined logic for prune, recovery, and select
 template <typename IT, typename NT, typename DER>
-void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct)
+void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion)
 {
     
 #ifdef TIMING
@@ -211,7 +211,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
         t0=MPI_Wtime();
 #endif
-        A.Kselect(recoverCols, recoverNum);
+        A.Kselect(recoverCols, recoverNum, kselectVersion);
 
 #ifdef TIMING
         t1=MPI_Wtime();
@@ -249,7 +249,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
             t0=MPI_Wtime();
 #endif
-            A.Kselect(selectCols, selectNum); // PrunedA would also work
+            A.Kselect(selectCols, selectNum, kselectVersion); // PrunedA would also work
 #ifdef TIMING
             t1=MPI_Wtime();
             mcl_kselecttime += (t1-t0);
@@ -298,7 +298,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
                     t0=MPI_Wtime();
 #endif
-                    A.Kselect(selectCols, recoverNum); // Kselect on PrunedA might give different result
+                    A.Kselect(selectCols, recoverNum, kselectVersion); // Kselect on PrunedA might give different result
 #ifdef TIMING
                     t1=MPI_Wtime();
                     mcl_kselecttime += (t1-t0);
@@ -346,7 +346,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int64_t perProcessMemory)
+                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory)
 {
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -570,7 +570,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         delete OnePieceOfC_tuples;
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct);
+        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
         
 #ifdef MCLMEMORY
         int64_t gcnnz_pruned, lcnnz_pruned ;
