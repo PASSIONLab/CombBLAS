@@ -1031,7 +1031,9 @@ bool SpParMat<IT,NT,DER>::Kselect(FullyDistSpVec<GIT,VT> & kth, IT k_limit, int 
 #endif
 
     if(kselectVersion==1 || k_limit < KSELECTLIMIT)
+    {
         return Kselect1(kth, k_limit, myidentity<NT>());
+    }
     else
     {
         FullyDistVec<GIT,VT> kthAll ( getcommgrid());
