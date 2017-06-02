@@ -178,6 +178,7 @@ vector<tuple<IT,IT,NT>> ExchangeData(vector<vector<tuple<IT,IT,NT>>> & tempTuple
     partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
     
+    
     vector< tuple<IT,IT,NT> > sendTuples(totsend);
     for(int i=0; i<nprocs; ++i)
     {
@@ -188,6 +189,8 @@ vector<tuple<IT,IT,NT>> ExchangeData(vector<vector<tuple<IT,IT,NT>>> & tempTuple
     MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
     MPI_Type_free(&MPI_tuple);
+    
+    cout << sendTuples.size() << " & " << recvTuples.size() << endl;
     return recvTuples;
      
 }
@@ -413,6 +416,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             }
         }
         
+        if(myrank==0)
+            cout << "dbg point 2" << endl;
+        
         //exchange C-request via All2All
         // there might be some empty mesages in all2all
         vector<tuple<IT,IT,NT>> recvTuples = ExchangeData(tempTuples, World);
@@ -420,14 +426,23 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         
         
         vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
+        
+        if(myrank==0)
+            cout << "dbg point 3 :: " << recvTuples.size() << endl;
+
         // at the owner of (mj,mi)
         for(int k=0; k<recvTuples.size(); ++k)
         {
+            if(myrank==0)
+                cout << k << " " << endl;
             IT mj = get<0>(recvTuples[k]) ;
             IT mi = get<1>(recvTuples[k]) ;
+            
             IT i = RepMateR2C[mi - moffset];
             NT weight = get<2>(recvTuples[k]);
+            
             DER temp = (*spSeq)(mj - moffset, mi - noffset);
+            
             if(!temp.isZero()) // this entry exists
             {
                 //TODO: fix this
@@ -436,11 +451,17 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 {
                     IT j = RepMateR2C[mj - moffset];
                     int owner = OwnerProcs(A,  mj, j); // (mj,j)
+                    if(owner > nprocs-1) cout << "error !!!\n";
                     tempTuples1[owner].push_back(make_tuple(mj, mi, i, cw)); // @@@@@ send i as well
                     //tempTuples[owner].push_back(make_tuple(mj, j, cw));
                 }
             }
+            if(myrank==0)
+                cout << k << " * " << endl;
         }
+        
+        if(myrank==0)
+            cout << "dbg point 3.1" << endl;
         
         vector< tuple<IT,IT,NT> >().swap(recvTuples);
         
@@ -473,6 +494,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 bestTuplesPhase3[lj] = make_tuple(i,mi,j,weight);
             }
         }
+        
+        if(myrank==0)
+            cout << "dbg point 4" << endl;
         
         for(int k=0; k<spSeq->getncol(); ++k)
         {
@@ -513,6 +537,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             }
         }
         
+        if(myrank==0)
+            cout << "dbg point 5" << endl;
         
         vector<vector<tuple<IT,IT,IT, IT>>> winnerTuples (nprocs);
         vector<tuple<IT,IT>> rowBcastTuples; //(mi,mj)
@@ -534,7 +560,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         
         vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
         
-        
+        if(myrank==0)
+            cout << "dbg point 6" << endl;
         
         vector<tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
         
@@ -552,6 +579,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         vector<tuple<IT,IT>> updatedR2C = MateBcast(rowBcastTuples, RowWorld);
         vector<tuple<IT,IT>> updatedC2R = MateBcast(colBcastTuples, ColWorld);
         
+        if(myrank==0)
+            cout << "dbg point 7" << endl;
         
         for(int k=0; k<updatedR2C.size(); k++)
         {
@@ -566,6 +595,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             IT mate = get<1>(updatedC2R[k]);
             RepMateC2R[col] = mate;
         }
+        
+        if(myrank==0)
+            cout << "dbg point 8" << endl;
     }
 }
 
@@ -743,8 +775,14 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
         
         // using best options for the maximum cardinality matching
-        init = DMD; randMaximal = false; randMM = true; prune = true;
+        /*
+         init = DMD; randMaximal = false; randMM = true; prune = true;
         MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+        maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+         */
+        
+        init = DMD; randMaximal = false; randMM = false; prune = true;
+        //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
         maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
 
         TwoThirdApprox(*AWighted, mateRow2Col, mateCol2Row);
