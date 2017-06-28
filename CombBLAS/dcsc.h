@@ -72,7 +72,13 @@ public:
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{	
-		transform(numx, numx+nz, numx, __unary_op);
+		//transform(numx, numx+nz, numx, __unary_op);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for(IT i=0; i < nz; ++i)
+            numx[i] = __unary_op(numx[i]);
+
 	}
 
 	template <typename _UnaryOperation, typename GlobalIT>
