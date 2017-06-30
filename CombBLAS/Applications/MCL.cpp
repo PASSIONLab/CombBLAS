@@ -254,12 +254,12 @@ int main(int argc, char* argv[])
         SpParHelper::Print(runinfo.str());
 
         
-        double tIO = MPI_Wtime();
+        double tIO1 = MPI_Wtime();
 		Dist::MPI_DCCols A;	// construct object
         A.ParallelReadMM(ifilename, base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
-						
+		double tIO = MPI_Wtime() - tIO1;
         ostringstream outs;
-        outs << "File Read time: " << MPI_Wtime() - tIO << endl;
+        outs << "File Read time: " << tIO  << endl;
 		SpParHelper::Print(outs.str());
         if(show)
             A.PrintInfo();
@@ -353,6 +353,8 @@ int main(int argc, char* argv[])
 		// it is in the range {0,1} for stochastic matrices
 		double chaos = 1;
         int it=1;
+        double tInflate = 0;
+        double tExpand = 0;
 
 		// while there is an epsilon improvement
 		while( chaos > EPS)
@@ -372,7 +374,7 @@ int main(int argc, char* argv[])
             A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, kselectVersion, perProcessMem);
 
             MakeColStochastic(A);
-            //double t2 = MPI_Wtime();
+            tExpand += (MPI_Wtime() - t1);
             //stringstream ss;
             //ss << "=================================================" << endl;
             //ss << "Squared in " << (t2-t1) << " seconds" << endl;
@@ -394,9 +396,11 @@ int main(int argc, char* argv[])
             }
             chaos = Chaos(A);
             
-	    
+            double tInflate1 = MPI_Wtime();
             Inflate(A, inflation);	// inflate (and renormalize)
             MakeColStochastic(A);
+            tInflate += (MPI_Wtime() - tInflate1);
+
             
             //stringstream sss;
             //sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
@@ -432,8 +436,17 @@ int main(int argc, char* argv[])
         
         if(myrank==0)
         {
-            cout << "Breakdown of squaring time: \n mcl_Abcast= " << mcl_Abcasttime << "\n mcl_Bbcast= " << mcl_Bbcasttime << "\n mcl_localspgemm= " << mcl_localspgemmtime << "\n mcl_multiwaymergetime= "<< mcl_multiwaymergetime << "\n mcl_kselect= " << mcl_kselecttime << "\n mcl_prunecolumn= " << mcl_prunecolumntime << endl;
-            cout << "Connected Component time: " << tcc << endl;
+            cout << "Squaring: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
+            cout << "       Abcast= " << mcl_Abcasttime << endl;
+            cout << "       Bbcast= " << mcl_Bbcasttime << endl;
+            cout << "       localspgemm= " << mcl_localspgemmtime << endl;
+            cout << "       multiwaymergetime= "<< mcl_multiwaymergetime << endl;
+            cout << "Pruning: " << mcl_kselecttime + mcl_prunecolumntime << endl;
+            cout << "       kselect= " << mcl_kselecttime << endl;
+            cout << "       prunecolumn= " << mcl_prunecolumntime << endl;
+            cout << "Inflation " << tInflate << endl;
+            cout << "Component: " << tcc << endl;
+            cout << "File I/O: " << tIO << endl;
             cout << "=================================================" << endl;
         }
 

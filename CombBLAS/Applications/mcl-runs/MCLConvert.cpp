@@ -62,9 +62,9 @@ vector<int64_t> MCLOrder(string fname)
     
 }
 
-void convert(string fname, string sort = "revsize")
+void convert(string ifname, string ofname, string sort = "revsize")
 {
-    ifstream infile (fname);
+    ifstream infile (ifname);
     int64_t item, clustID;
     int64_t nclust = 0;
     vector<vector<int64_t>> clusters;
@@ -84,14 +84,13 @@ void convert(string fname, string sort = "revsize")
     }
     else
     {
-        cout << "Unable to open " << fname << endl;
+        cout << "Unable to open " << ifname << endl;
         return;
     }
     
      cout << "Number of clusters from HipMCL: " << nclust << endl;
     
-    string outname = fname + ".hipmcl";
-    ofstream outfile (outname);
+    ofstream outfile (ofname);
     if(sort == "revsize")
     {
         vector<int64_t> clustSize(nclust, 0);
@@ -103,7 +102,7 @@ void convert(string fname, string sort = "revsize")
             for(int64_t i=0; i<nclust; i++)
             {
                 int64_t cl = sidx[i];
-                for(int64_t j=0; j<clusters[cl].size() ; j++)
+                for(uint64_t j=0; j<clusters[cl].size() ; j++)
                 {
                     outfile << clusters[cl][j] << "\t";
                 }
@@ -111,7 +110,7 @@ void convert(string fname, string sort = "revsize")
             }
             outfile.close();
         }
-        else cout << "Unable to open " << outname << endl;
+        else cout << "Unable to open " << ofname << endl;
     }
     else
     {
@@ -119,7 +118,7 @@ void convert(string fname, string sort = "revsize")
         {
             for(int64_t i=0; i<nclust; i++)
             {
-                for(int64_t j=0; j<clusters[i].size() ; j++)
+                for(uint64_t j=0; j<clusters[i].size() ; j++)
                 {
                     outfile << clusters[i][j] << "\t";
                 }
@@ -127,7 +126,7 @@ void convert(string fname, string sort = "revsize")
             }
             outfile.close();
         }
-        else cout << "Unable to open " << outname << endl;
+        else cout << "Unable to open " << ofname << endl;
     }
     
     
@@ -138,11 +137,13 @@ int main(int argc, char* argv[])
 {
     
     string ifilename = "";
+    string ofilename = "";
     string sort = "revsize";
     
-    if(argc < 3)
+    cout << "Reformatting HipMCL output to MCL format.....\n";
+    if(argc < 4)
     {
-        cout << "Usage: ./mclconvert -M <FILENAME_Output_HipMCL> (required)\n";
+        cout << "Usage: ./mclconvert -M <IN_FILENAME> -o <OUT_FILENAME>(required)\n";
         cout << "-sort <Sort clusters by their sizes> (default:revsize)\n";
         cout << "Example: ./mclconvert -M input.mtx" << endl;
         return -1;
@@ -153,15 +154,20 @@ int main(int argc, char* argv[])
         if (strcmp(argv[i],"-M")==0)
         {
             ifilename = string(argv[i+1]);
-            printf("filename: %s",ifilename.c_str());
+            printf("Input filename: %s",ifilename.c_str());
+        }
+        else if (strcmp(argv[i],"-o")==0)
+        {
+            ofilename = string(argv[i+1]);
+            printf("Output filename: %s",ofilename.c_str());
         }
         else if (strcmp(argv[i],"-sort")==0)
         {
             sort = string(argv[i + 1]);
-            printf("\nSorting clusters by their size (revsize or none)? :%s",sort);
+            printf("\nSorting clusters by their size (revsize or none)? :%s",sort.c_str());
         }
     }
     printf("\n");
-    convert(ifilename, sort);
+    convert(ifilename, ofilename, sort);
     return 0;
 }
