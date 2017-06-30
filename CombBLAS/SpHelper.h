@@ -85,7 +85,33 @@ public:
             vals.push_back(vv);
         }
     }
-    
+    static void ProcessLinesWithStringKeys(vector<map<pair<uint64_t, string>>> & allkeys, vector<string> & lines)
+    {
+	char fr[MAXVERTNAME];
+    	char to[MAXVERTNAME];
+    	string frstr, tostr;
+    	uint64_t frhash, tohash;    
+    	double vv;
+    	for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+    	{
+		sscanf(itr->c_str(), "%s %s %lg", &fr, &to, &vv);
+		frstr = string(fr);
+		tostr = string(to);
+		MurmurHash3_x64_64(frstr.c_str(),frstr.size(),0,&frhash);
+		MurmurHash3_x64_64(tostr.c_str(),tostr.size(),0,&tohash);	
+
+		double range_fr = static_cast<double>(frhash) * static_cast<double>(nprocs);
+		double range_to = static_cast<double>(tohash) * static_cast<double>(nprocs);
+    		size_t owner_fr = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
+    		size_t owner_to = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
+
+		allkeys[owner_fr].insert(make_pair(frhash, frstr)); 
+		allkeys[owner_to].insert(make_pair(tohash, tostr));	
+   	}
+        lines.clear();	
+    }
+
+
     template <typename IT1, typename NT1>
     static void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, int symmetric, int type, bool onebased = true)
     {

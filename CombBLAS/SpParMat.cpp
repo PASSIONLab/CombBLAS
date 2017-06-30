@@ -3114,11 +3114,66 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool 
 	}
 }
 
-
-
 //! Handles all sorts of orderings as long as there are no duplicates
+//! Does not take matrix market banner (only tuples)
+//! Data can be load imbalanced and the vertex labels can be arbitrary strings
+//! Replaces ReadDistribute for imbalanced arbitrary input in tuples format
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
+void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _BinaryOperation BinOp)
+{       
+    FILE *f;
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();     
+
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(MPI_COMM_WORLD, NOFILE);
+    }
+    int64_t file_size = st.st_size;
+    MPI_Offset fpos, end_fpos;
+    if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
+    {
+        cout << "File is " << file_size << " bytes" << endl;
+        fclose(f);
+    }
+    fpos = myrank * file_size / nprocs;
+
+    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    else end_fpos = file_size;
+
+    MPI_File mpi_fh;
+    MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
+
+    typedef pair<uint64_t, string> KEYMAP;
+    vector< map<KEYMAP> > allkeys;	// map keeps the outgoing data unique, we could have applied this to HipMer too
+
+    vector<string> lines;
+    bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    int64_t entriesread = lines.size();
+    SpHelper::ProcessLinesWithStringKeys(allkeys, lines);
+
+    while(!finished)
+    {
+        finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
+        entriesread += lines.size();
+        SpHelper::ProcessLinesWithStringKeys(allkeys, lines);
+    }
+    int64_t allentriesread;
+    MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+        cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
+#endif
+
+}
+
+
+
+//! Handles all sorts of orderings, even duplicates (what happens to them is determined by BinOp)
 //! Requires proper matrix market banner at the moment
-//! Might replace ReadDistribute in the long term
+//! Replaces ReadDistribute for properly load balanced input in matrix market format
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp)
