@@ -61,6 +61,8 @@
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors
 #define MEM_EFFICIENT_STAGES 16
+#define MAXVERTNAME 128
+
 
 // MPI::Abort codes
 #define GRIDMISMATCH 3001
