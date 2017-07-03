@@ -64,12 +64,236 @@ int64_t mcl_memory;
 
 
 class Dist
-{ 
-public: 
-	typedef SpDCCols < int64_t, double > DCCols;
-	typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
-	typedef FullyDistVec < int64_t, double> MPI_DenseVec;
+{
+    public:
+    typedef SpDCCols < int64_t, double > DCCols;
+    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
+    typedef FullyDistVec < int64_t, double> MPI_DenseVec;
 };
+
+
+typedef struct
+{
+    //Input/Output file
+    string ifilename;
+    int base;
+    string ofilename;
+    
+    //Preprocessing
+    int randpermute;
+    bool remove_isolated;
+    
+    //inflation
+    double inflation;
+    
+    //pruning
+    double prunelimit;
+    int64_t select;
+    int64_t recover_num;
+    double recover_pct;
+    int kselectVersion; // 0: adapt based on k, 1: kselect1, 2: kselect2
+    
+    //HipMCL optimization
+    int phases;
+    int perProcessMem;
+    
+    //debugging
+    bool show;
+    
+    
+}HipMCLParam;
+
+
+void InitParam(HipMCLParam & param)
+{
+    //Input/Output file
+    param.ifilename = "";
+    param.ofilename = "";
+    param.base = 1;
+    
+    //Preprocessing
+    // mcl removes isolated vertices by default,
+    // we don't do this because it will create different ordering of vertices!
+    param.remove_isolated = false;
+    param.randpermute = 0;
+    
+    //inflation
+    param.inflation = 0.0;
+    
+    //pruning
+    param.prunelimit = 1.0/10000.0;
+    param.select = 1100;
+    param.recover_num = 1400;
+    param.recover_pct = .9; // we allow both 90 or .9 as input. Internally, we keep it 0.9
+    param.kselectVersion = 1;
+    
+    //HipMCL optimization
+    param.phases = 1;
+    param.perProcessMem = 0;
+    
+    //debugging
+    param.show = false;
+}
+
+void ShowParam(HipMCLParam & param)
+{
+    ostringstream runinfo;
+    runinfo << "\n======================================" << endl;
+    runinfo << "Running HipMCL with the parameters: " << endl;
+    runinfo << "======================================" << endl;
+    runinfo << "Input/Output file" << endl;
+    runinfo << "    input filename: " << param.ifilename << endl;
+    runinfo << "    Base of the input matrix: " << param.base << endl;
+    runinfo << "    Output filename: " << param.ofilename << endl;
+    
+    
+    runinfo << "Preprocessing" << endl;
+    runinfo << "    Remove isolated vertices? : ";
+    if (param.remove_isolated) runinfo << "yes";
+    else runinfo << "no" << endl;
+    
+    runinfo << "    Randomly permute vertices? : ";
+    if (param.randpermute) runinfo << "yes";
+    else runinfo << "no" << endl;
+    
+    runinfo << "Inflation: " << param.inflation << endl;
+    
+    runinfo << "Pruning" << endl;
+    runinfo << "    Prunelimit: " << param.prunelimit << endl;
+    runinfo << "    Recover number: " << param.recover_num << endl;
+    runinfo << "    Recover percent: " << ceil(param.recover_pct*100) << endl;
+    runinfo << "    Selection number: " << param.select << endl;
+    // do not expose selection option at this moment
+    //runinfo << "Selection algorithm: ";
+    //if(kselectVersion==1) runinfo << "tournament select" << endl;
+    //else if(kselectVersion==2) runinfo << "quickselect" << endl;
+    //else runinfo << "adaptive based on k" << endl;
+    
+    
+    
+    runinfo << "HiMCL optimization" << endl;
+    runinfo << "    Number of phases: " << param.phases << endl;
+    runinfo << "    Memory avilable per process: ";
+    if(param.perProcessMem>0) runinfo << param.perProcessMem << "GB" << endl;
+    else runinfo << "not provided" << endl;
+    
+    runinfo << "Debugging" << endl;
+    runinfo << "    Show matrices after major steps? : ";
+    if (param.show) runinfo << "yes";
+    else runinfo << "no" << endl;
+    runinfo << "======================================" << endl;
+    SpParHelper::Print(runinfo.str());
+}
+
+void ProcessParam(int argc, char* argv[], HipMCLParam & param)
+{
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i],"-M")==0){
+            param.ifilename = string(argv[i+1]);
+        }
+        else if (strcmp(argv[i],"-o")==0){
+            param.ofilename = string(argv[i+1]);
+        }
+        else if (strcmp(argv[i],"--show")==0){
+            param.show = true;
+        }
+        else if (strcmp(argv[i],"--remove-isolated")==0){
+            param.remove_isolated = true;
+        }
+        else if (strcmp(argv[i],"--tournament-select")==0){
+            param.kselectVersion = 1;
+        }
+        else if (strcmp(argv[i],"--quick-select")==0){
+            param.kselectVersion = 2;
+            
+        }
+        else if (strcmp(argv[i],"-I")==0){
+            param.inflation = atof(argv[i + 1]);
+            
+        } else if (strcmp(argv[i],"-p")==0) {
+            param.prunelimit = atof(argv[i + 1]);
+            
+        } else if (strcmp(argv[i],"-S")==0) {
+            param.select = atoi(argv[i + 1]);
+            
+        } else if (strcmp(argv[i],"-R")==0) {
+            param.recover_num = atoi(argv[i + 1]);
+            
+        } else if (strcmp(argv[i],"-pct")==0)
+        {
+            param.recover_pct = atof(argv[i + 1]);
+            if(param.recover_pct>1) param.recover_pct/=100.00;
+        } else if (strcmp(argv[i],"-base")==0) {
+            param.base = atoi(argv[i + 1]);
+        }
+        else if (strcmp(argv[i],"-rand")==0) {
+            param.randpermute = atoi(argv[i + 1]);
+        }
+        else if (strcmp(argv[i],"-phases")==0) {
+            param.phases = atoi(argv[i + 1]);
+        }
+        else if (strcmp(argv[i],"-per-process-mem")==0) {
+            param.perProcessMem = atoi(argv[i + 1]);
+        }
+    }
+    
+    if(param.ofilename=="") // construct output file name if it is not provided
+    {
+        param.ofilename = param.ifilename + ".hipmcl";
+    }
+    
+}
+
+
+void ShowOptions()
+{
+    ostringstream runinfo;
+    
+    runinfo << "Usage: ./hipmcl -M <input filename> -I <inlfation> (required)" << endl;
+    
+    runinfo << "======================================" << endl;
+    runinfo << "     Detail parameter options    " << endl;
+    runinfo << "======================================" << endl;
+    
+    
+    
+    runinfo << "Input/Output file" << endl;
+    runinfo << "    -M <input file name> (mandatory)" << endl;
+    runinfo << "    -base <index of the first vertex, 0|1> (default: 1) " << endl;
+    runinfo << "    -o <output filename> (default: input_file_name.hipmcl )" << endl;
+    
+    runinfo << "Inflation" << endl;
+    runinfo << "-I <inflation> (mandatory)\n";
+    
+    runinfo << "Preprocessing" << endl;
+    runinfo << "    -rand <randomly permute vertices> (default:0)\n";
+    runinfo << "    --remove-isolated : if provided, remove isolated vertices (default: don't remove isolated vertices)\n";
+    
+    
+    runinfo << "Pruning" << endl;
+    runinfo << "    -p <cutoff> (default: 1/10000)\n";
+    runinfo << "    -R <recovery number> (default: 1400)\n";
+    runinfo << "    -pct <recovery pct> (default: 90)\n";
+    runinfo << "    -S <selection number> (default: 1100)\n";
+    
+    
+    runinfo << "HipMCL optimization" << endl;
+    runinfo << "    -phases <number of phases> (default:1)\n";
+    runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n" << endl;
+    
+    runinfo << "Debugging" << endl;
+    runinfo << "    --show: show matrices after major steps (default: do not show matrices)" << endl;
+
+
+    
+    runinfo << "======================================" << endl;
+    runinfo << "     Few examples    " << endl;
+    runinfo << "======================================" << endl;
+    runinfo << "Example on a laption with 0-indexed matrix and random permutation on:\n./hipmcl -M graph.mtx -I 2 -base 0 -rand 1 -phases 1 -o graph.hipmcl" << endl;
+    runinfo << "Example on the NERSC/Edison system with 16 nodes and 24 threads per node: \nsrun -N 16 -n 16 -c 24  ./hipmcl -M graph.mtx -per-process-mem 64 -o graph.hipmcl" << endl;
+    SpParHelper::Print(runinfo.str());
+}
 
 
 // base: base of items
@@ -111,7 +335,7 @@ double Chaos(Dist::MPI_DCCols & A)
 
 void Inflate(Dist::MPI_DCCols & A, double power)
 {
-	A.Apply(bind2nd(exponentiate(), power));
+    A.Apply(bind2nd(exponentiate(), power));
 }
 
 int main(int argc, char* argv[])
@@ -131,138 +355,40 @@ int main(int argc, char* argv[])
         nthreads = omp_get_num_threads();
     }
 #endif
-
-	int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    HipMCLParam param;
+    InitParam(param); // initialize parameters to default values
+    ProcessParam(argc, argv, param);
+    if(param.ifilename=="" || param.inflation == 0.0)
+    {
+        SpParHelper::Print("Required options are missing.\n");
+        ShowOptions();
+        MPI_Finalize();
+        return -1;
+    }
+    
+    
     if(myrank == 0)
     {
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
+    ShowParam(param);
     
-	typedef PlusTimesSRing<double, double> PTFF;
-    if(argc < 3)
     {
-        if(myrank == 0)
-        {
-            cout << "Usage: ./mcl -M <FILENAME_MATRIX_MARKET> (required)\n";
-            cout << "-I <INFLATION> (default: 2)\n";
-            cout << "-p <CUTOFF> (default: 1/10000)\n";
-            cout << "-S <SELECTION NUMBER> (default: 1100)\n";
-            cout << "-R <RECOVER NUMBER> (default: 900)\n";
-            cout << "-pct <RECOVER PCT> (default: 90)\n";
-            cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
-            cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
-            cout << "-phases <NUM PHASES in SPGEMM> (default:1)\n";
-            cout << "-per-process-mem <MEMORY (GB) AVAILABLE PER PROCESS> (default:0, number of phases is not estimated)\n";
-            cout << "Example (0-indexed mtx and random permutation on): ./mcl -M input.mtx -I 2 -p 0.0001 -S 1100 -R 1400 -pct 0.9 -base 0 -rand 1 -phases 1" << endl;
-        }
-        MPI_Finalize();
-        return -1;
-    }
-	{
-        // default parameters of mac can be found by #mcl -z
-        string ifilename = "";
-        string ofilename = "";
-        double inflation = 2.0;
-        double prunelimit = 1.0/10000.0;
-        int64_t select = 1100;
-        int64_t recover_num = 1400;
-        double recover_pct = .9; // TODO: make it consistent with mcl by representing it as percentage
-        int base = 1;
-        int randpermute = 0;
-        int phases = 1;
-        bool show = false;
-        bool remove_isolated = false; // mcl removes isolated vertices by default
-        int perProcessMem = 0;
-        int kselectVersion = 1; // 0: adapt based on k, 1: kselect1, 2: kselect2
-        
-        for (int i = 1; i < argc; i++)
-        {
-            if (strcmp(argv[i],"-M")==0){
-                ifilename = string(argv[i+1]);
-                if(myrank == 0) printf("\ninput filename: %s",ifilename.c_str());
-            }
-            else if (strcmp(argv[i],"-o")==0){
-                ofilename = string(argv[i+1]);
-                if(myrank == 0) printf("\nOutput filename: %s",ofilename.c_str());
-            }
-            else if (strcmp(argv[i],"--show")==0){
-                show = true;
-                if(myrank == 0) printf("\nShow matrices after major steps");
-            }
-            else if (strcmp(argv[i],"--remove-isolated")==0){
-                remove_isolated = true;
-                if(myrank == 0) printf("\nRemove isolated vertices at the beginning");
-            }
-            else if (strcmp(argv[i],"--tournament-select")==0){
-                kselectVersion = 1;
-                if(myrank == 0) printf("\nUse tournament selection algorithm");
-            }
-            else if (strcmp(argv[i],"--quick-select")==0){
-                kselectVersion = 2;
-                if(myrank == 0) printf("\nUse quickselect algorithm");
-            }
-            else if (strcmp(argv[i],"-I")==0){
-                inflation = atof(argv[i + 1]);
-                if(myrank == 0) printf("\nInflation: %f",inflation);
-            } else if (strcmp(argv[i],"-p")==0) {
-                prunelimit = atof(argv[i + 1]);
-                if(myrank == 0) printf("\nCutoff:%f",prunelimit);
-            } else if (strcmp(argv[i],"-S")==0) {
-                select = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nSelection Number:%lld",select);
-            } else if (strcmp(argv[i],"-R")==0) {
-                recover_num = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nRecovery Number:%lld",recover_num);
-            } else if (strcmp(argv[i],"-pct")==0) {
-                recover_pct = atof(argv[i + 1]);
-                if(myrank == 0) printf("\nRecovery Percentage:%f",recover_pct);
-            } else if (strcmp(argv[i],"-base")==0) {
-                base = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nBase of MM (1 or 0):%d",base);
-            }
-            else if (strcmp(argv[i],"-rand")==0) {
-                randpermute = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
-            }
-            else if (strcmp(argv[i],"-phases")==0) {
-                phases = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nNumber of SpGEMM phases:%d",phases);
-            }
-            else if (strcmp(argv[i],"-per-process-mem")==0) {
-                perProcessMem = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nPer process memory:%d GB",perProcessMem);
-            }
-        }
-
-        if(ofilename=="") // construct output file name if it is not provided
-        {
-            ofilename = ifilename + ".out";
-        }
-        ostringstream runinfo;
-        runinfo << "\nRunning HipMCL with... " << endl;
-        runinfo << "Inflation: " << inflation << endl;
-        runinfo << "Prunelimit: " << prunelimit << endl;
-        runinfo << "Recover number: " << recover_num << endl;
-        runinfo << "Recover percent: " << recover_pct << endl;
-        runinfo << "Selection number: " << select << " in " << phases << " phases "<< endl;
-        runinfo << "Selection algorithm: ";
-        if(kselectVersion==1) runinfo << "tournament select" << endl;
-        else if(kselectVersion==2) runinfo << "quickselect" << endl;
-        else runinfo << "adaptive based on k" << endl;
-        SpParHelper::Print(runinfo.str());
-
         
         double tIO1 = MPI_Wtime();
-		Dist::MPI_DCCols A;	// construct object
-        A.ParallelReadMM(ifilename, base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
-		double tIO = MPI_Wtime() - tIO1;
+        Dist::MPI_DCCols A;	// construct object
+        A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
+        double tIO = MPI_Wtime() - tIO1;
         ostringstream outs;
         outs << "File Read time: " << tIO  << endl;
-		SpParHelper::Print(outs.str());
-        if(show)
-            A.PrintInfo();
+        SpParHelper::Print(outs.str());
+        if(param.show)
+        A.PrintInfo();
         
         FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
         FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
@@ -271,19 +397,19 @@ int main(int argc, char* argv[])
         outs.clear();
         outs << "Isolated vertices: " << numIsolated << endl;
         SpParHelper::Print(outs.str());
-
         
-        if(remove_isolated)
+        
+        if(param.remove_isolated)
         {
             A(nonisov, nonisov, true);
             SpParHelper::Print("Removed isolated vertices.\n");
-            if(show)
+            if(param.show)
             {
                 A.PrintInfo();
             }
         }
         
-        if(randpermute)
+        if(param.randpermute)
         {
             // randomly permute for load balance
             if(A.getnrow() == A.getncol())
@@ -300,14 +426,14 @@ int main(int argc, char* argv[])
             }
         }
         
-        
-	double balance = A.LoadImbalance();
-	int64_t nnz = A.getnnz();
-    outs.str("");
-    outs.clear();
-	outs << "Load balance: " << balance << endl;
-	outs << "Nonzeros: " << nnz << endl;
-	SpParHelper::Print(outs.str());
+        typedef PlusTimesSRing<double, double> PTFF;
+        double balance = A.LoadImbalance();
+        int64_t nnz = A.getnnz();
+        outs.str("");
+        outs.clear();
+        outs << "Load balance: " << balance << endl;
+        outs << "Nonzeros: " << nnz << endl;
+        SpParHelper::Print(outs.str());
         
         
         double tstart = MPI_Wtime();
@@ -323,7 +449,7 @@ int main(int argc, char* argv[])
         outs.clear();
         outs << "Adjusted loops according to default mcl parameters" << endl;
         SpParHelper::Print(outs.str());
-        if(show)
+        if(param.show)
         {
             A.PrintInfo();
         }
@@ -333,12 +459,12 @@ int main(int argc, char* argv[])
         //double initChaos = Chaos(A);
         //outs << "Initial chaos = " << initChaos << endl;
         SpParHelper::Print("Made stochastic\n");
-        if(show)
+        if(param.show)
         {
             A.PrintInfo();
         }
         
-
+        
         
 #ifdef TIMING
         mcl_Abcasttime = 0;
@@ -348,48 +474,35 @@ int main(int argc, char* argv[])
         mcl_kselecttime = 0;
         mcl_prunecolumntime = 0;
 #endif
-
-		// chaos doesn't make sense for non-stochastic matrices
-		// it is in the range {0,1} for stochastic matrices
-		double chaos = 1;
+        
+        // chaos doesn't make sense for non-stochastic matrices
+        // it is in the range {0,1} for stochastic matrices
+        double chaos = 1;
         int it=1;
         double tInflate = 0;
         double tExpand = 0;
-
-		// while there is an epsilon improvement
-		while( chaos > EPS)
-		{
+        
+        // while there is an epsilon improvement
+        while( chaos > EPS)
+        {
             /*
-#ifdef TIMING
-            double mcl_Abcasttime1=mcl_Abcasttime;
-            double mcl_Bbcasttime1=mcl_Bbcasttime;
-            double mcl_localspgemmtime1=mcl_localspgemmtime;
-            double mcl_multiwaymergetime1 = mcl_multiwaymergetime;
-            double mcl_kselecttime1=mcl_kselecttime;
-            double mcl_prunecolumntime1=mcl_prunecolumntime;
-#endif
+             #ifdef TIMING
+             double mcl_Abcasttime1=mcl_Abcasttime;
+             double mcl_Bbcasttime1=mcl_Bbcasttime;
+             double mcl_localspgemmtime1=mcl_localspgemmtime;
+             double mcl_multiwaymergetime1 = mcl_multiwaymergetime;
+             double mcl_kselecttime1=mcl_kselecttime;
+             double mcl_prunecolumntime1=mcl_prunecolumntime;
+             #endif
              */
-			double t1 = MPI_Wtime();
-			//A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, phases, prunelimit,select, recover_num, recover_pct, kselectVersion, perProcessMem);
-
+            double t1 = MPI_Wtime();
+            //A.Square<PTFF>() ;		// expand
+            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, param.phases, param.prunelimit,param.select, param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+            
             MakeColStochastic(A);
             tExpand += (MPI_Wtime() - t1);
-            //stringstream ss;
-            //ss << "=================================================" << endl;
-            //ss << "Squared in " << (t2-t1) << " seconds" << endl;
-            //SpParHelper::Print(ss.str());
-/*
-#ifdef TIMING
-            if(myrank==0)
-            {
-                cout << "Breakdown of squaring time: \n mcl_Abcast= " << mcl_Abcasttime - mcl_Abcasttime1 << "\n mcl_Bbcast= " << mcl_Bbcasttime - mcl_Bbcasttime1 << "\n mcl_localspgemm= " << mcl_localspgemmtime-mcl_localspgemmtime1 << "\n mcl_multiwaymergetime= "<< mcl_multiwaymergetime-mcl_multiwaymergetime1 << "\n mcl_kselect= " << mcl_kselecttime-mcl_kselecttime1 << "\n mcl_prunecolumn= " << mcl_prunecolumntime - mcl_prunecolumntime1 << endl;
-                //cout << "=================================================" << endl;
-            }
-#endif
- */
-
-            if(show)
+          
+            if(param.show)
             {
                 SpParHelper::Print("After expansion\n");
                 A.PrintInfo();
@@ -397,35 +510,31 @@ int main(int argc, char* argv[])
             chaos = Chaos(A);
             
             double tInflate1 = MPI_Wtime();
-            Inflate(A, inflation);	// inflate (and renormalize)
+            Inflate(A, param.inflation);	// inflate (and renormalize)
             MakeColStochastic(A);
             tInflate += (MPI_Wtime() - tInflate1);
-
             
-            //stringstream sss;
-            //sss << "Inflated in " << (MPI_Wtime()-t2) << " seconds" << endl;
-            //SpParHelper::Print(sss.str());
-            if(show)
+            if(param.show)
             {
                 SpParHelper::Print("After inflation\n");
                 A.PrintInfo();
             }
             
-			
+            
             
             double newbalance = A.LoadImbalance();
-			double t3=MPI_Wtime();
+            double t3=MPI_Wtime();
             stringstream s;
             s << "Iteration: " << std::setw(3) << it << " chaos: " << setprecision(3) << chaos << " nnz: " << A.getnnz() << "  load-balance: "<< newbalance << " Total time: " << (t3-t1) << endl;
             SpParHelper::Print(s.str());
             it++;
             
-
-
-		}
+            
+            
+        }
         
         double tcc1 = MPI_Wtime();
-		Interpret(A, ofilename, base);
+        Interpret(A, param.ofilename, param.base);
         double tcc = MPI_Wtime() - tcc1;
         
         double tend = MPI_Wtime();
@@ -449,12 +558,12 @@ int main(int argc, char* argv[])
             cout << "File I/O: " << tIO << endl;
             cout << "=================================================" << endl;
         }
-
-	}
-
+        
+    }
     
     
-	// make sure the destructors for all objects are called before MPI::Finalize()
-	MPI_Finalize();	
-	return 0;
+    
+    // make sure the destructors for all objects are called before MPI::Finalize()
+    MPI_Finalize();	
+    return 0;
 }
