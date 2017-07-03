@@ -249,8 +249,11 @@ public:
 		}
 	};
 	
-    template <typename _BinaryOperation>
-    void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
+   	template <typename _BinaryOperation>
+    	void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
+
+    	template <typename _BinaryOperation>
+    	void ReadGeneralizedTuples(const string&, _BinaryOperation);
     
 	template <class HANDLER>
 	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
