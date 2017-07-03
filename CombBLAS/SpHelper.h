@@ -85,6 +85,7 @@ public:
             vals.push_back(vv);
         }
     }
+    /*
     static void ProcessLinesWithStringKeys(vector<map<pair<uint64_t, string>>> & allkeys, vector<string> & lines)
     {
 	char fr[MAXVERTNAME];
@@ -109,7 +110,7 @@ public:
 		allkeys[owner_to].insert(make_pair(tohash, tostr));	
    	}
         lines.clear();	
-    }
+    }*/
 
 
     template <typename IT1, typename NT1>
