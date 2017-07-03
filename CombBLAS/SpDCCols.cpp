@@ -1129,6 +1129,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (IT ri, IT ci) const
 			*(SingEleMat.dcsc->jc) = *itr;
 			(SingEleMat.dcsc->cp)[0] = 0;
 			(SingEleMat.dcsc->cp)[1] = 1;
+            return SingEleMat;
 		}
 		else
 		{
