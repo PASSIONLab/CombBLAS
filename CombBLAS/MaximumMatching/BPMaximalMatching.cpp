@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
-            ABool->ParallelReadMM(filename);
+            ABool->ParallelReadMM(filename, true, maximum<double>());
             t02 = MPI_Wtime();
             ABool->PrintInfo();
             tinfo.str("");

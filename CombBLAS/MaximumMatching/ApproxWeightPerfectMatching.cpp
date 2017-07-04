@@ -189,8 +189,6 @@ vector<tuple<IT,IT,NT>> ExchangeData(vector<vector<tuple<IT,IT,NT>>> & tempTuple
     MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
     DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
     MPI_Type_free(&MPI_tuple);
-    
-    cout << sendTuples.size() << " & " << recvTuples.size() << endl;
     return recvTuples;
      
 }
@@ -327,6 +325,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     MPI_Comm_size(World, &nprocs);
 
 
+    //mateRow2Col.DebugPrint();
+    //mateCol2Row.DebugPrint();
  
     // -----------------------------------------------------------
     // replicate mate vectors for mateCol2Row
@@ -353,8 +353,11 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     MPI_Allgatherv(trxnums.data(), trxsize, MPIType<IT>(), RepMateC2R.data(), colsize.data(), dpls.data(), MPIType<IT>(), ColWorld);
     // -----------------------------------------------------------
     
+    //cout << endl;
+    //for(int i=0; i<RepMateC2R.size(); i++ )
+      //  cout << RepMateC2R[i] << " ";
+    //cout << endl;
     
-
     // -----------------------------------------------------------
     // replicate mate vectors for mateRow2Col
     // Communication cost: same as the first communication of SpMV
@@ -373,10 +376,13 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     accsize = std::accumulate(rowsize.data(), rowsize.data()+rowneighs, 0);
     vector<IT> RepMateR2C(accsize);
     MPI_Allgatherv(mateRow2Col.GetLocArr(), xsize, MPIType<IT>(), RepMateR2C.data(), rowsize.data(), rdpls.data(), MPIType<IT>(), RowWorld);
-    
-    vector<NT> RepMateR2C_val(accsize);
     // -----------------------------------------------------------
 
+    
+    //cout << endl;
+    //for(int i=0; i<RepMateR2C.size(); i++ )
+    //cout << RepMateR2C[i] << " ";
+    //cout << endl;
     
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -385,9 +391,15 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     while(iterations++ < 10)
     {
         
-        if(myrank==0)
-            cout << "Iteration " << iterations << endl;
 
+        
+       
+
+        
+        
+        
+        
+        
         // C requests
         // each row is for a processor where C requests will be sent to
         vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
@@ -416,32 +428,32 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             }
         }
         
-        if(myrank==0)
-            cout << "dbg point 2" << endl;
         
         //exchange C-request via All2All
         // there might be some empty mesages in all2all
         vector<tuple<IT,IT,NT>> recvTuples = ExchangeData(tempTuples, World);
         //tempTuples are cleared in ExchangeData function
         
+        //for(int i=0; i<recvTuples.size(); i++)
+        //cout << " ("<< get<0>(recvTuples[i]) << ","<< get<1>(recvTuples[i]) << ") ";
+        //cout << endl;
         
         vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
         
-        if(myrank==0)
-            cout << "dbg point 3 :: " << recvTuples.size() << endl;
+        //if(myrank==0)
+          //  cout << "dbg point 3 :: " << recvTuples.size() << endl;
 
         // at the owner of (mj,mi)
         for(int k=0; k<recvTuples.size(); ++k)
         {
-            if(myrank==0)
-                cout << k << " " << endl;
+            
             IT mj = get<0>(recvTuples[k]) ;
             IT mi = get<1>(recvTuples[k]) ;
-            
-            IT i = RepMateR2C[mi - moffset];
+            IT i = RepMateC2R[mi - noffset];
             NT weight = get<2>(recvTuples[k]);
-            
+           
             DER temp = (*spSeq)(mj - moffset, mi - noffset);
+            // TODO: Add a function that returns the edge weight directly
             
             if(!temp.isZero()) // this entry exists
             {
@@ -450,18 +462,15 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 if (cw > 0)
                 {
                     IT j = RepMateR2C[mj - moffset];
+                    //if(myrank==0)
+                    //cout << k << " mj=" << mj << " mi="<< mi << " i=" << i<< " j="<< j << endl;
                     int owner = OwnerProcs(A,  mj, j); // (mj,j)
                     if(owner > nprocs-1) cout << "error !!!\n";
                     tempTuples1[owner].push_back(make_tuple(mj, mi, i, cw)); // @@@@@ send i as well
                     //tempTuples[owner].push_back(make_tuple(mj, j, cw));
                 }
             }
-            if(myrank==0)
-                cout << k << " * " << endl;
         }
-        
-        if(myrank==0)
-            cout << "dbg point 3.1" << endl;
         
         vector< tuple<IT,IT,NT> >().swap(recvTuples);
         
@@ -494,9 +503,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 bestTuplesPhase3[lj] = make_tuple(i,mi,j,weight);
             }
         }
-        
-        if(myrank==0)
-            cout << "dbg point 4" << endl;
+
         
         for(int k=0; k<spSeq->getncol(); ++k)
         {
@@ -536,9 +543,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 bestTuplesPhase4[lj] = make_tuple(i,j,mi,mj,weight);
             }
         }
-        
-        if(myrank==0)
-            cout << "dbg point 5" << endl;
+
         
         vector<vector<tuple<IT,IT,IT, IT>>> winnerTuples (nprocs);
         vector<tuple<IT,IT>> rowBcastTuples; //(mi,mj)
@@ -560,9 +565,6 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         
         vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
         
-        if(myrank==0)
-            cout << "dbg point 6" << endl;
-        
         vector<tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
         
         for(int k=0; k<recvWinnerTuples.size(); ++k)
@@ -579,9 +581,6 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         vector<tuple<IT,IT>> updatedR2C = MateBcast(rowBcastTuples, RowWorld);
         vector<tuple<IT,IT>> updatedC2R = MateBcast(colBcastTuples, ColWorld);
         
-        if(myrank==0)
-            cout << "dbg point 7" << endl;
-        
         for(int k=0; k<updatedR2C.size(); k++)
         {
             IT row = get<0>(updatedR2C[k]);
@@ -596,8 +595,16 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             RepMateC2R[col] = mate;
         }
         
-        if(myrank==0)
-            cout << "dbg point 8" << endl;
+        // update weights of matched edges
+        for(int k=0; k<updatedR2C.size(); k++)
+        {
+            IT row = get<0>(updatedR2C[k]);
+            IT mate = get<1>(updatedR2C[k]);
+            // do I have A[row,mate] entry?
+            // if yes push into bcast array
+            // gather (row,value)
+        }
+        
     }
 }
 
@@ -652,7 +659,7 @@ int main(int argc, char* argv[])
             tinfo << "\n**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
-            AWighted->ParallelReadMM(filename, false, maximum<double>());
+            AWighted->ParallelReadMM(filename, true, maximum<double>()); // one-based matrix market file
             t02 = MPI_Wtime();
             AWighted->PrintInfo();
             tinfo.str("");
@@ -739,7 +746,7 @@ int main(int argc, char* argv[])
         pcol.iota(AWighted->getncol(), 0);
         prow.RandPerm();
         pcol.RandPerm();
-        (*AWighted)(prow, pcol, true);
+        //(*AWighted)(prow, pcol, true);
         SpParHelper::Print("Performed random permutation of matrix.\n");
         
         
