@@ -3146,14 +3146,15 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
-    /*
-    typedef pair<uint64_t, string> KEYMAP;
-    vector< map<KEYMAP> > allkeys;	// map keeps the outgoing data unique, we could have applied this to HipMer too
+    
+    typedef map<uint64_t, string> KEYMAP;
+    vector< KEYMAP > allkeys;	// map keeps the outgoing data unique, we could have applied this to HipMer too
 
     vector<string> lines;
     bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
     int64_t entriesread = lines.size();
-    SpHelper::ProcessLinesWithStringKeys(allkeys, lines);
+    SpHelper::ProcessLinesWithStringKeys(allkeys, lines,nprocs);
+    /*
 
     while(!finished)
     {
