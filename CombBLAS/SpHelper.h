@@ -33,12 +33,16 @@
 
 #include <vector>
 #include <limits>
+#include <map>
+#include <string>
+#include <utility>
 #include "SpDefs.h"
 #include "StackEntry.h"
 #include "promote.h"
 #include "Isect.h"
 #include "HeapEntry.h"
 #include "SpImpl.h"
+#include "hash.hpp"
 
 using namespace std;
 
@@ -85,17 +89,17 @@ public:
             vals.push_back(vv);
         }
     }
-    /*
-    static void ProcessLinesWithStringKeys(vector<map<pair<uint64_t, string>>> & allkeys, vector<string> & lines)
+    
+    static void ProcessLinesWithStringKeys(vector< map < uint64_t, string > > & allkeys, vector<string> & lines, int nprocs)
     {
-	char fr[MAXVERTNAME];
-    	char to[MAXVERTNAME];
+	char * fr = new char[MAXVERTNAME];
+    	char * to = new char[MAXVERTNAME];
     	string frstr, tostr;
     	uint64_t frhash, tohash;    
     	double vv;
     	for (auto itr=lines.begin(); itr != lines.end(); ++itr)
     	{
-		sscanf(itr->c_str(), "%s %s %lg", &fr, &to, &vv);
+		sscanf(itr->c_str(), "%s %s %lg", fr, to, &vv);
 		frstr = string(fr);
 		tostr = string(to);
 		MurmurHash3_x64_64(frstr.c_str(),frstr.size(),0,&frhash);
@@ -104,13 +108,15 @@ public:
 		double range_fr = static_cast<double>(frhash) * static_cast<double>(nprocs);
 		double range_to = static_cast<double>(tohash) * static_cast<double>(nprocs);
     		size_t owner_fr = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
-    		size_t owner_to = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
+    		size_t owner_to = range_to / static_cast<double>(numeric_limits<uint64_t>::max());
 
 		allkeys[owner_fr].insert(make_pair(frhash, frstr)); 
 		allkeys[owner_to].insert(make_pair(tohash, tostr));	
    	}
+	delete [] fr;
+	delete [] to;
         lines.clear();	
-    }*/
+    }
 
 
     template <typename IT1, typename NT1>
