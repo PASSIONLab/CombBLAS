@@ -242,26 +242,25 @@ vector<tuple<IT,IT,IT,NT>> ExchangeData1(vector<vector<tuple<IT,IT,IT,NT>>> & te
 
 
 template <class IT, class NT,class DER>
-int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol)
+int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol, IT nrows, IT ncols)
 {
-     auto commGrid = A.getcommgrid();
+
+    auto commGrid = A.getcommgrid();
     int procrows = commGrid->GetGridRows();
     int proccols = commGrid->GetGridCols();
-    IT m_perproc = A.getnrow() / procrows;
-    IT n_perproc = A.getncol() / proccols;
-    
-
+    // remember that getnrow() and getncol() require collectives
+    // Hence, we save them once and pass them to this function
+    IT m_perproc = nrows / procrows;
+    IT n_perproc = ncols / proccols;
     int pr, pc;
     if(m_perproc != 0)
         pr = std::min(static_cast<int>(grow / m_perproc), procrows-1);
     else	// all owned by the last processor row
         pr = procrows -1;
-
     if(n_perproc != 0)
         pc = std::min(static_cast<int>(gcol / n_perproc), proccols-1);
     else
         pc = proccols-1;
-    
     return commGrid->GetRank(pr, pc);
 }
 
@@ -315,7 +314,7 @@ vector<tuple<IT,IT>> MateBcast(vector<tuple<IT,IT>> sendTuples, MPI_Comm World)
 // -----------------------------------------------------------
 
 template <class IT, class NT,class DER>
-void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R, vector<NT>& RepMateWR2C, vector<NT>& RepMateWC2R)
+void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R, vector<NT>& RepMateWR2C, vector<NT>& RepMateWC2R, IT nrows, IT ncols)
 {
     
 
@@ -337,8 +336,8 @@ void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R,
     //Information about the matrix distribution
     //Assume that A is an nrow x ncol matrix
     //The local submatrix is an lnrow x lncol matrix
-    IT m_perproc = A.getnrow() / pr;
-    IT n_perproc = A.getncol() / pc;
+    IT m_perproc = nrows / pr;
+    IT n_perproc = ncols / pc;
     DER* spSeq = A.seqptr(); // local submatrix
     IT lnrow = spSeq->getnrow();
     IT lncol = spSeq->getncol();
@@ -371,10 +370,27 @@ void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R,
     MPI_Allreduce(MPI_IN_PLACE, RepMateWR2C.data(), RepMateWR2C.size(), MPIType<NT>(), MPI_SUM, RowWorld);
 }
 
+
+
+template <class NT>
+NT MatchingWeight( vector<NT>& RepMateWC2R, MPI_Comm RowWorld)
+{
+    NT w = 0;
+    for(int i=0; i<RepMateWC2R.size(); i++)
+    {
+        w += RepMateWC2R[i];
+    }
+    
+    MPI_Allreduce(MPI_IN_PLACE, &w, 1, MPIType<NT>(), MPI_SUM, RowWorld);
+    return w;
+}
+
+
 template <class IT, class NT, class DER>
 void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row)
 {
 
+    //A.PrintInfo();
     // Information about CommGrid and matrix layout
     // Assume that processes are laid in (pr x pc) process grid
     auto commGrid = A.getcommgrid();
@@ -392,8 +408,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     //Information about the matrix distribution
     //Assume that A is an nrow x ncol matrix
     //The local submatrix is an lnrow x lncol matrix
-    IT m_perproc = A.getnrow() / pr;
-    IT n_perproc = A.getncol() / pc;
+    IT nrows = A.getnrow();
+    IT ncols = A.getncol();
+    IT m_perproc = nrows / pr;
+    IT n_perproc = ncols / pc;
     DER* spSeq = A.seqptr(); // local submatrix
     IT lnrow = spSeq->getnrow();
     IT lncol = spSeq->getncol();
@@ -458,7 +476,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     // -----------------------------------------------------------
     vector<NT> RepMateWR2C(lnrow);
     vector<NT> RepMateWC2R(lncol);
-    ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R);
+    ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R, nrows, ncols);
     
     //cout << endl;
     //for(int i=0; i<RepMateR2C.size(); i++ )
@@ -468,19 +486,31 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 
 
     int iterations = 0;
-    while(iterations++ < 10)
+    NT weightCur = MatchingWeight(RepMateWC2R, RowWorld);
+    NT weightPrev = weightCur - .00000001;
+    while(weightCur > weightPrev && iterations++ < 10)
     {
-    
-        
+        if(myrank==0) cout << "Iteration# " << iterations << " : matching weight "<< weightCur << endl;
+        /*
+        for(int ii=0; ii<RepMateC2R.size(); ii++)
+            cout << "("<<RepMateC2R[ii] << "," << ii << ") ";
+        cout << endl << "row: ";
+        for(int ii=0; ii<RepMateR2C.size(); ii++)
+        cout << "(" << ii << "," <<RepMateR2C[ii] << ") ";
+        cout << endl;
+         */
+
         
         // C requests
         // each row is for a processor where C requests will be sent to
         vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
-        
-        
+        MPI_Barrier(World);
+        //cout << myrank << ") Step1: " << endl;
         for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
         {
+            
             IT lj = colit.colid(); // local numbering
+            //if(myrank==0) cout << myrank << ") col: " << lj << " ********* "<< endl;
             IT j = lj + localColStart;
             IT mj = RepMateC2R[lj]; // mate of j
             //start nzit from mate colid;
@@ -489,25 +519,26 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 IT li = nzit.rowid();
                 IT i = li + localRowStart;
                 IT mi = RepMateR2C[li];
+                //if(myrank==0) cout << myrank << ") " << i << " " << mi << " "<< j << " " << mj << endl;
                 // TODO: use binary search to directly start from RepMateC2R[colid]
                 if( i > mj)
                 {
+                    
                     double w = nzit.value()- RepMateWR2C[li] - RepMateWC2R[lj];
-                    int owner = OwnerProcs(A, mj, mi); // think about the symmetry??
+                    int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
                     tempTuples[owner].push_back(make_tuple(mj, mi, w));
+                    
                 }
             }
         }
         
-        
+         //cout <<  myrank <<") Done Step1......: " << endl;
         //exchange C-request via All2All
         // there might be some empty mesages in all2all
         vector<tuple<IT,IT,NT>> recvTuples = ExchangeData(tempTuples, World);
         //tempTuples are cleared in ExchangeData function
         
-        //for(int i=0; i<recvTuples.size(); i++)
-        //cout << " ("<< get<0>(recvTuples[i]) << ","<< get<1>(recvTuples[i]) << ") ";
-        //cout << endl;
+        
         
         vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
         
@@ -515,6 +546,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
           //  cout << "dbg point 3 :: " << recvTuples.size() << endl;
 
         // at the owner of (mj,mi)
+        //cout << "Step2: " << endl;
         for(int k=0; k<recvTuples.size(); ++k)
         {
             
@@ -534,7 +566,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                     IT j = RepMateR2C[mj - localRowStart];
                     //if(myrank==0)
                     //cout << k << " mj=" << mj << " mi="<< mi << " i=" << i<< " j="<< j << endl;
-                    int owner = OwnerProcs(A,  mj, j); // (mj,j)
+                    //cout << i << " " << mi << " "<< j << " " << mj << endl;
+                    int owner = OwnerProcs(A,  mj, j, nrows, ncols); // (mj,j)
                     if(owner > nprocs-1) cout << "error !!!\n";
                     tempTuples1[owner].push_back(make_tuple(mj, mi, i, cw)); // @@@@@ send i as well
                     //tempTuples[owner].push_back(make_tuple(mj, j, cw));
@@ -550,7 +583,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         
         // at the owner of (mj,j)
         // Part 3
-        
+        //cout << "Step3: " << endl;
         vector<tuple<IT,IT,IT,NT>> bestTuplesPhase3 (lncol);
         for(int k=0; k<lncol; ++k)
         {
@@ -580,7 +613,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             if( get<0>(bestTuplesPhase3[k]) != -1)
             {
                 //IT j = RepMateR2C[mj - localRowStart]; /// fix me
-                int owner = OwnerProcs(A,  get<0>(bestTuplesPhase3[k]), get<1>(bestTuplesPhase3[k])); // (i,mi)
+                int owner = OwnerProcs(A,  get<0>(bestTuplesPhase3[k]), get<1>(bestTuplesPhase3[k]), nrows, ncols); // (i,mi)
                 tempTuples1[owner].push_back(bestTuplesPhase3[k]);
             }
         }
@@ -591,8 +624,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         vector<tuple<IT,IT,IT,IT, NT>> bestTuplesPhase4 (lncol);
         // we could have used lnrow in both bestTuplesPhase3 and bestTuplesPhase4
         
+        //cout << "Step4: " << endl;
         // Phase 4
-        for(int k=0; k<lnrow; ++k)
+        for(int k=0; k<lncol; ++k)
         {
             bestTuplesPhase4[k] = make_tuple(-1,-1,-1,-1,0);
         }
@@ -604,11 +638,11 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             IT j = get<2>(recvTuples1[k]) ;
             NT weight = get<3>(recvTuples1[k]);
             IT mj = RepMateC2R[j - localRowStart];
-            
+            IT lmi = mi - localColStart;
             IT lj = j - localColStart;
-            
+            // cout <<"****" << i << " " << mi << " "<< j << " " << mj << " " << get<0>(bestTuplesPhase4[lj]) << endl;
             // we can get rid of the first check if edge weights are non negative
-            if( ((get<0>(bestTuplesPhase4[lj]) == -1)  || (weight > get<4>(bestTuplesPhase4[lj]))) && get<0>(bestTuplesPhase3[lj])==-1 )
+            if( ((get<0>(bestTuplesPhase4[lj]) == -1)  || (weight > get<4>(bestTuplesPhase4[lj]))) && get<0>(bestTuplesPhase3[lmi])==-1 )
             {
                 bestTuplesPhase4[lj] = make_tuple(i,j,mi,mj,weight);
             }
@@ -620,55 +654,65 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         vector<tuple<IT,IT>> colBcastTuples; //(i,j)
         
         
-        for(int k=0; k<lnrow; ++k)
+        for(int k=0; k<lncol; ++k)
         {
             if( get<0>(bestTuplesPhase4[k]) != -1)
             {
-                //int owner = OwnerProcs(A,  get<0>(bestTuples[k]), get<1>(bestTuples[k])); // (i,mi)
+                //int owner = OwnerProcs(A,  get<0>(bestTuples[k]), get<1>(bestTuples[k]), nrows, ncols); // (i,mi)
                 //tempTuples[owner].push_back(bestTuples[k]);
-                int owner = OwnerProcs(A,  get<3>(bestTuplesPhase4[k]), get<1>(bestTuplesPhase4[k]));
-                winnerTuples[owner].push_back(make_tuple(get<0>(bestTuplesPhase4[k]), get<1>(bestTuplesPhase4[k]), get<2>(bestTuplesPhase4[k]), get<3>(bestTuplesPhase4[k])));
-                colBcastTuples.push_back(make_tuple(get<2>(bestTuplesPhase4[k]), get<3>(bestTuplesPhase4[k])));
-                rowBcastTuples.push_back(make_tuple(get<0>(bestTuplesPhase4[k]), get<1>(bestTuplesPhase4[k])));
+                IT i = get<0>(bestTuplesPhase4[k]) ;
+                IT j = get<1>(bestTuplesPhase4[k]) ;
+                IT mi = get<2>(bestTuplesPhase4[k]) ;
+                IT mj = get<3>(bestTuplesPhase4[k]) ;
+                
+                
+                int owner = OwnerProcs(A,  mj, j, nrows, ncols);
+                winnerTuples[owner].push_back(make_tuple(i, j, mi, mj));
+                //colBcastTuples.push_back(make_tuple(mi, mj));
+                //rowBcastTuples.push_back(make_tuple(i, j));
             }
         }
         
+
         vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
         
         vector<tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
         
         for(int k=0; k<recvWinnerTuples.size(); ++k)
         {
-            IT i = get<0>(recvTuples1[k]) ;
-            IT j = get<1>(recvTuples1[k]) ;
-            IT mi = get<2>(recvTuples1[k]) ;
-            IT mj = get<3>(recvTuples1[k]);
+            IT i = get<0>(recvWinnerTuples[k]) ;
+            IT j = get<1>(recvWinnerTuples[k]) ;
+            IT mi = get<2>(recvWinnerTuples[k]) ;
+            IT mj = get<3>(recvWinnerTuples[k]);
+            
             colBcastTuples.push_back(make_tuple(j,i));
+            rowBcastTuples.push_back(make_tuple(i,j));
             rowBcastTuples.push_back(make_tuple(mj,mi));
+            colBcastTuples.push_back(make_tuple(mi,mj));
         }
-        
-        
+
         vector<tuple<IT,IT>> updatedR2C = MateBcast(rowBcastTuples, RowWorld);
         vector<tuple<IT,IT>> updatedC2R = MateBcast(colBcastTuples, ColWorld);
-        
+
         for(int k=0; k<updatedR2C.size(); k++)
         {
             IT row = get<0>(updatedR2C[k]);
             IT mate = get<1>(updatedR2C[k]);
-            RepMateR2C[row] = mate;
+            RepMateR2C[row-localRowStart] = mate;
         }
         
         for(int k=0; k<updatedC2R.size(); k++)
         {
             IT col = get<0>(updatedC2R[k]);
             IT mate = get<1>(updatedC2R[k]);
-            RepMateC2R[col] = mate;
+            RepMateC2R[col-localColStart] = mate;
         }
         
         // update weights of matched edges
         // we can do better than this since we are doing sparse updates
-        ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R);
-        
+        ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R, nrows, ncols);
+        weightPrev = weightCur;
+        weightCur = MatchingWeight(RepMateWC2R, RowWorld);
     }
 }
 
@@ -802,7 +846,9 @@ int main(int argc, char* argv[])
         }
         
         
+        // ***** careful: if you permute the matrix, you have the permute the mates as well!!
         // randomly permute for load balance
+        /*
         SpParHelper::Print("Performing random permutation of matrix.\n");
         FullyDistVec<int64_t, int64_t> prow(AWighted->getcommgrid());
         FullyDistVec<int64_t, int64_t> pcol(AWighted->getcommgrid());
@@ -810,9 +856,9 @@ int main(int argc, char* argv[])
         pcol.iota(AWighted->getncol(), 0);
         prow.RandPerm();
         pcol.RandPerm();
-        //(*AWighted)(prow, pcol, true);
+        (*AWighted)(prow, pcol, true);
         SpParHelper::Print("Performed random permutation of matrix.\n");
-        
+        */
         
         Par_DCSC_Bool A = *AWighted;
         Par_DCSC_Bool AT = A;
@@ -853,7 +899,7 @@ int main(int argc, char* argv[])
          */
         
         init = DMD; randMaximal = false; randMM = false; prune = true;
-        //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+        MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
         maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
 
         TwoThirdApprox(*AWighted, mateRow2Col, mateCol2Row);

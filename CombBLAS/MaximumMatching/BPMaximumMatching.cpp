@@ -37,6 +37,9 @@ bool prune, mvInvertMate, randMM, moreSplit;
 int init;
 bool randMaximal;
 bool fewexp;
+bool randPerm;
+bool saveMatching;
+string ofname;
 
 
 template <typename PARMAT>
@@ -138,12 +141,15 @@ void ShowUsage()
         //cout << "** (optional) graft: employ tree grafting\n" ;
         cout << "** (optional) mvInvertMate: Invert based on SpMV as opposted to All2All.\n" ;
         cout << "** (optional) moreSplit: more splitting of Matrix.\n" ;
+        cout << "** (optional) randPerm: Randomly permute the matrix for load balance.\n" ;
+        cout << "** (optional) saveMatching: Save the matching vector in a file (filename: inputfile_matching.txt).\n" ;
         cout << "(order of optional arguments does not matter)\n";
+        
         
         cout << " \n-------------- examples ----------\n";
         cout << "Example: mpirun -np 4 ./bpmm g500 18 16" << endl;
         cout << "Example: mpirun -np 4 ./bpmm g500 18 16 ks diropt graft" << endl;
-        cout << "Example: mpirun -np 4 ./bpmm input cage12.mtx ks diropt graft\n" << endl;
+        cout << "Example: mpirun -np 4 ./bpmm input cage12.mtx randPerm ks diropt graft\n" << endl;
     }
 }
 
@@ -163,10 +169,14 @@ void GetOptions(char* argv[], int argc)
         mvInvertMate = true;
     if(allArg.find("moreSplit")!=string::npos)
         moreSplit = true;
+    if(allArg.find("saveMatching")!=string::npos)
+        saveMatching=true;
     if(allArg.find("randMM")!=string::npos)
         randMM = true;
     if(allArg.find("randMaximal")!=string::npos)
         randMaximal = true;
+    if(allArg.find("randPerm")!=string::npos)
+        randPerm = true;
     if(allArg.find("greedy")!=string::npos)
         init = GREEDY;
     else if(allArg.find("ks")!=string::npos)
@@ -193,6 +203,8 @@ void showCurOptions()
     if(prune) tinfo << " tree pruning, ";
     if(mvInvertMate) tinfo << " Invert using matvec ";
     if(moreSplit) tinfo << " moreSplit ";
+    if(randPerm) tinfo << " Randomly permute the matrix for load balance ";
+    if(saveMatching) tinfo << " Write the matcing in a file";
     tinfo << "\n---------------------------------\n\n";
     SpParHelper::Print(tinfo.str());
     
@@ -273,10 +285,18 @@ void defaultExp(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    if(saveMatching && ofname!="")
+    {
+        mateRow2Col.ParallelWrite(ofname,false,false);
+    }
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
 }
+
+
+
+
 
 
 
@@ -375,6 +395,9 @@ int main(int argc, char* argv[])
     randMM = true;
     moreSplit = false;
     fewexp=false;
+    saveMatching = false;
+    ofname = "";
+    randPerm = false;
     
     SpParHelper::Print("***** I/O and other preprocessing steps *****\n");
     // ------------ Process input arguments and build matrix ---------------
@@ -399,6 +422,11 @@ int main(int argc, char* argv[])
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             GetOptions(argv+3, argc-3);
+            if(saveMatching)
+            {
+                ofname = filename + ".matching.out";
+            }
+            
             
         }
         else if(argc < 4)
@@ -468,16 +496,19 @@ int main(int argc, char* argv[])
         }
         
         
-        // randomly permute for load balance
-        SpParHelper::Print("Performing random permutation of matrix.\n");
-        FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
-        FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
-        prow.iota(ABool->getnrow(), 0);
-        pcol.iota(ABool->getncol(), 0);
-        prow.RandPerm();
-        pcol.RandPerm();
-        (*ABool)(prow, pcol, true);
-        SpParHelper::Print("Performed random permutation of matrix.\n");
+        if(randPerm)
+        {
+            // randomly permute for load balance
+            SpParHelper::Print("Performing random permutation of matrix.\n");
+            FullyDistVec<int64_t, int64_t> prow(ABool->getcommgrid());
+            FullyDistVec<int64_t, int64_t> pcol(ABool->getcommgrid());
+            prow.iota(ABool->getnrow(), 0);
+            pcol.iota(ABool->getncol(), 0);
+            prow.RandPerm();
+            pcol.RandPerm();
+            (*ABool)(prow, pcol, true);
+            SpParHelper::Print("Performed random permutation of matrix.\n");
+        }
         
         
         Par_DCSC_Bool A = *ABool;
