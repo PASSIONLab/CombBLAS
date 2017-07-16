@@ -506,8 +506,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     
     int iterations = 0;
     NT weightCur = MatchingWeight(RepMateWC2R, RowWorld);
-    NT weightPrev = weightCur - .00000001;
-    while(weightCur > weightPrev && iterations++ < 2)
+    NT weightPrev = weightCur - 9999999999;
+    cout << "Iteration# " << iterations << " : current weight "<< weightCur << " prev: "<< weightPrev<< endl;
+    while(weightCur > weightPrev && iterations++ < 5)
     {
         if(myrank==0) cout << "Iteration# " << iterations << " : matching weight "<< weightCur << endl;
         /*
@@ -687,8 +688,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         MPI_Barrier(MPI_COMM_WORLD);
         
         vector<vector<tuple<IT,IT,IT, IT>>> winnerTuples (nprocs);
-        vector<tuple<IT,IT>> rowBcastTuples; //(mi,mj)
-        vector<tuple<IT,IT>> colBcastTuples; //(i,j)
+       
         
         for(int k=0; k<lncol; ++k)
         {
@@ -704,6 +704,11 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 
                 int owner = OwnerProcs(A,  mj, j, nrows, ncols);
                 winnerTuples[owner].push_back(make_tuple(i, j, mi, mj));
+                
+                /// be very careful here
+                // passing the opposite of the matching to the owner of (i,mi)
+                owner = OwnerProcs(A,  i, mi, nrows, ncols);
+                winnerTuples[owner].push_back(make_tuple(mj, mi, j, i));
             }
         }
         
@@ -714,6 +719,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         MPI_Barrier(MPI_COMM_WORLD);
         vector<tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
         
+        // at the owner of (mj,j)
+        vector<tuple<IT,IT>> rowBcastTuples; //(mi,mj)
+        vector<tuple<IT,IT>> colBcastTuples; //(i,j)
+        
         for(int k=0; k<recvWinnerTuples.size(); ++k)
         {
             IT i = get<0>(recvWinnerTuples[k]) ;
@@ -722,9 +731,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             IT mj = get<3>(recvWinnerTuples[k]);
             //cout << "(("<< i << " " << mi << " "<< j << " " << mj << "))"<< endl;
             colBcastTuples.push_back(make_tuple(j,i));
-            rowBcastTuples.push_back(make_tuple(i,j));
+            //rowBcastTuples.push_back(make_tuple(i,j));
             rowBcastTuples.push_back(make_tuple(mj,mi));
-            colBcastTuples.push_back(make_tuple(mi,mj));
+            //colBcastTuples.push_back(make_tuple(mi,mj));
         }
         MPI_Barrier(MPI_COMM_WORLD);
         cout << "Step6: " << endl;
@@ -741,8 +750,17 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         {
             IT row = get<0>(updatedR2C[k]);
             IT mate = get<1>(updatedR2C[k]);
+            if( (row < localRowStart) || (row >= (localRowStart+lnrow)))
+            {
+                cout << "myrank: " << myrank << "row: " << row << "localRowStart: " << localRowStart << endl;
+                exit(1);
+            }
             RepMateR2C[row-localRowStart] = mate;
         }
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+        cout << "Step7.5: " << endl;
+        MPI_Barrier(MPI_COMM_WORLD);
         
         for(int k=0; k<updatedC2R.size(); k++)
         {
