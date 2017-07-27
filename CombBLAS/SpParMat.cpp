@@ -3147,20 +3147,19 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
     
-    typedef map<uint64_t, string> KEYMAP;
+    typedef map<string, uint64_t> KEYMAP;	// due to collusions in MurmurHash, make the key to the std:map the string itself
     vector< KEYMAP > allkeys;	// map keeps the outgoing data unique, we could have applied this to HipMer too
 
     vector<string> lines;
     bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
     int64_t entriesread = lines.size();
     SpHelper::ProcessLinesWithStringKeys(allkeys, lines,nprocs);
-    /*
 
     while(!finished)
     {
         finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
         entriesread += lines.size();
-        SpHelper::ProcessLinesWithStringKeys(allkeys, lines);
+    	SpHelper::ProcessLinesWithStringKeys(allkeys, lines,nprocs);
     }
     int64_t allentriesread;
     MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
@@ -3168,8 +3167,50 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     if(myrank == 0)
         cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
 #endif
-*/
 
+    int * sendcnt = new int[nprocs];
+    int * recvcnt = new int[nprocs];
+    for(int i=0; i<nprocs; ++i)
+	sendcnt[i] = allkeys[i].size();
+
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, commGrid->GetWorld()); // share the counts
+    int * sdispls = new int[nprocs]();
+    int * rdispls = new int[nprocs]();
+    partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+    partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+    IT totsend = accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
+
+    typedef pair<char[MAXVERTNAME], uint64_t> TYPE2SEND;
+    TYPE2SEND * senddata = new TYPE2SEND[totsend];	
+
+    #pragma omp parallel for
+    for(int i=0; i<nprocs; ++i)
+    {
+	size_t j = 0;
+	for(auto pobj:allkeys[i])
+	{
+		char vname[MAXVERTNAME];
+		// char * strcpy ( char * destination, const char * source );
+		// Copies the C string pointed by source into the array pointed by destination, including the terminating null character
+		std::strcpy(vname, pobj.first.c_str());
+		senddata[sdispls[i]+j] = make_pair(vname, pobj.second);
+		j++;
+	}
+    }
+    MPI_Datatype MPI_HASH;
+    MPI_Type_contiguous(sizeof(TYPE2SEND), MPI_CHAR, &MPI_HASH);
+    MPI_Type_commit(&MPI_HASH);
+
+    TYPE2SEND * recvdata = new TYPE2SEND[totrecv];	
+    MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_HASH, recvdata, recvcnt, rdispls, MPI_HASH, commGrid->GetWorld());
+    DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+    MPI_Type_free(&MPI_HASH);
+    
+    // deal with recvdata (first should have moved everything into a temporary because we might need to use this recvdata to communicate back!)
+    std::sort(recvdata, recvdata+totrecv, [](const std::pair<char[MAXVERTNAME], uint64_t> &left, 
+			    		     const std::pair<char[MAXVERTNAME], uint64_t> &right) {
+					     return left.second < right.second; });	// sort by the hash values; duplicates do not matter
 }
 
 
