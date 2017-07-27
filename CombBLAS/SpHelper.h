@@ -118,6 +118,30 @@ public:
         lines.clear();	
     }
 
+    template <typename IT1, typename NT1>
+    static void ProcessStrLinesNPermute(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, map<string, uint64_t> & ultperm)
+    {
+	char * fr = new char[MAXVERTNAME];
+    	char * to = new char[MAXVERTNAME];
+    	string frstr, tostr;
+    	uint64_t frhash, tohash;    
+    	double vv;
+    	for (auto itr=lines.begin(); itr != lines.end(); ++itr)
+    	{
+		sscanf(itr->c_str(), "%s %s %lg", fr, to, &vv);
+		frstr = string(fr);
+		tostr = string(to);
+	
+		rows.emplace_back((IT1) ultperm[frstr]);
+		cols.emplace_back((IT1) ultperm[tostr]); 
+		vals.emplace_back((NT1) vv);
+   	}
+	delete [] fr;
+	delete [] to;
+        lines.clear();	
+    }
+
+
 
     template <typename IT1, typename NT1>
     static void ProcessLines(vector<IT1> & rows, vector<IT1> & cols, vector<NT1> & vals, vector<string> & lines, int symmetric, int type, bool onebased = true)
