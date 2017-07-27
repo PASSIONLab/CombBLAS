@@ -90,7 +90,7 @@ public:
         }
     }
     
-    static void ProcessLinesWithStringKeys(vector< map < uint64_t, string > > & allkeys, vector<string> & lines, int nprocs)
+    static void ProcessLinesWithStringKeys(vector< map < string, uint64_t> > & allkeys, vector<string> & lines, int nprocs)
     {
 	char * fr = new char[MAXVERTNAME];
     	char * to = new char[MAXVERTNAME];
@@ -110,8 +110,8 @@ public:
     		size_t owner_fr = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
     		size_t owner_to = range_to / static_cast<double>(numeric_limits<uint64_t>::max());
 
-		allkeys[owner_fr].insert(make_pair(frhash, frstr)); 
-		allkeys[owner_to].insert(make_pair(tohash, tostr));	
+		allkeys[owner_fr].insert(make_pair(frstr, frhash)); 
+		allkeys[owner_to].insert(make_pair(tostr, tohash));	
    	}
 	delete [] fr;
 	delete [] to;
