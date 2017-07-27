@@ -3166,7 +3166,7 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
-        cout << "Reading finished. Total number of entries read across all processors is " << allentriesread << endl;
+        cout << "Initial reading finished. Total number of entries read across all processors is " << allentriesread << endl;
 #endif
 
     int * sendcnt = new int[nprocs];
@@ -3223,7 +3223,7 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     MPI_Exscan( &uniqsize, &sizeuntil, 1, MPIType<uint64_t>(), MPI_SUM, commGrid->GetWorld() );
     if(myrank == 0) sizeuntil = 0;  // because MPI_Exscan says the recvbuf in process 0 is undefined
 
-    map< string, uint64_t > invindex;
+    KEYMAP invindex;
     uint64_t locindex = 0;
     for(auto itr = uniqsorted.begin(); itr != uniqsorted.end(); ++itr)
     {
@@ -3242,14 +3242,49 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
 	    else
 		cout << "the absence of the entry in invindex is unexpected!!!" << endl;
     }
+    MPI_Alltoallv(recvdata, recvcnt, rdispls, MPI_HASH, senddata, sendcnt, sdispls, MPI_HASH, commGrid->GetWorld());    
+    DeleteAll(recvdata, sendcnt, recvcnt, sdispls, rdispls);
 
-    // deal with recvdata (first should have moved everything into a temporary because we might need to use this recvdata to communicate back!)
-    //std::sort(recvdata, recvdata+totrecv, [](const std::pair<char[MAXVERTNAME], uint64_t> &left, 
-    //			    		     const std::pair<char[MAXVERTNAME], uint64_t> &right) {
-//					     return left.second < right.second; });	// sort by the hash values; duplicates do not matter
-
-    DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+    KEYMAP ultimateperm;	// the ultimate permutation
+    for(IT i=0; i< totsend; ++i)
+    {
+	    auto ret = ultimateperm.emplace(make_pair(string(senddata[i].first), senddata[i].second));
+	    if(!ret->second)	// the second is the boolean that tells success
+	    {
+		cout << "the duplication in ultimateperm is unexpected!!!" << endl;
+	    }
+    }
     
+    // rename the data now, first reset pointers
+    fpos = myrank * file_size / nprocs;
+
+    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    else end_fpos = file_size;
+
+    typedef typename DER::LocalIT LIT;
+    vector<LIT> rows;
+    vector<LIT> cols;
+    vector<NT> vals;
+
+    finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    entriesread = lines.size();
+   
+    SpHelper::ProcessStrLinesNPermute(rows, cols, vals, lines, ultimateperm);
+
+    while(!finished)
+    {
+        finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
+        entriesread += lines.size();
+    	SpHelper::ProcessStrLinesNPermute(rows, cols, vals, lines, ultimateperm);
+    }
+    allentriesread;
+    MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+        cout << "Second reading finished. Total number of entries read across all processors is " << allentriesread << endl;
+#endif
+
+
 }
 
 
