@@ -41,6 +41,7 @@ extern "C" {
 #include <mpi.h>
 #include <fstream>
 #include <algorithm>
+#include <set>
 #include <stdexcept>
 using namespace std;
 
@@ -3133,7 +3134,7 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
     }
     int64_t file_size = st.st_size;
     MPI_Offset fpos, end_fpos;
-    if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
+    if(myrank == 0)    // the offset needs to be for this rank
     {
         cout << "File is " << file_size << " bytes" << endl;
         fclose(f);
@@ -3204,13 +3205,51 @@ void SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _Bin
 
     TYPE2SEND * recvdata = new TYPE2SEND[totrecv];	
     MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_HASH, recvdata, recvcnt, rdispls, MPI_HASH, commGrid->GetWorld());
-    DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+    // do not delete send buffers yet as we will use them to recv back the data
     MPI_Type_free(&MPI_HASH);
     
+    std::set< std::pair<uint64_t, string>  > uniqsorted;
+    for(IT i=0; i< totrecv; ++i)
+    {
+	    uniqsorted.insert(make_pair(recvdata[i].second, string(recvdata[i].first)));
+    }
+    uint64_t uniqsize = uniqsorted.size();
+    
+#ifdef COMBBLAS_DEBUG
+    if(myrank == 0)
+	    cout << "out of " << totrecv << " vertices received, " << uniqsize << " were unique" << endl;
+#endif
+    uint64_t sizeuntil = 0;
+    MPI_Exscan( &uniqsize, &sizeuntil, 1, MPIType<uint64_t>(), MPI_SUM, commGrid->GetWorld() );
+    if(myrank == 0) sizeuntil = 0;  // because MPI_Exscan says the recvbuf in process 0 is undefined
+
+    map< string, uint64_t > invindex;
+    uint64_t locindex = 0;
+    for(auto itr = uniqsorted.begin(); itr != uniqsorted.end(); ++itr)
+    {
+	    invindex.insert(make_pair(itr->second, sizeuntil + locindex));
+    }
+    uniqsorted.clear();	// clear memory
+
+
+    for(IT i=0; i< totrecv; ++i)
+    {
+	    auto resp = invindex.find(string(recvdata[i].first));
+	    if (resp != invindex.end())
+	    {
+		recvdata[i].second = resp->second;	// now instead of random numbers, recvdata's second entry will be its new index
+	    }
+	    else
+		cout << "the absence of the entry in invindex is unexpected!!!" << endl;
+    }
+
     // deal with recvdata (first should have moved everything into a temporary because we might need to use this recvdata to communicate back!)
-    std::sort(recvdata, recvdata+totrecv, [](const std::pair<char[MAXVERTNAME], uint64_t> &left, 
-			    		     const std::pair<char[MAXVERTNAME], uint64_t> &right) {
-					     return left.second < right.second; });	// sort by the hash values; duplicates do not matter
+    //std::sort(recvdata, recvdata+totrecv, [](const std::pair<char[MAXVERTNAME], uint64_t> &left, 
+    //			    		     const std::pair<char[MAXVERTNAME], uint64_t> &right) {
+//					     return left.second < right.second; });	// sort by the hash values; duplicates do not matter
+
+    DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+    
 }
 
 
