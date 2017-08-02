@@ -2547,7 +2547,7 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
     }
     else
     {
-        SparseCommon(data, locsize, total_m, total_n, max<NT>());
+        SparseCommon(data, locsize, total_m, total_n, maximum<NT>());
     }
 }
 
