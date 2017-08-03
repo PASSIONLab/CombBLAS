@@ -687,12 +687,15 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+		
+		
 		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		if(!C_cont->isZero()) 
+		
+		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
 			delete C_cont;
@@ -745,7 +748,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		if(!C_cont->isZero()) 
+		
+		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
 			delete C_cont;
@@ -778,8 +782,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
 			
-	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
-	// First get the result in SpTuples, then convert to UDER
+	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
@@ -803,7 +806,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
 	
-	const_cast< UDERB* >(B.spSeq)->Transpose();	
+	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
 	MPI_Barrier(GridC->GetWorld());
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
@@ -819,7 +822,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
-
+	
 	for(int i = 0; i < stages; ++i) 
 	{
 		vector<IU> ess;	
@@ -853,14 +856,24 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}	
 			BRecv = new UDERB();
 		}
+		
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
+		/*
+		 // before activating this transpose B first
 		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
+		 */
+		
+		SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
+						(*ARecv, *BRecv, // parameters themselves
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
 
+		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
@@ -884,12 +897,15 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 		
-	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
+	//UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
+	
+	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+	UDERO * C = new UDERO(*C_tuples, false);
 
-	if(!clearB)
-		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	//if(!clearB)
+	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }

@@ -2,7 +2,6 @@
 #define _mtSpGEMM_h
 
 #include "CombBLAS.h"
-
 /*
  Multithreaded prefix sum
  Inputs:
@@ -27,17 +26,19 @@ T* prefixsum(T* in, int size, int nthreads)
     T* out = new T[size+1];
     out[0] = 0;
     T* psum = &out[1];
-    
+#ifdef THREADED
 #pragma omp parallel
+#endif
     {
+		int ithread = 0;
 	#ifdef THREADED
-        int ithread = omp_get_thread_num();
-	#else
-	int ithread = 0;
+        ithread = omp_get_thread_num();
 	#endif
 
         T sum = 0;
+#ifdef THREADED
 #pragma omp for schedule(static)
+#endif
         for (int i=0; i<size; i++)
         {
             sum += in[i];
@@ -45,13 +46,18 @@ T* prefixsum(T* in, int size, int nthreads)
         }
         
         tsum[ithread+1] = sum;
+#ifdef THREADED
 #pragma omp barrier
+#endif
         T offset = 0;
         for(int i=0; i<(ithread+1); i++)
         {
             offset += tsum[i];
         }
+		
+#ifdef THREADED
 #pragma omp for schedule(static)
+#endif
         for (int i=0; i<size; i++)
         {
             psum[i] += offset;
@@ -78,7 +84,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     {
         return new SpTuples<IT, NTO>(0, mdim, ndim);
     }
-    
+	
+	
     Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
     Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
     IT nA = A.getncol();
@@ -86,7 +93,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
     Adcsc->ConstructAux(nA, aux);
-    
+
+	
     int numThreads = 1;
 #ifdef THREADED
 #pragma omp parallel
@@ -100,7 +108,10 @@ SpTuples<IT, NTO> * LocalSpGEMM
     delete [] colnnzC;
     IT nnzc = colptrC[Bdcsc->nzc];
     tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
-    
+	
+	
+
+	
     // thread private space for heap and colinds
     vector<vector< pair<IT,IT>>> colindsVec(numThreads);
     vector<vector<HeapEntry<IT,NT1>>> globalheapVec(numThreads);
@@ -110,16 +121,17 @@ SpTuples<IT, NTO> * LocalSpGEMM
         colindsVec[i].resize(nnzA/numThreads);
         globalheapVec[i].resize(nnzA/numThreads);
     }
-    
-    
+
+
+#ifdef THREADED
 #pragma omp parallel for
+#endif
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
         size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+		int myThread = 0;
 	#ifdef THREADED
-        int myThread = omp_get_thread_num();
-	#else
-	int myThread = 0;
+        myThread = omp_get_thread_num();
 	#endif
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
@@ -209,8 +221,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
     Adcsc->ConstructAux(A.getncol(), aux);
-    
-    
+	
+	
     int numThreads = 1;
 #ifdef THREADED
 #pragma omp parallel
@@ -221,7 +233,10 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     
 
     IT* colnnzC = new IT[Bdcsc->nzc]; // nnz in every nonempty column of C
+	
+#ifdef THREADED
 #pragma omp parallel for
+#endif
     for(IT i=0; i< Bdcsc->nzc; ++i)
     {
         colnnzC[i] = 0;
@@ -230,29 +245,30 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     // thread private space for heap and colinds
     vector<vector< pair<IT,IT>>> colindsVec(numThreads);
     vector<vector<pair<IT,IT>>> globalheapVec(numThreads);
-    
+
+	
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
         colindsVec[i].resize(nnzA/numThreads);
         globalheapVec[i].resize(nnzA/numThreads);
     }
-    
+
+#ifdef THREADED
 #pragma omp parallel for
+#endif
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
         size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
-	#ifdef THREADED
-        int myThread = omp_get_thread_num();
-	#else
-        int myThread = 0;
-	#endif
+		int myThread = 0;
+#ifdef THREADED
+        myThread = omp_get_thread_num();
+#endif
         if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
         {
             colindsVec[myThread].resize(nnzcolB);
             globalheapVec[myThread].resize(nnzcolB);
         }
-        
-
+		
         // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
         // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
         Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
@@ -271,7 +287,7 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         make_heap(curheap, curheap+hsize, greater<pair<IT,IT>>());
         
         IT prevRow=-1; // previously popped row from heap
-        
+		
         while(hsize > 0)
         {
             pop_heap(curheap, curheap + hsize, greater<pair<IT,IT>>()); // result is stored in wset[hsize-1]
