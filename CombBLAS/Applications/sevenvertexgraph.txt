@@ -1,0 +1,12 @@
+vertex_1	vertex_2	0.34
+vertex_1	vertex_4	1.50
+vertex_2	vertex_5	0.67
+vertex_2	vertex_7	1.41
+vertex_3	vertex_6	2.15
+vertex_4	vertex_1	0.55
+vertex_4	vertex_3	0.87
+vertex_5	vertex_6	1.75
+vertex_6	vertex_3	1.4
+vertex_7	vertex_3	0.75
+vertex_7	vertex_4	0.25
+vertex_7	vertex_5	1
