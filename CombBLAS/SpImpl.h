@@ -166,7 +166,7 @@ struct SpImpl
                         int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
     {
         cout << "Optbuf enabled version is not yet supported with general (non-boolean) matrices" << endl;
-    };
+    }; 
     
     static void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
