@@ -130,7 +130,7 @@ void SpMXSpV_Threaded_2D(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t *
     SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Adcsc, mA, indx, numx, veclen, indy, numy, nnzy, SPA);
 };
 
-//! CSC with 2D threading and preallocated SPA
+//! DCSC with 2D threading and preallocated SPA
 template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpMXSpV_Threaded_2D(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
 {
@@ -173,7 +173,13 @@ struct SpImpl
     {
         cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
     };
-    
+	static void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+									 vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+
+	
     static void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
     {
@@ -185,6 +191,32 @@ struct SpImpl
     {
         cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
     };
+	
+	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+									int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NUM,OVT> & SPA)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+	
+	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+									int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+
+	static void SpMXSpV_Threaded_2D(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+									int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NUM,OVT> & SPA)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+
+	
+	static void SpMXSpV_Threaded_2D(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+									int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+
 };
 
 
