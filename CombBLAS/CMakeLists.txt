@@ -32,10 +32,11 @@ ADD_LIBRARY( CommGridlib CommGrid.cpp  )
 ADD_LIBRARY( MPITypelib MPIType.cpp )
 ADD_LIBRARY( MemoryPoollib MemoryPool.cpp )
 ADD_LIBRARY( Hashlib hash.cpp )
-
+ADD_LIBRARY( mmiolib mmio.c )
 
 ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications ) 
+ADD_SUBDIRECTORY( usort ) 
 ADD_SUBDIRECTORY( graph500-1.2/generator )
 
 
