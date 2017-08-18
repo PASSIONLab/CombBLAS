@@ -17,7 +17,9 @@ vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
     vector<RT> splitters(nsplits+1);
     splitters[0] = static_cast<RT>(0);
     ColLexiCompare<IT,NT> comp;
+#ifdef THREADED
 #pragma omp parallel for
+#endif
     for(int i=1; i< nsplits; i++)
     {
         IT cur_col = i * (spTuples->getncol()/nsplits);
