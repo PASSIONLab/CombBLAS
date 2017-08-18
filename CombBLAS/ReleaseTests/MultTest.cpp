@@ -128,8 +128,9 @@ int main(int argc, char* argv[])
 
 		//FullyDistSpVec<int64_t, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
 		
-		FullyDistSpVec<int64_t, double> spy;
+		FullyDistSpVec<int64_t, double> spy(spx.getcommgrid(), A.getnrow());
 		SpMV<PTDOUBLEDOUBLE>(A, spx, spy, false);
+		
 		if (spycontrol == spy)
 		{
 			SpParHelper::Print("Sparse SpMV (fully dist) working correctly\n");	
@@ -141,6 +142,7 @@ int main(int argc, char* argv[])
 			spy.SaveGathered(ysparse,0);
 			ysparse.close();
 		}
+		
 #ifndef NOGEMM
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
 		if (CControl == C)
@@ -169,13 +171,15 @@ int main(int argc, char* argv[])
 		spx.Apply(bind1st (multiplies<double>(), 100));
 		FullyDistSpVec<int64_t, int64_t> spxint64 (spx);
 		//FullyDistSpVec<int64_t, int64_t> spyint64 = SpMV<SR>(ABool, spxint64, false);
-		FullyDistSpVec<int64_t, int64_t> spyint64;
+		FullyDistSpVec<int64_t, int64_t> spyint64(spxint64.getcommgrid(), ABool.getnrow());
 		SpMV<SR>(ABool, spxint64, spyint64, false);
 
+		/*
 		ABool.OptimizeForGraph500(optbuf);
 		//FullyDistSpVec<int64_t, int64_t> spyint64buf = SpMV<SR>(ABool, spxint64, false, optbuf);
-		FullyDistSpVec<int64_t, int64_t> spyint64buf;
+		FullyDistSpVec<int64_t, int64_t> spyint64buf(spxint64.getcommgrid(), ABool.getnrow());
 		SpMV<SR>(ABool, spxint64, spyint64buf, false, optbuf);
+		
 		
 		if (spyint64 == spyint64buf)
 		{
@@ -189,9 +193,10 @@ int main(int argc, char* argv[])
 			spyint64.SaveGathered(of1,0);
 			spyint64buf.SaveGathered(of2,0);
 		}
+		 */
 		ABool.ActivateThreading(cblas_splits);
 		//FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
-		FullyDistSpVec<int64_t, int64_t> spyint64_threaded;
+		FullyDistSpVec<int64_t, int64_t> spyint64_threaded(spxint64.getcommgrid(), ABool.getnrow());
 		SpMV<SR>(ABool, spxint64, spyint64_threaded, false);
 
 		if (spyint64 == spyint64_threaded)
@@ -203,7 +208,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in multithreaded sparse SpMV, go fix it!\n");	
 		}
 		
-
+		
 		vecinpx.clear();
 		vecinpx.close();
 		vecinpy.clear();
