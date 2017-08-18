@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 		FullyDistSpVec<int64_t, int64_t> spyint64(spxint64.getcommgrid(), ABool.getnrow());
 		SpMV<SR>(ABool, spxint64, spyint64, false);
 
-		/*
+		
 		ABool.OptimizeForGraph500(optbuf);
 		//FullyDistSpVec<int64_t, int64_t> spyint64buf = SpMV<SR>(ABool, spxint64, false, optbuf);
 		FullyDistSpVec<int64_t, int64_t> spyint64buf(spxint64.getcommgrid(), ABool.getnrow());
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
 			spyint64.SaveGathered(of1,0);
 			spyint64buf.SaveGathered(of2,0);
 		}
-		 */
+
 		ABool.ActivateThreading(cblas_splits);
 		//FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
 		FullyDistSpVec<int64_t, int64_t> spyint64_threaded(spxint64.getcommgrid(), ABool.getnrow());
