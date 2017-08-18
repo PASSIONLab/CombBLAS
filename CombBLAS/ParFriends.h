@@ -1477,24 +1477,40 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     double t3=MPI_Wtime();
     cblas_localspmvtime += (t3-t2);
 #endif
-    
+	
+
     if(x.commGrid->GetGridCols() == 1)
     {
         y.ind.resize(sendcnt[0]);
         y.num.resize(sendcnt[0]);
 
+
+		if(optbuf.totmax > 0 )	// graph500 optimization enabled
+		{
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-        for(int i=0; i<sendcnt[0]; i++)
-        {
-            y.ind[i] = sendindbuf[i];
-            y.num[i] = sendnumbuf[i];
-        }
-        DeleteAll(sendindbuf, sendnumbuf,sendcnt, sdispls);
+			for(int i=0; i<sendcnt[0]; i++)
+			{
+				y.ind[i] = optbuf.inds[i];
+				y.num[i] = optbuf.nums[i];
+			}
+		}
+		else
+		{
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+			for(int i=0; i<sendcnt[0]; i++)
+			{
+				y.ind[i] = sendindbuf[i];
+				y.num[i] = sendnumbuf[i];
+			}
+			DeleteAll(sendindbuf, sendnumbuf,sdispls);
+		}
+		delete [] sendcnt;
         return;
     }
-	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
 	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, RowWorld);       // share the request counts
@@ -1505,6 +1521,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	{
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
+	
 	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
 	int32_t * recvindbuf = new int32_t[totrecv];
 	OVT * recvnumbuf = new OVT[totrecv];
@@ -1578,9 +1595,16 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
 }
 
+template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue, OptBuf<int32_t, OVT > & optbuf)
+{
+	PreAllocatedSPA<IU,NUM,OVT> SPA;
+	SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
+}
+
 
 /**
- * Automatic type promotion is ONLY done here, all the callee functions (in Friends.h and below) are initialized with the promoted type 
+ * Automatic type promotion is ONLY done here, all the callee functions (in Friends.h and below) are initialized with the promoted type
  * If indexisvalues = true, then we do not need to transfer values for x (happens for BFS iterations with boolean matrices and integer rhs vectors)
  **/
 template <typename SR, typename IU, typename NUM, typename UDER>
