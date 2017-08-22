@@ -33,21 +33,25 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./ParIOTest <MatrixA>" << endl;
+			cout << "Usage: ./ParIOTest <MatrixA> <MatrixB_general>" << endl;
 			cout << "<MatrixA> is an absolute address, and file should be in Matrix Market format" << endl;
+			cout << "<MatrixB_general> is an absolute address, file is in general triples format (MCL calls this label input)" << endl;			
 		}
 		MPI_Finalize(); 
 		return -1;
 	}				
 	{
-		string Aname(argv[1]);		
+		string Aname(argv[1]);	
+		string Bname(argv[2]);
 	
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 
-        PSpMat<double>::MPI_DCCols A, AControl;
+        	PSpMat<double>::MPI_DCCols A, B, AControl;
 		
-        A.ParallelReadMM(Aname);
+        	A.ParallelReadMM(Aname, true, maximum<double>());
+		FullyDistVec<int64_t, array<char, MAXVERTNAME> > perm = B.ReadGeneralizedTuples(Bname, maximum<double>());
+
 		AControl.ReadDistribute(Aname, 0);
 
 		if (A == AControl)

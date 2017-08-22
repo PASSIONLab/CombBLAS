@@ -299,6 +299,7 @@ public:
 
 
 
+
 /**
  * Pop an element, do the numerical semiring multiplication & insert the result into multstack
  */

@@ -253,7 +253,7 @@ public:
     	void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
 
     	template <typename _BinaryOperation>
-    	FullyDistVec<IT,string> ReadGeneralizedTuples(const string&, _BinaryOperation);
+    	FullyDistVec<IT,array<char, MAXVERTNAME>> ReadGeneralizedTuples(const string&, _BinaryOperation);
     
 	template <class HANDLER>
 	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
