@@ -22,6 +22,9 @@ mmio.o:	../mmio.c ../mmio.h
 MPIType.o:	../MPIType.cpp ../MPIType.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o MPIType.o ../MPIType.cpp
 
+hash.o:	../hash.cpp ../hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o ../hash.cpp
+
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o ../MemoryPool.cpp
 
@@ -77,8 +80,8 @@ VectorInd: MemoryPool.o CommGrid.o MPIType.o VectorIndexing.o mmio.o
 VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o VectorIO VectorIO.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
-ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o
+ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
 clean: 
 	rm -f TransposeTest
