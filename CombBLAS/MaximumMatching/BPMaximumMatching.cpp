@@ -33,7 +33,7 @@ typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 using namespace std;
 
 // algorithmic options
-bool prune, mvInvertMate, randMM, moreSplit;
+bool prune, randMM, moreSplit;
 int init;
 bool randMaximal;
 bool fewexp;
@@ -139,7 +139,6 @@ void ShowUsage()
         //cout << "** (optional) diropt: employ direction-optimized BFS\n" ;
         cout << "** (optional) prune: discard trees as soon as an augmenting path is found\n" ;
         //cout << "** (optional) graft: employ tree grafting\n" ;
-        cout << "** (optional) mvInvertMate: Invert based on SpMV as opposted to All2All.\n" ;
         cout << "** (optional) moreSplit: more splitting of Matrix.\n" ;
         cout << "** (optional) randPerm: Randomly permute the matrix for load balance.\n" ;
         cout << "** (optional) saveMatching: Save the matching vector in a file (filename: inputfile_matching.txt).\n" ;
@@ -165,8 +164,6 @@ void GetOptions(char* argv[], int argc)
         prune = true;
     if(allArg.find("fewexp")!=string::npos)
         fewexp = true;
-    if(allArg.find("mvInvertMate")!=string::npos)
-        mvInvertMate = true;
     if(allArg.find("moreSplit")!=string::npos)
         moreSplit = true;
     if(allArg.find("saveMatching")!=string::npos)
@@ -201,7 +198,6 @@ void showCurOptions()
     if(init == GREEDY) tinfo << " greedy, ";
     if(randMaximal) tinfo << " random parent selection in greedy/Karp-Sipser, ";
     if(prune) tinfo << " tree pruning, ";
-    if(mvInvertMate) tinfo << " Invert using matvec ";
     if(moreSplit) tinfo << " moreSplit ";
     if(randPerm) tinfo << " Randomly permute the matrix for load balance ";
     if(saveMatching) tinfo << " Write the matcing in a file";
@@ -217,57 +213,51 @@ void experiment(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int
     
     // best option
     init = DMD; randMaximal = false; randMM = true; prune = true;
-    mvInvertMate = false;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row,prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row,prune, randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + KS
     init = KARP_SIPSER; randMaximal = true; randMM = true; prune = true;
-    mvInvertMate = false;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune,  randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     
     // best option + Greedy
     init = GREEDY; randMaximal = true; randMM = true; prune = true;
-    mvInvertMate = false;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune,  randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     // best option + No init
     init = NO_INIT; randMaximal = false; randMM = true; prune = true;
-    mvInvertMate = false;
     showCurOptions();
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune,  randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     
     // best option - randMM
     init = DMD; randMaximal = false; randMM = false; prune = true;
-    mvInvertMate = false;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune,  randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
     
     // best option - prune
     init = DMD; randMaximal = false; randMM = true; prune = false;
-    mvInvertMate = false;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune,  randMM);
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
     mateCol2Row.Apply([](int64_t val){return (int64_t) -1;});
     
@@ -284,7 +274,7 @@ void defaultExp(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int64_t, int
     init = DMD; randMaximal = false; randMM = true; prune = true;
     showCurOptions();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
     if(saveMatching && ofname!="")
     {
         mateRow2Col.ParallelWrite(ofname,false,false);
@@ -314,14 +304,13 @@ void experiment_maximal(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int6
     
     // best option
     init = DMD; randMaximal = false; randMM = true; prune = true;
-    mvInvertMate = false;
     time_start=MPI_Wtime();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     double time_dmd = MPI_Wtime()-time_start;
     int64_t cardDMD = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     
     time_start=MPI_Wtime();
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
     double time_mm_dmd = MPI_Wtime()-time_start;
     int64_t mmcardDMD = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
@@ -329,14 +318,13 @@ void experiment_maximal(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int6
     
     // best option + KS
     init = KARP_SIPSER; randMaximal = true; randMM = true; prune = true;
-    mvInvertMate = false;
     time_start=MPI_Wtime();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     double time_ks = MPI_Wtime()-time_start;
     int64_t cardKS = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     
     time_start=MPI_Wtime();
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
     double time_mm_ks = MPI_Wtime()-time_start;
     int64_t mmcardKS = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
@@ -345,14 +333,13 @@ void experiment_maximal(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int6
     
     // best option + Greedy
     init = GREEDY; randMaximal = true; randMM = true; prune = true;
-    mvInvertMate = false;
     time_start=MPI_Wtime();
     MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
     double time_greedy = MPI_Wtime()-time_start;
     int64_t cardGreedy = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     
     time_start=MPI_Wtime();
-    maximumMatching(A, mateRow2Col, mateCol2Row, prune, mvInvertMate, randMM);
+    maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
     double time_mm_greedy = MPI_Wtime()-time_start;
     int64_t mmcardGreedy = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
     mateRow2Col.Apply([](int64_t val){return (int64_t) -1;});
@@ -391,7 +378,6 @@ int main(int argc, char* argv[])
     init = DMD;
     randMaximal = false;
     prune = false;
-    mvInvertMate = false;
     randMM = true;
     moreSplit = false;
     fewexp=false;
@@ -520,7 +506,7 @@ int main(int argc, char* argv[])
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
         int nthreads;
-#ifdef _OPENMP
+#ifdef THREADED
 #pragma omp parallel
         {
             int splitPerThread = 1;
