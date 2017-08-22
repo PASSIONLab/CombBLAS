@@ -61,17 +61,6 @@ public:
 
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
-typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
-typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
-void maximumMatching(PSpMat_s32p64 & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-                     FullyDistVec<int64_t, int64_t>& mateCol2Row);
-template <class IT, class NT>
-bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
-                       FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
-
-
-
 
 /*
  Remove isolated vertices and purmute
@@ -208,7 +197,7 @@ void showCurOptions()
     
 }
 
-void experiment(PSpMat_s32p64 & A, PSpMat_s32p64 & AT, FullyDistVec<int64_t, int64_t> degCol)
+void experiment( PSpMat_Bool & A,  PSpMat_Bool & AT, FullyDistVec<int64_t, int64_t> degCol)
 {
     FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
@@ -285,7 +274,6 @@ int main(int argc, char* argv[])
 	{
         
         PSpMat_Bool * ABool;
-        PSpMat_s32p64 ALocalT;
         ostringstream tinfo;
         double t01, t02;
         if(string(argv[1]) == string("input")) // input option
@@ -293,7 +281,6 @@ int main(int argc, char* argv[])
             ABool = new PSpMat_Bool();
             
             string filename(argv[2]);
-            matrix_name = filename;
             tinfo.str("");
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
@@ -324,7 +311,6 @@ int main(int argc, char* argv[])
                 initiator[1] = .25;
                 initiator[2] = .25;
                 initiator[3] = .25;
-                matrix_name = "ER";
             }
             else if(string(argv[1]) == string("g500"))
             {
@@ -332,7 +318,6 @@ int main(int argc, char* argv[])
                 initiator[1] = .19;
                 initiator[2] = .19;
                 initiator[3] = .05;
-                matrix_name = "G500";
             }
             else if(string(argv[1]) == string("ssca"))
             {
@@ -340,7 +325,6 @@ int main(int argc, char* argv[])
                 initiator[1] = .4/3;
                 initiator[2] = .4/3;
                 initiator[3] = .4/3;
-                matrix_name = "SSCA";
             }
             else
             {
@@ -383,8 +367,8 @@ int main(int argc, char* argv[])
         SpParHelper::Print("Performed random permuation of matrix.\n");
 
      
-        PSpMat_s32p64 A = *ABool;
-        PSpMat_s32p64 AT = A;
+		PSpMat_Bool A = *ABool;
+		PSpMat_Bool AT = A;
         if(ABool->getnrow() > ABool->getncol())
             AT.Transpose();
         else

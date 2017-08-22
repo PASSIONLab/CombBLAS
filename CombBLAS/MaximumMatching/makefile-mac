@@ -1,5 +1,5 @@
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive  -DNDEBUG -DTHREADED #-DNDEBUG #-DTIMING 
+CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive  -DNDEBUG #-DTHREADED #-DNDEBUG #-DTIMING 
 
 
 
@@ -38,6 +38,13 @@ BPMaximumMatching.o: BPMaximumMatching.cpp  BPMaximumMatching.h BPMaximalMatchin
 bpmm: BPMaximumMatching.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
+BPMaximalMatching.o: BPMaximalMatching.cpp  BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+bpml: BPMaximalMatching.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
 auction.o: auction.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpCCols.h ../SpCCols.cpp ../csc.cpp ../SpImpl.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
@@ -51,5 +58,5 @@ auction: auction.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o 
 
 clean:
 	rm -rf ../*.o
-	rm -f bpmm auction
+	rm -f bpmm bpml awpm auction
 	rm -f *.o
