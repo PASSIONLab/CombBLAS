@@ -30,6 +30,74 @@
 #include "usort/include/parUtils.h"
 
 
+template <typename IT>
+void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > & locs_send, vector< vector< string > > & data_send, 
+					vector<array<char, MAXVERTNAME>> & distmapper_array, const MPI_Comm & comm)
+{
+	int nprocs, myrank;
+	MPI_Comm_size(comm, &nprocs);
+	MPI_Comm_rank(comm, &myrank);
+
+    	int * map_rcnt = new int[nprocs];
+    	MPI_Alltoall(map_scnt, 1, MPI_INT, map_rcnt, 1, MPI_INT, comm);  
+    	int * map_sdspl = new int[nprocs]();
+    	int * map_rdspl = new int[nprocs]();
+    	partial_sum(map_scnt, map_scnt+nprocs-1, map_sdspl+1);
+    	partial_sum(map_rcnt, map_rcnt+nprocs-1, map_rdspl+1);
+    	IT totmapsend = map_sdspl[nprocs-1] + map_scnt[nprocs-1];
+    	IT totmaprecv = map_rdspl[nprocs-1] + map_rcnt[nprocs-1];
+
+    	// sendbuf is a pointer to array of MAXVERTNAME chars. 
+    	// Explicit grouping syntax is due to precedence of [] over *
+    	// char* sendbuf[MAXVERTNAME] would have declared a MAXVERTNAME-length array of char pointers
+    	char (*sendbuf)[MAXVERTNAME];	// each sendbuf[i] is type char[MAXVERTNAME]
+    	sendbuf = (char (*)[MAXVERTNAME]) malloc(sizeof(char[MAXVERTNAME])* totmapsend);	// notice that this is allocating a contiguous block of memory
+    
+    	IT * sendinds =  new IT[totmapsend];
+    	for(int i=0; i<nprocs; ++i)
+    	{	 
+	    int loccnt = 0;
+	    for(string s:data_send[i])
+	    {
+		    char vname[MAXVERTNAME];
+		    std::strcpy(sendbuf[map_sdspl[i]+loccnt], s.c_str());
+	    }
+	    vector<string>().swap(data_send[i]);	// free memory
+    	}
+    	for(int i=0; i<nprocs; ++i)	      // sanity check: received indices should be sorted by definition
+    	{ 
+        	copy(locs_send[i].begin(), locs_send[i].end(), sendinds+map_sdspl[i]);
+        	vector<IT>().swap(locs_send[i]);	// free memory
+    	}
+
+    	char (*recvbuf)[MAXVERTNAME];	// recvbuf is of type char (*)[MAXVERTNAME]
+    	recvbuf = (char (*)[MAXVERTNAME]) malloc(sizeof(char[MAXVERTNAME])* totmaprecv);
+
+   	 MPI_Datatype MPI_STRING;	// this is not necessary (we could just use char) but easier for bookkeeping
+   	 MPI_Type_contiguous(sizeof(char[MAXVERTNAME]), MPI_CHAR, &MPI_STRING);
+    	MPI_Type_commit(&MPI_STRING);
+
+    	MPI_Alltoallv(sendbuf, map_scnt, map_sdspl, MPI_STRING, recvbuf, map_rcnt, map_rdspl, MPI_STRING, comm);
+    	free(sendbuf);	// can't delete[] so use free
+    	MPI_Type_free(&MPI_STRING);
+
+    	IT * recvinds = new IT[totmaprecv];
+    	MPI_Alltoallv(sendinds, map_scnt, map_sdspl, MPIType<IT>(), recvinds, map_rcnt, map_rdspl, MPIType<IT>(), comm);
+    	DeleteAll(sendinds, map_scnt, map_sdspl, map_rcnt, map_rdspl);
+
+    	if(!is_sorted(recvinds, recvinds+totmaprecv))
+	    	cout << "Assertion failed at proc " << myrank << ": Received indices are not sorted, this is unexpected" << endl;
+
+    	for(IT i=0; i< totmaprecv; ++i)
+    	{
+		assert(i == recvinds[i]);
+		std::copy(recvbuf[i], recvbuf[i]+MAXVERTNAME, distmapper_array[i].begin());
+    	}
+    	free(recvbuf);
+    	delete [] recvinds;	
+}
+
+
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm)
 {

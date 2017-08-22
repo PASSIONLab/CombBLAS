@@ -35,6 +35,7 @@
 #define _SP_PAR_HELPER_H_
 
 #include <vector>
+#include <array>
 #include <mpi.h>
 #include "LocArr.h"
 #include "CommGrid.h"
@@ -47,6 +48,10 @@ using namespace std;
 class SpParHelper
 {
 public:
+	template <typename IT>	
+	static void ReDistributeToVector(int * & map_scnt, vector< vector< IT > > & locs_send, 
+			vector< vector< string > > & data_send, vector<array<char, MAXVERTNAME>> & distmapper_array, const MPI_Comm & comm);
+
 	template<typename KEY, typename VAL, typename IT>
 	static void GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, const MPI_Comm & comm);
 
@@ -62,8 +67,9 @@ public:
 	// 	1.5 GB with 8K processors
 	template<typename KEY, typename VAL, typename IT>
 	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm);
-    template<typename KEY, typename VAL, typename IT>
-    static vector<pair<KEY,VAL>> KeyValuePSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm);
+
+    	template<typename KEY, typename VAL, typename IT>
+    	static vector<pair<KEY,VAL>> KeyValuePSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI_Comm & comm);
 	
 	template<typename KEY, typename VAL, typename IT>
 	static void DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI_Comm & World);
@@ -74,8 +80,8 @@ public:
 	template<typename IT, typename NT, typename DER>	
 	static void BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const vector<IT> & essentials, int root);
     
-    template<typename IT, typename NT, typename DER>
-    static void GatherMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, int root);
+    	template<typename IT, typename NT, typename DER>
+    	static void GatherMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, int root);
 
 	template<typename IT, typename NT, typename DER>
 	static void SetWindows(MPI_Comm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI_Win> & arrwin);
@@ -95,11 +101,11 @@ public:
 	static void UnlockWindows(int ownind, vector<MPI_Win> & arrwin);
 
 	static void Print(const string & s);
-    static void Print(const string & s, MPI_Comm & world);
+    	static void Print(const string & s, MPI_Comm & world);
 	static void PrintFile(const string & s, const string & filename);
-    static void PrintFile(const string & s, const string & filename, MPI_Comm & world);
-    static void check_newline(int *bytes_read, int bytes_requested, char *buf);
-    static bool FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines, int myrank);
+    	static void PrintFile(const string & s, const string & filename, MPI_Comm & world);
+    	static void check_newline(int *bytes_read, int bytes_requested, char *buf);
+   	static bool FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_Offset end_fpos, bool firstcall, vector<string> & lines, int myrank);
     
 	static void WaitNFree(vector<MPI_Win> & arrwin);
 	static void FreeWindows(vector<MPI_Win> & arrwin);
