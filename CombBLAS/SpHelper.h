@@ -92,13 +92,13 @@ public:
     
     static void ProcessLinesWithStringKeys(vector< map < string, uint64_t> > & allkeys, vector<string> & lines, int nprocs)
     {
-	char * fr = new char[MAXVERTNAME];
-    	char * to = new char[MAXVERTNAME];
     	string frstr, tostr;
     	uint64_t frhash, tohash;    
     	double vv;
     	for (auto itr=lines.begin(); itr != lines.end(); ++itr)
     	{
+		char fr[MAXVERTNAME];
+		char to[MAXVERTNAME];
 		sscanf(itr->c_str(), "%s %s %lg", fr, to, &vv);
 		frstr = string(fr);
 		tostr = string(to);
@@ -110,11 +110,15 @@ public:
     		size_t owner_fr = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
     		size_t owner_to = range_to / static_cast<double>(numeric_limits<uint64_t>::max());
 
+		cout << frstr << " with hash " << frhash << " is going to " << owner_fr << endl;
+		cout << tostr << " with hash " << tohash << " is going to " << owner_to << endl;
+		
+
 		allkeys[owner_fr].insert(make_pair(frstr, frhash)); 
-		allkeys[owner_to].insert(make_pair(tostr, tohash));	
+		allkeys[owner_to].insert(make_pair(tostr, tohash));
+
+		cout << "inserted" << endl;	
    	}
-	delete [] fr;
-	delete [] to;
         lines.clear();	
     }
 
