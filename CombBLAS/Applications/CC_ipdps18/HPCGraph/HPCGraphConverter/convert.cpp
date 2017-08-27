@@ -1,3 +1,7 @@
+/*
+Written by Ariful Azad, Lawrence Berkeley National Laboratory 
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,16 +19,14 @@ using namespace std;
 
 
 
-
-
-
 int main(int argc, char** argv)
 {
 
 
 	if(argc<3)
 	{
-		cout << "Input and output filenames are missing!\n";
+		cout << "Input and/or output filenames are missing!\n";
+		cout << "Usage: convert inputFileName outputFileName \n";
 		exit(1);
 	}
 	char * ifname = argv[1];
@@ -32,7 +34,7 @@ int main(int argc, char** argv)
 	
 	long count=0,i,j;
 	long inp, m, sym;
-	long numRow, numCol, nonZeros;
+	long numRow;
 	double f;
 	string s;
 	ifstream inf;
@@ -62,10 +64,9 @@ int main(int argc, char** argv)
 		inf>>inp;
 		numRow=inp;
 		inf>>inp;
-		numCol=inp;
+		//numCol=inp;
 		inf>>inp;
-		nonZeros=inp;
-		
+				
 		count=inp;
 		cout << count << endl;
 
