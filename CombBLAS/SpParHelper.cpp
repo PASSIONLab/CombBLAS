@@ -847,7 +847,7 @@ inline bool SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_
     size_t bytes2fetch = ONEMILLION;    // we might read more than needed but no problem as we won't process them
     MPI_Status status;
     int bytes_read;
-    if(firstcall)
+    if(firstcall && myrank != 0)
     {
         curpos -= 1;    // first byte is to check whether we started at the beginning of a line
         bytes2fetch += 1;
@@ -863,7 +863,7 @@ inline bool SpParHelper::FetchBatch(MPI_File & infile, MPI_Offset & curpos, MPI_
         return true;    // done
     }
     SpParHelper::check_newline(&bytes_read, bytes2fetch, buf);
-    if(firstcall)
+    if(firstcall && myrank != 0)
     {
         if(buf[0] == '\n')  // we got super lucky and hit the line break
         {

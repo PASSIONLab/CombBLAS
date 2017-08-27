@@ -3123,7 +3123,6 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _BinaryOperation BinOp)
 {       
-    FILE *f;
     int myrank = commGrid->GetRank();
     int nprocs = commGrid->GetSize();     
 
@@ -3137,7 +3136,6 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     if(myrank == 0)    // the offset needs to be for this rank
     {
         cout << "File is " << file_size << " bytes" << endl;
-        fclose(f);
     }
     fpos = myrank * file_size / nprocs;
 
@@ -3148,8 +3146,8 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
     
-    typedef map<string, uint64_t> KEYMAP;	// due to collusions in MurmurHash, make the key to the std:map the string itself
-    vector< KEYMAP > allkeys;	// map keeps the outgoing data unique, we could have applied this to HipMer too
+    typedef map<string, uint64_t> KEYMAP; // due to potential (but extremely unlikely) collusions in MurmurHash, make the key to the std:map the string itself
+    vector< KEYMAP > allkeys(nprocs);	  // map keeps the outgoing data unique, we could have applied this to HipMer too
 
     vector<string> lines;
     bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
@@ -3159,6 +3157,8 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     while(!finished)
     {
         finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
+
+    	SpParHelper::Print("Fetched");
         entriesread += lines.size();
     	SpHelper::ProcessLinesWithStringKeys(allkeys, lines,nprocs);
     }
@@ -3194,7 +3194,8 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	{
 		// The naked C-style array type is not copyable or assignable, but pair will require it, hence used std::array
 		std::array<char, MAXVERTNAME> vname;
-		std::copy( pobj.first.begin(), pobj.first.end(), vname.begin() ); 
+		std::copy( pobj.first.begin(), pobj.first.end(), vname.begin() );  
+		if(pobj.first.length() < MAXVERTNAME)  vname[pobj.first.length()] = '\0';	// null termination		
 
 		senddata[sdispls[i]+j] = TYPE2SEND(vname, pobj.second);
 		j++;
@@ -3212,7 +3213,10 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     std::set< std::pair<uint64_t, string>  > uniqsorted;
     for(IT i=0; i< totrecv; ++i)
     {
-	    string strtmp(recvdata[i].first.begin(), recvdata[i].first.end()); // iterator constructor
+	    auto found = find(recvdata[i].first.begin(), recvdata[i].first.end(), '\0'); // find the null character (or string::end)
+	    string strtmp(recvdata[i].first.begin(), found); // range constructor 
+	    cout << myrank << " received " << recvdata[i].second << " " << strtmp << endl;
+	    
 	    uniqsorted.insert(make_pair(recvdata[i].second, strtmp));
     }
     uint64_t uniqsize = uniqsorted.size();
