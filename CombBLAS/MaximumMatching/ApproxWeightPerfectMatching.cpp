@@ -59,14 +59,6 @@ void TransformWeight(SpParMat < IT, NT, DER > & A)
 	A.DimApply(Column, maxvCol, [](NT val, NT maxval){return val/maxval;});
 	
 	A.Apply([](NT val){return log(val);});
-	
-	//FullyDistVec<IT, NT> maxv(A.getcommgrid());
-	//A.Reduce(maxv, Column, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
-	//A.DimApply(Column, maxv, [](NT val, NT maxval){return val - maxval;});
-	//minv.Reduce(minimum<NT>(), static_cast<NT>(999999999999.0));
-	//pair<IT, NT> x = minv.MinElement();
-	//cout << "***** minimum value in the matrix: " << get<1>(x) << endl;
-	//A.PrintInfo();
 
 }
 void ShowUsage()
@@ -286,18 +278,20 @@ int main(int argc, char* argv[])
          */
         
         double ts = MPI_Wtime();
+		Par_DCSC_Double AWighted1 = *AWighted;
 		TransformWeight(*AWighted);
+		Trace(*AWighted);
 		
         init = DMD; randMaximal = false; randMM = false; prune = true;
-        MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+        //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
-		//WeightedGreedy(*AWighted, mateRow2Col, mateCol2Row, degCol);
+		WeightedGreedy(*AWighted, mateRow2Col, mateCol2Row, degCol);
 		cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
 		
 		
-        maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		//maximumMatching(*AWighted, mateRow2Col, mateCol2Row, prune, false, true);
+        //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
+		maximumMatching(*AWighted, mateRow2Col, mateCol2Row, prune, false, true);
         cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
         double tcard = MPI_Wtime() - ts;
         CheckMatching(mateRow2Col,mateCol2Row);
@@ -305,6 +299,8 @@ int main(int argc, char* argv[])
         
 		
         TwoThirdApprox(*AWighted, mateRow2Col, mateCol2Row);
+		
+		cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
         
         double tweighted = MPI_Wtime() - ts;
         
