@@ -61,6 +61,8 @@ void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > &
 	    {
 		    char vname[MAXVERTNAME];
 		    std::strcpy(sendbuf[map_sdspl[i]+loccnt], s.c_str());
+		    if (myrank == 0) printf("%s\n",sendbuf[map_sdspl[i]+loccnt]);
+		    loccnt++;
 	    }
 	    vector<string>().swap(data_send[i]);	// free memory
     	}
@@ -73,8 +75,8 @@ void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > &
     	char (*recvbuf)[MAXVERTNAME];	// recvbuf is of type char (*)[MAXVERTNAME]
     	recvbuf = (char (*)[MAXVERTNAME]) malloc(sizeof(char[MAXVERTNAME])* totmaprecv);
 
-   	 MPI_Datatype MPI_STRING;	// this is not necessary (we could just use char) but easier for bookkeeping
-   	 MPI_Type_contiguous(sizeof(char[MAXVERTNAME]), MPI_CHAR, &MPI_STRING);
+   	MPI_Datatype MPI_STRING;	// this is not necessary (we could just use char) but easier for bookkeeping
+   	MPI_Type_contiguous(sizeof(char[MAXVERTNAME]), MPI_CHAR, &MPI_STRING);
     	MPI_Type_commit(&MPI_STRING);
 
     	MPI_Alltoallv(sendbuf, map_scnt, map_sdspl, MPI_STRING, recvbuf, map_rcnt, map_rdspl, MPI_STRING, comm);

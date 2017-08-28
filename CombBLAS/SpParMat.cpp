@@ -3208,13 +3208,12 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     TYPE2SEND * recvdata = new TYPE2SEND[totrecv];	
     MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_HASH, recvdata, recvcnt, rdispls, MPI_HASH, commGrid->GetWorld());
     // do not delete send buffers yet as we will use them to recv back the data
-    MPI_Type_free(&MPI_HASH);
     
     std::set< std::pair<uint64_t, string>  > uniqsorted;
     for(IT i=0; i< totrecv; ++i)
     {
-	    auto found = find(recvdata[i].first.begin(), recvdata[i].first.end(), '\0'); // find the null character (or string::end)
-	    string strtmp(recvdata[i].first.begin(), found); // range constructor 
+	    auto locnull = find(recvdata[i].first.begin(), recvdata[i].first.end(), '\0'); // find the null character (or string::end)
+	    string strtmp(recvdata[i].first.begin(), locnull); // range constructor 
 	    cout << myrank << " received " << recvdata[i].second << " " << strtmp << endl;
 	    
 	    uniqsorted.insert(make_pair(recvdata[i].second, strtmp));
@@ -3247,6 +3246,10 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	    
 	    IT newlocid;	
 	    int owner = distmapper.Owner(globalindex, newlocid);
+
+	    if(myrank == 0)
+		    cout << "invindex received " << itr->second << " with global index " << globalindex << " to be owned by " << owner << " with index " << newlocid << endl;
+
 	    locs_send[owner].push_back(newlocid);
 	    data_send[owner].push_back(itr->second);
 	    map_scnt[owner]++;
@@ -3261,22 +3264,29 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 
     for(IT i=0; i< totrecv; ++i)
     {
-	    string searchstr(recvdata[i].first.begin(), recvdata[i].first.end());
+	    auto locnull = find(recvdata[i].first.begin(), recvdata[i].first.end(), '\0');
+	    string searchstr(recvdata[i].first.begin(), locnull); // range constructor 
+
 	    auto resp = invindex.find(searchstr); // recvdata[i] is of type pair< STRASARRAY, uint64_t>
 	    if (resp != invindex.end())
 	    {
 		recvdata[i].second = resp->second;	// now instead of random numbers, recvdata's second entry will be its new index
+		cout << "New index of " << searchstr << " is " << recvdata[i].second  << endl;
 	    }
 	    else
 		cout << "Assertion failed at proc " << myrank << ": the absence of the entry in invindex is unexpected!!!" << endl;
     }
     MPI_Alltoallv(recvdata, recvcnt, rdispls, MPI_HASH, senddata, sendcnt, sdispls, MPI_HASH, commGrid->GetWorld());    
     DeleteAll(recvdata, sendcnt, recvcnt, sdispls, rdispls);
+    MPI_Type_free(&MPI_HASH);
+    
 
     KEYMAP ultimateperm;	// the ultimate permutation
     for(IT i=0; i< totsend; ++i)	
     {
-	    string searchstr(senddata[i].first.begin(), senddata[i].first.end());
+	    auto locnull = find(senddata[i].first.begin(), senddata[i].first.end(), '\0');
+	    
+	    string searchstr(senddata[i].first.begin(), locnull);
 	    auto ret = ultimateperm.emplace(make_pair(searchstr, senddata[i].second));
 	    if(!ret.second)	// the second is the boolean that tells success
 	    {
