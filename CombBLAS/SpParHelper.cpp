@@ -61,7 +61,6 @@ void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > &
 	    {
 		    char vname[MAXVERTNAME];
 		    std::strcpy(sendbuf[map_sdspl[i]+loccnt], s.c_str());
-		    if (myrank == 0) printf("%s\n",sendbuf[map_sdspl[i]+loccnt]);
 		    loccnt++;
 	    }
 	    vector<string>().swap(data_send[i]);	// free memory
