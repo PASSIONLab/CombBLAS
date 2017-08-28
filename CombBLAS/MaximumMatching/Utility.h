@@ -218,6 +218,7 @@ NT MatchingWeight( SpParMat < IT, NT, DER > & A, FullyDistVec<IT,IT> mateRow2Col
 				if( i == mj)
 				{
 					w += nzit.value();
+					//if(nzit.value() == 0) cout << " row: " << i << " column: "<< mj << endl;
 				}
 			}
 		}
