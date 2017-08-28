@@ -22,6 +22,33 @@ public:
 	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 };
 
+class StdArrayReadSaveHandler
+{
+public:
+	array<char,MAXVERTNAME> getNoNum(int64_t index) { return array<char,MAXVERTNAME>(); }
+		
+	template <typename c, typename t>
+	array<char,MAXVERTNAME> read(std::basic_istream<c,t>& is, int64_t index)
+	{
+		array<char,MAXVERTNAME> strarray;
+		string str;
+		is >> str;	// read into str
+		std::copy( str.begin(), str.end(), strarray.begin() ); 
+	       	if(str.length() < MAXVERTNAME)  strarray[str.length()] = '\0'; // null terminating char	
+	
+		return strarray;
+	}
+	
+	template <typename c, typename t>
+	void save(std::basic_ostream<c,t>& os, const array<char,MAXVERTNAME>& strarray, int64_t index)
+	{
+		auto locnull = find(strarray.begin(), strarray.end(), '\0');
+		string str(strarray.begin(), locnull); 
+		os << str;
+	}
+};
+
+
 int main(int argc, char* argv[])
 {
 	int nprocs, myrank;
@@ -36,6 +63,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./ParIOTest <MatrixA> <MatrixB_general>" << endl;
 			cout << "<MatrixA> is an absolute address, and file should be in Matrix Market format" << endl;
 			cout << "<MatrixB_general> is an absolute address, file is in general triples format (MCL calls this label input)" << endl;			
+			
 		}
 		MPI_Finalize(); 
 		return -1;
@@ -47,14 +75,13 @@ int main(int argc, char* argv[])
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 
-        	PSpMat<double>::MPI_DCCols A, B, AControl;
+        	PSpMat<double>::MPI_DCCols A, B;
 		
         	A.ParallelReadMM(Aname, true, maximum<double>());
 		FullyDistVec<int64_t, array<char, MAXVERTNAME> > perm = B.ReadGeneralizedTuples(Bname, maximum<double>());
 
-		AControl.ReadDistribute(Aname, 0);
 
-		if (A == AControl)
+		if (A == B)
 		{
 			SpParHelper::Print("Parallel Matrix Market I/O working correctly\n");
 		}
@@ -62,7 +89,10 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in Parallel Matrix Market I/O");
 			A.SaveGathered("A_Error.txt");
+			B.SaveGathered("B_Error.txt");
 		}
+
+		perm.ParallelWrite("PermutationVec.mtx", 1, StdArrayReadSaveHandler(), true);
 	}
 	MPI_Finalize();
 	return 0;

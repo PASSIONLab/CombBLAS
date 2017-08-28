@@ -110,14 +110,11 @@ public:
     		size_t owner_fr = range_fr / static_cast<double>(numeric_limits<uint64_t>::max());
     		size_t owner_to = range_to / static_cast<double>(numeric_limits<uint64_t>::max());
 
-		cout << frstr << " with hash " << frhash << " is going to " << owner_fr << endl;
-		cout << tostr << " with hash " << tohash << " is going to " << owner_to << endl;
-		
+		// cout << frstr << " with hash " << frhash << " is going to " << owner_fr << endl;
+		// cout << tostr << " with hash " << tohash << " is going to " << owner_to << endl;
 
 		allkeys[owner_fr].insert(make_pair(frstr, frhash)); 
 		allkeys[owner_to].insert(make_pair(tostr, tohash));
-
-		cout << "inserted" << endl;	
    	}
         lines.clear();	
     }

@@ -3158,7 +3158,6 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     {
         finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, false, lines, myrank);
 
-    	SpParHelper::Print("Fetched");
         entriesread += lines.size();
     	SpHelper::ProcessLinesWithStringKeys(allkeys, lines,nprocs);
     }
@@ -3214,7 +3213,6 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     {
 	    auto locnull = find(recvdata[i].first.begin(), recvdata[i].first.end(), '\0'); // find the null character (or string::end)
 	    string strtmp(recvdata[i].first.begin(), locnull); // range constructor 
-	    cout << myrank << " received " << recvdata[i].second << " " << strtmp << endl;
 	    
 	    uniqsorted.insert(make_pair(recvdata[i].second, strtmp));
     }
@@ -3247,9 +3245,10 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	    IT newlocid;	
 	    int owner = distmapper.Owner(globalindex, newlocid);
 
+#ifdef COMBBLAS_DEBUG
 	    if(myrank == 0)
 		    cout << "invindex received " << itr->second << " with global index " << globalindex << " to be owned by " << owner << " with index " << newlocid << endl;
-
+#endif
 	    locs_send[owner].push_back(newlocid);
 	    data_send[owner].push_back(itr->second);
 	    map_scnt[owner]++;
@@ -3271,7 +3270,6 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	    if (resp != invindex.end())
 	    {
 		recvdata[i].second = resp->second;	// now instead of random numbers, recvdata's second entry will be its new index
-		cout << "New index of " << searchstr << " is " << recvdata[i].second  << endl;
 	    }
 	    else
 		cout << "Assertion failed at proc " << myrank << ": the absence of the entry in invindex is unexpected!!!" << endl;
@@ -3423,19 +3421,21 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const string & filename, bool onebas
         MPI_Abort(MPI_COMM_WORLD, NOFILE);
     }
     int64_t file_size = st.st_size;
-    MPI_Offset fpos, end_fpos;
+    MPI_Offset fpos, end_fpos, endofheader;
     if(commGrid->GetRank() == 0)    // the offset needs to be for this rank
     {
         cout << "File is " << file_size << " bytes" << endl;
-        fpos = ftell(f);
+	fpos = ftell(f);
+	endofheader =  fpos;
+    	MPI_Bcast(&endofheader, 1, MPIType<MPI_Offset>(), 0, commGrid->commWorld);
         fclose(f);
     }
     else
     {
-        fpos = myrank * file_size / nprocs;
-
+    	MPI_Bcast(&endofheader, 1, MPIType<MPI_Offset>(), 0, commGrid->commWorld);  // receive the file loc at the end of header
+	fpos = endofheader + myrank * (file_size-endofheader) / nprocs;
     }
-    if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
+    if(myrank != (nprocs-1)) end_fpos = endofheader + (myrank + 1) * (file_size-endofheader) / nprocs;
     else end_fpos = file_size;
 
     MPI_File mpi_fh;
