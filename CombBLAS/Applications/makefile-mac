@@ -30,6 +30,9 @@ MPIType.o:	../MPIType.cpp ../MPIType.h
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
+hash.o:	../hash.cpp ../hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o ../hash.cpp
+
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp 
 
@@ -51,10 +54,10 @@ FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredMIS.o FilteredMIS.cpp
 
-mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o
-	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
+mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o hash.o
+	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
-cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o 
 	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
 
 tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a

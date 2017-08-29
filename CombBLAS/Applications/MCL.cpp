@@ -60,6 +60,7 @@ double mcl_kselecttime;
 double mcl_prunecolumntime;
 double cblas_allgathertime;	// for compilation (TODO: fix this dependency)
 int64_t mcl_memory;
+double tIO;
 
 
 
@@ -298,7 +299,7 @@ void ShowOptions()
 
 // base: base of items
 // clusters are always numbered 0-based
-void Interpret(Dist::MPI_DCCols & A, string ofilename, int base)
+FullyDistVec<int64_t, int64_t> Interpret(Dist::MPI_DCCols & A)
 {
     int64_t nCC;
     // A is a directed graph
@@ -307,7 +308,8 @@ void Interpret(Dist::MPI_DCCols & A, string ofilename, int base)
     AT.Transpose();
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
-    cclabels.ParallelWrite(ofilename, base); // clusters are always numbered 0-based
+    return cclabels;
+    //cclabels.ParallelWrite(ofilename, base); // clusters are always numbered 0-based
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
@@ -336,6 +338,158 @@ double Chaos(Dist::MPI_DCCols & A)
 void Inflate(Dist::MPI_DCCols & A, double power)
 {
     A.Apply(bind2nd(exponentiate(), power));
+}
+
+// default adjustloop setting
+// 1. Remove loops
+// 2. set loops to max of all arc weights
+void AdjustLoops(Dist::MPI_DCCols & A)
+{
+
+    A.RemoveLoops();
+    Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), numeric_limits<double>::min());
+    A.Apply([](double val){return val==numeric_limits<double>::min() ? 1.0 : val;}); // for isolated vertices
+    A.AddLoops(colmaxs);
+    ostringstream outs;
+    outs << "Adjusted loops according to default mcl parameters" << endl;
+    SpParHelper::Print(outs.str());
+}
+
+void RemoveIsolated(Dist::MPI_DCCols & A, HipMCLParam & param)
+{
+    ostringstream outs;
+    FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
+    FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
+    int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
+    outs << "Number of isolated vertices: " << numIsolated << endl;
+    SpParHelper::Print(outs.str());
+    
+    A(nonisov, nonisov, true);
+    SpParHelper::Print("Removed isolated vertices.\n");
+    if(param.show)
+    {
+        A.PrintInfo();
+    }
+    
+}
+
+//TODO: handle reordered cluster ids
+void RandPermute(Dist::MPI_DCCols & A, HipMCLParam & param)
+{
+    // randomly permute for load balance
+    if(A.getnrow() == A.getncol())
+    {
+        FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
+        p.iota(A.getnrow(), 0);
+        p.RandPerm();
+        (A)(p,p,true);// in-place permute to save memory
+        SpParHelper::Print("Applied symmetric permutation.\n");
+    }
+    else
+    {
+        SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+    }
+}
+
+FullyDistVec<int64_t, int64_t> HipMCL(Dist::MPI_DCCols & A, HipMCLParam & param)
+{
+    if(param.remove_isolated)
+        RemoveIsolated(A, param);
+    
+    if(param.randpermute)
+        RandPermute(A, param);
+
+    // Adjust self loops
+    AdjustLoops(A);
+
+    // Make stochastic
+    MakeColStochastic(A);
+    SpParHelper::Print("Made stochastic\n");
+
+    if(param.show)
+    {
+        A.PrintInfo();
+    }
+    
+
+    // chaos doesn't make sense for non-stochastic matrices
+    // it is in the range {0,1} for stochastic matrices
+    double chaos = 1;
+    int it=1;
+    double tInflate = 0;
+    double tExpand = 0;
+     typedef PlusTimesSRing<double, double> PTFF;
+    // while there is an epsilon improvement
+    while( chaos > EPS)
+    {
+        double t1 = MPI_Wtime();
+        //A.Square<PTFF>() ;		// expand
+        A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, param.phases, param.prunelimit,param.select, param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+        
+        MakeColStochastic(A);
+        tExpand += (MPI_Wtime() - t1);
+        
+        if(param.show)
+        {
+            SpParHelper::Print("After expansion\n");
+            A.PrintInfo();
+        }
+        chaos = Chaos(A);
+        
+        double tInflate1 = MPI_Wtime();
+        Inflate(A, param.inflation);
+        MakeColStochastic(A);
+        tInflate += (MPI_Wtime() - tInflate1);
+        
+        if(param.show)
+        {
+            SpParHelper::Print("After inflation\n");
+            A.PrintInfo();
+        }
+        
+        
+        
+        double newbalance = A.LoadImbalance();
+        double t3=MPI_Wtime();
+        stringstream s;
+        s << "Iteration: " << std::setw(3) << it << " chaos: " << setprecision(3) << chaos << " nnz: " << A.getnnz() << "  load-balance: "<< newbalance << " Total time: " << (t3-t1) << endl;
+        SpParHelper::Print(s.str());
+        it++;
+        
+        
+        
+    }
+    
+    
+    double tcc1 = MPI_Wtime();
+    FullyDistVec<int64_t, int64_t> cclabels = Interpret(A);
+    double tcc = MPI_Wtime() - tcc1;
+    
+    
+#ifdef TIMING
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    if(myrank==0)
+    {
+        cout << "Squaring: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
+        cout << "       Abcast= " << mcl_Abcasttime << endl;
+        cout << "       Bbcast= " << mcl_Bbcasttime << endl;
+        cout << "       localspgemm= " << mcl_localspgemmtime << endl;
+        cout << "       multiwaymergetime= "<< mcl_multiwaymergetime << endl;
+        cout << "Pruning: " << mcl_kselecttime + mcl_prunecolumntime << endl;
+        cout << "       kselect= " << mcl_kselecttime << endl;
+        cout << "       prunecolumn= " << mcl_prunecolumntime << endl;
+        cout << "Inflation " << tInflate << endl;
+        cout << "Component: " << tcc << endl;
+        cout << "File I/O: " << tIO << endl;
+        cout << "=================================================" << endl;
+    }
+    
+#endif
+    
+    return cclabels;
+
+
 }
 
 int main(int argc, char* argv[])
@@ -378,55 +532,21 @@ int main(int argc, char* argv[])
     }
     ShowParam(param);
     
+    
     {
         
         double tIO1 = MPI_Wtime();
         Dist::MPI_DCCols A;	// construct object
-        A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
-        double tIO = MPI_Wtime() - tIO1;
+        
+        //TODO: Put a command line option for them
+        //A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
+        
+        FullyDistVec<int64_t, array<char, MAXVERTNAME> > perm = A.ReadGeneralizedTuples(param.ifilename,  maximum<double>());
+        tIO = MPI_Wtime() - tIO1;
         ostringstream outs;
         outs << "File Read time: " << tIO  << endl;
         SpParHelper::Print(outs.str());
-        if(param.show)
-        A.PrintInfo();
         
-        FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
-        FullyDistVec<int64_t, int64_t> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
-        int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
-        outs.str("");
-        outs.clear();
-        outs << "Isolated vertices: " << numIsolated << endl;
-        SpParHelper::Print(outs.str());
-        
-        
-        if(param.remove_isolated)
-        {
-            A(nonisov, nonisov, true);
-            SpParHelper::Print("Removed isolated vertices.\n");
-            if(param.show)
-            {
-                A.PrintInfo();
-            }
-        }
-        
-        if(param.randpermute)
-        {
-            // randomly permute for load balance
-            if(A.getnrow() == A.getncol())
-            {
-                FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
-                p.iota(A.getnrow(), 0);
-                p.RandPerm();
-                (A)(p,p,true);// in-place permute to save memory
-                SpParHelper::Print("Applied symmetric permutation.\n");
-            }
-            else
-            {
-                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
-            }
-        }
-        
-        typedef PlusTimesSRing<double, double> PTFF;
         double balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
         outs.str("");
@@ -435,30 +555,6 @@ int main(int argc, char* argv[])
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
         
-        
-        double tstart = MPI_Wtime();
-        
-        // Precossing: default adjustloop setting
-        // 1. Remove loops
-        // 2. set loops to max of all arc weights
-        A.RemoveLoops();
-        Dist::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), numeric_limits<double>::min());
-        A.Apply([](double val){return val==numeric_limits<double>::min() ? 1.0 : val;}); // for isolated vertices
-        A.AddLoops(colmaxs);
-        outs.str("");
-        outs.clear();
-        outs << "Adjusted loops according to default mcl parameters" << endl;
-        SpParHelper::Print(outs.str());
-        if(param.show)
-        {
-            A.PrintInfo();
-        }
-        
-        MakeColStochastic(A);
-        //Inflate(A, 1); 		// matrix_make_stochastic($mx);
-        //double initChaos = Chaos(A);
-        //outs << "Initial chaos = " << initChaos << endl;
-        SpParHelper::Print("Made stochastic\n");
         if(param.show)
         {
             A.PrintInfo();
@@ -475,90 +571,19 @@ int main(int argc, char* argv[])
         mcl_prunecolumntime = 0;
 #endif
         
-        // chaos doesn't make sense for non-stochastic matrices
-        // it is in the range {0,1} for stochastic matrices
-        double chaos = 1;
-        int it=1;
-        double tInflate = 0;
-        double tExpand = 0;
         
-        // while there is an epsilon improvement
-        while( chaos > EPS)
-        {
-            /*
-             #ifdef TIMING
-             double mcl_Abcasttime1=mcl_Abcasttime;
-             double mcl_Bbcasttime1=mcl_Bbcasttime;
-             double mcl_localspgemmtime1=mcl_localspgemmtime;
-             double mcl_multiwaymergetime1 = mcl_multiwaymergetime;
-             double mcl_kselecttime1=mcl_kselecttime;
-             double mcl_prunecolumntime1=mcl_prunecolumntime;
-             #endif
-             */
-            double t1 = MPI_Wtime();
-            //A.Square<PTFF>() ;		// expand
-            A = MemEfficientSpGEMM<PTFF, double, Dist::DCCols>(A, A, param.phases, param.prunelimit,param.select, param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
-            
-            MakeColStochastic(A);
-            tExpand += (MPI_Wtime() - t1);
-          
-            if(param.show)
-            {
-                SpParHelper::Print("After expansion\n");
-                A.PrintInfo();
-            }
-            chaos = Chaos(A);
-            
-            double tInflate1 = MPI_Wtime();
-            Inflate(A, param.inflation);	// inflate (and renormalize)
-            MakeColStochastic(A);
-            tInflate += (MPI_Wtime() - tInflate1);
-            
-            if(param.show)
-            {
-                SpParHelper::Print("After inflation\n");
-                A.PrintInfo();
-            }
-            
-            
-            
-            double newbalance = A.LoadImbalance();
-            double t3=MPI_Wtime();
-            stringstream s;
-            s << "Iteration: " << std::setw(3) << it << " chaos: " << setprecision(3) << chaos << " nnz: " << A.getnnz() << "  load-balance: "<< newbalance << " Total time: " << (t3-t1) << endl;
-            SpParHelper::Print(s.str());
-            it++;
-            
-            
-            
-        }
         
-        double tcc1 = MPI_Wtime();
-        Interpret(A, param.ofilename, param.base);
-        double tcc = MPI_Wtime() - tcc1;
+        double tstart = MPI_Wtime();
+        
+        // Run HipMCL
+        FullyDistVec<int64_t, int64_t> culstLabels = HipMCL(A, param);
+        culstLabels.ParallelWrite(param.ofilename, param.base); // clusters are always numbered 0-based
         
         double tend = MPI_Wtime();
         stringstream s2;
         s2 << "=====================================\n" ;
         s2 << "Total time: " << (tend-tstart) << endl;
         SpParHelper::Print(s2.str());
-        
-        if(myrank==0)
-        {
-            cout << "Squaring: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
-            cout << "       Abcast= " << mcl_Abcasttime << endl;
-            cout << "       Bbcast= " << mcl_Bbcasttime << endl;
-            cout << "       localspgemm= " << mcl_localspgemmtime << endl;
-            cout << "       multiwaymergetime= "<< mcl_multiwaymergetime << endl;
-            cout << "Pruning: " << mcl_kselecttime + mcl_prunecolumntime << endl;
-            cout << "       kselect= " << mcl_kselecttime << endl;
-            cout << "       prunecolumn= " << mcl_prunecolumntime << endl;
-            cout << "Inflation " << tInflate << endl;
-            cout << "Component: " << tcc << endl;
-            cout << "File I/O: " << tIO << endl;
-            cout << "=================================================" << endl;
-        }
-        
     }
     
     

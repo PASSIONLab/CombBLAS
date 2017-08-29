@@ -49,6 +49,9 @@ MPIType.o:	../MPIType.cpp ../MPIType.h
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 	$(COMPILER) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
+hash.o:	../hash.cpp ../hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o ../hash.cpp
+
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
@@ -76,8 +79,8 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o nqp.o nqp.cpp
 
-mcl:	CommGrid.o MPIType.o MCL.o mmio.o
-	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o
+mcl:	CommGrid.o MPIType.o MCL.o mmio.o hash.o
+	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o hash.o
 
 cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
 	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o
