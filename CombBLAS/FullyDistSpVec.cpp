@@ -1307,7 +1307,7 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const string & filename, bool onebased
 
 template <class IT, class NT>
 template <class HANDLER>	
-void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices)
+void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices, bool includeheader)
 {
        	int myrank = commGrid->GetRank();
     	int nprocs = commGrid->GetSize();
@@ -1315,7 +1315,7 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
 	IT totalNNZ = getnnz();
 
 	std::stringstream ss;
-	if(myrank == 0)
+	if(includeheader && myrank == 0)
 	{
 		ss << totalLength << '\t' << totalNNZ << '\n';	// rank-0 has the header
 	}	

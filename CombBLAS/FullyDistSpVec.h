@@ -144,7 +144,7 @@ public:
 	};
 
    	template <class HANDLER>	
-    	void ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices = true);
+    	void ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices = true, bool includeheader = false);
 	void ParallelWrite(const string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
 
 
