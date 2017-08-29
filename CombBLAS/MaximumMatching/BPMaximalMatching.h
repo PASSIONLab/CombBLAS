@@ -229,7 +229,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 // Special version of the greedy algorithm
 // That uses WeightMaxSR semiring
 // TODO: check if this is 1/2 approx of the weighted matching
-// TODO: shoud we remove degCol?
+// TODO: should we remove degCol?
 // TODO: can be merged with the generalized MaximalMatching
 template <typename Par_DCSC_Double, typename IT>
 void WeightedGreedy(Par_DCSC_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
@@ -237,6 +237,14 @@ void WeightedGreedy(Par_DCSC_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 {
 	
 	typedef VertexTypeML < IT, double> VertexType;
+    int nthreads=1;
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    PreAllocatedSPA<IT,double,VertexType> SPA(A.seq(), nthreads*4);
 	int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -287,7 +295,7 @@ void WeightedGreedy(Par_DCSC_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		vector<double> times;
 		double t1 = MPI_Wtime();
 		
-		SpMV<WeightMaxMLSR<double, VertexType>>(A, unmatchedCol, fringeRow, false);
+		SpMV<WeightMaxMLSR<double, VertexType>>(A, unmatchedCol, fringeRow, false, SPA);
 		
 		// Remove matched row vertices
 		fringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col,

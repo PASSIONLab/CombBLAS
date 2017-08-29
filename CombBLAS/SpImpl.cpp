@@ -718,8 +718,338 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, 
 
 
 
+// generalized version for non-boolean matrices
+// This exactly same as the boolean one. just replaced bool with NT
+
+template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
+void SpImpl<SR,IT,NT,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NT,OVT> & SPA)
+{
+    if(veclen==0)
+    {
+        nnzy=0;
+        // just to avoid delete crash elsewhere!!
+        // TODO: improve memeory management
+        indy = new int32_t[nnzy];
+        numy = new OVT[nnzy];
+        return;
+    }
+    double tstart = MPI_Wtime();
+    int rowSplits = 1, nthreads=1;
+#ifdef _OPENMP
+#pragma omp parallel
+    {
+        
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    rowSplits = nthreads * 4;
+    //	rowSplits = 48;
+    int32_t rowPerSplit = mA / rowSplits;
+    
+    
+    //------------------------------------------------------
+    // Step1: count the nnz in each rowsplit of the matrix,
+    // because we don't want to waste memory
+    // False sharing is not a big problem because it is written outside of the main loop
+    //------------------------------------------------------
+    
+    vector<vector<int32_t>> bSize(rowSplits, std::vector<int32_t> ( rowSplits, 0));
+    vector<vector<int32_t>> bOffset(rowSplits, std::vector<int32_t> ( rowSplits, 0));
+    vector<int32_t> sendSize(rowSplits);
+    double t0, t1, t2, t3, t4;
+#ifdef TIMING
+    t0 = MPI_Wtime();
+#endif
+    
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic, 1)
+#endif
+    for(int b=0; b<rowSplits; b++)
+    {
+        // evenly balance nnz of x among threads
+        int perBucket = veclen/rowSplits;
+        int spill = veclen%rowSplits;
+        int32_t xstart = b*perBucket + min(spill, b);
+        int32_t xend = (b+1)*perBucket + min(spill, b+1);
+        vector<int32_t> temp(rowSplits,0);
+        for (int32_t i = xstart; i < xend; ++i)
+        {
+            IT colid = indx[i];
+            for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)
+            {
+                uint32_t rowid = (uint32_t) Acsc.ir[j];
+                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                //bSize[b][splitId]++;
+                temp[splitId]++;
+            }
+        }
+        int32_t totSend = 0;
+        for(int k=0; k<rowSplits; k++)
+        {
+            bSize[b][k] = temp[k];
+            totSend += temp[k];
+        }
+        sendSize[b] = totSend;
+    }
+    
+    
+#ifdef TIMING
+    t1 = MPI_Wtime() - t0;
+    t0 = MPI_Wtime();
+#endif
+    
+    
+    
+    // keep it sequential to avoid fault sharing
+    for(int i=1; i<rowSplits; i++)
+    {
+        for(int j=0; j<rowSplits; j++)
+        {
+            bOffset[i][j] = bOffset[i-1][j] + bSize[i-1][j];
+            bSize[i-1][j] = 0;
+        }
+    }
+    
+    vector<uint32_t> disp(rowSplits+1);
+    int maxBucketSize = -1; // maximum size of a bucket
+    disp[0] = 0;
+    for(int j=0; j<rowSplits; j++)
+    {
+        int thisBucketSize = bOffset[rowSplits-1][j] + bSize[rowSplits-1][j];
+        disp[j+1] = disp[j] + thisBucketSize;
+        bSize[rowSplits-1][j] = 0;
+        maxBucketSize = max(thisBucketSize, maxBucketSize);
+    }
+    
+    
+    
+#ifdef TIMING
+    double  tseq = MPI_Wtime() - t0;
+#endif
+    //------------------------------------------------------
+    // Step2: The matrix is traversed column by column and
+    // nonzeros each rowsplit of the matrix are compiled together
+    //------------------------------------------------------
+    // A good discussion about memory initialization is discussed here
+    // http://stackoverflow.com/questions/7546620/operator-new-initializes-memory-to-zero
+    
+    // Thread private buckets should fit in L2 cache
+#ifndef L2_CACHE_SIZE
+#define L2_CACHE_SIZE 256000
+#endif
+    int THREAD_BUF_LEN = 256;
+    int itemsize = sizeof(int32_t) + sizeof(OVT);
+    while(true)
+    {
+        int bufferMem = THREAD_BUF_LEN * rowSplits * itemsize + 8 * rowSplits;
+        if(bufferMem>L2_CACHE_SIZE ) THREAD_BUF_LEN/=2;
+        else break;
+    }
+    THREAD_BUF_LEN = min(maxBucketSize+1,THREAD_BUF_LEN);
+    
+#ifdef TIMING
+    t0 = MPI_Wtime();
+#endif
+    
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        int32_t* tIndSplitA = new int32_t[rowSplits*THREAD_BUF_LEN];
+        OVT* tNumSplitA = new OVT[rowSplits*THREAD_BUF_LEN];
+        vector<int32_t> tBucketSize(rowSplits);
+        vector<int32_t> tOffset(rowSplits);
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic,1)
+#endif
+        for(int b=0; b<rowSplits; b++)
+        {
+            
+            fill(tBucketSize.begin(), tBucketSize.end(), 0);
+            fill(tOffset.begin(), tOffset.end(), 0);
+            int perBucket = veclen/rowSplits;
+            int spill = veclen%rowSplits;
+            int32_t xstart = b*perBucket + min(spill, b);
+            int32_t xend = (b+1)*perBucket + min(spill, b+1);
+            
+            for (int32_t i = xstart; i < xend; ++i)
+            {
+                IT colid = indx[i];
+                for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)
+                {
+                    OVT val = SR::multiply( Acsc.num[j], numx[i]);
+                    uint32_t rowid = (uint32_t) Acsc.ir[j];
+                    int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                    if (tBucketSize[splitId] < THREAD_BUF_LEN)
+                    {
+                        tIndSplitA[splitId*THREAD_BUF_LEN + tBucketSize[splitId]] = rowid;
+                        tNumSplitA[splitId*THREAD_BUF_LEN  + tBucketSize[splitId]++] = val;
+                    }
+                    else
+                    {
+                        copy(tIndSplitA + splitId*THREAD_BUF_LEN, tIndSplitA + (splitId+1)*THREAD_BUF_LEN, &SPA.indSplitA[disp[splitId] + bOffset[b][splitId]] + tOffset[splitId]);
+                        copy(tNumSplitA + splitId*THREAD_BUF_LEN, tNumSplitA + (splitId+1)*THREAD_BUF_LEN, &SPA.numSplitA[disp[splitId] + bOffset[b][splitId]] + tOffset[splitId]);
+                        tIndSplitA[splitId*THREAD_BUF_LEN] = rowid;
+                        tNumSplitA[splitId*THREAD_BUF_LEN] = val;
+                        tOffset[splitId] += THREAD_BUF_LEN ;
+                        tBucketSize[splitId] = 1;
+                    }
+                }
+            }
+            
+            for(int splitId=0; splitId<rowSplits; ++splitId)
+            {
+                if(tBucketSize[splitId]>0)
+                {
+                    copy(tIndSplitA + splitId*THREAD_BUF_LEN, tIndSplitA + splitId*THREAD_BUF_LEN + tBucketSize[splitId], &SPA.indSplitA[disp[splitId] + bOffset[b][splitId]] + tOffset[splitId]);
+                    copy(tNumSplitA + splitId*THREAD_BUF_LEN, tNumSplitA + splitId*THREAD_BUF_LEN + tBucketSize[splitId], &SPA.numSplitA[disp[splitId] + bOffset[b][splitId]] + tOffset[splitId]);
+                }
+            }
+        }
+        delete [] tIndSplitA;
+        delete [] tNumSplitA;
+    }
+    
+#ifdef TIMING
+    t2 = MPI_Wtime() - t0;
+    t0 = MPI_Wtime();
+#endif
+    vector<uint32_t> nzInRowSplits(rowSplits);
+    // Ariful: somehow I was not able to make SPA.C_inds working. See the dirty version
+    uint32_t* nzinds = new uint32_t[disp[rowSplits]];
+    
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic,1)
+#endif
+    for(int rs=0; rs<rowSplits; ++rs)
+    {
+        
+        for(int i=disp[rs]; i<disp[rs+1] ; i++)
+        {
+            SPA.V_isthereBool[0][SPA.indSplitA[i]] = false;
+        }
+        uint32_t tMergeDisp = disp[rs];
+        for(int i=disp[rs]; i<disp[rs+1] ; i++)
+        {
+            int32_t rowid = SPA.indSplitA[i];
+            if(!SPA.V_isthereBool[0][rowid])// there is no conflict across threads
+            {
+                SPA.V_localy[0][rowid] = SPA.numSplitA[i];
+                nzinds[tMergeDisp++] = rowid;
+                SPA.V_isthereBool[0][rowid]=true;
+            }
+            else
+            {
+                SPA.V_localy[0][rowid] = SR::add(SPA.V_localy[0][rowid], SPA.numSplitA[i]);
+            }
+        }
+        
+#ifndef BENCHMARK_SPMSPV
+        integerSort(nzinds + disp[rs], tMergeDisp - disp[rs]);
+#endif
+        nzInRowSplits[rs] = tMergeDisp - disp[rs];
+        
+    }
+    
+#ifdef TIMING
+    t3 = MPI_Wtime() - t0;
+#endif
+    // prefix sum
+    vector<uint32_t> dispRowSplits(rowSplits+1);
+    dispRowSplits[0] = 0;
+    for(int i=0; i<rowSplits; i++)
+    {
+        dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
+    }
+    
+#ifdef TIMING
+    t0 = MPI_Wtime();
+#endif
+    nnzy = dispRowSplits[rowSplits];
+    indy = new int32_t[nnzy];
+    numy = new OVT[nnzy];
+#ifdef TIMING
+    tseq = MPI_Wtime() - t0;
+    t0 = MPI_Wtime();
+#endif
+    
+    int  maxNnzInSplit = *std::max_element(nzInRowSplits.begin(),nzInRowSplits.end());
+    THREAD_BUF_LEN = min(maxNnzInSplit+1,256);
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        OVT* tnumy = new OVT [THREAD_BUF_LEN];
+        int32_t* tindy = new int32_t [THREAD_BUF_LEN];
+       	int curSize, tdisp;
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic,1)
+#endif
+        for(int rs=0; rs<rowSplits; rs++)
+        {
+            curSize = 0;
+            tdisp = 0;
+            uint32_t * thisind = nzinds + disp[rs];
+            copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy+dispRowSplits[rs]);
+            for(int j=0; j<nzInRowSplits[rs]; j++)
+            {
+                
+                if ( curSize < THREAD_BUF_LEN)
+                {
+                    //tindy[curSize] = thisind[j];
+                    tnumy[curSize++] = SPA.V_localy[0][thisind[j]];
+                }
+                else
+                {
+                    //copy(tindy, tindy+curSize, indy+dispRowSplits[rs]+tdisp);
+                    copy(tnumy, tnumy+curSize, numy+dispRowSplits[rs]+tdisp);
+                    tdisp += curSize;
+                    tnumy[0] = SPA.V_localy[0][thisind[j]];
+                    curSize = 1;
+                }
+                //numy[j+dispRowSplits[rs]] = SPA.V_localy[0][nzinds[disp[rs]+j]];
+                
+            }
+            if ( curSize > 0)
+            {
+                copy(tnumy, tnumy+curSize, numy+dispRowSplits[rs]+tdisp);
+                //copy(tindy, tindy+curSize, indy+dispRowSplits[rs]+tdisp);
+            }
+            //copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], numy+dispRowSplits[rs]);
+        }
+        delete [] tnumy;
+        delete [] tindy;
+    }
+    
+    
+#ifdef TIMING
+    t4 = MPI_Wtime() - t0;
+#endif
+    
+    delete[] nzinds;
+    
+    
+    
+#ifdef TIMING
+    double tall = MPI_Wtime() - tstart;
+    cout << t1 << " " << t2 << " " << t3 << " " << t4  << tall << endl;
+#endif
+    
+}
+
+
+
+
+
+
+
+
+
+
+
 template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,bool,OVT> & SPA)
 {
     SpParHelper::Print("2D SpMSpV is not supported for Dcsc yet!\n");
 }
@@ -838,8 +1168,10 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
     // A good discussion about memory initialization is discussed here
     // http://stackoverflow.com/questions/7546620/operator-new-initializes-memory-to-zero
 
-    // Thread provate buckets should fit in L2 cache
+    // Thread private buckets should fit in L2 cache
+#ifndef L2_CACHE_SIZE
 #define L2_CACHE_SIZE 256000
+#endif
     int THREAD_BUF_LEN = 256;
     int itemsize = sizeof(int32_t) + sizeof(OVT);
     while(true)
