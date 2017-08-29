@@ -39,6 +39,7 @@ string ofname;
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t, int64_t> > Par_DCSC_int64_t;
 typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
+typedef SpParMat < int64_t, double, SpCCols<int64_t, double> > Par_CSC_Double;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
 template <class IT, class NT, class DER>
@@ -116,12 +117,13 @@ int main(int argc, char* argv[])
     {
         
         Par_DCSC_Bool * ABool;
-        Par_DCSC_Double * AWighted;
+        
+        Par_DCSC_Double * AWeighted;
         ostringstream tinfo;
         double t01, t02;
         if(string(argv[1]) == string("input")) // input option
         {
-            AWighted = new Par_DCSC_Double();
+            AWeighted = new Par_DCSC_Double();
             
             string filename(argv[2]);
             ofname = filename + ".matching.out";
@@ -130,28 +132,28 @@ int main(int argc, char* argv[])
             tinfo << "\n**** Reading input matrix: " << filename << " ******* " << endl;
             SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
-            AWighted->ParallelReadMM(filename, true, maximum<double>()); // one-based matrix market file
+            AWeighted->ParallelReadMM(filename, true, maximum<double>()); // one-based matrix market file
             t02 = MPI_Wtime();
-            AWighted->PrintInfo();
+            AWeighted->PrintInfo();
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
             SpParHelper::Print("Pruning explicit zero entries....\n");
-            AWighted->Prune([](double val){return fabs(val)==0;}, true);
+            AWeighted->Prune([](double val){return fabs(val)==0;}, true);
             
-            AWighted->PrintInfo();
+            AWeighted->PrintInfo();
             //GetOptions(argv+3, argc-3);
             /*
-            FullyDistVec<int64_t, int64_t> prow(AWighted->getcommgrid());
-            FullyDistVec<int64_t, int64_t> pcol(AWighted->getcommgrid());
-            prow.iota(AWighted->getnrow(), 0);
-            pcol.iota(AWighted->getncol(), 0);
+            FullyDistVec<int64_t, int64_t> prow(AWeighted->getcommgrid());
+            FullyDistVec<int64_t, int64_t> pcol(AWeighted->getcommgrid());
+            prow.iota(AWeighted->getnrow(), 0);
+            pcol.iota(AWeighted->getncol(), 0);
             prow.RandPerm();
             pcol.RandPerm();
-            (*AWighted)(prow, prow, true);
+            (*AWeighted)(prow, prow, true);
             
-            AWighted->SaveGathered("test.rand.txt");
+            AWeighted->SaveGathered("test.rand.txt");
              */
         }
         else if(argc < 4)
@@ -204,19 +206,19 @@ int main(int argc, char* argv[])
             t01 = MPI_Wtime();
             DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
             DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true);
-            AWighted = new Par_DCSC_Double(*DEL, false);
+            AWeighted = new Par_DCSC_Double(*DEL, false);
             // Add random weight ??
             delete DEL;
             t02 = MPI_Wtime();
-            AWighted->PrintInfo();
+            AWeighted->PrintInfo();
             tinfo.str("");
             tinfo << "Generator took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
-            Symmetricize(*AWighted);
+            Symmetricize(*AWeighted);
             //removeIsolated(*ABool);
             SpParHelper::Print("Generated matrix symmetricized....\n");
-            AWighted->PrintInfo();
+            AWeighted->PrintInfo();
             
             //GetOptions(argv+4, argc-4);
             
@@ -226,22 +228,29 @@ int main(int argc, char* argv[])
         
         // ***** careful: if you permute the matrix, you have the permute the matching vectors as well!!
         // randomly permute for load balance
+        
+        
         if(randPerm)
         {
             SpParHelper::Print("Performing random permutation of matrix.\n");
-            FullyDistVec<int64_t, int64_t> prow(AWighted->getcommgrid());
-            FullyDistVec<int64_t, int64_t> pcol(AWighted->getcommgrid());
-            prow.iota(AWighted->getnrow(), 0);
-            pcol.iota(AWighted->getncol(), 0);
+            FullyDistVec<int64_t, int64_t> prow(AWeighted->getcommgrid());
+            FullyDistVec<int64_t, int64_t> pcol(AWeighted->getcommgrid());
+            prow.iota(AWeighted->getnrow(), 0);
+            pcol.iota(AWeighted->getncol(), 0);
             prow.RandPerm();
             pcol.RandPerm();
-            (*AWighted)(prow, pcol, true);
+            (*AWeighted)(prow, pcol, true);
             SpParHelper::Print("Performed random permutation of matrix.\n");
         }
         
-        Par_DCSC_Bool A = *AWighted;
+        Par_DCSC_Bool A = *AWeighted;
         Par_DCSC_Bool AT = A;
         AT.Transpose();
+        
+        Par_CSC_Double * AWeightedCSC = new Par_CSC_Double(*AWeighted);
+    
+        
+        
         
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
@@ -271,43 +280,47 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
         
         // using best options for the maximum cardinality matching
-        /*
-         init = DMD; randMaximal = false; randMM = true; prune = true;
-         MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-         maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-         */
+        
+        // init = DMD; randMaximal = false; randMM = true; prune = true;
+        // MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
+        // maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
+         
+        
+        
+        
         
         double ts = MPI_Wtime();
-		Par_DCSC_Double AWighted1 = *AWighted;
-		TransformWeight(*AWighted);
-		Trace(*AWighted);
+		Par_DCSC_Double AWeighted1 = *AWeighted;
+		TransformWeight(*AWeighted);
+		Trace(*AWeighted);
 		
         init = DMD; randMaximal = false; randMM = false; prune = true;
         //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
-		WeightedGreedy(*AWighted, mateRow2Col, mateCol2Row, degCol);
-		cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
+		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
+        WeightedGreedy(*AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
 		
-		
+		/*
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		maximumMatching(*AWighted, mateRow2Col, mateCol2Row, prune, false, true);
-        cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
+		maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
+        cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
         double tcard = MPI_Wtime() - ts;
         CheckMatching(mateRow2Col,mateCol2Row);
         ts = MPI_Wtime();
         
 		
-        TwoThirdApprox(*AWighted, mateRow2Col, mateCol2Row);
+        TwoThirdApprox(*AWeighted, mateRow2Col, mateCol2Row);
 		
-		cout << "Weight: " << MatchingWeight( *AWighted, mateRow2Col, mateCol2Row) << endl;
+		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
         
         double tweighted = MPI_Wtime() - ts;
         
         CheckMatching(mateRow2Col,mateCol2Row);
         
     
-        AWighted->PrintInfo();
+        AWeighted->PrintInfo();
         tinfo.str("");
         tinfo << "Total time: " << tcard + tweighted << " [ card: " << tcard << " weighted: " << tweighted << " ]" << endl;
         SpParHelper::Print(tinfo.str());
@@ -318,7 +331,7 @@ int main(int argc, char* argv[])
         }
 		
         
-
+        */
         
         
     }

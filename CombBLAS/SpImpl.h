@@ -193,10 +193,7 @@ struct SpImpl
     };
 	
 	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-									int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NUM,OVT> & SPA)
-	{
-		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
-	};
+									int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NUM,OVT> & SPA);
 	
 	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
 									int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
