@@ -274,7 +274,7 @@ void ShowOptions()
     
     runinfo << "Input/Output file" << endl;
     runinfo << "    -M <input file name> (mandatory)" << endl;
-    runinfo << "    --matrix-market : if provided, the input file is in the matrix market format (default: the file is not in labeled triples format)" << endl;
+    runinfo << "    --matrix-market : if provided, the input file is in the matrix market format (default: the file is in labeled triples format)" << endl;
     runinfo << "    -base <index of the first vertex in the matrix market file, 0|1> (default: 1) " << endl;
     runinfo << "    -o <output filename> (default: input_file_name.hipmcl )" << endl;
     
