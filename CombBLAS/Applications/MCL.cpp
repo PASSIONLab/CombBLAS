@@ -47,6 +47,7 @@
 #include <cmath>
 #include "../CombBLAS.h"
 #include "CC.h"
+#include "WriteMCLClusters.h"
 
 using namespace std;
 
@@ -77,7 +78,9 @@ typedef struct
 {
     //Input/Output file
     string ifilename;
-    int base;
+    bool isInputMM;
+    int base; // only usefule for matrix market files
+    
     string ofilename;
     
     //Preprocessing
@@ -109,6 +112,7 @@ void InitParam(HipMCLParam & param)
 {
     //Input/Output file
     param.ifilename = "";
+    param.isInputMM = false;
     param.ofilename = "";
     param.base = 1;
     
@@ -144,7 +148,13 @@ void ShowParam(HipMCLParam & param)
     runinfo << "======================================" << endl;
     runinfo << "Input/Output file" << endl;
     runinfo << "    input filename: " << param.ifilename << endl;
-    runinfo << "    Base of the input matrix: " << param.base << endl;
+    runinfo << "    input file type: " << param.ifilename << endl;
+    if(param.isInputMM)
+    {
+        runinfo << " Matrix Market" << endl;
+        runinfo << "    Base of the input matrix: " << param.base << endl;
+    }
+    else runinfo << " Labeled Triples format" << endl;
     runinfo << "    Output filename: " << param.ofilename << endl;
     
     
@@ -192,6 +202,9 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
     {
         if (strcmp(argv[i],"-M")==0){
             param.ifilename = string(argv[i+1]);
+        }
+        else if (strcmp(argv[i],"--matrix-market")==0){
+            param.isInputMM = true;
         }
         else if (strcmp(argv[i],"-o")==0){
             param.ofilename = string(argv[i+1]);
@@ -261,7 +274,8 @@ void ShowOptions()
     
     runinfo << "Input/Output file" << endl;
     runinfo << "    -M <input file name> (mandatory)" << endl;
-    runinfo << "    -base <index of the first vertex, 0|1> (default: 1) " << endl;
+    runinfo << "    --matrix-market : if provided, the input file is in the matrix market format (default: the file is not in labeled triples format)" << endl;
+    runinfo << "    -base <index of the first vertex in the matrix market file, 0|1> (default: 1) " << endl;
     runinfo << "    -o <output filename> (default: input_file_name.hipmcl )" << endl;
     
     runinfo << "Inflation" << endl;
@@ -284,7 +298,7 @@ void ShowOptions()
     runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n" << endl;
     
     runinfo << "Debugging" << endl;
-    runinfo << "    --show: show matrices after major steps (default: do not show matrices)" << endl;
+    runinfo << "    --show: show information about matrices after major steps (default: do not show matrices)" << endl;
 
 
     
@@ -309,7 +323,6 @@ FullyDistVec<int64_t, int64_t> Interpret(Dist::MPI_DCCols & A)
     A += AT;
     FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
     return cclabels;
-    //cclabels.ParallelWrite(ofilename, base); // clusters are always numbered 0-based
 }
 
 void MakeColStochastic(Dist::MPI_DCCols & A)
@@ -492,6 +505,18 @@ FullyDistVec<int64_t, int64_t> HipMCL(Dist::MPI_DCCols & A, HipMCLParam & param)
 
 }
 
+
+void Symmetricize(Dist::MPI_DCCols & A)
+{
+    Dist::MPI_DCCols AT = A;
+    AT.Transpose();
+    if(!(AT == A))
+    {
+        SpParHelper::Print("Symmatricizing an unsymmetric input matrix.\n");
+        A += AT;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     int provided;
@@ -515,8 +540,14 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
     HipMCLParam param;
-    InitParam(param); // initialize parameters to default values
+    
+    // initialize parameters to default values
+    InitParam(param);
+    
+    // Populate parameters from command line options
     ProcessParam(argc, argv, param);
+    
+    // check if mandatory arguments are provided
     if(param.ifilename=="" || param.inflation == 0.0)
     {
         SpParHelper::Print("Required options are missing.\n");
@@ -528,24 +559,35 @@ int main(int argc, char* argv[])
     
     if(myrank == 0)
     {
-        cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
+        cout << "Process Grid (pr x pc x threads): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
+    
+    
+    // show parameters used to run HipMCL
     ShowParam(param);
     
     
     {
         
-        double tIO1 = MPI_Wtime();
+        
         Dist::MPI_DCCols A;	// construct object
+        FullyDistVec<int64_t, array<char, MAXVERTNAME> > vtxLabels(A.getcommgrid());
         
-        //TODO: Put a command line option for them
-        //A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
+        // read file
+        double tIO1 = MPI_Wtime();
+        if(param.isInputMM)
+            A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
+        else // default labeled triples format
+            vtxLabels = A.ReadGeneralizedTuples(param.ifilename,  maximum<double>());
         
-        FullyDistVec<int64_t, array<char, MAXVERTNAME> > perm = A.ReadGeneralizedTuples(param.ifilename,  maximum<double>());
+        
         tIO = MPI_Wtime() - tIO1;
         ostringstream outs;
         outs << "File Read time: " << tIO  << endl;
         SpParHelper::Print(outs.str());
+        
+        // Symmetricize the matrix only if needed
+        Symmetricize(A);
         
         double balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
@@ -577,7 +619,14 @@ int main(int argc, char* argv[])
         
         // Run HipMCL
         FullyDistVec<int64_t, int64_t> culstLabels = HipMCL(A, param);
-        culstLabels.ParallelWrite(param.ofilename, param.base); // clusters are always numbered 0-based
+        //culstLabels.ParallelWrite(param.ofilename, param.base); // clusters are always numbered 0-based
+        
+        if(param.isInputMM)
+            WriteMCLClusters(param.ofilename, culstLabels, param.base);
+        else
+            WriteMCLClusters(param.ofilename, culstLabels, vtxLabels);
+        
+       
         
         double tend = MPI_Wtime();
         stringstream s2;
