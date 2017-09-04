@@ -153,7 +153,7 @@ void BFS_CSC(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int64_t> 
 #endif
 
     Par_CSC_Bool * ABoolCSC = new Par_CSC_Bool(Aeff);
-    PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq(), nthreads*4);
+    PreAllocatedSPA<int64_t,int64_t> SPA(ABoolCSC->seq(), nthreads*4);
     
     double tspmvall=0;
     int iterall = 0;
@@ -238,7 +238,7 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
     Aeff.ActivateThreading(cblas_splits);
 #endif
     
-    PreAllocatedSPA<int64_t,bool,int64_t> SPA(Aeff.seq());
+    PreAllocatedSPA<int64_t,int64_t> SPA(Aeff.seq());
     
     double tspmvall=0;
     int iterall = 0;
@@ -331,7 +331,7 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
     ABoolCSC->ActivateThreading(cblas_splits);
 #endif
 
-    PreAllocatedSPA<int64_t,bool,int64_t> SPA(ABoolCSC->seq());
+    PreAllocatedSPA<int64_t,int64_t> SPA(ABoolCSC->seq());
     
     double tspmvall=0;
     int iterall = 0;
