@@ -492,7 +492,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
  // previous working version with vectors
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,OVT> & SPA)
 {
     
     int rowSplits = 1, nthreads=1;
@@ -723,7 +723,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, 
 
 template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
 void SpImpl<SR,IT,NT,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,NT,OVT> & SPA)
+                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
 {
     if(veclen==0)
     {
@@ -1049,7 +1049,7 @@ void SpImpl<SR,IT,NT,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int3
 
 
 template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
 {
     SpParHelper::Print("2D SpMSpV is not supported for Dcsc yet!\n");
 }
@@ -1057,7 +1057,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc
 
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,bool,OVT> & SPA)
+                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
 {
     if(veclen==0)
     {

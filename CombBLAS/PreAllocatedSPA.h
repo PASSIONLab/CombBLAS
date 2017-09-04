@@ -35,14 +35,14 @@
   * This special data structure is used for optimizing BFS iterations
   * by providing a pre-allocated SPA data structure
   */
-template <class IT, class NT, class OVT >
+template <class IT, class OVT > // local index type and output value type. Matrix value type does not matter
 class PreAllocatedSPA
 {
 public:
     PreAllocatedSPA():initialized(false) {};   // hide default constructor
 
-    template <class DER>
-    PreAllocatedSPA(SpMat<IT,NT,DER> & A):initialized(true)  // the one and only constructor
+    template <class LMAT>
+    PreAllocatedSPA(LMAT & A):initialized(true)  // the one and only constructor
 	{
         IT mA = A.getnrow();
         if( A.getnsplit() > 0)  // multithreaded
@@ -56,9 +56,9 @@ public:
                     V_localy.push_back(vector<OVT>(perpiece));
                     
                     vector<bool> isthere(perpiece, false);
-                    for(typename DER::SpColIter colit = A.begcol(i); colit != A.endcol(i); ++colit)
+                    for(auto colit = A.begcol(i); colit != A.endcol(i); ++colit)
                     {
-                        for(typename DER::SpColIter::NzIter nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
+                        for(auto nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
                         {
                             size_t rowid = nzit.rowid();
                             if(!isthere[rowid])     isthere[rowid] = true;
@@ -73,9 +73,9 @@ public:
                     V_localy.push_back(vector<OVT>(mA - i*perpiece));
                     
                     vector<bool> isthere(mA - i*perpiece, false);
-                    for(typename DER::SpColIter colit = A.begcol(i); colit != A.endcol(i); ++colit)
+                    for(auto colit = A.begcol(i); colit != A.endcol(i); ++colit)
                     {
-                        for(typename DER::SpColIter::NzIter nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
+                        for(auto nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
                         {
                             size_t rowid = nzit.rowid();
                             if(!isthere[rowid])     isthere[rowid] = true;
@@ -92,9 +92,9 @@ public:
             V_localy.push_back(vector<OVT>(mA));
             
             vector<bool> isthere(mA, false);
-            for(typename DER::SpColIter colit = A.begcol(); colit != A.endcol(); ++colit)
+            for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
             {
-                for(typename DER::SpColIter::NzIter nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
+                for(auto nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
                 {
                     size_t rowid = nzit.rowid();
                     if(!isthere[rowid])     isthere[rowid] = true;
@@ -108,8 +108,8 @@ public:
     
     // for manual splitting. just a hack. need to be fixed
     
-    template <class DER>
-    PreAllocatedSPA(SpMat<IT,NT,DER> & A, int split):initialized(true)
+    template <class LMAT>
+    PreAllocatedSPA(LMAT & A, int split):initialized(true)
     {
         IT mA = A.getnrow();
         V_isthere.push_back(BitMap(mA));
@@ -122,9 +122,9 @@ public:
         int32_t rowPerSplit = mA / split;
 
         //vector<bool> isthere(mA, false);
-        for(typename DER::SpColIter colit = A.begcol(); colit != A.endcol(); ++colit)
+        for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
         {
-            for(typename DER::SpColIter::NzIter nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
+            for(auto nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
             {
                 size_t rowid = nzit.rowid();
                 //if(!isthere[rowid])     isthere[rowid] = true;
