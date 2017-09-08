@@ -19,6 +19,9 @@ mcl2mtx: mcl2mtx.cpp MMConverter.h mmio.o $(TOMMYS) gzstream/libgzstream.a
 cc: cc.cpp MMConverter.h mmio.o $(TOMMYS) gzstream/libgzstream.a
 	$(CC) -std=c++11 $(CFLAGS) -o cc mmio.o $(TOMMYS) cc.cpp -Lgzstream -lgzstream -lz
 
+mer2gr: mer_to_graph.cpp
+	$(CC) -std=c++ $(CFLAGS) -o mer2gr -I/${BOOST_DIR}/include mer_to_graph.cpp 	
+
 clean:
 	rm -f mcl2mtx
 	rm -f *.o
