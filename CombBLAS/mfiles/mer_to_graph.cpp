@@ -13,7 +13,6 @@
 #include <cstdio>
 #include <limits>
 #include <cassert>
-#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -25,28 +24,32 @@ void ParseSplint(string locline, uint32_t & vertexid, ofstream & out)
 {
 	string name;
     	string splint;
-	std::tuple<int64_t, int64_t, int64_t> triple;	
+	std::tuple<string, string, int64_t> triple;	
 	
 	stringstream ssline(locline);
 	ssline >> name;
 	assert((name == "SPLINT") || (name == "SPAN") );
 	ssline >> splint;
-	vector<string> contigpair;
-	boost::split(contigpair, splint, boost::is_any_of("<=>"));
-	if(contigpair[0].length() < 1 && contigpair[1].length() < 1)
-	{
-		cout << "Issue in line " << locline << endl;
-	}
+	vector<string> contigpair(2);
+	size_t pos = splint.find("<=>");
+	contigpair[1] = splint.substr(pos+3);
+	contigpair[0] = splint.substr(0, pos);
+
+	pos = contigpair[0].find(".");
+	contigpair[0] = contigpair[0].substr(0,pos);
+	pos = contigpair[1].find(".");
+	contigpair[1] = contigpair[1].substr(0,pos);
+
 	auto ret = vertexmap.insert(make_pair(contigpair[0], vertexid));
 
 	if (ret.second)	// successfully inserted
 		++vertexid;
 
-	get<0>(triple) = ret.first->second;
+	get<0>(triple) = ret.first->first;
 	ret = vertexmap.insert(make_pair(contigpair[1], vertexid));
 	if (ret.second) ++vertexid;
 	    
-	get<1>(triple) = ret.first->second;
+	get<1>(triple) = ret.first->first;
 	get<2>(triple) = 1;	
 
 	out << get<0>(triple) << "\t" << get<1>(triple) << "\t" << get<2>(triple) << "\n";
@@ -93,7 +96,7 @@ int main(int argc, char* argv[])
     for (auto it = vertexmap.begin(); it != vertexmap.end(); ++it)
     {
 	max = std::max(max, it->second);
-	dictout << it->second << "\t" << it ->first << endl;
+	dictout << it ->first << endl;
     }
     cout << (max+1) << "\t" << (max+1) << "\t" << numlines << endl;
     dictout.close();
