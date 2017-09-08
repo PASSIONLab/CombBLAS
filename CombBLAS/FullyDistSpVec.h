@@ -328,7 +328,7 @@ private:
 	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
     
     template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
-    friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,NUM,OVT> & SPA);
+    friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,OVT> & SPA);
 
 	template <typename IU, typename NU1, typename NU2>
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 

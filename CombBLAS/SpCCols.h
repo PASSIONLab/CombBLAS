@@ -246,7 +246,7 @@ private:
     //<! sparse vector version
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,NUM,OVT> & SPA);
+                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,OVT> & SPA);
 };
 
 
