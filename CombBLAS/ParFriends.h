@@ -1051,7 +1051,7 @@ void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * &
  **/
 template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
-			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
+			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue, PreAllocatedSPA<IU,OVT> & SPA)
 {
     if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -1423,7 +1423,7 @@ void MergeContributions_threaded(int * & listSizes, vector<int32_t *> & indsvec,
   */
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, 
-			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,NUM,OVT> & SPA)
+			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf, PreAllocatedSPA<IU,OVT> & SPA)
 {
 	CheckSpMVCompliance(A,x);
 	optbuf.MarkEmpty();
@@ -1581,7 +1581,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 
 
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
-void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue, PreAllocatedSPA<IU,NUM,OVT> & SPA)
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue, PreAllocatedSPA<IU,OVT> & SPA)
 {
 	OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >(); 
 	SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
@@ -1591,14 +1591,14 @@ template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, ty
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue)
 {
     OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >();
-    PreAllocatedSPA<IU,NUM,OVT> SPA;
+    PreAllocatedSPA<IU,OVT> SPA;
     SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
 }
 
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue, OptBuf<int32_t, OVT > & optbuf)
 {
-	PreAllocatedSPA<IU,NUM,OVT> SPA;
+	PreAllocatedSPA<IU,OVT> SPA;
 	SpMV<SR>(A, x, y, indexisvalue, optbuf, SPA);
 }
 

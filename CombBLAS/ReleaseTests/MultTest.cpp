@@ -194,6 +194,7 @@ int main(int argc, char* argv[])
 			spyint64buf.SaveGathered(of2,0);
 		}
 
+       
 		ABool.ActivateThreading(cblas_splits);
 		//FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
 		FullyDistSpVec<int64_t, int64_t> spyint64_threaded(spxint64.getcommgrid(), ABool.getnrow());
@@ -208,7 +209,23 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in multithreaded sparse SpMV, go fix it!\n");	
 		}
 		
-		
+
+        // Test the SpMSpV-bucket algorithm (IPDPS 17 paper)
+         SpParMat < int64_t, bool, SpCCols<int64_t,bool> >  ABoolCSC (A);
+        PreAllocatedSPA<int64_t,int64_t> SPA(ABoolCSC.seq(), cblas_splits*4);
+        FullyDistSpVec<int64_t, int64_t> spyint64_csc_threaded(spxint64.getcommgrid(), ABoolCSC.getnrow());
+        SpMV<SR>(ABoolCSC, spxint64, spyint64_csc_threaded, false, SPA);
+        
+        if (spyint64 == spyint64_csc_threaded)
+        {
+            SpParHelper::Print("Multithreaded SpMSpV-bucket works correctly\n");
+        }
+        else
+        {
+            SpParHelper::Print("ERROR in multithreaded SpMSpV-bucket, go fix it!\n");
+        }
+        
+        
 		vecinpx.clear();
 		vecinpx.close();
 		vecinpy.clear();

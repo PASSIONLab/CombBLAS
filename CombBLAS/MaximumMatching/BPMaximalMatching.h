@@ -244,7 +244,7 @@ void WeightedGreedy(Par_DCSC_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
         nthreads = omp_get_num_threads();
     }
 #endif
-    PreAllocatedSPA<IT,double,VertexType> SPA(A.seq(), nthreads*4);
+    PreAllocatedSPA<IT,VertexType> SPA(A.seq(), nthreads*4);
 	int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
