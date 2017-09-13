@@ -148,7 +148,7 @@ void ShowParam(HipMCLParam & param)
     runinfo << "======================================" << endl;
     runinfo << "Input/Output file" << endl;
     runinfo << "    input filename: " << param.ifilename << endl;
-    runinfo << "    input file type: " << param.ifilename << endl;
+    runinfo << "    input file type: " ;
     if(param.isInputMM)
     {
         runinfo << " Matrix Market" << endl;
