@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
             AWeighted = new Par_DCSC_Double();
             
             string filename(argv[2]);
-            ofname = filename + ".matching.out";
+            ofname = filename + ".awpm.txt";
             tinfo.str("");
             
             tinfo << "\n**** Reading input matrix: " << filename << " ******* " << endl;
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
 		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
 		
-		/*
+		
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
 		maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
         cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
@@ -331,7 +331,7 @@ int main(int argc, char* argv[])
         }
 		
         
-        */
+        
         
         
     }
