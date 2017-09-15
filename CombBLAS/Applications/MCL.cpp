@@ -273,7 +273,7 @@ void ShowOptions()
     
     
     runinfo << "Input/Output file" << endl;
-    runinfo << "    -M <input file name> (mandatory)" << endl;
+    runinfo << "    -M <input file name (labeled triples format)> (mandatory)" << endl;
     runinfo << "    --matrix-market : if provided, the input file is in the matrix market format (default: the file is in labeled triples format)" << endl;
     runinfo << "    -base <index of the first vertex in the matrix market file, 0|1> (default: 1) " << endl;
     runinfo << "    -o <output filename> (default: input_file_name.hipmcl )" << endl;
@@ -305,8 +305,11 @@ void ShowOptions()
     runinfo << "======================================" << endl;
     runinfo << "     Few examples    " << endl;
     runinfo << "======================================" << endl;
-    runinfo << "Example on a laption with 0-indexed matrix and random permutation on:\n./hipmcl -M graph.mtx -I 2 -base 0 -rand 1 -phases 1 -o graph.hipmcl" << endl;
-    runinfo << "Example on the NERSC/Edison system with 16 nodes and 24 threads per node: \nsrun -N 16 -n 16 -c 24  ./hipmcl -M graph.mtx -per-process-mem 64 -o graph.hipmcl" << endl;
+    runinfo << "Example with a graph in labeled triples format:\n./hipmcl -M ../data/sevenvertexgraph.txt -I 2" << endl;
+    runinfo << "Example with -per-process-mem option on a laptop with 8GB memory:\n./hipmcl -M ../data/sevenvertexgraph.txt -I 2 -per-process-mem 8" << endl;
+    runinfo << "Example with a graph in matrix market format:\n./hipmcl -M ../data/sevenvertex.mtx --matrix-market -base 1 -I 2" << endl;
+    
+    runinfo << "Example on the NERSC/Edison system with 16 nodes and 24 threads per node: \nsrun -N 16 -n 16 -c 24  ./hipmcl -M ../data/hep-th.mtx --matrix-market -base 1 -per-process-mem 64 -o hep-th.hipmcl" << endl;
     SpParHelper::Print(runinfo.str());
 }
 
@@ -465,7 +468,7 @@ FullyDistVec<int64_t, int64_t> HipMCL(Dist::MPI_DCCols & A, HipMCLParam & param)
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration: " << std::setw(3) << it << " chaos: " << setprecision(3) << chaos << " nnz: " << A.getnnz() << "  load-balance: "<< newbalance << " Total time: " << (t3-t1) << endl;
+        s << "Iteration# "  << std::setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << " #edges: " << A.getnnz() << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
         it++;
         
@@ -565,6 +568,15 @@ int main(int argc, char* argv[])
     
     // show parameters used to run HipMCL
     ShowParam(param);
+    
+     if(param.perProcessMem==0)
+     {
+
+         if(myrank == 0)
+         {
+             cout << "******** Number of phases will not be estimated as -per-process-mem option is supplied. It is highly recommended that you provide -per-process-mem option for large-scale runs. *********** " << endl;
+         }
+     }
     
     
     {
