@@ -59,7 +59,6 @@ void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > &
 	    int loccnt = 0;
 	    for(string s:data_send[i])
 	    {
-		    char vname[MAXVERTNAME];
 		    std::strcpy(sendbuf[map_sdspl[i]+loccnt], s.c_str());
 		    loccnt++;
 	    }

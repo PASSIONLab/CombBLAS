@@ -503,6 +503,8 @@ bool SpParMat<IT,NT,DER>::Kselect2(FullyDistVec<GIT,VT> & rvec, IT k_limit) cons
         partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
         partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
         IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	assert((totsend < std::numeric_limits<int>::max()));	
+	assert((totrecv < std::numeric_limits<int>::max()));
         
         pair<IT,NT> * sendpair = new pair<IT,NT>[totsend];
         for(int i=0; i<nprocs; ++i)
@@ -2431,7 +2433,11 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	int * rdispls = new int[nprocs]();
 	partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
 	partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	
+	assert((sdispls[nprocs-1] < std::numeric_limits<int>::max()));	
+	assert((totrecv < std::numeric_limits<int>::max()));
+	
 
 #ifdef COMBBLAS_DEBUG
 	IT * gsizes;
@@ -2730,6 +2736,8 @@ void SpParMat<IT,NT,DER>::AddLoops(FullyDistVec<IT,NT> loopvals, bool replaceExi
     partial_sum(recvcnt.data(), recvcnt.data()+rowProcs-1, rdpls.data()+1);
 
     IT totrecv = rdpls[rowProcs-1] + recvcnt[rowProcs-1];
+    assert((totrecv < std::numeric_limits<int>::max()));
+
     vector<NT> rowvals(totrecv);
 	MPI_Gatherv(loopvals.arr.data(), locsize, MPIType<NT>(), rowvals.data(), recvcnt.data(), rdpls.data(),
                  MPIType<NT>(), commGrid->GetDiagOfProcRow(), commGrid->GetRowWorld());
@@ -3180,6 +3188,9 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
     IT totsend = accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
+
+    assert((totsend < std::numeric_limits<int>::max()));	
+    assert((totrecv < std::numeric_limits<int>::max()));
 
     typedef array<char, MAXVERTNAME> STRASARRAY;
     typedef pair< STRASARRAY, uint64_t> TYPE2SEND;

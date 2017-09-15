@@ -125,7 +125,6 @@ public:
 	char * fr = new char[MAXVERTNAME];
     	char * to = new char[MAXVERTNAME];
     	string frstr, tostr;
-    	uint64_t frhash, tohash;    
     	double vv;
     	for (auto itr=lines.begin(); itr != lines.end(); ++itr)
     	{
