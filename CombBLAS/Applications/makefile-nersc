@@ -21,7 +21,7 @@ INCADD = -I$(BOOST)/include
 # -fno-rtti does not work with tr1:tuples
 
 
-GCCOPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
+GCCOPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DNDEBUG (disables important assertions)
 GCCDEB = -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
 OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
 COMPILER = CC 

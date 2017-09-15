@@ -5,11 +5,11 @@ INCADD = -I$(INCDIR)
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
 
-OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
+OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  #-DRAND_PERMUTE #ABAB:please define this per class as opposed to globally for each compilation
-FLAGS = $(OPT)  -Wall -DTIMING #-DCOMBBLAS_DEBUG 
+FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DTIMING #-DCOMBBLAS_DEBUG 
 COMBBLAS = ..
 
 
