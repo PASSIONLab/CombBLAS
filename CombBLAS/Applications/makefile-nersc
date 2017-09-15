@@ -56,7 +56,7 @@ BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h
 	$(COMPILER) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
 MCL.o:  MCL.cpp CC.h WriteMCLClusters.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(FLAGS) -DMCLMEMORY -c -o MCL.o MCL.cpp
+	$(COMPILER) $(FLAGS) -c -o MCL.o MCL.cpp
 
 CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
