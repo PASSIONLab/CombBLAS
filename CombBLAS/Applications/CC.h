@@ -290,18 +290,15 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
         //father.DebugPrint();
         FullyDistVec<IT,short> stars = StarCheck(A, father);
         nonstars = stars.Reduce(plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==0);});
-#ifdef TIMING
+#ifdef CC_TIMING
         double t2 = MPI_Wtime();
-#endif
-
         outs.str("");
         outs.clear();
         outs << "Iteration: " << ++iteration << " Non stars: " << nonstars;
-#ifdef TIMING
         outs << " Time: " << t2 - t1;
-#endif
         outs<< endl;
         SpParHelper::Print(outs.str());
+#endif
 
 
         //father.DebugPrint();
@@ -326,15 +323,15 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     FullyDistSpVec<IT, IT> cc3 = cc.Find([](IT label){return label==2;});
     FullyDistSpVec<IT, IT> cc4 = cc.Find([](IT label){return label==3;});
     
-    outs.str("");
-    outs.clear();
-    outs << "Number of components: " << nCC << endl;
-    outs << "Number of components excluding isolated vertices: " << nCC - numIsolated  << endl;
+    //outs.str("");
+    //outs.clear();
+    //outs << "Number of components: " << nCC << endl;
+    //outs << "Number of components excluding isolated vertices: " << nCC - numIsolated  << endl;
     //outs << "Size of the first component: " << cc1.getnnz() << endl;
     //outs << "Size of the second component: " << cc2.getnnz() << endl;
     //outs << "Size of the third component: " << cc3.getnnz() << endl;
     //outs << "Size of the fourth component: " << cc4.getnnz() << endl;
-    SpParHelper::Print(outs.str());
+    //SpParHelper::Print(outs.str());
     return cc;
 }
 
