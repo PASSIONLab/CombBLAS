@@ -1356,7 +1356,9 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
     	if(myrank == 0)	// only leader rights the original file with no content
     	{
 		std::ofstream ofs(filename.c_str(), std::ios::binary | std::ios::out);
+#ifdef COMBBLAS_DEBUG
 		cout << "Creating file with " << bytestotal << " bytes" << endl;
+#endif
     		ofs.seekp(bytestotal - 1);
     		ofs.write("", 1);	// this will likely create a sparse file so the actual disks won't spin yet
 		ofs.close();
@@ -1370,7 +1372,9 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const string & filename, bool onebased
     	}
 	if(myrank == nprocs-1)	// let some other processor do the testing
 	{
-		cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << endl;	
+#ifdef COMBBLAS_DEBUG
+		cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << endl;
+#endif
 	}
 
     	FILE *ffinal;
