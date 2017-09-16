@@ -305,11 +305,11 @@ void ShowOptions()
     runinfo << "======================================" << endl;
     runinfo << "     Few examples    " << endl;
     runinfo << "======================================" << endl;
-    runinfo << "Example with a graph in labeled triples format:\n./hipmcl -M ../data/sevenvertexgraph.txt -I 2" << endl;
-    runinfo << "Example with -per-process-mem option on a laptop with 8GB memory:\n./hipmcl -M ../data/sevenvertexgraph.txt -I 2 -per-process-mem 8" << endl;
-    runinfo << "Example with a graph in matrix market format:\n./hipmcl -M ../data/sevenvertex.mtx --matrix-market -base 1 -I 2" << endl;
+    runinfo << "Example with with a graph in labeled triples format on a laptop with 8GB memory and 8 cores:\nexport OMP_NUM_THREADS=8\nbin/hipmcl -M data/sevenvertexgraph.txt -I 2 -per-process-mem 8" << endl;
+    runinfo << "Same as above with 4 processes and 2 theaded per process cores:\nexport OMP_NUM_THREADS=2\nmpirun -np 4 bin/hipmcl -M data/sevenvertexgraph.txt -I 2 -per-process-mem 2" << endl;
+    runinfo << "Example with a graph in matrix market format:\nbin/hipmcl -M data/sevenvertex.mtx --matrix-market -base 1 -I 2 -per-process-mem 8" << endl;
     
-    runinfo << "Example on the NERSC/Edison system with 16 nodes and 24 threads per node: \nsrun -N 16 -n 16 -c 24  ./hipmcl -M ../data/hep-th.mtx --matrix-market -base 1 -per-process-mem 64 -o hep-th.hipmcl" << endl;
+    runinfo << "Example on the NERSC/Edison system with 16 nodes and 24 threads per node: \nsrun -N 16 -n 16 -c 24  bin/hipmcl -M data/hep-th.mtx --matrix-market -base 1 -per-process-mem 64 -o hep-th.hipmcl" << endl;
     SpParHelper::Print(runinfo.str());
 }
 
