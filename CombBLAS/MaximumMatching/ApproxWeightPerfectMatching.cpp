@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
     saveMatching = true;
     ofname = "";
     randPerm = false;
+    bool optimizeProd = true; // by default optimize sum_log_abs(aii) (after equil)
     
     SpParHelper::Print("***** I/O and other preprocessing steps *****\n");
     // ------------ Process input arguments and build matrix ---------------
@@ -225,6 +226,11 @@ int main(int argc, char* argv[])
             
         }
         
+        if(argc>=4 && string(argv[3]) == string("optsum")) // input option
+        {
+            optimizeProd = false;
+        }
+        
         
         // ***** careful: if you permute the matrix, you have the permute the matching vectors as well!!
         // randomly permute for load balance
@@ -291,14 +297,17 @@ int main(int argc, char* argv[])
         
         double ts = MPI_Wtime();
 		Par_DCSC_Double AWeighted1 = *AWeighted;
-		TransformWeight(*AWeighted);
+        if(optimizeProd)
+        {
+            TransformWeight(*AWeighted);
+        }
 		Trace(*AWeighted);
 		
         init = DMD; randMaximal = false; randMM = false; prune = true;
         //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
-		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
-        WeightedGreedy(*AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+		WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
+        //WeightedGreedy(*AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
 		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
 		
