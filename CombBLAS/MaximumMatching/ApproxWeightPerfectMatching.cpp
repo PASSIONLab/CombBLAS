@@ -43,7 +43,7 @@ typedef SpParMat < int64_t, double, SpCCols<int64_t, double> > Par_CSC_Double;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
 template <class IT, class NT, class DER>
-void TransformWeight(SpParMat < IT, NT, DER > & A)
+void TransformWeight(SpParMat < IT, NT, DER > & A, bool applylog)
 {
 	//A.Apply([](NT val){return log(1+abs(val));});
 	// if the matrix has explicit zero entries, we can still have problem.
@@ -59,7 +59,8 @@ void TransformWeight(SpParMat < IT, NT, DER > & A)
 	A.Reduce(maxvCol, Column, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
 	A.DimApply(Column, maxvCol, [](NT val, NT maxval){return val/maxval;});
 	
-	A.Apply([](NT val){return log(val);});
+    if(applylog)
+        A.Apply([](NT val){return log(val);});
 
 }
 void ShowUsage()
@@ -297,10 +298,13 @@ int main(int argc, char* argv[])
         
         double ts = MPI_Wtime();
 		Par_DCSC_Double AWeighted1 = *AWeighted;
+        
         if(optimizeProd)
         {
-            TransformWeight(*AWeighted);
+            TransformWeight(*AWeighted, true);
         }
+        else
+            TransformWeight(*AWeighted, false);
 		Trace(*AWeighted);
 		
         init = DMD; randMaximal = false; randMM = false; prune = true;
