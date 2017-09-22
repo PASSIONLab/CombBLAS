@@ -399,8 +399,11 @@ private:
 	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
 	friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
 
-    template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
-    friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
+	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+	friend void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
+
+    	template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
+    	friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
                                         int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c);
 };
 

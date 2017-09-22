@@ -876,7 +876,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
-		#ifndef NDEBUG
+		#ifdef COMBBLAS_DEBUG
 		ostringstream outs;
 		outs << i << "th SUMMA iteration"<< endl;
 		SpParHelper::Print(outs.str());
@@ -1158,98 +1158,6 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 }
 
 
-// old MergeContributions is replaced by the function below
-/*
-template <typename SR, typename IU, typename OVT>
-void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs)
-{
-    // free memory of y, in case it was aliased
-    vector<IU>().swap(y.ind);
-    vector<OVT>().swap(y.num);
-    
-#ifndef HEAPMERGE
-    IU ysize = y.MyLocLength();	// my local length is only O(n/p)
-    bool * isthere = new bool[ysize];
-    vector< pair<IU,OVT> > ts_pairs;
-    fill_n(isthere, ysize, false);
-    
-    // We don't need to keep a "merger" because minimum will always come from the processor
-    // with the smallest rank; so a linear sweep over the received buffer is enough
-    for(int i=0; i<rowneighs; ++i)
-    {
-        for(int j=0; j< recvcnt[i]; ++j)
-        {
-            int32_t index = recvindbuf[rdispls[i] + j];
-            if(!isthere[index])
-                ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
-        }
-    }
-    DeleteAll(recvcnt, rdispls);
-    DeleteAll(isthere, recvindbuf, recvnumbuf);
-    sort(ts_pairs.begin(), ts_pairs.end());
-    int nnzy = ts_pairs.size();
-    y.ind.resize(nnzy);
-    y.num.resize(nnzy);
-    for(int i=0; i< nnzy; ++i)
-    {
-        y.ind[i] = ts_pairs[i].first;
-        y.num[i] = ts_pairs[i].second;
-    }
-#else
-    // Alternative 2: Heap-merge
-    int32_t hsize = 0;
-    int32_t inf = numeric_limits<int32_t>::min();
-    int32_t sup = numeric_limits<int32_t>::max();
-    KNHeap< int32_t, int32_t > sHeap(sup, inf);
-    int * processed = new int[rowneighs]();
-    for(int i=0; i<rowneighs; ++i)
-    {
-        if(recvcnt[i] > 0)
-        {
-            // key, proc_id
-            sHeap.insert(recvindbuf[rdispls[i]], i);
-            ++hsize;
-        }
-    }
-    int32_t key, locv;
-    if(hsize > 0)
-    {
-        sHeap.deleteMin(&key, &locv);
-        y.ind.push_back( static_cast<IU>(key));
-        y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
-        
-        if( (++(processed[locv])) < recvcnt[locv] )
-            sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-        else
-            --hsize;
-    }
-    while(hsize > 0)
-    {
-        sHeap.deleteMin(&key, &locv);
-        IU deref = rdispls[locv] + processed[locv];
-        if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
-        {
-            y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
-            // ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
-            // We can just skip this addition operator (if it's a max/min select)
-        } 
-        else
-        {
-            y.ind.push_back(static_cast<IU>(key));
-            y.num.push_back(recvnumbuf[deref]);
-        }
-        
-        if( (++(processed[locv])) < recvcnt[locv] )
-            sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-        else
-            --hsize;
-    }
-    //DeleteAll(recvcnt, rdispls,processed);
-    //DeleteAll(recvindbuf, recvnumbuf);
-#endif	
-    
-}
-*/
 
 // non threaded
 template <typename SR, typename IU, typename OVT>
@@ -1659,8 +1567,30 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	IU ysize = A.getlocalrows();
 	T_promote * localy = new T_promote[ysize];
 	fill_n(localy, ysize, id);		
+
+
+	T_promote * localy_debug = new T_promote[ysize];
+	fill_n(localy_debug, ysize, id);	
+
+	double t1 = omp_get_wtime();
+	dcsc_gespmv_threaded<SR>(*(A.spSeq), numacc, localy_debug);
+	double t2 = omp_get_wtime();
 	dcsc_gespmv<SR>(*(A.spSeq), numacc, localy);	
+	double t3 = omp_get_wtime();
 	
+
+	printf ("Elapsed time is: %f for serial and %f for multithreaded\n", t3-t2, t2-t1);
+	
+        ErrorTolerantEqual<T_promote> epsilonequal(EPSILON);
+        int local = 1;
+        local = (int) std::equal(localy, localy + ysize, localy_debug, epsilonequal );
+	if(local)
+		cout << "Multithreaded dense spmv correct" << endl;
+	else
+		cout << "Multithreaded dense spmv wrong" << endl;
+
+
+
 	DeleteAll(numacc,colsize, dpls);
 
 	// FullyDistVec<IT,NT>(shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)

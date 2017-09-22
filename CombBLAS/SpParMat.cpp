@@ -871,20 +871,22 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 	{
 		case Column:	// pack along the columns, result is a vector of size n
 		{
-			// We can't use rvec's distribution (rows first, columns later) here
-            // ABAB (2017): Why not? I can't think of a counter example where it wouldn't work
-            IT n_thiscol = getlocalcols();   // length assigned to this processor column
+			// We can't use rvec's distribution (rows first, columns later) here 
+			// because the ownership model of the vector has the order P(0,0), P(0,1),...
+			// column reduction will first generate vector distribution in P(0,0), P(1,0),... order.
+			
+			IT n_thiscol = getlocalcols();   // length assigned to this processor column
 			int colneighs = commGrid->GetGridRows();	// including oneself
-            int colrank = commGrid->GetRankInProcCol();
+            		int colrank = commGrid->GetRankInProcCol();
 
 			GIT * loclens = new GIT[colneighs];
 			GIT * lensums = new GIT[colneighs+1]();	// begin/end points of local lengths
 
-            GIT n_perproc = n_thiscol / colneighs;    // length on a typical processor
-            if(colrank == colneighs-1)
-                loclens[colrank] = n_thiscol - (n_perproc*colrank);
-            else
-                loclens[colrank] = n_perproc;
+            		GIT n_perproc = n_thiscol / colneighs;    // length on a typical processor
+            		if(colrank == colneighs-1)
+                		loclens[colrank] = n_thiscol - (n_perproc*colrank);
+            		else
+                		loclens[colrank] = n_perproc;
 
 			MPI_Allgather(MPI_IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>(), commGrid->GetColWorld());
 			partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits

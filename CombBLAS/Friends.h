@@ -57,6 +57,7 @@ class Dcsc;
 /****************************** MULTITHREADED LOGIC ALSO GOES HERE *******************************/
 /*************************************************************************************************/
 
+
 //! SpMV with dense vector
 template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
 void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
@@ -70,13 +71,61 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 			{
 				IU rowid = A.dcsc->ir[i];
 				SR::axpy(A.dcsc->numx[i], x[colid], y[rowid]);
-				if (SR::returnedSAID())
-				{
-					cout << "the semiring returned SAID but that is not implemented. results will be incorrect." << endl;
-					throw string("the semiring returned SAID but that is not implemented. results will be incorrect.");
-				}
 			}
 		}
+	}
+}
+
+//! SpMV with dense vector (multithreaded version)
+template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
+{
+	if(A.nnz > 0)
+	{	
+		int nthreads=1;
+		#ifdef _OPENMP
+		#pragma omp parallel
+		{
+                	nthreads = omp_get_num_threads();
+            	}
+		#endif          
+
+		IU nlocrows =  A.getnrow();
+		LHS ** tomerge = SpHelper::allocate2D<LHS>(nthreads, nlocrows);
+		auto id = SR::id();
+		
+		for(int i=0; i<nthreads; ++i)
+		{
+			fill_n(tomerge[i], nlocrows, id);		
+		}
+
+		#pragma omp parallel for
+		for(IU j =0; j<A.dcsc->nzc; ++j)	// for all nonzero columns
+		{
+			int curthread = 1;
+			#ifdef _OPENMP
+			curthread = omp_get_thread_num();
+			#endif
+			
+			LHS * loc2merge = tomerge[curthread];
+
+			IU colid = A.dcsc->jc[j];
+			for(IU i = A.dcsc->cp[j]; i< A.dcsc->cp[j+1]; ++i)
+			{
+				IU rowid = A.dcsc->ir[i];
+				SR::axpy(A.dcsc->numx[i], x[colid], loc2merge[rowid]);
+			}
+		}
+
+		#pragma omp parallel for
+		for(IU j=0; j < nlocrows; ++j)
+		{
+			for(int i=0; i< nthreads; ++i)
+			{
+				y[j] = SR::add(y[j], tomerge[i][j]);
+			}
+		}
+		SpHelper::deallocate2D(tomerge, nthreads);
 	}
 }
 
