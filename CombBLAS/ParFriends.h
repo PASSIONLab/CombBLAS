@@ -1568,28 +1568,12 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	T_promote * localy = new T_promote[ysize];
 	fill_n(localy, ysize, id);		
 
-
-	T_promote * localy_debug = new T_promote[ysize];
-	fill_n(localy_debug, ysize, id);	
-
-	double t1 = omp_get_wtime();
-	dcsc_gespmv_threaded<SR>(*(A.spSeq), numacc, localy_debug);
-	double t2 = omp_get_wtime();
+#ifdef THREADED
+	dcsc_gespmv_threaded<SR>(*(A.spSeq), numacc, localy);
+#else
 	dcsc_gespmv<SR>(*(A.spSeq), numacc, localy);	
-	double t3 = omp_get_wtime();
+#endif
 	
-
-	printf ("Elapsed time is: %f for serial and %f for multithreaded\n", t3-t2, t2-t1);
-	
-        ErrorTolerantEqual<T_promote> epsilonequal(EPSILON);
-        int local = 1;
-        local = (int) std::equal(localy, localy + ysize, localy_debug, epsilonequal );
-	if(local)
-		cout << "Multithreaded dense spmv correct" << endl;
-	else
-		cout << "Multithreaded dense spmv wrong" << endl;
-
-
 
 	DeleteAll(numacc,colsize, dpls);
 
