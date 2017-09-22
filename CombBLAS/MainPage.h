@@ -26,6 +26,7 @@
 * 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
+* - The CMake automatically compiles for flat-MPI mode but almost all expensive primitives are now multithreaded so you can enable that for better performance. <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLASv1.2_threading.txt">Here is an example how to do that</a>. Examples makefiles might already be enabling multithreaded for many cases.
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (gcc version 4.8+, Intel version 15.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
