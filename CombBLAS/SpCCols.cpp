@@ -62,6 +62,15 @@ SpCCols<IT,NT>::SpCCols(IT size, IT nRow, IT nCol)
 }
 
 template <class IT, class NT>
+SpCCols<IT,NT>::SpCCols(Csc<IT, NT> * csc1, IT nRow)
+:m(nRow), splits(0)
+{
+    csc = csc1;
+    n = csc->n;
+    nnz = csc->nz;
+}
+
+template <class IT, class NT>
 SpCCols<IT,NT>::~SpCCols()
 {
 	if(nnz > 0)

@@ -33,6 +33,7 @@
 #include <iostream>
 #include <vector>
 #include "PreAllocatedSPA.h"
+#include "Deleter.h"
 using namespace std;
 
 template <class IT, class NT>
@@ -52,12 +53,37 @@ void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const
 	SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy);	// don't touch this
 };
 
+//! CSC with 2D threading
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA);
+/*
+ {
+ SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, nnzy, SPA);
+ };*/
+
+
 //! Overload #2: CSC
 template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpMXSpV(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
              vector<int32_t> & indy, vector< OVT > & numy)
 {
-    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(Acsc, mA, indx, numx, veclen, indy, numy);	// don't touch this
+    //SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(Acsc, mA, indx, numx, veclen, indy, numy);	// don't touch this
+    // prepare data for SpMXSpV_Threaded_2D and call it
+    PreAllocatedSPA<IT,OVT> SPA;
+    int32_t* indy_t;
+    OVT* numy_t;
+    int nnzy;
+    SpMXSpV_Threaded_2D<SR>(Acsc, mA, indx, numx, veclen,indy_t, numy_t, nnzy, SPA);
+    // copy results returned from SpMXSpV_Threaded_2D
+    indy.resize(nnzy);
+    numy.resize(nnzy);
+    for(int i=0; i<nnzy; i++)
+    {
+        indy[i] = indy_t[i];
+        numy[i] = numy_t[i];
+    }
+    DeleteAll(indy_t, numy_t);
+    
 };
 
 //! Overload #1: DCSC
@@ -105,22 +131,20 @@ template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpMXSpV_ForThreading(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                           vector<int32_t> & indy, vector< OVT > & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
 {
-    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);	
+    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);
+    
 };
 
 
-//! CSC with 2D threading
-template <class SR, class IT, class NUM, class IVT, class OVT>
-void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
-{
-    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, nnzy, SPA);
-};
+
 
 //! CSC with 2D threading and preallocated SPA
 template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
 {
-    SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, nnzy, localy, isthere, nzinds);
+    PreAllocatedSPA<IT,OVT> SPA;
+    SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen,indy, numy, nnzy, SPA);
+    //SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_Threaded_2D(Acsc, mA, indx, numx, veclen, indy, numy, nnzy, localy, isthere, nzinds);
 };
 
 
@@ -192,8 +216,7 @@ struct SpImpl
         cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
     };
 	
-	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-									int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA);
+	//static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA);
 	
 	static void SpMXSpV_Threaded_2D(const Csc<IT,NUM> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
 									int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)
@@ -252,8 +275,7 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds);
     
     //! Csc and vector index types do not need to match
-    static void SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA);
+    //static void SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA);
     
     static void SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                      int32_t* & indy, OVT* & numy, int & nnzy, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds);

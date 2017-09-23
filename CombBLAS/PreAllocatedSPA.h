@@ -109,8 +109,9 @@ public:
     // for manual splitting. just a hack. need to be fixed
     
     template <class LMAT>
-    PreAllocatedSPA(LMAT & A, int split):initialized(true)
+    PreAllocatedSPA(LMAT & A, int splits):initialized(true)
     {
+        buckets = splits;
         IT mA = A.getnrow();
         V_isthere.push_back(BitMap(mA));
         V_localy.push_back(vector<OVT>(mA));
@@ -118,8 +119,8 @@ public:
         V_isthereBool.push_back(vector<bool>(mA));
         
         
-        vector<int32_t> nnzSplitA(split,0);
-        int32_t rowPerSplit = mA / split;
+        vector<int32_t> nnzSplitA(buckets,0);
+        int32_t rowPerSplit = mA / splits;
 
         //vector<bool> isthere(mA, false);
         for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
@@ -128,27 +129,71 @@ public:
             {
                 size_t rowid = nzit.rowid();
                 //if(!isthere[rowid])     isthere[rowid] = true;
-                size_t splitId = (rowid/rowPerSplit > split-1) ? split-1 : rowid/rowPerSplit;
+                size_t splitId = (rowid/rowPerSplit > splits-1) ? splits-1 : rowid/rowPerSplit;
                 nnzSplitA[splitId]++;
             }
         }
         
         
         // prefix sum
-        disp.resize(split+1);
+        disp.resize(splits+1);
         disp[0] = 0;
-        for(int i=0; i<split; i++)
+        for(int i=0; i<splits; i++)
         {
             disp[i+1] = disp[i] + nnzSplitA[i];
         }
         
-        indSplitA.resize(disp[split]);
-        numSplitA.resize(disp[split]);
+        indSplitA.resize(disp[splits]);
+        numSplitA.resize(disp[splits]);
 
 
     };
     
+    // initialize an uninitialized SPA
+    template <class LMAT>
+    void Init(LMAT & A, int splits) // not done for DCSC matrices with A.getnsplit()
+    {
+        if(!initialized)
+        {
+            initialized = true;
+            buckets = splits;
+            IT mA = A.getnrow();
+            V_isthere.push_back(BitMap(mA));
+            V_localy.push_back(vector<OVT>(mA));
+            V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
+            V_isthereBool.push_back(vector<bool>(mA));
+            
+            
+            vector<int32_t> nnzSplitA(buckets,0);
+            int32_t rowPerSplit = mA / splits;
+            
+            //vector<bool> isthere(mA, false);
+            for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
+            {
+                for(auto nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
+                {
+                    size_t rowid = nzit.rowid();
+                    //if(!isthere[rowid])     isthere[rowid] = true;
+                    size_t splitId = (rowid/rowPerSplit > splits-1) ? splits-1 : rowid/rowPerSplit;
+                    nnzSplitA[splitId]++;
+                }
+            }
+            
+            
+            // prefix sum
+            disp.resize(splits+1);
+            disp[0] = 0;
+            for(int i=0; i<splits; i++)
+            {
+                disp[i+1] = disp[i] + nnzSplitA[i];
+            }
+            
+            indSplitA.resize(disp[splits]);
+            numSplitA.resize(disp[splits]);
+        }
+    };
     
+    int buckets; // number of buckets
     vector< vector<uint32_t> > V_inds;  // ABAB: is this big enough?
     vector< BitMap > V_isthere;
     vector< vector<bool> > V_isthereBool; // for thread safe access

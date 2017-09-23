@@ -47,6 +47,7 @@ public:
     // Constructors :
     SpCCols ();
     SpCCols (IT size, IT nRow, IT nCol);
+    SpCCols (Csc<IT, NT> * csc1, IT nRow);
     SpCCols (const SpTuples<IT,NT> & rhs, bool transpose);
     SpCCols (const SpDCCols<IT,NT> & rhs):nnz(0), n(0), m(0), splits(0), csc(NULL)
     {
