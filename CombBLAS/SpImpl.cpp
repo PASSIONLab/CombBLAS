@@ -29,6 +29,7 @@
 
 #include "SpImpl.h"
 #include "Deleter.h"
+#include "CombBLAS.h"
 #include "SpParHelper.h"
 #include "PBBS/radixSort.h"
 #include "Tommy/tommyhashdyn.h"
@@ -722,7 +723,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, 
 // This exactly same as the boolean one. just replaced bool with NT
 
 template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
-void SpImpl<SR,IT,NT,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+void SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                      int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
 {
     if(veclen==0)
@@ -734,17 +735,30 @@ void SpImpl<SR,IT,NT,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int3
         numy = new OVT[nnzy];
         return;
     }
+    
     double tstart = MPI_Wtime();
     int rowSplits = 1, nthreads=1;
 #ifdef _OPENMP
 #pragma omp parallel
     {
-        
         nthreads = omp_get_num_threads();
     }
 #endif
     rowSplits = nthreads * 4;
-    //	rowSplits = 48;
+
+    
+    if(!SPA.initialized) // uninitialized buckets
+    {
+        // just a wrapper around Acsc so that SPA.Init works
+        // PreAllocatedSPA works with SpCCols or SpDCCols
+        SpCCols<IT,NT> Acsc1(&Acsc, mA);
+        SPA.Init(Acsc1, rowSplits);
+    }
+    else
+    {
+        rowSplits = SPA.buckets;
+    }
+
     int32_t rowPerSplit = mA / rowSplits;
     
     
@@ -1054,7 +1068,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc
     SpParHelper::Print("2D SpMSpV is not supported for Dcsc yet!\n");
 }
 
-
+/*
 template <typename SR, typename IT, typename IVT, typename OVT>
 void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
                                                      int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
@@ -1371,7 +1385,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
 #endif
     
 }
-
+*/
 
 
 
