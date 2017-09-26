@@ -142,6 +142,22 @@ int main(int argc, char* argv[])
 			spy.SaveGathered(ysparse,0);
 			ysparse.close();
 		}
+        
+        // Test SpMSpV-bucket for general CSC matrices
+        SpParMat < int64_t, double, SpCCols<int64_t,double> >  ACsc (A);
+        PreAllocatedSPA<double> SPA(ACsc.seq(), cblas_splits*4);
+        FullyDistSpVec<int64_t, double> spy_csc(spx.getcommgrid(), ACsc.getnrow());
+        SpMV<PTDOUBLEDOUBLE>(ACsc, spx, spy_csc, false, SPA);
+        
+        if (spy == spy_csc)
+        {
+            SpParHelper::Print("SpMSpV-bucket works correctly for general CSC matrices\n");
+        }
+        else
+        {
+            SpParHelper::Print("SpMSpV-bucket does not work correctly for general CSC matrices, go fix it!\n");
+        }
+
 		
 #ifndef NOGEMM
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
@@ -194,6 +210,8 @@ int main(int argc, char* argv[])
 			spyint64buf.SaveGathered(of2,0);
 		}
 
+        
+        
        
 		ABool.ActivateThreading(cblas_splits);
 		//FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
@@ -210,19 +228,19 @@ int main(int argc, char* argv[])
 		}
 		
 
-        // Test the SpMSpV-bucket algorithm (IPDPS 17 paper)
-         SpParMat < int64_t, bool, SpCCols<int64_t,bool> >  ABoolCSC (A);
-        PreAllocatedSPA<int64_t,int64_t> SPA(ABoolCSC.seq(), cblas_splits*4);
-        FullyDistSpVec<int64_t, int64_t> spyint64_csc_threaded(spxint64.getcommgrid(), ABoolCSC.getnrow());
-        SpMV<SR>(ABoolCSC, spxint64, spyint64_csc_threaded, false, SPA);
+        // Test SpMSpV-bucket for Boolean CSC matrices
+        SpParMat < int64_t, bool, SpCCols<int64_t,bool> >  ABoolCsc (A);
+        PreAllocatedSPA<int64_t> SPA1(ABoolCsc.seq(), cblas_splits*4);
+        FullyDistSpVec<int64_t, int64_t> spyint64_csc_threaded(spxint64.getcommgrid(), ABoolCsc.getnrow());
+        SpMV<SR>(ABoolCsc, spxint64, spyint64_csc_threaded, false, SPA1);
         
         if (spyint64 == spyint64_csc_threaded)
         {
-            SpParHelper::Print("Multithreaded SpMSpV-bucket works correctly\n");
+            SpParHelper::Print("SpMSpV-bucket works correctly for Boolean CSC matrices\n");
         }
         else
         {
-            SpParHelper::Print("ERROR in multithreaded SpMSpV-bucket, go fix it!\n");
+            SpParHelper::Print("ERROR in SpMSpV-bucket with Boolean CSC matrices, go fix it!\n");
         }
         
         

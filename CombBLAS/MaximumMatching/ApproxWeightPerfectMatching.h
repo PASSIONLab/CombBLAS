@@ -487,7 +487,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	
 	
 	
-	Trace (A);
+	//Trace (A);
 	
 	int iterations = 0;
 	NT minw;

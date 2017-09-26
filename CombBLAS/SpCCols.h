@@ -47,7 +47,6 @@ public:
     // Constructors :
     SpCCols ();
     SpCCols (IT size, IT nRow, IT nCol);
-    SpCCols (Csc<IT, NT> * csc1, IT nRow);
     SpCCols (const SpTuples<IT,NT> & rhs, bool transpose);
     SpCCols (const SpDCCols<IT,NT> & rhs):nnz(0), n(0), m(0), splits(0), csc(NULL)
     {
@@ -247,7 +246,7 @@ private:
     //<! sparse vector version
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,OVT> & SPA);
+                                        int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<OVT> & SPA);
 };
 
 

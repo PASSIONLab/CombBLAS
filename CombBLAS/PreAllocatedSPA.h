@@ -35,7 +35,8 @@
   * This special data structure is used for optimizing BFS iterations
   * by providing a pre-allocated SPA data structure
   */
-template <class IT, class OVT > // local index type and output value type. Matrix value type does not matter
+
+template <class OVT > // output value type
 class PreAllocatedSPA
 {
 public:
@@ -44,10 +45,10 @@ public:
     template <class LMAT>
     PreAllocatedSPA(LMAT & A):initialized(true)  // the one and only constructor
 	{
-        IT mA = A.getnrow();
+        int64_t mA = A.getnrow();
         if( A.getnsplit() > 0)  // multithreaded
         {
-            IT perpiece =  mA / A.getnsplit();
+            int64_t perpiece =  mA / A.getnsplit();
             for(int i=0; i<A.getnsplit(); ++i)
             {
                 if(i != A.getnsplit()-1)
@@ -112,7 +113,7 @@ public:
     PreAllocatedSPA(LMAT & A, int splits):initialized(true)
     {
         buckets = splits;
-        IT mA = A.getnrow();
+        int64_t mA = A.getnrow();
         V_isthere.push_back(BitMap(mA));
         V_localy.push_back(vector<OVT>(mA));
         V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
@@ -157,7 +158,7 @@ public:
         {
             initialized = true;
             buckets = splits;
-            IT mA = A.getnrow();
+            int64_t mA = A.getnrow();
             V_isthere.push_back(BitMap(mA));
             V_localy.push_back(vector<OVT>(mA));
             V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
