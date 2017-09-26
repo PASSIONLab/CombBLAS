@@ -28,8 +28,6 @@
 
 
 #include "SpImpl.h"
-#include "Deleter.h"
-#include "CombBLAS.h"
 #include "SpParHelper.h"
 #include "PBBS/radixSort.h"
 #include "Tommy/tommyhashdyn.h"
@@ -160,6 +158,7 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 }
 
 
+
 /**
   * One of the two versions of SpMXSpV with on boolean matrix [uses only Semiring::add()]
   * This version is likely to be more memory efficient than the other one (the one that uses preallocated memory buffers)
@@ -265,7 +264,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA
 		int32_t offset = perproc * p;
 		for(int i=0; i< cnts[p]; ++i)
 		{
-			indy[dspls[p]+i] = locnzinds[i] - offset;	// conver to local offset
+			indy[dspls[p]+i] = locnzinds[i] - offset;	// convert to local offset
 			numy[dspls[p]+i] = localy[locnzinds[i]]; 	
 		}
 	}
@@ -332,123 +331,22 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcs
 
 
 
+/**
+ * SpMXSpV with HeapSort
+ * Simply insert entries from columns corresponsing to nonzeros of the input vector into a minHeap
+ * Then extract entries from the minHeap
+ * Complexity: O(flops*log(flops))
+ * offset is the offset of indices in the matrix in case the matrix is split
+ * This version is likely to be more memory efficient than the other one (the one that uses preallocated memory buffers)
+ * Because here we don't use a dense accumulation vector but a heap. It will probably be slower though.
+ **/
 
-
-
-template <typename OVT>
-struct tommy_object {
-    tommy_node node;
-    OVT value;
-    uint32_t index;
-    
-    tommy_object(OVT val, uint32_t ind):value(val), index(ind){}; // constructor
-};
-
-template <typename OVT>
-int compare(const void* arg, const void* obj)
-{
-    return *(const uint32_t*)arg != ((const tommy_object<OVT> *)obj)->index;
-}
-
-//#define USE_TOMMY
-
-
-// this version is still very good with splitters
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
-{
-#ifdef USE_TOMMY
-    vector<OVT> localy; // won't be used
-#else
-    vector<OVT> localy(mA);
-#endif
-    BitMap isthere(mA);
-    vector<uint32_t> nzinds;	// nonzero indices
-    
-    SpMXSpV_ForThreading(Acsc, mA, indx, numx, veclen, indy, numy, offset, localy, isthere, nzinds);
-}
-
-/*
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset,
-                                                      vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)    // these three are pre-allocated buffers
-{
-
-#ifdef USE_TOMMY
-    tommy_hashdyn hashdyn;
-    tommy_hashdyn_init(&hashdyn);
-#endif
-    
-    for (int32_t k = 0; k < veclen; ++k)
-    {
-        IT colid = indx[k];
-        for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
-        {
-            uint32_t rowid = (uint32_t) Acsc.ir[j];
-            if(!isthere.get_bit(rowid))
-            {
-            #ifdef USE_TOMMY
-                tommy_object<OVT> * obj = new tommy_object<OVT>(numx[k], rowid);
-                tommy_hashdyn_insert(&hashdyn, &(obj->node), obj, tommy_inthash_u32(obj->index));
-            #else
-                localy[rowid] = numx[k];	// initial assignment
-            #endif
-                nzinds.push_back(rowid);
-                isthere.set_bit(rowid);
-            }
-            else
-            {
-            #ifdef USE_TOMMY
-                tommy_object<OVT> * obj = (tommy_object<OVT> *) tommy_hashdyn_search(&hashdyn, compare<OVT>, &rowid, tommy_inthash_u32(rowid));
-                obj->value = SR::add(obj->value, numx[k]);
-            #else
-                localy[rowid] = SR::add(localy[rowid], numx[k]);
-            #endif
-            }
-        }
-    }
-    int nnzy = nzinds.size();
-    integerSort(nzinds.data(), nnzy);
-    indy.resize(nnzy);
-    numy.resize(nnzy);
-    
-    for(int i=0; i< nnzy; ++i)
-    {
-        indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
-    #ifdef USE_TOMMY
-        tommy_object<OVT> * obj = (tommy_object<OVT> *) tommy_hashdyn_search(&hashdyn, compare<OVT>, &(nzinds[i]), tommy_inthash_u32(nzinds[i]));
-        numy[i] = obj->value;
-    #else
-        numy[i] = localy[nzinds[i]];
-    #endif
-    }
-    isthere.reset();
-    nzinds.clear(); // not necessarily reclaim memory, just make size=0
-    
-#ifdef USE_TOMMY
-    tommy_hashdyn_foreach(&hashdyn, operator delete);
-    tommy_hashdyn_done(&hashdyn);
-#endif
-
-}
- */
-
-
-
-// Heap based approach, just for testing for IPDPS paper
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset,
-                                                      vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds)    // these three are pre-allocated buffers
-
-//template <class SR, class IT, class IVT, class OVT>
-//void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, vector<int32_t> & indy, vector<OVT> & numy)
+template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
+void SpMXSpV_HeapSort(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
 {
     IT inf = numeric_limits<IT>::min();
     IT sup = numeric_limits<IT>::max();
-    KNHeap< IT, IVT > sHeap(sup, inf); 	// max size: flops
+    KNHeap< IT, OVT > sHeap(sup, inf); //
     
     
     for (int32_t k = 0; k < veclen; ++k)
@@ -456,12 +354,13 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
         IT colid = indx[k];
         for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
         {
-            sHeap.insert(Acsc.ir[j], numx[k]);
+            OVT val = SR::multiply( Acsc.num[j], numx[k]);
+            sHeap.insert(Acsc.ir[j], val);
         }
     }
     
     IT row;
-    IVT num;
+    OVT num;
     if(sHeap.getSize() > 0)
     {
         sHeap.deleteMin(&row, &num);
@@ -485,237 +384,6 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_ForThreading(const Csc<IT,bool> & Acsc,
     }
 }
 
-
-
-
-
-/*
- // previous working version with vectors
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     vector<int32_t> & indy, vector<OVT> & numy, PreAllocatedSPA<IT,OVT> & SPA)
-{
-    
-    int rowSplits = 1, nthreads=1;
-#ifdef _OPENMP
-#pragma omp parallel
-    {
-        
-        nthreads = omp_get_num_threads();
-        rowSplits = nthreads * 4;
-    }
-#endif
-    int32_t rowPerSplit = mA / rowSplits;
-    
-    
-    
-    
-    
-    
-    //------------------------------------------------------
-    // Step2: The matrix is traversed column by column and
-    // nonzeros each rowsplit of the matrix are compiled together
-    //------------------------------------------------------
-    
-    vector<int> bucketSize(rowSplits,0);
-    int THREAD_BUF_LEN = 256;
-    
-    double t0 = MPI_Wtime();
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-    {
-        double tt = MPI_Wtime();
-        int thisThread = omp_get_thread_num();
-        vector<int32_t> tIndSplitA(rowSplits*THREAD_BUF_LEN);
-        vector<OVT> tNumSplitA(rowSplits*THREAD_BUF_LEN);
-        vector<int> tBucketSize(rowSplits,0);
-        
-#ifdef _OPENMP
-#pragma omp for
-#endif
-        for (int32_t k = 0; k < veclen; ++k)
-        {
-            IT colid = indx[k];
-            for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
-            {
-                uint32_t rowid = (uint32_t) Acsc.ir[j];
-                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
-                if (tBucketSize[splitId] < THREAD_BUF_LEN)
-                {
-                    tIndSplitA[splitId*THREAD_BUF_LEN + tBucketSize[splitId]] = rowid;
-                    tNumSplitA[splitId*THREAD_BUF_LEN  + tBucketSize[splitId]++] = numx[k];
-                }
-                else
-                {
-                    uint32_t voff = __sync_fetch_and_add (&bucketSize[splitId], THREAD_BUF_LEN);
-                    for (uint32_t vk = 0; vk < THREAD_BUF_LEN; ++vk)
-                    {
-                        SPA.indSplitA[SPA.disp[splitId] + voff + vk] = tIndSplitA[splitId*THREAD_BUF_LEN + vk];
-                        SPA.numSplitA[SPA.disp[splitId] + voff + vk] = tNumSplitA[splitId*THREAD_BUF_LEN + vk];
-                    }
-                    tIndSplitA[splitId*THREAD_BUF_LEN] = rowid;
-                    tNumSplitA[splitId*THREAD_BUF_LEN] = numx[k];
-                    tBucketSize[splitId] = 1;
-                }
-            }
-        }
-        
-        for(int rs=0; rs<rowSplits; ++rs)
-        {
-            if(tBucketSize[rs]>0)
-            {
-                uint32_t voff = __sync_fetch_and_add (&bucketSize[rs], tBucketSize[rs]);
-                for (uint32_t vk = 0; vk < tBucketSize[rs]; ++vk)
-                {
-                    SPA.indSplitA[SPA.disp[rs] + voff + vk] = tIndSplitA[rs*THREAD_BUF_LEN + vk];
-                    SPA.numSplitA[SPA.disp[rs] + voff + vk] = tNumSplitA[rs*THREAD_BUF_LEN + vk];
-                }
-            }
-        }
-        cout << MPI_Wtime() - tt << endl;
-    }
-    double t1 = MPI_Wtime() - t0;
-    
-    // prefix sum
-    vector<uint32_t> disp(rowSplits+1);
-    disp[0] = 0;
-    for(int i=0; i<rowSplits; i++)
-    {
-        disp[i+1] = disp[i] + bucketSize[i];
-    }
-    
-    
-    
-    vector<uint32_t> nzInRowSplits(rowSplits);
-    // Ariful: somehow I was not able to make SPA.C_inds working. See the dirty version
-    uint32_t* nzinds = static_cast<uint32_t*> (::operator new (sizeof(uint32_t)*disp[rowSplits]));
-    
-
-    t0 = MPI_Wtime();
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-    {
-        
-#ifdef _OPENMP
-#pragma omp for
-#endif
-        for(int rs=0; rs<rowSplits; ++rs)
-        {
-            for(int i=0; i<disp[rs+1]-disp[rs] ; i++)
-            //for(int i=disp[rs]; i<disp[rs+1] ; i++)
-            {
-                SPA.V_isthereBool[0][SPA.indSplitA[SPA.disp[rs]+i]] = false;
-            }
-            uint32_t tMergeDisp = disp[rs];
-            for(int i=0; i<disp[rs+1]-disp[rs] ; i++)
-            //for(int i=disp[rs]; i<disp[rs+1] ; i++)
-            {
-                int32_t rowid = SPA.indSplitA[SPA.disp[rs]+i];
-                if(!SPA.V_isthereBool[0][rowid])// there is no conflict across threads
-                {
-                    SPA.V_localy[0][rowid] = SPA.numSplitA[SPA.disp[rs]+i];
-                    nzinds[tMergeDisp++] = rowid;
-                    SPA.V_isthereBool[0][rowid]=true;
-                }
-                else
-                {
-                    SPA.V_localy[0][rowid] = SR::add(SPA.V_localy[0][rowid], SPA.numSplitA[SPA.disp[rs]+i]);
-                }
-            }
-            
-            integerSort(nzinds + disp[rs], tMergeDisp - disp[rs]);
-            nzInRowSplits[rs] = tMergeDisp - disp[rs];
-            
-        }
-        
-    }
-    double t2 = MPI_Wtime ()- t0;
-    // prefix sum
-    vector<uint32_t> dispRowSplits(rowSplits+1);
-    dispRowSplits[0] = 0;
-    for(int i=0; i<rowSplits; i++)
-    {
-        dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
-    }
-    
-
-    
-    int nnzy = dispRowSplits[rowSplits];
-    indy.resize(nnzy);
-    numy.resize(nnzy);
-    
-    t0 = MPI_Wtime();
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for(int rs=0; rs<rowSplits; rs++)
-    {
-        copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy.data()+dispRowSplits[rs]);
-        for(int j=0; j<nzInRowSplits[rs]; j++)
-        {
-            numy[j+dispRowSplits[rs]] = SPA.V_localy[0][nzinds[disp[rs]+j]];
-            
-        }
-    }
-    double t3 = MPI_Wtime()- t0;
-    
-    ::operator delete(nzinds);
-    
-    cout << t1 << " " << t2 << " " << t3 << endl;
-}
-
-*/
-
-
-
-/*
-
-
-template <class SR, class IT, class IVT, class OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                         vector<int32_t> & indy, vector<OVT> & numy)
-{
-    IT inf = numeric_limits<IT>::min();
-    IT sup = numeric_limits<IT>::max();
-    KNHeap< IT, IVT > sHeap(sup, inf); 	// max size: flops
-    
-    
-    for (int32_t k = 0; k < veclen; ++k)
-    {
-        IT colid = indx[k];
-        for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)	// for all nonzeros in this column
-        {
-            sHeap.insert(Acsc.ir[j], numx[k]);
-        }
-    }
-    
-    IT row;
-    IVT num;
-    if(sHeap.getSize() > 0)
-    {
-        sHeap.deleteMin(&row, &num);
-        indy.push_back( (int32_t) row);
-        numy.push_back( num );
-    }
-    while(sHeap.getSize() > 0)
-    {
-        sHeap.deleteMin(&row, &num);
-        if(indy.back() == row)
-        {
-            numy.back() = SR::add(numy.back(), num);
-        }
-        else
-        {
-            indy.push_back( (int32_t) row);
-            numy.push_back(num);
-        }
-    }		
-}
-
-
-*/
 
 
 
@@ -724,7 +392,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Csc<IT,bool> & Acsc, int32_t mA, 
 
 template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
 void SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
+                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<OVT> & SPA)
 {
     if(veclen==0)
     {
@@ -751,8 +419,8 @@ void SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * in
     {
         // just a wrapper around Acsc so that SPA.Init works
         // PreAllocatedSPA works with SpCCols or SpDCCols
-        SpCCols<IT,NT> Acsc1(&Acsc, mA);
-        SPA.Init(Acsc1, rowSplits);
+        //SpCCols<IT,NT> Acsc1(&Acsc, mA);
+        //SPA.Init(Acsc1, rowSplits);
     }
     else
     {
@@ -1062,37 +730,37 @@ void SpMXSpV_Threaded_2D(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * in
 
 
 
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen, int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
-{
-    SpParHelper::Print("2D SpMSpV is not supported for Dcsc yet!\n");
-}
 
-/*
-template <typename SR, typename IT, typename IVT, typename OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
-                                                     int32_t* & indy, OVT* & numy, int & nnzy, PreAllocatedSPA<IT,OVT> & SPA)
+template <typename SR, typename IT, typename NT, typename IVT, typename OVT>
+void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,
+                         vector<int32_t> & indy, vector< OVT > & numy, PreAllocatedSPA<OVT> & SPA)
 {
     if(veclen==0)
-    {
-        nnzy=0;
-        // just to avoid delete crash elsewhere!!
-        // TODO: improve memeory management
-        indy = new int32_t[nnzy];
-        numy = new OVT[nnzy];
         return;
-    }
+    
     double tstart = MPI_Wtime();
     int rowSplits = 1, nthreads=1;
 #ifdef _OPENMP
 #pragma omp parallel
     {
-        
         nthreads = omp_get_num_threads();
     }
 #endif
     rowSplits = nthreads * 4;
-    //	rowSplits = 48;
+    
+    
+    if(!SPA.initialized) // uninitialized buckets
+    {
+        // just a wrapper around Acsc so that SPA.Init works
+        // PreAllocatedSPA works with SpCCols or SpDCCols
+        //SpCCols<IT,NT> Acsc1(&Acsc, mA);
+        //SPA.Init(Acsc1, rowSplits);
+    }
+    else
+    {
+        rowSplits = SPA.buckets;
+    }
+    
     int32_t rowPerSplit = mA / rowSplits;
     
     
@@ -1169,7 +837,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
         bSize[rowSplits-1][j] = 0;
         maxBucketSize = max(thisBucketSize, maxBucketSize);
     }
-
+    
     
     
 #ifdef TIMING
@@ -1181,7 +849,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
     //------------------------------------------------------
     // A good discussion about memory initialization is discussed here
     // http://stackoverflow.com/questions/7546620/operator-new-initializes-memory-to-zero
-
+    
     // Thread private buckets should fit in L2 cache
 #ifndef L2_CACHE_SIZE
 #define L2_CACHE_SIZE 256000
@@ -1310,13 +978,13 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
     {
         dispRowSplits[i+1] = dispRowSplits[i] + nzInRowSplits[i];
     }
-
+    
 #ifdef TIMING
     t0 = MPI_Wtime();
 #endif
-    nnzy = dispRowSplits[rowSplits];
-    indy = new int32_t[nnzy];
-    numy = new OVT[nnzy];
+    int nnzy = dispRowSplits[rowSplits];
+    indy.resize(nnzy);
+    numy.resize(nnzy);
 #ifdef TIMING
     tseq = MPI_Wtime() - t0;
     t0 = MPI_Wtime();
@@ -1339,7 +1007,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
             curSize = 0;
             tdisp = 0;
             uint32_t * thisind = nzinds + disp[rs];
-            copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy+dispRowSplits[rs]);
+            copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], indy.begin()+dispRowSplits[rs]);
             for(int j=0; j<nzInRowSplits[rs]; j++)
             {
                 
@@ -1351,7 +1019,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
                 else
                 {
                     //copy(tindy, tindy+curSize, indy+dispRowSplits[rs]+tdisp);
-                    copy(tnumy, tnumy+curSize, numy+dispRowSplits[rs]+tdisp);
+                    copy(tnumy, tnumy+curSize, numy.begin()+dispRowSplits[rs]+tdisp);
                     tdisp += curSize;
                     tnumy[0] = SPA.V_localy[0][thisind[j]];
                     curSize = 1;
@@ -1361,7 +1029,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
             }
             if ( curSize > 0)
             {
-                copy(tnumy, tnumy+curSize, numy+dispRowSplits[rs]+tdisp);
+                copy(tnumy, tnumy+curSize, numy.begin()+dispRowSplits[rs]+tdisp);
                 //copy(tindy, tindy+curSize, indy+dispRowSplits[rs]+tdisp);
             }
             //copy(nzinds+disp[rs], nzinds+disp[rs]+nzInRowSplits[rs], numy+dispRowSplits[rs]);
@@ -1385,9 +1053,6 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV_Threaded_2D(const Csc<IT,bool> & Acsc, 
 #endif
     
 }
-*/
-
-
 
 
 

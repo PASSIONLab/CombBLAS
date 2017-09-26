@@ -136,7 +136,7 @@ void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
   */
 template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
 int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
-		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<IU,OVT> & SPA)
+		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<OVT> & SPA)
 {
 	// FACTS: Split boundaries (for multithreaded execution) are independent of recipient boundaries
 	// Two splits might create output to the same recipient (needs to be merged)
@@ -398,7 +398,7 @@ void generic_gespmv_threaded_setbuffers (const SpMat<IU,NUM,DER> & A, const int3
 //! MIND: Matrix index type
 //! VIND: Vector index type (optimized: int32_t, general: int64_t)
 template <typename SR, typename MIND, typename VIND, typename DER, typename NUM, typename IVT, typename OVT>
-void generic_gespmv (const SpMat<MIND,NUM,DER> & A, const VIND * indx, const IVT * numx, VIND nnzx, vector<VIND> & indy, vector<OVT>  & numy)
+void generic_gespmv (const SpMat<MIND,NUM,DER> & A, const VIND * indx, const IVT * numx, VIND nnzx, vector<VIND> & indy, vector<OVT>  & numy, PreAllocatedSPA<OVT> & SPA)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -408,7 +408,7 @@ void generic_gespmv (const SpMat<MIND,NUM,DER> & A, const VIND * indx, const IVT
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.GetInternal()), (VIND) A.getnrow(), indx, numx, nnzx, indy, numy);
+			SpMXSpV<SR>(*(A.GetInternal()), (VIND) A.getnrow(), indx, numx, nnzx, indy, numy, SPA);
 		}
 	}
 }

@@ -339,7 +339,7 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
 double torderSpMV=0, torderSort=0, torderOther=0;
 // perform ordering from a pseudo peripheral vertex
 template <typename PARMAT>
-void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t,int64_t>& SPA)
+void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t>& SPA)
 {
     
     double tSpMV=0, tOrder, tOther, tSpMV1, tsort=0, tsort1;
@@ -436,7 +436,7 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
 int threads, processors;
 string base_filename;
 template <typename PARMAT>
-FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t,int64_t>& SPA)
+FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t>& SPA)
 {
 #ifdef TIMING
     cblas_allgathertime = 0;
@@ -841,7 +841,7 @@ int main(int argc, char* argv[])
         // FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
         
         SpParHelper::Print("Pre allocating SPA\n");
-        PreAllocatedSPA<int64_t,int64_t> SPA(ABoolCSC->seq(), nthreads*4);
+        PreAllocatedSPA<int64_t> SPA(ABoolCSC->seq(), nthreads*4);
         SpParHelper::Print("Pre allocated SPA\n");
         
         //FullyDistVec<int64_t, int64_t> fringe();
