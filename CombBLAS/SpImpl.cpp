@@ -686,7 +686,10 @@ void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, c
     
 #ifdef BENCHMARK_SPMSPV
     double tall = MPI_Wtime() - tstart;
-    cout << "Estimate buckets: "<< t1 << " Bucketing: " << t2 << " SPA-merge: " << t3 << " Output: " << t4  << " Total: "<< tall << endl;
+    ostringstream outs1;
+    outs1 << "Time breakdown of SpMSpV-bucket." << endl;
+    outs1 << "Estimate buckets: "<< t1 << " Bucketing: " << t2 << " SPA-merge: " << t3 << " Output: " << t4  << " Total: "<< tall << endl;
+    SpParHelper::Print(outs1.str());
 #endif
     
 }
