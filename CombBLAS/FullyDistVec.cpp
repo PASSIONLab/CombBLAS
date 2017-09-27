@@ -378,7 +378,7 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator-=(const FullyDistVec<IT,NT>
 template <class IT, class NT>
 bool FullyDistVec<IT,NT>::operator==(const FullyDistVec<IT,NT> & rhs) const
 {
-	ErrorTolerantEqual<NT> epsilonequal(EPSILON);
+	ErrorTolerantEqual<NT> epsilonequal;
 	int local = 1;
 	local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
 	int whole = 1;

@@ -37,34 +37,30 @@
 
 // third parameter of compare is about floating point-ness
 template <class T>
-inline bool compare(const T & a, const T & b, const T & epsilon, std::false_type) 	// not floating point
+inline bool compare(const T & a, const T & b, std::false_type) 	// not floating point
 {
 	return (a == b); 			
 }
 
 template <class T>
-inline bool compare(const T & a, const T & b, const T & epsilon, std::true_type) 	//  floating point
+inline bool compare(const T & a, const T & b, std::true_type) 	//  floating point
 {
 	// According to the IEEE 754 standard, negative zero and positive zero should 
 	// compare as equal with the usual (numerical) comparison operators, like the == operators of C++ 
 
 	if(a == b) return true;		// covers the "division by zero" case as well: max(a,b) can't be zero if it fails
-	else return ( std::abs(a - b) < epsilon || (std::abs(a - b) / max(std::abs(a), std::abs(b))) < epsilon ) ; 
+	else return ( std::abs(a - b) < EPSILON || (std::abs(a - b) / max(std::abs(a), std::abs(b))) < EPSILON ) ;     // Fine if either absolute or relative error is small
 }
 
 
-//! Fine if either absolute or relative error is small
 template <class T>
 struct ErrorTolerantEqual:
 	public binary_function< T, T, bool >
-	{
-		ErrorTolerantEqual(const T & myepsilon):epsilon(myepsilon) {};
-	
+	{	
 		inline bool operator() (const T & a, const T & b) const
 		{
-			return compare(a,b, epsilon, std::is_floating_point<T>());
+			return compare(a,b, std::is_floating_point<T>());
 		}
-		T epsilon;
 	};
 
 template < typename T >
