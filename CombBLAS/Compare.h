@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.4 -------------------------------------------------*/
-/* date: 1/17/2014 ---------------------------------------------*/
-/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 6/15/2017 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc  --------------------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2014, The Regents of the University of California
+ Copyright (c) 2010-2017, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,28 @@
 #define _COMPARE_H_
 
 #include <cmath>
+#include <type_traits>
 #include "SpDefs.h"
 #include "CombBLAS.h"
+
+
+// third parameter of compare is about floating point-ness
+template <class T>
+inline bool compare(const T & a, const T & b, const T & epsilon, std::false_type) 	// not floating point
+{
+	return (a == b); 			
+}
+
+template <class T>
+inline bool compare(const T & a, const T & b, const T & epsilon, std::true_type) 	//  floating point
+{
+	// According to the IEEE 754 standard, negative zero and positive zero should 
+	// compare as equal with the usual (numerical) comparison operators, like the == operators of C++ 
+
+	if(a == b) return true;		// covers the "division by zero" case as well: max(a,b) can't be zero if it fails
+	else return ( std::abs(a - b) < epsilon || (std::abs(a - b) / max(std::abs(a), std::abs(b))) < epsilon ) ; 
+}
+
 
 //! Fine if either absolute or relative error is small
 template <class T>
@@ -39,15 +59,10 @@ struct ErrorTolerantEqual:
 	public binary_function< T, T, bool >
 	{
 		ErrorTolerantEqual(const T & myepsilon):epsilon(myepsilon) {};
+	
 		inline bool operator() (const T & a, const T & b) const
 		{
-			// According to the IEEE 754 standard, negative zero and positive zero should 
-			// compare as equal with the usual (numerical) comparison operators, like the == operators of C++ 
-	
-			if(a == b)	// covers the "division by zero" case as well: max(a,b) can't be zero if it fails
-				return true;	// covered the integral numbers case
-			
-			return ( std::abs(a - b) < epsilon || (std::abs(a - b) / max(std::abs(a), std::abs(b))) < epsilon ) ; 
+			return compare(a,b, epsilon, std::is_floating_point<T>());
 		}
 		T epsilon;
 	};
