@@ -498,7 +498,7 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	cout << "Same before num: " << same << endl;
 #endif
 
-	ErrorTolerantEqual<NT> epsilonequal(EPSILON);
+	ErrorTolerantEqual<NT> epsilonequal;
 	same = same && std::equal(numx, numx+nz, rhs.numx, epsilonequal );
 	return same;
 }
