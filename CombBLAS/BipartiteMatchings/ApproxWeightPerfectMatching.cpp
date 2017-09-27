@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
         Par_DCSC_Bool AT = A;
         AT.Transpose();
         
-        Par_CSC_Double * AWeightedCSC = new Par_CSC_Double(*AWeighted);
+        Par_CSC_Double AWeightedCSC (*AWeighted);
     
         
         
@@ -310,14 +310,15 @@ int main(int argc, char* argv[])
         init = DMD; randMaximal = false; randMM = false; prune = true;
         //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
-		WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
-        //WeightedGreedy(*AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
+        WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
 		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
 		
 		
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
+		//maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
+        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
         cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
         double tcard = MPI_Wtime() - ts;
         CheckMatching(mateRow2Col,mateCol2Row);
