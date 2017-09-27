@@ -1,5 +1,5 @@
 CXX := mpicxx
-CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive  -DNDEBUG #-DTHREADED #-DNDEBUG #-DTIMING 
+CXXFLAGS := -std=c++11 -std=gnu++14 -O2 -fopenmp -fpermissive  -DNDEBUG -DTHREADED #-DNDEBUG #-DTIMING 
 
 
 

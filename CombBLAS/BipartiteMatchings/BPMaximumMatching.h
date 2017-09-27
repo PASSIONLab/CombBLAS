@@ -232,6 +232,14 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
 	
 	typedef VertexTypeMM <IT> VertexType;
 	
+    int nthreads=1;
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    PreAllocatedSPA<VertexType> SPA(A.seq(), nthreads*4);
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -294,9 +302,9 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
             //
 		    //TODO: think about this semiring
 			if(maximizeWeight)
-				SpMV<WeightMaxMMSR<NT, VertexType>>(A, fringeCol, fringeRow, false);
+				SpMV<WeightMaxMMSR<NT, VertexType>>(A, fringeCol, fringeRow, false, SPA);
 			else
-				SpMV<Select2ndMinSR<NT, VertexType>>(A, fringeCol, fringeRow, false);
+				SpMV<Select2ndMinSR<NT, VertexType>>(A, fringeCol, fringeRow, false, SPA);
             phase_timing[0] += MPI_Wtime()-t1;
 			
             

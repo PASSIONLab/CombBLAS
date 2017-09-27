@@ -15,7 +15,8 @@ using namespace std;
 MTRand GlobalMT(123); // for reproducible result
 
 
-
+// This is not tested with CSC yet
+// TODO: test with CSC and Setting SPA (similar to Weighted Greedy)
 template <typename Par_DCSC_Bool, typename IT>
 void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>& mateRow2Col,
             FullyDistVec<IT, IT>& mateCol2Row, FullyDistVec<IT, IT>& degColRecv, int type, bool rand=true)
@@ -226,13 +227,13 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 
 
 
-// Special version of the greedy algorithm
+// Special version of the greedy algorithm (works for both CSC (multithreaded) and DCSC)
 // That uses WeightMaxSR semiring
-// TODO: check if this is 1/2 approx of the weighted matching
+// TODO: check if this is 1/2 approx of the weighted matching (probably no)
 // TODO: should we remove degCol?
 // TODO: can be merged with the generalized MaximalMatching
-template <typename Par_DCSC_Double, typename IT>
-void WeightedGreedy(Par_DCSC_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
+template <typename Par_MAT_Double, typename IT>
+void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 					 FullyDistVec<IT, IT>& mateCol2Row, FullyDistVec<IT, IT>& degCol)
 {
 	

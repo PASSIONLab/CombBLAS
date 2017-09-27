@@ -502,6 +502,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		// each row is for a processor where C requests will be sent to
 		double tstart = MPI_Wtime();
 		vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
+#ifdef THREADED
+//#pragma omp parallel for
+#endif
 		for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
 		{
 			
