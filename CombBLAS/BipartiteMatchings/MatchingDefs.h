@@ -21,7 +21,8 @@ public:
 	{
 		return vtx1.comp<vtx2.comp;
 	};
-	friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return vtx1.comp==vtx2.comp;};
+	//friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return (vtx1.parent==vtx2.parent) & (vtx1.comp==vtx2.comp);};
+    friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return vtx1.comp==vtx2.comp;};
 	friend ostream& operator<<(ostream& os, const VertexTypeML & vertex ){os << "(" << vertex.parent << "," << vertex.comp << ")"; return os;};
 	T1 parent;
 	T2 comp; // can be index, probability, degree or an adjacent edge weight
