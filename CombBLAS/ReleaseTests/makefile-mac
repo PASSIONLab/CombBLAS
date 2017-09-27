@@ -3,7 +3,7 @@ INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 
 OPT = -O3 -DMPICH_IGNORE_CXX_SEEK #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DCOMBBLAS_DEBUG
-COMPILER = mpicxx  -std=c++14 -fopenmp
+COMPILER = mpicxx -std=c++14 -DTHREADED -fopenmp
 FLAGS = $(DEB)
 COMBBLAS = ..
 
