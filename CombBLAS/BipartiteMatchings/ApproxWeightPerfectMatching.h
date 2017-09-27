@@ -695,8 +695,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		tstart = MPI_Wtime();
 		
 		// at the owner of (mj,j)
-		vector<tuple<IT,IT>> rowBcastTuples; //(mi,mj)
-		vector<tuple<IT,IT>> colBcastTuples; //(j,i)
+		vector<tuple<IT,IT>> rowBcastTuples(recvWinnerTuples.size()); //(mi,mj)
+		vector<tuple<IT,IT>> colBcastTuples(recvWinnerTuples.size()); //(j,i)
 		
 		for(int k=0; k<recvWinnerTuples.size(); ++k)
 		{
@@ -708,9 +708,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			
 			
 			
-			colBcastTuples.push_back(make_tuple(j,i));
+			colBcastTuples[k] = make_tuple(j,i);
 			//rowBcastTuples.push_back(make_tuple(i,j));
-			rowBcastTuples.push_back(make_tuple(mj,mi));
+			rowBcastTuples[k] = make_tuple(mj,mi);
 			//colBcastTuples.push_back(make_tuple(mi,mj));
 		}
 		double t5Comp = MPI_Wtime() - tstart;
@@ -722,6 +722,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		double t5Comm = MPI_Wtime() - tstart;
 		tstart = MPI_Wtime();
 		
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 		for(int k=0; k<updatedR2C.size(); k++)
 		{
 			IT row = get<0>(updatedR2C[k]);
@@ -734,6 +737,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			RepMateR2C[row-localRowStart] = mate;
 		}
 		
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 		for(int k=0; k<updatedC2R.size(); k++)
 		{
 			IT col = get<0>(updatedC2R[k]);

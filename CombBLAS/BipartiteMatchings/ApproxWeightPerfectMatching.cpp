@@ -250,20 +250,26 @@ int main(int argc, char* argv[])
             SpParHelper::Print("Performed random permutation of matrix.\n");
         }
         
+        Par_CSC_Double* AWeightedCSC = new Par_CSC_Double(*AWeighted);
+        
+        //if(AWeightedCSC->seq() == AWeighted->seq()) cout << "Equal!" << endl;
+        //else cout << "Not Equal!" << endl;
+        
+        
+
         Par_DCSC_Bool A = *AWeighted;
         Par_DCSC_Bool AT = A;
         AT.Transpose();
         
-        Par_CSC_Double AWeightedCSC (*AWeighted);
-    
+        //Par_CSC_Double AWeightedCSC (*AWeighted);
         
         
         
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
-        
-        int nthreads;
+        /*
+        int nthreads=1;
 #ifdef THREADED
 #pragma omp parallel
         {
@@ -278,6 +284,7 @@ int main(int argc, char* argv[])
         A.ActivateThreading(cblas_splits); // note: crash on empty matrix
         AT.ActivateThreading(cblas_splits);
 #endif
+         */
         
         
         SpParHelper::Print("**************************************************\n\n");
@@ -311,14 +318,16 @@ int main(int argc, char* argv[])
         //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
 		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
-        WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+        WeightedGreedy(*AWeightedCSC, *AWeighted, mateRow2Col, mateCol2Row, degCol);
+        
 		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
 		CheckMatching(mateRow2Col,mateCol2Row);
-		
+        exit(1);
+        
 		
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		//maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
-        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
+		maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
+        //maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
         cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
         double tcard = MPI_Wtime() - ts;
         CheckMatching(mateRow2Col,mateCol2Row);

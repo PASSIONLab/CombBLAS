@@ -232,8 +232,8 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 // TODO: check if this is 1/2 approx of the weighted matching (probably no)
 // TODO: should we remove degCol?
 // TODO: can be merged with the generalized MaximalMatching
-template <typename Par_MAT_Double, typename IT>
-void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
+template <typename Par_MAT_Double, typename WHAT, typename IT>
+void WeightedGreedy(Par_MAT_Double & A, WHAT & A1, FullyDistVec<IT, IT>& mateRow2Col,
 					 FullyDistVec<IT, IT>& mateCol2Row, FullyDistVec<IT, IT>& degCol)
 {
 	
@@ -245,7 +245,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
         nthreads = omp_get_num_threads();
     }
 #endif
-    PreAllocatedSPA<VertexType> SPA(A.seq(), nthreads*4);
+    PreAllocatedSPA<VertexType> SPA; //(A.seq(), nthreads*4);
 	int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -265,6 +265,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 	
 	FullyDistSpVec<IT, VertexType> fringeRow(A.getcommgrid(), A.getnrow());
 	FullyDistSpVec<IT, IT> fringeRow2(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<IT, VertexType> fringeRow3(A.getcommgrid(), A.getnrow());
 	
 	IT curUnmatchedCol = unmatchedCol.getnnz();
 	IT curUnmatchedRow = unmatchedRow.getnnz();
@@ -297,6 +298,9 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		double t1 = MPI_Wtime();
 		
 		SpMV<WeightMaxMLSR<double, VertexType>>(A, unmatchedCol, fringeRow, false, SPA);
+        SpMV<WeightMaxMLSR<double, VertexType>>(A1, unmatchedCol, fringeRow3, false, SPA);
+        if(fringeRow == fringeRow3) cout << "equal!!" << endl;
+        else cout << "not equal..........\n";
 		
 		// Remove matched row vertices
 		fringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col,
