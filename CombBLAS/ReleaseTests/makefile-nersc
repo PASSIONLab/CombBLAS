@@ -43,13 +43,13 @@ FindSparse.o: FindSparse.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParH
 MultTest.o: MultTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o MultTest.o MultTest.cpp
 
-IndexingTest.o: IndexingTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
+IndexingTest.o: IndexingTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o IndexingTest.o IndexingTest.cpp
 
-SpAsgnTest.o: SpAsgnTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
+SpAsgnTest.o: SpAsgnTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o SpAsgnTest.o SpAsgnTest.cpp
 
-SpAsgnTiming.o: SpAsgnTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
+SpAsgnTiming.o: SpAsgnTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(FLAGS) -c -o SpAsgnTiming.o SpAsgnTiming.cpp
 
 IndexingTiming.o: IndexingTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
