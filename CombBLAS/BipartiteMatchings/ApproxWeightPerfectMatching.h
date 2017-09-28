@@ -256,7 +256,7 @@ void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R,
 
 
 template <class IT, class NT,class DER>
-void Trace( SpParMat < IT, NT, DER > & A)
+NT Trace( SpParMat < IT, NT, DER > & A)
 {
 	
 	IT nrows = A.getnrow();
@@ -304,8 +304,11 @@ void Trace( SpParMat < IT, NT, DER > & A)
 	MPI_Allreduce(MPI_IN_PLACE, &trnnz, 1, MPIType<IT>(), MPI_SUM, World);
 	MPI_Allreduce(MPI_IN_PLACE, &trace, 1, MPIType<NT>(), MPI_SUM, World);
 	
+    /*
 	if(myrank==0)
 		cout <<"nrows: " << nrows << " Nnz in the diag: " << trnnz << " sum of diag: " << trace << endl;
+     */
+    return trace;
 	
 }
 
@@ -502,10 +505,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		// each row is for a processor where C requests will be sent to
 		double tstart = MPI_Wtime();
 		vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
-#ifdef THREADED
-//#pragma omp parallel for
-#endif
-		for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
+
+        /*
+        for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
 		{
 			
 			IT lj = colit.colid(); // local numbering
@@ -528,9 +530,30 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 					
 				}
 			}
-		}
-		
-		//cout <<  myrank <<") Done Step1......: " << endl;
+		} */
+        
+        for(int k=0; k<lncol; ++k)
+        {
+            
+            IT lj = k;
+            IT j = lj + localColStart;
+            IT mj = RepMateC2R[lj];
+            
+            for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
+            {
+                IT li = dcsc->ir[cp];
+                IT i = li + localRowStart;
+                IT mi = RepMateR2C[li];
+                if( i > mj)
+                {
+                    double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
+                    int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
+                    tempTuples[owner].push_back(make_tuple(mj, mi, w));
+                    
+                }
+            }
+        }
+
 		//exchange C-request via All2All
 		// there might be some empty mesages in all2all
 		double t1Comp = MPI_Wtime() - tstart;
@@ -582,6 +605,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		tstart = MPI_Wtime();
 		
 		vector<tuple<IT,IT,IT,NT>> bestTuplesPhase3 (lncol);
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 		for(int k=0; k<lncol; ++k)
 		{
 			bestTuplesPhase3[k] = make_tuple(-1,-1,-1,0); // fix this
@@ -634,6 +660,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		
 		// Phase 4
 		// at the owner of (i,mi)
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 		for(int k=0; k<lncol; ++k)
 		{
 			bestTuplesPhase4[k] = make_tuple(-1,-1,-1,-1,0);
@@ -697,21 +726,18 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		// at the owner of (mj,j)
 		vector<tuple<IT,IT>> rowBcastTuples(recvWinnerTuples.size()); //(mi,mj)
 		vector<tuple<IT,IT>> colBcastTuples(recvWinnerTuples.size()); //(j,i)
-		
+#ifdef THREADED
+#pragma omp parallel for
+#endif
 		for(int k=0; k<recvWinnerTuples.size(); ++k)
 		{
 			IT i = get<0>(recvWinnerTuples[k]) ;
 			IT j = get<1>(recvWinnerTuples[k]) ;
 			IT mi = get<2>(recvWinnerTuples[k]) ;
 			IT mj = get<3>(recvWinnerTuples[k]);
-			
-			
-			
-			
+
 			colBcastTuples[k] = make_tuple(j,i);
-			//rowBcastTuples.push_back(make_tuple(i,j));
 			rowBcastTuples[k] = make_tuple(mj,mi);
-			//colBcastTuples.push_back(make_tuple(mi,mj));
 		}
 		double t5Comp = MPI_Wtime() - tstart;
 		tstart = MPI_Wtime();
@@ -729,11 +755,6 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		{
 			IT row = get<0>(updatedR2C[k]);
 			IT mate = get<1>(updatedR2C[k]);
-			if( (row < localRowStart) || (row >= (localRowStart+lnrow)))
-			{
-				cout << "myrank: " << myrank << "row: " << row << "localRowStart: " << localRowStart << endl;
-				exit(1);
-			}
 			RepMateR2C[row-localRowStart] = mate;
 		}
 		

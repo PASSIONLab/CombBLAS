@@ -22,7 +22,7 @@ public:
 		return vtx1.comp<vtx2.comp;
 	};
 	//friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return (vtx1.parent==vtx2.parent) & (vtx1.comp==vtx2.comp);};
-    friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return vtx1.comp==vtx2.comp;};
+    friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return vtx1.parent==vtx2.parent;};
 	friend ostream& operator<<(ostream& os, const VertexTypeML & vertex ){os << "(" << vertex.parent << "," << vertex.comp << ")"; return os;};
 	T1 parent;
 	T2 comp; // can be index, probability, degree or an adjacent edge weight
@@ -146,6 +146,7 @@ struct WeightMaxMMSR
 		return T2(arg2.parent, arg2.root, arg1);
 	}
 	
+    
 	static void axpy(const T1 a, const T2 & x, T2 & y)
 	{
 		y = add(y, multiply(a, x));
