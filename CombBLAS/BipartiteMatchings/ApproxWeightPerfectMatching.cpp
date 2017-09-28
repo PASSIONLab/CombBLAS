@@ -136,7 +136,8 @@ int main(int argc, char* argv[])
             t01 = MPI_Wtime();
             AWeighted->ParallelReadMM(filename, true, maximum<double>()); // one-based matrix market file
             t02 = MPI_Wtime();
-            AWeighted->PrintInfo();
+    
+            
             tinfo.str("");
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
@@ -145,18 +146,6 @@ int main(int argc, char* argv[])
             AWeighted->Prune([](double val){return fabs(val)==0;}, true);
             
             AWeighted->PrintInfo();
-            //GetOptions(argv+3, argc-3);
-            /*
-            FullyDistVec<int64_t, int64_t> prow(AWeighted->getcommgrid());
-            FullyDistVec<int64_t, int64_t> pcol(AWeighted->getcommgrid());
-            prow.iota(AWeighted->getnrow(), 0);
-            pcol.iota(AWeighted->getncol(), 0);
-            prow.RandPerm();
-            pcol.RandPerm();
-            (*AWeighted)(prow, prow, true);
-            
-            AWeighted->SaveGathered("test.rand.txt");
-             */
         }
         else if(argc < 4)
         {
@@ -250,7 +239,7 @@ int main(int argc, char* argv[])
             SpParHelper::Print("Performed random permutation of matrix.\n");
         }
         
-        Par_CSC_Double* AWeightedCSC = new Par_CSC_Double(*AWeighted);
+       
         
         //if(AWeightedCSC->seq() == AWeighted->seq()) cout << "Equal!" << endl;
         //else cout << "Not Equal!" << endl;
@@ -260,6 +249,7 @@ int main(int argc, char* argv[])
         Par_DCSC_Bool A = *AWeighted;
         Par_DCSC_Bool AT = A;
         AT.Transpose();
+        Par_CSC_Bool ACSCBool(A);
         
         //Par_CSC_Double AWeightedCSC (*AWeighted);
         
@@ -303,7 +293,7 @@ int main(int argc, char* argv[])
         
         
         
-        double ts = MPI_Wtime();
+        
 		Par_DCSC_Double AWeighted1 = *AWeighted;
         
         if(optimizeProd)
@@ -312,40 +302,46 @@ int main(int argc, char* argv[])
         }
         else
             TransformWeight(*AWeighted, false);
-		Trace(*AWeighted);
 		
+        double origWeight = Trace(*AWeighted);
+		
+        Par_CSC_Double AWeightedCSC(*AWeighted);
+
+        
         init = DMD; randMaximal = false; randMM = false; prune = true;
+        double ts = MPI_Wtime();
         //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
 		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
 		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
-        WeightedGreedy(*AWeightedCSC, *AWeighted, mateRow2Col, mateCol2Row, degCol);
+        WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+        //WeightedGreedy(ACSCBool, A, mateRow2Col, mateCol2Row, degCol);
+        double tmcl = MPI_Wtime() - ts;
+		double mclWeight = MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row);
+        SpParHelper::Print("After Greedy sanity check\n");
+		//CheckMatching(mateRow2Col,mateCol2Row);
+      
         
-		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
-		CheckMatching(mateRow2Col,mateCol2Row);
-        exit(1);
-        
-		
+		ts = MPI_Wtime();
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
-        //maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
-        cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
-        double tcard = MPI_Wtime() - ts;
+		//maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
+        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
+        double mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
+        double tmcm = MPI_Wtime() - ts;
+        SpParHelper::Print("After MCM sanity check\n");
         CheckMatching(mateRow2Col,mateCol2Row);
+        
         ts = MPI_Wtime();
         
-		
         TwoThirdApprox(*AWeighted, mateRow2Col, mateCol2Row);
 		
-		cout << "Weight: " << MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) << endl;
-        
-        double tweighted = MPI_Wtime() - ts;
-        
+		double awpmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
+        double tawpm = MPI_Wtime() - ts;
+        SpParHelper::Print("After AWPM sanity check\n");
         CheckMatching(mateRow2Col,mateCol2Row);
         
-    
-        AWeighted->PrintInfo();
         tinfo.str("");
-        tinfo << "Total time: " << tcard + tweighted << " [ card: " << tcard << " weighted: " << tweighted << " ]" << endl;
+        tinfo << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
+        tinfo << "Time: [ Greedy MCM AWPM Total] " << tmcl << " "<< tmcm << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
         if(saveMatching && ofname!="")
