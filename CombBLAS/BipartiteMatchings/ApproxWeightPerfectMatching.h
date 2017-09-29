@@ -106,16 +106,15 @@ vector<tuple<IT,IT,IT,NT>> ExchangeData1(vector<vector<tuple<IT,IT,IT,NT>>> & te
 
 
 
-// nrow and ncols are passed because they require communication to compute
+// remember that getnrow() and getncol() require collectives
+// Hence, we save them once and pass them to this function
 template <class IT, class NT,class DER>
 int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol, IT nrows, IT ncols)
 {
-	
 	auto commGrid = A.getcommgrid();
 	int procrows = commGrid->GetGridRows();
 	int proccols = commGrid->GetGridCols();
-	// remember that getnrow() and getncol() require collectives
-	// Hence, we save them once and pass them to this function
+	
 	IT m_perproc = nrows / procrows;
 	IT n_perproc = ncols / proccols;
 	int pr, pc;
@@ -127,11 +126,6 @@ int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol, IT nrows, IT ncol
 		pc = std::min(static_cast<int>(gcol / n_perproc), proccols-1);
 	else
 		pc = proccols-1;
-	if(grow > nrows)
-	{
-		cout << "grow > nrow: " << grow << " "<< nrows << endl;
-		exit(1);
-	}
 	return commGrid->GetRank(pr, pc);
 }
 
@@ -523,12 +517,18 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 				if( i > mj)
 				{
 					double w = nzit.value()- RepMateWR2C[li] - RepMateWC2R[lj];
-					int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
+                    
+                    int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
+                    int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
+                    int owner = commGrid->GetRank(rrank , crank);
+
+					//int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
 					tempTuples[owner].push_back(make_tuple(mj, mi, w));
 					
 				}
 			}
-		} */
+		}
+         */
         
         //
         
@@ -552,7 +552,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                     IT mi = RepMateR2C[li];
                     if( i > mj)
                     {
-                        int owner = OwnerProcs(A, mj, mi, nrows, ncols);
+                        int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
+                        int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
+                        int owner = commGrid->GetRank(rrank , crank);
+                        //int owner = OwnerProcs(A, mj, mi, nrows, ncols);
                         tProcSendCount[owner]++;
                     }
                 }
@@ -564,11 +567,17 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             
         }
         
+
+        double t1Comp1 = MPI_Wtime() - tstart;
+        tstart = MPI_Wtime();
+        
         // allocate memory
         for(int i=0; i<nprocs; i++)
         {
             tempTuples[i].resize(procSendCount[i]);
         }
+        double t1Comp2 = MPI_Wtime() - tstart;
+        tstart = MPI_Wtime();
     
         // populate data for send
         vector<int> procActualSent(nprocs,0);
@@ -587,7 +596,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 if( i > mj)
                 {
                     double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
-                    int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
+                    int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
+                    int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
+                    int owner = commGrid->GetRank(rrank , crank);
+                    //int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
                     int tt = __sync_fetch_and_add(procActualSent.data()+owner, 1);
                     tempTuples[owner][tt] = make_tuple(mj, mi, w);
                 }
