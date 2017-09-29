@@ -42,7 +42,7 @@ typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
 typedef SpParMat < int64_t, double, SpCCols<int64_t, double> > Par_CSC_Double;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
-template <class IT, class NT, class DER>
+template <class IT, class NT, class DER> 
 void TransformWeight(SpParMat < IT, NT, DER > & A, bool applylog)
 {
 	//A.Apply([](NT val){return log(1+abs(val));});
