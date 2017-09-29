@@ -502,7 +502,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		// C requests
 		// each row is for a processor where C requests will be sent to
 		double tstart = MPI_Wtime();
-		
+		 vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
 
         /*
         for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
@@ -530,9 +530,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			}
 		} */
         
+        //
         
-        vector<int> procSendCount(nprocs,0);
-        
+        vector<int> procSendCount(nprocs,0); // number items to be sent to each processor
 #ifdef THREADED
 #pragma omp parallel
 #endif
@@ -564,24 +564,21 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             
         }
         
-        vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
+        // allocate memory
         for(int i=0; i<nprocs; i++)
         {
             tempTuples[i].resize(procSendCount[i]);
         }
-
-        
-        int pSendCount=0;
+    
+        // populate data for send
+        vector<int> procActualSent(nprocs,0);
 #ifdef THREADED
-#pragma omp parallel for firstprivate(pSendCount)
+#pragma omp parallel for
 #endif
         for(int k=0; k<lncol; ++k)
         {
-            
             IT lj = k;
-            IT j = lj + localColStart;
             IT mj = RepMateC2R[lj];
-            
             for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
             {
                 IT li = dcsc->ir[cp];
@@ -591,10 +588,14 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 {
                     double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
                     int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
-                    tempTuples[owner][pSendCount++] = make_tuple(mj, mi, w);
+                    int tt = __sync_fetch_and_add(procActualSent.data()+owner, 1);
+                    tempTuples[owner][tt] = make_tuple(mj, mi, w);
                 }
             }
         }
+        
+        
+
 
 		//exchange C-request via All2All
 		// there might be some empty mesages in all2all
