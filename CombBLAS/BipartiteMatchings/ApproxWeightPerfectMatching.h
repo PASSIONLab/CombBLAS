@@ -106,7 +106,7 @@ vector<tuple<IT,IT,IT,NT>> ExchangeData1(vector<vector<tuple<IT,IT,IT,NT>>> & te
 
 
 
-
+// nrow and ncols are passed because they require communication to compute
 template <class IT, class NT,class DER>
 int OwnerProcs(SpParMat < IT, NT, DER > & A, IT grow, IT gcol, IT nrows, IT ncols)
 {
@@ -369,11 +369,9 @@ void UpdateMatching(FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mat
 	sendcnts[pc-1] = RepMateC2R.size() - dpls[pc-1];
 	
 	IT localLenC2R = mateCol2Row.LocArrSize();
-	IT* localC2R = mateCol2Row.GetLocArr();
+	IT* localC2R = (IT*) mateCol2Row.GetLocArr();
 	MPI_Scatterv(RepMateC2R.data(),sendcnts.data(), dpls.data(), MPIType<IT>(), localC2R, localLenC2R, MPIType<IT>(),rowroot, RowWorld);
 }
-
-
 
 
 template <class IT, class NT, class DER>
@@ -504,7 +502,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		// C requests
 		// each row is for a processor where C requests will be sent to
 		double tstart = MPI_Wtime();
-		vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
+		
 
         /*
         for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
@@ -532,6 +530,51 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			}
 		} */
         
+        
+        vector<int> procSendCount(nprocs,0);
+        
+#ifdef THREADED
+#pragma omp parallel
+#endif
+        {
+            vector<int> tProcSendCount(nprocs,0);
+#ifdef THREADED
+#pragma omp for
+#endif
+            for(int k=0; k<lncol; ++k)
+            {
+                IT mj = RepMateC2R[k]; // lj = k
+                
+                for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
+                {
+                    IT li = dcsc->ir[cp];
+                    IT i = li + localRowStart;
+                    IT mi = RepMateR2C[li];
+                    if( i > mj)
+                    {
+                        int owner = OwnerProcs(A, mj, mi, nrows, ncols);
+                        tProcSendCount[owner]++;
+                    }
+                }
+            }
+            for(int i=0; i<nprocs; i++)
+            {
+                __sync_fetch_and_add(procSendCount.data()+i, tProcSendCount[i]);
+            }
+            
+        }
+        
+        vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
+        for(int i=0; i<nprocs; i++)
+        {
+            tempTuples[i].resize(procSendCount[i]);
+        }
+
+        
+        int pSendCount=0;
+#ifdef THREADED
+#pragma omp parallel for firstprivate(pSendCount)
+#endif
         for(int k=0; k<lncol; ++k)
         {
             
@@ -548,8 +591,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
                 {
                     double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
                     int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
-                    tempTuples[owner].push_back(make_tuple(mj, mi, w));
-                    
+                    tempTuples[owner][pSendCount++] = make_tuple(mj, mi, w);
                 }
             }
         }

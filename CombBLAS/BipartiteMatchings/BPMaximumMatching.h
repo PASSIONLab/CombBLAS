@@ -167,12 +167,12 @@ template <typename IT>
 void AugmentPath(FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row,FullyDistVec<IT, IT>& parentsRow, FullyDistVec<IT, IT>& leaves)
 {
     MPI_Win win_mateRow2Col, win_mateCol2Row, win_parentsRow;
-    MPI_Win_create(mateRow2Col.GetLocArr(), mateRow2Col.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, mateRow2Col.commGrid->GetWorld(), &win_mateRow2Col);
-    MPI_Win_create(mateCol2Row.GetLocArr(), mateCol2Row.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, mateCol2Row.commGrid->GetWorld(), &win_mateCol2Row);
-    MPI_Win_create(parentsRow.GetLocArr(), parentsRow.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
+    MPI_Win_create((IT*)mateRow2Col.GetLocArr(), mateRow2Col.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, mateRow2Col.commGrid->GetWorld(), &win_mateRow2Col);
+    MPI_Win_create((IT*)mateCol2Row.GetLocArr(), mateCol2Row.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, mateCol2Row.commGrid->GetWorld(), &win_mateCol2Row);
+    MPI_Win_create((IT*)parentsRow.GetLocArr(), parentsRow.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
     
     
-    IT* leaves_ptr = leaves.GetLocArr();
+    IT* leaves_ptr = (IT*) leaves.GetLocArr();
     //MPI_Win_fence(0, win_mateRow2Col);
     //MPI_Win_fence(0, win_mateCol2Row);
     //MPI_Win_fence(0, win_parentsRow);
@@ -263,7 +263,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     
     
     MPI_Win winLeaves;
-    MPI_Win_create(leaves.GetLocArr(), leaves.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, A.getcommgrid()->GetWorld(), &winLeaves);
+    MPI_Win_create((IT*)leaves.GetLocArr(), leaves.LocArrSize() * sizeof(IT), sizeof(IT), MPI_INFO_NULL, A.getcommgrid()->GetWorld(), &winLeaves);
     
     
     while(matched)
