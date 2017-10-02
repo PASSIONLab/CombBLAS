@@ -82,7 +82,8 @@ FullyDistVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bin
 			int diagneigh = commGrid->GetComplementRank();
 			MPI_Status status;
 			MPI_Sendrecv(&trlen, 1, MPIType<IT>(), diagneigh, TRNNZ, &reallen, 1, MPIType<IT>(), diagneigh, TRNNZ, commGrid->GetWorld(), &status);
-            		FullyDistVec<IT,NT> parvec(commGrid, gcols(), identity);			
+			IT glncols = gcols();
+            		FullyDistVec<IT,NT> parvec(commGrid, glncols, identity);			
 
 			assert((parvec.arr.size() ==  reallen));
 			MPI_Sendrecv(trarr.data(), trlen, MPIType<NT>(), diagneigh, TRX, parvec.arr.data(), reallen, MPIType<NT>(), diagneigh, TRX, commGrid->GetWorld(), &status);
@@ -93,7 +94,8 @@ FullyDistVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bin
 		}
 		case Row:	// pack along the rows, result is a vector of size m
 		{
-            		FullyDistVec<IT,NT> parvec(commGrid, grows(), identity);
+			IT glnrows = grows();
+            		FullyDistVec<IT,NT> parvec(commGrid, glnrows, identity);
 
 			NT * sendbuf = new NT[m];
 			for(int i=0; i < m; ++i)
