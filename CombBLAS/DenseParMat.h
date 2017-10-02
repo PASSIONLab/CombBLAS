@@ -98,14 +98,14 @@ public:
 
 	shared_ptr<CommGrid> getcommgrid () { return commGrid; }
     
-    IT grows()
+   IT grows() const
     {
         IT glrows;
         MPI_Allreduce(&m, &glrows, 1, MPIType<IT>(), MPI_SUM, commGrid->GetColWorld());
         return glrows;
     }
     
-    IT gcols()
+    IT gcols() const
     {
         IT glcols;
         MPI_Allreduce(&n, &glcols, 1, MPIType<IT>(), MPI_SUM, commGrid->GetRowWorld());
