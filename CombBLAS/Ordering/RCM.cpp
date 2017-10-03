@@ -36,6 +36,12 @@ using namespace std;
 
 
 
+int threads, processors;
+string base_filename;
+
+
+
+
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
 {
@@ -117,7 +123,7 @@ typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
 
 
-FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &fringeRow)
+FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &fringeRow, int64_t startLabel, int64_t endLabel)
 {
 
     int myrank, nprocs;
@@ -128,27 +134,16 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     vector<int64_t> lind = fringeRow.GetLocalInd ();
     vector<VertexType> lnum = fringeRow.GetLocalNum ();
     int64_t ploclen = lind.size();
-    int64_t localmin = (int64_t)INT_MAX;
-    int64_t localmax = (int64_t) 0;
-    for(int i=0; i<ploclen; i++)
-        if(localmin > lnum[i].order)  localmin = lnum[i].order;
-    for(int i=0; i<ploclen; i++)
-        if(localmax < lnum[i].order)  localmax = lnum[i].order;
+
     
-    //MPI_Reduce;
-    int64_t globalmin = (int64_t) INT_MAX;
-    int64_t globalmax = (int64_t) 0;
-    MPI_Allreduce( &localmin, &globalmin, 1, MPIType<int64_t>(), MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-    
-    int64_t nparents = globalmax - globalmin + 1;
+    int64_t nparents = endLabel - startLabel + 1;
     int64_t perproc = nparents/nprocs;
     
     int * rdispls = new int[nprocs+1];
     int * recvcnt = new int[nprocs];
     int * sendcnt = new int[nprocs](); // initialize to 0
     int * sdispls = new int[nprocs+1];
-    
+
     MPI_Barrier(MPI_COMM_WORLD);
   
 #ifdef _OPENMP
@@ -156,7 +151,7 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
 #endif
     for(int64_t k=0; k < ploclen; ++k)
     {
-        int64_t temp = lnum[k].order-globalmin;
+        int64_t temp = lnum[k].order-startLabel;
         int owner;
         if(perproc==0 || temp/perproc > nprocs-1)
             owner = nprocs-1;
@@ -194,7 +189,7 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     for(int64_t i=0; i < ploclen; ++i)
     {
         
-        int64_t temp = lnum[i].order-globalmin;
+        int64_t temp = lnum[i].order-startLabel;
         int owner;
         if(perproc==0 || temp/perproc > nprocs-1)
             owner = nprocs-1;
@@ -245,8 +240,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     std::sort(tosort, tosort+totrecv);
 #endif
     
-    //cout << "I am here " << endl;
-    //FullyDistSpVec<int64_t,int64_t> order(fringeRow.getcommgrid(), fringeRow.TotalLength());
     // send order back
     int * sendcnt1 = new int[nprocs]();
     
@@ -274,8 +267,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
         rdispls[i+1] = rdispls[i] + recvcnt[i];
     }
 
-    
-    
     
     vector<int64_t> sortperproc (nprocs);
     sortperproc[myrank] = totrecv;
@@ -309,7 +300,8 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
         id = sdispls[owner] + count[owner];
         count[owner]++;
 #endif
-        datbuf[id] = i + disp[myrank] + globalmax + 1;
+        datbuf[id] = i + disp[myrank] + endLabel + 1;
+        //cout << datbuf[id] << endl;
         indbuf[id] = locind;
     }
     delete [] count;
@@ -326,9 +318,6 @@ FullyDistSpVec<int64_t, int64_t> getOrder(FullyDistSpVec<int64_t, VertexType> &f
     
 
     FullyDistSpVec<int64_t, int64_t> order(fringeRow.getcommgrid(), fringeRow.TotalLength(), recvindbuf3, recvdatbuf3);
-    
-    
-    
     DeleteAll(recvindbuf, recvdatbuf1, recvdatbuf2);
     DeleteAll(sdispls, rdispls, sendcnt, sendcnt1, recvcnt);
     ::operator delete(tosort);
@@ -341,7 +330,8 @@ double torderSpMV=0, torderSort=0, torderOther=0;
 template <typename PARMAT>
 void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order, int64_t startOrder, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t>& SPA)
 {
-    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     double tSpMV=0, tOrder, tOther, tSpMV1, tsort=0, tsort1;
     tOrder = MPI_Wtime();
     
@@ -351,10 +341,14 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
     fringe.SetElement(source, startOrder);
     int64_t curOrder = startOrder+1;
     
+    if(myrank == 0) cout << "    Computing the RCM ordering:" << endl;
     
 
+    int64_t startLabel = startOrder;
+    int64_t endLabel = startOrder;
     
-    while(fringe.getnnz() > 0) // continue until the frontier is empty
+    
+    while(startLabel <= endLabel) // continue until the frontier is empty
     {
         
         fringe = EWiseApply<int64_t>(fringe, order,
@@ -364,80 +358,127 @@ void RCMOrder(PARMAT & A, int64_t source, FullyDistVec<int64_t, int64_t>& order,
         
         tSpMV1 = MPI_Wtime();
         SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
-        //fringe = SpMV(A, fringe, optbuf);
         tSpMV += MPI_Wtime() - tSpMV1;
         fringe = EWiseMult(fringe, order, true, (int64_t) -1);
         
-        
-        //fringe.DebugPrint();
         FullyDistSpVec<int64_t, VertexType> fringeRow = EWiseApply<VertexType>(fringe, degrees,
                                                                                [](int64_t parent_order, int64_t degree){return VertexType(parent_order, degree);},
                                                                                [](int64_t parent_order, int64_t degree){return true;},
                                                                                false, (int64_t) -1);
-        //fringeRow.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(vtx.order, vtx.degree, idx);});
         
-        
-        //FullyDistSpVec::sort returns (i,j) index pairs such that
-        // jth entry before sorting becomes ith entry after sorting.
-        // Here i/j is the index of the elements relative to the dense containter
-        // Alternatively, j's consist a permutation that would premute the unsorted vector to sorted vector
-        /*
-        // Currently sort works up to 10k MPI processes
-        // We can change the hardcoded limit in SpParHelper::MemoryEfficientPSort
-        
-        //FullyDistSpVec<int64_t, int64_t> sorted =  fringe.sort();
-        FullyDistSpVec<int64_t, int64_t> sorted =  fringeRow.sort();
-        tsort += MPI_Wtime()-tsort1;
-        // idx is the index  of fringe in sorted order
-        FullyDistVec<int64_t, int64_t> idx = sorted.FindVals([](int64_t x){return true;});
-        //sorted.DebugPrint();
-        //idx.DebugPrint();
-        //MPI_Barrier(order.getcommgrid()->GetWorld());
-        //cout << "done ordering.... " << endl;
-        //MPI_Barrier(order.getcommgrid()->GetWorld());
-        FullyDistVec<int64_t, int64_t> val(idx.getcommgrid());
-        // val is the index  of fringe in sorted order (relative to each other starting with  1)
-        val.iota(idx.TotalLength(),curOrder);
-        curOrder += idx.TotalLength();
-         FullyDistSpVec<int64_t, int64_t> levelOrder (fringe.TotalLength(), idx, val);
-        */
         tsort1 = MPI_Wtime();
-        FullyDistSpVec<int64_t, int64_t> levelOrder = getOrder(fringeRow);
+        FullyDistSpVec<int64_t, int64_t> levelOrder = getOrder(fringeRow, startLabel, endLabel);
         tsort += MPI_Wtime()-tsort1;
-        //curOrder += idx.TotalLength(); // taken care of in sorting
         order.Set(levelOrder);
-        //order.DebugPrint();
-        //MPI_Barrier(order.getcommgrid()->GetWorld());
-        //cout << "return ordering.... " << endl;
-        //MPI_Barrier(order.getcommgrid()->GetWorld());
-        
+        startLabel = endLabel + 1;
+        endLabel += fringe.getnnz();
     }
     
     tOrder = MPI_Wtime() - tOrder;
     tOther = tOrder - tSpMV - tsort;
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
-        cout << "==================Ordering time =======================\n";
-        cout << "SpMV time " << " Sort time "<< " Other time" << endl;
-        cout << tSpMV << "        "<< tsort << "       "<< tOther << endl;
-        cout << "Total time: " <<  tOrder << " seconds." << endl;
-        cout << "=======================================================\n";
+        cout << "    Total time: " <<  tOrder << " seconds [SpMV: " << tSpMV << ", sorting: " << tsort << ", other: " << tOther << "]" << endl << endl;
     }
     
     torderSpMV+=tSpMV; torderSort+=tsort; torderOther+=tOther;
-    //order.DebugPrint();
-    
 }
 
 
+template <typename PARMAT>
+int64_t PseudoPeripheralVertex(PARMAT & A, FullyDistSpVec<int64_t, pair<int64_t, int64_t>>& unvisitedVertices, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t>& SPA)
+{
+    
+    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    double tpvSpMV=0, tpvOther=0;
+    double tstart = MPI_Wtime();
+    int64_t prevLevel=-1, curLevel=0; // initialized just to make the first iteration going
+    
+    
+    // Select a minimum-degree unvisited vertex as the initial source
+    pair<int64_t, int64_t> mindegree_vertex = unvisitedVertices.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
+    int64_t source = mindegree_vertex.second;
+    
+    //level structure in the current BFS tree
+    //we are not using this information. Currently it is serving as visited flag
+    FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
+    
+    int iterations = 0;
+    double tSpMV=0, tOther=0, tSpMV1;
+    if(myrank == 0) cout << "    Computing a pseudo-peripheral vertex:" << endl;
+    while(curLevel > prevLevel)
+    {
+        double tItr = MPI_Wtime();
+        prevLevel = curLevel;
+        FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  A.getnrow() );
+        level = (int64_t)-1; // reset level structure in every iteration
+        level.SetElement(source, 1); // place source at level 1
+        fringe.SetElement(source, 1); // include source to the initial fringe
+        curLevel = 2;
+        while(fringe.getnnz() > 0) // continue until the frontier is empty
+        {
+            tSpMV1 = MPI_Wtime();
+            SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
+            tSpMV += MPI_Wtime() - tSpMV1;
+            fringe = EWiseMult(fringe, level, true, (int64_t) -1);
+            // set value to the current level
+            fringe=curLevel;
+            curLevel++;
+            level.Set(fringe);
+        }
+        curLevel = curLevel-2;
+        
+        
+        // last non-empty level (we can avoid this by keeping the last nonempty fringe)
+        fringe = level.Find(curLevel);
+        fringe.setNumToInd();
+        
+        // find a minimum degree vertex in the last level
+        FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
+        EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
+                                           [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
+                                           [](int64_t vtx, int64_t deg){return true;},
+                                           false, (int64_t) -1);
+        mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
+        if (curLevel > prevLevel)
+            source = mindegree_vertex.second;
+        iterations++;
+        
+        
+        if(myrank == 0)
+        {
+            cout <<"    iteration: "<<  iterations << " BFS levels: " << curLevel << " Time: "  << MPI_Wtime() - tItr << " seconds." << endl;
+        }
+        
+    }
+    
+    // remove vertices in the current connected component
+    //unvisitedVertices = EWiseMult(unvisitedVertices, level, true, (int64_t) -1);
+    unvisitedVertices = EWiseApply<pair<int64_t, int64_t>>(unvisitedVertices, level,
+                                                           [](pair<int64_t, int64_t> vtx, int64_t visited){return vtx;},
+                                                           [](pair<int64_t, int64_t> vtx, int64_t visited){return visited==-1;},
+                                                           false, make_pair((int64_t)-1, (int64_t)0));
+    
+    tOther = MPI_Wtime() - tstart - tSpMV;
+    tpvSpMV += tSpMV;
+    tpvOther += tOther;
+    if(myrank == 0)
+    {
+        cout << "    vertex " << source << " is a pseudo peripheral vertex" << endl;
+        cout << "    pseudo diameter: " << curLevel << ", #iterations: "<< iterations <<  endl;
+        cout << "    Total time: " <<  MPI_Wtime() - tstart << " seconds [SpMV: " << tSpMV << ", other: " << tOther << "]" << endl << endl;
+       
+    }
+    return source;
+  
+}
 
-int threads, processors;
-string base_filename;
 template <typename PARMAT>
 FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> degrees, PreAllocatedSPA<int64_t>& SPA)
 {
+    
 #ifdef TIMING
     cblas_allgathertime = 0;
     cblas_alltoalltime = 0;
@@ -445,17 +486,13 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
     cblas_transvectime = 0;
     cblas_localspmvtime = 0;
 #endif
-    /*
-     unvisitedVertices: list of current unvisited vertices.
-     Each entry is a (degree, vertex index) pair.
-     I am keeping index as a value so that we can call reduce to finds the vertex with the minimum/maximum degree.
-     TODO: alternatively, we can create a MinIdx and MaxIdx function (will not be faster)
-     After discovering a pseudo peripheral vertex in the ith connected component
-     all vertices in the ith component are removed from this vector.
-     Degrees can be replaced by random numbers or something else.
-     */
+    int myrank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    
     FullyDistSpVec<int64_t, int64_t> unvisited ( A.getcommgrid(),  A.getnrow());
     unvisited.iota(A.getnrow(), (int64_t) 0); // index and values become the same
+    // The list of unvisited vertices. The value is (degree, vertex index) pair
     FullyDistSpVec<int64_t, pair<int64_t, int64_t>> unvisitedVertices =
     EWiseApply<pair<int64_t, int64_t>>(unvisited, degrees,
                                        [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
@@ -463,118 +500,22 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
                                        false, (int64_t) -1);
     
     
-    // final RCM order
+    // The RCM order will be stored here
     FullyDistVec<int64_t, int64_t> rcmorder ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
-    // current connected component
-    int cc = 1;
     
-    int myrank, nprocs;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    int cc = 1; // current connected component
     int64_t numUnvisited = unvisitedVertices.getnnz();
-    
-
-    double tpvSpMV=0, tpvOther=0;
-    
     while(numUnvisited>0) // for each connected component
     {
-        if(myrank == 0)
-        {
-            cout << "\n*********** Connected component # " << cc << " *****************" << endl;
-            cout << "Discovering Pseudo-peripheral vertex\n";
-        }
-        double tstart = MPI_Wtime();
-        // Select a minimum-degree unvisited vertex as the initial source
-        pair<int64_t, int64_t> mindegree_vertex = unvisitedVertices.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
-        int64_t source = mindegree_vertex.second;
         
-        int64_t prevLevel=-1, curLevel=0; // initialized just to make the first iteration going
-        // level structure in the current BFS tree
-        // we are not using this information. Currently it is serving as visited flag
-        FullyDistVec<int64_t, int64_t> level ( A.getcommgrid(),  A.getnrow(), (int64_t) -1);
+        if(myrank==0) cout << "Connected component: " << cc++ << endl;
+        // Get a pseudo-peripheral vertex to start the RCM algorithm
+        int64_t source = PseudoPeripheralVertex(A, unvisitedVertices, degrees,SPA);
         
-        int iterations = 0;
-        double tSpMV=0, tOther=0, tSpMV1;
-        while(curLevel > prevLevel)
-        {
-            double tItr = MPI_Wtime();
-            prevLevel = curLevel;
-            FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(),  A.getnrow() );
-            level = (int64_t)-1; // reset level structure in every iteration
-            level.SetElement(source, 1); // place source at level 1
-            fringe.SetElement(source, 1); // include source to the initial fringe
-            curLevel = 2;
-            while(fringe.getnnz() > 0) // continue until the frontier is empty
-            {
-                //fringe.setNumToInd(); // unncessary since we don't care about the parent
-                //cout << "vector nnz: " << fringe.getnnz() << endl;
-                tSpMV1 = MPI_Wtime();
-                
-                //SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
-                SpMV<SelectMinSR>(A, fringe, fringe, false, SPA);
-                
-                //fringe = SpMV(A, fringe);
-                tSpMV += MPI_Wtime() - tSpMV1;
-                fringe = EWiseMult(fringe, level, true, (int64_t) -1);
-                // set value to the current level
-                fringe=curLevel;
-                curLevel++;
-                level.Set(fringe);    
-            }
-            curLevel = curLevel-2;
-            
-            
-            // last non-empty level
-            fringe = level.Find(curLevel); // we can avoid this by keeping the last nonempty fringe
-            fringe.setNumToInd();
-            
-            // find a minimum degree vertex in the last level
-            FullyDistSpVec<int64_t, pair<int64_t, int64_t>> fringe_degree =
-            EWiseApply<pair<int64_t, int64_t>>(fringe, degrees,
-                                               [](int64_t vtx, int64_t deg){return make_pair(deg, vtx);},
-                                               [](int64_t vtx, int64_t deg){return true;},
-                                               false, (int64_t) -1);
-            
-            
-            mindegree_vertex = fringe_degree.Reduce(minimum<pair<int64_t, int64_t> >(), make_pair(LLONG_MAX, (int64_t)-1));
-            if (curLevel > prevLevel)
-                source = mindegree_vertex.second;
-            iterations++;
-            
-            
-            if(myrank == 0)
-            {
-                cout <<" iteration: "<<  iterations << " BFS levels: " << curLevel << " Time: "  << MPI_Wtime() - tItr << " seconds." << endl;
-            }
-            
-        }
-        
-        tOther = MPI_Wtime() - tstart - tSpMV;
-        tpvSpMV += tSpMV;
-        tpvOther += tOther;
-        if(myrank == 0)
-        {
-            cout << "==================Overall Stats =======================\n";
-            cout << "vertex " << source << " is a pseudo peripheral vertex" << endl;
-            cout << "pseudo diameter: " << curLevel << " iterations: "<< iterations <<  endl;
-            cout << "SpMV time " << " Other time" << endl;
-            cout << tSpMV << "          "<< tOther << endl;
-            cout << "Total time: " <<  MPI_Wtime() - tstart << " seconds." << endl;
-            cout << "======================================================\n";
-            
-        }
-        cc++;
-        
-        // order vertices in this connected component
+        // Get the RCM ordering in this connected component
         int64_t curOrder =  A.getnrow() - numUnvisited;
         RCMOrder(A, source, rcmorder, curOrder, degrees, SPA);
         
-        // remove vertices in the current connected component
-        //unvisitedVertices = EWiseMult(unvisitedVertices, level, true, (int64_t) -1);
-        unvisitedVertices = EWiseApply<pair<int64_t, int64_t>>(unvisitedVertices, level,
-                                                               [](pair<int64_t, int64_t> vtx, int64_t visited){return vtx;},
-                                                               [](pair<int64_t, int64_t> vtx, int64_t visited){return visited==-1;},
-                                                               false, make_pair((int64_t)-1, (int64_t)0));
         numUnvisited = unvisitedVertices.getnnz();
     }
     
@@ -617,7 +558,7 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
         int smallest = permutation[0];
         int largest = permutation[nprocs-1];
         int median = permutation[nprocs/2];
-        
+        cout << "------ Detail timing --------" << endl;
         cout << "TOTAL (accounted) MEAN: " << accumulate( total_time.begin(), total_time.end(), 0.0 )/ static_cast<double> (nprocs) << endl;
         cout << "TOTAL (accounted) MAX: " << total_time[0] << endl;
         cout << "TOTAL (accounted) MIN: " << total_time[nprocs-1]  << endl;
@@ -648,16 +589,17 @@ FullyDistVec<int64_t, int64_t> RCM(PARMAT & A, FullyDistVec<int64_t, int64_t> de
         cout << "mergecontributions slowest: " << td_mc_all[largest] << endl;
         cout << "spmsv slowest: " << td_spmv_all[largest] << endl;
     }
-#endif
+
 
     
     if(myrank == 0)
     {
         
         cout << "summary statistics" << endl;
-        cout << base_filename << " " << processors << " " << threads << " " << processors * threads << " "<< tpvSpMV << " "<< tpvOther << " "<< torderSpMV <<  " "<< torderSort<<  " "<<  torderOther<<  " "<< td_ag_all1 << " "<<  td_a2a_all1 << " "<<  td_tv_all1 << " "<<  td_mc_all1 << " "<< td_spmv_all1 << " "<<  endl;
+        cout << base_filename << " " << processors << " " << threads << " " << processors * threads << " "<< torderSpMV <<  " "<< torderSort<<  " "<<  torderOther<<  " "<< td_ag_all1 << " "<<  td_a2a_all1 << " "<<  td_tv_all1 << " "<<  td_mc_all1 << " "<< td_spmv_all1 << " "<<  endl;
         
     }
+    #endif
 
     
     return rcmorder;
@@ -677,39 +619,47 @@ int main(int argc, char* argv[])
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
     if(argc < 3)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./rcm <rmat|er|input> <scale|filename> " << "-rand <0|1>" << endl;
-            cout << "Example: mpirun -np 4 ./rcm rmat 20" << endl;
-            cout << "Example: mpirun -np 4 ./rcm er 20" << endl;
-            cout << "Example: mpirun -np 4 ./rcm input a.mtx" << endl;
+            
+            cout << "Usage: ./rcm <rmat|er|input> <scale|filename> " << "-permute" << " -savercm" << endl;
+            cout << "Example with a user supplied matrix:" << endl;
+            cout << "    mpirun -np 4 ./rcm input a.mtx" << endl;
+            cout << "Example with a user supplied matrix (pre-permute the input matrix for load balance):" << endl;
+            cout << "    mpirun -np 4 ./rcm input a.mtx  -permute " << endl;
+            cout << "Example with a user supplied matrix (pre-permute the input matrix for load balance) & save rcm order to input_file_name.rcm.txt file:" << endl;
+            cout << "    mpirun -np 4 ./rcm input a.mtx -permute -savercm" << endl;
+            cout << "Example with RMAT matrix: mpirun -np 4 ./rcm rmat 20" << endl;
+            cout << "Example with an Erdos-Renyi matrix: mpirun -np 4 ./rcm er 20" << endl;
             
         }
         MPI_Finalize();
         return -1;
     }
     {
-        int randpermute = 0;
+        
+        string filename="";
+        bool randpermute = false;
+        bool savercm = false;
         for (int i = 1; i < argc; i++)
         {
-            if (strcmp(argv[i],"-permute")==0) {
-                randpermute = atoi(argv[i + 1]);
-                if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
-            }
+            if (strcmp(argv[i],"-permute")==0)
+                randpermute = true;
+            if (strcmp(argv[i],"-savercm")==0)
+                savercm = true;
         }
         
         
         Par_DCSC_Bool * ABool;
-        Par_DCSC_Bool AAT;
         ostringstream tinfo;
-
         
         if(string(argv[1]) == string("input")) // input option
         {
             ABool = new Par_DCSC_Bool();
-            string filename(argv[2]);
+            filename = argv[2];
             tinfo.str("");
             tinfo << "**** Reading input matrix: " << filename << " ******* " << endl;
             
@@ -725,21 +675,6 @@ int main(int argc, char* argv[])
             tinfo << "Reader took " << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
-            if(randpermute)
-            {
-                if(ABool->getnrow() == ABool->getncol())
-                {
-                    FullyDistVec<int64_t, int64_t> p( ABool->getcommgrid());
-                    p.iota(ABool->getnrow(), 0);
-                    p.RandPerm();
-                    (*ABool)(p,p,true);// in-place permute to save memory
-                    SpParHelper::Print("Applied symmetric permutation.\n");
-                }
-                else
-                {
-                    SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
-                }
-            }
         }
         else if(string(argv[1]) == string("rmat"))
         {
@@ -775,45 +710,39 @@ int main(int argc, char* argv[])
         }
         
         
-        
-        /*
-        MPI_Comm com = ABool->getcommgrid()->GetWorld();
-        double gtime = MPI_Wtime();
-        SpParHelper::GatherMatrix(com, ABool->seq(), (int)0);
-        if(myrank==0)
+        Par_DCSC_Bool ABoolOld(ABool->getcommgrid());
+        // needed for random permutation
+        FullyDistVec<int64_t, int64_t> randp( ABool->getcommgrid());
+        if(randpermute && string(argv[1]) == string("input")) // do this only for user provided matrices
         {
-            cout << "gathertime " << MPI_Wtime() - gtime << endl;
+            if(ABool->getnrow() == ABool->getncol())
+            {
+                ABoolOld = *ABool; // create a copy for bandwidth computation
+                randp.iota(ABool->getnrow(), 0);
+                randp.RandPerm();
+                (*ABool)(randp,randp,true);// in-place permute to save memory
+                SpParHelper::Print("Matrix is randomly permuted for load balance.\n");
+            }
+            else
+            {
+                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+            }
         }
-        */
-        
         
         ABool->RemoveLoops();
-        int64_t bw = ABool->Bandwidth();
-        int64_t pf;
-        //pf = ABool->Profile();
         Par_CSC_Bool * ABoolCSC;
         FullyDistVec<int64_t, int64_t> degrees ( ABool->getcommgrid());
         float balance;
         balance = ABool->LoadImbalance();
         ABool->Reduce(degrees, Column, plus<int64_t>(), static_cast<int64_t>(0));
         ABoolCSC = new Par_CSC_Bool(*ABool);
+
         int nthreads = 1;
-        int splitPerThread = 1;
-        //if(argc==4)
-        //    splitPerThread = atoi(argv[3]);
-        int cblas_splits = splitPerThread;
-        
-        
-        
 #ifdef THREADED
 #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
-            cblas_splits = nthreads * splitPerThread;
         }
-        tinfo.str("");
-        tinfo << "Threading activated with " << nthreads << endl;
-        SpParHelper::Print(tinfo.str());
 #endif
         
         threads = nthreads;
@@ -823,61 +752,76 @@ int main(int argc, char* argv[])
         outs << "--------------------------------------" << endl;
         outs << "Number of MPI proceses: " << nprocs << endl;
         outs << "Number of threads per procese: " << nthreads << endl;
-        outs << "Number of splits of the matrix: " << cblas_splits << endl;
         outs << "Load balance: " << balance << endl;
-        outs << "Bandwidth after random permutation " << bw << endl;
-        outs << "Profile after random permutation " << pf << endl;
         outs << "--------------------------------------" << endl;
         SpParHelper::Print(outs.str());
         
-        // compute bandwidth
-        if(cblas_splits>=1)
-        {
-            // ABool->ActivateThreading(cblas_splits); // note: crash on empty matrix
-            //ABoolCSC->ActivateThreading(cblas_splits);
-        }
         
-        // Compute RCM ordering
-        // FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABool, degrees);
-        
-        SpParHelper::Print("Pre allocating SPA\n");
+        // create Pre allocated SPA for SpMSpV
         PreAllocatedSPA<int64_t> SPA(ABoolCSC->seq(), nthreads*4);
-        SpParHelper::Print("Pre allocated SPA\n");
-        
-        //FullyDistVec<int64_t, int64_t> fringe();
-        //degrees = SpMV<Select2ndSRing>(*ABool, degrees);
-        
-        
+        // Compute the RCM ordering
         FullyDistVec<int64_t, int64_t> rcmorder = RCM(*ABoolCSC, degrees, SPA);
 
         
-        // note: threaded matrix can not be permuted
-        // That is why I am not a supporter of split matrix.
-        // ABAB: Any suggestions in lieu of split matrix?
+        FullyDistVec<int64_t, int64_t> reverseOrder = rcmorder;
+        // comment out the next two lines if you want the Cuthill-McKee ordering
+        reverseOrder= rcmorder.TotalLength();
+        reverseOrder -= rcmorder;
         
         
-        // compute bandwidth of the permuted matrix
-        // using DCSC version here which is not split
-        //if(cblas_splits==1)
         
-            // Ariful: sort returns permutation from ordering
-            // and make the original vector a sequence (like iota)
-            // I actually need an invert to convert ordering a permutation
-    
-            FullyDistVec<int64_t, int64_t> reverseOrder = rcmorder;
-#ifndef CM
-            reverseOrder= rcmorder.TotalLength();
-            reverseOrder -= rcmorder;
-#endif
-            FullyDistVec<int64_t, int64_t>rcmorder1 = reverseOrder.sort();
-            (*ABool)(rcmorder1,rcmorder1,true);// in-place permute to save memory
-            bw = ABool->Bandwidth();
-            pf = ABool->Profile();
-            ostringstream outs1;
-            outs1 << "Bandwidth after RCM " << bw << endl;
-            outs1 << "Profile after RCM " << pf << endl;
-            SpParHelper::Print(outs1.str());
+        //revert random permutation if applied before
+        if(randpermute==true && randp.TotalLength() >0)
+        {
+            // inverse permutation
+            FullyDistVec<int64_t, int64_t>invRandp = randp.sort();
+            reverseOrder = reverseOrder(invRandp);
+        }
+        
+        // Write the RCM ordering
+        // TODO: should we save the permutation instead?
+        if(savercm && filename!="")
+        {
+            string ofName = filename + ".rcm.txt";
+            reverseOrder.ParallelWrite(ofName, 1, false);
+        }
+        
+        // get permutation from the ordering
+        // sort returns permutation from ordering
+        // and make the original vector a sequence (like iota)
+        // TODO: Can we use invert() ?
+        FullyDistVec<int64_t, int64_t>rcmorder1 = reverseOrder.sort();
+        
+        
+        
             
+        // Permute the original matrix with the RCM order
+        // this part is not timed as it is needed for sanity check only
+        if(randpermute==true && randp.TotalLength() >0)
+        {
+            int64_t bw_before1 = ABoolOld.Bandwidth();
+            int64_t bw_before2 = ABool->Bandwidth();
+            ABoolOld(rcmorder1,rcmorder1,true);
+            int64_t bw_after = ABoolOld.Bandwidth();
+            
+            ostringstream outs1;
+            outs1 << "Original Bandwidth: " << bw_before1 << endl;
+            outs1 << "Bandwidth after randomly permuting the matrix: " << bw_before2 << endl;
+            outs1 << "Bandwidth after the matrix is permuted by RCM: " << bw_after << endl << endl;
+            SpParHelper::Print(outs1.str());
+        }
+        else
+        {
+            int64_t bw_before1 = ABool->Bandwidth();
+            (*ABool)(rcmorder1,rcmorder1,true);
+            int64_t bw_after = ABool->Bandwidth();
+            
+            ostringstream outs1;
+            outs1 << "Original Bandwidth: " << bw_before1 << endl;
+            outs1 << "Bandwidth after the matrix is permuted by RCM: " << bw_after << endl << endl;;
+            SpParHelper::Print(outs1.str());
+        }
+        
         
         delete ABool;
         delete ABoolCSC;
