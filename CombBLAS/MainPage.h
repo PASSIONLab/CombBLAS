@@ -16,8 +16,8 @@
 *
 * <b>Download</b> 
 * - Read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
-* - The latest CMake'd tarball (version 1.5.0, Jan 2016) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_15_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
- The previous version (version 1.4.0, Jan 2014) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_14_0.tgz"> here </a> for backwards compatibility and benchmarking.
+* - The latest CMake'd tarball (version 1.6.0, Oct 2017) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
+ The previous version (version 1.5.0, Jan 2016) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_15_0.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		- <i> cmake . </i>
@@ -26,7 +26,7 @@
 * 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
-* - The CMake automatically compiles for flat-MPI mode but almost all expensive primitives are now multithreaded so you can enable that for better performance. <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLASv1.2_threading.txt">Here is an example how to do that</a>. Examples makefiles might already be enabling multithreaded for many cases.
+* - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases.
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (gcc version 4.8+, Intel version 15.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
@@ -55,10 +55,22 @@
 * The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
 * and is akin to some STL constructs such as vector<int, SomeAllocator<int> >. If your compiler support "auto", then you can have the compiler infer the type.
 *
-* Sparse and dense vectors can be distributed either along the diagonal processor or to all processor. The latter is more space efficient and provides 
-* much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
-* (sparse matrix-dense vector multiplication) 
+* Sparse and dense vectors are distributed along all processors. This is very space efficient and provides 
+* good load balance for SpMSV (sparse matrix-sparse vector multiplication).
 *
+* <b> New in version 1.6</b>:
+* - In-node multithreading enabled for many expensive operations.
+* - Fully parallel text-file reader for vectors (FullyDistSpVec::ParallelReadMM() and FullyDistVec::ParallelReadMM())
+* - Fully parallel text-file writer for vectors (FullyDistSpVec::ParallelWrite () and FullyDistVec::ParallelWrite())
+* - Reverse Cuthill-McKee (RCM) ordering implementation. Please cite [12] if you use this implementation
+* - Novel multithreaded SpGEMM and SpMV (with sparse vectors) algorithms are integrated with the rest of CombBLAS.
+* 	- For benchmarking multithreaded SpMV with sparse vectors, go to Applications/SpMSpV-IPDPS2017 directory and use the code there.
+* 	- Please cite [13] if you use the new multithreaded SpMV with sparse vectors.
+* - Extended CSC support
+* - Previously deprecated SpParVec and DenseParVec (that were distributed to diagonal processors only) classes are removed.
+* - Lots of more bug fixes
+*
+
 * <b> New in version 1.5</b>:
 * - Fully parallel matrix market format reader (SpParMat::ParallelReadMM())
 * - Complete multithreading support, including SpGEMM (previously it was solely SpMV), enabled by -DTHREADED during compilation
@@ -110,7 +122,7 @@
 * Important Sequential classes:
 * - SpTuples		: uses triples format to store matrices, mostly used for input/output and intermediate tasks (such as sorting)
 * - SpDCCols		: implements Alg 1B and Alg 2 [2], holds DCSC.
-* - SpCCols (incomplete) : implements CSC
+* - SpCCols 		: implements CSC
 
 * Important Parallel classes:
 * - SpParMat		: distributed memory MPI implementation 
@@ -155,5 +167,8 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
 * - [8] Scott Beamer, Aydin Buluç, Krste Asanović, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013.  <a href="http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf"> PDF </a>
 * - [9] Ariful Azad, Grey Ballard, Aydin Buluç, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624--C651, 2016.  <a href="http://gauss.cs.ucsb.edu/~aydin/M104253.pdf"> PDF </a>
 * - [10] Ariful Azad and Aydin Buluç. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015.  <a href="http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf"> PDF </a>
-* - [11] Ariful Azad and Aydin Buluc¸. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016.  <a href="http://ipdps.org/ipdps2016/2016_advance_program.html"> PDF </a>
+* - [11] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016.  <a href="http://gauss.cs.ucsb.edu/~aydin/MCM_IPDPS16_Azad.pdf"> PDF </a>
+* - [12] Ariful Azad, Mathias Jacquelin, Aydin Buluç, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017. <a href="http://gauss.cs.ucsb.edu/~aydin/RCM-ipdps17.pdf"> PDF </a>
+* - [13] Ariful Azad and Aydin Buluç. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In Proceedings of the IPDPS, 2017. <a
+href="http://gauss.cs.ucsb.edu/~aydin/SpMSpV-ipdps17.pdf"> PDF </a>
 */
