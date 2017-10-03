@@ -1,0 +1,59 @@
+CXX := CC
+CXXFLAGS := -std=c++11 -std=gnu++14 -O3 -fopenmp -fpermissive -DTHREADED #-DTIMING -DDETERMINISTIC
+
+
+
+COMBBLAS = ..
+
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
+
+%.o : %.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(COMBBLAS)/Tommy/%.o : $(COMBBLAS)/Tommy/%.c
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(COMBBLAS)/usort/%.o : $(COMBBLAS)/usort/src/%.cpp
+	$(CXX) -I$(COMBBLAS)/usort/include $(CXXFLAGS) -o $@ -c $<
+
+
+clean:
+	rm -rf ../*.o
+	rm -f md 
+	rm -f rcm
+	rm -f MatPermuteSave 
+	rm -f *.o
+        
+
+TOMMYS = $(COMBBLAS)/Tommy/tommyhashdyn.o $(COMBBLAS)/Tommy/tommyhash.o $(COMBBLAS)/Tommy/tommylist.o
+
+USORT = $(COMBBLAS)/usort/binUtils.o $(COMBBLAS)/usort/parUtils.o
+
+
+md.o: MD.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+md: MD.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+rcm.o: RCM.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+MatPermuteSave: MatPermuteSave.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
+MatPermuteSave.o: MatPermuteSave.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+rcm: rcm.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
+gathertest.o: gathertest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+gathertest: gathertest.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/mmio.o $(COMBBLAS)/MPIOp.o $(COMBBLAS)/MemoryPool.o $(COMBBLAS)/CommGrid.o  $(COMBBLAS)/hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o $(TOMMYS) $(USORT)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
