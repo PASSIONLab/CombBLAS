@@ -69,12 +69,8 @@ double bottomup_convert;
 double bu_local;
 double bu_update;
 double bu_rotate;
+int cblas_splits;
 
-#ifdef THREADED
-int cblas_splits = omp_get_max_threads(); 
-#else
-int cblas_splits = 1;
-#endif
 
 #include "../CombBLAS.h"
 
@@ -135,6 +131,13 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 
 int main(int argc, char* argv[])
 {
+#ifdef THREADED
+    cblas_splits = omp_get_max_threads(); 
+#else
+    cblas_splits = 1;
+#endif
+
+
     int nprocs, myrank;
 #ifdef _OPENMP
     int provided, flag, claimed;
