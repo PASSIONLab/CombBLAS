@@ -39,6 +39,7 @@ ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications ) 
 ADD_SUBDIRECTORY( usort ) 
 ADD_SUBDIRECTORY( graph500-1.2/generator )
+ADD_SUBDIRECTORY( Ordering ) 
 
 
 ENABLE_TESTING()
@@ -56,3 +57,5 @@ ADD_TEST( TopDownBFS_Test mpirun -np 4 ./Applications/tdbfs Force 17 FastGen)
 ADD_TEST( DirOptBFS_Test mpirun -np 4 ./Applications/dobfs 17 )
 ADD_TEST( FBFS_Test mpirun -np 4 ./Applications/fbfs Gen 16 )
 ADD_TEST( FMIS_Test mpirun -np 4 ./Applications/fmis 17 )
+ADD_TEST( RCM_Test mpirun -np 4 ./Ordering/rcm er 18 )
+
