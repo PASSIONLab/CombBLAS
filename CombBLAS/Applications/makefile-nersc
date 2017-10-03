@@ -61,22 +61,23 @@ MCL.o:  MCL.cpp CC.h WriteMCLClusters.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.
 CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
-APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
+APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(FLAGS) -c -o APowers.o APowers.cpp
 
-TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TopDownBFS.o TopDownBFS.cpp 
 
-DirOptBFS.o:  DirOptBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+DirOptBFS.o:  DirOptBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o DirOptBFS.o DirOptBFS.cpp 
 
-FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
+FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp 
 
-FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
+FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
+
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredMIS.o FilteredMIS.cpp
 
-nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
+nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
 	$(COMPILER) $(FLAGS) -c -o nqp.o nqp.cpp
 
 mcl:	CommGrid.o MPIType.o MCL.o mmio.o hash.o
@@ -107,7 +108,7 @@ fmis:	CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libg
 	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
-BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
 
 
@@ -115,7 +116,7 @@ BPMaximalMatching: CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500
 	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
-BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
