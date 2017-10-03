@@ -15,6 +15,7 @@ ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications ) 
 ADD_SUBDIRECTORY( usort ) 
 ADD_SUBDIRECTORY( graph500-1.2/generator )
+ADD_SUBDIRECTORY( Ordering ) 
 
 
 ENABLE_TESTING()
@@ -32,3 +33,5 @@ ADD_TEST( TopDownBFS_Test srun -n 16 -c 12 ./Applications/tdbfs Force 18 FastGen
 ADD_TEST( DirOptBFS_Test srun -n 16 -c 12 ./Applications/dobfs 18 )
 ADD_TEST( FBFS_Test srun -n 16 -c 12 ./Applications/fbfs Gen 17 )
 ADD_TEST( FMIS_Test srun -n 16 -c 12 ./Applications/fmis 18 )
+ADD_TEST( FMIS_Test mpirun -np 4 ./Applications/fmis 17 )
+ADD_TEST( RCM_Test mpirun -np 4 ./Ordering/rcm er 18 )
