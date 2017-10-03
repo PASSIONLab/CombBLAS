@@ -6,6 +6,7 @@ add_definitions(-DTHREADED)
 
 ADD_LIBRARY( CommGridlib CommGrid.cpp  )
 ADD_LIBRARY( MPITypelib MPIType.cpp )
+ADD_LIBRARY( MPIOplib MPIOp.cpp  )
 ADD_LIBRARY( MemoryPoollib MemoryPool.cpp )
 ADD_LIBRARY( Hashlib hash.cpp )
 ADD_LIBRARY( mmiolib mmio.c )
