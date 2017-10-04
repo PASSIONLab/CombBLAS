@@ -138,8 +138,8 @@
 * - DirOptBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the faster direction-optimizing BFS.
 * - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
 * - FilteredBFS.cpp: Filtered breadth-first search on a twitter-like data set. 
-* - MaximumMatching/BPMaximalMatching.cpp: Maximal matching algorithms on bipartite graphs [10]
-* - MaximumMatching/BPMaximumMatching.cpp: Maximum matching algorithm on bipartite graphs [11]
+* - BipartiteMatchings/BPMaximalMatching.cpp: Maximal matching algorithms on bipartite graphs [10]
+* - BipartiteMatchings/BPMaximumMatching.cpp: Maximum matching algorithm on bipartite graphs [11]
 * - Ordering/RCM.cpp: Reverse Cuthill-McKee ordering on distributed memory [12]
 *
 * <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most
