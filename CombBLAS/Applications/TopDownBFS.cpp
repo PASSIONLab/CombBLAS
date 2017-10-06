@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
-/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 6/15/2017 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc  --------------------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2017, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -37,11 +37,7 @@
 #include <string>
 #include <sstream>
 
-#ifdef _OPENMP
-	int cblas_splits = omp_get_max_threads();
-#else
-	int cblas_splits = 1;
-#endif
+int cblas_splits;
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
@@ -109,16 +105,18 @@ int main(int argc, char* argv[])
 {
 	int nprocs, myrank;
 #ifdef _OPENMP
-    int provided, flag, claimed;
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
-    MPI_Is_thread_main( &flag );
-    if (!flag)
-        SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
-    MPI_Query_thread( &claimed );
-    if (claimed != provided)
-        SpParHelper::Print("Query thread gave different thread level than requested\n");
+	int cblas_splits = omp_get_max_threads();
+    	int provided, flag, claimed;
+    	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
+    	MPI_Is_thread_main( &flag );
+    	if (!flag)
+        	SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
+    	MPI_Query_thread( &claimed );
+    	if (claimed != provided)
+        	SpParHelper::Print("Query thread gave different thread level than requested\n");
 #else
 	MPI_Init(&argc, &argv);
+	int cblas_splits = 1;	
 #endif
     
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);

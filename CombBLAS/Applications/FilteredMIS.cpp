@@ -1,3 +1,31 @@
+/****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.6 -------------------------------------------------*/
+/* date: 6/15/2017 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc  --------------------------*/
+/****************************************************************/
+/*
+ Copyright (c) 2010-2017, The Regents of the University of California
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 #define DETERMINISTIC
 #include "../CombBLAS.h"
 #include <mpi.h>
@@ -16,14 +44,9 @@
 #endif
 
 
-
 double cblas_alltoalltime;
 double cblas_allgathertime;
-#ifdef _OPENMP
-int cblas_splits = omp_get_max_threads();
-#else
-int cblas_splits = 1;
-#endif
+int cblas_splits;
 
 #include "TwitterEdge.h"
 
@@ -122,9 +145,22 @@ struct randGen : public std::unary_function<double, double>
 
 int main(int argc, char* argv[])
 {
-
-	int nprocs, myrank;
+	int nprocs, myrank;	
+#ifdef _OPENMP
+	int cblas_splits = omp_get_max_threads();
+    	int provided, flag, claimed;
+    	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
+    	MPI_Is_thread_main( &flag );
+    	if (!flag)
+        	SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
+    	MPI_Query_thread( &claimed );
+    	if (claimed != provided)
+        	SpParHelper::Print("Query thread gave different thread level than requested\n");
+#else
 	MPI_Init(&argc, &argv);
+	int cblas_splits = 1;	
+#endif
+
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	if(argc < 2)
