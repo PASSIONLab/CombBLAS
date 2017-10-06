@@ -42,19 +42,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/Cellar/cmake/3.9.3_1/bin/cmake
+CMAKE_COMMAND = /usr/local/Cellar/cmake/3.9.1/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/Cellar/cmake/3.9.3_1/bin/cmake -E remove -f
+RM = /usr/local/Cellar/cmake/3.9.1/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS
+CMAKE_SOURCE_DIR = /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS
+CMAKE_BINARY_DIR = /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLA
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/local/Cellar/cmake/3.9.3_1/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/local/Cellar/cmake/3.9.1/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -73,7 +73,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/Cellar/cmake/3.9.3_1/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/local/Cellar/cmake/3.9.1/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -84,7 +84,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target test
 test:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
-	/usr/local/Cellar/cmake/3.9.3_1/bin/ctest --force-new-ctest-process $(ARGS)
+	/usr/local/Cellar/cmake/3.9.1/bin/ctest --force-new-ctest-process $(ARGS)
 .PHONY : test
 
 # Special rule for the target test
@@ -94,14 +94,14 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -E cmake_progress_start /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS/CMakeFiles /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS/usort/CMakeFiles/progress.marks
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS/CMakeFiles 0
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -E cmake_progress_start /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS/CMakeFiles /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS/usort/CMakeFiles/progress.marks
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/clean
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/clean
 .PHONY : clean
 
 # The main clean target
@@ -111,22 +111,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/preinstall
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/preinstall
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 usort/CMakeFiles/Usortlib.dir/rule:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/CMakeFiles/Usortlib.dir/rule
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f CMakeFiles/Makefile2 usort/CMakeFiles/Usortlib.dir/rule
 .PHONY : usort/CMakeFiles/Usortlib.dir/rule
 
 # Convenience name for target.
@@ -136,37 +136,37 @@ Usortlib: usort/CMakeFiles/Usortlib.dir/rule
 
 # fast build rule for target.
 Usortlib/fast:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/build
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/build
 .PHONY : Usortlib/fast
 
 # target to build an object file
 src/binUtils.o:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.o
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.o
 .PHONY : src/binUtils.o
 
 # target to preprocess a source file
 src/binUtils.i:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.i
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.i
 .PHONY : src/binUtils.i
 
 # target to generate assembly for a file
 src/binUtils.s:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.s
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/binUtils.s
 .PHONY : src/binUtils.s
 
 # target to build an object file
 src/parUtils.o:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.o
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.o
 .PHONY : src/parUtils.o
 
 # target to preprocess a source file
 src/parUtils.i:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.i
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.i
 .PHONY : src/parUtils.i
 
 # target to generate assembly for a file
 src/parUtils.s:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.s
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(MAKE) -f usort/CMakeFiles/Usortlib.dir/build.make usort/CMakeFiles/Usortlib.dir/src/parUtils.s
 .PHONY : src/parUtils.s
 
 # Help Target
@@ -196,6 +196,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/aydinbuluc/Repositories/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/arifulazad/Documents/Projects/combinatorial-blas-2.0/CombBLAS && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

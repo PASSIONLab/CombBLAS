@@ -42,7 +42,7 @@ typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
 typedef SpParMat < int64_t, double, SpCCols<int64_t, double> > Par_CSC_Double;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
-template <class IT, class NT, class DER> 
+template <class IT, class NT, class DER>
 void TransformWeight(SpParMat < IT, NT, DER > & A, bool applylog)
 {
 	//A.Apply([](NT val){return log(1+abs(val));});
@@ -296,13 +296,15 @@ int main(int argc, char* argv[])
         
 		Par_DCSC_Double AWeighted1 = *AWeighted;
         
+        /*
         if(optimizeProd)
         {
             TransformWeight(*AWeighted, true);
         }
         else
             TransformWeight(*AWeighted, false);
-		
+        
+		*/
         double origWeight = Trace(*AWeighted);
 		
         Par_CSC_Double AWeightedCSC(*AWeighted);
@@ -317,9 +319,10 @@ int main(int argc, char* argv[])
         //WeightedGreedy(ACSCBool, A, mateRow2Col, mateCol2Row, degCol);
         double tmcl = MPI_Wtime() - ts;
 		double mclWeight = MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row);
+        
         SpParHelper::Print("After Greedy sanity check\n");
-		//CheckMatching(mateRow2Col,mateCol2Row);
-      
+		CheckMatching(mateRow2Col,mateCol2Row);
+        
         
 		ts = MPI_Wtime();
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
@@ -327,6 +330,7 @@ int main(int argc, char* argv[])
         maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
         double mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
         double tmcm = MPI_Wtime() - ts;
+        
         SpParHelper::Print("After MCM sanity check\n");
         CheckMatching(mateRow2Col,mateCol2Row);
         

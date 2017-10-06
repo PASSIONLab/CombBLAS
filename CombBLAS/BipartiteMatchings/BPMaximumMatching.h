@@ -299,7 +299,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
         {
             layer++;
             t1 = MPI_Wtime();
-            //
+            
 		    //TODO: think about this semiring
 			if(maximizeWeight)
 				SpMV<WeightMaxMMSR<NT, VertexType>>(A, fringeCol, fringeRow, false, SPA);
@@ -307,6 +307,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
 				SpMV<Select2ndMinSR<NT, VertexType>>(A, fringeCol, fringeRow, false, SPA);
             phase_timing[0] += MPI_Wtime()-t1;
 			
+            
             
             // remove vertices already having parents
             
@@ -336,14 +337,17 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
             t1 = MPI_Wtime();
             if(nnz_umFringeRow >0)
             {
+                /*
                 if(nnz_umFringeRow < 25*nprocs)
                 {
                     leaves.GSet(umFringeRow,
                                 [](IT valRoot, IT idxLeaf){return valRoot;},
                                 [](IT valRoot, IT idxLeaf){return idxLeaf;},
-                                winLeaves);
+                                winLeaves); 
+                 // There might be a bug here. It does not return the same output for different number of processes
+                 // e.g., check with g7jac200sc.mtx matrix
                 }
-                else
+                else*/
                 {
                     FullyDistSpVec<IT, IT> temp1(A.getcommgrid(), ncol);
                     temp1 = umFringeRow.Invert(ncol);
@@ -392,6 +396,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
         if (numMatchedCol== 0) matched = false;
         else
         {
+            
             if(numMatchedCol < (2* nprocs * nprocs))
                 AugmentPath(mateRow2Col, mateCol2Row,parentsRow, leaves);
             else

@@ -201,7 +201,12 @@ NT MatchingWeight( SpParMat < IT, NT, DER > & A, FullyDistVec<IT,IT> mateRow2Col
 	MPI_Allgatherv(trxnums.data(), trxsize, MPIType<IT>(), RepMateC2R.data(), colsize.data(), dpls.data(), MPIType<IT>(), ColWorld);
 	// -----------------------------------------------------------
 	
-	
+    /*
+    if(myrank==1)
+    {
+        for(int i=0; i<RepMateC2R.size(); i++)
+            cout << RepMateC2R[i] << ",";
+    }*/
 	
 	NT w = 0;
 	for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
@@ -218,14 +223,19 @@ NT MatchingWeight( SpParMat < IT, NT, DER > & A, FullyDistVec<IT,IT> mateRow2Col
 				if( i == mj)
 				{
 					w += nzit.value();
-					//if(nzit.value() == 0) cout << " row: " << i << " column: "<< mj << endl;
+                    //cout << myrank<< ":: row: " << i << " column: "<< lj+localColStart << " weight: " <<  nzit.value() << endl;
 				}
 			}
 		}
 		
 	}
-	
+
+    MPI_Barrier(World);
 	MPI_Allreduce(MPI_IN_PLACE, &w, 1, MPIType<NT>(), MPI_SUM, World);
+    //MPI_Allreduce(&w, &gw, 1, MPIType<NT>(), MPI_SUM, World);
+    //MPI_Reduce(&w, &gw, 1, MPIType<NT>(), MPI_SUM, 0, World);
+     //MPI_Allreduce(&w, &gw, 1, MPI_DOUBLE, MPI_SUM, World);
+    //cout << myrank << ": " << gw << endl;
 	return w;
 }
 

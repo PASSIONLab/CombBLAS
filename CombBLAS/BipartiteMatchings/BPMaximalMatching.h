@@ -296,7 +296,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		// ======================== step1: One step of BFS =========================
 		vector<double> times;
 		double t1 = MPI_Wtime();
-		
+        
 		SpMV<WeightMaxMLSR<double, VertexType>>(A, unmatchedCol, fringeRow, false, SPA);
 		
 		// Remove matched row vertices
