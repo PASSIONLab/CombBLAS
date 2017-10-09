@@ -444,7 +444,8 @@ void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, c
             for(IT j=Acsc.jc[colid]; j < Acsc.jc[colid+1]; ++j)
             {
                 uint32_t rowid = (uint32_t) Acsc.ir[j];
-                int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                int32_t splitId = rowSplits-1;
+                if(rowPerSplit!=0) splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
                 //bSize[b][splitId]++;
                 temp[splitId]++;
             }
@@ -542,7 +543,8 @@ void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, c
                 {
                     OVT val = SR::multiply( Acsc.num[j], numx[i]);
                     uint32_t rowid = (uint32_t) Acsc.ir[j];
-                    int32_t splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
+                    int32_t splitId = rowSplits-1;
+                    if(rowPerSplit!=0) splitId = (rowid/rowPerSplit > rowSplits-1) ? rowSplits-1 : rowid/rowPerSplit;
                     if (tBucketSize[splitId] < THREAD_BUF_LEN)
                     {
                         tIndSplitA[splitId*THREAD_BUF_LEN + tBucketSize[splitId]] = rowid;
@@ -588,17 +590,19 @@ void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, c
         
         for(int i=disp[rs]; i<disp[rs+1] ; i++)
         {
-            SPA.V_isthereBool[0][SPA.indSplitA[i]] = false;
+            int32_t lrowid = SPA.indSplitA[i] - rs * rowPerSplit;
+            SPA.V_isthereBool[rs][lrowid] = false;
         }
         uint32_t tMergeDisp = disp[rs];
         for(int i=disp[rs]; i<disp[rs+1] ; i++)
         {
             int32_t rowid = SPA.indSplitA[i];
-            if(!SPA.V_isthereBool[0][rowid])// there is no conflict across threads
+            int32_t lrowid = rowid - rs * rowPerSplit;
+            if(!SPA.V_isthereBool[rs][lrowid])// there is no conflict across threads
             {
                 SPA.V_localy[0][rowid] = SPA.numSplitA[i];
                 nzinds[tMergeDisp++] = rowid;
-                SPA.V_isthereBool[0][rowid]=true;
+                SPA.V_isthereBool[rs][lrowid]=true;
             }
             else
             {

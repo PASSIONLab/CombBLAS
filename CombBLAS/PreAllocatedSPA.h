@@ -117,11 +117,20 @@ public:
         V_isthere.push_back(BitMap(mA));
         V_localy.push_back(vector<OVT>(mA));
         V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
-        V_isthereBool.push_back(vector<bool>(mA));
+        
+       
+        
         
         
         vector<int32_t> nnzSplitA(buckets,0);
         int32_t rowPerSplit = mA / splits;
+        
+        
+        //per thread because writing vector<bool> is not thread safe
+        for(int i=0; i<splits-1; i++)
+            V_isthereBool.push_back(vector<bool>(rowPerSplit));
+         V_isthereBool.push_back(vector<bool>(mA - (splits-1)*rowPerSplit));
+
 
         //vector<bool> isthere(mA, false);
         for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
@@ -162,11 +171,13 @@ public:
             V_isthere.push_back(BitMap(mA));
             V_localy.push_back(vector<OVT>(mA));
             V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
-            V_isthereBool.push_back(vector<bool>(mA));
-            
             
             vector<int32_t> nnzSplitA(buckets,0);
             int32_t rowPerSplit = mA / splits;
+            
+            for(int i=0; i<splits-1; i++)
+                V_isthereBool.push_back(vector<bool>(rowPerSplit));
+            V_isthereBool.push_back(vector<bool>(mA - (splits-1)*rowPerSplit));
             
             //vector<bool> isthere(mA, false);
             for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
