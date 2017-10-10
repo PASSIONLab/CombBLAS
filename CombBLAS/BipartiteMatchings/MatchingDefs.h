@@ -38,13 +38,17 @@ public:
 	VertexTypeMM(IT p=-1, IT r=-1, double w=0){parent=p; root = r; comp = w;};
 	friend bool operator<(const VertexTypeMM & vtx1, const VertexTypeMM & vtx2 )
 	{
-		if(vtx1.comp==vtx2.comp) return vtx1.parent<vtx2.parent;
+		if(vtx1.comp==vtx2.comp)
+        {
+            if(vtx1.parent==vtx2.parent)
+                return vtx1.root<vtx2.root;
+            else return vtx1.parent<vtx2.parent;
+        }
 		else return vtx1.comp<vtx2.comp;
         
 	};
 	friend bool operator==(const VertexTypeMM & vtx1, const VertexTypeMM & vtx2 ){return vtx1.parent==vtx2.parent;};
-	friend ostream& operator<<(ostream& os, const VertexTypeMM & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
-	//private:
+	friend ostream& operator<<(ostream& os, const VertexTypeMM & vertex ){os << "(" << vertex.parent << "," << vertex.root << ","<< vertex.comp << ")"; return os;};
 	IT parent;
 	IT root;
 	double comp; // probability of selecting an edge or weight of an adjacent edge

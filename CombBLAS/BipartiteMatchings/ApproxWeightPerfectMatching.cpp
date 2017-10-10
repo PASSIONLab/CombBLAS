@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
         
 		Par_DCSC_Double AWeighted1 = *AWeighted;
         
-        /*
+        
         if(optimizeProd)
         {
             TransformWeight(*AWeighted, true);
@@ -304,7 +304,7 @@ int main(int argc, char* argv[])
         else
             TransformWeight(*AWeighted, false);
         
-		*/
+		
         double origWeight = Trace(*AWeighted);
 		
         Par_CSC_Double AWeightedCSC(*AWeighted);
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
         //WeightedGreedy(ACSCBool, A, mateRow2Col, mateCol2Row, degCol);
         double tmcl = MPI_Wtime() - ts;
 		double mclWeight = MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row);
-        
+        //mateRow2Col.DebugPrint();
         SpParHelper::Print("After Greedy sanity check\n");
 		CheckMatching(mateRow2Col,mateCol2Row);
         
@@ -327,12 +327,16 @@ int main(int argc, char* argv[])
 		ts = MPI_Wtime();
         //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
 		//maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
-        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, prune, false, true);
+        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, true);
         double mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
         double tmcm = MPI_Wtime() - ts;
         
+        tinfo.str("");
+        tinfo << "Weight: [ Original Greedy MCM] " << origWeight << " " << mclWeight << " "<< mcmWeight << endl;
+        SpParHelper::Print(tinfo.str());
         SpParHelper::Print("After MCM sanity check\n");
         CheckMatching(mateRow2Col,mateCol2Row);
+        
         
         ts = MPI_Wtime();
         

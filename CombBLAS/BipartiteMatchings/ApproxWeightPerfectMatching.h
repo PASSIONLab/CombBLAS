@@ -426,61 +426,80 @@ int ThreadBuffLenForBinning(int itemsize, int nbins)
     return THREAD_BUF_LEN;
 }
 
+
+
+
 template <class IT, class NT>
-vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT,IT,NT>>& recvTuples, IT* dcscir, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
+vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT,IT,NT>>& recvTuples, Dcsc<IT, NT>* dcsc, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
 {
     
     MPI_Comm World = param.commGrid->GetWorld();
+    
+    // Step 1: Sort for effecient searching of indices
     __gnu_parallel::sort(recvTuples.begin(), recvTuples.end());
     vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (param.nprocs);
-
     
     vector<int> sendcnt(param.nprocs,0); // number items to be sent to each processor
+
+    //Step 2: Count the amount of data to be sent to different processors
+    // Instead of binary search in each column, I am doing linear search
+    // Linear search is faster here because, we need to search 40%-50% of nnz
+    int nBins = 1;
 #ifdef THREADED
-#pragma omp parallel
+    nBins = omp_get_num_threads() * 4;
 #endif
+    
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(int i=0; i<nBins; i++)
     {
+        int perBin = recvTuples.size()/nBins;
+        int startBinIndex = perBin * i;
+        int endBinIndex = perBin * (i+1);
+        if(i==nBins-1) endBinIndex  = recvTuples.size();
+        
+        
         vector<int> tsendcnt(param.nprocs,0);
-#ifdef THREADED
-#pragma omp for
-#endif
-        for(int k=0; k<recvTuples.size();)
+        for(int k=startBinIndex; k<endBinIndex;)
         {
-            IT mi = get<0>(recvTuples[k]);
-            IT lcol = mi - param.localColStart;
-            IT i = RepMateC2R[lcol];
-            IT idx1 = k;
-            IT idx2 = colptr[lcol];
             
-            for(; get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
-            {
+                IT mi = get<0>(recvTuples[k]);
+                IT lcol = mi - param.localColStart;
+                IT i = RepMateC2R[lcol];
+                IT idx1 = k;
+                IT idx2 = colptr[lcol];
                 
-                IT mj = get<1>(recvTuples[idx1]) ;
-                IT lrow = mj - param.localRowStart;
-                IT j = RepMateR2C[lrow];
-                IT lrowMat = dcscir[idx2];
-                if(lrowMat ==  lrow)
+                for(; get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
                 {
-                    NT weight = get<2>(recvTuples[idx1]);
-                    NT cw = weight + RepMateWR2C[lrow]; //w+W[M'[j],M[i]];
-                    if (cw > 0)
-                    {
-                        int rrank = (param.m_perproc != 0) ? std::min(static_cast<int>(mj / param.m_perproc), param.pr-1) : (param.pr-1);
-                        int crank = (param.n_perproc != 0) ? std::min(static_cast<int>(j / param.n_perproc), param.pc-1) : (param.pc-1);
-                        int owner = param.commGrid->GetRank(rrank , crank);
-                        tsendcnt[owner]++;
-                    }
                     
-                    idx1++; idx2++;
+                    IT mj = get<1>(recvTuples[idx1]) ;
+                    IT lrow = mj - param.localRowStart;
+                    IT j = RepMateR2C[lrow];
+                    IT lrowMat = dcsc->ir[idx2];
+                    if(lrowMat ==  lrow)
+                    {
+                        NT weight = get<2>(recvTuples[idx1]);
+                        NT cw = weight + RepMateWR2C[lrow]; //w+W[M'[j],M[i]];
+                        if (cw > 0)
+                        {
+                            int rrank = (param.m_perproc != 0) ? std::min(static_cast<int>(mj / param.m_perproc), param.pr-1) : (param.pr-1);
+                            int crank = (param.n_perproc != 0) ? std::min(static_cast<int>(j / param.n_perproc), param.pc-1) : (param.pc-1);
+                            int owner = param.commGrid->GetRank(rrank , crank);
+                            tsendcnt[owner]++;
+                        }
+                        
+                        idx1++; idx2++;
+                    }
+                    else if(lrowMat >  lrow)
+                        idx1 ++;
+                    else
+                        idx2 ++;
                 }
-                else if(lrowMat >  lrow)
-                    idx1 ++;
-                else
-                    idx2 ++;
-            }
-            
-            for(;get<0>(recvTuples[idx1]) == mi ; idx1++);
-            k = idx1;
+                
+                for(;get<0>(recvTuples[idx1]) == mi ; idx1++);
+                k = idx1;
+             
         }
         for(int i=0; i<param.nprocs; i++)
         {
@@ -488,9 +507,9 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
         }
     }
 
+    
 
-
-
+    
     IT totsend = accumulate(sendcnt.data(), sendcnt.data()+param.nprocs, static_cast<IT>(0));
     vector<int> sdispls (param.nprocs, 0);
     partial_sum(sendcnt.data(), sendcnt.data()+param.nprocs-1, sdispls.data()+1);
@@ -499,16 +518,22 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
     vector<int> transferCount(param.nprocs,0);
     int THREAD_BUF_LEN = ThreadBuffLenForBinning(32, param.nprocs);
     
+    
+    //Step 3: Compile data to be sent to different processors
 #ifdef THREADED
-#pragma omp parallel
+#pragma omp parallel for
 #endif
+    for(int i=0; i<nBins; i++)
     {
+        int perBin = recvTuples.size()/nBins;
+        int startBinIndex = perBin * i;
+        int endBinIndex = perBin * (i+1);
+        if(i==nBins-1) endBinIndex  = recvTuples.size();
+        
+        
         vector<int> tsendcnt(param.nprocs,0);
         vector<tuple<IT,IT, IT, NT>> tsendTuples (param.nprocs*THREAD_BUF_LEN);
-#ifdef THREADED
-#pragma omp for
-#endif
-        for(int k=0; k<recvTuples.size();)
+        for(int k=startBinIndex; k<endBinIndex;)
         {
             IT mi = get<0>(recvTuples[k]);
             IT lcol = mi - param.localColStart;
@@ -522,7 +547,7 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
                 IT mj = get<1>(recvTuples[idx1]) ;
                 IT lrow = mj - param.localRowStart;
                 IT j = RepMateR2C[lrow];
-                IT lrowMat = dcscir[idx2];
+                IT lrowMat = dcsc->ir[idx2];
                 if(lrowMat ==  lrow)
                 {
                     NT weight = get<2>(recvTuples[idx1]);
@@ -570,11 +595,8 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
             }
         }
     }
-    
-    
-    
 
-    
+    // Step 4: Communicate data
     
     vector<int> recvcnt (param.nprocs);
     vector<int> rdispls (param.nprocs, 0);
@@ -583,72 +605,22 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
     partial_sum(recvcnt.data(), recvcnt.data()+param.nprocs-1, rdispls.data()+1);
     IT totrecv = accumulate(recvcnt.data(), recvcnt.data()+param.nprocs, static_cast<IT>(0));
     
-    
-    /* Create/allocate variables for vector assignment */
+
     MPI_Datatype MPI_tuple;
     MPI_Type_contiguous(sizeof(tuple<IT,IT,IT,NT>), MPI_CHAR, &MPI_tuple);
     MPI_Type_commit(&MPI_tuple);
     
     vector< tuple<IT,IT,IT,NT> > recvTuples1(totrecv);
     MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples1.data(), recvcnt.data(), rdispls.data(), MPI_tuple, World);
-    //DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
     MPI_Type_free(&MPI_tuple);
     return recvTuples1;
-    
-    
-    
-     /*
-    for(int k=0; k<recvTuples.size();)
-    {
-        IT mi = get<0>(recvTuples[k]);
-        IT lcol = mi - param.localColStart;
-        IT i = RepMateC2R[lcol];
-        IT idx1 = k;
-        IT idx2 = colptr[lcol];
-
-        for(; get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
-        {
-           
-            IT mj = get<1>(recvTuples[idx1]) ;
-            IT lrow = mj - param.localRowStart;
-            IT j = RepMateR2C[lrow];
-            IT lrowMat = dcscir[idx2];
-            if(lrowMat ==  lrow)
-            {
-                NT weight = get<2>(recvTuples[idx1]);
-                NT cw = weight + RepMateWR2C[lrow]; //w+W[M'[j],M[i]];
-                if (cw > 0)
-                {
-                    int rrank = (param.m_perproc != 0) ? std::min(static_cast<int>(mj / param.m_perproc), param.pr-1) : (param.pr-1);
-                    int crank = (param.n_perproc != 0) ? std::min(static_cast<int>(j / param.n_perproc), param.pc-1) : (param.pc-1);
-                    int owner = param.commGrid->GetRank(rrank , crank);
-                    tempTuples1[owner].push_back(make_tuple(mj, mi, i, cw));
-                }
-
-                idx1++; idx2++;
-            }
-            else if(lrowMat >  lrow)
-                idx1 ++;
-            else
-                idx2 ++;
-        }
-
-        for(;get<0>(recvTuples[idx1]) == mi ; idx1++);
-        k = idx1;
-    }
-    
-    for(int i=0; i<param.nprocs; i++)
-    {
-        cout << tempTuples1[i].size() << " " << sendcnt[i] << endl;
-    } */
-    //return tempTuples1;
 }
 
 
 // Old version of Phase 2
 // Not multithreaded (uses binary search)
 template <class IT, class NT>
-vector<vector<tuple<IT,IT, IT, NT>>> Phase2_old(const AWPM_param<IT>& param, vector<tuple<IT,IT,NT>>& recvTuples, IT* dcscir, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
+vector<vector<tuple<IT,IT, IT, NT>>> Phase2_old(const AWPM_param<IT>& param, vector<tuple<IT,IT,NT>>& recvTuples, Dcsc<IT, NT>* dcsc, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
 {
     
     vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (param.nprocs);
@@ -661,10 +633,10 @@ vector<vector<tuple<IT,IT, IT, NT>>> Phase2_old(const AWPM_param<IT>& param, vec
         
         if(colptr[mi- param.localColStart+1] > colptr[mi- param.localColStart] )
         {
-            IT * ele = find(dcscir+colptr[mi - param.localColStart], dcscir+colptr[mi - param.localColStart+1], mj - param.localRowStart);
+            IT * ele = find(dcsc->ir+colptr[mi - param.localColStart], dcsc->ir+colptr[mi - param.localColStart+1], mj - param.localRowStart);
             
             // TODO: Add a function that returns the edge weight directly
-            if (ele != dcscir+colptr[mi - param.localColStart+1])
+            if (ele != dcsc->ir+colptr[mi - param.localColStart+1])
             {
                 NT cw = weight + RepMateWR2C[mj - param.localRowStart]; //w+W[M'[j],M[i]];
                 if (cw > 0)
@@ -1011,10 +983,8 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         tstart = MPI_Wtime();
         vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
         vector<tuple<IT,IT,IT,NT>> recvTuples1 ;
-        if(recvTuples.size()>0)
-            //tempTuples1 = Phase2(param, recvTuples, dcsc->ir, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
-            recvTuples1 = Phase2(param, recvTuples, dcsc->ir, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
-        //tempTuples2 = Phase2_old(param, recvTuples, dcsc->ir, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
+        recvTuples1 = Phase2(param, recvTuples, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
+        //recvTuples1 = Phase2_old(param, recvTuples, dcsc->ir, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
         vector< tuple<IT,IT,NT> >().swap(recvTuples);
 		double t2Comp = MPI_Wtime() - tstart;
 		tstart = MPI_Wtime();
