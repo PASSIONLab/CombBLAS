@@ -566,7 +566,10 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
     // Linear search is faster here because, we need to search 40%-50% of nnz
     int nBins = 1;
 #ifdef THREADED
-    nBins = omp_get_num_threads() * 4;
+#pragma omp parallel
+    {
+        nBins = omp_get_num_threads() * 4;
+    }
 #endif
     
 #ifdef THREADED
