@@ -13,6 +13,7 @@
 #define DMD 3
 using namespace std;
 MTRand GlobalMT(123); // for reproducible result
+double tTotalMaximal;
 
 
 // This is not tested with CSC yet
@@ -250,6 +251,8 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	
+    double tStart = MPI_Wtime();
+    
 	//unmatched row and column vertices
 	FullyDistSpVec<IT, IT> unmatchedRow(mateRow2Col, [](IT mate){return mate==-1;});
 
@@ -271,7 +274,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 	IT curUnmatchedRow = unmatchedRow.getnnz();
 	IT newlyMatched = 1; // ensure the first pass of the while loop
 	int iteration = 0;
-	double tStart = MPI_Wtime();
+	
 	vector<vector<double> > timing;
 	
 #ifdef DETAIL_STATS
@@ -348,6 +351,8 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		
 	}
 	
+    tTotalMaximal = MPI_Wtime() - tStart;
+    
 	IT cardinality = mateRow2Col.Count([](IT mate){return mate!=-1;});
 	vector<double> totalTimes(timing[0].size(),0);
 	for(int i=0; i<timing.size(); i++)
