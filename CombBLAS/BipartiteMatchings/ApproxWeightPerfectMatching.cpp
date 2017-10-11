@@ -280,10 +280,18 @@ int main(int argc, char* argv[])
             awpmWeight = origWeight;
         }
         
-        
+
+        int nthreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+        }
+#endif
+
         tinfo.str("");
         tinfo << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
-        tinfo << "Time: [ Greedy MCM AWPM Total] " << tmcl << " "<< tmcm << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
+        tinfo << "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tmcl << " "<< tmcm << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
         //revert random permutation if applied before
