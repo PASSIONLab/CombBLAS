@@ -70,9 +70,14 @@ void ShowUsage()
     if(myrank == 0)
     {
         cout << "\n-------------- usage --------------\n";
-        cout << "Usage (input matrix): ./awpm input <matrix> saveMatching\n\n";
+        cout << "Usage: ./awpm -input <filename>\n";
+        cout << "Optional parameters: -randPerm: randomly permute the matrix for load balance (default: no random permutation)\n";
+        cout << "                     -optsum: Optimize the sum of diagonal (default: Optimize the product of diagonal)\n";
+        cout << "                     -noWeightedCard: do not use weighted cardinality matching (default: use weighted cardinality matching)\n";
+        cout << "                     -output <output file>: output file name (if not provided: inputfile.awpm.txt)\n";
         cout << " \n-------------- examples ----------\n";
-        cout << "Example: mpirun -np 4 ./bpmm input cage12.mtx saveMatching\n" << endl;
+        cout << "Example: mpirun -np 4 ./awpm -input cage12.mtx \n" << endl;
+        cout << "(output matching is saved to cage12.mtx.awpm.txt)\n" << endl;
     }
 }
 
@@ -114,32 +119,43 @@ int main(int argc, char* argv[])
     randPerm = false;
     bool optimizeProd = true; // by default optimize sum_log_abs(aii) (after equil)
     
-    SpParHelper::Print("***** I/O and other preprocessing steps *****\n");
+    bool weightedCard = true;
+    string ifilename = "";
+    string ofname = "";
+    for(int i = 1; i<argc; i++)
+    {
+        if (string(argv[i]) == string("-input")) ifilename = argv[i+1];
+        if (string(argv[i]) == string("-output")) ofname = argv[i+1];
+        if (string(argv[i]) == string("-optsum")) optimizeProd = false;
+        if (string(argv[i]) == string("-noWeightedCard")) weightedCard = false;
+        if (string(argv[i]) == string("-randPerm")) randPerm = true;
+    }
+    if(ofname=="") ofname = ifilename + ".awpm.txt";
+
+    
+    
+    
     // ------------ Process input arguments and build matrix ---------------
     {
-        
-        Par_DCSC_Bool * ABool;
-        
         Par_DCSC_Double * AWeighted;
         ostringstream tinfo;
         double t01, t02;
-        if(string(argv[1]) == string("input")) // input option
+        if(ifilename!="")
         {
             AWeighted = new Par_DCSC_Double();
-            
-            string filename(argv[2]);
-            ofname = filename + ".awpm.txt";
-            tinfo.str("");
-            
-            tinfo << "\n**** Reading input matrix: " << filename << " ******* " << endl;
-            SpParHelper::Print(tinfo.str());
             t01 = MPI_Wtime();
-            AWeighted->ParallelReadMM(filename, true, maximum<double>()); // one-based matrix market file
+            AWeighted->ParallelReadMM(ifilename, true, maximum<double>()); // one-based matrix market file
             t02 = MPI_Wtime();
-    
+       
+            if(AWeighted->getnrow() != AWeighted->getncol())
+            {
+                 SpParHelper::Print("Rectangular matrix: Can not compute a perfect matching.\n");
+                MPI_Finalize();
+                return -1;
+            }
             
             tinfo.str("");
-            tinfo << "Reader took " << t02-t01 << " seconds" << endl;
+            tinfo << "Reading input matrix in" << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
             SpParHelper::Print("Pruning explicit zero entries....\n");
@@ -147,218 +163,140 @@ int main(int argc, char* argv[])
             
             AWeighted->PrintInfo();
         }
-        else if(argc < 4)
+        else
         {
             ShowUsage();
             MPI_Finalize();
             return -1;
         }
-        else
-        {
-            
-            unsigned scale = (unsigned) atoi(argv[2]);
-            unsigned EDGEFACTOR = (unsigned) atoi(argv[3]);
-            double initiator[4];
-            if(string(argv[1]) == string("er"))
-            {
-                initiator[0] = .25;
-                initiator[1] = .25;
-                initiator[2] = .25;
-                initiator[3] = .25;
-                if(myrank==0)
-                cout << "Randomly generated ER matric\n";
-            }
-            else if(string(argv[1]) == string("g500"))
-            {
-                initiator[0] = .57;
-                initiator[1] = .19;
-                initiator[2] = .19;
-                initiator[3] = .05;
-                if(myrank==0)
-                cout << "Randomly generated G500 matric\n";
-            }
-            else if(string(argv[1]) == string("ssca"))
-            {
-                initiator[0] = .6;
-                initiator[1] = .4/3;
-                initiator[2] = .4/3;
-                initiator[3] = .4/3;
-                if(myrank==0)
-                cout << "Randomly generated SSCA matric\n";
-            }
-            else
-            {
-                if(myrank == 0)
-                printf("The input type - %s - is not recognized.\n", argv[2]);
-                MPI_Abort(MPI_COMM_WORLD, 1);
-            }
-            
-            SpParHelper::Print("Generating input matrix....\n");
-            t01 = MPI_Wtime();
-            DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true);
-            AWeighted = new Par_DCSC_Double(*DEL, false);
-            // Add random weight ??
-            delete DEL;
-            t02 = MPI_Wtime();
-            AWeighted->PrintInfo();
-            tinfo.str("");
-            tinfo << "Generator took " << t02-t01 << " seconds" << endl;
-            SpParHelper::Print(tinfo.str());
-            
-            Symmetricize(*AWeighted);
-            //removeIsolated(*ABool);
-            SpParHelper::Print("Generated matrix symmetricized....\n");
-            AWeighted->PrintInfo();
-            
-            //GetOptions(argv+4, argc-4);
-            
-            
-        }
         
-        if(argc>=4 && string(argv[3]) == string("optsum")) // input option
-        {
-            optimizeProd = false;
-        }
         
         
         // ***** careful: if you permute the matrix, you have the permute the matching vectors as well!!
         // randomly permute for load balance
         
-        
+        FullyDistVec<int64_t, int64_t> randp( AWeighted->getcommgrid());
         if(randPerm)
         {
-            SpParHelper::Print("Performing random permutation of matrix.\n");
-            FullyDistVec<int64_t, int64_t> prow(AWeighted->getcommgrid());
-            FullyDistVec<int64_t, int64_t> pcol(AWeighted->getcommgrid());
-            prow.iota(AWeighted->getnrow(), 0);
-            pcol.iota(AWeighted->getncol(), 0);
-            prow.RandPerm();
-            pcol.RandPerm();
-            (*AWeighted)(prow, pcol, true);
-            SpParHelper::Print("Performed random permutation of matrix.\n");
+            if(AWeighted->getnrow() == AWeighted->getncol())
+            {
+                randp.iota(AWeighted->getnrow(), 0);
+                randp.RandPerm();
+                (*AWeighted)(randp,randp,true);
+                SpParHelper::Print("Matrix is randomly permuted for load balance.\n");
+            }
+            else
+            {
+                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+            }
         }
         
        
-        
-        //if(AWeightedCSC->seq() == AWeighted->seq()) cout << "Equal!" << endl;
-        //else cout << "Not Equal!" << endl;
-        
-        
-
-        Par_DCSC_Bool A = *AWeighted;
-        Par_DCSC_Bool AT = A;
-        AT.Transpose();
-        Par_CSC_Bool ACSCBool(A);
-        
-        //Par_CSC_Double AWeightedCSC (*AWeighted);
-        
-        
-        
+        Par_DCSC_Bool A = *AWeighted; //just to compute degree
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
-        /*
-        int nthreads=1;
-#ifdef THREADED
-#pragma omp parallel
-        {
-            int splitPerThread = 1;
-            if(moreSplit) splitPerThread = 4;
-            nthreads = omp_get_num_threads();
-            cblas_splits = nthreads*splitPerThread;
-        }
-        tinfo.str("");
-        tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
-        SpParHelper::Print(tinfo.str());
-        A.ActivateThreading(cblas_splits); // note: crash on empty matrix
-        AT.ActivateThreading(cblas_splits);
-#endif
-         */
+       
+        
+        // transform weights
+        if(optimizeProd)
+            TransformWeight(*AWeighted, true);
+        else
+            TransformWeight(*AWeighted, false);
+        // convert to CSC for SpMSpV calls
+        Par_CSC_Double AWeightedCSC(*AWeighted);
+        Par_CSC_Bool ABoolCSC(*AWeighted);
         
         
-        SpParHelper::Print("**************************************************\n\n");
+		// Compute the initial trace
+        int64_t diagnnz;
+        double origWeight = Trace(*AWeighted, diagnnz);
+        bool isOriginalPerfect = diagnnz==A.getnrow();
+       
+
         
-        // compute the maximum cardinality matching
+        
+
         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
         
-        // using best options for the maximum cardinality matching
-        
-        // init = DMD; randMaximal = false; randMM = true; prune = true;
-        // MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-        // maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-         
-        
-        
-        
-        
-        
-		Par_DCSC_Double AWeighted1 = *AWeighted;
-        
-        
-        if(optimizeProd)
-        {
-            TransformWeight(*AWeighted, true);
-        }
-        else
-            TransformWeight(*AWeighted, false);
-        
-		
-        double origWeight = Trace(*AWeighted);
-		
-        Par_CSC_Double AWeightedCSC(*AWeighted);
 
+      
         
         init = DMD; randMaximal = false; randMM = false; prune = true;
+        
+        // Maximal
         double ts = MPI_Wtime();
-        //MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, init, randMaximal);
-		//MaximalMatching(A, AT, mateRow2Col, mateCol2Row, degCol, GREEDY, randMaximal);
-		//WeightedGreedy(*AWeighted, mateRow2Col, mateCol2Row, degCol);
-        WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
-        //WeightedGreedy(ACSCBool, A, mateRow2Col, mateCol2Row, degCol);
+        if(weightedCard)
+            WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
+        else
+            WeightedGreedy(ABoolCSC, mateRow2Col, mateCol2Row, degCol);
         double tmcl = MPI_Wtime() - ts;
+        
 		double mclWeight = MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row);
-        //mateRow2Col.DebugPrint();
         SpParHelper::Print("After Greedy sanity check\n");
-		CheckMatching(mateRow2Col,mateCol2Row);
+		bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
         
+        if(isOriginalPerfect && mclWeight<=origWeight) // keep original
+        {
+            SpParHelper::Print("Maximal is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            mateRow2Col.iota(A.getnrow(), 0);
+            mateCol2Row.iota(A.getncol(), 0);
+            mclWeight = origWeight;
+            isPerfectMCL = true;
+        }
         
-		ts = MPI_Wtime();
-        //maximumMatching(A, mateRow2Col, mateCol2Row, prune, randMM);
-		//maximumMatching(*AWeighted, mateRow2Col, mateCol2Row, prune, false, true);
-        maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, true);
-        double mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
-        double tmcm = MPI_Wtime() - ts;
-        
-        tinfo.str("");
-        tinfo << "Weight: [ Original Greedy MCM] " << origWeight << " " << mclWeight << " "<< mcmWeight << endl;
-        SpParHelper::Print(tinfo.str());
-        SpParHelper::Print("After MCM sanity check\n");
-        CheckMatching(mateRow2Col,mateCol2Row);
-        
-        
-        ts = MPI_Wtime();
-        
-        TwoThirdApprox(*AWeighted, mateRow2Col, mateCol2Row);
 		
-		double awpmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
+        // MCM
+        double tmcm = 0;
+        double mcmWeight = mclWeight;
+        if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
+        {
+            ts = MPI_Wtime();
+            if(weightedCard)
+                maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, true);
+            else
+                maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, false);
+            tmcm = MPI_Wtime() - ts;
+            mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
+            SpParHelper::Print("After MCM sanity check\n");
+            CheckMatching(mateRow2Col,mateCol2Row);
+        }
+        
+        
+        // AWPM
+        ts = MPI_Wtime();
+        TwoThirdApprox(*AWeighted, mateRow2Col, mateCol2Row);
         double tawpm = MPI_Wtime() - ts;
+        
+		double awpmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
         SpParHelper::Print("After AWPM sanity check\n");
         CheckMatching(mateRow2Col,mateCol2Row);
+        if(isOriginalPerfect && awpmWeight<origWeight) // keep original
+        {
+            SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            mateRow2Col.iota(A.getnrow(), 0);
+            mateCol2Row.iota(A.getncol(), 0);
+            awpmWeight = origWeight;
+        }
+        
         
         tinfo.str("");
         tinfo << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
         tinfo << "Time: [ Greedy MCM AWPM Total] " << tmcl << " "<< tmcm << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
+        //revert random permutation if applied before
+        if(randPerm==true && randp.TotalLength() >0)
+        {
+            // inverse permutation
+            FullyDistVec<int64_t, int64_t>invRandp = randp.sort();
+            mateRow2Col = mateRow2Col(invRandp);
+        }
         if(saveMatching && ofname!="")
         {
             mateRow2Col.ParallelWrite(ofname,false,false);
         }
-		
-        
-        
         
         
     }
