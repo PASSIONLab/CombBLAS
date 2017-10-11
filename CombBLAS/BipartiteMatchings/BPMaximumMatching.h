@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include "MatchingDefs.h"
+double tTotalMaximum;
 
 using namespace std;
 
@@ -240,6 +241,8 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     }
 #endif
     PreAllocatedSPA<VertexType> SPA(A.seq(), nthreads*4);
+    
+    double tstart = MPI_Wtime();
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -415,6 +418,8 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     
     
     MPI_Win_free(&winLeaves);
+    
+    tTotalMaximum = MPI_Wtime() - tstart;
     
     //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
     //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this

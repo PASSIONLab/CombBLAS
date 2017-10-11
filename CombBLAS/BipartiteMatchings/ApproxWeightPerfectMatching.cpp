@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
 
         tinfo.str("");
         tinfo << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
-        tinfo << "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tmcl << " "<< tmcm << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
+        tinfo << "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
         //revert random permutation if applied before
