@@ -9,6 +9,10 @@
 #ifndef ApproxWeightPerfectMatching_h
 #define ApproxWeightPerfectMatching_h
 
+#include <parallel/algorithm>
+#include <parallel/numeric>
+
+
 template <class IT>
 struct AWPM_param
 {
@@ -25,9 +29,9 @@ struct AWPM_param
     shared_ptr<CommGrid> commGrid;
 };
 
-#include <parallel/algorithm>
-#include <parallel/numeric>
 
+double t1Comp, t1Comm, t2Comp, t2Comm, t3Comp, t3Comm, t4Comp, t4Comm, t5Comp, t5Comm, tUpdateMateComp;
+    
 
 template <class IT, class NT>
 vector<tuple<IT,IT,NT>> ExchangeData(vector<vector<tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World)
@@ -211,8 +215,8 @@ vector<tuple<IT,IT>> MateBcast(vector<tuple<IT,IT>> sendTuples, MPI_Comm World)
 // Can be improved by removing AllReduce by All2All
 // -----------------------------------------------------------
 
-template <class IT, class NT,class DER>
-void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R, vector<NT>& RepMateWR2C, vector<NT>& RepMateWC2R, IT nrows, IT ncols)
+template <class IT, class NT>
+void ReplicateMateWeights( const AWPM_param<IT>& param, Dcsc<IT, NT>*dcsc, const vector<IT>& colptr, vector<IT>& RepMateC2R, vector<NT>& RepMateWR2C, vector<NT>& RepMateWC2R)
 {
 	
 	
@@ -220,67 +224,37 @@ void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R,
 	fill(RepMateWR2C.begin(), RepMateWR2C.end(), static_cast<NT>(0));
 	
 	
-	auto commGrid = A.getcommgrid();
-	MPI_Comm World = commGrid->GetWorld();
-	MPI_Comm ColWorld = commGrid->GetColWorld();
-	MPI_Comm RowWorld = commGrid->GetRowWorld();
-	int nprocs = commGrid->GetSize();
-	int pr = commGrid->GetGridRows();
-	int pc = commGrid->GetGridCols();
-	int rowrank = commGrid->GetRankInProcRow();
-	int colrank = commGrid->GetRankInProcCol();
-	int diagneigh = commGrid->GetComplementRank();
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(int k=0; k<param.lncol; ++k)
+    {
+        
+        IT lj = k; // local numbering
+        IT mj = RepMateC2R[lj]; // mate of j
+        
+        if(mj >= param.localRowStart && mj < (param.localRowStart+param.lnrow) )
+        {
+             for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
+             {
+                 IT li = dcsc->ir[cp];
+                 IT i = li + param.localRowStart;
+                 // TODO: use binary search to directly go to mj-th entry if more than 32 nonzero in this column
+                 if( i == mj)
+                 {
+                     RepMateWC2R[lj] = dcsc->numx[cp];
+                     RepMateWR2C[mj-param.localRowStart] = dcsc->numx[cp];
+                     //break;
+                 }
+             }
+        }
+    }
+
+
+    
+        MPI_Comm ColWorld = param.commGrid->GetColWorld();
+        MPI_Comm RowWorld = param.commGrid->GetRowWorld();
 	
-	//Information about the matrix distribution
-	//Assume that A is an nrow x ncol matrix
-	//The local submatrix is an lnrow x lncol matrix
-	IT m_perproc = nrows / pr;
-	IT n_perproc = ncols / pc;
-	DER* spSeq = A.seqptr(); // local submatrix
-	IT lnrow = spSeq->getnrow();
-	IT lncol = spSeq->getncol();
-	IT localRowStart = colrank * m_perproc; // first row in this process
-	IT localColStart = rowrank * n_perproc; // first col in this process
-	
-	
-	for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
-	{
-		IT lj = colit.colid(); // local numbering
-		IT mj = RepMateC2R[lj]; // mate of j
-		if(mj >= localRowStart && mj < (localRowStart+lnrow) )
-		{
-			
-			for(auto nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
-			{
-				
-				IT li = nzit.rowid();
-				IT i = li + localRowStart;
-				// TODO: use binary search to directly go to mj-th entry if more than 32 nonzero in this column
-				if( i == mj)
-				{
-					RepMateWC2R[lj] = nzit.value();
-					RepMateWR2C[mj-localRowStart] = nzit.value();
-				}
-			}
-			/*
-			 if(RepMateWC2R[lj]==0)
-			 {
-			 cout << " !!!!Error: " << lj << " " << mj << endl;
-			 for(auto nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
-			 {
-			 
-			 IT li = nzit.rowid();
-			 IT i = li + localRowStart;
-			 cout << i << " ";
-			 // TODO: use binary search to directly go to mj-th entry if more than 32 nonzero in this column
-			 
-			 }
-			 exit(1);
-			 }
-			 */
-		}
-		
-	}
 	MPI_Allreduce(MPI_IN_PLACE, RepMateWC2R.data(), RepMateWC2R.size(), MPIType<NT>(), MPI_SUM, ColWorld);
 	MPI_Allreduce(MPI_IN_PLACE, RepMateWR2C.data(), RepMateWR2C.size(), MPIType<NT>(), MPI_SUM, RowWorld);
 }
@@ -289,7 +263,7 @@ void ReplicateMateWeights( SpParMat < IT, NT, DER > & A, vector<IT>& RepMateC2R,
 
 
 template <class IT, class NT,class DER>
-NT Trace( SpParMat < IT, NT, DER > & A)
+NT Trace( SpParMat < IT, NT, DER > & A, IT& rettrnnz=0)
 {
 	
 	IT nrows = A.getnrow();
@@ -336,7 +310,7 @@ NT Trace( SpParMat < IT, NT, DER > & A)
 	}
 	MPI_Allreduce(MPI_IN_PLACE, &trnnz, 1, MPIType<IT>(), MPI_SUM, World);
 	MPI_Allreduce(MPI_IN_PLACE, &trace, 1, MPIType<NT>(), MPI_SUM, World);
-	
+    rettrnnz = trnnz;
     /*
 	if(myrank==0)
 		cout <<"nrows: " << nrows << " Nnz in the diag: " << trnnz << " sum of diag: " << trace << endl;
@@ -428,12 +402,158 @@ int ThreadBuffLenForBinning(int itemsize, int nbins)
 
 
 
+template <class IT, class NT>
+vector< tuple<IT,IT,NT> > Phase1(const AWPM_param<IT>& param, Dcsc<IT, NT>* dcsc, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
+{
+    
+    
+    
+    double tstart = MPI_Wtime();
+    
+    
+    MPI_Comm World = param.commGrid->GetWorld();
+    
+   
+    
+    //Step 1: Count the amount of data to be sent to different processors
+     vector<int> sendcnt(param.nprocs,0); // number items to be sent to each processor
+
+    
+#ifdef THREADED
+#pragma omp parallel
+#endif
+    {
+        vector<int> tsendcnt(param.nprocs,0);
+#ifdef THREADED
+#pragma omp for
+#endif
+        for(int k=0; k<param.lncol; ++k)
+        {
+            IT mj = RepMateC2R[k]; // lj = k
+            IT j = k + param.localColStart;
+            
+            for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
+            {
+                IT li = dcsc->ir[cp];
+                IT i = li + param.localRowStart;
+                IT mi = RepMateR2C[li];
+                if( i > mj) // TODO : stop when first come to this, may be use <
+                {
+                    
+                    int rrank = param.m_perproc != 0 ? std::min(static_cast<int>(mj / param.m_perproc), param.pr-1) : (param.pr-1);
+                    int crank = param.n_perproc != 0 ? std::min(static_cast<int>(mi / param.n_perproc), param.pc-1) : (param.pc-1);
+                    int owner = param.commGrid->GetRank(rrank , crank);
+                    tsendcnt[owner]++;
+                }
+            }
+        }
+        for(int i=0; i<param.nprocs; i++)
+        {
+            __sync_fetch_and_add(sendcnt.data()+i, tsendcnt[i]);
+        }
+    }
+    
+    
+    
+    
+    IT totsend = accumulate(sendcnt.data(), sendcnt.data()+param.nprocs, static_cast<IT>(0));
+    vector<int> sdispls (param.nprocs, 0);
+    partial_sum(sendcnt.data(), sendcnt.data()+param.nprocs-1, sdispls.data()+1);
+    
+    vector< tuple<IT,IT,NT> > sendTuples(totsend);
+    vector<int> transferCount(param.nprocs,0);
+    int THREAD_BUF_LEN = ThreadBuffLenForBinning(24, param.nprocs);
+    
+    
+    //Step 2: Compile data to be sent to different processors
+#ifdef THREADED
+#pragma omp parallel
+#endif
+    {
+        vector<int> tsendcnt(param.nprocs,0);
+        vector<tuple<IT,IT, NT>> tsendTuples (param.nprocs*THREAD_BUF_LEN);
+#ifdef THREADED
+#pragma omp for
+#endif
+        for(int k=0; k<param.lncol; ++k)
+        {
+            IT mj = RepMateC2R[k];
+            IT lj = k;
+            IT j = k + param.localColStart;
+            
+            for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
+            {
+                IT li = dcsc->ir[cp];
+                IT i = li + param.localRowStart;
+                IT mi = RepMateR2C[li];
+                if( i > mj) // TODO : stop when first come to this, may be use <
+                {
+                    double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
+                    int rrank = param.m_perproc != 0 ? std::min(static_cast<int>(mj / param.m_perproc), param.pr-1) : (param.pr-1);
+                    int crank = param.n_perproc != 0 ? std::min(static_cast<int>(mi / param.n_perproc), param.pc-1) : (param.pc-1);
+                    int owner = param.commGrid->GetRank(rrank , crank);
+                    
+                    if (tsendcnt[owner] < THREAD_BUF_LEN)
+                    {
+                        tsendTuples[THREAD_BUF_LEN * owner + tsendcnt[owner]] = make_tuple(mi, mj, w);
+                        tsendcnt[owner]++;
+                    }
+                    else
+                    {
+                        int tt = __sync_fetch_and_add(transferCount.data()+owner, THREAD_BUF_LEN);
+                        copy( tsendTuples.data()+THREAD_BUF_LEN * owner, tsendTuples.data()+THREAD_BUF_LEN * (owner+1) , sendTuples.data() + sdispls[owner]+ tt);
+                        
+                        tsendTuples[THREAD_BUF_LEN * owner] = make_tuple(mi, mj, w);
+                        tsendcnt[owner] = 1;
+                    }
+                }
+            }
+        }
+        for(int owner=0; owner < param.nprocs; owner++)
+        {
+            if (tsendcnt[owner] >0)
+            {
+                int tt = __sync_fetch_and_add(transferCount.data()+owner, tsendcnt[owner]);
+                copy( tsendTuples.data()+THREAD_BUF_LEN * owner, tsendTuples.data()+THREAD_BUF_LEN * owner + tsendcnt[owner], sendTuples.data() + sdispls[owner]+ tt);
+            }
+        }
+    }
+    
+    t1Comp = MPI_Wtime() - tstart;
+    tstart = MPI_Wtime();
+    
+    // Step 3: Communicate data
+    
+    vector<int> recvcnt (param.nprocs);
+    vector<int> rdispls (param.nprocs, 0);
+    
+    MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, World);
+    partial_sum(recvcnt.data(), recvcnt.data()+param.nprocs-1, rdispls.data()+1);
+    IT totrecv = accumulate(recvcnt.data(), recvcnt.data()+param.nprocs, static_cast<IT>(0));
+    
+    
+    MPI_Datatype MPI_tuple;
+    MPI_Type_contiguous(sizeof(tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
+    MPI_Type_commit(&MPI_tuple);
+    
+    vector< tuple<IT,IT,NT> > recvTuples1(totrecv);
+    MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples1.data(), recvcnt.data(), rdispls.data(), MPI_tuple, World);
+    MPI_Type_free(&MPI_tuple);
+    t1Comm = MPI_Wtime() - tstart;
+    return recvTuples1;
+}
+
+
+
+
 
 template <class IT, class NT>
 vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT,IT,NT>>& recvTuples, Dcsc<IT, NT>* dcsc, const vector<IT>& colptr, const vector<IT>& RepMateR2C, const vector<IT>& RepMateC2R, const vector<NT>& RepMateWR2C, const vector<NT>& RepMateWC2R )
 {
     
     MPI_Comm World = param.commGrid->GetWorld();
+    
+    double tstart = MPI_Wtime();
     
     // Step 1: Sort for effecient searching of indices
     __gnu_parallel::sort(recvTuples.begin(), recvTuples.end());
@@ -598,6 +718,9 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
 
     // Step 4: Communicate data
     
+    t2Comp = MPI_Wtime() - tstart;
+    tstart = MPI_Wtime();
+    
     vector<int> recvcnt (param.nprocs);
     vector<int> rdispls (param.nprocs, 0);
     
@@ -613,6 +736,7 @@ vector< tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, vector<tuple<IT
     vector< tuple<IT,IT,IT,NT> > recvTuples1(totrecv);
     MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples1.data(), recvcnt.data(), rdispls.data(), MPI_tuple, World);
     MPI_Type_free(&MPI_tuple);
+    t2Comm = MPI_Wtime() - tstart;
     return recvTuples1;
 }
 
@@ -700,6 +824,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     param.myrank = myrank;
     param.commGrid = commGrid;
     
+    double t1CompAll = 0, t1CommAll = 0, t2CompAll = 0, t2CommAll = 0, t3CompAll = 0, t3CommAll = 0, t4CompAll = 0, t4CommAll = 0, t5CompAll = 0, t5CommAll = 0, tUpdateMateCompAll = 0, tUpdateWeightAll = 0;
 	
 	// -----------------------------------------------------------
 	// replicate mate vectors for mateCol2Row
@@ -744,13 +869,6 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	// -----------------------------------------------------------
 	
 	
-	// -----------------------------------------------------------
-	// replicate weights of mates
-	// -----------------------------------------------------------
-	vector<NT> RepMateWR2C(lnrow);
-	vector<NT> RepMateWC2R(lncol);
-	ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R, nrows, ncols);
-	
 	
 	// Getting column pointers for all columns (for CSC-style access)
     vector<IT> colptr (lncol+1,-1);
@@ -770,6 +888,14 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	}
     // TODO: will this fail empty local matrix where every entry of colptr will be zero
 	
+    
+    // -----------------------------------------------------------
+    // replicate weights of mates
+    // -----------------------------------------------------------
+    vector<NT> RepMateWR2C(lnrow);
+    vector<NT> RepMateWC2R(lncol);
+    ReplicateMateWeights(param, dcsc, colptr, RepMateC2R, RepMateWR2C, RepMateWC2R);
+    
 	
 	int iterations = 0;
 	NT minw;
@@ -782,217 +908,17 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		if(myrank==0) cout << "Iteration " << iterations << ". matching weight: sum = "<< weightCur << " min = " << minw << endl;
 		// C requests
 		// each row is for a processor where C requests will be sent to
-		double tstart = MPI_Wtime();
-		 vector<vector<tuple<IT,IT,NT>>> tempTuples (nprocs);
-
-        /*
-        for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
-		{
-			
-			IT lj = colit.colid(); // local numbering
-			//if(myrank==0) cout << myrank << ") col: " << lj << " ********* "<< endl;
-			IT j = lj + localColStart;
-			IT mj = RepMateC2R[lj]; // mate of j
-			//start nzit from mate colid;
-			for(auto nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
-			{
-				IT li = nzit.rowid();
-				IT i = li + localRowStart;
-				IT mi = RepMateR2C[li];
-				//if(myrank==0) cout << myrank << ") " << i << " " << mi << " "<< j << " " << mj << endl;
-				// TODO: use binary search to directly start from RepMateC2R[colid]
-				if( i > mj)
-				{
-					double w = nzit.value()- RepMateWR2C[li] - RepMateWC2R[lj];
-                    
-                    int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
-                    int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
-                    int owner = commGrid->GetRank(rrank , crank);
-
-					//int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
-					tempTuples[owner].push_back(make_tuple(mj, mi, w));
-					
-				}
-			}
-		}
-         */
-        
-        //
-
-        
-        vector<int> procSendCount(nprocs,0); // number items to be sent to each processor
-#ifdef THREADED
-#pragma omp parallel
-#endif
-        {
-            vector<int> tProcSendCount(nprocs,0);
-#ifdef THREADED
-#pragma omp for
-#endif
-            for(int k=0; k<lncol; ++k)
-            {
-                IT mj = RepMateC2R[k]; // lj = k
-                IT j = k + localColStart;
-                
-                for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
-                {
-                    IT li = dcsc->ir[cp];
-                    IT i = li + localRowStart;
-                    IT mi = RepMateR2C[li];
-                    //if(myrank==0)cout << i << " & " << mj << endl;
-                    //if(i>=26 && j>=26)
-                        //if(myrank==3)
-                        //cout << j << "::" << i << " & " << mj << endl;
-                    
-                    if( i > mj) // TODO : stop when first come to this, may be use <
-                    {
-                        
-                        int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
-                        int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
-                        int owner = commGrid->GetRank(rrank , crank);
-                        //int owner = OwnerProcs(A, mj, mi, nrows, ncols);
-                        tProcSendCount[owner]++;
-                    }
-                }
-            }
-            for(int i=0; i<nprocs; i++)
-            {
-                __sync_fetch_and_add(procSendCount.data()+i, tProcSendCount[i]);
-            }
-            
-        }
+        double tstart;
         
         
-        
-
-        double t1Comp1 = MPI_Wtime() - tstart;
-        tstart = MPI_Wtime();
-        
-        // allocate memory
-        for(int i=0; i<nprocs; i++)
-        {
-            tempTuples[i].resize(procSendCount[i]);
-        }
-        double t1Comp2 = MPI_Wtime() - tstart;
-        tstart = MPI_Wtime();
-    
-        /*
-        // populate data for send
-        vector<int> procActualSent(nprocs,0);
-#ifdef THREADED
-#pragma omp parallel for
-#endif
-        for(int k=0; k<lncol; ++k)
-        {
-            IT lj = k;
-            IT mj = RepMateC2R[lj];
-            for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
-            {
-                IT li = dcsc->ir[cp];
-                IT i = li + localRowStart;
-                IT mi = RepMateR2C[li];
-                if( i > mj)
-                {
-                    double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
-                    int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
-                    int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
-                    int owner = commGrid->GetRank(rrank , crank);
-                    //int owner = OwnerProcs(A, mj, mi, nrows, ncols); // think about the symmetry??
-                    int tt = __sync_fetch_and_add(procActualSent.data()+owner, 1);
-                    tempTuples[owner][tt] = make_tuple(mj, mi, w);
-                }
-            }
-        }*/
-        
-        
-        vector<int> procActualSent(nprocs,0);
-        int THREAD_BUF_LEN = 256;
-#ifdef THREADED
-#pragma omp parallel
-#endif
-        {
-            vector<vector<tuple<IT,IT,NT>>> tempTuples_t (nprocs);
-            for(int i=0; i<nprocs; i++)
-            {
-                tempTuples_t[i].resize(THREAD_BUF_LEN);
-            }
-            vector<int> procActualSent_t(nprocs,0);
-#ifdef THREADED
-#pragma omp for
-#endif
-            for(int k=0; k<lncol; ++k)
-            {
-                IT lj = k;
-                IT mj = RepMateC2R[lj];
-                for(IT cp = colptr[k]; cp < colptr[k+1]; ++cp)
-                {
-                    IT li = dcsc->ir[cp];
-                    IT i = li + localRowStart;
-                    IT mi = RepMateR2C[li];
-                    if( i > mj)
-                    {
-                        double w = dcsc->numx[cp]- RepMateWR2C[li] - RepMateWC2R[lj];
-                        int rrank = m_perproc != 0 ? std::min(static_cast<int>(mj / m_perproc), pr-1) : (pr-1);
-                        int crank = n_perproc != 0 ? std::min(static_cast<int>(mi / n_perproc), pc-1) : (pc-1);
-                        int owner = commGrid->GetRank(rrank , crank);
-                        
-                        if (procActualSent_t[owner] < THREAD_BUF_LEN)
-                        {
-                            //tempTuples_t[owner][procActualSent_t[owner]++] = make_tuple(mj, mi, w);
-                            tempTuples_t[owner][procActualSent_t[owner]++] = make_tuple(mi, mj, w);
-                        }
-                        else
-                        {
-                            int tt = __sync_fetch_and_add(procActualSent.data()+owner, THREAD_BUF_LEN);
-                            copy( tempTuples_t[owner].begin(), tempTuples_t[owner].end() , tempTuples[owner].begin() + tt);
-                            //tempTuples_t[owner][0] = make_tuple(mj, mi, w);
-                            tempTuples_t[owner][0] = make_tuple( mi, mj, w);
-                            procActualSent_t[owner] = 1;
-                        }
-                    }
-                }
-            }
-            for(int owner=0; owner < nprocs; owner++)
-            {
-                if (procActualSent_t[owner] >0)
-                {
-                    int tt = __sync_fetch_and_add(procActualSent.data()+owner, procActualSent_t[owner]);
-                    copy( tempTuples_t[owner].begin(), tempTuples_t[owner].begin()+procActualSent_t[owner], tempTuples[owner].begin() + tt);
-                }
-            }
-            
-        }
-
-        
-        
-
-		//exchange C-request via All2All
-		// there might be some empty mesages in all2all
-		double t1Comp = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
-		vector<tuple<IT,IT,NT>> recvTuples = ExchangeData(tempTuples, World);
-		double t1Comm = MPI_Wtime() - tstart;
-		
-		//tempTuples are cleared in ExchangeData function
-		
-        IT recvSize =  recvTuples.size();
-        MPI_Allreduce(MPI_IN_PLACE, &recvSize, 1, MPIType<IT>(), MPI_SUM, World);
-        if(myrank==0) cout << "received data size: " << recvSize << " => "<< (recvSize*100.0)/nnz << "%"<< endl;
-        
-        
-        tstart = MPI_Wtime();
-        vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
-        vector<tuple<IT,IT,IT,NT>> recvTuples1 ;
-        recvTuples1 = Phase2(param, recvTuples, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
-        //recvTuples1 = Phase2_old(param, recvTuples, dcsc->ir, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
+        vector<tuple<IT,IT,NT>> recvTuples = Phase1(param, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
+        vector<tuple<IT,IT,IT,NT>> recvTuples1 = Phase2(param, recvTuples, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
         vector< tuple<IT,IT,NT> >().swap(recvTuples);
-		double t2Comp = MPI_Wtime() - tstart;
+        
+        
+        
 		tstart = MPI_Wtime();
-		//exchange RC-requests via AllToAllv
-		//vector<tuple<IT,IT,IT,NT>> recvTuples1 = ExchangeData1(tempTuples1, World);
-		double t2Comm = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
-		
+        
 		vector<tuple<IT,IT,IT,NT>> bestTuplesPhase3 (lncol);
 #ifdef THREADED
 #pragma omp parallel for
@@ -1011,8 +937,6 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			IT j = RepMateR2C[mj - localRowStart];
 			IT lj = j - localColStart;
 			
-			// how can I get i from here ?? ***** // receive i as well
-			
 			// we can get rid of the first check if edge weights are non negative
 			if( (get<0>(bestTuplesPhase3[lj]) == -1)  || (weight > get<3>(bestTuplesPhase3[lj])) )
 			{
@@ -1020,7 +944,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			}
 		}
 		
-		
+		vector<vector<tuple<IT,IT, IT, NT>>> tempTuples1 (nprocs);
 		for(int k=0; k<lncol; ++k)
 		{
 			if( get<0>(bestTuplesPhase3[k]) != -1)
@@ -1163,7 +1087,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		tstart = MPI_Wtime();
 		// update weights of matched edges
 		// we can do better than this since we are doing sparse updates
-		ReplicateMateWeights(A, RepMateC2R, RepMateWR2C, RepMateWC2R, nrows, ncols);
+		ReplicateMateWeights(param, dcsc, colptr, RepMateC2R, RepMateWR2C, RepMateWC2R);
 		double tUpdateWeight = MPI_Wtime() - tstart;
 		
 		
@@ -1176,11 +1100,29 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 		
 		if(myrank==0)
 		{
-			cout  << " " << t1Comp1 << " " << t1Comp2 << " " << t1Comp << " " << t1Comm << " " << t2Comp << " " << t2Comm << " " << t3Comp << " " << t3Comm << " " << t4Comp << " " << t4Comm << " " << t5Comp << " " << t5Comm << " " << tUpdateMateComp << " " << tUpdateWeight << endl;
+			cout  <<  t1Comp << " " << t1Comm << " "<< t2Comp << " " << t2Comm << " " << t3Comp << " " << t3Comm << " " << t4Comp << " " << t4Comm << " " << t5Comp << " " << t5Comm << " " << tUpdateMateComp << " " << tUpdateWeight << endl;
+            
+            t1CompAll += t1Comp;
+            t1CommAll += t1Comm;
+            t2CompAll += t2Comp;
+            t2CommAll += t2Comm;
+            t3CompAll += t3Comp;
+            t3CommAll += t3Comm;
+            t4CompAll += t4Comp;
+            t4CommAll += t4Comm;
+            t5CompAll += t5Comp;
+            t5CommAll += t5Comm;
+            tUpdateMateCompAll += tUpdateMateComp;
+            tUpdateWeightAll += tUpdateWeight;
+            
 		}
 	}
 	
-	
+    if(myrank==0)
+    {
+        cout << "=========== overal timing ==========" << endl;
+        cout  <<  t1CompAll << " " << t1CommAll << " " << t2CompAll << " " << t2CommAll << " " << t3CompAll << " " << t3CommAll << " " << t4CompAll << " " << t4CommAll << " " << t5CompAll << " " << t5CommAll << " " << tUpdateMateCompAll << " " << tUpdateWeightAll << endl;
+    }
 	
 	// update the distributed mate vectors from replicated mate vectors
 	UpdateMatching(mateRow2Col, mateCol2Row, RepMateR2C, RepMateC2R);

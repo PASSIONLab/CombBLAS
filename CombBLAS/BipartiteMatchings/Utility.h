@@ -106,7 +106,7 @@ bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow
 
 
 template <class IT>
-void CheckMatching(FullyDistVec<IT,IT> & mateRow2Col, FullyDistVec<IT,IT> & mateCol2Row)
+bool CheckMatching(FullyDistVec<IT,IT> & mateRow2Col, FullyDistVec<IT,IT> & mateCol2Row)
 {
     
     int myrank;
@@ -145,6 +145,8 @@ void CheckMatching(FullyDistVec<IT,IT> & mateRow2Col, FullyDistVec<IT,IT> & mate
             cout << "| This is not a matching |" << endl;
         cout << "-------------------------------" << endl;
     }
+    
+    return isPerfectMatching;
 
 }
 
