@@ -35,7 +35,7 @@
 #include "SpHelper.h"
 #include "csc.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 class SpCCols: public SpMat<IT, NT, SpCCols<IT, NT> >
@@ -257,12 +257,12 @@ template <class IT, class NT> struct promote_trait< SpCCols<IT,NT> , SpCCols<IT,
     typedef SpCCols<IT,NT> T_promote;
 };
 // General case #2: First is boolean the second is anything except boolean (to prevent ambiguity)
-template <class IT, class NT> struct promote_trait< SpCCols<IT,bool> , SpCCols<IT,NT>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >
+template <class IT, class NT> struct promote_trait< SpCCols<IT,bool> , SpCCols<IT,NT>, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >
 {
     typedef SpCCols<IT,NT> T_promote;
 };
 // General case #3: Second is boolean the first is anything except boolean (to prevent ambiguity)
-template <class IT, class NT> struct promote_trait< SpCCols<IT,NT> , SpCCols<IT,bool>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >
+template <class IT, class NT> struct promote_trait< SpCCols<IT,NT> , SpCCols<IT,bool>, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >
 {
     typedef SpCCols<IT,NT> T_promote;
 };
@@ -294,6 +294,8 @@ struct create_trait< SpCCols<OIT, ONT> , NIT, NNT >
     typedef SpCCols<NIT,NNT> T_inferred;
 };
 
-#include "SpCCols.cpp"
-#endif
+}
 
+#include "SpCCols.cpp"
+
+#endif

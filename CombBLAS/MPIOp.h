@@ -10,8 +10,7 @@
 #include "Operations.h"
 #include "MPIType.h"    // type_info_compare definition
 
-using namespace std;
-
+namespace combblas {
 
 class MPIOpCache
 {
@@ -90,7 +89,7 @@ struct MPIOp
             int myrank;
             MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
             if(myrank == 0)
-                cout << "Creating a new MPI Op for " << t->name() << endl;
+                std::cout << "Creating a new MPI Op for " << t->name() << std::endl;
             
             mpioc.set(t, foundop);
         }
@@ -108,5 +107,7 @@ template<typename T> struct MPIOp< logical_xor<T>,T,typename std::enable_if<std:
 template<typename T> struct MPIOp< bitwise_and<T>,T,typename std::enable_if<std::is_pod<T>::value, void>::type > { static MPI_Op op() { return MPI_BAND; } };
 template<typename T> struct MPIOp< bitwise_or<T>,T,typename std::enable_if<std::is_pod<T>::value, void>::type > {  static MPI_Op op() { return MPI_BOR; } };
 template<typename T> struct MPIOp< bitwise_xor<T>,T,typename std::enable_if<std::is_pod<T>::value, void>::type > { static MPI_Op op() { return MPI_BXOR; } };
+
+}
 
 #endif

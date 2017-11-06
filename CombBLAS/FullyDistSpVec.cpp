@@ -43,26 +43,26 @@
 
 #include "usort/include/parUtils.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid,globallen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid,globallen)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec ()
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>()
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>()
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(globallen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(globallen)
 { }
 
 
@@ -71,7 +71,7 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< 
 {
 	if(this != &rhs)
 	{
-		FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+		FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		ind = rhs.ind;
 		num = rhs.num;
 	}
@@ -80,7 +80,7 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< 
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs) // Conversion copy-constructor
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
 {
 	*this = rhs;
 }
@@ -89,9 +89,9 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs) // Conve
 template <class IT, class NT>
 template <typename _UnaryOperation>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
 {
-	//FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+	//FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
     
 	vector<IT>().swap(ind);
 	vector<NT>().swap(num);
@@ -111,7 +111,7 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOp
 // create a sparse vector from local vectors
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, const vector<IT>& indvec, const vector<NT> & numvec, bool SumDuplicates, bool sorted)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid, globallen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid, globallen)
 {
 
     assert(indvec.size()==numvec.size());
@@ -182,7 +182,7 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
-	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+	FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 
 	vector<IT>().swap(ind);
 	vector<NT>().swap(num);
@@ -207,7 +207,7 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT
  ************************************************************************/
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(inds.commGrid,globallen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(inds.commGrid,globallen)
 {
     if(*(inds.commGrid) != *(vals.commGrid))
     {
@@ -455,7 +455,7 @@ FullyDistVec<IT,IT> FullyDistSpVec<IT,NT>::FindInds(_Predicate pred) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {
-	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
+	FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	ind.swap(victim.ind);
 	num.swap(victim.num);
 }
@@ -2587,5 +2587,4 @@ void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,IT> Selector, _UnaryO
     
 }
 
-
-
+}

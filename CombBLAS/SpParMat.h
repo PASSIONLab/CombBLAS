@@ -54,6 +54,7 @@
 #include "DistEdgeList.h"
 #include "CombBLAS.h"
 
+namespace combblas {
 
 /**
   * Fundamental 2D distributed sparse matrix class
@@ -395,5 +396,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	return Mult_AnXBn_Synch<SR, N_promote, DER_promote> (A, B, clearA, clearB );
 }
 
+}
+
 #include "SpParMat.cpp"
+
 #endif

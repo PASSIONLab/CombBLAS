@@ -53,6 +53,10 @@
 #include "psort-1.0/driver/MersenneTwister.h"
 #include "CommGrid.h"
 
+extern int cblas_splits; // TODO: move this inside namespace
+
+namespace combblas {
+
 #define ONEMILLION 1000000
 #define MAXLINELENGTH 200
 #define MINLINELENGTH 2
@@ -105,8 +109,6 @@
 #define PUPSIZE 141
 #define PUPDATA 142
 
-extern int cblas_splits;
-
 enum Dim
 {
 Column,
@@ -126,5 +128,7 @@ Row
 #ifndef MEMORYINBYTES
 #define MEMORYINBYTES  (196 * 1048576)	// 196 MB, it is advised to define MEMORYINBYTES to be "at most" (1/4)th of available memory per core
 #endif
+
+}
 
 #endif

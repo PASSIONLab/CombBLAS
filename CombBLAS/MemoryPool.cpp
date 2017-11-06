@@ -29,6 +29,10 @@
 
 #include "MemoryPool.h"
 
+using namespace std;
+
+namespace combblas {
+
 MemoryPool::MemoryPool(void * m_beg, size_t m_size):initbeg((char*)m_beg), initend(((char*)m_beg)+m_size)
 {
 	Memory m((char*) m_beg, m_size);
@@ -144,3 +148,4 @@ ofstream& operator<< (ofstream& outfile, const MemoryPool & mpool)
 	return outfile;
 }
 
+}

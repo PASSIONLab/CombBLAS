@@ -31,7 +31,8 @@
 
 #include <iostream>
 #include <exception>
-using namespace std;
+
+namespace combblas {
 
 class outofrangeexception: public std::exception
 {
@@ -40,5 +41,7 @@ class outofrangeexception: public std::exception
     return "Index out of range exception";
   }
 };
+
+}
 
 #endif

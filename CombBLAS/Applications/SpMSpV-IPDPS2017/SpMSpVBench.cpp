@@ -36,6 +36,8 @@
 #include <string>
 #include <sstream>
 
+using namespace combblas;
+
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads();
 #else

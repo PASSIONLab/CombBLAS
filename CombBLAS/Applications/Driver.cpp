@@ -7,6 +7,7 @@
 #include "../SpParMat.h"
 
 using namespace std;
+using namespace combblas;
 
 int main()
 {

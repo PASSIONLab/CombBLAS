@@ -45,6 +45,7 @@
 #include "CombBLAS.h"
 #include "FullyDist.h"
 
+namespace combblas {
 
 template <class IT, class NT>
 class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
@@ -414,12 +415,12 @@ template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<I
         typedef SpDCCols<IT,NT> T_promote;                    
     };
 // General case #2: First is boolean the second is anything except boolean (to prevent ambiguity) 
-template <class IT, class NT> struct promote_trait< SpDCCols<IT,bool> , SpDCCols<IT,NT>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,bool> , SpDCCols<IT,NT>, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >      
     {                                           
         typedef SpDCCols<IT,NT> T_promote;                    
     };
 // General case #3: Second is boolean the first is anything except boolean (to prevent ambiguity) 
-template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,bool>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,bool>, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >      
 	{                                           
 		typedef SpDCCols<IT,NT> T_promote;                    
 	};
@@ -463,6 +464,8 @@ struct create_trait< SpDCCols<OIT, ONT> , NIT, NNT >
      typedef SpDCCols<NIT,NNT> T_inferred;
 };
 
-#include "SpDCCols.cpp"
-#endif
+}
 
+#include "SpDCCols.cpp"
+
+#endif

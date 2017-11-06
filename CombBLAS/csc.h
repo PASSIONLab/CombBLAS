@@ -37,7 +37,7 @@
 #include "SpDefs.h"
 #include "SpHelper.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 class Csc
@@ -61,5 +61,8 @@ public:
     IT nz;
 };
 
+}
+
 #include "csc.cpp"	// Template member function definitions need to be known to the compiler
+
 #endif

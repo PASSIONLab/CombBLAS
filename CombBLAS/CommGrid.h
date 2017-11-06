@@ -39,7 +39,7 @@
 #include <stdint.h>
 #include "MPIType.h"
 
-using namespace std;
+namespace combblas {
 
 class CommGrid
 {
@@ -143,9 +143,9 @@ public:
 		return size;
 	}
 
-	void OpenDebugFile(string prefix, ofstream & output) const; 
+	void OpenDebugFile(std::string prefix, std::ofstream & output) const; 
 
-	friend shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
+	friend std::shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
 	MPI_Comm commWorld, rowWorld, colWorld, diagWorld;
@@ -162,5 +162,7 @@ private:
 	template <class IT, class NT>
 	friend class FullyDistSpVec;
 };
+
+}
 
 #endif

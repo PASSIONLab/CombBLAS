@@ -30,6 +30,8 @@
 #include "CommGrid.h"
 #include "SpDefs.h"
 
+namespace combblas {
+
 CommGrid::CommGrid(MPI_Comm world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)
 {
 	MPI_Comm_dup(world, &commWorld);
@@ -176,4 +178,4 @@ shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & inner
 }
 
 
-
+}

@@ -9,6 +9,7 @@
 #include "../Applications/TwitterEdge.h"
 
 using namespace std;
+using namespace combblas;
 
 // One edge = 16 bytes (rounded up from 11)
 // One parent = 8 bytes

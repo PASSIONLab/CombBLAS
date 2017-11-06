@@ -69,6 +69,7 @@ int cblas_splits;
 //#define ONLYTIME // don't calculate TEPS
 
 using namespace std;
+using namespace combblas;
 
 
 template <typename PARMAT>

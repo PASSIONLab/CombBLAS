@@ -8,6 +8,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 #define ITERATIONS 1
 
 // Simple helper class for declarations: Just the numerical type is templated 

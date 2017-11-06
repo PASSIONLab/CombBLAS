@@ -32,6 +32,8 @@
 
 #include "CombBLAS.h"
 
+namespace combblas {
+
 struct HeaderInfo
 {
 	HeaderInfo():fileexists(false), headerexists(false) {};
@@ -101,5 +103,7 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * & f, int & seekle
 	return hinfo;
 }
 				  
+
+}
 #endif 
 

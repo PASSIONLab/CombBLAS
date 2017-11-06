@@ -36,6 +36,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 
 int main(int argc, char* argv[])
 {

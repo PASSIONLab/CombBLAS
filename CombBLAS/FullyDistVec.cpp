@@ -30,15 +30,17 @@
 #include "FullyDistSpVec.h"
 #include "Operations.h"
 
+namespace combblas {
+
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ()
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>()
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>()
 { 
 }
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval)
-:FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(globallen)
+:FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(globallen)
 {
 	arr.resize(MyLocLength(), initval);
 }
@@ -46,19 +48,19 @@ FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval)
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid)
 { }
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval)
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid,globallen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid,globallen)
 {
 	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
 FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conversion copy-constructor
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(rhs.commGrid,rhs.glen)
 {
 	*this = rhs;
 }
@@ -67,7 +69,7 @@ FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conver
 template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen))
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen))
 {
 	arr.resize(static_cast<IT>(rhs.arr.size()), NT());
 	
@@ -83,7 +85,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
   */
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ) 
-: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid)
+: FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid)
 {
 	MPI_Comm World = commGrid->GetWorld();
 	int nprocs = commGrid->GetSize();
@@ -254,7 +256,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,N
 {
 	if(this != &rhs)		
 	{
-		FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+		FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		arr = rhs.arr;
 	}
 	return *this;
@@ -263,7 +265,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,N
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
-	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+	FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 	arr.resize(rhs.MyLocLength());
 	std::fill(arr.begin(), arr.end(), NT());	
 
@@ -1211,5 +1213,4 @@ template <class NT1, typename _BinaryOperationIdx>
     return res;
 }
 
-
-
+}

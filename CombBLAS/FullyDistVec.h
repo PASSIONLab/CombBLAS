@@ -41,6 +41,8 @@
 #include "FullyDist.h"
 #include "Exception.h"
 
+namespace combblas {
+
 template <class IT, class NT>
 class FullyDistSpVec;
 
@@ -56,7 +58,7 @@ class DenseVectorLocalIterator;
 // ABAB: As opposed to SpParMat, IT here is used to encode global size and global indices;
 // therefore it can not be 32-bits, in general.
 template <class IT, class NT>
-class FullyDistVec: public FullyDist<IT,NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
+class FullyDistVec: public FullyDist<IT,NT, typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type >
 {
 public:
 	FullyDistVec ( );
@@ -156,10 +158,10 @@ public:
 	void RandPerm();	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation
 
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::LengthUntil;
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::TotalLength;
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::Owner;
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::MyLocLength;
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::LengthUntil;
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::TotalLength;
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::Owner;
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::MyLocLength;
 	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resized
     //TODO: we should change this function and return the vector directly
     const NT * GetLocArr() const { return arr.data(); }	// = MyLocLength() once arr is resized
@@ -268,8 +270,8 @@ public:
     template <typename _BinaryOperation, typename OUT = typename std::result_of<_BinaryOperation&(NT,NT)>::type>
     void EWiseOut(const FullyDistVec<IT,NT> & rhs, _BinaryOperation __binary_op, FullyDistVec<IT,OUT> & result);
 
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
-	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::glen; 
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
 	vector< NT > arr;
@@ -328,7 +330,8 @@ private:
     friend void maximumMatching(SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,FullyDistVec<int64_t, int64_t>& mateCol2Row);
 };
 
+}
+
 #include "FullyDistVec.cpp"
+
 #endif
-
-

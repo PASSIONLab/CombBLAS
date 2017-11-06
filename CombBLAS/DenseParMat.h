@@ -40,11 +40,10 @@
 #include "MPIOp.h"
 #include "FullyDistVec.h"
 
+namespace combblas {
+
 template <class IU, class NU, class DER>
 class SpParMat;
-
-using namespace std;
-
 
 template <class IT, class NT>
 class DenseParMat
@@ -121,6 +120,9 @@ private:
 	friend class SpParMat; 
 };
 
+}
+
 #include "DenseParMat.cpp"
+
 #endif
 

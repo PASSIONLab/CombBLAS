@@ -36,6 +36,8 @@
 #include "BitMapFringe.h"
 #include "CommGrid.h"
 
+namespace combblas {
+
 template <class IT, class NT>
 class BitMapCarousel {
  public:
@@ -184,5 +186,7 @@ private:
   BitMap* old_bm;
   int* sub_disps;
 };
+
+}
 
 #endif // BITMAPCAROUSEL_H
