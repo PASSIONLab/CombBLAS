@@ -25,8 +25,7 @@
 #include "Friends.h"
 #include "Operations.h"
 
-using namespace std;
-using namespace std::tr1;
+namespace combblas {
 
 template <class IT, class NT, class DER>
 class SemanticGraph
@@ -41,5 +40,6 @@ private:
 	PVec SemVec; 
 }
 
+}
 
 #endif

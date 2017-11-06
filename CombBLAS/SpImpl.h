@@ -34,7 +34,8 @@
 #include <vector>
 #include "PreAllocatedSPA.h"
 #include "Deleter.h"
-using namespace std;
+
+namespace combblas {
 
 template <class IT, class NT>
 class Dcsc;
@@ -196,5 +197,8 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
                                      vector<int32_t> & indy, vector<OVT> & numy, int32_t offset, vector<OVT> & localy, BitMap & isthere, vector<uint32_t> & nzinds);
 };
 
+}
+
 #include "SpImpl.cpp"
+
 #endif

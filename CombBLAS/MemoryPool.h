@@ -35,7 +35,7 @@
 #include <new>			// For "placement new" (classes using this memory pool may need it)
 #include <fstream>
 
-using namespace std;
+namespace combblas {
 
 //! EqualityComparable memory chunk object
 //! Two memory chunks are considered equal if either their beginaddr or the endaddr are the same (just to facilitate deallocation)
@@ -71,14 +71,16 @@ public:
 	void * alloc(size_t size);
 	void dealloc (void * base, size_t size);
 
-	friend ofstream& operator<< (ofstream& outfile, const MemoryPool & mpool);	
+	friend std::ofstream& operator<< (std::ofstream& outfile, const MemoryPool & mpool);	
 
 private:
 	// std::list is a doubly linked list (i.e., a Sequence that supports both forward and backward traversal)
-	list<Memory> freelist;
+	std::list<Memory> freelist;
 	char * initbeg;
 	char * initend; 
 };
 
+
+}
 
 #endif

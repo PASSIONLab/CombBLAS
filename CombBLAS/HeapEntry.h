@@ -30,6 +30,8 @@
 #ifndef _HEAP_ENTRY_H
 #define _HEAP_ENTRY_H
 
+namespace combblas {
+
 template <class IT, class NT>
 class HeapEntry
 {
@@ -52,6 +54,8 @@ public:
 	bool operator == (const HeapEntry & rhs) const
 	{ return (key == rhs.key); }
 };
+
+}
 
 #endif
 

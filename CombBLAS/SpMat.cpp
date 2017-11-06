@@ -30,7 +30,8 @@
 #include <cstdlib>
 #include "SpMat.h"
 #include "Friends.h"
-using namespace std;
+
+namespace combblas {
 
 template <class IT, class NT, class DER>
 SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
@@ -208,3 +209,4 @@ ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s)
 	return s.get(infile);
 }
 
+}

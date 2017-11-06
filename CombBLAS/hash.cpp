@@ -2,6 +2,8 @@
 #include <cstring>
 #include "hash.hpp"
 
+namespace combblas {
+
 uint64_t inline _rotl64(uint64_t value, int8_t amount) {
   return ((value) << (amount)) | ((value) >> (64 - (amount)));
 }
@@ -199,3 +201,5 @@ void MurmurHash3_x64_64 ( const void * key, int len, uint32_t seed, void * out )
 } 
 
 //-----------------------------------------------------------------------------
+
+}

@@ -2,6 +2,8 @@
 #define _mtSpGEMM_h
 
 #include "CombBLAS.h"
+
+namespace combblas {
 /*
  Multithreaded prefix sum
  Inputs:
@@ -315,5 +317,6 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     return colnnzC;
 }
 
+}
 
 #endif

@@ -47,7 +47,9 @@
 #include <cmath>
 #include "../CombBLAS.h"
 
+// TODO: remove using namespace ... in header files. It polutes the global namespace.
 using namespace std;
+using namespace combblas;
 
 /**
  ** Connected components based on Awerbuch-Shiloach algorithm

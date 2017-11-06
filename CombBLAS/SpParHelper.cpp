@@ -29,6 +29,7 @@
 
 #include "usort/include/parUtils.h"
 
+namespace combblas {
 
 template <typename IT>
 void SpParHelper::ReDistributeToVector(int* & map_scnt, vector< vector< IT > > & locs_send, vector< vector< string > > & data_send, 
@@ -924,3 +925,4 @@ inline void SpParHelper::FreeWindows(vector<MPI_Win> & arrwin)
 	}
 }
 
+}

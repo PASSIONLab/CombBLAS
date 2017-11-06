@@ -43,7 +43,8 @@ extern "C" {
 #include <algorithm>
 #include <set>
 #include <stdexcept>
-using namespace std;
+
+namespace combblas {
 
 /**
   * If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
@@ -4266,3 +4267,4 @@ void SpParMat<IT,NT,DER>::GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) con
 	colOffset = commGrid->GetRankInProcRow()*cols_perproc;
 }
 	
+}

@@ -63,6 +63,8 @@
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
 
+namespace combblas {
+
 
 /* Initiator settings: for faster random number generation, the initiator
  * probabilities are defined as fractions (a = INITIATOR_A_NUMERATOR /
@@ -315,5 +317,7 @@ public:
 		return seed;
 	}
 };
+
+}
 
 #endif

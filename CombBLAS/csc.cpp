@@ -30,6 +30,7 @@
 #include "csc.h"
 #include <cassert>
 
+namespace combblas {
 
 // Constructing empty Csc objects (size = 0) are not allowed.
 template <class IT, class NT>
@@ -129,4 +130,6 @@ void Csc<IT,NT>::Resize(IT nsize)
     delete [] tmpnum;		// delete the memory pointed by previous pointers
     delete [] tmpir;
     nz = nsize;
+}
+
 }

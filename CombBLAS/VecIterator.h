@@ -33,6 +33,8 @@
 #include "FullyDistVec.h"
 #include "FullyDistSpVec.h"
 
+namespace combblas {
+
 template <class IT, class NT>
 class VectorLocalIterator
 {
@@ -239,4 +241,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 };
 
 #include "VecIterator.cpp"
+
+}
+
 #endif

@@ -33,6 +33,7 @@ int cblas_splits = 1;
 #define ITERS 16
 #define EDGEFACTOR 16
 using namespace std;
+using namespace combblas;
 
 
 MTRand GlobalMT(123); // for reproducable result

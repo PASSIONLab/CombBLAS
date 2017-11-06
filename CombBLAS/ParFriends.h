@@ -42,7 +42,7 @@
 #include "MultiwayMerge.h"
 
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT, class DER>
 class SpParMat;
@@ -2238,6 +2238,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 					allowVNulls, allowWNulls, Vzero, Wzero, allowIntersect, true);
 }
 
+}
 
 
 #endif

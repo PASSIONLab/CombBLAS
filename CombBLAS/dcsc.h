@@ -41,7 +41,7 @@
 #include "MemoryPool.h"
 #include "promote.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 class Dcsc
@@ -129,7 +129,8 @@ private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
 };
 
+}
+
 #include "dcsc.cpp"	
+
 #endif
-
-

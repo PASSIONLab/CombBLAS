@@ -32,16 +32,18 @@
 
 #include "myenableif.h"
 
+namespace combblas {
+
 template <class T1, class T2, class Enable = void>
 struct promote_trait  { };
 
 // typename disable_if< is_boolean<NT>::value, NT >::type won't work, 
 // because then it will send Enable=NT which is different from the default template parameter
-template <class NT> struct promote_trait< NT , bool, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
+template <class NT> struct promote_trait< NT , bool, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >      
 {                                           
 	typedef NT T_promote;                    
 };
-template <class NT> struct promote_trait< bool , NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
+template <class NT> struct promote_trait< bool , NT, typename combblas::disable_if< combblas::is_boolean<NT>::value >::type >      
 {                                           
 	typedef NT T_promote;                    
 };
@@ -82,5 +84,7 @@ DECLARE_PROMOTE(double, double, double);
 DECLARE_PROMOTE(int, int, int);
 DECLARE_PROMOTE(unsigned, unsigned, unsigned);
 DECLARE_PROMOTE(unsigned long long, unsigned long long, unsigned long long);
+
+}
 
 #endif
