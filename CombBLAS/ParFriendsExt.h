@@ -37,7 +37,7 @@
 #include "MPIType.h"
 #include "Friends.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT, class DER>
 class SpParMat;
@@ -711,5 +711,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
+}
 
 #endif

@@ -33,7 +33,8 @@
 #include <iostream>
 #include "Friends.h"
 #include "SpHelper.h"
-using namespace std;
+
+namespace combblas {
 
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0), memowned(true){}
@@ -513,7 +514,7 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 {
 	// We have a class with a friend function and a member function with the same name. Calling the friend function from the member function 
 	// might (if the signature is the same) give compilation errors if not preceded by :: that denotes the global scope.
-	*this = ::EWiseMult((*this), &rhs, exclude);	// call the binary version
+	*this = combblas::EWiseMult((*this), &rhs, exclude);	// call the binary version
 }
 
 
@@ -1285,3 +1286,4 @@ Dcsc<IT,NT>::~Dcsc()
 	}
 }
 
+}

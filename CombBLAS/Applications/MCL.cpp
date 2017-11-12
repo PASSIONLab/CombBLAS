@@ -50,6 +50,7 @@
 #include "WriteMCLClusters.h"
 
 using namespace std;
+using namespace combblas;
 
 #define EPS 0.0001
 

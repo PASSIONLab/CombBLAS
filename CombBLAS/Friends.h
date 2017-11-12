@@ -41,7 +41,8 @@
 #include "Compare.h"
 #include "CombBLAS.h"
 #include "PreAllocatedSPA.h"
-using namespace std;
+
+namespace combblas {
 
 template <class IU, class NU>	
 class SpTuples;
@@ -1229,5 +1230,7 @@ SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2>
 	return 	SpDCCols<IU, RETT> (A.m , A.n, tdcsc);
 }
 
+
+}
 
 #endif

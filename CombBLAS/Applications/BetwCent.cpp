@@ -43,6 +43,7 @@
 #include <cmath>
 #include "../CombBLAS.h"
 
+using namespace combblas;
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code

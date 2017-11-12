@@ -43,7 +43,7 @@
 #include "SpDefs.h"
 #include "psort-1.0/src/psort.h"
 
-using namespace std;
+namespace combblas {
 
 class SpParHelper
 {
@@ -111,5 +111,8 @@ public:
 	static void FreeWindows(vector<MPI_Win> & arrwin);
 };
 
+}
+
 #include "SpParHelper.cpp"
+
 #endif

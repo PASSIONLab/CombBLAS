@@ -31,6 +31,7 @@
 #include "SpParHelper.h"
 #include <iomanip>
 
+namespace combblas {
 
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
@@ -346,4 +347,6 @@ void SpTuples<IT,NT>::PrintInfo()
 		}
 		SpHelper::deallocate2D(A,m);
 	}
+}
+
 }

@@ -34,6 +34,7 @@
 #include "SpDefs.h"
 #include "CombBLAS.h"
 
+namespace combblas {
 
 // third parameter of compare is about floating point-ness
 template <class T>
@@ -165,5 +166,7 @@ struct ColLexiCompareWithID:  // struct instead of class so that operator() is p
         };
 
 
+
+}        
 
 #endif

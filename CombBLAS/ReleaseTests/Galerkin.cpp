@@ -36,6 +36,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 #define ITERATIONS 10
 
 // Simple helper class for declarations: Just the numerical type is templated 

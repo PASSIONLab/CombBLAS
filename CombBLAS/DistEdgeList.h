@@ -51,6 +51,7 @@
 #include "Friends.h"
 #include "Operations.h"
 
+namespace combblas {
 
 /** 
  * From Graph 500 reference implementation v2.1.1
@@ -122,6 +123,8 @@ private:
 template<typename IU>
 void PermEdges(DistEdgeList<IU> & DEL);
 
+
+}
 
 #include "DistEdgeList.cpp"
 

@@ -73,7 +73,16 @@ static _inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newv
 #endif
 #else
 #ifndef _MSC_VER
-#error "Need to define int64_t_cas() for your system"
+static inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newval) {
+  if (*p == oldval)
+    {
+        *p = newval;
+        return 1; 
+    } else
+    { 
+        return 0; 
+    } 
+}
 #else
 static _inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newval) {
   if (*p == oldval)

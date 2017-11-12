@@ -41,7 +41,8 @@
 #include "Compare.h"
 #include "CombBLAS.h"
 #include "PreAllocatedSPA.h"
-using namespace std;
+
+namespace combblas {
 
 template <class IU, class NU>	
 class SpTuples;
@@ -178,6 +179,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
     
 }
 
-
+}
 
 #endif

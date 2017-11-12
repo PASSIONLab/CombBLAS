@@ -74,6 +74,8 @@ int cblas_splits;
 
 #include "../CombBLAS.h"
 
+using namespace combblas;
+
 #define ITERS 64
 #define EDGEFACTOR 16
 

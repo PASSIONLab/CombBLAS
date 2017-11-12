@@ -31,7 +31,7 @@
 #include "MPIType.h"
 #include "Operations.h"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
@@ -167,4 +167,4 @@ DenseParMat< IT,NT > &  DenseParMat<IT,NT>::operator=(const DenseParMat< IT,NT >
 	return *this;
 }
 
-
+}

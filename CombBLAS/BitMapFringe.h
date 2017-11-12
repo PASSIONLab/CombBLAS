@@ -35,6 +35,8 @@
 #include "BitMap.h"
 #include "CommGrid.h"
 
+namespace combblas {
+
 template <class IT, class VT>
 class BitMapFringe {
  public:
@@ -215,5 +217,7 @@ class BitMapFringe {
   long trans_words_send;
   long trans_words_recv;
 };
+
+}
 
 #endif // BITMAPFRINGE_H

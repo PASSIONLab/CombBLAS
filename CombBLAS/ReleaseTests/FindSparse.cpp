@@ -36,6 +36,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)

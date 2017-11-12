@@ -1,5 +1,7 @@
 #include "CombBLAS.h"
 
+namespace combblas {
+
 
 /***************************************************************************
  * Find indices of column splitters in a list of tuple in parallel.
@@ -298,4 +300,6 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
             delete ArrSpTups[i]; // this might be expensive for large local matrices
     }
     return new SpTuples<IT, NT> (mergedListSize, mdim, ndim, shrunkTuples, true);
+}
+
 }

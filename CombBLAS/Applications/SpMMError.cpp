@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include "../CombBLAS.h"
 
+using namespace combblas;
+
 double cblas_alltoalltime;
 double cblas_allgathertime;
 

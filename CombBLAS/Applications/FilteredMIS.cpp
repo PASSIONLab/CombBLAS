@@ -55,6 +55,7 @@ int cblas_splits;
 #define PERCENTS 4  // testing with 4 different percentiles
 
 using namespace std;
+using namespace combblas;
 
 
 template <typename PARMAT>

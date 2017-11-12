@@ -31,8 +31,8 @@
 #include "SpParHelper.h"
 #include "PBBS/radixSort.h"
 #include "Tommy/tommyhashdyn.h"
-using namespace std;
 
+namespace combblas {
 
 /**
  * Base template version [full use of the semiring add() and multiply()]
@@ -698,7 +698,4 @@ void SpMXSpV_Bucket(const Csc<IT,NT> & Acsc, int32_t mA, const int32_t * indx, c
     
 }
 
-
-
-
-
+}

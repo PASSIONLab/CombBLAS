@@ -46,31 +46,26 @@
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/unordered_map.hpp>
 	#include <boost/tr1/tuple.hpp>
- 	using namespace boost;
 	#define joker boost	// namespace
 #elif defined(COMBBLAS_TR1)
 	#include <tr1/memory>
 	#include <tr1/unordered_map>
 	#include <tr1/tuple>
  	#include <tr1/type_traits>
-	using namespace std::tr1;
 	#define joker std::tr1
 #elif defined(_MSC_VER) && (_MSC_VER < 1600)
 	#include <memory>
 	#include <unordered_map>
 	#include <tuple>
 	#include <type_traits>
-	using namespace std::tr1;
 	#define joker std::tr1
 #else // C++11
 	#include <memory>
 	#include <unordered_map>
 	#include <tuple>
 	#include <type_traits>
-	using namespace std;
 	#define joker std
 #endif
-using namespace std;
 // for VC2008
 
 

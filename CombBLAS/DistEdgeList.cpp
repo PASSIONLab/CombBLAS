@@ -42,7 +42,8 @@
 
 #include <fstream>
 #include <algorithm>
-using namespace std;
+
+namespace combblas {
 
 template <typename IT>
 DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0), globalV(0)
@@ -422,3 +423,4 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	delete [] renamed;
 }
 
+}
