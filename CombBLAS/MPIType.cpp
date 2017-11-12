@@ -33,6 +33,8 @@
 
 using namespace std;
 
+namespace combblas {
+
 MPIDataTypeCache mpidtc;	// global variable
 
 template<> MPI_Datatype MPIType< signed char >( void )
@@ -84,3 +86,4 @@ template<> MPI_Datatype MPIType< bool >( void )
 	return MPI_BYTE;  // usually  #define MPI_BOOL MPI_BYTE anyway
 };
 
+}

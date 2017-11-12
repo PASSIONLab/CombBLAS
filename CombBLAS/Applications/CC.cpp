@@ -49,6 +49,7 @@
 #include "CC.h"
 
 using namespace std;
+using namespace combblas;
 
 /**
  ** Connected components based on Awerbuch-Shiloach algorithm

@@ -31,6 +31,8 @@
 #define _PRE_ALLOCATED_SPA_H
 #include "BitMap.h"
 
+namespace combblas {
+
 /**
   * This special data structure is used for optimizing BFS iterations
   * by providing a pre-allocated SPA data structure
@@ -215,6 +217,8 @@ public:
     vector<OVT> numSplitA;
     vector<uint32_t> disp;
 };
+
+}
 
 #endif
 

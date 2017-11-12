@@ -36,6 +36,8 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
+
 #ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;

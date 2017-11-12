@@ -1,7 +1,7 @@
 #ifndef _MY_ENABLE_IF_
 #define _MY_ENABLE_IF_
 
-namespace CombBLAS {
+namespace combblas {
 // ABAB: A simple enable_if construct for now
 template <bool, class T = void> struct enable_if {};
 template <class T> struct enable_if<true, T> { typedef T type; };

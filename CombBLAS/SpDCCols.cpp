@@ -36,7 +36,7 @@
 #include <iomanip>
 #include <cassert>
 
-using namespace std;
+namespace combblas {
 
 /****************************************************************************/
 /********************* PUBLIC CONSTRUCTORS/DESTRUCTORS **********************/
@@ -1458,3 +1458,4 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 	return SpDCCols< IT,T_promote > (m, rhs.n, mydcsc);	
 }
 
+}

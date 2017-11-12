@@ -8,6 +8,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 
 #define ITERATIONS 10
 

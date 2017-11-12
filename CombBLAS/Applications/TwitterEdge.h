@@ -84,7 +84,7 @@ class TwitterReadSaveHandler
 
 		MPI_Datatype getMPIType()
 		{
-			return MPIType<TwitterEdge>(); // utilize the MPI type cache
+			return combblas::MPIType<TwitterEdge>(); // utilize the MPI type cache
 		}
 
 		void binaryfill(FILE * rFile, IT & row, IT & col, TwitterEdge & val)
@@ -229,7 +229,7 @@ static VECTYPE filtered_select2nd(const TwitterEdge & arg1, const VECTYPE & arg2
 		
 		ostringstream outs;
 		outs << "Initializing since date (only once) to " << sincedate << endl;
-		SpParHelper::Print(outs.str());
+		combblas::SpParHelper::Print(outs.str());
 	}
 	
 	if(arg1.isRetwitter() && arg1.LastTweetBy(sincedate))	// T1 is of type edges for BFS

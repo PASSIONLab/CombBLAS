@@ -8,6 +8,7 @@
 #include "../FullyDistVec.h"
 
 using namespace std;
+using namespace combblas;
 
 template <class T>
 struct IsOdd : public unary_function<T,bool> {

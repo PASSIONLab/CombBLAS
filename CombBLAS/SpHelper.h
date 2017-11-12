@@ -44,7 +44,7 @@
 #include "SpImpl.h"
 #include "hash.hpp"
 
-using namespace std;
+namespace combblas {
 
 template <class IT, class NT>
 class Dcsc;
@@ -537,5 +537,6 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	return cnz;
 }
 
+}
 
 #endif

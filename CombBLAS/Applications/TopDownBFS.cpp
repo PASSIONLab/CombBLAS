@@ -48,6 +48,7 @@ double cblas_localspmvtime;
 #define ITERS 16
 #define EDGEFACTOR 16
 using namespace std;
+using namespace combblas;
 
 // 64-bit floor(log2(x)) function 
 // note: least significant bit is the "zeroth" bit

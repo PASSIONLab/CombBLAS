@@ -36,6 +36,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
+using namespace combblas;
 
 template <typename IT, typename NT>
 pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v, IT k)

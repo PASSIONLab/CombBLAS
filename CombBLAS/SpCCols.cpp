@@ -36,7 +36,7 @@
 #include <iomanip>
 #include <cassert>
 
-using namespace std;
+namespace combblas {
 
 /****************************************************************************/
 /********************* PUBLIC CONSTRUCTORS/DESTRUCTORS **********************/
@@ -366,4 +366,4 @@ inline void SpCCols<IT,NT>::CopyCsc(Csc<IT,NT> * source)
         csc = NULL;
 }
 
-
+}
