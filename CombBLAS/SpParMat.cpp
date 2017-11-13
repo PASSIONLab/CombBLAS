@@ -2437,16 +2437,17 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
 	partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
 	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	IT totsent = accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));	
 	
-	assert((sdispls[nprocs-1] < std::numeric_limits<int>::max()));	
+	assert((totsent < std::numeric_limits<int>::max()));	
 	assert((totrecv < std::numeric_limits<int>::max()));
 	
 
 #ifdef COMBBLAS_DEBUG
 	ofstream oput;
         commGrid->OpenDebugFile("Displacements", oput);
-	copy(sdispls, sdispls+nprocs+1, ostream_iterator<int>(oput, " "));   oput << endl
-	copy(rdispls, rdispls+nprocs+1, ostream_iterator<int>(oput, " "));   oput << endl
+	copy(sdispls, sdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl
+	copy(rdispls, rdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl
 	oput.close();
 	
 	IT * gsizes;
@@ -2454,7 +2455,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
     	MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
-    	MPI_Gather(&(sdispls[nprocs-1]), 1, MPIType<int>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
+    	MPI_Gather(&totsent, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
 	delete [] gsizes;
@@ -2494,10 +2495,21 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	else	loccols = total_n - myproccol * n_perproc;
     
 	SpTuples<LIT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
+
+	cout << "Constructed" << endl;
+	MPI_Barrier(commGrid->GetWorld());	
+	
 	
     	// the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
     	A.RemoveDuplicates(BinOp);
+
+	cout << "Removed Tuples" << endl;
+	MPI_Barrier(commGrid->GetWorld());	
+	
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
+
+	cout << "Before Return" << endl;
+	MPI_Barrier(commGrid->GetWorld());		
 }
 
 
