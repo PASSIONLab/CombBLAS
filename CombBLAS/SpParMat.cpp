@@ -2443,6 +2443,12 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	
 
 #ifdef COMBBLAS_DEBUG
+	ofstream oput;
+        commGrid->OpenDebugFile("Displacements", oput);
+	copy(sdispls, sdispls+nprocs+1, ostream_iterator<int>(oput, " "));   oput << endl
+	copy(rdispls, rdispls+nprocs+1, ostream_iterator<int>(oput, " "));   oput << endl
+	oput.close();
+	
 	IT * gsizes;
 	if(commGrid->GetRank() == 0) gsizes = new IT[nprocs];
     	MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
