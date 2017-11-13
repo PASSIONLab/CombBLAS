@@ -2446,8 +2446,8 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 #ifdef COMBBLAS_DEBUG
 	ofstream oput;
         commGrid->OpenDebugFile("Displacements", oput);
-	copy(sdispls, sdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl
-	copy(rdispls, rdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl
+	copy(sdispls, sdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl;
+	copy(rdispls, rdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl;
 	oput.close();
 	
 	IT * gsizes;
