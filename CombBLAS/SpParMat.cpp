@@ -2448,6 +2448,10 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
     	MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
+    	MPI_Gather(&(sdispls[nprocs-1]), 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
+	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
+	MPI_Barrier(commGrid->GetWorld());
+	delete [] gsizes;
 #endif
 
   	tuple<LIT,LIT,NT> * senddata = new tuple<LIT,LIT,NT>[locsize];	// re-used for both rows and columns
@@ -2463,8 +2467,13 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	tuple<LIT,LIT,NT> * recvdata = new tuple<LIT,LIT,NT>[totrecv];	
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple, commGrid->GetWorld());
 
+	cout << "AlltoAll'd" << endl;
+	MPI_Barrier(commGrid->GetWorld());	
 	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
 	MPI_Type_free(&MPI_triple);
+
+	cout << "Deleted" << endl;
+	MPI_Barrier(commGrid->GetWorld());	
 
 	int r = commGrid->GetGridRows();
 	int s = commGrid->GetGridCols();
