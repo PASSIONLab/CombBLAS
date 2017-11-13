@@ -3259,10 +3259,9 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	    IT newlocid;	
 	    int owner = distmapper.Owner(globalindex, newlocid);
 
-#ifdef COMBBLAS_DEBUG
-	    if(myrank == 0)
-		    cout << "invindex received " << itr->second << " with global index " << globalindex << " to be owned by " << owner << " with index " << newlocid << endl;
-#endif
+	    //if(myrank == 0)
+	    //    cout << "invindex received " << itr->second << " with global index " << globalindex << " to be owned by " << owner << " with index " << newlocid << endl;
+
 	    locs_send[owner].push_back(newlocid);
 	    data_send[owner].push_back(itr->second);
 	    map_scnt[owner]++;
