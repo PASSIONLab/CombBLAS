@@ -36,6 +36,7 @@ double cblas_transvectime;
 
 
 using namespace std;
+using namespace combblas;
 
 
 

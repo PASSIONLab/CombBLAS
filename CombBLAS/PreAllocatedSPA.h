@@ -56,9 +56,9 @@ public:
                 if(i != A.getnsplit()-1)
                 {
                     V_isthere.push_back(BitMap(perpiece));
-                    V_localy.push_back(vector<OVT>(perpiece));
+                    V_localy.push_back(std::vector<OVT>(perpiece));
                     
-                    vector<bool> isthere(perpiece, false);
+                    std::vector<bool> isthere(perpiece, false);
                     for(auto colit = A.begcol(i); colit != A.endcol(i); ++colit)
                     {
                         for(auto nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
@@ -68,14 +68,14 @@ public:
                         }
                     }
                     size_t maxvector = std::count(isthere.begin(), isthere.end(), true);
-                    V_inds.push_back(vector<uint32_t>(maxvector));
+                    V_inds.push_back(std::vector<uint32_t>(maxvector));
                 }
                 else
                 {
                     V_isthere.push_back(BitMap(mA - i*perpiece));
-                    V_localy.push_back(vector<OVT>(mA - i*perpiece));
+                    V_localy.push_back(std::vector<OVT>(mA - i*perpiece));
                     
-                    vector<bool> isthere(mA - i*perpiece, false);
+                    std::vector<bool> isthere(mA - i*perpiece, false);
                     for(auto colit = A.begcol(i); colit != A.endcol(i); ++colit)
                     {
                         for(auto nzit = A.begnz(colit,i); nzit != A.endnz(colit,i); ++nzit)
@@ -85,16 +85,16 @@ public:
                         }
                     }
                     size_t maxvector = std::count(isthere.begin(), isthere.end(), true);
-                    V_inds.push_back(vector<uint32_t>(maxvector));
+                    V_inds.push_back(std::vector<uint32_t>(maxvector));
                 }
             }
         }
         else    // single threaded
         {
             V_isthere.push_back(BitMap(mA));
-            V_localy.push_back(vector<OVT>(mA));
+            V_localy.push_back(std::vector<OVT>(mA));
             
-            vector<bool> isthere(mA, false);
+            std::vector<bool> isthere(mA, false);
             for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
             {
                 for(auto nzit = A.begnz(colit); nzit != A.endnz(colit); ++nzit)
@@ -104,7 +104,7 @@ public:
                 }
             }
             size_t maxvector = std::count(isthere.begin(), isthere.end(), true);
-            V_inds.push_back(vector<uint32_t>(maxvector));
+            V_inds.push_back(std::vector<uint32_t>(maxvector));
              
         }
     };
@@ -117,21 +117,21 @@ public:
         buckets = splits;
         int64_t mA = A.getnrow();
         V_isthere.push_back(BitMap(mA));
-        V_localy.push_back(vector<OVT>(mA));
-        V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
+        V_localy.push_back(std::vector<OVT>(mA));
+        V_inds.push_back(std::vector<uint32_t>(mA)); // for better indexing among threads
         
        
         
         
         
-        vector<int32_t> nnzSplitA(buckets,0);
+        std::vector<int32_t> nnzSplitA(buckets,0);
         int32_t rowPerSplit = mA / splits;
         
         
         //per thread because writing vector<bool> is not thread safe
         for(int i=0; i<splits-1; i++)
-            V_isthereBool.push_back(vector<bool>(rowPerSplit));
-         V_isthereBool.push_back(vector<bool>(mA - (splits-1)*rowPerSplit));
+            V_isthereBool.push_back(std::vector<bool>(rowPerSplit));
+         V_isthereBool.push_back(std::vector<bool>(mA - (splits-1)*rowPerSplit));
 
 
         //vector<bool> isthere(mA, false);
@@ -171,15 +171,15 @@ public:
             buckets = splits;
             int64_t mA = A.getnrow();
             V_isthere.push_back(BitMap(mA));
-            V_localy.push_back(vector<OVT>(mA));
-            V_inds.push_back(vector<uint32_t>(mA)); // for better indexing among threads
+            V_localy.push_back(std::vector<OVT>(mA));
+            V_inds.push_back(std::vector<uint32_t>(mA)); // for better indexing among threads
             
-            vector<int32_t> nnzSplitA(buckets,0);
+            std::vector<int32_t> nnzSplitA(buckets,0);
             int32_t rowPerSplit = mA / splits;
             
             for(int i=0; i<splits-1; i++)
-                V_isthereBool.push_back(vector<bool>(rowPerSplit));
-            V_isthereBool.push_back(vector<bool>(mA - (splits-1)*rowPerSplit));
+                V_isthereBool.push_back(std::vector<bool>(rowPerSplit));
+            V_isthereBool.push_back(std::vector<bool>(mA - (splits-1)*rowPerSplit));
             
             //vector<bool> isthere(mA, false);
             for(auto colit = A.begcol(); colit != A.endcol(); ++colit)
@@ -208,14 +208,14 @@ public:
     };
     
     int buckets; // number of buckets
-    vector< vector<uint32_t> > V_inds;  // ABAB: is this big enough?
-    vector< BitMap > V_isthere;
-    vector< vector<bool> > V_isthereBool; // for thread safe access
-    vector< vector<OVT> > V_localy;
+    std::vector< std::vector<uint32_t> > V_inds;  // ABAB: is this big enough?
+    std::vector< BitMap > V_isthere;
+    std::vector< std::vector<bool> > V_isthereBool; // for thread safe access
+    std::vector< std::vector<OVT> > V_localy;
     bool initialized;
-    vector<int32_t> indSplitA;
-    vector<OVT> numSplitA;
-    vector<uint32_t> disp;
+    std::vector<int32_t> indSplitA;
+    std::vector<OVT> numSplitA;
+    std::vector<uint32_t> disp;
 };
 
 }

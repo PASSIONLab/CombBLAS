@@ -5,8 +5,6 @@
 #include <ctime>
 #include "../CombBLAS.h"
 
-using namespace std;
-
 struct DetSymmetricize;
 
 /**
@@ -32,11 +30,11 @@ public:
 
 	TwitterEdge & operator+=(const TwitterEdge & rhs) 
 	{
-		cout << "Error: TwitterEdge::operator+=() shouldn't be executed" << endl;
+		std::cout << "Error: TwitterEdge::operator+=() shouldn't be executed" << std::endl;
 		count += rhs.count;
 		follower |= rhs.follower;
 		if(rhs.count > 0)	// ensure that addition with additive identity doesn't change "latest"
-			latest = max(latest, rhs.latest);
+			latest = std::max(latest, rhs.latest);
 		return *this;
 	}
 	bool operator ==(const TwitterEdge & b) const
@@ -44,7 +42,7 @@ public:
 		return ((follower == b.follower) && (latest == b.latest) &&  (count == b.count));
 	}
 
-	friend ostream& operator<<( ostream& os, const TwitterEdge & twe);
+	friend std::ostream& operator<<( std::ostream& os, const TwitterEdge & twe);
 	friend TwitterEdge operator*( const TwitterEdge & a, const TwitterEdge & b);
 
 private:
@@ -58,7 +56,7 @@ private:
 	friend struct DetSymmetricize;
 };
 
-ostream& operator<<(ostream& os, const TwitterEdge & twe )    
+std::ostream& operator<<(std::ostream& os, const TwitterEdge & twe )    
 {      
 	if( twe.follower == 0 && twe.latest == 0 &&  twe.count == 0)
 		os << 0;
@@ -95,7 +93,7 @@ class TwitterReadSaveHandler
 			col = twi.to - 1;
 			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
 			if(entryLength != 1)
-				cout << "Not enough bytes read in binaryfill " << endl;
+				std::cout << "Not enough bytes read in binaryfill " << std::endl;
 		}
 		size_t entrylength() { return sizeof(TwitterInteraction); }
 
@@ -107,8 +105,8 @@ class TwitterReadSaveHandler
 			is >> tw.count;
 			if(tw.count > 0)
 			{
-				string date;
-				string time;
+				std::string date;
+				std::string time;
 				is >> date;
 				is >> time;
 
@@ -125,7 +123,7 @@ class TwitterReadSaveHandler
 				timeinfo.tm_min = min;          // range 0...59
 				timeinfo.tm_sec = sec;          // range 0.
 				tw.latest = timegm(&timeinfo);
-				if(tw.latest == -1) { cout << "Can not parse time date" << endl; exit(-1);}
+				if(tw.latest == -1) { std::cout << "Can not parse time date" << std::endl; exit(-1);}
 			}
 			else
 			{
@@ -142,7 +140,7 @@ class TwitterReadSaveHandler
 			os << row << "\t" << col << "\t";
 			os << tw.follower << "\t";
 			os << tw.count << "\t";
-			os << tw.latest << endl;
+			os << tw.latest << std::endl;
 		}
 	private:
 		struct TwitterInteraction
@@ -171,7 +169,7 @@ struct ParentType
 	}
 	ParentType & operator+=(const ParentType & rhs) 
 	{
-		cout << "Adding parent with id: " << rhs.id << " to this one with id " << id << endl;
+		std::cout << "Adding parent with id: " << rhs.id << " to this one with id " << id << std::endl;
 		return *this;
 	}
 	const ParentType operator++(int)	// for iota
@@ -180,13 +178,13 @@ struct ParentType
 		++id;
 		return temp;
 	}
-	friend ostream& operator<<(ostream& os, const ParentType & twe ); 
+	friend std::ostream& operator<<(std::ostream& os, const ParentType & twe ); 
 
 	template <typename IT>
 	friend ParentType operator+( const IT & left, const ParentType & right); 
 };
 
-ostream& operator<<(ostream& os, const ParentType & twe )    
+std::ostream& operator<<(std::ostream& os, const ParentType & twe )    
 {      
 	os << "Parent=" << twe.id;
 	return os;    
@@ -227,8 +225,8 @@ static VECTYPE filtered_select2nd(const TwitterEdge & arg1, const VECTYPE & arg2
 		timeinfo.tm_sec = sec;          // range 0.
 		sincedate = timegm(&timeinfo);
 		
-		ostringstream outs;
-		outs << "Initializing since date (only once) to " << sincedate << endl;
+		std::ostringstream outs;
+		outs << "Initializing since date (only once) to " << sincedate << std::endl;
 		combblas::SpParHelper::Print(outs.str());
 	}
 	

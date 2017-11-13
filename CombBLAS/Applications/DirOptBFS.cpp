@@ -75,6 +75,7 @@ int cblas_splits;
 #include "../CombBLAS.h"
 
 using namespace combblas;
+using namespace std;
 
 #define ITERS 64
 #define EDGEFACTOR 16
@@ -102,7 +103,7 @@ unsigned int highestbitset(uint64_t v)
 }
 
 template <class T>
-bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
+bool from_string(T & t, const string& s, ios_base& (*f)(ios_base&))
 {
         istringstream iss(s);
         return !(iss >> f >> t).fail();
@@ -123,7 +124,7 @@ void Symmetricize(PARMAT & A)
  * Binary function to prune the previously discovered vertices from the current frontier 
  * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
 **/
-struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
+struct prunediscovered: public binary_function<int64_t, int64_t, int64_t >
 {
   	int64_t operator()(int64_t x, const int64_t & y) const
 	{

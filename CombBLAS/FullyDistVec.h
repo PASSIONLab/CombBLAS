@@ -63,10 +63,10 @@ class FullyDistVec: public FullyDist<IT,NT, typename combblas::disable_if< combb
 public:
 	FullyDistVec ( );
 	FullyDistVec ( IT globallen, NT initval);
-	FullyDistVec ( shared_ptr<CommGrid> grid);
-	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
+	FullyDistVec ( std::shared_ptr<CommGrid> grid);
+	FullyDistVec ( std::shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    	FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
+    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
 	
 
 	template <class ITRHS, class NTRHS>
@@ -93,16 +93,16 @@ public:
 	};
 
 	template <class HANDLER>
-	void ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices = true)
+	void ParallelWrite(const std::string & filename, bool onebased, HANDLER handler, bool includeindices = true)
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
         	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices);
 	}  
-	void ParallelWrite(const string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
+	void ParallelWrite(const std::string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
 	
 
 	template <typename _BinaryOperation>
-   	void ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp)
+   	void ParallelRead (const std::string & filename, bool onebased, _BinaryOperation BinOp)
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
         	tmpSpVec.ParallelRead(filename, onebased, BinOp);
@@ -110,12 +110,12 @@ public:
 	}  
 
 	template <class HANDLER>
-	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
-	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
+	std::ifstream& ReadDistribute (std::ifstream& infile, int master, HANDLER handler);	
+	std::ifstream& ReadDistribute (std::ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
 	
 	template <class HANDLER>
-	void SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
-	void SaveGathered(ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler(), false); }
+	void SaveGathered(std::ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
+	void SaveGathered(std::ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler(), false); }
 
 
 	template <class ITRHS, class NTRHS>
@@ -181,7 +181,7 @@ public:
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{	
-		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
+    std::transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
 	}
 	
 	template <typename _BinaryOperation>
@@ -243,20 +243,20 @@ public:
 		this->EWiseApply(other, __binary_op, retTrue<NT, NT2>(), applyNulls, nullValue);
 	}
 	
-	void PrintToFile(string prefix)
+	void PrintToFile(std::string prefix)
 	{
-		ofstream output;
+		std::ofstream output;
 		commGrid->OpenDebugFile(prefix, output);
-		copy(arr.begin(), arr.end(), ostream_iterator<NT> (output, " "));
-		output << endl;
+    std::copy(arr.begin(), arr.end(), std::ostream_iterator<NT> (output, " "));
+		output << std::endl;
 		output.close();
 	}
 
-	void PrintInfo(string vectorname) const;
+	void PrintInfo(std::string vectorname) const;
 	void DebugPrint();
-	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
+	std::shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
-    pair<IT, NT> MinElement() const; // returns <index, value> pair of global minimum
+    std::pair<IT, NT> MinElement() const; // returns <index, value> pair of global minimum
     
     
 	template <typename _BinaryOperation>
@@ -274,7 +274,7 @@ public:
 	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
-	vector< NT > arr;
+	std::vector< NT > arr;
 
 	template <typename _BinaryOperation>	
 	void EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op);
@@ -318,7 +318,7 @@ private:
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
 	
 	template <typename IU, typename NU>
-	friend FullyDistVec<IU,NU> Concatenate ( vector< FullyDistVec<IU,NU> > & vecs);
+	friend FullyDistVec<IU,NU> Concatenate ( std::vector< FullyDistVec<IU,NU> > & vecs);
     
     template <typename IU, typename NU>
     friend void Augment (FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,

@@ -62,9 +62,9 @@ class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 public:
 	// Constructors 
 	SpTuples (int64_t size, IT nRow, IT nCol);
-	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted = false, bool isOpNew = false);
-	SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
-	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);
+	SpTuples (int64_t size, IT nRow, IT nCol, std::tuple<IT, IT, NT> * mytuples, bool sorted = false, bool isOpNew = false);
+	SpTuples (int64_t maxnnz, IT nRow, IT nCol, std::vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
+	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, std::pair<IT,IT> > * & multstack);
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
 	~SpTuples();
@@ -106,7 +106,7 @@ public:
 	 **/
 	IT AddLoops(NT loopval, bool replaceExisting=false)
 	{
-		vector<bool> existing(n,false);	// none of the diagonals exist	
+		std::vector<bool> existing(n,false);	// none of the diagonals exist	
 		IT loop = 0;
 		for(IT i=0; i< nnz; ++i)
 		{
@@ -118,22 +118,22 @@ public:
                     joker::get<2>(tuples[i]) = loopval;
 			}
 		}
-		vector<IT> missingindices;
+		std::vector<IT> missingindices;
 		for(IT i = 0; i < n; ++i)
 		{
 			if(!existing[i])	missingindices.push_back(i);
 		}
 		IT toadd = n - loop;	// number of new entries needed (equals missingindices.size())
-		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz+toadd];
+		std::tuple<IT, IT, NT> * ntuples = new std::tuple<IT,IT,NT>[nnz+toadd];
 
-		copy(tuples,tuples+nnz, ntuples);
+    std::copy(tuples,tuples+nnz, ntuples);
 		
 		// MCL: As for the loop weights that are chosen, experience shows that a neutral value works well. It is possible to choose larger weights, 
 		// and this will increase cluster granularity. The effect is secondary however to that of varying the inflation parameter, 
 		// and the algorithm is not very sensitive to changes in the loop weights.
 		for(IT i=0; i< toadd; ++i)
 		{
-			ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopval);
+			ntuples[nnz+i] = std::make_tuple(missingindices[i], missingindices[i], loopval);
 		}
         if(isOperatorNew)
             ::operator delete(tuples);
@@ -151,11 +151,11 @@ public:
      * @pre {should only be called on diagonal processors (others will add non-loop nonzeros)}
      * @pre {both the implementation and its semantics is meaningless for non-square matrices}
      **/
-    IT AddLoops(vector<NT> loopvals, bool replaceExisting=false)
+    IT AddLoops(std::vector<NT> loopvals, bool replaceExisting=false)
     {
         // expectation n == loopvals.size())
         
-        vector<bool> existing(n,false);	// none of the diagonals exist
+        std::vector<bool> existing(n,false);	// none of the diagonals exist
         IT loop = 0;
         for(IT i=0; i< nnz; ++i)
         {
@@ -167,19 +167,19 @@ public:
                     joker::get<2>(tuples[i]) = loopvals[joker::get<0>(tuples[i])];
             }
         }
-        vector<IT> missingindices;
+        std::vector<IT> missingindices;
         for(IT i = 0; i < n; ++i)
         {
             if(!existing[i])	missingindices.push_back(i);
         }
         IT toadd = n - loop;	// number of new entries needed (equals missingindices.size())
-        tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz+toadd];
+        std::tuple<IT, IT, NT> * ntuples = new std::tuple<IT,IT,NT>[nnz+toadd];
         
-        copy(tuples,tuples+nnz, ntuples);
+        std::copy(tuples,tuples+nnz, ntuples);
         
         for(IT i=0; i< toadd; ++i)
         {
-            ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopvals[missingindices[i]]);
+            ntuples[nnz+i] = std::make_tuple(missingindices[i], missingindices[i], loopvals[missingindices[i]]);
         }
         if(isOperatorNew)
             ::operator delete(tuples);
@@ -201,7 +201,7 @@ public:
 		{
 			if(joker::get<0>(tuples[i]) == joker::get<1>(tuples[i])) ++loop;
 		}
-		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz-loop];
+		std::tuple<IT, IT, NT> * ntuples = new std::tuple<IT,IT,NT>[nnz-loop];
 
 		IT ni = 0;
 		for(IT i=0; i< nnz; ++i)
@@ -221,46 +221,46 @@ public:
 		return loop;
 	}
 
-	pair<IT,IT> RowLimits()
+	std::pair<IT,IT> RowLimits()
 	{
 		if(nnz > 0)
 		{	
 			RowCompare<IT,NT> rowcmp;
-			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
-			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
-			return make_pair(joker::get<0>(*minit), joker::get<0>(*maxit));
+			std::tuple<IT,IT,NT> * maxit = std::max_element(tuples, tuples+nnz, rowcmp);	
+			std::tuple<IT,IT,NT> * minit = std::min_element(tuples, tuples+nnz, rowcmp);
+			return std::make_pair(joker::get<0>(*minit), joker::get<0>(*maxit));
 		}
 		else
-			return make_pair(0,0);
+			return std::make_pair(0,0);
 	}
-	pair<IT,IT> ColLimits()
+	std::pair<IT,IT> ColLimits()
 	{	
 		if(nnz > 0)
 		{
 			ColCompare<IT,NT> colcmp;
-			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
-			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
-			return make_pair(joker::get<1>(*minit), joker::get<1>(*maxit));
+			std::tuple<IT,IT,NT> * maxit = std::max_element(tuples, tuples+nnz, colcmp);
+			std::tuple<IT,IT,NT> * minit = std::min_element(tuples, tuples+nnz, colcmp);
+			return std::make_pair(joker::get<1>(*minit), joker::get<1>(*maxit));
 		}
 		else
-			return make_pair(0,0);
+			return std::make_pair(0,0);
 	}
-	tuple<IT, IT, NT> front() { return tuples[0]; };
-	tuple<IT, IT, NT> back() { return tuples[nnz-1]; };
+	std::tuple<IT, IT, NT> front() { return tuples[0]; };
+	std::tuple<IT, IT, NT> back() { return tuples[nnz-1]; };
 
 	// Performs a balanced merge of the array of SpTuples
 	template<typename SR, typename IU, typename NU>
-	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar, bool delarrs); 
+	friend SpTuples<IU,NU> MergeAll(const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar, bool delarrs); 
 
 	template<typename SR, typename IU, typename NU>
-	friend SpTuples<IU,NU> * MergeAllRec(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
+	friend SpTuples<IU,NU> * MergeAllRec(const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
 	
-	ofstream& putstream (ofstream& outfile) const;
-    ofstream& put (ofstream& outfile) const
+	std::ofstream& putstream (std::ofstream& outfile) const;
+    std::ofstream& put (std::ofstream& outfile) const
     { return putstream(outfile); }
 
-	ifstream& getstream (ifstream& infile);
-    ifstream& get (ifstream& infile) { return getstream(infile); }
+	std::ifstream& getstream (std::ifstream& infile);
+    std::ifstream& get (std::ifstream& infile) { return getstream(infile); }
 
 
 	bool isZero() const { return (nnz == 0); }	
@@ -269,7 +269,7 @@ public:
 	int64_t getnnz() const { return nnz; }
 
 	void PrintInfo();
-    tuple<IT, IT, NT> * tuples; 	
+    std::tuple<IT, IT, NT> * tuples; 	
 
 private:
 

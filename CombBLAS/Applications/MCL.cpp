@@ -469,7 +469,7 @@ FullyDistVec<int64_t, int64_t> HipMCL(Dist::MPI_DCCols & A, HipMCLParam & param)
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration# "  << std::setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << " #edges: " << A.getnnz() << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << " #edges: " << A.getnnz() << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
         it++;
         

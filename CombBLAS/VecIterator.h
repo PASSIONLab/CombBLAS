@@ -159,7 +159,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 
 	bool NextTo(IT loc_idx)
 	{
-		typename vector<IT>::iterator iter = lower_bound(v.ind.begin()+iter_idx, v.ind.end(), loc_idx);	
+		typename std::vector<IT>::iterator iter = std::lower_bound(v.ind.begin()+iter_idx, v.ind.end(), loc_idx);	
 		if(iter == v.ind.end())	// beyond limits, insert from back
 		{
 			iter_idx = -1;
@@ -214,7 +214,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 		
 		// inserted elsewhere
 		// This is from FullyDistSpVec::SetElement():
-		typename vector<IT>::iterator iter = lower_bound(v.ind.begin(), v.ind.end(), loc_idx);	
+		typename std::vector<IT>::iterator iter = std::lower_bound(v.ind.begin(), v.ind.end(), loc_idx);	
 		if(iter == v.ind.end())	// beyond limits, insert from back
 		{
 			v.ind.push_back(loc_idx);

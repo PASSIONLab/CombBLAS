@@ -23,6 +23,7 @@
 #include "../CombBLAS.h"
 #include "Glue.h"   
 
+namespace combblas {
 
 template<typename IT, typename NT>
 SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld, bool scramble)
@@ -66,8 +67,8 @@ SpDCCols<IT,NT> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[
 template <typename IT, typename NT>
 void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid & CMG, SpDCCols<IT,NT> & splitmat, bool trans, bool scramble)
 {
-    vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
-    vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
+    std::vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
+    std::vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
 	if(CMG.layer_grid == 0)
 	{
@@ -82,7 +83,7 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
 
         for(int i=0; i< nparts; ++i)
         {
-            vector<IT> ess = partsmat[i].GetEssentials();
+            std::vector<IT> ess = partsmat[i].GetEssentials();
             for(auto itr = ess.begin(); itr != ess.end(); ++itr)
             {
                 vecEss.push_back(*itr);
@@ -94,7 +95,7 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
     double scatter_beg = MPI_Wtime();   // timer on
     int esscnt = SpDCCols<IT,NT>::esscount; // necessary cast for MPI
 
-    vector<IT> myess(esscnt);
+    std::vector<IT> myess(esscnt);
     MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
     
     if(CMG.layer_grid == 0) // senders
@@ -131,6 +132,8 @@ void Generator(unsigned scale, unsigned EDGEFACTOR, double initiator[4], CCGrid 
         }
     }
     comm_split += (MPI_Wtime() - scatter_beg);
+}
+
 }
 
 #endif

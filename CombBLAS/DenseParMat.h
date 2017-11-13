@@ -54,16 +54,16 @@ public:
 	{
 		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));		
 	}
-	DenseParMat (NT value, shared_ptr<CommGrid> grid, IT rows, IT cols): m(rows), n(cols)
+	DenseParMat (NT value, std::shared_ptr<CommGrid> grid, IT rows, IT cols): m(rows), n(cols)
 	{
 		array = SpHelper::allocate2D<double>(rows, cols);
 		for(int i=0; i< rows; ++i)
 		{
-			fill_n(array[i], cols, value);		// fill array[i][0] ... array[i][cols] with "value"
+			std::fill_n(array[i], cols, value);		// fill array[i][0] ... array[i][cols] with "value"
 		}
 		commGrid.reset(new CommGrid(*grid)); 
 	}
-	DenseParMat (NT ** seqarr, shared_ptr<CommGrid> grid, IT rows, IT cols): array(seqarr), m(rows), n(cols)
+	DenseParMat (NT ** seqarr, std::shared_ptr<CommGrid> grid, IT rows, IT cols): array(seqarr), m(rows), n(cols)
 	{
 		commGrid.reset(new CommGrid(*grid)); 
 	}
@@ -75,7 +75,7 @@ public:
 			array = SpHelper::allocate2D<NT>(m, n);
 			for(int i=0; i< m; ++i)
 			{
-				copy(array[i], array[i]+n, rhs.array[i]);
+        std::copy(array[i], array[i]+n, rhs.array[i]);
 			}
 		}
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
@@ -95,7 +95,7 @@ public:
 			SpHelper::deallocate2D(array, m);
 	}					
 
-	shared_ptr<CommGrid> getcommgrid () { return commGrid; }
+	std::shared_ptr<CommGrid> getcommgrid () { return commGrid; }
     
    IT grows() const
     {
@@ -112,7 +112,7 @@ public:
     }
 
 private:
-	shared_ptr<CommGrid> commGrid; 
+	std::shared_ptr<CommGrid> commGrid; 
 	NT ** array;
 	IT m, n;	// Local row and columns
 

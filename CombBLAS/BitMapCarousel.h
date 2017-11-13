@@ -41,7 +41,7 @@ namespace combblas {
 template <class IT, class NT>
 class BitMapCarousel {
  public:
-  BitMapCarousel(shared_ptr<CommGrid> grid, IT glen, int local_subword_disp) {
+  BitMapCarousel(std::shared_ptr<CommGrid> grid, IT glen, int local_subword_disp) {
     commGrid.reset(new CommGrid(*grid));   
     rotation_index = 0;
     global_size = glen;
@@ -152,7 +152,7 @@ class BitMapCarousel {
 
     local_size = SizeOfChunk();
     rotlenuntil = RotLengthUntil();
-    swap(bm, recv_buff);
+    std::swap(bm, recv_buff);
     curr_subword_disp = sub_disps[(my_proccol+rotation_index)%proccols];
   }
 
@@ -171,7 +171,7 @@ class BitMapCarousel {
   }
 
 private:
-  shared_ptr<CommGrid> commGrid;
+  std::shared_ptr<CommGrid> commGrid;
   int rotation_index;
   int my_procrow;
   int my_proccol;

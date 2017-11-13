@@ -26,6 +26,8 @@ int cblas_splits = 1;
 
 using namespace std;
 
+namespace combblas {
+
 // algorithmic options
 bool prune,randMM, moreSplit;
 int init;
@@ -312,5 +314,7 @@ int main(int argc, char* argv[])
     }
     MPI_Finalize();
     return 0;
+}
+
 }
 
