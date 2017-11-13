@@ -2448,7 +2448,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
     	MPI_Gather(&totrecv, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
-    	MPI_Gather(&(sdispls[nprocs-1]), 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
+    	MPI_Gather(&(sdispls[nprocs-1]), 1, MPIType<int>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
 	delete [] gsizes;
