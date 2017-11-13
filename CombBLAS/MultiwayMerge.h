@@ -14,9 +14,9 @@ namespace combblas {
  ***************************************************************************/
 
 template <typename RT, typename IT, typename NT>
-vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
+std::vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 {
-    vector<RT> splitters(nsplits+1);
+    std::vector<RT> splitters(nsplits+1);
     splitters[0] = static_cast<RT>(0);
     ColLexiCompare<IT,NT> comp;
 #ifdef THREADED
@@ -25,8 +25,8 @@ vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
     for(int i=1; i< nsplits; i++)
     {
         IT cur_col = i * (spTuples->getncol()/nsplits);
-        tuple<IT,IT,NT> search_tuple(0, cur_col, 0);
-        tuple<IT,IT,NT>* it = lower_bound (spTuples->tuples, spTuples->tuples + spTuples->getnnz(), search_tuple, comp);
+        std::tuple<IT,IT,NT> search_tuple(0, cur_col, 0);
+        std::tuple<IT,IT,NT>* it = std::lower_bound (spTuples->tuples, spTuples->tuples + spTuples->getnnz(), search_tuple, comp);
         splitters[i] = (RT) (it - spTuples->tuples);
     }
     splitters[nsplits] = spTuples->getnnz();
@@ -37,30 +37,30 @@ vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 
 // Symbolic serial merge : only estimates nnz
 template<class IT, class NT>
-IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
+IT SerialMergeNNZ( const std::vector<SpTuples<IT,NT> *> & ArrSpTups)
 {
     int nlists =  ArrSpTups.size();
     ColLexiCompare<IT,int> heapcomp;
-    vector<tuple<IT, IT, int>> heap(nlists);
-    vector<IT> curptr(nlists, static_cast<IT>(0));
+    std::vector<std::tuple<IT, IT, int>> heap(nlists);
+    std::vector<IT> curptr(nlists, static_cast<IT>(0));
     IT hsize = 0;
     for(int i=0; i< nlists; ++i)
     {
         if(ArrSpTups[i]->getnnz()>0)
         {
-            heap[hsize++] = make_tuple(get<0>(ArrSpTups[i]->tuples[0]), get<1>(ArrSpTups[i]->tuples[0]), i);
+            heap[hsize++] = std::make_tuple(std::get<0>(ArrSpTups[i]->tuples[0]), std::get<1>(ArrSpTups[i]->tuples[0]), i);
         }
         
     }
-    make_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+    std::make_heap(heap.data(), heap.data()+hsize, std::not2(heapcomp));
     
-    tuple<IT, IT, NT> curTuple;
+    std::tuple<IT, IT, NT> curTuple;
     IT estnnz = 0;
     while(hsize > 0)
     {
-        pop_heap(heap.data(), heap.data() + hsize, not2(heapcomp));   // result is stored in heap[hsize-1]
-        int source = get<2>(heap[hsize-1]);
-        if( (estnnz ==0) || (get<0>(curTuple) != get<0>(heap[hsize-1])) || (get<1>(curTuple) != get<1>(heap[hsize-1])))
+      std::pop_heap(heap.data(), heap.data() + hsize, std::not2(heapcomp));   // result is stored in heap[hsize-1]
+        int source = std::get<2>(heap[hsize-1]);
+        if( (estnnz ==0) || (std::get<0>(curTuple) != std::get<0>(heap[hsize-1])) || (std::get<1>(curTuple) != std::get<1>(heap[hsize-1])))
         {
             curTuple = ArrSpTups[source]->tuples[curptr[source]];
             estnnz++;
@@ -68,9 +68,9 @@ IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
         curptr[source]++;
         if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
         {
-            heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]),
-                                       get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-            push_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+            heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]),
+                                       std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
+            std::push_heap(heap.data(), heap.data()+hsize, std::not2(heapcomp));
         }
         else
         {
@@ -91,12 +91,12 @@ IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
  */
 
 template<class SR, class IT, class NT>
-void SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
+void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<IT, IT, NT> * ntuples)
 {
     int nlists =  ArrSpTups.size();
     ColLexiCompare<IT,int> heapcomp;
-    vector<tuple<IT, IT, int>> heap(nlists); // if performance issue, create this outside of threaded region
-    vector<IT> curptr(nlists, static_cast<IT>(0));
+    std::vector<std::tuple<IT, IT, int>> heap(nlists); // if performance issue, create this outside of threaded region
+    std::vector<IT> curptr(nlists, static_cast<IT>(0));
     IT estnnz = 0;
     IT hsize = 0;
     for(int i=0; i< nlists; ++i)
@@ -104,22 +104,22 @@ void SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT>
         if(ArrSpTups[i]->getnnz()>0)
         {
             estnnz += ArrSpTups[i]->getnnz();
-            heap[hsize++] = make_tuple(get<0>(ArrSpTups[i]->tuples[0]), get<1>(ArrSpTups[i]->tuples[0]), i);
+            heap[hsize++] = std::make_tuple(std::get<0>(ArrSpTups[i]->tuples[0]), std::get<1>(ArrSpTups[i]->tuples[0]), i);
         }
         
     }
-    make_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+    std::make_heap(heap.data(), heap.data()+hsize, std::not2(heapcomp));
     IT cnz = 0;
     
     while(hsize > 0)
     {
-        pop_heap(heap.data(), heap.data() + hsize, not2(heapcomp));   // result is stored in heap[hsize-1]
-        int source = get<2>(heap[hsize-1]);
+      std::pop_heap(heap.data(), heap.data() + hsize, std::not2(heapcomp));   // result is stored in heap[hsize-1]
+        int source = std::get<2>(heap[hsize-1]);
         
         if( (cnz != 0) &&
-           ((get<0>(ntuples[cnz-1]) == get<0>(heap[hsize-1])) && (get<1>(ntuples[cnz-1]) == get<1>(heap[hsize-1]))) )
+           ((std::get<0>(ntuples[cnz-1]) == std::get<0>(heap[hsize-1])) && (std::get<1>(ntuples[cnz-1]) == std::get<1>(heap[hsize-1]))) )
         {
-            get<2>(ntuples[cnz-1])  = SR::add(get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++));
+            std::get<2>(ntuples[cnz-1])  = SR::add(std::get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++));
         }
         else
         {
@@ -128,9 +128,9 @@ void SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT>
         
         if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
         {
-            heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]),
-                                       get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-            push_heap(heap.data(), heap.data()+hsize, not2(heapcomp));
+            heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]),
+                                       std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
+            std::push_heap(heap.data(), heap.data()+hsize, std::not2(heapcomp));
         }
         else
         {
@@ -144,7 +144,7 @@ void SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT>
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IT, class NT>
-SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false )
+SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false )
 {
     
     int nlists =  ArrSpTups.size();
@@ -160,8 +160,8 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         }
         else // copy input to output
         {
-            tuple<IT, IT, NT>* mergeTups = static_cast<tuple<IT, IT, NT>*>
-            (::operator new (sizeof(tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+            std::tuple<IT, IT, NT>* mergeTups = static_cast<std::tuple<IT, IT, NT>*>
+            (::operator new (sizeof(std::tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -177,7 +177,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     {
         if((mdim != ArrSpTups[i]->getnrow()) || ndim != ArrSpTups[i]->getncol())
         {
-            cerr << "Dimensions of SpTuples do not match on multiwayMerge()" << endl;
+            std::cerr << "Dimensions of SpTuples do not match on multiwayMerge()" << std::endl;
             return new SpTuples<IT,NT>(0,0,0);
         }
     }
@@ -190,22 +190,22 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     }
 #endif
     int nsplits = 4*nthreads; // oversplit for load balance
-    nsplits = min(nsplits, (int)ndim); // we cannot split a column
-    vector< vector<IT> > colPtrs;
+    nsplits = std::min(nsplits, (int)ndim); // we cannot split a column
+    std::vector< std::vector<IT> > colPtrs;
     for(int i=0; i< nlists; i++)
     {
         colPtrs.push_back(findColSplitters<IT>(ArrSpTups[i], nsplits)); // in parallel
     }
 
-    vector<IT> mergedNnzPerSplit(nsplits);
-    vector<IT> inputNnzPerSplit(nsplits);
+    std::vector<IT> mergedNnzPerSplit(nsplits);
+    std::vector<IT> inputNnzPerSplit(nsplits);
 // ------ estimate memory requirement after merge in each split ------
 #ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
 #endif
     for(int i=0; i< nsplits; i++) // for each part
     {
-        vector<SpTuples<IT,NT> *> listSplitTups(nlists);
+        std::vector<SpTuples<IT,NT> *> listSplitTups(nlists);
         IT t = static_cast<IT>(0);
         for(int j=0; j< nlists; ++j)
         {
@@ -217,23 +217,23 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         inputNnzPerSplit[i] = t;
     }
 
-    vector<IT> mdisp(nsplits+1,0);
+    std::vector<IT> mdisp(nsplits+1,0);
     for(int i=0; i<nsplits; ++i)
         mdisp[i+1] = mdisp[i] + mergedNnzPerSplit[i];
     IT mergedNnzAll = mdisp[nsplits];
     
     
 #ifdef COMBBLAS_DEBUG
-    IT inputNnzAll = accumulate(inputNnzPerSplit.begin(), inputNnzPerSplit.end(), static_cast<IT>(0));
+    IT inputNnzAll = std::accumulate(inputNnzPerSplit.begin(), inputNnzPerSplit.end(), static_cast<IT>(0));
     double ratio = inputNnzAll / (double) mergedNnzAll;
-    ostringstream outs;
-    outs << "Multiwaymerge: inputNnz/mergedNnz = " << ratio << endl;
+    std::ostringstream outs;
+    outs << "Multiwaymerge: inputNnz/mergedNnz = " << ratio << std::endl;
     SpParHelper::Print(outs.str());
 #endif
     
     
     // ------ allocate memory outside of the parallel region ------
-   tuple<IT, IT, NT> * mergeBuf = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedNnzAll])));
+   std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[mergedNnzAll])));
     
     // ------ perform merge in parallel ------
 #ifdef THREADED
@@ -241,7 +241,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
 #endif
     for(int i=0; i< nsplits; i++) // serially merge part by part
     {
-        vector<SpTuples<IT,NT> *> listSplitTups(nlists);
+        std::vector<SpTuples<IT,NT> *> listSplitTups(nlists);
         for(int j=0; j< nlists; ++j)
         {
             IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];

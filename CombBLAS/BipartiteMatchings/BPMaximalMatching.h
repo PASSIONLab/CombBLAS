@@ -1,3 +1,6 @@
+#ifndef BP_MAXIMAL_MATCHING_H
+#define BP_MAXIMAL_MATCHING_H
+
 #include "../CombBLAS.h"
 #include <iostream>
 #include <functional>
@@ -11,10 +14,10 @@
 #define GREEDY 1
 #define KARP_SIPSER 2
 #define DMD 3
-using namespace std;
 MTRand GlobalMT(123); // for reproducible result
 double tTotalMaximal;
 
+namespace combblas {
 
 // This is not tested with CSC yet
 // TODO: test with CSC and Setting SPA (similar to Weighted Greedy)
@@ -62,7 +65,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
     IT newlyMatched = 1; // ensure the first pass of the while loop
     int iteration = 0;
     double tStart = MPI_Wtime();
-    vector<vector<double> > timing;
+    std::vector<std::vector<double> > timing;
     
 #ifdef DETAIL_STATS
     if(myrank == 0)
@@ -93,7 +96,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
         }
         
         // ======================== step1: One step of BFS =========================
-        vector<double> times;
+        std::vector<double> times;
         double t1 = MPI_Wtime();
         if(type==GREEDY)
         {
@@ -181,7 +184,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
     }
     
     IT cardinality = mateRow2Col.Count([](IT mate){return mate!=-1;});
-    vector<double> totalTimes(timing[0].size(),0);
+    std::vector<double> totalTimes(timing[0].size(),0);
     for(int i=0; i<timing.size(); i++)
     {
         for(int j=0; j<timing[i].size(); j++)
@@ -212,16 +215,16 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
 #endif
-        cout << "****** maximal matching runtime ********\n";
-        cout << "nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***\n";
-        cout << nprocs << " " << nthreads << " " << nprocs * nthreads << " ";
-        if(type == DMD) cout << "DMD";
-        else if(type == GREEDY) cout << "Greedy";
-        else if(type == KARP_SIPSER) cout << "Karp-Sipser";
-        if(rand && (type == KARP_SIPSER || type == GREEDY) ) cout << "-rand";
-        cout << " ";
+        std::cout << "****** maximal matching runtime ********\n";
+        std::cout << "nprocesses nthreads ncores algorithm Unmatched-Rows  Cardinality Total Time***\n";
+        std::cout << nprocs << " " << nthreads << " " << nprocs * nthreads << " ";
+        if(type == DMD) std::cout << "DMD";
+        else if(type == GREEDY) std::cout << "Greedy";
+        else if(type == KARP_SIPSER) std::cout << "Karp-Sipser";
+        if(rand && (type == KARP_SIPSER || type == GREEDY) ) std::cout << "-rand";
+        std::cout << " ";
         printf("%lld    %lld     %lf\n", curUnmatchedRow, cardinality, totalTimes.back());
-        cout << "-------------------------------------------------------\n\n";
+        std::cout << "-------------------------------------------------------\n\n";
     }
     //isMatching(mateCol2Row, mateRow2Col);
 }
@@ -275,7 +278,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 	IT newlyMatched = 1; // ensure the first pass of the while loop
 	int iteration = 0;
 	
-	vector<vector<double> > timing;
+	std::vector<std::vector<double> > timing;
 	
 #ifdef DETAIL_STATS
 	if(myrank == 0)
@@ -297,7 +300,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		
 		
 		// ======================== step1: One step of BFS =========================
-		vector<double> times;
+		std::vector<double> times;
 		double t1 = MPI_Wtime();
         
 		SpMV<WeightMaxMLSR<double, VertexType>>(A, unmatchedCol, fringeRow, false, SPA);
@@ -354,7 +357,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
     tTotalMaximal = MPI_Wtime() - tStart;
     
 	IT cardinality = mateRow2Col.Count([](IT mate){return mate!=-1;});
-	vector<double> totalTimes(timing[0].size(),0);
+	std::vector<double> totalTimes(timing[0].size(),0);
 	for(int i=0; i<timing.size(); i++)
 	{
 		for(int j=0; j<timing[i].size(); j++)
@@ -385,10 +388,10 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 			printf("%12.5lf ", totalTimes[i]);
 		cout << endl;
 #endif
-		cout << "****** maximal matching runtime ********\n";
-		cout << "Unmatched-Rows  Cardinality Total Time***\n";
+		std::cout << "****** maximal matching runtime ********\n";
+		std::cout << "Unmatched-Rows  Cardinality Total Time***\n";
 		printf("%lld    %lld     %lf\n", curUnmatchedRow, cardinality, totalTimes.back());
-		cout << "-------------------------------------------------------\n\n";
+		std::cout << "-------------------------------------------------------\n\n";
 	}
 	//isMatching(mateCol2Row, mateRow2Col);
 }
@@ -415,7 +418,7 @@ bool isMaximalmatching(Par_DCSC_Bool & A, FullyDistVec<IT,NT> & mateRow2Col, Ful
     if(fringeRow.getnnz() != 0)
     {
         if(myrank == 0)
-            cout << "Not maximal matching!!\n";
+            std::cout << "Not maximal matching!!\n";
         return false;
     }
 	
@@ -426,10 +429,13 @@ bool isMaximalmatching(Par_DCSC_Bool & A, FullyDistVec<IT,NT> & mateRow2Col, Ful
     if(fringeCol.getnnz() != 0)
     {
         if(myrank == 0)
-            cout << "Not maximal matching**!!\n";
+            std::cout << "Not maximal matching**!!\n";
         return false;
     }
     return true;
 }
 
+}
+
+#endif
 

@@ -47,20 +47,17 @@
 #include <cmath>
 #include "../CombBLAS.h"
 
-// TODO: remove using namespace ... in header files. It polutes the global namespace.
-using namespace std;
-using namespace combblas;
-
 /**
  ** Connected components based on Awerbuch-Shiloach algorithm
  **/
 
+namespace combblas {
 
 template <typename T1, typename T2>
 struct Select2ndMinSR
 {
     typedef typename promote_trait<T1,T2>::T_promote T_promote;
-    static T_promote id(){ return numeric_limits<T_promote>::max(); };
+    static T_promote id(){ return std::numeric_limits<T_promote>::max(); };
     static bool returnedSAID() { return false; }
     static MPI_Op mpi_op() { return MPI_MIN; };
     
@@ -116,7 +113,7 @@ FullyDistVec<IT,short> StarCheck(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT,
     
     // at this point vertices at level 1 (children of the root) can still be stars
     FullyDistVec<IT,short> starFather = star(father);
-    star.EWiseApply(starFather, multiplies<short>());
+    star.EWiseApply(starFather, std::multiplies<short>());
     
     /* alternative approach (used in the Matlab code)
      // fathers of nonstars
@@ -138,39 +135,39 @@ void ConditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & fathe
     FullyDistVec<IT, IT> minNeighborFather ( A.getcommgrid());
     minNeighborFather = SpMV<Select2ndMinSR<NT, IT>>(A, father); // value is the minimum of all neighbors' fatthers
     
-    FullyDistSpVec<IT, pair<IT, IT>> hooks(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<IT, std::pair<IT, IT>> hooks(A.getcommgrid(), A.getnrow());
     // create entries belonging to stars
-    hooks = EWiseApply<pair<IT, IT>>(hooks, stars,
-                                               [](pair<IT, IT> x, short isStar){return make_pair(0,0);},
-                                               [](pair<IT, IT> x, short isStar){return isStar==1;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks, stars,
+                                               [](std::pair<IT, IT> x, short isStar){return std::make_pair(0,0);},
+                                               [](std::pair<IT, IT> x, short isStar){return isStar==1;},
                                                true, {0,0});
     
     
     // include father information
     
-    hooks = EWiseApply<pair<IT, IT>>(hooks, father,
-                                               [](pair<IT, IT> x, IT f){return make_pair(f,0);},
-                                               [](pair<IT, IT> x, IT f){return true;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks, father,
+                                               [](std::pair<IT, IT> x, IT f){return std::make_pair(f,0);},
+                                               [](std::pair<IT, IT> x, IT f){return true;},
                                                false, {0,0});
     
     //keep entries with father>minNeighborFather and insert minNeighborFather information
-    hooks = EWiseApply<pair<IT, IT>>(hooks,  minNeighborFather,
-                                               [](pair<IT, IT> x, IT mnf){return make_pair(get<0>(x), mnf);},
-                                               [](pair<IT, IT> x, IT mnf){return get<0>(x) > mnf;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks,  minNeighborFather,
+                                               [](std::pair<IT, IT> x, IT mnf){return std::make_pair(std::get<0>(x), mnf);},
+                                               [](std::pair<IT, IT> x, IT mnf){return std::get<0>(x) > mnf;},
                                                false, {0,0});
     //Invert
-    FullyDistSpVec<IT, pair<IT, IT>> starhooks= hooks.Invert(hooks.TotalLength(),
-                                        [](pair<IT, IT> val, IT ind){return get<0>(val);},
-                                        [](pair<IT, IT> val, IT ind){return make_pair(ind, get<1>(val));},
-                                                [](pair<IT, IT> val1, pair<IT, IT> val2){return val2;} );
+    FullyDistSpVec<IT, std::pair<IT, IT>> starhooks= hooks.Invert(hooks.TotalLength(),
+                                        [](std::pair<IT, IT> val, IT ind){return std::get<0>(val);},
+                                        [](std::pair<IT, IT> val, IT ind){return std::make_pair(ind, std::get<1>(val));},
+                                                [](std::pair<IT, IT> val1, std::pair<IT, IT> val2){return val2;} );
     // allowing the last vertex to pick the parent of the root of a star gives the correct output!!
     // [](pair<IT, IT> val1, pair<IT, IT> val2){return val1;} does not give the correct output. why?
     
     
     // drop the index informaiton
     FullyDistSpVec<IT, IT> finalhooks = EWiseApply<IT>(starhooks,  father,
-                                                                      [](pair<IT, IT> x, IT f){return get<1>(x);},
-                                                                      [](pair<IT, IT> x, IT f){return true;},
+                                                                      [](std::pair<IT, IT> x, IT f){return std::get<1>(x);},
+                                                                      [](std::pair<IT, IT> x, IT f){return true;},
                                                                       false, {0,0});
     father.Set(finalhooks);
 }
@@ -183,37 +180,37 @@ void UnconditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & fat
     FullyDistVec<IT, IT> minNeighborFather ( A.getcommgrid());
     minNeighborFather = SpMV<Select2ndMinSR<NT, IT>>(A, father); // value is the minimum of all neighbors' fathers
 
-    FullyDistSpVec<IT, pair<IT, IT>> hooks(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<IT, std::pair<IT, IT>> hooks(A.getcommgrid(), A.getnrow());
     // create entries belonging to stars
-    hooks = EWiseApply<pair<IT, IT>>(hooks, stars,
-                                               [](pair<IT, IT> x, short isStar){return make_pair(0,0);},
-                                               [](pair<IT, IT> x, short isStar){return isStar==1;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks, stars,
+                                               [](std::pair<IT, IT> x, short isStar){return std::make_pair(0,0);},
+                                               [](std::pair<IT, IT> x, short isStar){return isStar==1;},
                                                true, {0,0});
     
     
     // include father information
     
-    hooks = EWiseApply<pair<IT, IT>>(hooks, father,
-                                               [](pair<IT, IT> x, IT f){return make_pair(f,0);},
-                                               [](pair<IT, IT> x, IT f){return true;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks, father,
+                                               [](std::pair<IT, IT> x, IT f){return std::make_pair(f,0);},
+                                               [](std::pair<IT, IT> x, IT f){return true;},
                                                false, {0,0});
     
     //keep entries with father!minNeighborFather and insert minNeighborFather information
-    hooks = EWiseApply<pair<IT, IT>>(hooks,  minNeighborFather,
-                                               [](pair<IT, IT> x, IT mnf){return make_pair(get<0>(x), mnf);},
-                                               [](pair<IT, IT> x, IT mnf){return get<0>(x) != mnf;},
+    hooks = EWiseApply<std::pair<IT, IT>>(hooks,  minNeighborFather,
+                                               [](std::pair<IT, IT> x, IT mnf){return std::make_pair(std::get<0>(x), mnf);},
+                                               [](std::pair<IT, IT> x, IT mnf){return std::get<0>(x) != mnf;},
                                                false, {0,0});
     //Invert
-    FullyDistSpVec<IT, pair<IT, IT>> starhooks= hooks.Invert(hooks.TotalLength(),
-                                                                            [](pair<IT, IT> val, IT ind){return get<0>(val);},
-                                                                            [](pair<IT, IT> val, IT ind){return make_pair(ind, get<1>(val));},
-                                                                            [](pair<IT, IT> val1, pair<IT, IT> val2){return val1;} );
+    FullyDistSpVec<IT, std::pair<IT, IT>> starhooks= hooks.Invert(hooks.TotalLength(),
+                                                                            [](std::pair<IT, IT> val, IT ind){return std::get<0>(val);},
+                                                                            [](std::pair<IT, IT> val, IT ind){return std::make_pair(ind, std::get<1>(val));},
+                                                                            [](std::pair<IT, IT> val1, std::pair<IT, IT> val2){return val1;} );
     
     
     // drop the index informaiton
     FullyDistSpVec<IT, IT> finalhooks = EWiseApply<IT>(starhooks,  father,
-                                                                      [](pair<IT, IT> x, IT f){return get<1>(x);},
-                                                                      [](pair<IT, IT> x, IT f){return true;},
+                                                                      [](std::pair<IT, IT> x, IT f){return std::get<1>(x);},
+                                                                      [](std::pair<IT, IT> x, IT f){return true;},
                                                                       false, {0,0});
     father.Set(finalhooks);
 }
@@ -230,7 +227,7 @@ void Correctness(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel, 
 {
     for(IT i=0; i<nCC; i++)
     {
-        FullyDistSpVec<IT, IT> vtx (cclabel, bind2nd(equal_to<IT>(), i));
+        FullyDistSpVec<IT, IT> vtx (cclabel, bind2nd(std::equal_to<IT>(), i));
         FullyDistSpVec<IT, IT> vtx1(vtx.getcommgrid());
         //TODO: fix the broken SpMV interface for non-Boolean matrices
         SpParMat < IT, bool, SpDCCols<IT,bool> > A1 = A;
@@ -244,7 +241,7 @@ void Correctness(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel, 
                                                            true, false, (IT)0, (IT)0, false);
         if(vtx2.getnnz()!=0)
         {
-            cout << "Component " << i << " is not a propoer component\n";
+            std::cout << "Component " << i << " is not a propoer component\n";
         }
         
         
@@ -264,7 +261,7 @@ IT LabelCC(FullyDistVec<IT, IT> & father, FullyDistVec<IT, IT> & cclabel)
 {
     cclabel = father;
     cclabel.ApplyInd([](IT val, IT ind){return val==ind ? -1 : val;});
-    FullyDistSpVec<IT, IT> roots (cclabel, bind2nd(equal_to<IT>(), -1));
+    FullyDistSpVec<IT, IT> roots (cclabel, bind2nd(std::equal_to<IT>(), -1));
     roots.nziota(0);
     cclabel.Set(roots);
     cclabel = cclabel(father);
@@ -281,7 +278,7 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     father.iota(A.getnrow(), 0);    // father(i)=i initially
     IT nonstars = 1;
     int iteration = 0;
-    ostringstream outs;
+    std::ostringstream outs;
     do{
 #ifdef TIMING
         double t1 = MPI_Wtime();
@@ -291,7 +288,7 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
         Shortcut(father);
         //father.DebugPrint();
         FullyDistVec<IT,short> stars = StarCheck(A, father);
-        nonstars = stars.Reduce(plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==0);});
+        nonstars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==0);});
 #ifdef CC_TIMING
         double t2 = MPI_Wtime();
         outs.str("");
@@ -315,8 +312,8 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     //PrintCC(cc, nCC);
     //Correctness(A, cc, nCC);
     A.RemoveLoops();
-    FullyDistVec<IT,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
-    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(greater<double>(), 0));
+    FullyDistVec<IT,double> ColSums = A.Reduce(Column, std::plus<double>(), 0.0);
+    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(std::greater<double>(), 0));
     int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
                                               
     
@@ -343,7 +340,7 @@ void PrintCC(FullyDistVec<IT, IT> CC, IT nCC)
 {
     for(IT i=0; i< nCC; i++)
     {
-        FullyDistVec<IT, IT> ith = CC.FindInds(bind2nd(equal_to<IT>(), i));
+        FullyDistVec<IT, IT> ith = CC.FindInds(bind2nd(std::equal_to<IT>(), i));
         ith.DebugPrint();
     }
 }
@@ -356,7 +353,7 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
     FullyDistVec<IT, IT> ccSizes(CC.getcommgrid(), nCC, 0);
     for(IT i=0; i< nCC; i++)
     {
-        FullyDistSpVec<IT, IT> ith = CC.Find(bind2nd(equal_to<IT>(), i));
+        FullyDistSpVec<IT, IT> ith = CC.Find(bind2nd(std::equal_to<IT>(), i));
         ccSizes.SetElement(i, ith.getnnz());
     }
     
@@ -365,14 +362,14 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
     
     const IT * locCCSizes = ccSizes.GetLocArr();
     int numBins = 200;
-    vector<IT> localHist(numBins,0);
+    std::vector<IT> localHist(numBins,0);
     for(IT i=0; i< ccSizes.LocArrSize(); i++)
     {
         IT bin = (locCCSizes[i]*(numBins-1))/largestCCSise;
         localHist[bin]++;
     }
     
-    vector<IT> globalHist(numBins,0);
+    std::vector<IT> globalHist(numBins,0);
     MPI_Comm world = CC.getcommgrid()->GetWorld();
     MPI_Reduce(localHist.data(), globalHist.data(), numBins, MPIType<IT>(), MPI_SUM, 0, world);
     
@@ -381,11 +378,11 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
     MPI_Comm_rank(world,&myrank);
     if(myrank==0)
     {
-        cout << "The largest component size: " << largestCCSise  << endl;
-        ofstream output;
-        output.open("hist.txt", ios_base::app );
-        copy(globalHist.begin(), globalHist.end(), ostream_iterator<IT> (output, " "));
-        output << endl;
+        std::cout << "The largest component size: " << largestCCSise  << std::endl;
+        std::ofstream output;
+        output.open("hist.txt", std::ios_base::app );
+        std::copy(globalHist.begin(), globalHist.end(), std::ostream_iterator<IT> (output, " "));
+        output << std::endl;
         output.close();
     }
 
@@ -393,4 +390,5 @@ void HistCC(FullyDistVec<IT, IT> CC, IT nCC)
     //ccSizes.PrintToFile("histCC.txt");
 }
 
+}
 

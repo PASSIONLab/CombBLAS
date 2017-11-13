@@ -1,3 +1,6 @@
+#ifndef BP_MAXIMUM_MATCHING_H
+#define BP_MAXIMUM_MATCHING_H
+
 #include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h>
@@ -10,9 +13,7 @@
 #include "MatchingDefs.h"
 double tTotalMaximum;
 
-using namespace std;
-
-
+namespace combblas {
 
 /**
  * Create a boolean matrix A (not necessarily a permutation matrix)
@@ -40,12 +41,12 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
     // The matrix indices are offset'd to 1/sqrt(p) pieces
     // Add the corresponding offset before sending the data
     
-    vector< vector<IT> > rowid(procsPerRow); // rowid in the local matrix of each vector entry
-    vector< vector<IT> > colid(procsPerRow); // colid in the local matrix of each vector entry
+    std::vector< std::vector<IT> > rowid(procsPerRow); // rowid in the local matrix of each vector entry
+    std::vector< std::vector<IT> > colid(procsPerRow); // colid in the local matrix of each vector entry
     
     IT locvec = ri.arr.size();	// nnz in local vector
     IT roffset = ri.RowLenUntil(); // the number of vector elements in this processor row before the current processor
-    for(typename vector<IT>::size_type i=0; i< (unsigned)locvec; ++i)
+    for(typename std::vector<IT>::size_type i=0; i< (unsigned)locvec; ++i)
     {
         if(ri.arr[i]>=0 && ri.arr[i]<ncol) // this specialized for matching. TODO: make it general purpose by passing a function
         {
@@ -81,19 +82,19 @@ SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
     for(int i=0; i<procsPerRow; ++i)
     {
         copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
-        vector<IT>().swap(rowid[i]);	// clear memory of rowid
+        std::vector<IT>().swap(rowid[i]);	// clear memory of rowid
     }
     MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>(), ri.commGrid->GetRowWorld());
     
     for(int i=0; i<procsPerRow; ++i)
     {
         copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
-        vector<IT>().swap(colid[i]);	// clear memory of colid
+        std::vector<IT>().swap(colid[i]);	// clear memory of colid
     }
     MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), ri.commGrid->GetRowWorld());
     delete [] senddata;
     
-    tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz];
+    std::tuple<IT,IT,bool> * p_tuples = new std::tuple<IT,IT,bool>[p_nnz];
     for(IT i=0; i< p_nnz; ++i)
     {
         p_tuples[i] = make_tuple(p_rows[i], p_cols[i], 1);
@@ -254,9 +255,9 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     FullyDistSpVec<IT, IT> umFringeRow(A.getcommgrid(), nrow);
     FullyDistVec<IT, IT> leaves ( A.getcommgrid(), ncol, (IT) -1);
     
-    vector<vector<double> > timing;
-    vector<int> layers;
-    vector<int64_t> phaseMatched;
+    std::vector<std::vector<double> > timing;
+    std::vector<int> layers;
+    std::vector<int64_t> phaseMatched;
     double t1, time_search, time_augment, time_phase;
     
     bool matched = true;
@@ -273,7 +274,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     {
         time_phase = MPI_Wtime();
   
-        vector<double> phase_timing(8,0);
+        std::vector<double> phase_timing(8,0);
         leaves.Apply ( [](IT val){return (IT) -1;});
         FullyDistVec<IT, IT> parentsRow ( A.getcommgrid(), nrow, (IT) -1);
         FullyDistSpVec<IT, VertexType> fringeCol(A.getcommgrid(), ncol);
@@ -429,15 +430,15 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     double combTime;
     if(myrank == 0)
     {
-        cout << "****** maximum matching runtime ********\n";
-        cout << endl;
-        cout << "========================================================================\n";
-        cout << "                                     BFS Search                       \n";
-        cout << "===================== ==================================================\n";
-        cout  << "Phase Layer    Match   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
-        cout << "===================== ===================================================\n";
+        std::cout << "****** maximum matching runtime ********\n";
+        std::cout << std::endl;
+        std::cout << "========================================================================\n";
+        std::cout << "                                     BFS Search                       \n";
+        std::cout << "===================== ==================================================\n";
+        std::cout  << "Phase Layer    Match   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total\n";
+        std::cout << "===================== ===================================================\n";
         
-        vector<double> totalTimes(timing[0].size(),0);
+        std::vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
         for(int i=0; i<timing.size(); i++)
         {
@@ -452,9 +453,9 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
             printf("\n");
         }
         
-        cout << "-----------------------------------------------------------------------\n";
-        cout  << "Phase Layer   UnMat   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total \n";
-        cout << "-----------------------------------------------------------------------\n";
+        std::cout << "-----------------------------------------------------------------------\n";
+        std::cout  << "Phase Layer   UnMat   SpMV EWOpp CmUqL  Prun CmMC   BFS   Aug   Total \n";
+        std::cout << "-----------------------------------------------------------------------\n";
         
         combTime = totalTimes.back();
         printf(" %3d  %3d  %8lld   ", nphases, totalLayer/nphases, numUnmatchedCol);
@@ -469,17 +470,16 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     IT matchedRow = mateRow2Col.Count([](IT mate){return mate!=-1;});
     if(myrank==0)
     {
-        cout << "***Final Maximum Matching***\n";
-        cout << "***Total-Rows Matched-Rows  Total Time***\n";
+        std::cout << "***Final Maximum Matching***\n";
+        std::cout << "***Total-Rows Matched-Rows  Total Time***\n";
         printf("%lld %lld %lf \n",nrows, matchedRow, combTime);
         printf("matched rows: %lld , which is: %lf percent \n",matchedRow, 100*(double)matchedRow/(nrows));
-        cout << "-------------------------------------------------------\n\n";
+        std::cout << "-------------------------------------------------------\n\n";
     }
     
 }
 
+}
 
-
-
-
+#endif
 

@@ -112,14 +112,14 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 	
 	if(nnz == 0)	// m by n matrix of complete zeros
 	{
-		if(transpose) swap(m,n);
+		if(transpose) std::swap(m,n);
 		dcsc = NULL;	
 	} 
 	else
 	{
 		if(transpose)
 		{
-			swap(m,n);
+      std::swap(m,n);
 			IT localnzc = 1;
 			for(IT i=1; i< rhs.nnz; ++i)
 			{
@@ -195,7 +195,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*  tuples, bool transpose)
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const std::tuple<IT, IT, NT>*  tuples, bool transpose)
 : m(nRow), n(nCol), nnz(nTuples), splits(0)
 {
     
@@ -213,9 +213,9 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nTuples, const tuple<IT, IT, NT>*
         }
 #endif
         
-        vector <IT> tstart(totThreads);
-        vector <IT> tend(totThreads);
-        vector <IT> tdisp(totThreads+1);
+        std::vector <IT> tstart(totThreads);
+        std::vector <IT> tend(totThreads);
+        std::vector <IT> tdisp(totThreads+1);
         
         // extra memory, but replaces an O(nnz) loop by an O(nzc) loop
         IT* temp_jc = new IT[nTuples];
@@ -416,12 +416,12 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 		}
 		else
 		{
-			cout<< "Not addable: " << m  << "!=" << rhs.m << " or " << n << "!=" << rhs.n <<endl;		
+			std::cout<< "Not addable: " << m  << "!=" << rhs.m << " or " << n << "!=" << rhs.n <<std::endl;		
 		}
 	}
 	else
 	{
-		cout<< "Missing feature (A+A): Use multiply with 2 instead !"<<endl;	
+		std::cout<< "Missing feature (A+A): Use multiply with 2 instead !"<<std::endl;	
 	}
 	return *this;
 }
@@ -647,12 +647,12 @@ void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 		}
 		else
 		{
-			cout<< "Matrices do not conform for A .* op(B) !"<<endl;		
+			std::cout<< "Matrices do not conform for A .* op(B) !"<<std::endl;		
 		}
 	}
 	else
 	{
-		cout<< "Missing feature (A .* A): Use Square_EWise() instead !"<<endl;	
+		std::cout<< "Missing feature (A .* A): Use Square_EWise() instead !"<<std::endl;	
 	}
 }
 
@@ -669,7 +669,7 @@ void SpDCCols<IT,NT>::EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 	}
 	else
 	{
-		cout<< "Matrices do not conform for EWiseScale !"<<endl;		
+		std::cout<< "Matrices do not conform for EWiseScale !"<<std::endl;		
 	}
 }	
 
@@ -692,7 +692,7 @@ void SpDCCols<IT,NT>::CreateImpl(IT * _cp, IT * _jc, IT * _ir, NT * _numx, IT _n
 }
 
 template <class IT, class NT>
-void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
+void SpDCCols<IT,NT>::CreateImpl(const std::vector<IT> & essentials)
 {
 	assert(essentials.size() == esscount);
 	nnz = essentials[0];
@@ -706,27 +706,27 @@ void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 }
 
 template <class IT, class NT>
-void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
+void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, std::tuple<IT, IT, NT> * mytuples)
 {
 	SpTuples<IT,NT> tuples(size, nRow, nCol, mytuples);        
 	tuples.SortColBased();
 	
 #ifdef DEBUG
-	pair<IT,IT> rlim = tuples.RowLimits(); 
-	pair<IT,IT> clim = tuples.ColLimits();
+  std::pair<IT,IT> rlim = tuples.RowLimits(); 
+  std::pair<IT,IT> clim = tuples.ColLimits();
 
-	ofstream oput;
-	stringstream ss;
-	string rank;
+  std::ofstream oput;
+  std::stringstream ss;
+  std::string rank;
 	int myrank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	ss << myrank;
 	ss >> rank;
-	string ofilename = "Read";
+  std::string ofilename = "Read";
 	ofilename += rank;
-	oput.open(ofilename.c_str(), ios_base::app );
+	oput.open(ofilename.c_str(), std::ios_base::app );
 	oput << "Creating of dimensions " << nRow << "-by-" << nCol << " of size: " << size << 
-			" with row range (" << rlim.first  << "," << rlim.second << ") and column range (" << clim.first  << "," << clim.second << ")" << endl;
+			" with row range (" << rlim.first  << "," << rlim.second << ") and column range (" << clim.first  << "," << clim.second << ")" << std::endl;
 	if(tuples.getnnz() > 0)
 	{ 
 		IT minfr = joker::get<0>(tuples.front());
@@ -734,7 +734,7 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 		IT maxfr = joker::get<0>(tuples.back());
 		IT maxto = joker::get<1>(tuples.back());
 
-		oput << "Min: " << minfr << ", " << minto << "; Max: " << maxfr << ", " << maxto << endl;
+		oput << "Min: " << minfr << ", " << minto << "; Max: " << maxfr << ", " << maxto << std::endl;
 	}
 	oput.close();
 #endif
@@ -745,9 +745,9 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 
 
 template <class IT, class NT>
-vector<IT> SpDCCols<IT,NT>::GetEssentials() const
+std::vector<IT> SpDCCols<IT,NT>::GetEssentials() const
 {
-	vector<IT> essentials(esscount);
+	std::vector<IT> essentials(esscount);
 	essentials[0] = nnz;
 	essentials[1] = m;
 	essentials[2] = n;
@@ -869,7 +869,7 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	IT cut = n/2;
 	if(cut == 0)
 	{
-		cout<< "Matrix is too small to be splitted" << endl;
+		std::cout<< "Matrix is too small to be splitted" << std::endl;
 		return;
 	}
 
@@ -894,7 +894,7 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
  * Practically destructs the calling object also (frees most of its memory)
  */
 template <class IT, class NT>
-void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
+void SpDCCols<IT,NT>::ColSplit(int parts, std::vector< SpDCCols<IT,NT> > & matrices)
 {
     if(parts < 2)
     {
@@ -902,17 +902,17 @@ void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
     }
     else
     {
-        vector<IT> cuts(parts-1);
+        std::vector<IT> cuts(parts-1);
         for(int i=0; i< (parts-1); ++i)
         {
             cuts[i] = (i+1) * (n/parts);
         }
         if(n < parts)
         {
-            cout<< "Matrix is too small to be splitted" << endl;
+            std::cout<< "Matrix is too small to be splitted" << std::endl;
             return;
         }
-        vector< Dcsc<IT,NT> * > dcscs(parts, NULL);
+        std::vector< Dcsc<IT,NT> * > dcscs(parts, NULL);
         
         if(nnz != 0)
         {
@@ -936,11 +936,11 @@ void SpDCCols<IT,NT>::ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices)
  * ColSplit() method should have been executed on the object beforehand
  */
 template <class IT, class NT>
-void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
+void SpDCCols<IT,NT>::ColConcatenate(std::vector< SpDCCols<IT,NT> > & matrices)
 {
-    vector< SpDCCols<IT,NT> * > nonempties;
-    vector< Dcsc<IT,NT> * > dcscs;
-    vector< IT > offsets;
+    std::vector< SpDCCols<IT,NT> * > nonempties;
+    std::vector< Dcsc<IT,NT> * > dcscs;
+    std::vector< IT > offsets;
     IT runningoffset = 0;
 
     for(size_t i=0; i< matrices.size(); ++i)
@@ -957,7 +957,7 @@ void SpDCCols<IT,NT>::ColConcatenate(vector< SpDCCols<IT,NT> > & matrices)
     if(nonempties.size() < 1)
     {
 #ifdef DEBUG
-        cout << "Nothing to ColConcatenate" << endl;
+        std::cout << "Nothing to ColConcatenate" << std::endl;
 #endif
         n = runningoffset;
     }
@@ -1000,7 +1000,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	else if(partA.nnz == 0)
 	{
 		Cdcsc = new Dcsc<IT,NT>(*(partB.dcsc));
-		transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, bind2nd(plus<IT>(), partA.n));
+    std::transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, std::bind2nd(std::plus<IT>(), partA.n));
 	}
 	else if(partB.nnz == 0)
 	{
@@ -1040,7 +1040,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 		return -1;
 	}
 	
-	StackEntry< NT, pair<IT,IT> > * multstack;
+	StackEntry< NT, std::pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
@@ -1074,7 +1074,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	{
 		return -1;	// no need to do anything
 	}
-	StackEntry< NT, pair<IT,IT> > * multstack;
+	StackEntry< NT, std::pair<IT,IT> > * multstack;
 	int cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n, multstack);  
 	
 	IT mdim = A.m;	
@@ -1098,7 +1098,7 @@ template <class IT, class NT>
 template <typename SR>
 int SpDCCols<IT,NT>::PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
-	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
+	std::cout << "PlusEq_AtXBn function has not been implemented yet !" << std::endl;
 	return 0;
 }
 
@@ -1106,7 +1106,7 @@ template <class IT, class NT>
 template <typename SR>
 int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
-	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
+	std::cout << "PlusEq_AtXBt function has not been implemented yet !" << std::endl;
 	return 0;
 }
 
@@ -1114,13 +1114,13 @@ int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 template <class IT, class NT>
 SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (IT ri, IT ci) const
 {
-	IT * itr = find(dcsc->jc, dcsc->jc + dcsc->nzc, ci);
+	IT * itr = std::find(dcsc->jc, dcsc->jc + dcsc->nzc, ci);
 	if(itr != dcsc->jc + dcsc->nzc)
 	{
 		IT irbeg = dcsc->cp[itr - dcsc->jc];
 		IT irend = dcsc->cp[itr - dcsc->jc + 1];
 
-		IT * ele = find(dcsc->ir + irbeg, dcsc->ir + irend, ri);
+		IT * ele = std::find(dcsc->ir + irbeg, dcsc->ir + irend, ri);
 		if(ele != dcsc->ir + irend)	
 		{	
 			SpDCCols<IT,NT> SingEleMat(1, 1, 1, 1);	// 1-by-1 matrix with 1 nonzero 
@@ -1147,7 +1147,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (IT ri, IT ci) const
  * Calls different subroutines depending the sparseness of ri/ci
  */
 template <class IT, class NT>
-SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
+SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const std::vector<IT> & ri, const std::vector<IT> & ci) const
 {
 	typedef PlusTimesSRing<NT,NT> PT;	
 
@@ -1178,23 +1178,23 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 }
 
 template <class IT, class NT>
-ofstream & SpDCCols<IT,NT>::put(ofstream & outfile) const 
+std::ofstream & SpDCCols<IT,NT>::put(std::ofstream & outfile) const 
 {
 	if(nnz == 0)
 	{
-		outfile << "Matrix doesn't have any nonzeros" <<endl;
+		outfile << "Matrix doesn't have any nonzeros" <<std::endl;
 		return outfile;
 	}
 	SpTuples<IT,NT> tuples(*this); 
-	outfile << tuples << endl;
+	outfile << tuples << std::endl;
 	return outfile;
 }
 
 
 template <class IT, class NT>
-ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
+std::ifstream & SpDCCols<IT,NT>::get(std::ifstream & infile)
 {
-	cout << "Getting... SpDCCols" << endl;
+	std::cout << "Getting... SpDCCols" << std::endl;
 	IT m, n, nnz;
 	infile >> m >> n >> nnz;
 	SpTuples<IT,NT> tuples(nnz, m, n);        
@@ -1208,7 +1208,7 @@ ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 
 
 template<class IT, class NT>
-void SpDCCols<IT,NT>::PrintInfo(ofstream &  out) const
+void SpDCCols<IT,NT>::PrintInfo(std::ofstream &  out) const
 {
 	out << "m: " << m ;
 	out << ", n: " << n ;
@@ -1216,17 +1216,17 @@ void SpDCCols<IT,NT>::PrintInfo(ofstream &  out) const
 
 	if(splits > 0)
 	{
-		out << ", local splits: " << splits << endl;
+		out << ", local splits: " << splits << std::endl;
 	}
 	else
 	{
 		if(dcsc != NULL)
 		{
-			out << ", nzc: "<< dcsc->nzc << endl;
+			out << ", nzc: "<< dcsc->nzc << std::endl;
 		}
 		else
 		{
-			out <<", nzc: "<< 0 << endl;
+			out <<", nzc: "<< 0 << std::endl;
 		}
 	}
 }
@@ -1234,23 +1234,23 @@ void SpDCCols<IT,NT>::PrintInfo(ofstream &  out) const
 template<class IT, class NT>
 void SpDCCols<IT,NT>::PrintInfo() const
 {
-	cout << "m: " << m ;
-	cout << ", n: " << n ;
-	cout << ", nnz: "<< nnz ;
+	std::cout << "m: " << m ;
+	std::cout << ", n: " << n ;
+	std::cout << ", nnz: "<< nnz ;
 
 	if(splits > 0)
 	{
-		cout << ", local splits: " << splits << endl;
+		std::cout << ", local splits: " << splits << std::endl;
 	}
 	else
 	{
 		if(dcsc != NULL)
 		{
-			cout << ", nzc: "<< dcsc->nzc << endl;
+			std::cout << ", nzc: "<< dcsc->nzc << std::endl;
 		}
 		else
 		{
-			cout <<", nzc: "<< 0 << endl;
+			std::cout <<", nzc: "<< 0 << std::endl;
 		}
 
 		if(m < PRINT_LIMIT && n < PRINT_LIMIT)	// small enough to print
@@ -1275,10 +1275,10 @@ void SpDCCols<IT,NT>::PrintInfo() const
 			{
 				for(IT j=0; j<n; ++j)
 				{
-					cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
-					cout << " ";
+					std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2) << A[i][j];
+					std::cout << " ";
 				}
-				cout << endl;
+				std::cout << std::endl;
 			}
 			SpHelper::deallocate2D(A,m);
 		}
@@ -1303,7 +1303,7 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 
 //! Create a logical matrix from (row/column) indices array, used for indexing only
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
+SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const std::vector<IT> & indices, bool isRow)
 :m(nRow), n(nCol), nnz(size), splits(0)
 {
 	if(size > 0)
@@ -1334,7 +1334,7 @@ inline void SpDCCols<IT,NT>::CopyDcsc(Dcsc<IT,NT> * source)
  *	[i.e. in the output, nzc does not need to be equal to n]
  */
 template <class IT, class NT>
-SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci) const
+SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const std::vector<IT> & ci) const
 {
 	IT csize = ci.size();
 	if(nnz == 0)	// nothing to index
@@ -1391,8 +1391,8 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci) const
 			IT columncount = (dcsc->cp)[i+1] - (dcsc->cp)[i];
 			SubA.dcsc->jc[cnzc++] = j;
 			SubA.dcsc->cp[cnzc] = SubA.dcsc->cp[cnzc-1] + columncount;
-			copy(dcsc->ir + dcsc->cp[i], dcsc->ir + dcsc->cp[i+1], SubA.dcsc->ir + cnz);
-			copy(dcsc->numx + dcsc->cp[i], dcsc->numx + dcsc->cp[i+1], SubA.dcsc->numx + cnz);
+			std::copy(dcsc->ir + dcsc->cp[i], dcsc->ir + dcsc->cp[i+1], SubA.dcsc->ir + cnz);
+			std::copy(dcsc->numx + dcsc->cp[i], dcsc->numx + dcsc->cp[i+1], SubA.dcsc->numx + cnz);
 			cnz += columncount;
 			++i;
 			++j;
@@ -1422,7 +1422,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 		DeleteAll(isect1, isect2, cols, rows);
 		return SpDCCols< IT, T_promote > (0, m, rhs.n, 0);	
 	}
-	StackEntry< T_promote, pair<IT,IT> > * multstack;
+	StackEntry< T_promote, std::pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpCartesian< SR > (*dcsc, *(Btrans.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
@@ -1446,7 +1446,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 	{
 		return SpDCCols<IT, T_promote> (0, m, rhs.n, 0);		// return an empty matrix	
 	}
-	StackEntry< T_promote, pair<IT,IT> > * multstack;
+	StackEntry< T_promote, std::pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), n, multstack);  
 	
 	Dcsc<IT,T_promote > * mydcsc = NULL;

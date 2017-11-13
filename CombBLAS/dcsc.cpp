@@ -52,7 +52,7 @@ Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol),memowned(true)
 
 //! GetIndices helper function for StackEntry arrays
 template <class IT, class NT>
-inline void Dcsc<IT,NT>::getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz)
+inline void Dcsc<IT,NT>::getindices (StackEntry<NT, std::pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz)
 {
 	if(j<nnz)
 	{
@@ -61,14 +61,14 @@ inline void Dcsc<IT,NT>::getindices (StackEntry<NT, pair<IT,IT> > * multstack, I
 	}
 	else
 	{
-		rindex = numeric_limits<IT>::max();
-		cindex = numeric_limits<IT>::max();
+		rindex = std::numeric_limits<IT>::max();
+		cindex = std::numeric_limits<IT>::max();
 	}
 	++j;
 }
 	
 template <class IT, class NT>
-Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz)
+Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, std::pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz)
 {
 	if(nnz == 0)	return *this;
 		
@@ -84,7 +84,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 	getindices(multstack, rindex, cindex,j,nnz);
 
 	temp.cp[0] = 0;
-	while(i< nzc && cindex < numeric_limits<IT>::max())	// i runs over columns of "this",  j runs over all the nonzeros of "multstack"
+	while(i< nzc && cindex < std::numeric_limits<IT>::max())	// i runs over columns of "this",  j runs over all the nonzeros of "multstack"
 	{
 		if(jc[i] > cindex)
 		{
@@ -165,7 +165,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 		}
 		temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 	}
-	while(cindex < numeric_limits<IT>::max())
+	while(cindex < std::numeric_limits<IT>::max())
 	{
 		IT columncount = 0;
 		temp.jc[curnzc++] = cindex;
@@ -192,7 +192,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz),memowned(true)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, std::pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz),memowned(true)
 {
 	nzc = std::min(ndim, nnz);	// nzc can't exceed any of those
 
@@ -235,7 +235,7 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
   * \remark For these temporary matrices nz = nzc (which are both equal to nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),memowned(true)
+Dcsc<IT,NT>::Dcsc (IT nnz, const std::vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),memowned(true)
 {
 	assert((nnz != 0) && (indices.size() == nnz));
 	cp = new IT[nnz+1];	
@@ -244,7 +244,7 @@ Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(
 	numx = new NT[nnz];
 
 	SpHelper::iota(cp, cp+nnz+1, 0);  // insert sequential values {0,1,2,..}
-	fill_n(numx, nnz, static_cast<NT>(1));
+	std::fill_n(numx, nnz, static_cast<NT>(1));
 	
 	if(isRow)
 	{
@@ -477,26 +477,26 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	same = same && std::equal(ir, ir+nz, rhs.ir);
 	
 #ifdef DEBUG
-	vector<NT> error(nz);
-	transform(numx, numx+nz, rhs.numx, error.begin(), absdiff<NT>());
-	vector< pair<NT, NT> > error_original_pair(nz);
+  std::vector<NT> error(nz);
+  std::transform(numx, numx+nz, rhs.numx, error.begin(), absdiff<NT>());
+  std::vector< std::pair<NT, NT> > error_original_pair(nz);
 	for(IT i=0; i < nz; ++i)
-		error_original_pair[i] = make_pair(error[i], numx[i]);
+		error_original_pair[i] = std::make_pair(error[i], numx[i]);
 	if(error_original_pair.size() > 10)	// otherwise would crush for small data
 	{
-		partial_sort(error_original_pair.begin(), error_original_pair.begin()+10, error_original_pair.end(), greater< pair<NT,NT> >());
-		cout << "Highest 10 different entries are: " << endl;
+		partial_sort(error_original_pair.begin(), error_original_pair.begin()+10, error_original_pair.end(), std::greater< std::pair<NT,NT> >());
+    std::cout << "Highest 10 different entries are: " << std::endl;
 		for(IT i=0; i < 10; ++i)
-			cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << endl;
+			std::cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << std::endl;
 	}
 	else
 	{
-		sort(error_original_pair.begin(), error_original_pair.end(), greater< pair<NT,NT> >());
-		cout << "Highest different entries are: " << endl;
-		for(typename vector< pair<NT, NT> >::iterator it=error_original_pair.begin(); it != error_original_pair.end(); ++it)
-			cout << "Diff: " << it->first << " on " << it->second << endl;
+		sort(error_original_pair.begin(), error_original_pair.end(), std::greater< std::pair<NT,NT> >());
+		std::cout << "Highest different entries are: " << std::endl;
+		for(typename std::vector< std::pair<NT, NT> >::iterator it=error_original_pair.begin(); it != error_original_pair.end(); ++it)
+			std::cout << "Diff: " << it->first << " on " << it->second << std::endl;
 	}
-	cout << "Same before num: " << same << endl;
+	std::cout << "Same before num: " << same << std::endl;
 #endif
 
 	ErrorTolerantEqual<NT> epsilonequal;
@@ -1016,7 +1016,7 @@ IT Dcsc<IT,NT>::AuxIndex(const IT colind, bool & found, IT * aux, IT csize) cons
 	IT start = aux[base];
 	IT end = aux[base+1];
 
-	IT * itr = find(jc + start, jc + end, colind);
+	IT * itr = std::find(jc + start, jc + end, colind);
 	
 	found = (itr != jc + end);
 	return (itr-jc);
@@ -1029,7 +1029,7 @@ IT Dcsc<IT,NT>::AuxIndex(const IT colind, bool & found, IT * aux, IT csize) cons
 template<class IT, class NT>
 void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 {
-	IT * itr = lower_bound(jc, jc+nzc, cut);
+	IT * itr = std::lower_bound(jc, jc+nzc, cut);
 	IT pos = itr - jc;
 
 	if(cp[pos] == 0)
@@ -1052,9 +1052,9 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	{
 		B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
 		std::copy(jc+pos, jc+ nzc, B->jc);
-		transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut));
+		transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(std::minus<IT>(), cut));
 		std::copy(cp+pos, cp+nzc+1, B->cp);
-		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]));
+		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(std::minus<IT>(), cp[pos]));
 		std::copy(ir+cp[pos], ir+nz, B->ir);
 		std::copy(numx+cp[pos], numx+nz, B->numx);	// copy(first, last, result)
 	}
@@ -1067,13 +1067,13 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
  ** \pre{ size(parts) >= 2}
  **/
 template<class IT, class NT>
-void Dcsc<IT,NT>::ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts)
+void Dcsc<IT,NT>::ColSplit(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> & cuts)
 {
     IT * jcbegin = jc;
-    vector<IT> pos; // pos has "parts-1" entries
+    std::vector<IT> pos; // pos has "parts-1" entries
     for(auto cutpoint = cuts.begin(); cutpoint != cuts.end(); ++cutpoint)
     {
-        IT * itr = lower_bound(jcbegin, jc+nzc, *cutpoint);
+        IT * itr = std::lower_bound(jcbegin, jc+nzc, *cutpoint);
         pos.push_back(itr - jc);
         jcbegin = itr;  // so that lower_bound searches a smaller vector
     }
@@ -1085,10 +1085,10 @@ void Dcsc<IT,NT>::ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts)
     else
     {
         parts[0] = new Dcsc<IT,NT>(cp[pos[0]], pos[0]); // Dcsc(nnz, nzc)
-        copy(jc, jc+pos[0], parts[0]->jc);    // std::copy
-        copy(cp, cp+pos[0]+1, parts[0]->cp);
-        copy(ir, ir+cp[pos[0]], parts[0]->ir);
-        copy(numx, numx + cp[pos[0]], parts[0]->numx);	// copy(first, last, result)
+        std::copy(jc, jc+pos[0], parts[0]->jc);    // std::copy
+        std::copy(cp, cp+pos[0]+1, parts[0]->cp);
+        std::copy(ir, ir+cp[pos[0]], parts[0]->ir);
+        std::copy(numx, numx + cp[pos[0]], parts[0]->numx);	// copy(first, last, result)
     }
     int ncuts =  cuts.size(); // all except last piece
     for(int i=1; i< ncuts; ++i) // treat the first piece differently
@@ -1100,14 +1100,14 @@ void Dcsc<IT,NT>::ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts)
         else
         {
             parts[i] = new Dcsc<IT,NT>(cp[pos[i]] - cp[pos[i-1]], pos[i] - pos[i-1]); // Dcsc(nnz, nzc)
-            copy(jc+pos[i-1], jc+pos[i], parts[i]->jc);    // std::copy
-            transform(parts[i]->jc, parts[i]->jc + (pos[i]-pos[i-1]), parts[i]->jc, bind2nd(minus<IT>(), cuts[i-1]));  // cuts[i-1] is well defined as i>=1
+            std::copy(jc+pos[i-1], jc+pos[i], parts[i]->jc);    // std::copy
+            transform(parts[i]->jc, parts[i]->jc + (pos[i]-pos[i-1]), parts[i]->jc, bind2nd(std::minus<IT>(), cuts[i-1]));  // cuts[i-1] is well defined as i>=1
 
-            copy(cp+pos[i-1], cp+pos[i]+1, parts[i]->cp);
-            transform(parts[i]->cp, parts[i]->cp + (pos[i]-pos[i-1]+1), parts[i]->cp, bind2nd(minus<IT>(), cp[pos[i-1]]));
+            std::copy(cp+pos[i-1], cp+pos[i]+1, parts[i]->cp);
+            transform(parts[i]->cp, parts[i]->cp + (pos[i]-pos[i-1]+1), parts[i]->cp, bind2nd(std::minus<IT>(), cp[pos[i-1]]));
 
-            copy(ir+cp[pos[i-1]], ir+cp[pos[i]], parts[i]->ir);
-            copy(numx+cp[pos[i-1]], numx + cp[pos[i]], parts[i]->numx);	// copy(first, last, result)
+            std::copy(ir+cp[pos[i-1]], ir+cp[pos[i]], parts[i]->ir);
+            std::copy(numx+cp[pos[i-1]], numx + cp[pos[i]], parts[i]->numx);	// copy(first, last, result)
         }
     }
     if(nz - cp[pos[ncuts-1]] == 0)
@@ -1117,13 +1117,13 @@ void Dcsc<IT,NT>::ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts)
     else
     {
         parts[ncuts] = new Dcsc<IT,NT>(nz-cp[pos[ncuts-1]], nzc-pos[ncuts-1]);  // ncuts = npieces -1
-        copy(jc+pos[ncuts-1], jc+ nzc, parts[ncuts]->jc);
-        transform(parts[ncuts]->jc, parts[ncuts]->jc + (nzc-pos[ncuts-1]), parts[ncuts]->jc, bind2nd(minus<IT>(), cuts[ncuts-1]));
+        std::copy(jc+pos[ncuts-1], jc+ nzc, parts[ncuts]->jc);
+        transform(parts[ncuts]->jc, parts[ncuts]->jc + (nzc-pos[ncuts-1]), parts[ncuts]->jc, bind2nd(std::minus<IT>(), cuts[ncuts-1]));
         
-        copy(cp+pos[ncuts-1], cp+nzc+1, parts[ncuts]->cp);
-        transform(parts[ncuts]->cp, parts[ncuts]->cp + (nzc-pos[ncuts-1]+1), parts[ncuts]->cp, bind2nd(minus<IT>(), cp[pos[ncuts-1]]));
-        copy(ir+cp[pos[ncuts-1]], ir+nz, parts[ncuts]->ir);
-        copy(numx+cp[pos[ncuts-1]], numx+nz, parts[ncuts]->numx);
+        std::copy(cp+pos[ncuts-1], cp+nzc+1, parts[ncuts]->cp);
+        transform(parts[ncuts]->cp, parts[ncuts]->cp + (nzc-pos[ncuts-1]+1), parts[ncuts]->cp, bind2nd(std::minus<IT>(), cp[pos[ncuts-1]]));
+        std::copy(ir+cp[pos[ncuts-1]], ir+nz, parts[ncuts]->ir);
+        std::copy(numx+cp[pos[ncuts-1]], numx+nz, parts[ncuts]->numx);
     }
 }
 
@@ -1142,11 +1142,11 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 
 		std::copy(A->jc, A->jc + A->nzc, jc);	// copy(first, last, result)
 		std::copy(B->jc, B->jc + B->nzc, jc + A->nzc);
-		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
+		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(std::plus<IT>(), cut));
 
 		std::copy(A->cp, A->cp + A->nzc, cp);
 		std::copy(B->cp, B->cp + B->nzc +1, cp + A->nzc);
-		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
+		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(std::plus<IT>(), A->cp[A->nzc]));
 	
 		std::copy(A->ir, A->ir + A->nz, ir);
 		std::copy(B->ir, B->ir + B->nz, ir + A->nz);
@@ -1165,7 +1165,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
  * it shows the starts of column numbers
  **/
 template<class IT, class NT>
-void Dcsc<IT,NT>::ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & offsets)
+void Dcsc<IT,NT>::ColConcatenate(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> & offsets)
 {
     IT cnz = 0;
     IT cnzc = 0;
@@ -1183,15 +1183,15 @@ void Dcsc<IT,NT>::ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & of
         IT run_nzc = 0;
         for(size_t i=0; i< nmembers; ++i)
         {
-            copy(parts[i]->jc, parts[i]->jc + parts[i]->nzc, jc + run_nzc);
-            transform(jc + run_nzc, jc + run_nzc + parts[i]->nzc, jc + run_nzc, bind2nd(plus<IT>(), offsets[i]));
+            std::copy(parts[i]->jc, parts[i]->jc + parts[i]->nzc, jc + run_nzc);
+            transform(jc + run_nzc, jc + run_nzc + parts[i]->nzc, jc + run_nzc, bind2nd(std::plus<IT>(), offsets[i]));
             
             // remember: cp[nzc] = nnz
-            copy(parts[i]->cp, parts[i]->cp + parts[i]->nzc, cp + run_nzc);
-            transform(cp + run_nzc, cp + run_nzc + parts[i]->nzc, cp + run_nzc, bind2nd(plus<IT>(),run_nz));
+            std::copy(parts[i]->cp, parts[i]->cp + parts[i]->nzc, cp + run_nzc);
+            transform(cp + run_nzc, cp + run_nzc + parts[i]->nzc, cp + run_nzc, bind2nd(std::plus<IT>(),run_nz));
             
-            copy(parts[i]->ir, parts[i]->ir + parts[i]->nz, ir + run_nz);
-            copy(parts[i]->numx, parts[i]->numx + parts[i]->nz, numx + run_nz);
+            std::copy(parts[i]->ir, parts[i]->ir + parts[i]->nz, ir + run_nz);
+            std::copy(parts[i]->numx, parts[i]->numx + parts[i]->nz, numx + run_nz);
             
             run_nzc += parts[i]->nzc;
             run_nz += parts[i]->nz;
@@ -1208,25 +1208,25 @@ void Dcsc<IT,NT>::ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & of
  **/
 template<class IT, class NT>
 template<class VT>	
-void Dcsc<IT,NT>::FillColInds(const VT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
+void Dcsc<IT,NT>::FillColInds(const VT * colnums, IT nind, std::vector< std::pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
 	if ( aux == NULL || (nzc / nind) < THRESHOLD)   	// use scanning indexing
 	{
-		IT mink = min(nzc, nind);
-		pair<IT,IT> * isect = new pair<IT,IT>[mink];
-		pair<IT,IT> * range1 = new pair<IT,IT>[nzc];
-		pair<IT,IT> * range2 = new pair<IT,IT>[nind];
+		IT mink = std::min(nzc, nind);
+		std::pair<IT,IT> * isect = new std::pair<IT,IT>[mink];
+		std::pair<IT,IT> * range1 = new std::pair<IT,IT>[nzc];
+		std::pair<IT,IT> * range2 = new std::pair<IT,IT>[nind];
 		
 		for(IT i=0; i < nzc; ++i)
 		{
-			range1[i] = make_pair(jc[i], i);	// get the actual nonzero value and the index to the ith nonzero
+			range1[i] = std::make_pair(jc[i], i);	// get the actual nonzero value and the index to the ith nonzero
 		}
 		for(IT i=0; i < nind; ++i)
 		{
-			range2[i] = make_pair(static_cast<IT>(colnums[i]), 0);	// second is dummy as all the intersecting elements are copied from the first range
+			range2[i] = std::make_pair(static_cast<IT>(colnums[i]), 0);	// second is dummy as all the intersecting elements are copied from the first range
 		}
 
-		pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare<IT> );
+		std::pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare<IT> );
 		// isect now can iterate on a subset of the elements of range1
 		// meaning that the intersection can be accessed directly by isect[i] instead of range1[isect[i]]
 		// this is because the intersecting elements are COPIED to the output range "isect"

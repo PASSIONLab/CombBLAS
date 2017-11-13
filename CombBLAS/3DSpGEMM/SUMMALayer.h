@@ -17,11 +17,12 @@
 #include "mtSpGEMM.h"
 #include "CCGrid.h"
 
+namespace combblas {
 
 // SplitB is already locally transposed
 // Returns an array of unmerged lists in C
 template <typename IT, typename NT>
-void SUMMALayer (SpDCCols<IT,NT> & SplitA, SpDCCols<IT,NT> & SplitB, vector< SpTuples<IT,NT>* > & C, CCGrid & CMG, bool isBT, bool threaded)
+void SUMMALayer (SpDCCols<IT,NT> & SplitA, SpDCCols<IT,NT> & SplitB, std::vector< SpTuples<IT,NT>* > & C, CCGrid & CMG, bool isBT, bool threaded)
 {
 	typedef PlusTimesSRing<NT,NT> PTDD;
 	
@@ -43,7 +44,7 @@ void SUMMALayer (SpDCCols<IT,NT> & SplitA, SpDCCols<IT,NT> & SplitB, vector< SpT
     for(int i = 0; i < stages; ++i)
     {
         double bcast_beg = MPI_Wtime();
-        vector<IT> ess;
+        std::vector<IT> ess;
         
         if(i == Aself)  ARecv = &SplitA;	// shallow-copy
         else
@@ -93,6 +94,8 @@ void SUMMALayer (SpDCCols<IT,NT> & SplitA, SpDCCols<IT,NT> & SplitB, vector< SpT
 	
 	SpHelper::deallocate2D(ARecvSizes, SpDCCols<IT,NT>::esscount);
 	SpHelper::deallocate2D(BRecvSizes, SpDCCols<IT,NT>::esscount);
+}
+
 }
 
 #endif

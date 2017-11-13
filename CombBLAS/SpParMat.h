@@ -76,10 +76,10 @@ public:
 	// Constructors
 	SpParMat ();
     SpParMat (MPI_Comm world); 	// ABAB: there is risk that any integer would call this constructor due to MPICH representation
-	SpParMat (shared_ptr<CommGrid> grid);
-	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
+	SpParMat (std::shared_ptr<CommGrid> grid);
+	SpParMat (DER * myseq, std::shared_ptr<CommGrid> grid);
 		
-	SpParMat (ifstream & input, MPI_Comm & world);
+	SpParMat (std::ifstream & input, MPI_Comm & world);
 	SpParMat (DER * myseq, MPI_Comm & world);	
 
 	template <class DELIT>
@@ -194,7 +194,7 @@ public:
 	template <typename _BinaryOperation>
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 
-	void Dump(string filename) const;
+	void Dump(std::string filename) const;
 	void PrintInfo() const;
 
 	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	//!< Type conversion operator
@@ -204,7 +204,7 @@ public:
 	IT getncol() const;
 	IT getnnz() const;
 
-	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
+	SpParMat<IT,NT,DER> SubsRefCol (const std::vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
 
 	//! General indexing with serial semantics
 	template <typename SelectFirstSR, typename SelectSecondSR>
@@ -226,11 +226,11 @@ public:
 		void binaryfill(FILE * rFile, IT & row, IT & col, NT & val) 
 		{
 			if (fread(&row, sizeof(IT), 1,rFile) != 1)
-				cout << "binaryfill(): error reading row index" << endl;
+				std::cout << "binaryfill(): error reading row index" << std::endl;
 			if (fread(&col, sizeof(IT), 1,rFile) != 1)
-				cout << "binaryfill(): error reading col index" << endl;
+				std::cout << "binaryfill(): error reading col index" << std::endl;
 			if (fread(&val, sizeof(NT), 1,rFile) != 1)
-				cout << "binaryfill(): error reading value" << endl;
+				std::cout << "binaryfill(): error reading value" << std::endl;
 			return; 
 		}
 		size_t entrylength() { return 2*sizeof(IT)+sizeof(NT); }
@@ -251,25 +251,25 @@ public:
 	};
 	
    	template <typename _BinaryOperation>
-    	void ParallelReadMM (const string & filename, bool onebased, _BinaryOperation BinOp);
+    	void ParallelReadMM (const std::string & filename, bool onebased, _BinaryOperation BinOp);
 
     	template <typename _BinaryOperation>
-    	FullyDistVec<IT,array<char, MAXVERTNAME>> ReadGeneralizedTuples(const string&, _BinaryOperation);
+    	FullyDistVec<IT,std::array<char, MAXVERTNAME>> ReadGeneralizedTuples(const std::string&, _BinaryOperation);
     
 	template <class HANDLER>
-	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
-	void ReadDistribute (const string & filename, int master, bool nonum=false, bool pario = false) 
+	void ReadDistribute (const std::string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
+	void ReadDistribute (const std::string & filename, int master, bool nonum=false, bool pario = false) 
 	{ 
 		ReadDistribute(filename, master, nonum, ScalarReadSaveHandler(), false, pario); 
 	}
 
 	template <class HANDLER>
-	void SaveGathered(string filename, HANDLER handler, bool transpose = false) const;
-	void SaveGathered(string filename) const { SaveGathered(filename, ScalarReadSaveHandler(), false); }
+	void SaveGathered(std::string filename, HANDLER handler, bool transpose = false) const;
+	void SaveGathered(std::string filename) const { SaveGathered(filename, ScalarReadSaveHandler(), false); }
 	
-	ofstream& put(ofstream& outfile) const;
+	std::ofstream& put(std::ofstream& outfile) const;
 
-	shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
+	std::shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
 	typename DER::LocalIT getlocalrows() const { return spSeq->getnrow(); }
 	typename DER::LocalIT getlocalcols() const { return spSeq->getncol();} 
 	typename DER::LocalIT getlocalnnz() const { return spSeq->getnnz(); }
@@ -343,8 +343,8 @@ public:
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
 
 private:
-	typedef array<char, MAXVERTNAME> STRASARRAY;
-	typedef pair< STRASARRAY, uint64_t> TYPE2SEND;
+	typedef std::array<char, MAXVERTNAME> STRASARRAY;
+	typedef std::pair< STRASARRAY, uint64_t> TYPE2SEND;
 
 	class CharArraySaveHandler
 	{
@@ -353,24 +353,24 @@ private:
     		template <typename c, typename t>
     		void save(std::basic_ostream<c,t>& os, STRASARRAY & chararray, int64_t index)
     		{
-			auto locnull = find(chararray.begin(), chararray.end(), '\0'); // find the null character (or string::end)
-            		string strtmp(chararray.begin(), locnull); // range constructor 
+			          auto locnull = std::find(chararray.begin(), chararray.end(), '\0'); // find the null character (or string::end)
+                std::string strtmp(chararray.begin(), locnull); // range constructor 
 			os << strtmp;
     		}
 	};
     
-	MPI_File TupleRead1stPassNExchange (const string & filename, TYPE2SEND * & senddata, IT & totsend, FullyDistVec<IT,STRASARRAY> & distmapper, uint64_t & totallength);
+	MPI_File TupleRead1stPassNExchange (const std::string & filename, TYPE2SEND * & senddata, IT & totsend, FullyDistVec<IT,STRASARRAY> & distmapper, uint64_t & totallength);
 
 	template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
     	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
     
     	template <typename _BinaryOperation, typename LIT>
-	void SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
+	void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
     	template <typename VT, typename GIT>	// GIT: global index type of vector
-    	void TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
-                    const vector<NT> & medians, const vector<IT> & nnzperc, int itersuntil, vector< vector<NT> > & localmat,
-                    const vector<IT> & actcolsmap, vector<IT> & klimits, vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair,
+    	void TopKGather(std::vector<NT> & all_medians, std::vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
+                    const std::vector<NT> & medians, const std::vector<IT> & nnzperc, int itersuntil, std::vector< std::vector<NT> > & localmat,
+                    const std::vector<IT> & actcolsmap, std::vector<IT> & klimits, std::vector<IT> & toretain, std::vector<std::vector<std::pair<IT,NT>>> & tmppair,
                     IT coffset, const FullyDistVec<GIT,VT> & rvec) const;
     
 	template <typename LIT>
@@ -378,27 +378,27 @@ private:
 	
 	void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;
 	
-	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, vector < tuple <IT,IT,NT> > & localtuples,
+	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, std::vector < std::tuple <IT,IT,NT> > & localtuples,
 						int * rcurptrs, int * rdispls, IT buffperrowneigh, int rowneighs, int recvcount, IT m_perproc, IT n_perproc, int rankinrow);
 	
         template <class HANDLER>
-	void ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, NT * & vals, vector< tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
+	void ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, NT * & vals, std::vector< std::tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
 			IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, IT entriestoread, HANDLER handler, int rankinrow, bool transpose);
 
-	void VerticalSend(IT * & rows, IT * & cols, NT * & vals, vector< tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
+	void VerticalSend(IT * & rows, IT * & cols, NT * & vals, std::vector< std::tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
 				IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, int rankinrow);
 	
 	void AllocateSetBuffers(IT * & rows, IT * & cols, NT * & vals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh);
 	void BcastEssentials(MPI_Comm & world, IT & total_m, IT & total_n, IT & total_nnz, int master);
 	
-	shared_ptr<CommGrid> commGrid; 
+	std::shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
 	
 	template <class IU, class NU>
 	friend class DenseParMat;
 
 	template <typename IU, typename NU, typename UDER> 	
-	friend ofstream& operator<< (ofstream& outfile, const SpParMat<IU,NU,UDER> & s);	
+	friend std::ofstream& operator<< (std::ofstream& outfile, const SpParMat<IU,NU,UDER> & s);	
 };
 
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 

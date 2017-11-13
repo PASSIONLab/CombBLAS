@@ -1,5 +1,9 @@
+#ifndef MULTIWAY_MERGE_H
+#define MULTIWAY_MERGE_H
+
 #include "../CombBLAS.h"
 
+namespace combblas {
 
 /***************************************************************************
  * Find indices of column splitters in a list of tuple in parallel.
@@ -12,9 +16,9 @@
  ***************************************************************************/
 
 template <typename RT, typename IT, typename NT>
-vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
+std::vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
 {
-    vector<RT> splitters(nsplits+1);
+    std::vector<RT> splitters(nsplits+1);
     splitters[0] = static_cast<RT>(0);
     ColLexiCompare<IT,NT> comp;
 #pragma omp parallel for
@@ -42,12 +46,12 @@ vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
  */
 
 template<class SR, class IT, class NT>
-SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
+SpTuples<IT,NT>* SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
 {
     int nlists =  ArrSpTups.size();
     ColLexiCompare<IT,int> heapcomp;
-    vector<tuple<IT, IT, int>> heap(nlists); // if performance issue, create this outside of threaded region
-    vector<IT> curptr(nlists, static_cast<IT>(0));
+    std::vector<tuple<IT, IT, int>> heap(nlists); // if performance issue, create this outside of threaded region
+    std::vector<IT> curptr(nlists, static_cast<IT>(0));
     IT estnnz = 0;
     IT hsize = 0;
     for(int i=0; i< nlists; ++i)
@@ -97,7 +101,7 @@ SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IT, class NT>
-SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false )
+SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false )
 {
     
     int nlists =  ArrSpTups.size();
@@ -140,14 +144,14 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     }
     int nsplits = 4*nthreads; // oversplit for load balance
     nsplits = min(nsplits, (int)ndim); // we cannot split a column
-    vector< vector<IT> > colPtrs;
+    std::vector< std::vector<IT> > colPtrs;
     for(int i=0; i< nlists; i++)
     {
         colPtrs.push_back(findColSplitters<IT>(ArrSpTups[i], nsplits)); // in parallel
     }
     
     // ------ estimate memory requirement after merge in each split ------
-    vector<IT> nnzPerSplit(nsplits);
+    std::vector<IT> nnzPerSplit(nsplits);
     IT nnzAll = static_cast<IT>(0);
     //#pragma omp parallel for
     for(int i=0; i< nsplits; i++)
@@ -162,7 +166,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     
     
     // ------ allocate memory in a serial region ------
-    vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
+    std::vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
     for(int i=0; i< nsplits; i++)
     {
         mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[nnzPerSplit[i]])));
@@ -170,11 +174,11 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
 
 
      // ------ perform merge in parallel ------
-    vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
+    std::vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
 #pragma omp parallel for schedule(dynamic)
     for(int i=0; i< nsplits; i++) // serially merge part by part
     {
-        vector<SpTuples<IT,NT> *> listSplitTups(nlists);
+        std::vector<SpTuples<IT,NT> *> listSplitTups(nlists);
         for(int j=0; j< nlists; ++j)
         {
             IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];
@@ -185,7 +189,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     
     
     // ------ concatenate merged tuples processed by threads ------
-    vector<IT> tdisp(nsplits+1);
+    std::vector<IT> tdisp(nsplits+1);
     tdisp[0] = 0;
     for(int i=0; i<nsplits; ++i)
     {
@@ -215,3 +219,8 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     }
     return new SpTuples<IT, NT> (mergedListSize, mdim, ndim, shrunkTuples, true);
 }
+
+}
+
+#endif
+

@@ -58,7 +58,7 @@ class BitMap {
 	// VS9: warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
 	start = new uint64_t[num_longs];
 	end = start + num_longs;
-	copy(rhs.start, rhs.end, start);
+	std::copy(rhs.start, rhs.end, start);
   }
   BitMap & operator= (const BitMap & rhs)
   {
@@ -69,7 +69,7 @@ class BitMap {
 		// VS9: warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
         	start = new uint64_t[num_longs];
         	end = start + num_longs;
-        	copy(rhs.start, rhs.end, start);
+        	std::copy(rhs.start, rhs.end, start);
 	}
 	return *this;
    }
@@ -147,15 +147,15 @@ class BitMap {
   }
 
 	void copy_from(const BitMap* other) {
-		copy(other->start, other->end, start);
+		std::copy(other->start, other->end, start);
 	}
 	
 	void print_ones() {
 		uint64_t max_size = (end-start)*64;
 		for (uint64_t i=0; i<max_size; i++)
 			if (get_bit(i))
-				cout << " " << i;
-		cout << endl;
+				std::cout << " " << i;
+		std::cout << std::endl;
 	}
 
  private:

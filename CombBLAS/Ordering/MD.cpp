@@ -12,6 +12,7 @@
 
 #define EDGEFACTOR 16  /// changed to 8
 using namespace std;
+using namespace combblas;
 
 
 

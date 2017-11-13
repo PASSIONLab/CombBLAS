@@ -52,15 +52,15 @@ public:
 		}
 	}
 	
-	void Set(const vector<int> & maxsizes, int mA) 
+	void Set(const std::vector<int> & maxsizes, int mA) 
 	{
 		p_c =  maxsizes.size(); 
-		totmax = accumulate(maxsizes.begin(), maxsizes.end(), 0);
+		totmax = std::accumulate(maxsizes.begin(), maxsizes.end(), 0);
 		inds = new IT[totmax];
-		fill_n(inds, totmax, -1);
+		std::fill_n(inds, totmax, -1);
 		nums = new NT[totmax];
 		dspls = new int[p_c]();
-		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);
+    std::partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);
 		localm = mA;
 		
 		isthere = new BitMap(localm);
