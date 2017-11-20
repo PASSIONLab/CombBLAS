@@ -814,7 +814,7 @@ inline void SpParHelper::Print(const string & s)
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	if(myrank == 0)
 	{
-		cout << s;
+		cerr << s;
 	}
 }
 
@@ -824,7 +824,7 @@ inline void SpParHelper::Print(const string & s, MPI_Comm & world)
     MPI_Comm_rank(world, &myrank);
     if(myrank == 0)
     {
-        cout << s;
+        cerr << s;
     }
 }
 
