@@ -2458,7 +2458,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
     	MPI_Gather(&totsent, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0, commGrid->GetWorld());
 	if(commGrid->GetRank() == 0) { copy(gsizes, gsizes+nprocs, ostream_iterator<IT>(cout, " "));   cout << endl; }
 	MPI_Barrier(commGrid->GetWorld());
-	delete [] gsizes;
+	if(commGrid->GetRank() == 0) delete [] gsizes;
 #endif
 
   	tuple<LIT,LIT,NT> * senddata = new tuple<LIT,LIT,NT>[locsize];	// re-used for both rows and columns
@@ -3376,11 +3376,15 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
-        cout << "Packing to recepients finished, about to send..." << endl;
+        cout << "Packing to recipients finished, about to send..." << endl;
 #endif
     
     if(spSeq)   delete spSeq;
     SparseCommon(data, locsize, totallength, totallength, BinOp);
+
+    cout << "SparseCommon returned" << endl;
+    MPI_Barrier(commGrid->commWorld);
+
     return distmapper;
 }
 
