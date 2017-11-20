@@ -340,15 +340,32 @@ public:
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
 
 private:
+	typedef array<char, MAXVERTNAME> STRASARRAY;
+	typedef pair< STRASARRAY, uint64_t> TYPE2SEND;
+
+	class CharArraySaveHandler
+	{
+		public:
+    		// no reader
+    		template <typename c, typename t>
+    		void save(std::basic_ostream<c,t>& os, STRASARRAY & chararray, int64_t index)
+    		{
+			auto locnull = find(chararray.begin(), chararray.end(), '\0'); // find the null character (or string::end)
+            		string strtmp(chararray.begin(), locnull); // range constructor 
+			os << strtmp;
+    		}
+	};
     
-    template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
-    void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
+	MPI_File TupleRead1stPassNExchange (const string & filename, TYPE2SEND * & senddata, IT & totsend, FullyDistVec<IT,STRASARRAY> & distmapper, uint64_t & totallength);
+
+	template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
+    	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
     
-    template <typename _BinaryOperation, typename LIT>
+    	template <typename _BinaryOperation, typename LIT>
 	void SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
-    template <typename VT, typename GIT>	// GIT: global index type of vector
-    void TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
+    	template <typename VT, typename GIT>	// GIT: global index type of vector
+    	void TopKGather(vector<NT> & all_medians, vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
                     const vector<NT> & medians, const vector<IT> & nnzperc, int itersuntil, vector< vector<NT> > & localmat,
                     const vector<IT> & actcolsmap, vector<IT> & klimits, vector<IT> & toretain, vector<vector<pair<IT,NT>>> & tmppair,
                     IT coffset, const FullyDistVec<GIT,VT> & rvec) const;
@@ -397,6 +414,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 }
+
+
 
 #include "SpParMat.cpp"
 

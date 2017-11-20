@@ -2443,7 +2443,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	assert((totrecv < std::numeric_limits<int>::max()));
 	
 
-#ifdef COMBBLAS_DEBUG
+#if 0 
 	ofstream oput;
         commGrid->OpenDebugFile("Displacements", oput);
 	copy(sdispls, sdispls+nprocs, ostream_iterator<int>(oput, " "));   oput << endl;
@@ -2465,7 +2465,8 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(data[i].begin(), data[i].end(), senddata+sdispls[i]);
-		vector< tuple<LIT,LIT,NT> >().swap(data[i]);	// clear memory
+		data[i].clear();	// clear memory
+		data[i].shrink_to_fit();
 	}
 	MPI_Datatype MPI_triple;
 	MPI_Type_contiguous(sizeof(tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_triple);
@@ -2474,13 +2475,8 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	tuple<LIT,LIT,NT> * recvdata = new tuple<LIT,LIT,NT>[totrecv];	
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple, commGrid->GetWorld());
 
-	cout << "AlltoAll'd" << endl;
-	MPI_Barrier(commGrid->GetWorld());	
 	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
 	MPI_Type_free(&MPI_triple);
-
-	cout << "Deleted" << endl;
-	MPI_Barrier(commGrid->GetWorld());	
 
 	int r = commGrid->GetGridRows();
 	int s = commGrid->GetGridCols();
@@ -2495,21 +2491,11 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<LIT,LIT,NT> > > 
 	else	loccols = total_n - myproccol * n_perproc;
     
 	SpTuples<LIT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
-
-	cout << "Constructed" << endl;
-	MPI_Barrier(commGrid->GetWorld());	
-	
 	
     	// the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
     	A.RemoveDuplicates(BinOp);
-
-	cout << "Removed Tuples" << endl;
-	MPI_Barrier(commGrid->GetWorld());	
 	
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
-
-	cout << "Before Return" << endl;
-	MPI_Barrier(commGrid->GetWorld());		
 }
 
 
@@ -3153,24 +3139,23 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool 
 	}
 }
 
-//! Handles all sorts of orderings as long as there are no duplicates
-//! Does not take matrix market banner (only tuples)
-//! Data can be load imbalanced and the vertex labels can be arbitrary strings
-//! Replaces ReadDistribute for imbalanced arbitrary input in tuples format
+
+//! Private subroutine of ReadGeneralizedTuples
+//! totallength is the length of the dictionary, which we don't know in this labeled tuples format apriori
 template <class IT, class NT, class DER>
-template <typename _BinaryOperation>
-FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _BinaryOperation BinOp)
-{       
+MPI_File SpParMat< IT,NT,DER >::TupleRead1stPassNExchange (const string & filename, TYPE2SEND * & senddata, IT & totsend, 
+							FullyDistVec<IT,STRASARRAY> & distmapper, uint64_t & totallength)
+{
     int myrank = commGrid->GetRank();
     int nprocs = commGrid->GetSize();     
 
+    MPI_Offset fpos, end_fpos;    
     struct stat st;     // get file size
     if (stat(filename.c_str(), &st) == -1)
     {
         MPI_Abort(MPI_COMM_WORLD, NOFILE);
     }
     int64_t file_size = st.st_size;
-    MPI_Offset fpos, end_fpos;
     if(myrank == 0)    // the offset needs to be for this rank
     {
         cout << "File is " << file_size << " bytes" << endl;
@@ -3183,7 +3168,6 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     MPI_File mpi_fh;
     MPI_File_open (commGrid->commWorld, const_cast<char*>(filename.c_str()), MPI_MODE_RDONLY, MPI_INFO_NULL, &mpi_fh);
 
-    
     typedef map<string, uint64_t> KEYMAP; // due to potential (but extremely unlikely) collusions in MurmurHash, make the key to the std:map the string itself
     vector< KEYMAP > allkeys(nprocs);	  // map keeps the outgoing data unique, we could have applied this to HipMer too
 
@@ -3216,15 +3200,16 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     int * rdispls = new int[nprocs]();
     partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
     partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
-    IT totsend = accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));
+    totsend = accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
 
     assert((totsend < std::numeric_limits<int>::max()));	
     assert((totrecv < std::numeric_limits<int>::max()));
 
-    typedef array<char, MAXVERTNAME> STRASARRAY;
-    typedef pair< STRASARRAY, uint64_t> TYPE2SEND;
-    TYPE2SEND * senddata = new TYPE2SEND[totsend];	
+    // The following are declared in SpParMat.h
+    // typedef array<char, MAXVERTNAME> STRASARRAY;
+    // typedef pair< STRASARRAY, uint64_t> TYPE2SEND;
+    senddata = new TYPE2SEND[totsend];	
 
     #pragma omp parallel for
     for(int i=0; i<nprocs; ++i)
@@ -3241,6 +3226,8 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 		j++;
 	}
     }
+    allkeys.clear();  // allkeys is no longer needed after this point
+
     MPI_Datatype MPI_HASH;
     MPI_Type_contiguous(sizeof(TYPE2SEND), MPI_CHAR, &MPI_HASH);
     MPI_Type_commit(&MPI_HASH);
@@ -3264,15 +3251,14 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 	    cout << "out of " << totrecv << " vertices received, " << uniqsize << " were unique" << endl;
 #endif
     uint64_t sizeuntil = 0;
-    uint64_t totallength = 0;
+    totallength = 0;
     MPI_Exscan( &uniqsize, &sizeuntil, 1, MPIType<uint64_t>(), MPI_SUM, commGrid->GetWorld() );
     MPI_Allreduce(&uniqsize, &totallength, 1,  MPIType<uint64_t>(), MPI_SUM, commGrid->GetWorld());
     if(myrank == 0) sizeuntil = 0;  // because MPI_Exscan says the recvbuf in process 0 is undefined
 
-    // choice of array<char, MAXVERTNAME> over string = array is required to be a contiguous container and an aggregate
-    FullyDistVec<IT,STRASARRAY> distmapper(commGrid, totallength,STRASARRAY{});	
+    distmapper =  FullyDistVec<IT,STRASARRAY>(commGrid, totallength,STRASARRAY{});	
 	
-    // invindex does not confirm to FullyDistVec boundaries, otherwise its contents are essentially the same as distmapper    
+    // invindex does not conform to FullyDistVec boundaries, otherwise its contents are essentially the same as distmapper    
     KEYMAP invindex;	// KEYMAP is map<string, uint64_t>. 
     uint64_t locindex = 0;
     vector< vector< IT > > locs_send(nprocs);
@@ -3298,7 +3284,7 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 
 
     /* BEGIN: Redistributing the permutation vector to fit the FullyDistVec semantics */
-    SpParHelper::ReDistributeToVector(map_scnt, locs_send, data_send, distmapper.arr, commGrid->GetWorld());
+    SpParHelper::ReDistributeToVector(map_scnt, locs_send, data_send, distmapper.arr, commGrid->GetWorld());   // map_scnt is deleted here
     /* END: Redistributing the permutation vector to fit the FullyDistVec semantics */ 
 
     for(IT i=0; i< totrecv; ++i)
@@ -3317,8 +3303,31 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     MPI_Alltoallv(recvdata, recvcnt, rdispls, MPI_HASH, senddata, sendcnt, sdispls, MPI_HASH, commGrid->GetWorld());    
     DeleteAll(recvdata, sendcnt, recvcnt, sdispls, rdispls);
     MPI_Type_free(&MPI_HASH);
-    
 
+    // the following gets deleted here: allkeys
+    return mpi_fh;
+}
+
+
+
+//! Handles all sorts of orderings as long as there are no duplicates
+//! Does not take matrix market banner (only tuples)
+//! Data can be load imbalanced and the vertex labels can be arbitrary strings
+//! Replaces ReadDistribute for imbalanced arbitrary input in tuples format
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
+FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralizedTuples (const string & filename, _BinaryOperation BinOp)
+{       
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();  
+    TYPE2SEND * senddata;
+    IT totsend;
+    uint64_t totallength;
+    FullyDistVec<IT,STRASARRAY> distmapper; // choice of array<char, MAXVERTNAME> over string = array is required to be a contiguous container and an aggregate
+
+    MPI_File mpi_fh = TupleRead1stPassNExchange(filename, senddata, totsend, distmapper, totallength);
+
+    typedef map<string, uint64_t> KEYMAP;    
     KEYMAP ultimateperm;	// the ultimate permutation
     for(IT i=0; i< totsend; ++i)	
     {
@@ -3332,9 +3341,18 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
 		cout << "the duplication in ultimateperm is unexpected!!!" << endl;	
 	    }
     }
-    
-    // rename the data now, first reset file pointers
-    fpos = myrank * file_size / nprocs;
+    delete [] senddata;
+
+    // rename the data now, first reset file pointers    
+    MPI_Offset fpos, end_fpos;
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(MPI_COMM_WORLD, NOFILE);
+    }
+    int64_t file_size = st.st_size;
+
+    fpos = myrank * file_size / nprocs;   
 
     if(myrank != (nprocs-1)) end_fpos = (myrank + 1) * file_size / nprocs;
     else end_fpos = file_size;
@@ -3344,8 +3362,9 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     vector<LIT> cols;
     vector<NT> vals;
 
-    finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
-    entriesread = lines.size();
+    vector<string> lines;
+    bool finished = SpParHelper::FetchBatch(mpi_fh, fpos, end_fpos, true, lines, myrank);
+    int64_t entriesread = lines.size();
    
     SpHelper::ProcessStrLinesNPermute(rows, cols, vals, lines, ultimateperm);
 
@@ -3355,12 +3374,14 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
         entriesread += lines.size();
     	SpHelper::ProcessStrLinesNPermute(rows, cols, vals, lines, ultimateperm);
     }
-    allentriesread;
+    int64_t allentriesread;
     MPI_Reduce(&entriesread, &allentriesread, 1, MPIType<int64_t>(), MPI_SUM, 0, commGrid->commWorld);
 #ifdef COMBBLAS_DEBUG
     if(myrank == 0)
         cout << "Second reading finished. Total number of entries read across all processors is " << allentriesread << endl;
 #endif
+
+    MPI_File_close(&mpi_fh);
     vector< vector < tuple<LIT,LIT,NT> > > data(nprocs);
     
     LIT locsize = rows.size();   // remember: locsize != entriesread (unless the matrix is unsymmetric)
@@ -3381,11 +3402,9 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     
     if(spSeq)   delete spSeq;
     SparseCommon(data, locsize, totallength, totallength, BinOp);
-
-    cout << "SparseCommon returned" << endl;
-    MPI_Barrier(commGrid->commWorld);
-
-    return distmapper;
+    // PrintInfo();
+    // distmapper.ParallelWrite("distmapper.mtx", 1, CharArraySaveHandler());
+    return distmapper; 
 }
 
 
