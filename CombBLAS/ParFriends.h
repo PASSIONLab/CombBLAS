@@ -365,8 +365,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         SpParHelper::Print("MemEfficientSpGEMM: The value of phases is too small or large. Resetting to 1.\n");
         phases = 1;
     }
-    //if(!CheckSpGEMMCompliance(A,B) )
-      //  return SpParMat< IU,NUO,UDERO >();
     
     int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
     shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
@@ -375,21 +373,28 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     if(perProcessMemory>0) // estimate the number of phases permitted by memory
     {
         int p;
-        MPI_Comm_size(MPI_COMM_WORLD,&p);
+        MPI_Comm World = GridC->GetWorld();
+        MPI_Comm_size(World,&p);
+        
+        // max nnz(A) in a porcess
         int64_t lannz = A.getlocalnnz();
         int64_t gannz;
+        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, World);
+        int64_t inputMem = gannz * 20 * 4; // for four copies (two for SUMMA)
         
-        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
+        // max nnz(A^2) stored by summa in a porcess
+        int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B);
+        int64_t asquareMem = asquareNNZ * 24 * 2; // an extra copy in multiway merge and in selection/recovery step
         
-        double d = A.getnnz() / (double)A.getncol();
-        int64_t k = min(max(selectNum, recoverNum), (int64_t)(d*d));
-        int64_t asquareNNZ = (A.getncol() * d * d) /p ;
         
-        int64_t kselectmem = A.getlocalcols() * k * 8 * 3;
-        int64_t outputNNZ = (A.getncol() * k)/p;
+        // estimate kselect memory
+        int64_t d = ceil( (asquareNNZ * sqrt(p))/ B.getlocalcols() ); // average nnz per column in A^2 (it is an overestimate because asquareNNZ is estimated based on unmerged matrices)
+        // this is equivalent to (asquareNNZ * p) / B.getcol()
+        int64_t k = min(max(selectNum, recoverNum), d );
+        int64_t kselectmem = B.getlocalcols() * k * 8 * 3;
         
-        int64_t inputMem = gannz * 20 * 3;
-        int64_t asquareMem = asquareNNZ * 20 * 2;
+        // estimate output memory
+        int64_t outputNNZ = (B.getlocalcols() * k)/sqrt(p);
         int64_t outputMem = outputNNZ * 20 * 2;
         
         //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
@@ -400,7 +405,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
         
         
-        int64_t maxMemory = kselectmem/phases + inputMem + outputMem + asquareMem / phases;
+       
         
         if(myrank==0)
         {
@@ -409,6 +414,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                 cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n Warning: input and output memory requirement is greater than per-process avaiable memory. Keeping phase to the value supplied at the command line. The program may go out of memory and crash! \n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
             }
 #ifdef SHOW_MEMORY_USAGE
+            int64_t maxMemory = kselectmem/phases + inputMem + outputMem + asquareMem / phases;
             if(maxMemory>1000000000)
             cout << "phases: " << phases << ": per process memory: " << perProcessMemory << " GB asquareMem: " << asquareMem/1000000000.00 << " GB" << " inputMem: " << inputMem/1000000000.00 << " GB" << " outputMem: " << outputMem/1000000000.00 << " GB" << " kselectmem: " << kselectmem/1000000000.00 << " GB" << endl;
             else
@@ -418,7 +424,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
     }
     
-    
     IU C_m = A.spSeq->getnrow();
     IU C_n = B.spSeq->getncol();
     
@@ -427,9 +432,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
-    
-
-    
 
     
     IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
@@ -491,14 +493,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             mcl_Bbcasttime += (t3-t2);
 #endif
             
-            /*
-            SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-                                        (*ARecv, *BRecv, // parameters themselves
-                                        false, false,	// transpose information (none are transposed)
-                                         i != Aself, 	// 'delete A' condition
-                                         i != Bself);	// 'delete B' condition
-             
-            */
             
 #ifdef TIMING
             double t4=MPI_Wtime();
@@ -908,8 +902,110 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
+    
 
+    
+    /**
+     * Estimate the maximum nnz needed to store in a process from all stages of SUMMA before reduction
+     * @pre { Input matrices, A and B, should not alias }
+     **/
+    template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+    IU EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)
+    
+    {
+        IU nnzC_SUMMA = 0;
+        
+        if(A.getncol() != B.getnrow())
+        {
+            ostringstream outs;
+            outs << "Can not multiply, dimensions does not match"<< endl;
+            outs << A.getncol() << " != " << B.getnrow() << endl;
+            SpParHelper::Print(outs.str());
+            MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+            return nnzC_SUMMA;
+        }
+       
+        int stages, dummy;     // last two parameters of ProductGrid are ignored for Synch multiplication
+        shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+  
+        MPI_Barrier(GridC->GetWorld());
+        
+        IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+        IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+        SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+        SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+        
+        // Remotely fetched matrices are stored as pointers
+        UDERA * ARecv;
+        UDERB * BRecv;
 
+        int Aself = (A.commGrid)->GetRankInProcRow();
+        int Bself = (B.commGrid)->GetRankInProcCol();
+        
+        
+        for(int i = 0; i < stages; ++i)
+        {
+            vector<IU> ess;
+            if(i == Aself)
+            {
+                ARecv = A.spSeq;    // shallow-copy
+            }
+            else
+            {
+                ess.resize(UDERA::esscount);
+                for(int j=0; j< UDERA::esscount; ++j)
+                {
+                    ess[j] = ARecvSizes[j][i];        // essentials of the ith matrix in this row
+                }
+                ARecv = new UDERA();                // first, create the object
+            }
+            
+            SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);    // then, receive its elements
+            ess.clear();
+            
+            if(i == Bself)
+            {
+                BRecv = B.spSeq;    // shallow-copy
+            }
+            else
+            {
+                ess.resize(UDERB::esscount);
+                for(int j=0; j< UDERB::esscount; ++j)
+                {
+                    ess[j] = BRecvSizes[j][i];
+                }
+                BRecv = new UDERB();
+            }
+            
+            SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
+            
+
+            IU* colnnzC = estimateNNZ(*ARecv, *BRecv);
+            IU nzc = BRecv->GetDCSC()->nzc;
+            IU nnzC_stage = 0;
+#ifdef THREADED
+#pragma omp parallel for reduction (+:nnzC_stage)
+#endif
+            for (IU k=0; k<nzc; k++)
+            {
+                nnzC_stage = nnzC_stage + colnnzC[k];
+            }
+            
+            nnzC_SUMMA += nnzC_stage;
+        }
+        
+        SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+        SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+        
+        IU nnzC_SUMMA_max = 0;
+        MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<IU>(), MPI_MAX, GridC->GetWorld());
+        
+        return nnzC_SUMMA_max;
+    }
+    
+
+    
+    
 template <typename MATRIX, typename VECTOR>
 void CheckSpMVCompliance(const MATRIX & A, const VECTOR & x)
 {
