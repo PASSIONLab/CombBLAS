@@ -183,7 +183,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         }
     }
     
-    int nthreads = 1;	// in case THREADED is not defined
+    int nthreads = 1;	
 #ifdef THREADED
 #pragma omp parallel
     {
@@ -197,22 +197,6 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
     {
         colPtrs.push_back(findColSplitters<IT>(ArrSpTups[i], nsplits)); // in parallel
     }
-    
-    /*
-    // ------ estimate memory requirement after merge in each split ------
-    vector<IT> nnzPerSplit(nsplits);
-    IT nnzAll = static_cast<IT>(0);
-    //#pragma omp parallel for
-    for(int i=0; i< nsplits; i++)
-    {
-        IT t = static_cast<IT>(0);
-        for(int j=0; j< nlists; ++j)
-            t += colPtrs[j][i+1] - colPtrs[j][i];
-        nnzPerSplit[i] = t;
-        nnzAll += t;
-    }
-    */
-    
 
     vector<IT> mergedNnzPerSplit(nsplits);
     vector<IT> inputNnzPerSplit(nsplits);
@@ -234,8 +218,13 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         inputNnzPerSplit[i] = t;
     }
 
+    vector<IT> mdisp(nsplits+1,0);
+    for(int i=0; i<nsplits; ++i)
+        mdisp[i+1] = mdisp[i] + mergedNnzPerSplit[i];
+    IT mergedNnzAll = mdisp[nsplits];
+    
+    
 #ifdef COMBBLAS_DEBUG
-    IT mergedNnzAll = accumulate(mergedNnzPerSplit.begin(), mergedNnzPerSplit.end(), static_cast<IT>(0));
     IT inputNnzAll = accumulate(inputNnzPerSplit.begin(), inputNnzPerSplit.end(), static_cast<IT>(0));
     double ratio = inputNnzAll / (double) mergedNnzAll;
     ostringstream outs;
@@ -244,13 +233,8 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
 #endif
     
     
-    // ------ allocate memory in a serial region ------
-    vector<tuple<IT, IT, NT> *> mergeBuf(nsplits);
-    for(int i=0; i< nsplits; i++)
-    {
-        mergeBuf[i] = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedNnzPerSplit[i]])));
-    }
-    
+    // ------ allocate memory outside of the parallel region ------
+   tuple<IT, IT, NT> * mergeBuf = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedNnzAll])));
     
     // ------ perform merge in parallel ------
     vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
@@ -265,41 +249,15 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
             IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];
             listSplitTups[j] = new SpTuples<IT, NT> (curnnz, mdim, ndim, ArrSpTups[j]->tuples + colPtrs[j][i], true);
         }
-        listMergeTups[i] = SerialMerge<SR>(listSplitTups, mergeBuf[i]);
-    }
-    
-    
-    // ------ concatenate merged tuples processed by threads ------
-    vector<IT> tdisp(nsplits+1);
-    tdisp[0] = 0;
-    for(int i=0; i<nsplits; ++i)
-    {
-        tdisp[i+1] = tdisp[i] + listMergeTups[i]->getnnz();
-    }
-    
-    IT mergedListSize = tdisp[nsplits];
-    tuple<IT, IT, NT>* shrunkTuples = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedListSize])));
-#ifdef THREADED
-#pragma omp parallel for schedule(dynamic)
-#endif
-    for(int i=0; i< nsplits; i++)
-    {
-        std::copy(listMergeTups[i]->tuples , listMergeTups[i]->tuples + listMergeTups[i]->getnnz(), shrunkTuples + tdisp[i]);
-    }
-    
-    
-    for(int i=0; i< nsplits; i++)
-    {
-        //::operator delete(mergeBuf[i]);
-        delete listMergeTups[i]; // it uses ::operator delete interenally to delete tuples
+        listMergeTups[i] = SerialMerge<SR>(listSplitTups, mergeBuf + mdisp[i]);
     }
     
     for(int i=0; i< nlists; i++)
     {
         if(delarrs)
-            delete ArrSpTups[i]; // this might be expensive for large local matrices
+            delete ArrSpTups[i]; // May be expensive for large local matrices
     }
-    return new SpTuples<IT, NT> (mergedListSize, mdim, ndim, shrunkTuples, true);
+    return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true);
 }
 
 }
