@@ -3323,7 +3323,7 @@ FullyDistVec<IT,array<char, MAXVERTNAME> > SpParMat< IT,NT,DER >::ReadGeneralize
     TYPE2SEND * senddata;
     IT totsend;
     uint64_t totallength;
-    FullyDistVec<IT,STRASARRAY> distmapper; // choice of array<char, MAXVERTNAME> over string = array is required to be a contiguous container and an aggregate
+    FullyDistVec<IT,STRASARRAY> distmapper(commGrid); // choice of array<char, MAXVERTNAME> over string = array is required to be a contiguous container and an aggregate
 
     MPI_File mpi_fh = TupleRead1stPassNExchange(filename, senddata, totsend, distmapper, totallength);
 

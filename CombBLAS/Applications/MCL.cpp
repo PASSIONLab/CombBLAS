@@ -598,20 +598,13 @@ int main(int argc, char* argv[])
             A.ParallelReadMM(param.ifilename, param.base, maximum<double>());	// if base=0, then it is implicitly converted to Boolean false
         else // default labeled triples format
             vtxLabels = A.ReadGeneralizedTuples(param.ifilename,  maximum<double>());
-       
-	cerr << "what is the problem" << endl; 
+
         tIO = MPI_Wtime() - tIO1;
-	ostringstream outs;
+        ostringstream outs;
         outs << " : took " << tIO << " seconds" << endl;
         SpParHelper::Print(outs.str());
-
-	cerr << "flush" << endl; 
-        
         // Symmetricize the matrix only if needed
         Symmetricize(A);
-
-
-	cerr << "symmetricized" << endl; 
         
         double balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
@@ -621,8 +614,6 @@ int main(int argc, char* argv[])
         outs << "Number of vertices: " << nv << " number of edges: "<< nnz << endl;
         outs << "Load balance: " << balance << endl;
         SpParHelper::Print(outs.str());
-
-        cerr << "we are here " << endl;
         
         if(param.show)
         {
