@@ -45,11 +45,12 @@ SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
 	{
 		tuples = NULL;
 	}
+    isOperatorNew = false;
 }
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted)
-:tuples(mytuples), m(nRow), n(nCol), nnz(size)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted, bool isOpNew)
+:tuples(mytuples), m(nRow), n(nCol), nnz(size), isOperatorNew(isOpNew)
 {
     if(!sorted)
     {
@@ -115,8 +116,10 @@ SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges,
 		}
 	}
 	assert(j == nnz);
-	delete [] tuples;
+
+    delete [] tuples;
 	tuples = ntuples;
+    isOperatorNew = false;
 }
 
 
@@ -129,6 +132,7 @@ template <class IT, class NT>
 SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
 :m(nRow), n(nCol), nnz(size)
 {
+    isOperatorNew = false;
 	if(nnz > 0)
 	{
 		tuples  = new tuple<IT, IT, NT>[nnz];
@@ -148,8 +152,10 @@ SpTuples<IT,NT>::~SpTuples()
 {
 	if(nnz > 0)
 	{
-		//delete [] tuples;
-        ::operator delete(tuples);
+        if(isOperatorNew)
+            ::operator delete(tuples);
+        else
+            delete [] tuples;
 	}
 }
 
@@ -162,6 +168,7 @@ template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(const SpTuples<IT,NT> & rhs): m(rhs.m), n(rhs.n), nnz(rhs.nnz)
 {
 	tuples  = new tuple<IT, IT, NT>[nnz];
+    isOperatorNew = false;
 	for(IT i=0; i< nnz; ++i)
 	{
 		tuples[i] = rhs.tuples[i];
@@ -176,13 +183,13 @@ SpTuples<IT,NT>::SpTuples (const SpDCCols<IT,NT> & rhs):  m(rhs.m), n(rhs.n), nn
 	{
 		FillTuples(rhs.dcsc);
 	}
+    isOperatorNew = false;
 }
 
 template <class IT,class NT>
 inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 {
 	tuples  = new tuple<IT, IT, NT>[nnz];
-
 	IT k = 0;
 	for(IT i = 0; i< mydcsc->nzc; ++i)
 	{
@@ -207,16 +214,19 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 		if(nnz > 0)
 		{
 			// make empty
-			delete [] tuples;
+            if(isOperatorNew)
+                ::operator delete(tuples);
+            else
+                delete [] tuples;
 		}
 		m = rhs.m;
 		n = rhs.n;
 		nnz = rhs.nnz;
+        isOperatorNew = false;
 
 		if(nnz> 0)
 		{
 			tuples  = new tuple<IT, IT, NT>[nnz];
-
 			for(IT i=0; i< nnz; ++i)
 			{
 				tuples[i] = rhs.tuples[i];
@@ -250,8 +260,12 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 				
 			}
                 }
-		delete [] tuples;
+        if(isOperatorNew)
+            ::operator delete(tuples);
+        else
+            delete [] tuples;
 		tuples  = new tuple<IT, IT, NT>[summed.size()];
+        isOperatorNew = false;
 		copy(summed.begin(), summed.end(), tuples);
 		nnz =  summed.size();
 	}

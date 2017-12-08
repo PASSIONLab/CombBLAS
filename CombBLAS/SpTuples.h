@@ -62,9 +62,9 @@ class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 public:
 	// Constructors 
 	SpTuples (int64_t size, IT nRow, IT nCol);
-	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted = false);
+	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted = false, bool isOpNew = false);
 	SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
-	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
+	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
 	~SpTuples();
@@ -135,8 +135,12 @@ public:
 		{
 			ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopval);
 		}
-		delete [] tuples;
+        if(isOperatorNew)
+            ::operator delete(tuples);
+        else
+            delete [] tuples;
 		tuples = ntuples;
+        isOperatorNew = false;
 		nnz = nnz+toadd;
         
 		return loop;
@@ -177,8 +181,12 @@ public:
         {
             ntuples[nnz+i] = make_tuple(missingindices[i], missingindices[i], loopvals[missingindices[i]]);
         }
-        delete [] tuples;
+        if(isOperatorNew)
+            ::operator delete(tuples);
+        else
+            delete [] tuples;
         tuples = ntuples;
+        isOperatorNew = false;
         nnz = nnz+toadd;
         return loop;
     }
@@ -203,8 +211,12 @@ public:
 				ntuples[ni++] = tuples[i];
 			}
 		}
-		delete [] tuples;
-		tuples = ntuples;
+        if(isOperatorNew)
+            ::operator delete(tuples);
+        else
+            delete [] tuples;
+        tuples = ntuples;
+        isOperatorNew = false;
 		nnz = nnz-loop;
 		return loop;
 	}
@@ -263,7 +275,8 @@ private:
 
 	IT m;
 	IT n;
-	int64_t nnz;	
+	int64_t nnz;
+    bool isOperatorNew; // if Operator New was used to allocate memory
 
 	SpTuples (){};		// Default constructor does nothing, hide it
 	

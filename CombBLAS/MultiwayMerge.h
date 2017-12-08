@@ -83,6 +83,7 @@ IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
 
 /*
  "Internal function" called by MultiwayMerge inside threaded region.
+ The merged list is stored in a preallocated buffer ntuples
  Never called from outside.
  Assumption1: the input lists are already column sorted
  Assumption2: at least two lists are passed to this function
@@ -90,7 +91,7 @@ IT SerialMergeNNZ( const vector<SpTuples<IT,NT> *> & ArrSpTups)
  */
 
 template<class SR, class IT, class NT>
-SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
+void SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple<IT, IT, NT> * ntuples)
 {
     int nlists =  ArrSpTups.size();
     ColLexiCompare<IT,int> heapcomp;
@@ -136,8 +137,6 @@ SpTuples<IT,NT>* SerialMerge( const vector<SpTuples<IT,NT> *> & ArrSpTups, tuple
             --hsize;
         }
     }
-    return new SpTuples<IT,NT> (cnz, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), ntuples, true);
-
 }
 
 
@@ -237,7 +236,6 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
    tuple<IT, IT, NT> * mergeBuf = static_cast<tuple<IT, IT, NT>*> (::operator new (sizeof(tuple<IT, IT, NT>[mergedNnzAll])));
     
     // ------ perform merge in parallel ------
-    vector<SpTuples<IT,NT> *> listMergeTups(nsplits); // use the memory allocated in mergeBuf
 #ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
 #endif
@@ -249,7 +247,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
             IT curnnz= colPtrs[j][i+1] - colPtrs[j][i];
             listSplitTups[j] = new SpTuples<IT, NT> (curnnz, mdim, ndim, ArrSpTups[j]->tuples + colPtrs[j][i], true);
         }
-        listMergeTups[i] = SerialMerge<SR>(listSplitTups, mergeBuf + mdisp[i]);
+        SerialMerge<SR>(listSplitTups, mergeBuf + mdisp[i]);
     }
     
     for(int i=0; i< nlists; i++)
@@ -257,7 +255,7 @@ SpTuples<IT, NT>* MultiwayMerge( vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim 
         if(delarrs)
             delete ArrSpTups[i]; // May be expensive for large local matrices
     }
-    return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true);
+    return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, true);
 }
 
 }

@@ -201,7 +201,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     delete [] colptrC;
     delete [] aux;
     
-    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true);
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
     return spTuplesC;
     
 }
