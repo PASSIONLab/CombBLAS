@@ -139,6 +139,8 @@ int main(int argc, char* argv[])
     {
         Par_DCSC_Double * AWeighted;
         ostringstream tinfo;
+        tinfo << fixed;
+        cout << fixed;
         double t01, t02;
         if(ifilename!="")
         {
@@ -290,8 +292,8 @@ int main(int argc, char* argv[])
 #endif
 
         tinfo.str("");
-        tinfo << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
-        tinfo << "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tmcl + tmcm + tawpm << endl;
+        tinfo  << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
+        tinfo <<  "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tTotalMaximal + tTotalMaximum + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
         //revert random permutation if applied before
