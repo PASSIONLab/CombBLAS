@@ -63,13 +63,13 @@ public:
     SpCCols<IT,NT> & operator+= (const SpCCols<IT, NT> & rhs);
 
     void RowSplit(int numsplits);
-    void ColSplit(int parts, vector< SpCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
+    void ColSplit(int parts, std::vector< SpCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
     
-    void CreateImpl(const vector<IT> & essentials);
-    void CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+    void CreateImpl(const std::vector<IT> & essentials);
+    void CreateImpl(IT size, IT nRow, IT nCol, std::tuple<IT, IT, NT> * mytuples);
     
     Arr<IT,NT> GetArrays() const;
-    vector<IT> GetEssentials() const;
+    std::vector<IT> GetEssentials() const;
     const static IT esscount;
     
     IT getnrow() const { return m; }

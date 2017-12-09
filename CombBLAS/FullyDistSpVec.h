@@ -75,14 +75,14 @@ class FullyDistSpVec: public FullyDist<IT,NT,typename combblas::disable_if< comb
 public:
 	FullyDistSpVec ( );
 	explicit FullyDistSpVec ( IT glen );
-	FullyDistSpVec ( shared_ptr<CommGrid> grid);
-	FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
+	FullyDistSpVec ( std::shared_ptr<CommGrid> grid);
+	FullyDistSpVec ( std::shared_ptr<CommGrid> grid, IT glen);
 
     template <typename _UnaryOperation>
     FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop);
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
     FullyDistSpVec (IT globalsize, const FullyDistVec<IT,IT> & inds,  const FullyDistVec<IT,NT> & vals, bool SumDuplicates = false);
-    FullyDistSpVec (shared_ptr<CommGrid> grid, IT globallen, const vector<IT>& indvec, const vector<NT> & numvec, bool SumDuplicates = false, bool sorted=false);
+    FullyDistSpVec (std::shared_ptr<CommGrid> grid, IT globallen, const std::vector<IT>& indvec, const std::vector<NT> & numvec, bool SumDuplicates = false, bool sorted=false);
     
     IT NnzUntil() const;
 
@@ -146,29 +146,29 @@ public:
 	};
 
    	template <class HANDLER>	
-    	void ParallelWrite(const string & filename, bool onebased, HANDLER handler, bool includeindices = true, bool includeheader = false);
-	void ParallelWrite(const string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
+    	void ParallelWrite(const std::string & filename, bool onebased, HANDLER handler, bool includeindices = true, bool includeheader = false);
+	void ParallelWrite(const std::string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
 
 
     	template <typename _BinaryOperation>
-   	void ParallelRead (const string & filename, bool onebased, _BinaryOperation BinOp);
+   	void ParallelRead (const std::string & filename, bool onebased, _BinaryOperation BinOp);
 
 
     	//! Totally obsolete version that only accepts an ifstream object and ascii files
 	template <class HANDLER>
-	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
-	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
+	std::ifstream& ReadDistribute (std::ifstream& infile, int master, HANDLER handler);	
+	std::ifstream& ReadDistribute (std::ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
 	
 	template <class HANDLER>
-	void SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
-	void SaveGathered(ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler()); }
+	void SaveGathered(std::ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
+	void SaveGathered(std::ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler()); }
 
 
 	template <typename NNT> operator FullyDistSpVec< IT,NNT > () const	//!< Type conversion operator
 	{
 		FullyDistSpVec<IT,NNT> CVT(commGrid);
-		CVT.ind = vector<IT>(ind.begin(), ind.end());
-		CVT.num = vector<NNT>(num.begin(), num.end());
+		CVT.ind = std::vector<IT>(ind.begin(), ind.end());
+		CVT.num = std::vector<NNT>(num.begin(), num.end());
 		CVT.glen = glen;
 		return CVT;
 	}
@@ -180,7 +180,7 @@ public:
 		return (v == w);
 	}
 
-	void PrintInfo(string vecname) const;
+	void PrintInfo(std::string vecname) const;
 	void iota(IT globalsize, NT first);
     	void nziota(NT first);
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)
@@ -266,13 +266,13 @@ public:
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const;
 
 	void DebugPrint();
-	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
+	std::shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
 	void Reset();
 	NT GetLocalElement(IT indx);
 	void BulkSet(IT inds[], int count);
-    vector<IT> GetLocalInd (){vector<IT> rind = ind; return rind;};
-    vector<NT> GetLocalNum (){vector<NT> rnum = num; return rnum;};
+    std::vector<IT> GetLocalInd (){std::vector<IT> rind = ind; return rind;};
+    std::vector<NT> GetLocalNum (){std::vector<NT> rnum = num; return rnum;};
     
     template <typename _Predicate>
     FullyDistVec<IT,IT> FindInds(_Predicate pred) const;
@@ -285,13 +285,13 @@ protected:
 	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::commGrid;
     
 private:
-	vector< IT > ind;	// ind.size() give the number of nonzeros
-	vector< NT > num;
+	std::vector< IT > ind;	// ind.size() give the number of nonzeros
+	std::vector< NT > num;
 	bool wasFound; // true if the last GetElement operation returned an actual value
    
 
 	template <typename _BinaryOperation>
-	void SparseCommon(vector< vector < pair<IT,NT> > > & data, _BinaryOperation BinOp);
+	void SparseCommon(std::vector< std::vector < std::pair<IT,NT> > > & data, _BinaryOperation BinOp);
 
 
 #if __cplusplus > 199711L

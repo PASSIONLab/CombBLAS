@@ -17,6 +17,7 @@
 
 
 using namespace std;
+using namespace combblas;
 
 double comm_bcast;
 double comm_reduce;

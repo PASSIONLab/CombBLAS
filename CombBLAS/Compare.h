@@ -50,13 +50,13 @@ inline bool compare(const T & a, const T & b, std::true_type) 	//  floating poin
 	// compare as equal with the usual (numerical) comparison operators, like the == operators of C++ 
 
 	if(a == b) return true;		// covers the "division by zero" case as well: max(a,b) can't be zero if it fails
-	else return ( std::abs(a - b) < EPSILON || (std::abs(a - b) / max(std::abs(a), std::abs(b))) < EPSILON ) ;     // Fine if either absolute or relative error is small
+	else return ( std::abs(a - b) < EPSILON || (std::abs(a - b) / std::max(std::abs(a), std::abs(b))) < EPSILON ) ;     // Fine if either absolute or relative error is small
 }
 
 
 template <class T>
 struct ErrorTolerantEqual:
-	public binary_function< T, T, bool >
+	public std::binary_function< T, T, bool >
 	{	
 		inline bool operator() (const T & a, const T & b) const
 		{
@@ -65,7 +65,7 @@ struct ErrorTolerantEqual:
 	};
 
 template < typename T >
-struct absdiff : binary_function<T, T, T>
+struct absdiff : std::binary_function<T, T, T>
 {
         T operator () ( T const &arg1, T const &arg2 ) const
         {
@@ -77,11 +77,11 @@ struct absdiff : binary_function<T, T, T>
 
 template<class IT, class NT>
 struct TupleEqual:
-	public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >
+	public std::binary_function< std::tuple<IT, IT, NT>, std::tuple<IT, IT, NT>, bool >
 	{
-		inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+		inline bool operator()(const std::tuple<IT, IT, NT> & lhs, const std::tuple<IT, IT, NT> & rhs) const
 		{
-			return ( (get<0>(lhs) == get<0>(rhs)) && (get<1>(lhs) == get<1>(rhs)) );
+			return ( (std::get<0>(lhs) == std::get<0>(rhs)) && (std::get<1>(lhs) == std::get<1>(rhs)) );
 		} 
 	};
 
@@ -93,34 +93,34 @@ struct TupleEqual:
  **/
 template <class IT, class NT>
 struct ColLexiCompare:  // struct instead of class so that operator() is public
-        public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
+        public std::binary_function< std::tuple<IT, IT, NT>, std::tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
         {
-                inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+                inline bool operator()(const std::tuple<IT, IT, NT> & lhs, const std::tuple<IT, IT, NT> & rhs) const
                 {
-                        if(get<1>(lhs) == get<1>(rhs))
+                        if(std::get<1>(lhs) == std::get<1>(rhs))
                         {
-                                return get<0>(lhs) < get<0>(rhs);
+                                return std::get<0>(lhs) < std::get<0>(rhs);
                         }
                         else
                         {
-                                return get<1>(lhs) < get<1>(rhs);
+                                return std::get<1>(lhs) < std::get<1>(rhs);
                         }
                 }
         };
 
 template <class IT, class NT>
 struct RowLexiCompare:  // struct instead of class so that operator() is public
-        public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
+        public std::binary_function< std::tuple<IT, IT, NT>, std::tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
         {
-                inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+                inline bool operator()(const std::tuple<IT, IT, NT> & lhs, const std::tuple<IT, IT, NT> & rhs) const
                 {
-                        if(get<0>(lhs) == get<0>(rhs))
+                        if(std::get<0>(lhs) == std::get<0>(rhs))
                         {
-                                return get<1>(lhs) < get<1>(rhs);
+                                return std::get<1>(lhs) < std::get<1>(rhs);
                         }
                         else
                         {
-                                return get<0>(lhs) < get<0>(rhs);
+                                return std::get<0>(lhs) < std::get<0>(rhs);
 			}
 		}
 	};
@@ -129,38 +129,38 @@ struct RowLexiCompare:  // struct instead of class so that operator() is public
 // Non-lexicographical, just compares columns
 template <class IT, class NT>
 struct ColCompare:  // struct instead of class so that operator() is public
-        public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
+        public std::binary_function< std::tuple<IT, IT, NT>, std::tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
         {
-                inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+                inline bool operator()(const std::tuple<IT, IT, NT> & lhs, const std::tuple<IT, IT, NT> & rhs) const
                 {
-			return get<1>(lhs) < get<1>(rhs);
+			return std::get<1>(lhs) < std::get<1>(rhs);
                 }
         };
 
 // Non-lexicographical, just compares columns
 template <class IT, class NT>
 struct RowCompare:  // struct instead of class so that operator() is public
-        public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
+        public std::binary_function< std::tuple<IT, IT, NT>, std::tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
         {
-                inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+                inline bool operator()(const std::tuple<IT, IT, NT> & lhs, const std::tuple<IT, IT, NT> & rhs) const
                 {
-			return get<0>(lhs) < get<0>(rhs);
+			return std::get<0>(lhs) < std::get<0>(rhs);
                 }
         };
 
 template <class IT, class NT>
 struct ColLexiCompareWithID:  // struct instead of class so that operator() is public
-        public binary_function< pair< tuple<IT, IT, NT> , int > , pair< tuple<IT, IT, NT> , int>, bool >  // (par1, par2, return_type)
+        public std::binary_function< std::pair< std::tuple<IT, IT, NT> , int > , std::pair< std::tuple<IT, IT, NT> , int>, bool >  // (par1, par2, return_type)
         {
-                inline bool operator()(const pair< tuple<IT, IT, NT> , int > & lhs, const pair< tuple<IT, IT, NT> , int > & rhs) const
+                inline bool operator()(const std::pair< std::tuple<IT, IT, NT> , int > & lhs, const std::pair< std::tuple<IT, IT, NT> , int > & rhs) const
                 {
-                        if(get<1>(lhs.first) == get<1>(rhs.first))
+                        if(std::get<1>(lhs.first) == std::get<1>(rhs.first))
                         {
-                                return get<0>(lhs.first) < get<0>(rhs.first);
+                                return std::get<0>(lhs.first) < std::get<0>(rhs.first);
                         }
                         else
                         {
-                                return get<1>(lhs.first) < get<1>(rhs.first);
+                                return std::get<1>(lhs.first) < std::get<1>(rhs.first);
                         }
                 }
         };

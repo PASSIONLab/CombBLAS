@@ -21,11 +21,12 @@
 
 using namespace std;
 
+namespace combblas {
+
 bool prune, mvInvertMate, randMM, moreSplit;
 int init;
 bool randMaximal;
 bool fewexp;
-
 
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
@@ -415,4 +416,5 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+}
 

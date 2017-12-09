@@ -49,21 +49,21 @@ struct HeaderInfo
 };
 	
 // cout's are OK because ParseHeader is run by a single processor only
-inline HeaderInfo ParseHeader(const string & inputname, FILE * & f, int & seeklength)
+inline HeaderInfo ParseHeader(const std::string & inputname, FILE * & f, int & seeklength)
 {
 	f = fopen(inputname.c_str(), "rb");
 	HeaderInfo hinfo;
 	memset(&hinfo, 0, sizeof(hinfo));
 	if(!f)
 	{
-		cerr << "Problem reading binary input file\n";
+		std::cerr << "Problem reading binary input file\n";
 		f = NULL;
 		return hinfo;
 	}
 	char fourletters[5];
 	size_t result = fread(fourletters, sizeof(char), 4, f);
 	fourletters[4] = '\0';
-	if (result != 4) { cout << "Error in fread of header, only " << result << " entries read" << endl; return hinfo;}
+	if (result != 4) { std::cout << "Error in fread of header, only " << result << " entries read" << std::endl; return hinfo;}
 
 	if(strcmp(fourletters,"HKDT") != 0)
 	{
@@ -86,16 +86,16 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * & f, int & seekle
 	results[3] = fread(&(hinfo.m), sizeof(hinfo.m), 1, f);
 	results[4] = fread(&(hinfo.n), sizeof(hinfo.n), 1, f);
 	results[5] = fread(&(hinfo.nnz), sizeof(hinfo.nnz), 1, f);
-	if(accumulate(results,results+6,0) != 6)
+	if(std::accumulate(results,results+6,0) != 6)
 	{
-		cout << "The required 6 fields (version, objsize, format, m,n,nnz) are not read" << endl;
-		cout << "Only " << accumulate(results,results+6,0) << " fields are read" << endl;
+		std::cout << "The required 6 fields (version, objsize, format, m,n,nnz) are not read" << std::endl;
+		std::cout << "Only " << std::accumulate(results,results+6,0) << " fields are read" << std::endl;
 	} 
 	else
 	{
 	#ifdef DEBUG
-		cout << "Version " << hinfo.version << ", object size " << hinfo.objsize << endl;
-		cout << "Rows " << hinfo.m << ", columns " << hinfo.m << ", nonzeros " << hinfo.nnz << endl;
+    std::cout << "Version " << hinfo.version << ", object size " << hinfo.objsize << std::endl;
+    std::cout << "Rows " << hinfo.m << ", columns " << hinfo.m << ", nonzeros " << hinfo.nnz << std::endl;
 	#endif
 	}
 

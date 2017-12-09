@@ -5,6 +5,7 @@
 #include "CCGrid.h"
 #include "SUMMALayer.h"
 
+namespace combblas {
 
 template <typename IT, typename NT>
 SpDCCols<IT, NT>* multiply(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB, CCGrid & CMG, bool isBT, bool threaded)
@@ -13,7 +14,7 @@ SpDCCols<IT, NT>* multiply(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB,
     comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0, comp_result =0, comp_reduce_layer=0;
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-    vector< SpTuples<IT,NT>* > unreducedC;
+    std::vector< SpTuples<IT,NT>* > unreducedC;
     
     MPI_Barrier(MPI_COMM_WORLD);
     double time_beg = MPI_Wtime();
@@ -58,4 +59,7 @@ SpDCCols<IT, NT>* multiply(SpDCCols<IT, NT> & splitA, SpDCCols<IT, NT> & splitB,
     
     return mergedC;
 }
+
+}
+
 #endif

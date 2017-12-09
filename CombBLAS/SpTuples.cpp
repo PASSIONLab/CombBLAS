@@ -39,7 +39,7 @@ SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
 {
 	if(nnz > 0)
 	{
-		tuples  = new tuple<IT, IT, NT>[nnz];
+		tuples  = new std::tuple<IT, IT, NT>[nnz];
 	}
 	else
 	{
@@ -49,7 +49,7 @@ SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
 }
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples, bool sorted, bool isOpNew)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, std::tuple<IT, IT, NT> * mytuples, bool sorted, bool isOpNew)
 :tuples(mytuples), m(nRow), n(nCol), nnz(size), isOperatorNew(isOpNew)
 {
     if(!sorted)
@@ -67,11 +67,11 @@ SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * m
   * NT='countable' (such as short,int): duplicated as summed to keep count 	 
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops):m(nRow), n(nCol)
+SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, std::vector<IT> & edges, bool removeloops):m(nRow), n(nCol)
 {
 	if(maxnnz > 0)
 	{
-		tuples  = new tuple<IT, IT, NT>[maxnnz];
+		tuples  = new std::tuple<IT, IT, NT>[maxnnz];
 	}
 	for(int64_t i=0; i<maxnnz; ++i)
 	{
@@ -79,7 +79,7 @@ SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges,
 		colindex(i) = edges[2*i+1];
 		numvalue(i) = (NT) 1;
 	}
-	vector<IT>().swap(edges);	// free memory for edges
+	std::vector<IT>().swap(edges);	// free memory for edges
 
 	nnz = maxnnz;	// for now (to sort)
 	SortColBased();
@@ -106,7 +106,7 @@ SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges,
 		cnz = j;
 	}
 
-	tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz];
+	std::tuple<IT, IT, NT> * ntuples = new std::tuple<IT,IT,NT>[nnz];
 	int64_t j = 0;
 	for(int64_t i=0; i<maxnnz; ++i)
 	{
@@ -129,13 +129,13 @@ SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges,
   * \remark Since input is column sorted, the tuples are automatically generated in that way too
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, std::pair<IT,IT> > * & multstack)
 :m(nRow), n(nCol), nnz(size)
 {
     isOperatorNew = false;
 	if(nnz > 0)
 	{
-		tuples  = new tuple<IT, IT, NT>[nnz];
+		tuples  = new std::tuple<IT, IT, NT>[nnz];
 	}
 	for(int64_t i=0; i<nnz; ++i)
 	{
@@ -167,7 +167,7 @@ SpTuples<IT,NT>::~SpTuples()
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(const SpTuples<IT,NT> & rhs): m(rhs.m), n(rhs.n), nnz(rhs.nnz)
 {
-	tuples  = new tuple<IT, IT, NT>[nnz];
+	tuples  = new std::tuple<IT, IT, NT>[nnz];
     isOperatorNew = false;
 	for(IT i=0; i< nnz; ++i)
 	{
@@ -189,7 +189,7 @@ SpTuples<IT,NT>::SpTuples (const SpDCCols<IT,NT> & rhs):  m(rhs.m), n(rhs.n), nn
 template <class IT,class NT>
 inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 {
-	tuples  = new tuple<IT, IT, NT>[nnz];
+	tuples  = new std::tuple<IT, IT, NT>[nnz];
 	IT k = 0;
 	for(IT i = 0; i< mydcsc->nzc; ++i)
 	{
@@ -226,7 +226,7 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 
 		if(nnz> 0)
 		{
-			tuples  = new tuple<IT, IT, NT>[nnz];
+			tuples  = new std::tuple<IT, IT, NT>[nnz];
 			for(IT i=0; i< nnz; ++i)
 			{
 				tuples[i] = rhs.tuples[i];
@@ -245,7 +245,7 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 {
 	if(nnz > 0)
 	{
-		vector< tuple<IT, IT, NT> > summed;
+		std::vector< std::tuple<IT, IT, NT> > summed;
 		summed.push_back(tuples[0]);
 	
 		for(IT i=1; i< nnz; ++i)
@@ -264,9 +264,9 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
             ::operator delete(tuples);
         else
             delete [] tuples;
-		tuples  = new tuple<IT, IT, NT>[summed.size()];
+		tuples  = new std::tuple<IT, IT, NT>[summed.size()];
         isOperatorNew = false;
-		copy(summed.begin(), summed.end(), tuples);
+    std::copy(summed.begin(), summed.end(), tuples);
 		nnz =  summed.size();
 	}
 }
@@ -275,9 +275,9 @@ void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 //! Loads a triplet matrix from infile
 //! \remarks Assumes matlab type indexing for the input (i.e. indices start from 1)
 template <class IT,class NT>
-ifstream& SpTuples<IT,NT>::getstream (ifstream& infile)
+std::ifstream& SpTuples<IT,NT>::getstream (std::ifstream& infile)
 {
-	cout << "Getting... SpTuples" << endl;
+	std::cout << "Getting... SpTuples" << std::endl;
 	IT cnz = 0;
 	if (infile.is_open())
 	{
@@ -290,7 +290,7 @@ ifstream& SpTuples<IT,NT>::getstream (ifstream& infile)
 			
 			if((rowindex(cnz) > m) || (colindex(cnz)  > n))
 			{
-				cerr << "supplied matrix indices are beyond specified boundaries, aborting..." << endl;
+				std::cerr << "supplied matrix indices are beyond specified boundaries, aborting..." << std::endl;
 			}
 			++cnz;
 		}
@@ -298,7 +298,7 @@ ifstream& SpTuples<IT,NT>::getstream (ifstream& infile)
 	}
 	else
 	{
-		cerr << "input file is not open!" << endl;
+		std::cerr << "input file is not open!" << std::endl;
 	}
 	return infile;
 }
@@ -306,13 +306,13 @@ ifstream& SpTuples<IT,NT>::getstream (ifstream& infile)
 //! Output to a triplets file
 //! \remarks Uses matlab type indexing for the output (i.e. indices start from 1)
 template <class IT,class NT>
-ofstream& SpTuples<IT,NT>::putstream(ofstream& outfile) const
+std::ofstream& SpTuples<IT,NT>::putstream(std::ofstream& outfile) const
 {
-	outfile << m <<"\t"<< n <<"\t"<< nnz<<endl;
+	outfile << m <<"\t"<< n <<"\t"<< nnz<<std::endl;
 	for (IT i = 0; i < nnz; ++i)
 	{
 		outfile << rowindex(i)+1  <<"\t"<< colindex(i)+1 <<"\t"
-			<< numvalue(i) << endl;
+			<< numvalue(i) << std::endl;
 	}
 	return outfile;
 }
@@ -320,22 +320,22 @@ ofstream& SpTuples<IT,NT>::putstream(ofstream& outfile) const
 template <class IT,class NT>
 void SpTuples<IT,NT>::PrintInfo()
 {
-	cout << "This is a SpTuples class" << endl;
+	std::cout << "This is a SpTuples class" << std::endl;
 
-	cout << "m: " << m ;
-	cout << ", n: " << n ;
-	cout << ", nnz: "<< nnz << endl;
+	std::cout << "m: " << m ;
+	std::cout << ", n: " << n ;
+	std::cout << ", nnz: "<< nnz << std::endl;
 
 	for(IT i=0; i< nnz; ++i)
 	{
 		if(rowindex(i) < 0 || colindex(i) < 0)
 		{
-			cout << "Negative index at " << i << endl;
+			std::cout << "Negative index at " << i << std::endl;
 			return;
 		}
 		else if(rowindex(i) >= m || colindex(i) >= n)
 		{
-			cout << "Index " << i << " too big with values (" << rowindex(i) << ","<< colindex(i) << ")" << endl;
+			std::cout << "Index " << i << " too big with values (" << rowindex(i) << ","<< colindex(i) << ")" << std::endl;
 		}
 	}
 
@@ -354,10 +354,10 @@ void SpTuples<IT,NT>::PrintInfo()
 		{
                         for(IT j=0; j<n; ++j)
 			{
-                                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
-				cout << " ";
+                                std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2) << A[i][j];
+				std::cout << " ";
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
 		SpHelper::deallocate2D(A,m);
 	}

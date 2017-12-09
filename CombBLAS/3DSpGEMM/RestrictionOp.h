@@ -1,3 +1,6 @@
+#ifndef RESTRICTION_OP_H
+#define RESTRICTION_OP_H
+
 //#define DETERMINISTIC
 #include "../CombBLAS.h"
 #ifdef THREADED
@@ -6,8 +9,6 @@
 	#endif
 	#include <omp.h>
 #endif
-
-using namespace std;
 
 
 
@@ -18,7 +19,7 @@ MTRand GlobalMT;	// generate random numbers with Mersenne Twister
 #endif
 
 
-
+namespace combblas {
 
 template <typename T1, typename T2>
 struct Select2ndMinSR
@@ -420,4 +421,7 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
 }
 */
 
+}
+
+#endif
 

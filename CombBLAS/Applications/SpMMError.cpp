@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 		if (argc > 1)
 		{
 			SpParHelper::Print("Reading torus.mtx\n");
-			ifstream input("torus.mtx");
+			std::ifstream input("torus.mtx");
 			G1.ReadDistribute(input, 0);	// read it from file
 			ifstream input2("torus.mtx");
 			G2.ReadDistribute(input2, 0);

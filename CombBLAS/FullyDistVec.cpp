@@ -47,12 +47,12 @@ FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval)
 
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid)
+FullyDistVec<IT, NT>::FullyDistVec ( std::shared_ptr<CommGrid> grid)
 : FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid)
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval)
+FullyDistVec<IT, NT>::FullyDistVec ( std::shared_ptr<CommGrid> grid, IT globallen, NT initval)
 : FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid,globallen)
 {
 	arr.resize(MyLocLength(), initval);
@@ -84,7 +84,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
   * Optimizes for the common case where all fillarr's in separate processors are of the same size
   */
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ) 
+FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ) 
 : FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>(grid)
 {
 	MPI_Comm World = commGrid->GetWorld();
@@ -97,7 +97,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), sizes, 1, MPIType<IT>(), World);
 	glen = std::accumulate(sizes, sizes+nprocs, static_cast<IT>(0));
 
-	vector<IT> uniq_sizes;
+	std::vector<IT> uniq_sizes;
 	std::unique_copy(sizes, sizes+nprocs, std::back_inserter(uniq_sizes));
 	if(uniq_sizes.size() == 1)
 	{
@@ -105,14 +105,14 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 	}
 	else 
 	{
-		IT lengthuntil = accumulate(sizes, sizes+rank, static_cast<IT>(0));
+		IT lengthuntil = std::accumulate(sizes, sizes+rank, static_cast<IT>(0));
 		
 		// Although the found vector is not reshuffled yet, its glen and commGrid are set
 		// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
 		
 		// rebalance/redistribute
 		int * sendcnt = new int[nprocs];
-		fill(sendcnt, sendcnt+nprocs, 0);
+		std::fill(sendcnt, sendcnt+nprocs, 0);
 		for(IT i=0; i<nsize; ++i)
 		{
 			IT locind;
@@ -131,8 +131,8 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 			sdispls[i+1] = sdispls[i] + sendcnt[i];
 			rdispls[i+1] = rdispls[i] + recvcnt[i];
 		}
-		IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-		vector<IT> recvbuf(totrecv);
+		IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+		std::vector<IT> recvbuf(totrecv);
 		
 		// data is already in the right order in found.arr
 		MPI_Alltoallv(&(arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), World);
@@ -145,7 +145,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 
 
 template <class IT, class NT>
-pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
+std::pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
 {
    
     
@@ -162,7 +162,7 @@ pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
     IT globalMinIdx;
     MPI_Allreduce( &localMinIdx, &globalMinIdx, 1, MPIType<IT>(), MPI_MIN, commGrid->GetWorld()); // it can be MPI_MAX or anything
 
-    return make_pair(globalMinIdx, globalMin);
+    return std::make_pair(globalMinIdx, globalMin);
 }
 
 
@@ -187,7 +187,7 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 	
 	if (arr.size() > 0)
 	{
-		typename vector< NT >::const_iterator iter = arr.begin();
+		typename std::vector< NT >::const_iterator iter = arr.begin();
 		//localsum = __unary_op(*iter);
 		//iter++;
 		while (iter < arr.end())
@@ -214,15 +214,15 @@ void FullyDistVec<IT,NT>::SelectCandidates(double nver)
 #endif     
 
 	IT length = TotalLength();
-	vector<double> loccands(length);
-	vector<NT> loccandints(length);
+	std::vector<double> loccands(length);
+	std::vector<NT> loccandints(length);
 	MPI_Comm World = commGrid->GetWorld();
 	int myrank = commGrid->GetRank();
 	if(myrank == 0)
 	{
 		for(int i=0; i<length; ++i)
 			loccands[i] = M.rand();
-		transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
+      std::transform(loccands.begin(), loccands.end(), loccands.begin(), std::bind2nd( std::multiplies<double>(), nver ));
 		
 		for(int i=0; i<length; ++i)
 			loccandints[i] = static_cast<NT>(loccands[i]);
@@ -326,7 +326,7 @@ template <class IT, class NT>
 template <typename _BinaryOperation>	
 void FullyDistVec<IT,NT>::EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op)
 {
-	transform ( arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), __binary_op );
+  std::transform ( arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), __binary_op );
 };
 
 /**
@@ -337,7 +337,7 @@ template <class IT, class NT>
 template <typename _BinaryOperation, typename OUT>
 void FullyDistVec<IT,NT>::EWiseOut(const FullyDistVec<IT,NT> & rhs, _BinaryOperation __binary_op, FullyDistVec<IT,OUT> & result)
 {
-    transform ( arr.begin(), arr.end(), rhs.arr.begin(), result.arr.begin(), __binary_op );
+  std::transform ( arr.begin(), arr.end(), rhs.arr.begin(), result.arr.begin(), __binary_op );
 };
 
 
@@ -348,7 +348,7 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator+=(const FullyDistVec<IT,NT>
 	{	
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
-			cout << "Grids are not comparable elementwise addition" << endl; 
+			std::cout << "Grids are not comparable elementwise addition" << std::endl; 
 			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else 
@@ -366,7 +366,7 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator-=(const FullyDistVec<IT,NT>
 	{	
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
-			cout << "Grids are not comparable elementwise addition" << endl; 
+			std::cout << "Grids are not comparable elementwise addition" << std::endl; 
 			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else 
@@ -422,15 +422,15 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	IT nsize = found.arr.size(); 
 	dist[rank] = nsize;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
-	IT lengthuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
-	found.glen = accumulate(dist, dist+nprocs, static_cast<IT>(0));
+	IT lengthuntil = std::accumulate(dist, dist+rank, static_cast<IT>(0));
+	found.glen = std::accumulate(dist, dist+nprocs, static_cast<IT>(0));
 
 	// Although the found vector is not reshuffled yet, its glen and commGrid are set
 	// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
 
 	// rebalance/redistribute
 	int * sendcnt = new int[nprocs];
-	fill(sendcnt, sendcnt+nprocs, 0);
+	std::fill(sendcnt, sendcnt+nprocs, 0);
 	for(IT i=0; i<nsize; ++i)
 	{
 		IT locind;
@@ -449,8 +449,8 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-	vector<IT> recvbuf(totrecv);
+	IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	std::vector<IT> recvbuf(totrecv);
 			
 	// data is already in the right order in found.arr
 	MPI_Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), World);
@@ -504,7 +504,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(NT val) const
 
 template <class IT, class NT>
 template <class HANDLER>
-ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HANDLER handler)
+std::ifstream& FullyDistVec<IT,NT>::ReadDistribute (std::ifstream& infile, int master, HANDLER handler)
 {
 	FullyDistSpVec<IT,NT> tmpSpVec(commGrid);
 	tmpSpVec.ReadDistribute(infile, master, handler);
@@ -515,7 +515,7 @@ ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HAN
 
 template <class IT, class NT>
 template <class HANDLER>
-void FullyDistVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits)
+void FullyDistVec<IT,NT>::SaveGathered(std::ofstream& outfile, int master, HANDLER handler, bool printProcSplits)
 {
 	FullyDistSpVec<IT,NT> tmpSpVec = *this;
 	tmpSpVec.SaveGathered(outfile, master, handler, printProcSplits);
@@ -528,7 +528,7 @@ void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 	if (glen == 0) 
 	{
 		if(rank == 0)
-			cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
+			std::cout << "FullyDistVec::SetElement can't be called on an empty vector." << std::endl;
 		return;
 	}
 	IT locind;
@@ -537,11 +537,11 @@ void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 	{
 		if (locind > (LocArrSize() -1))
 		{
-			cout << "FullyDistVec::SetElement cannot expand array" << endl;
+			std::cout << "FullyDistVec::SetElement cannot expand array" << std::endl;
 		}
 		else if (locind < 0)
 		{
-			cout << "FullyDistVec::SetElement local index < 0" << endl;
+			std::cout << "FullyDistVec::SetElement local index < 0" << std::endl;
 		}
 		else
 		{
@@ -559,7 +559,7 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 	if (glen == 0) 
 	{
 		if(rank == 0)
-			cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
+			std::cout << "FullyDistVec::GetElement can't be called on an empty vector." << std::endl;
 
 		return NT();
 	}
@@ -569,13 +569,13 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 	{
 		if (locind > (LocArrSize() -1))
 		{
-			cout << "FullyDistVec::GetElement local index > size" << endl;
+			std::cout << "FullyDistVec::GetElement local index > size" << std::endl;
 			ret = NT();
 
 		}
 		else if (locind < 0)
 		{
-			cout << "FullyDistVec::GetElement local index < 0" << endl;
+			std::cout << "FullyDistVec::GetElement local index < 0" << std::endl;
 			ret = NT();
 		}
 		else
@@ -617,24 +617,24 @@ void FullyDistVec<IT,NT>::DebugPrint()
 		FILE * f = fopen("temp_fullydistvec", "r");
 		if(!f)
 		{
-				cerr << "Problem reading binary input file\n";
+				std::cerr << "Problem reading binary input file\n";
 				return;
 		}
-		IT maxd = *max_element(counts, counts+nprocs);
+		IT maxd = *std::max_element(counts, counts+nprocs);
 		NT * data = new NT[maxd];
 
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read counts[i] integers and print them
 			size_t result = fread(data, sizeof(NT), counts[i],f);
-			if (result != (unsigned)counts[i]) { cout << "Error in fread, only " << result << " entries read" << endl; }
+			if (result != (unsigned)counts[i]) { std::cout << "Error in fread, only " << result << " entries read" << std::endl; }
 
-			cout << "Elements stored on proc " << i << ": {" ;	
+			std::cout << "Elements stored on proc " << i << ": {" ;	
 			for (int j = 0; j < counts[i]; j++)
 			{
-				cout << data[j] << ",";
+				std::cout << data[j] << ",";
 			}
-			cout << "}" << endl;
+			std::cout << "}" << std::endl;
 		}
 		delete [] data;
 		delete [] counts;
@@ -645,7 +645,7 @@ template <class IT, class NT>
 template <typename _UnaryOperation, typename IRRELEVANT_NT>
 void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT> & mask)
 {
-	typename vector< IT >::const_iterator miter = mask.ind.begin();
+	typename std::vector< IT >::const_iterator miter = mask.ind.begin();
 	while (miter < mask.ind.end())
 	{
 		IT index = *miter++;
@@ -661,15 +661,15 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	{
 		if(glen != other.glen)
 		{
-			ostringstream outs;
+			std::ostringstream outs;
 			outs << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
 			SpParHelper::Print(outs.str());
 			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else
 		{
-			typename vector< NT >::iterator thisIter = arr.begin();
-			typename vector< NT2 >::const_iterator otherIter = other.arr.begin();
+			typename std::vector< NT >::iterator thisIter = arr.begin();
+			typename std::vector< NT2 >::const_iterator otherIter = other.arr.begin();
 			while (thisIter < arr.end())
 			{
 				if (_do_op(*thisIter, *otherIter, false, false))
@@ -681,8 +681,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	}
 	else
 	{
-		ostringstream outs;
-		outs << "Grids are not comparable for FullyDistVec<IT,NT>::EWiseApply" << endl; 
+		std::ostringstream outs;
+		outs << "Grids are not comparable for FullyDistVec<IT,NT>::EWiseApply" << std::endl; 
 		SpParHelper::Print(outs.str());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
@@ -699,13 +699,13 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 	{
 		if(glen != other.glen)
 		{
-			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
+			std::cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
 			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else
 		{
-			typename vector< IT >::const_iterator otherInd = other.ind.begin();
-			typename vector< NT2 >::const_iterator otherNum = other.num.begin();
+			typename std::vector< IT >::const_iterator otherInd = other.ind.begin();
+			typename std::vector< NT2 >::const_iterator otherNum = other.num.begin();
 			
 			if (applyNulls) // scan the entire dense vector and apply sparse elements as they appear
 			{
@@ -748,7 +748,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 	}
 	else
 	{
-		cout << "Grids are not comparable elementwise apply" << endl; 
+		std::cout << "Grids are not comparable elementwise apply" << std::endl; 
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }	
@@ -760,7 +760,7 @@ FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 	MPI_Comm World = commGrid->GetWorld();
 	FullyDistVec<IT,IT> temp(commGrid);
 	IT nnz = LocArrSize(); 
-	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
+	std::pair<NT,IT> * vecpair = new std::pair<NT,IT>[nnz];
 	int nprocs = commGrid->GetSize();
 	int rank = commGrid->GetRank();
 
@@ -775,7 +775,7 @@ FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 	}
 	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
-	vector< IT > narr(nnz);
+	std::vector< IT > narr(nnz);
 	for(IT i=0; i< nnz; ++i)
 	{
 		arr[i] = vecpair[i].first;	// sorted range (change the object itself)
@@ -807,7 +807,7 @@ void FullyDistVec<IT,NT>::RandPerm()
     IT size = LocArrSize();
 
 #ifdef COMBBLAS_LEGACY
-	pair<double,NT> * vecpair = new pair<double,NT>[size];
+  std::pair<double,NT> * vecpair = new std::pair<double,NT>[size];
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
@@ -818,12 +818,12 @@ void FullyDistVec<IT,NT>::RandPerm()
 	}
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
 	SpParHelper::MemoryEfficientPSort(vecpair, size, dist, World);
-	vector< NT > nnum(size);
+  std::vector< NT > nnum(size);
 	for(int i=0; i<size; ++i) nnum[i] = vecpair[i].second;
     DeleteAll(vecpair, dist);
 	arr.swap(nnum);
 #else
-    vector< vector< NT > > data_send(nprocs);
+    std::vector< std::vector< NT > > data_send(nprocs);
 	for(int i=0; i<size; ++i)
     {
 		// send each entry to a random process
@@ -844,18 +844,18 @@ void FullyDistVec<IT,NT>::RandPerm()
         sdispls[i+1] = sdispls[i] + sendcnt[i];
         rdispls[i+1] = rdispls[i] + recvcnt[i];
     }
-    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	if(totrecv > std::numeric_limits<int>::max())
 	{
-		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << totrecv << endl;
+		std::cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << totrecv << std::endl;
 	}
-    vector<NT>().swap(arr);  // make space for temporaries
+    std::vector<NT>().swap(arr);  // make space for temporaries
     
 	NT * sendbuf = new NT[size];
     for(int i=0; i<nprocs; ++i)
     {
-        copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
-        vector<NT>().swap(data_send[i]);	// free memory
+        std::copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
+        std::vector<NT>().swap(data_send[i]);	// free memory
     }
 	NT * recvbuf = new NT[totrecv];
     MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<NT>(), recvbuf, recvcnt, rdispls, MPIType<NT>(), World);
@@ -868,7 +868,7 @@ void FullyDistVec<IT,NT>::RandPerm()
 	MPI_Allgather(MPI_IN_PLACE, 1, MPI_LONG_LONG, localcounts, 1, MPI_LONG_LONG, World);
 	int64_t glenuntil = std::accumulate(localcounts, localcounts+rank, static_cast<int64_t>(0));
     
-	vector< vector< IT > > locs_send(nprocs);
+	std::vector< std::vector< IT > > locs_send(nprocs);
 	for(IT i=0; i< totrecv; ++i)    // determine new locations w/ prefix sums
 	{
 		IT remotelocind;
@@ -886,21 +886,21 @@ void FullyDistVec<IT,NT>::RandPerm()
         sdispls[i+1] = sdispls[i] + sendcnt[i];
         rdispls[i+1] = rdispls[i] + recvcnt[i];
     }
-    IT newsize = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    IT newsize = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	if(newsize > std::numeric_limits<int>::max())
 	{
-		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << newsize << endl;
+		std::cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << newsize << std::endl;
 	}
 	// re-use the receive buffer as sendbuf of second stage
     IT totalsend = std::accumulate(sendcnt, sendcnt+nprocs, static_cast<IT>(0));
     if(totalsend != totrecv || newsize != size)
     {
-        cout << "COMBBLAS_WARNING: sending different sized data than received: " << totalsend << "=" << totrecv << " , " << newsize << "=" << size << endl;
+        std::cout << "COMBBLAS_WARNING: sending different sized data than received: " << totalsend << "=" << totrecv << " , " << newsize << "=" << size << std::endl;
     }
     for(int i=0; i<nprocs; ++i)
     {
-        copy(data_send[i].begin(), data_send[i].end(), recvbuf+sdispls[i]);
-        vector<NT>().swap(data_send[i]);	// free memory
+        std::copy(data_send[i].begin(), data_send[i].end(), recvbuf+sdispls[i]);
+        std::vector<NT>().swap(data_send[i]);	// free memory
     }
     // re-use the send buffer as receive buffer of second stage
     MPI_Alltoallv(recvbuf, sendcnt, sdispls, MPIType<NT>(), sendbuf, recvcnt, rdispls, MPIType<NT>(), World);
@@ -908,8 +908,8 @@ void FullyDistVec<IT,NT>::RandPerm()
     IT * newinds = new IT[totalsend];
     for(int i=0; i<nprocs; ++i)
     {
-        copy(locs_send[i].begin(), locs_send[i].end(), newinds+sdispls[i]);
-        vector<IT>().swap(locs_send[i]);	// free memory
+        std::copy(locs_send[i].begin(), locs_send[i].end(), newinds+sdispls[i]);
+        std::vector<IT>().swap(locs_send[i]);	// free memory
     }
     IT * indsbuf = new IT[size];
 	MPI_Alltoallv(newinds, sendcnt, sdispls, MPIType<IT>(), indsbuf, recvcnt, rdispls, MPIType<IT>(), World);
@@ -939,15 +939,15 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 {
 	if(!(*commGrid == *ri.commGrid))
 	{
-		cout << "Grids are not comparable for dense vector subsref" << endl;
+		std::cout << "Grids are not comparable for dense vector subsref" << std::endl;
 		return FullyDistVec<IT,NT>();
 	}
 
 	MPI_Comm World = commGrid->GetWorld();
 	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, NT());	// length(Indexed) = length(ri)
 	int nprocs = commGrid->GetSize();
-	vector< vector< IT > > data_req(nprocs);	
-	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
+	std::vector< std::vector< IT > > data_req(nprocs);	
+	std::vector< std::vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
 
 	IT riloclen = ri.LocArrSize();
 	for(IT i=0; i < riloclen; ++i)
@@ -973,18 +973,18 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	for(int i=0; i<nprocs; ++i)
 	{
-		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
-		vector<IT>().swap(data_req[i]);
+    std::copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
+		std::vector<IT>().swap(data_req[i]);
 	}
 
 	IT * reversemap = new IT[riloclen];
 	for(int i=0; i<nprocs; ++i)
 	{
-		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
-		vector<IT>().swap(revr_map[i]);
+    std::copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
+		std::vector<IT>().swap(revr_map[i]);
 	}
 
 	IT * recvbuf = new IT[totrecv];
@@ -1025,11 +1025,11 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 
 
 template <class IT, class NT>
-void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const
+void FullyDistVec<IT,NT>::PrintInfo(std::string vectorname) const
 {
 	IT totl = TotalLength();
 	if (commGrid->GetRank() == 0)		
-		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
+		std::cout << "As a whole, " << vectorname << " has length " << totl << std::endl; 
 }
 
 
@@ -1043,7 +1043,7 @@ void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
     {
         if(glen != other.glen)
         {
-            cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::Set\n";
+            std::cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::Set\n";
             MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
         }
         else
@@ -1061,7 +1061,7 @@ void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
     }
     else
     {
-        cout << "Grids are not comparable for Set" << endl;
+        std::cout << "Grids are not comparable for Set" << std::endl;
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
 }
@@ -1077,7 +1077,7 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
 {
     if(*(commGrid) != *(spVec.commGrid))
     {
-        cout << "Grids are not comparable for GSet" << endl;
+        std::cout << "Grids are not comparable for GSet" << std::endl;
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
@@ -1091,8 +1091,8 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
 
-    vector< vector< NT > > datsent(nprocs);
-    vector< vector< IT > > indsent(nprocs);
+    std::vector< std::vector< NT > > datsent(nprocs);
+    std::vector< std::vector< IT > > indsent(nprocs);
     IT lengthUntil = spVec.LengthUntil();
    
     for(IT k=0; k < spVecSize; ++k)
@@ -1149,7 +1149,7 @@ template <class NT1, typename _BinaryOperationIdx>
 {
     if(*(commGrid) != *(spVec.commGrid))
     {
-        cout << "Grids are not comparable for GGet" << endl;
+        std::cout << "Grids are not comparable for GGet" << std::endl;
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
@@ -1159,8 +1159,8 @@ template <class NT1, typename _BinaryOperationIdx>
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     
     
-    vector< vector< NT > > spIdx(nprocs);
-    vector< vector< IT > > indsent(nprocs);
+    std::vector< std::vector< NT > > spIdx(nprocs);
+    std::vector< std::vector< IT > > indsent(nprocs);
     IT lengthUntil = spVec.LengthUntil();
     IT spVecSize = spVec.getlocnnz();
     

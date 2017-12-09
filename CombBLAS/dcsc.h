@@ -52,8 +52,8 @@ public:
 	Dcsc ();
 	Dcsc (IT nnz, IT nzcol);
 
-	Dcsc (IT nnz, const vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
-	Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
+	Dcsc (IT nnz, const std::vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
+	Dcsc (StackEntry<NT, std::pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 
 	Dcsc (const Dcsc<IT,NT> & rhs);				// copy constructor
 	Dcsc<IT,NT> & operator=(const Dcsc<IT,NT> & rhs);	// assignment operator
@@ -95,8 +95,8 @@ public:
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	
 	void RowSplit(int numsplits);
-    void ColSplit(vector< Dcsc<IT,NT>* > & parts, vector<IT> & cuts);
-    void ColConcatenate(vector< Dcsc<IT,NT>* > & parts, vector<IT> & offsets);
+    void ColSplit(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> & cuts);
+    void ColConcatenate(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> & offsets);
 
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	//! \todo{special case of ColSplit, to be deprecated...}
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);	 //! \todo{special case of ColConcatenate, to be deprecated...}
@@ -105,9 +105,9 @@ public:
 	void Resize(IT nzcnew, IT nznew);
 
 	template<class VT>	
-	void FillColInds(const VT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
+	void FillColInds(const VT * colnums, IT nind, std::vector< std::pair<IT,IT> > & colinds, IT * aux, IT csize) const;
 
-	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
+	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, std::pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const;	// update dense 2D array's entries with __binary_op using elements of "this"
@@ -126,7 +126,7 @@ public:
     bool memowned;
 
 private:
-	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
+	void getindices (StackEntry<NT, std::pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
 };
 
 }

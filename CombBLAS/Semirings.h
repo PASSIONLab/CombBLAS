@@ -56,7 +56,7 @@ struct BoolCopy2ndSRing
 	static bool returnedSAID() { return false; }
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
-		cout << "Add should not happen (BoolCopy2ndSRing)!" << endl;
+		std::cout << "Add should not happen (BoolCopy2ndSRing)!" << std::endl;
 		throw std::string("Add should not happen!");
 		std::exit(1);
 		return arg2;
@@ -88,7 +88,7 @@ struct BoolCopy2ndSRing
 	{
 		if (*len > 0)
 		{
-			cout << "MPI Add should not happen (BoolCopy2ndSRing)!" << endl;
+			std::cout << "MPI Add should not happen (BoolCopy2ndSRing)!" << std::endl;
 			std::exit(1);
 		}
 	}
@@ -102,7 +102,7 @@ struct BoolCopy1stSRing
 	static bool returnedSAID() { return false; }
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
-		cout << "Add should not happen (BoolCopy1stSRing)!" << endl;
+		std::cout << "Add should not happen (BoolCopy1stSRing)!" << std::endl;
 		throw std::string("Add should not happen!");
 		std::exit(1);
 		return arg2;
@@ -134,7 +134,7 @@ struct BoolCopy1stSRing
 	{
 		if (*len > 0)
 		{
-			cout << "MPI Add should not happen (BoolCopy1stSRing)!" << endl;
+			std::cout << "MPI Add should not happen (BoolCopy1stSRing)!" << std::endl;
 			std::exit(1);
 		}
 	}

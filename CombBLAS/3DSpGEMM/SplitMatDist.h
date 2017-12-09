@@ -24,23 +24,25 @@
 #include "Glue.h"
 #include "CCGrid.h"
 
+namespace combblas {
+
 template <typename NT, typename IT>
-SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDistVec<IT, IT>& p)
+SpDCCols<IT,NT> * ReadMat(std::string filename, CCGrid & CMG, bool permute, FullyDistVec<IT, IT>& p)
 {
     double t01 = MPI_Wtime();
     double t02;
     if(CMG.layer_grid == 0)
     {
-        shared_ptr<CommGrid> layerGrid;
+        std::shared_ptr<CommGrid> layerGrid;
         layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(layerGrid);
         
         SpParHelper::Print("Reading input file....\n");
-        A->ParallelReadMM(filename);
+        A->ParallelReadMM(filename, true, maximum<double>());
         A->PrintInfo();
-        ostringstream tinfo;
+        std::ostringstream tinfo;
         t02 = MPI_Wtime();
-        tinfo << "Reader took " << t02-t01 << " seconds" << endl;
+        tinfo << "Reader took " << t02-t01 << " seconds" << std::endl;
         SpParHelper::Print(tinfo.str());
         
         // random permutations for load balance
@@ -56,8 +58,8 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
                 }
                 SpParHelper::Print("Perfoming random permuation of matrix.\n");
                 (*A)(p,p,true);// in-place permute to save memory
-                ostringstream tinfo1;
-                tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+                std::ostringstream tinfo1;
+                tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << std::endl;
                 SpParHelper::Print(tinfo1.str());
             }
             else
@@ -67,8 +69,8 @@ SpDCCols<IT,NT> * ReadMat(string filename, CCGrid & CMG, bool permute, FullyDist
         }
         
        	float balance = A->LoadImbalance();
-        ostringstream outs;
-        outs << "Input load balance: " << balance << endl;
+        std::ostringstream outs;
+        outs << "Input load balance: " << balance << std::endl;
         SpParHelper::Print(outs.str());
        
         return  A->seqptr();
@@ -87,18 +89,18 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
     {
         DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(CMG.layerWorld);
         
-        ostringstream minfo;
+        std::ostringstream minfo;
         int nprocs = DEL->commGrid->GetSize();
-        minfo << "Started Generation of scale "<< scale << endl;
-        minfo << "Using " << nprocs << " MPI processes" << endl;
+        minfo << "Started Generation of scale "<< scale << std::endl;
+        minfo << "Using " << nprocs << " MPI processes" << std::endl;
         SpParHelper::Print(minfo.str());
         
         DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
         
         SpParHelper::Print("Generated renamed edge lists\n");
-        ostringstream tinfo;
+        std::ostringstream tinfo;
         t02 = MPI_Wtime();
-        tinfo << "Generation took " << t02-t01 << " seconds" << endl;
+        tinfo << "Generation took " << t02-t01 << " seconds" << std::endl;
         SpParHelper::Print(tinfo.str());
         
         SpParMat < IT, NT, SpDCCols<IT,NT> > *A = new SpParMat < IT, NT, SpDCCols<IT,NT> >(*DEL, false);
@@ -110,22 +112,22 @@ SpDCCols<IT,NT> * GenMat(CCGrid & CMG, unsigned scale, unsigned EDGEFACTOR, doub
         if(permute)
         {
             SpParHelper::Print("Perfoming random permuation of matrix.\n");
-            shared_ptr<CommGrid> layerGrid;
+            std::shared_ptr<CommGrid> layerGrid;
             layerGrid.reset( new CommGrid(CMG.layerWorld, 0, 0) );
             FullyDistVec<IT, IT> p(layerGrid); // permutation vector defined on layers
             p.iota(A->getnrow(), 0);
             p.RandPerm();
             (*A)(p,p,true);// in-place permute to save memory
-            ostringstream tinfo1;
-            tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << endl;
+            std::ostringstream tinfo1;
+            tinfo1 << "Permutation took " << MPI_Wtime()-t02 << " seconds" << std::endl;
             SpParHelper::Print(tinfo1.str());
         }
          
         
         
         float balance = A->LoadImbalance();
-        ostringstream outs;
-        outs << "Load balance: " << balance << endl;
+        std::ostringstream outs;
+        outs << "Load balance: " << balance << std::endl;
         SpParHelper::Print(outs.str());
         
         return A->seqptr();
@@ -142,8 +144,8 @@ template <typename IT, typename NT>
 void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & splitmat, bool rowsplit=false)
 {
     double t01 = MPI_Wtime();
-    vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
-    vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
+    std::vector<IT> vecEss; // at layer_grid=0, this will have [CMG.GridLayers * SpDCCols<IT,NT>::esscount] entries
+    std::vector< SpDCCols<IT, NT> > partsmat;    // only valid at layer_grid=0
     int nparts = CMG.GridLayers;
     if(CMG.layer_grid == 0)
     {
@@ -153,7 +155,7 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
         
         for(int i=0; i< nparts; ++i)
         {
-            vector<IT> ess = partsmat[i].GetEssentials();
+            std::vector<IT> ess = partsmat[i].GetEssentials();
             for(auto itr = ess.begin(); itr != ess.end(); ++itr)
             {
                 vecEss.push_back(*itr);
@@ -165,7 +167,7 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     double scatter_beg = MPI_Wtime();   // timer on
     int esscnt = SpDCCols<IT,NT>::esscount; // necessary cast for MPI
     
-    vector<IT> myess(esscnt);
+    std::vector<IT> myess(esscnt);
     MPI_Scatter(vecEss.data(), esscnt, MPIType<IT>(), myess.data(), esscnt, MPIType<IT>(), 0, CMG.fiberWorld);
     
     if(CMG.layer_grid == 0) // senders
@@ -204,10 +206,12 @@ void SplitMat(CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT,NT> & split
     comm_split += (MPI_Wtime() - scatter_beg);
     
     if(rowsplit && nparts>1) splitmat.Transpose(); //transpose back after row-splitting
-    ostringstream tinfo;
-    tinfo << "Matrix split and distributed along layers: time " << MPI_Wtime()-t01 << " seconds" << endl;
+    std::ostringstream tinfo;
+    tinfo << "Matrix split and distributed along layers: time " << MPI_Wtime()-t01 << " seconds" << std::endl;
     SpParHelper::Print(tinfo.str());
     
+}
+
 }
 
 #endif

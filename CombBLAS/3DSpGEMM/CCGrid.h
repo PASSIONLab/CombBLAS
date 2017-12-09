@@ -1,6 +1,8 @@
 #ifndef _CC_GRID_
 #define _CC_GRID_
 
+namespace combblas {
+
 class CCGrid
 {
 public:
@@ -41,5 +43,7 @@ public:
     MPI_Comm rowWorld;
     MPI_Comm colWorld;
 };
+
+}
 
 #endif
