@@ -1,5 +1,9 @@
+#ifndef BP_UTILITY_H
+#define BP_UTILITY_H
+
 #include "../CombBLAS.h"
 
+namespace combblas {
 
 /*
  Remove isolated vertices and purmute
@@ -19,8 +23,8 @@ void removeIsolated(PARMAT & A)
 	FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
 	FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 	
-	A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
-	A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
+	A.Reduce(*ColSums, Column, std::plus<int64_t>(), static_cast<int64_t>(0));
+	A.Reduce(*RowSums, Row, std::plus<int64_t>(), static_cast<int64_t>(0));
 	
 	// this steps for general graph
 	/*
@@ -31,8 +35,8 @@ void removeIsolated(PARMAT & A)
 	 */
 	
 	// this steps for bipartite graph
-	nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
-	nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
+	nonisoColV = ColSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
+	nonisoRowV = RowSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
 	delete ColSums;
 	delete RowSums;
 	
@@ -55,9 +59,9 @@ void removeIsolated(PARMAT & A)
 	
 	if(myrank == 0)
 	{
-		cout << "ncol nrows  nedges deg \n";
-		cout << nrows1 << " " << ncols1 << " " << nnz1 << " " << avgDeg1 << " \n";
-		cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
+		std::cout << "ncol nrows  nedges deg \n";
+		std::cout << nrows1 << " " << ncols1 << " " << nnz1 << " " << avgDeg1 << " \n";
+		std::cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -85,7 +89,7 @@ bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow
         if(t!=-1 && mateCol2Row[t]!=i)
         {
             if(myrank == 0)
-                cout << "Does not satisfy the matching constraints\n";
+                std::cout << "Does not satisfy the matching constraints\n";
             return false;
         }
     }
@@ -96,7 +100,7 @@ bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow
         if(t!=-1 && mateRow2Col[t]!=i)
         {
             if(myrank == 0)
-                cout << "Does not satisfy the matching constraints\n";
+                std::cout << "Does not satisfy the matching constraints\n";
             return false;
         }
     }
@@ -131,19 +135,19 @@ bool CheckMatching(FullyDistVec<IT,IT> & mateRow2Col, FullyDistVec<IT,IT> & mate
     
     if(myrank == 0)
     {
-        cout << "-------------------------------" << endl;
+        std::cout << "-------------------------------" << std::endl;
         if(isMatching)
         {
             
-            cout << "| This is a matching         |" << endl;
+            std::cout << "| This is a matching         |" << std::endl;
             if(isPerfectMatching)
-            cout << "| This is a perfect matching |" << endl;
+            std::cout << "| This is a perfect matching |" << std::endl;
             
             
         }
         else
-            cout << "| This is not a matching |" << endl;
-        cout << "-------------------------------" << endl;
+            std::cout << "| This is not a matching |" << std::endl;
+        std::cout << "-------------------------------" << std::endl;
     }
     
     return isPerfectMatching;
@@ -189,17 +193,17 @@ NT MatchingWeight( SpParMat < IT, NT, DER > & A, FullyDistVec<IT,IT> mateRow2Col
 	int trxsize = 0;
 	MPI_Status status;
 	MPI_Sendrecv(&xsize, 1, MPI_INT, diagneigh, TRX, &trxsize, 1, MPI_INT, diagneigh, TRX, World, &status);
-	vector<IT> trxnums(trxsize);
+	std::vector<IT> trxnums(trxsize);
 	MPI_Sendrecv(mateCol2Row.GetLocArr(), xsize, MPIType<IT>(), diagneigh, TRX, trxnums.data(), trxsize, MPIType<IT>(), diagneigh, TRX, World, &status);
 	
 	
-	vector<int> colsize(pc);
+	std::vector<int> colsize(pc);
 	colsize[colrank] = trxsize;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colsize.data(), 1, MPI_INT, ColWorld);
-	vector<int> dpls(pc,0);	// displacements (zero initialized pid)
+	std::vector<int> dpls(pc,0);	// displacements (zero initialized pid)
 	std::partial_sum(colsize.data(), colsize.data()+pc-1, dpls.data()+1);
 	int accsize = std::accumulate(colsize.data(), colsize.data()+pc, 0);
-	vector<IT> RepMateC2R(accsize);
+	std::vector<IT> RepMateC2R(accsize);
 	MPI_Allgatherv(trxnums.data(), trxsize, MPIType<IT>(), RepMateC2R.data(), colsize.data(), dpls.data(), MPIType<IT>(), ColWorld);
 	// -----------------------------------------------------------
 	
@@ -256,15 +260,7 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
+}
 
-
-
-
-
-
-
-
-
-
-
+#endif
 

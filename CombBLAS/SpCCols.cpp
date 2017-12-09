@@ -112,17 +112,17 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 	
 	if(nnz == 0)	// m by n matrix of complete zeros
 	{
-		if(transpose) swap(m,n);
+		if(transpose) std::swap(m,n);
 		csc = NULL;
 	} 
 	else
 	{
 		if(transpose)
 		{
-			swap(m,n);
+			std::swap(m,n);
 			csc = new Csc<IT,NT>(nnz,n);    // the swap is already done here
-            vector< pair<IT,NT> > tosort (nnz);
-            vector<IT> work(n+1, (IT) 0 );	// workspace, zero initialized, first entry stays zero
+            std::vector< std::pair<IT,NT> > tosort (nnz);
+            std::vector<IT> work(n+1, (IT) 0 );	// workspace, zero initialized, first entry stays zero
             for (IT k = 0 ; k < nnz ; ++k)
             {
                 IT tmp =  rhs.rowindex(k);
@@ -131,11 +131,11 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
             if(nnz > 0)
             {
                 std::partial_sum(work.begin(), work.end(), work.begin());
-                copy(work.begin(), work.end(), csc->jc);
+                std::copy(work.begin(), work.end(), csc->jc);
                 IT last;
                 for (IT k = 0 ; k < nnz ; ++k)
                 {
-                    tosort[ work[ rhs.rowindex(k) ]++] = make_pair( rhs.colindex(k), rhs.numvalue(k));
+                    tosort[ work[ rhs.rowindex(k) ]++] = std::make_pair( rhs.colindex(k), rhs.numvalue(k));
                 }
                 #ifdef _OPENMP
                 #pragma omp parallel for
@@ -145,7 +145,7 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
                     sort(tosort.begin() + csc->jc[i], tosort.begin() + csc->jc[i+1]);
                     
                     IT ind;
-                    typename vector<pair<IT,NT> >::iterator itr;	// iterator is a dependent name
+                    typename std::vector<std::pair<IT,NT> >::iterator itr;	// iterator is a dependent name
                     for(itr = tosort.begin() + csc->jc[i], ind = csc->jc[i]; itr != tosort.begin() + csc->jc[i+1]; ++itr, ++ind)
                     {
                         csc->ir[ind] = itr->first;
@@ -157,8 +157,8 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 		else
 		{
             csc = new Csc<IT,NT>(nnz,n);    // the swap is already done here
-            vector< pair<IT,NT> > tosort (nnz);
-            vector<IT> work(n+1, (IT) 0 );	// workspace, zero initialized, first entry stays zero
+            std::vector< std::pair<IT,NT> > tosort (nnz);
+            std::vector<IT> work(n+1, (IT) 0 );	// workspace, zero initialized, first entry stays zero
             for (IT k = 0 ; k < nnz ; ++k)
             {
                 IT tmp =  rhs.colindex(k);
@@ -167,11 +167,11 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
             if(nnz > 0)
             {
                 std::partial_sum(work.begin(), work.end(), work.begin());
-                copy(work.begin(), work.end(), csc->jc);
+                std::copy(work.begin(), work.end(), csc->jc);
                 IT last;
                 for (IT k = 0 ; k < nnz ; ++k)
                 {
-                    tosort[ work[ rhs.colindex(k) ]++] = make_pair( rhs.rowindex(k), rhs.numvalue(k));
+                    tosort[ work[ rhs.colindex(k) ]++] = std::make_pair( rhs.rowindex(k), rhs.numvalue(k));
                 }
                 #ifdef _OPENMP
                 #pragma omp parallel for
@@ -181,7 +181,7 @@ SpCCols<IT,NT>::SpCCols(const SpTuples<IT, NT> & rhs, bool transpose)
                     sort(tosort.begin() + csc->jc[i], tosort.begin() + csc->jc[i+1]);
                     
                     IT ind;
-                    typename vector<pair<IT,NT> >::iterator itr;	// iterator is a dependent name
+                    typename std::vector<std::pair<IT,NT> >::iterator itr;	// iterator is a dependent name
                     for(itr = tosort.begin() + csc->jc[i], ind = csc->jc[i]; itr != tosort.begin() + csc->jc[i+1]; ++itr, ++ind)
                     {
                         csc->ir[ind] = itr->first;
@@ -237,9 +237,9 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
 {
     splits = numsplits;
     IT perpiece = m / splits;
-    vector<IT> nnzs(splits, 0);
-    vector < vector < tuple<IT,IT,NT> > > colrowpairs(splits);
-    vector< vector<IT> > colcnts(splits);
+    std::vector<IT> nnzs(splits, 0);
+    std::vector < std::vector < std::tuple<IT,IT,NT> > > colrowpairs(splits);
+    std::vector< std::vector<IT> > colcnts(splits);
     for(int i=0; i< splits; ++i)
         colcnts[i].resize(n, 0);
     
@@ -250,8 +250,8 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
             for(IT j = csc->jc[i]; j< csc->jc[i+1]; ++j)
             {
                 IT rowid = csc->ir[j];  // colid=i
-                IT owner = min(rowid / perpiece, static_cast<IT>(splits-1));
-                colrowpairs[owner].push_back(make_tuple(i, rowid - owner*perpiece, csc->num[i]));
+                IT owner = std::min(rowid / perpiece, static_cast<IT>(splits-1));
+                colrowpairs[owner].push_back(std::make_tuple(i, rowid - owner*perpiece, csc->num[i]));
                 
                 ++(colcnts[owner][i]);
                 ++(nnzs[owner]);
@@ -275,9 +275,9 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
         
         for(IT k=0; k<nnzs[i]; ++k) // k iterates over all nonzeros
         {
-            IT cindex = get<0>(colrowpairs[i][k]);
-            IT rindex = get<1>(colrowpairs[i][k]);
-            NT value = get<2>(colrowpairs[i][k]);
+            IT cindex = std::get<0>(colrowpairs[i][k]);
+            IT rindex = std::get<1>(colrowpairs[i][k]);
+            NT value = std::get<2>(colrowpairs[i][k]);
             
             IT curcptr = (colcnts[i][cindex])++;   // fetch the pointer and post increment
             cscarr[i]->ir[curcptr] = rindex;
@@ -290,13 +290,13 @@ void SpCCols<IT,NT>::RowSplit(int numsplits)
 template<class IT, class NT>
 void SpCCols<IT,NT>::PrintInfo() const
 {
-    cout << "m: " << m ;
-    cout << ", n: " << n ;
-    cout << ", nnz: "<< nnz ;
+    std::cout << "m: " << m ;
+    std::cout << ", n: " << n ;
+    std::cout << ", nnz: "<< nnz ;
     
     if(splits > 0)
     {
-        cout << ", local splits: " << splits << endl;
+        std::cout << ", local splits: " << splits << std::endl;
 #ifdef _OPENMP
         if(omp_get_thread_num() == 0)
         {
@@ -306,7 +306,7 @@ void SpCCols<IT,NT>::PrintInfo() const
     }
     else
     {
-        cout << endl;
+        std::cout << std::endl;
         SubPrintInfo(csc);
     }
 }
@@ -323,7 +323,7 @@ template <class IT, class NT>
 void SpCCols<IT,NT>::SubPrintInfo(Csc<IT,NT> * mycsc) const
 {
 #ifdef _OPENMP
-    cout << "Printing for thread " << omp_get_thread_num() << endl;
+    std::cout << "Printing for thread " << omp_get_thread_num() << std::endl;
 #endif
     if(m < PRINT_LIMIT && n < PRINT_LIMIT)	// small enough to print
     {
@@ -346,10 +346,10 @@ void SpCCols<IT,NT>::SubPrintInfo(Csc<IT,NT> * mycsc) const
         {
             for(IT j=0; j<n; ++j)
             {
-                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
-                cout << " ";
+                std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2) << A[i][j];
+                std::cout << " ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
         SpHelper::deallocate2D(A,m);
     }

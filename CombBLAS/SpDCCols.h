@@ -58,7 +58,7 @@ public:
 	SpDCCols ();
 	SpDCCols (IT size, IT nRow, IT nCol, IT nzc);
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose);
-    SpDCCols (IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT> * rhs, bool transpose);
+    SpDCCols (IT nRow, IT nCol, IT nnz1, const std::tuple<IT, IT, NT> * rhs, bool transpose);
 
 	SpDCCols (const SpDCCols<IT,NT> & rhs);					// Actual copy constructor		
 	~SpDCCols();
@@ -70,7 +70,7 @@ public:
 	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> operator() (IT ri, IT ci) const;	
-	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
+	SpDCCols<IT,NT> operator() (const std::vector<IT> & ri, const std::vector<IT> & ci) const;
 	bool operator== (const SpDCCols<IT, NT> & rhs) const
 	{
 		if(rhs.nnz == 0 && nnz == 0)
@@ -280,19 +280,19 @@ public:
 		BooleanRowSplit(*this, numsplits);	// only works with boolean arrays
 	}
     
-    void ColSplit(int parts, vector< SpDCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
-    void ColConcatenate(vector< SpDCCols<IT,NT> > & matrices);    //!< \attention Destroys its parameters (matrices)
+    void ColSplit(int parts, std::vector< SpDCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
+    void ColConcatenate(std::vector< SpDCCols<IT,NT> > & matrices);    //!< \attention Destroys its parameters (matrices)
 
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
-	void CreateImpl(const vector<IT> & essentials);
-	void CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+	void CreateImpl(const std::vector<IT> & essentials);
+	void CreateImpl(IT size, IT nRow, IT nCol, std::tuple<IT, IT, NT> * mytuples);
     void CreateImpl(IT * _cp, IT * _jc, IT * _ir, NT * _numx, IT _nz, IT _nzc, IT _m, IT _n);
 
 
 	Arr<IT,NT> GetArrays() const;
-	vector<IT> GetEssentials() const;
+	std::vector<IT> GetEssentials() const;
 	const static IT esscount;
 
 	bool isZero() const { return (nnz == 0); }
@@ -302,10 +302,10 @@ public:
 	IT getnzc() const { return (nnz == 0) ? 0: dcsc->nzc; }
 	int getnsplit() const { return splits; }
 	
-	ofstream& put(ofstream & outfile) const;
-	ifstream& get(ifstream & infile);
+	std::ofstream& put(std::ofstream & outfile) const;
+	std::ifstream& get(std::ifstream & infile);
 	void PrintInfo() const;
-	void PrintInfo(ofstream & out) const;
+	void PrintInfo(std::ofstream & out) const;
 
 	template <typename SR> 
 	int PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);  
@@ -335,7 +335,7 @@ public:
 
 private:
 	void CopyDcsc(Dcsc<IT,NT> * source);
-	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci) const;	//!< col indexing without multiplication	
+	SpDCCols<IT,NT> ColIndex(const std::vector<IT> & ci) const;	//!< col indexing without multiplication	
 
 	template <typename SR, typename NTR>
 	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdOutProdMult(const SpDCCols<IT,NTR> & rhs) const;	
@@ -343,7 +343,7 @@ private:
 	template <typename SR, typename NTR>
 	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdColByCol(const SpDCCols<IT,NTR> & rhs) const;	
 	
-	SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing
+	SpDCCols (IT size, IT nRow, IT nCol, const std::vector<IT> & indices, bool isRow);	// Constructor for indexing
 	SpDCCols (IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc);			// Constructor for multiplication
 
 	// Anonymous union

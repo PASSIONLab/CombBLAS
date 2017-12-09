@@ -2,7 +2,6 @@
 #define _DELETER_H_
 
 #include <iostream>
-using namespace std;
 
 template<typename A>
 void DeleteAll(A arr1)

@@ -30,6 +30,8 @@
 #include "CommGrid.h"
 #include "SpDefs.h"
 
+using namespace std;
+
 namespace combblas {
 
 CommGrid::CommGrid(MPI_Comm world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)

@@ -75,16 +75,16 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
    		read_offset_end = 8*globalm;
 
 
-	ofstream oput;
+	std::ofstream oput;
 	commGrid->OpenDebugFile("BinRead", oput);
 	if(infp != NULL)
 	{	
-		oput << "File exists" << endl;
-		oput << "Trying to read " << nedges << " edges out of " << globalm << endl;
+		oput << "File exists" << std::endl;
+		oput << "Trying to read " << nedges << " edges out of " << globalm << std::endl;
 	}
 	else
 	{
-		oput << "File does not exist" << endl;
+		oput << "File does not exist" << std::endl;
 	}
 	
 	/* gen_edges is an array of unsigned ints of size 2*nedges */
@@ -92,10 +92,10 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
 	fseek(infp, read_offset_start, SEEK_SET);
 	fread(gen_edges, 2*nedges, sizeof(uint32_t), infp);
 	SetMemSize(nedges);
-	oput << "Freads done " << endl;
+	oput << "Freads done " << std::endl;
 	for(IT i=0; i< 2*nedges; ++i)
 		edges[i] = (IT) gen_edges[i];
-	oput << "Puts done " << endl;
+	oput << "Puts done " << std::endl;
 	delete [] gen_edges;
 	oput.close();
 	
@@ -320,7 +320,7 @@ void PermEdges(DistEdgeList<IT> & DEL)
 		IT n_sofar = s*perstage;
 		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
 
-		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
+		std::pair<double, std::pair<IT,IT> >* vecpair = new std::pair<double, std::pair<IT,IT> >[n_thisstage];
 		dist[rank] = n_thisstage;
 		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), DEL.commGrid->GetWorld());
 
@@ -342,8 +342,8 @@ void PermEdges(DistEdgeList<IT> & DEL)
 		delete [] vecpair;
 		#ifdef DEBUG
 		double et = MPI_Wtime();
-		ostringstream timeinfo;
-		timeinfo << "Stage " << s << " in " << et-st << " seconds" << endl;
+    std::ostringstream timeinfo;
+		timeinfo << "Stage " << s << " in " << et-st << " seconds" << std::endl;
 		SpParHelper::Print(timeinfo.str());
 		#endif
 	}
@@ -376,7 +376,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	// way to mark whether each vertex was already renamed or not
 	IU locedgelist = 2*DEL.getNumLocalEdges();
 	bool* renamed = new bool[locedgelist];
-	fill_n(renamed, locedgelist, 0);
+	std::fill_n(renamed, locedgelist, 0);
 	
 	// permutation for one round
 	IU * localPerm = NULL;
@@ -398,7 +398,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 		{
 			permsize = locrows;
 			localPerm = new IU[permsize];
-			copy(globalPerm.arr.begin(), globalPerm.arr.end(), localPerm);
+      std::copy(globalPerm.arr.begin(), globalPerm.arr.end(), localPerm);
 		}
 		MPI_Bcast(&permsize, 1, MPIType<IU>(), round, World);
 		if(rank != round)
@@ -408,7 +408,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 		MPI_Bcast(localPerm, permsize, MPIType<IU>(), round, World);
 	
 		// iterate over 	
-		for (typename vector<IU>::size_type j = 0; j < (unsigned)locedgelist ; j++)
+		for (typename std::vector<IU>::size_type j = 0; j < (unsigned)locedgelist ; j++)
 		{
 			// We are renaming vertices, not edges
 			if (startInd <= DEL.edges[j] && DEL.edges[j] < (startInd + permsize) && !renamed[j])

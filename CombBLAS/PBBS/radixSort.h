@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <math.h>
 #include "utils.h"
-using namespace std;
 
 
 
@@ -114,7 +113,7 @@ static inline void integerSort(uint32_t *A, int n) {
 }
 
 template <class T>
-void integerSort(pair<uint32_t,T> *A, int n) {
+void integerSort(std::pair<uint32_t,T> *A, int n) {
   uint32_t maxV = 0;
   for (int i=0; i<n; i++) maxV = std::max(maxV,A[i].first);
   intSort::iSort(A, n, maxV,  utils::firstF<uint32_t,T>());

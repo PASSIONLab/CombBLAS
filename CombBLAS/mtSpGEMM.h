@@ -23,7 +23,7 @@ namespace combblas {
 template <typename T>
 T* prefixsum(T* in, int size, int nthreads)
 {
-    vector<T> tsum(nthreads+1);
+    std::vector<T> tsum(nthreads+1);
     tsum[0] = 0;
     T* out = new T[size+1];
     out[0] = 0;
@@ -109,14 +109,14 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
     delete [] colnnzC;
     IT nnzc = colptrC[Bdcsc->nzc];
-    tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
+    std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
 	
 	
 
 	
     // thread private space for heap and colinds
-    vector<vector< pair<IT,IT>>> colindsVec(numThreads);
-    vector<vector<HeapEntry<IT,NT1>>> globalheapVec(numThreads);
+    std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
+    std::vector<std::vector<HeapEntry<IT,NT1>>> globalheapVec(numThreads);
     
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
@@ -145,7 +145,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
         // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
         Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
-        pair<IT,IT> * colinds = colindsVec[myThread].data();
+        std::pair<IT,IT> * colinds = colindsVec[myThread].data();
         HeapEntry<IT,NT1> * wset = globalheapVec[myThread].data();
         IT hsize = 0;
         
@@ -157,24 +157,24 @@ SpTuples<IT, NTO> * LocalSpGEMM
                 wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc->ir[colinds[j].first], j, Adcsc->numx[colinds[j].first]);
             }
         }
-        make_heap(wset, wset+hsize);
+        std::make_heap(wset, wset+hsize);
         
         IT curptr = colptrC[i];
         while(hsize > 0)
         {
-            pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
+            std::pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
             IT locb = wset[hsize-1].runr;	// relative location of the nonzero in B's current column
             
             NTO mrhs = SR::multiply(wset[hsize-1].num, Bdcsc->numx[Bdcsc->cp[i]+locb]);
             if (!SR::returnedSAID())
             {
-                if( (curptr > colptrC[i]) && get<0>(tuplesC[curptr-1]) == wset[hsize-1].key)
+                if( (curptr > colptrC[i]) && std::get<0>(tuplesC[curptr-1]) == wset[hsize-1].key)
                 {
-                    get<2>(tuplesC[curptr-1]) = SR::add(get<2>(tuplesC[curptr-1]), mrhs);
+                    std::get<2>(tuplesC[curptr-1]) = SR::add(std::get<2>(tuplesC[curptr-1]), mrhs);
                 }
                 else
                 {
-                    tuplesC[curptr++]= make_tuple(wset[hsize-1].key, Bdcsc->jc[i], mrhs) ;
+                    tuplesC[curptr++]= std::make_tuple(wset[hsize-1].key, Bdcsc->jc[i], mrhs) ;
                 }
                 
             }
@@ -184,7 +184,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
                 // runr stays the same !
                 wset[hsize-1].key = Adcsc->ir[colinds[locb].first];
                 wset[hsize-1].num = Adcsc->numx[colinds[locb].first];
-                push_heap(wset, wset+hsize);
+                std::push_heap(wset, wset+hsize);
             }
             else
             {
@@ -245,8 +245,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     }
     
     // thread private space for heap and colinds
-    vector<vector< pair<IT,IT>>> colindsVec(numThreads);
-    vector<vector<pair<IT,IT>>> globalheapVec(numThreads);
+    std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
+    std::vector<std::vector<std::pair<IT,IT>>> globalheapVec(numThreads);
 
 	
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
@@ -274,8 +274,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
         // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
         Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
-        pair<IT,IT> * colinds = colindsVec[myThread].data();
-        pair<IT,IT> * curheap = globalheapVec[myThread].data();
+        std::pair<IT,IT> * colinds = colindsVec[myThread].data();
+        std::pair<IT,IT> * curheap = globalheapVec[myThread].data();
         IT hsize = 0;
         
         // create the initial heap
@@ -283,16 +283,16 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
         {
             if(colinds[j].first != colinds[j].second)
             {
-                curheap[hsize++] = make_pair(Adcsc->ir[colinds[j].first], j);
+                curheap[hsize++] = std::make_pair(Adcsc->ir[colinds[j].first], j);
             }
         }
-        make_heap(curheap, curheap+hsize, greater<pair<IT,IT>>());
+        std::make_heap(curheap, curheap+hsize, std::greater<std::pair<IT,IT>>());
         
         IT prevRow=-1; // previously popped row from heap
 		
         while(hsize > 0)
         {
-            pop_heap(curheap, curheap + hsize, greater<pair<IT,IT>>()); // result is stored in wset[hsize-1]
+          std::pop_heap(curheap, curheap + hsize, std::greater<std::pair<IT,IT>>()); // result is stored in wset[hsize-1]
             IT locb = curheap[hsize-1].second;
             
             if( curheap[hsize-1].first != prevRow)
@@ -304,7 +304,7 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
             if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
             {
                 curheap[hsize-1].first = Adcsc->ir[colinds[locb].first];
-                push_heap(curheap, curheap+hsize, greater<pair<IT,IT>>());
+                std::push_heap(curheap, curheap+hsize, std::greater<std::pair<IT,IT>>());
             }
             else
             {

@@ -18,15 +18,14 @@
 #include <cmath>
 #include "../CombBLAS.h"
 
-using namespace std;
-
+namespace combblas {
 
 class HipMCLClusterSaveHandler
 {
 public:
     // no reader
     template <typename c, typename t, typename VT>
-    void save(std::basic_ostream<c,t>& os, vector<VT> & strvec, int64_t index)
+    void save(std::basic_ostream<c,t>& os, std::vector<VT> & strvec, int64_t index)
     {
         for (auto it = strvec.begin() ; it != strvec.end(); ++it)
             os << *it << " ";
@@ -43,7 +42,7 @@ public:
  */
 
 template <class IT>
-void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDistVec<IT, array<char, MAXVERTNAME> > vtxLabels)
+void WriteMCLClusters(std::string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDistVec<IT, std::array<char, MAXVERTNAME> > vtxLabels)
 {
     auto commGrid = clustIdForVtx.getcommgrid();
     MPI_Comm World = commGrid->GetWorld();
@@ -53,10 +52,10 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDi
     IT nclusters = clustIdForVtx.Reduce(maximum<IT>(), (IT) 0 ) ;
     nclusters ++; // because of zero based indexing for clusters
     
-    vector<int> rdispls(nprocs+1);
-    vector<int> recvcnt(nprocs);
-    vector<int> sendcnt(nprocs,0);
-    vector<int> sdispls(nprocs+1);
+    std::vector<int> rdispls(nprocs+1);
+    std::vector<int> recvcnt(nprocs);
+    std::vector<int> sendcnt(nprocs,0);
+    std::vector<int> sdispls(nprocs+1);
     IT ploclen = clustIdForVtx.LocArrSize();
     
     
@@ -80,14 +79,14 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDi
     }
     
     
-    typedef array<char, MAXVERTNAME> STRASARRAY;
-    typedef pair< IT, STRASARRAY> TYPE2SEND;
+    typedef std::array<char, MAXVERTNAME> STRASARRAY;
+    typedef std::pair< IT, STRASARRAY> TYPE2SEND;
     const STRASARRAY* lVtxLabels = vtxLabels.GetLocArr();
-    vector<TYPE2SEND> senddata(ploclen);
+    std::vector<TYPE2SEND> senddata(ploclen);
     
     
     // Pack cluster and vertex information to send
-    vector<int> count(nprocs, 0);
+    std::vector<int> count(nprocs, 0);
     for(IT i=0; i < ploclen; ++i)
     {
         IT locind;
@@ -102,18 +101,18 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDi
     MPI_Type_commit(&MPI_CLUST);
     
     IT totrecv = rdispls[nprocs];
-    vector<TYPE2SEND> recvdata(totrecv);
+    std::vector<TYPE2SEND> recvdata(totrecv);
  
     MPI_Alltoallv(senddata.data(), sendcnt.data(), sdispls.data(), MPI_CLUST, recvdata.data(), recvcnt.data(), rdispls.data(), MPI_CLUST, World);
     
     
     // Receiver groups vertices by cluster ids
-    vector< vector<string> > vtxGroupbyCC(temp.LocArrSize());
+    std::vector< std::vector<std::string> > vtxGroupbyCC(temp.LocArrSize());
     for(int i=0; i<totrecv; ++i)
     {
         IT clusterID = recvdata[i].first;
-        auto locnull = find(recvdata[i].second.begin(), recvdata[i].second.end(), '\0'); // find the null character (or string::end)
-        string vtxstr(recvdata[i].second.begin(), locnull);
+        auto locnull = std::find(recvdata[i].second.begin(), recvdata[i].second.end(), '\0'); // find the null character (or string::end)
+        std::string vtxstr(recvdata[i].second.begin(), locnull);
         vtxGroupbyCC[clusterID].push_back(vtxstr);
     }
     
@@ -123,11 +122,11 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDi
 #endif
     for(unsigned int i=0; i<vtxGroupbyCC.size(); ++i)
     {
-        sort(vtxGroupbyCC[i].begin(), vtxGroupbyCC[i].end());
+        std::sort(vtxGroupbyCC[i].begin(), vtxGroupbyCC[i].end());
     }
     
     // Create a vector locally populate it
-    FullyDistVec<IT,vector<string> > clusters(commGrid, nclusters, vector<string>{});
+    FullyDistVec<IT,std::vector<std::string> > clusters(commGrid, nclusters, std::vector<std::string>{});
     for(int i=0; i<clusters.LocArrSize(); i++)
     {
         clusters.SetLocalElement(i, vtxGroupbyCC[i]);
@@ -147,7 +146,7 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, FullyDi
  * @param[in] clustIdForVtx {the ith entry stores the cluster id of the ith vertex}
  */
 template <class IT>
-void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, int base)
+void WriteMCLClusters(std::string ofName, FullyDistVec<IT, IT> clustIdForVtx, int base)
 {
     auto commGrid = clustIdForVtx.getcommgrid();
     MPI_Comm World = commGrid->GetWorld();
@@ -158,10 +157,10 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, int bas
     IT nclusters = clustIdForVtx.Reduce(maximum<IT>(), (IT) 0 ) ;
     nclusters ++; // because of zero based indexing for clusters
     
-    vector<int> rdispls(nprocs+1);
-    vector<int> recvcnt(nprocs);
-    vector<int> sendcnt(nprocs,0);
-    vector<int> sdispls(nprocs+1);
+    std::vector<int> rdispls(nprocs+1);
+    std::vector<int> recvcnt(nprocs);
+    std::vector<int> sendcnt(nprocs,0);
+    std::vector<int> sdispls(nprocs+1);
     IT ploclen = clustIdForVtx.LocArrSize();
     
     
@@ -186,30 +185,30 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, int bas
     
     
 
-    vector<pair<IT, IT>> senddata(ploclen);
+    std::vector<std::pair<IT, IT>> senddata(ploclen);
     // Pack cluster and vertex information to send
-    vector<int> count(nprocs, 0);
+    std::vector<int> count(nprocs, 0);
     for(IT i=0; i < ploclen; ++i)
     {
         IT locind;
         int owner = temp.Owner(larr[i], locind);
         int idx = sdispls[owner] + count[owner];
         count[owner]++;
-        senddata[idx] = make_pair(locind, i+lenuntil+base); // sending local cluster ids for the destination processor
+        senddata[idx] = std::make_pair(locind, i+lenuntil+base); // sending local cluster ids for the destination processor
     }
     
     MPI_Datatype MPI_CLUST;
-    MPI_Type_contiguous(sizeof(pair<IT, IT>), MPI_CHAR, &MPI_CLUST);
+    MPI_Type_contiguous(sizeof(std::pair<IT, IT>), MPI_CHAR, &MPI_CLUST);
     MPI_Type_commit(&MPI_CLUST);
     
     IT totrecv = rdispls[nprocs];
-    vector<pair<IT, IT>> recvdata(totrecv);
+    std::vector<std::pair<IT, IT>> recvdata(totrecv);
     
     MPI_Alltoallv(senddata.data(), sendcnt.data(), sdispls.data(), MPI_CLUST, recvdata.data(), recvcnt.data(), rdispls.data(), MPI_CLUST, World);
     
     
     // Receiver groups vertices by cluster ids
-    vector< vector<IT> > vtxGroupbyCC(temp.LocArrSize());
+    std::vector< std::vector<IT> > vtxGroupbyCC(temp.LocArrSize());
     for(int i=0; i<totrecv; ++i)
     {
         IT clusterID = recvdata[i].first;
@@ -217,7 +216,7 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, int bas
     }
     
     // Create a vector locally populate it
-    FullyDistVec<IT,vector<IT> > clusters(commGrid, nclusters, vector<IT>{});
+    FullyDistVec<IT,std::vector<IT> > clusters(commGrid, nclusters, std::vector<IT>{});
     for(int i=0; i<clusters.LocArrSize(); i++)
     {
         clusters.SetLocalElement(i, vtxGroupbyCC[i]);
@@ -226,3 +225,6 @@ void WriteMCLClusters(string ofName, FullyDistVec<IT, IT> clustIdForVtx, int bas
     clusters.ParallelWrite(ofName, 1, HipMCLClusterSaveHandler(), false);
     
 }
+
+}
+

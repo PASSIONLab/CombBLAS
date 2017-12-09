@@ -9,7 +9,6 @@
 // to the paros conventions
 
 #include <iostream>
-using namespace std;
 
 #ifndef UTIL
 #define UTIL
@@ -56,7 +55,7 @@ using namespace std;
 #endif
 
 #define Assert(c) if(!(c))\
-  {cout << "\nAssertion violation " << __FILE__ << ":" << __LINE__ << endl;}
+  {std::cout << "\nAssertion violation " << __FILE__ << ":" << __LINE__ << std::endl;}
 #define Assert0(C) Debug0(Assert(C))
 #define Assert1(C) Debug1(Assert(C))
 #define Assert2(C) Debug2(Assert(C))
@@ -64,7 +63,7 @@ using namespace std;
 #define Assert4(C) Debug4(Assert(C))
 #define Assert5(C) Debug5(Assert(C))
 
-#define Error(s) {cout << "\nError:" << s << " " << __FILE__ << ":" << __LINE__ << endl;}
+#define Error(s) {std::cout << "\nError:" << s << " " << __FILE__ << ":" << __LINE__ << std::endl;}
 
 ////////////// min, max etc. //////////////////////////////////////
 

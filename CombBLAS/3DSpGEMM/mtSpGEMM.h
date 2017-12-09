@@ -3,6 +3,8 @@
 
 #include "../CombBLAS.h"
 
+namespace combblas {
+
 /*
  Multithreaded prefix sum
  Inputs:
@@ -22,7 +24,7 @@
 template <typename T>
 T* prefixsum(T* in, int size, int nthreads)
 {
-    vector<T> tsum(nthreads+1);
+    std::vector<T> tsum(nthreads+1);
     tsum[0] = 0;
     T* out = new T[size+1];
     out[0] = 0;
@@ -96,8 +98,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     tuple<IT,IT,NTO> * tuplesC = static_cast<tuple<IT,IT,NTO> *> (::operator new (sizeof(tuple<IT,IT,NTO>[nnzc])));
     
     // thread private space for heap and colinds
-    vector<vector< pair<IT,IT>>> colindsVec(numThreads);
-    vector<vector<HeapEntry<IT,NT1>>> globalheapVec(numThreads);
+    std::vector<std::vector< pair<IT,IT>>> colindsVec(numThreads);
+    std::vector<std::vector<HeapEntry<IT,NT1>>> globalheapVec(numThreads);
     
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
@@ -217,8 +219,8 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     }
     
     // thread private space for heap and colinds
-    vector<vector< pair<IT,IT>>> colindsVec(numThreads);
-    vector<vector<pair<IT,IT>>> globalheapVec(numThreads);
+    std::vector<std::vector< pair<IT,IT>>> colindsVec(numThreads);
+    std::vector<std::vector<pair<IT,IT>>> globalheapVec(numThreads);
     
     double tmemStart = MPI_Wtime();
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
@@ -286,5 +288,6 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     return colnnzC;
 }
 
+}
 
 #endif

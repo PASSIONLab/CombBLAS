@@ -57,9 +57,9 @@ FullyDistVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bin
                 		loclens[colrank] = n_perproc;
 
 			MPI_Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>(), commGrid->GetColWorld());
-			partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits
+			std::partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits
 
-			vector<NT> trarr(loclens[colrank]);
+			std::vector<NT> trarr(loclens[colrank]);
 			NT * sendbuf = new NT[n];
 			for(int j=0; j < n; ++j)
 			{
@@ -122,7 +122,7 @@ FullyDistVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bin
 		}
 		default:
 		{
-			cout << "Unknown reduction dimension, returning empty vector" << endl;
+			std::cout << "Unknown reduction dimension, returning empty vector" << std::endl;
             		return FullyDistVec<IT,NT>(commGrid);
 			break;
 		}
@@ -135,11 +135,11 @@ DenseParMat< IT,NT > & DenseParMat<IT,NT>::operator+=(const SpParMat< IT,NT,DER 
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
-		(rhs.spSeq)->UpdateDense(array, plus<double>());
+		(rhs.spSeq)->UpdateDense(array, std::plus<double>());
 	}
 	else
 	{
-		cout << "Grids are not comparable elementwise addition" << endl; 
+		std::cout << "Grids are not comparable elementwise addition" << std::endl; 
 		MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 	}
 	return *this;	
@@ -160,7 +160,7 @@ DenseParMat< IT,NT > &  DenseParMat<IT,NT>::operator=(const DenseParMat< IT,NT >
 		{
 			array = SpHelper::allocate2D<NT>(m, n);
 			for(int i=0; i< m; ++i)
-				copy(array[i], array[i]+n, rhs.array[i]);
+				std::copy(array[i], array[i]+n, rhs.array[i]);
 		}
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}

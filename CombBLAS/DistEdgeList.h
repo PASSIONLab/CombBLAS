@@ -87,8 +87,8 @@ public:
 	DistEdgeList (const char * filename, IT globaln, IT globalm);	// read from binary in parallel
 	~DistEdgeList ();
 
-	void Dump64bit(string filename);
-	void Dump32bit(string filename);
+	void Dump64bit(std::string filename);
+	void Dump32bit(std::string filename);
 	void GenGraph500Data(double initiator[4], int log_numverts, int edgefactor, bool scramble =false, bool packed=false);
 	void CleanupEmpties();
 	
@@ -96,7 +96,7 @@ public:
 	IT getNumLocalEdges() const { return nedges; }
     IT* getEdges() const {return edges;}
     packed_edge * getPackedEdges() const { return pedges; }
-    shared_ptr<CommGrid> commGrid;
+    std::shared_ptr<CommGrid> commGrid;
 	
 private:
 	

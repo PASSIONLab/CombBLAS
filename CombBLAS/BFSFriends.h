@@ -65,8 +65,8 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 		int splits = A.getnsplit();
 		if(splits > 0)
 		{
-			vector< vector<int32_t> > indy(splits);
-			vector< vector< VT > > numy(splits);
+			std::vector< std::vector<int32_t> > indy(splits);
+			std::vector< std::vector< VT > > numy(splits);
 			int32_t nlocrows = static_cast<int32_t>(A.getnrow());
 			int32_t perpiece = nlocrows / splits;
 			
@@ -86,13 +86,13 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 			
 			// keep recipients of last entries in each split (-1 for an empty split)
 			// so that we can delete indy[] and numy[] contents as soon as they are processed		
-			vector<int32_t> end_recs(splits);
+			std::vector<int32_t> end_recs(splits);
 			for(int i=0; i<splits; ++i)
 			{
 				if(indy[i].empty())
 					end_recs[i] = -1;
 				else
-					end_recs[i] = min(indy[i].back() / perproc, last_rec);
+					end_recs[i] = std::min(indy[i].back() / perproc, last_rec);
 			}
 			
 			int ** loc_rec_cnts = new int *[splits];	
@@ -104,13 +104,13 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 				loc_rec_cnts[i]  = new int[p_c](); // thread-local recipient data
 				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
 				{
-					int32_t cur_rec = min( indy[i].front() / perproc, last_rec);
+					int32_t cur_rec = std::min( indy[i].front() / perproc, last_rec);
 					int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
-					for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
+					for(typename std::vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 					{
 						if( ( (*it) >= lastdata ) && cur_rec != last_rec)	
 						{
-							cur_rec = min( (*it) / perproc, last_rec);	
+							cur_rec = std::min( (*it) / perproc, last_rec);	
 							lastdata = (cur_rec+1) * perproc;
 						}
 						++loc_rec_cnts[i][cur_rec];
@@ -126,26 +126,26 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 				{
 					// FACT: Data is sorted, so if the recipient of begin is the same as the owner of end, 
 					// then the whole data is sent to the same processor
-					int32_t beg_rec = min( indy[i].front() / perproc, last_rec); 
+					int32_t beg_rec = std::min( indy[i].front() / perproc, last_rec); 
 					int32_t alreadysent = 0;	// already sent per recipient 
 					for(int before = i-1; before >= 0; before--)
 						 alreadysent += loc_rec_cnts[before][beg_rec];
 						
 					if(beg_rec == end_recs[i])	// fast case
 					{
-						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<int32_t>(), perproc*beg_rec));
-						copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
-						copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
+            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
+            std::copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
+            std::copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
 					}
 					else	// slow case
 					{
 						int32_t cur_rec = beg_rec;
 						int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
-						for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
+						for(typename std::vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 						{
 							if( ( (*it) >= lastdata ) && cur_rec != last_rec )
 							{
-								cur_rec = min( (*it) / perproc, last_rec);
+								cur_rec = std::min( (*it) / perproc, last_rec);
 								lastdata = (cur_rec+1) * perproc;
 
 								// if this split switches to a new recipient after sending some data
@@ -169,7 +169,7 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 		}
 		else
 		{
-			cout << "Something is wrong, splits should be nonzero for multithreaded execution" << endl;
+			std::cout << "Something is wrong, splits should be nonzero for multithreaded execution" << std::endl;
 		}
 	}
 }
@@ -227,14 +227,14 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 	double t0=MPI_Wtime();
 #endif
 	// free memory of y, in case it was aliased
-	vector<IU>().swap(y.ind);
-	vector<VT>().swap(y.num);
+	std::vector<IU>().swap(y.ind);
+	std::vector<VT>().swap(y.num);
 	
 #ifndef HEAPMERGE
 	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
 	bool * isthere = new bool[ysize];
-	vector< pair<IU,VT> > ts_pairs;	
-	fill_n(isthere, ysize, false);
+	std::vector< std::pair<IU,VT> > ts_pairs;	
+  std::fill_n(isthere, ysize, false);
 
 	// We don't need to keep a "merger" because minimum will always come from the processor
 	// with the smallest rank; so a linear sweep over the received buffer is enough	
@@ -244,7 +244,7 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 		{
 			int32_t index = recvindbuf[rdispls[i] + j];
 			if(!isthere[index])
-				ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
+				ts_pairs.push_back(std::make_pair(index, recvnumbuf[rdispls[i] + j]));
 			
 		}
 	}
@@ -263,8 +263,8 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 #else
 	// Alternative 2: Heap-merge
 	int32_t hsize = 0;		
-	int32_t inf = numeric_limits<int32_t>::min();
-	int32_t sup = numeric_limits<int32_t>::max(); 
+	int32_t inf = std::numeric_limits<int32_t>::min();
+	int32_t sup = std::numeric_limits<int32_t>::max(); 
 	KNHeap< int32_t, int32_t > sHeap(sup, inf); 
 	int * processed = new int[rowneighs]();
 	for(int32_t i=0; i<rowneighs; ++i)
@@ -367,7 +367,7 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	{
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
+	int totrecv = std::accumulate(recvcnt,recvcnt+rowneighs,0);	
 	int32_t * recvindbuf = new int32_t[totrecv];
 	VT * recvnumbuf = new VT[totrecv];
 	
@@ -395,7 +395,7 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 
 template <typename VT, typename IT, typename UDER>
 SpDCCols<int,bool>::SpColIter* CalcSubStarts(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapCarousel<IT,VT> &done) {
-	shared_ptr<CommGrid> cg = A.getcommgrid();
+	std::shared_ptr<CommGrid> cg = A.getcommgrid();
 	IT rowuntil = x.LengthUntil();
 	MPI_Comm RowWorld = cg->GetRowWorld();
 	MPI_Bcast(&rowuntil, 1, MPIType<IT>(), 0, RowWorld);
@@ -414,7 +414,7 @@ SpDCCols<int,bool>::SpColIter* CalcSubStarts(SpParMat<IT,bool,UDER> & A, FullyDi
 				++colit;
 			}
 			starts[c*cblas_splits + t] = colit;
-			curr_thread_start = min(curr_thread_start + per_thread, next_sub_start);
+			curr_thread_start = std::min(curr_thread_start + per_thread, next_sub_start);
 		}
     }
     starts[numcols*cblas_splits] = A.seq().endcol();
@@ -433,12 +433,12 @@ SpDCCols<int,bool>::SpColIter* CalcSubStarts(SpParMat<IT,bool,UDER> & A, FullyDi
 }
 
 template <typename VT, typename IT>
-void UpdateParents(MPI_Comm & RowWorld, pair<IT,IT> *updates, int num_updates, FullyDistVec<IT,VT> &parents, int source, int dest, BitMapFringe<int64_t,int64_t> &bm_fringe) {
+void UpdateParents(MPI_Comm & RowWorld, std::pair<IT,IT> *updates, int num_updates, FullyDistVec<IT,VT> &parents, int source, int dest, BitMapFringe<int64_t,int64_t> &bm_fringe) {
 	int send_words = num_updates<<1, recv_words;
 	MPI_Status status;
 	MPI_Sendrecv(&send_words, 1, MPI_INT, dest, PUPSIZE,
 					  &recv_words, 1, MPI_INT, source, PUPSIZE, RowWorld, &status);
-	pair<IT,IT>* recv_buff = new pair<IT,IT>[recv_words>>1];
+	std::pair<IT,IT>* recv_buff = new std::pair<IT,IT>[recv_words>>1];
 	MPI_Sendrecv(updates, send_words, MPIType<IT>(), dest, PUPDATA,
 					  recv_buff, recv_words, MPIType<IT>(), source, PUPDATA, RowWorld, &status);
 	
@@ -457,7 +457,7 @@ void UpdateParents(MPI_Comm & RowWorld, pair<IT,IT> *updates, int num_updates, F
 template <typename VT, typename IT, typename UDER>
 void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapFringe<int64_t,int64_t> &bm_fringe, FullyDistVec<IT,VT> & parents, BitMapCarousel<IT,VT> &done, SpDCCols<int,bool>::SpColIter* starts)
 {
-	shared_ptr<CommGrid> cg = A.getcommgrid();
+	std::shared_ptr<CommGrid> cg = A.getcommgrid();
 	MPI_Comm World = cg->GetWorld();
 	MPI_Comm ColWorld = cg->GetColWorld();
 	MPI_Comm RowWorld = cg->GetRowWorld();
@@ -475,15 +475,15 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 	
 #ifdef THREADED
 	const int buff_size = 8192;
-	pair<IT,IT>* local_update_heads[cblas_splits];
+	std::pair<IT,IT>* local_update_heads[cblas_splits];
 	for (int t=0; t<cblas_splits; t++)
-		local_update_heads[t] = new pair<IT,IT>[buff_size];
+		local_update_heads[t] = new std::pair<IT,IT>[buff_size];
 #endif
 	
 	// do bottom up work
 	int numcols = cg->GetGridCols();
 	int mycol = cg->GetRankInProcRow();
-	pair<IT,IT>* parent_updates = new pair<IT,IT>[done.SizeOfChunk()<<1]; // over-allocated
+	std::pair<IT,IT>* parent_updates = new std::pair<IT,IT>[done.SizeOfChunk()<<1]; // over-allocated
 	
 	for (int sub_step=0; sub_step<numcols; sub_step++) {
 		int num_updates = 0;
@@ -500,7 +500,7 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 			int num_locals=0;
 			SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;
 			SpDCCols<int,bool>::SpColIter colit, colit_end;
-			pair<IT,IT>* local_updates = local_update_heads[id];
+			std::pair<IT,IT>* local_updates = local_update_heads[id];
 			// vector<pair<IT,IT> > local_updates;
 			colit_end = starts[dest_slice*cblas_splits + id + 1];
 			for(colit = starts[dest_slice*cblas_splits + id]; colit != colit_end; ++colit) {
@@ -515,10 +515,10 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 							// local_updates.push_back(make_pair(row-sub_start, col));
 							if (num_locals == buff_size) {
 								int copy_start = __sync_fetch_and_add(&num_updates, buff_size);
-								copy(local_updates, local_updates + buff_size, parent_updates + copy_start);
+                std::copy(local_updates, local_updates + buff_size, parent_updates + copy_start);
 								num_locals = 0;
 							}
-							local_updates[num_locals++] = make_pair(row-sub_start, col);
+							local_updates[num_locals++] = std::make_pair(row-sub_start, col);
 							done.SetBit(row);
 							break;
 						}
@@ -526,7 +526,7 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 				}
 			}
 			int copy_start = __sync_fetch_and_add(&num_updates, num_locals);
-			copy(local_updates, local_updates + num_locals, parent_updates + copy_start);
+      std::copy(local_updates, local_updates + num_locals, parent_updates + copy_start);
 		}
 #else
 		SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;
@@ -545,7 +545,7 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 					IT col = local_col_ind + coluntil;
 					if (frontier->get_bit(local_col_ind)) 
 					{
-						parent_updates[num_updates++] = make_pair(row-sub_start, col);
+						parent_updates[num_updates++] = std::make_pair(row-sub_start, col);
 						done.SetBit(row);
 						break;
 					}

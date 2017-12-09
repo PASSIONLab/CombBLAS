@@ -9,6 +9,10 @@
 #ifndef MatchingDefs_h
 #define MatchingDefs_h
 
+#include "../CombBLAS.h"
+#include <iostream>
+
+namespace combblas {
 
 // Vertex data structure for maximal cardinality matching
 template <typename T1, typename T2>
@@ -23,7 +27,7 @@ public:
         else return vtx1.comp<vtx2.comp;
 	};
 	friend bool operator==(const VertexTypeML & vtx1, const VertexTypeML & vtx2 ){return (vtx1.parent==vtx2.parent) & (vtx1.comp==vtx2.comp);};
-	friend ostream& operator<<(ostream& os, const VertexTypeML & vertex ){os << "(" << vertex.parent << "," << vertex.comp << ")"; return os;};
+	friend std::ostream& operator<<(std::ostream& os, const VertexTypeML & vertex ){os << "(" << vertex.parent << "," << vertex.comp << ")"; return os;};
 	T1 parent;
 	T2 comp; // can be index, probability, degree or an adjacent edge weight
 };
@@ -48,7 +52,7 @@ public:
         
 	};
 	friend bool operator==(const VertexTypeMM & vtx1, const VertexTypeMM & vtx2 ){return vtx1.parent==vtx2.parent;};
-	friend ostream& operator<<(ostream& os, const VertexTypeMM & vertex ){os << "(" << vertex.parent << "," << vertex.root << ","<< vertex.comp << ")"; return os;};
+	friend std::ostream& operator<<(std::ostream& os, const VertexTypeMM & vertex ){os << "(" << vertex.parent << "," << vertex.root << ","<< vertex.comp << ")"; return os;};
 	IT parent;
 	IT root;
 	double comp; // probability of selecting an edge or weight of an adjacent edge
@@ -157,9 +161,6 @@ struct WeightMaxMMSR
 	}
 };
 
-
-
-
-
+}
 
 #endif /* MatchingDefs_h */

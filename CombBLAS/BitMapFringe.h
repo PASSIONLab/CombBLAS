@@ -40,7 +40,7 @@ namespace combblas {
 template <class IT, class VT>
 class BitMapFringe {
  public:
-  BitMapFringe(shared_ptr<CommGrid> grid, FullyDistSpVec<IT,VT> & x) {
+  BitMapFringe(std::shared_ptr<CommGrid> grid, FullyDistSpVec<IT,VT> & x) {
     cg.reset(new CommGrid(*grid));   
     
 	MPI_Comm World = x.getcommgrid()->GetWorld();
@@ -198,7 +198,7 @@ class BitMapFringe {
     return local_bm;
   }
  private:
- 	shared_ptr<CommGrid> cg;
+ 	std::shared_ptr<CommGrid> cg;
   BitMap* local_bm;
   BitMap* next_bm;
   BitMap* trans_bm;

@@ -74,11 +74,11 @@ public:
     	{
         	commGrid.reset(new CommGrid(world, 0, 0));
     	}*/
-	FullyDist( shared_ptr<CommGrid> grid):glen(0)
+	FullyDist( std::shared_ptr<CommGrid> grid):glen(0)
 	{
 		commGrid = grid;
 	}
-	FullyDist( shared_ptr<CommGrid> grid, IT globallen): glen(globallen)
+	FullyDist( std::shared_ptr<CommGrid> grid, IT globallen): glen(globallen)
 	{
 		commGrid = grid;
 	}
@@ -99,7 +99,7 @@ public:
 	int OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) const;
 
 protected:
-	shared_ptr<CommGrid> commGrid;
+	std::shared_ptr<CommGrid> commGrid;
 	IT glen;		// global length (actual "length" including zeros)
 };
 

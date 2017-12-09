@@ -51,8 +51,8 @@ struct Arr
 		numarrs.resize(numsize);
 	} 
 
-	vector< LocArr<IT,IT> > indarrs;
-	vector< LocArr<NT,IT> > numarrs;
+	std::vector< LocArr<IT,IT> > indarrs;
+	std::vector< LocArr<NT,IT> > numarrs;
 
 	IT totalsize() { return indarrs.size() + numarrs.size(); } 	
 };
