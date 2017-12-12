@@ -16,7 +16,6 @@
 #include "../CombBLAS.h"
 #include "Glue.h"
 #include "CCGrid.h"
-#include "MultiwayMerge.h"
 
 namespace combblas {
 

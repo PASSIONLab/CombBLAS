@@ -52,7 +52,7 @@ public:
     VertexType(T pa, double pr){parent=pa; prob=pr;};
     friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
     friend bool operator<(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent<vtx2.parent;};
-    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.prob << ")"; return os;};
+    friend std::ostream& operator<<(std::ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.prob << ")"; return os;};
     VertexType(T pa){parent=pa; prob=0.0;};
     T parent;
     double prob;
@@ -95,7 +95,7 @@ struct MIS2verifySR // identical to Select2ndMinSR except for the printout in ad
     
     static T2 add(const T2 & arg1, const T2 & arg2)
     {
-        cout << "This should have never been executed for MIS-2 to be correct" << endl;
+        std::cout << "This should have never been executed for MIS-2 to be correct" << std::endl;
         return std::min(arg1, arg2);
     }
     
@@ -275,9 +275,9 @@ void RestrictionOp( CCGrid & CMG, SpDCCols<IT, NT> * localmat, SpDCCols<IT, NT> 
         Rop(perm_row, perm_col, true); // in place permute
         float balance_after = Rop.LoadImbalance();
         
-        ostringstream outs;
-        outs << "Load balance (before): " << balance_before << endl;
-        outs << "Load balance (after): " << balance_after << endl;
+        std::ostringstream outs;
+        outs << "Load balance (before): " << balance_before << std::endl;
+        outs << "Load balance (after): " << balance_after << std::endl;
         SpParHelper::Print(outs.str());
         
         
