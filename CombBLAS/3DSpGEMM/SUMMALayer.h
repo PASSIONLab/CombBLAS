@@ -14,7 +14,7 @@
 
 #include "../CombBLAS.h"
 #include "Glue.h"
-#include "mtSpGEMM.h"
+#include "../mtSpGEMM.h"
 #include "CCGrid.h"
 
 namespace combblas {
