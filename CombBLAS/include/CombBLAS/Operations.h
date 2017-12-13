@@ -38,7 +38,7 @@
 #include <functional>
 #include <cmath>
 #include <limits>
-#include "psort-1.0/driver/MersenneTwister.h"
+#include "psort/MersenneTwister.h"
 
 namespace combblas {
 

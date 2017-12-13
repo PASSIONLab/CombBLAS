@@ -29,7 +29,7 @@
 
 #include <iostream>
 #include <mpi.h>
-#include "MPIType.h"
+#include "CombBLAS/MPIType.h"
 
 using namespace std;
 

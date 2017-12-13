@@ -27,7 +27,7 @@
  */
 
 
-#include "MemoryPool.h"
+#include "CombBLAS/MemoryPool.h"
 
 using namespace std;
 

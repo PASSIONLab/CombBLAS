@@ -45,7 +45,7 @@
 #include <sstream>
 #include <ctime>
 #include <cmath>
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 
 /**
  ** Connected components based on Awerbuch-Shiloach algorithm

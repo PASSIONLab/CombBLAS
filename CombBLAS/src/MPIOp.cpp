@@ -1,6 +1,6 @@
 #include <iostream>
 #include <mpi.h>
-#include "MPIOp.h"
+#include "CombBLAS/MPIOp.h"
 
 namespace combblas {
 

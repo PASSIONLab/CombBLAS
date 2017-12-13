@@ -36,8 +36,8 @@ THE SOFTWARE.
 #define GRAPH_GENERATOR_SEQ
 #endif
 
-#include "graph500-1.2/generator/graph_generator.h"
-#include "graph500-1.2/generator/utils.h"
+#include "generator/graph_generator.h"
+#include "generator/utils.h"
 #include "RefGen21.h"
 
 #include <fstream>
