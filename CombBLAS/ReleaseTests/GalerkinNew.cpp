@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 
 using namespace std;
 using namespace combblas;

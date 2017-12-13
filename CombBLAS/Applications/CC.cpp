@@ -45,7 +45,7 @@
 #include <sstream>
 #include <ctime>
 #include <cmath>
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "CC.h"
 
 using namespace std;

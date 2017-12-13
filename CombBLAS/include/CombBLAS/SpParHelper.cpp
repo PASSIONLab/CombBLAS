@@ -27,7 +27,7 @@
  */
 
 
-#include "usort/include/parUtils.h"
+#include "usort/parUtils.h"
 
 namespace combblas {
 

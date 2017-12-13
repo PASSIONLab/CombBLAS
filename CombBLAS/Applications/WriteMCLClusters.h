@@ -16,7 +16,7 @@
 #include <sstream>  // Required for stringstreams
 #include <ctime>
 #include <cmath>
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 
 namespace combblas {
 

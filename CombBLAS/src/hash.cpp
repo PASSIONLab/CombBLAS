@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <cstring>
-#include "hash.hpp"
+#include "CombBLAS/hash.hpp"
 
 namespace combblas {
 
