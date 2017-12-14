@@ -20,7 +20,7 @@
 #endif
 #include <stdint.h>
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "Glue.h"
 #include "CCGrid.h"
 

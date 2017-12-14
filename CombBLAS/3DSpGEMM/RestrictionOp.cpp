@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdint.h>
 #include <cmath>
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "Glue.h"
 #include "CCGrid.h"
 #include "Reductions.h"
