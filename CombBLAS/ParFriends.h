@@ -1386,6 +1386,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 {
 	CheckSpMVCompliance(A,x);
 	optbuf.MarkEmpty();
+    y.glen = A.getnrow(); // in case it is not set already
 	
 	MPI_Comm World = x.commGrid->GetWorld();
 	MPI_Comm ColWorld = x.commGrid->GetColWorld();
