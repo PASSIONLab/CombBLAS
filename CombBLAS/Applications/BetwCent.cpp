@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
-/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 6/15/2017 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc  --------------------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2017, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 		{	
                 cout << "Usage: ./betwcent <BASEADDRESS> <K4APPROX> <BATCHSIZE> <output file - optional>" << endl;
                 cout << "Example: ./betwcent Data/ 15 128" << endl;
-                cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
+                cout << "Input file input.mtx should be under <BASEADDRESS> in matrix market format" << endl;
                 cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
                 cout << "Because <BATCHSIZE> is for the overall matrix (similarly, <K4APPROX> is global as well) " << endl;
  		}
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 		int batchSize = atoi(argv[3]);
 
 		string directory(argv[1]);		
-		string ifilename = "input.txt";
+		string ifilename = "input.mtx";
 		ifilename = directory+"/"+ifilename;
 
 		shared_ptr<CommGrid> fullWorld;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
         
 		Dist<bool>::MPI_DCCols A(fullWorld);
         	Dist<bool>::MPI_DCCols AT(fullWorld);	// construct object
-		AT.ReadDistribute(ifilename, 0);	// read it from file, note that we use the transpose of "input" data
+		AT.ParallelReadMM(ifilename, true,  maximum<double>());	// read it from file, note that we use the transpose of "input" data
 		A = AT;
 		A.Transpose();
 			
@@ -113,12 +113,12 @@ int main(int argc, char* argv[])
 			cout << "*** Processing "<< nPasses <<" vertices instead"<< endl;
 		}
 
-        A.PrintInfo();
-        ostringstream tinfo;
+       	 	A.PrintInfo();
+       	 	ostringstream tinfo;
 		tinfo << "Batch processing will occur " << numBatches << " times, each processing " << nBatchSize << " vertices (overall)" << endl;
-        SpParHelper::Print(tinfo.str());
+        	SpParHelper::Print(tinfo.str());
 
-        vector<int> candidates;
+        	vector<int> candidates;
 		// Only consider non-isolated vertices
 		int vertices = 0;
 		int vrtxid = 0; 

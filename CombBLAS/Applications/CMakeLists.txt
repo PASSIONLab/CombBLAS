@@ -14,6 +14,6 @@ TARGET_LINK_LIBRARIES( dobfs CommGridlib MPITypelib MemoryPoollib GraphGenlib Ha
 TARGET_LINK_LIBRARIES( fbfs CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
 TARGET_LINK_LIBRARIES( fmis CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
 TARGET_LINK_LIBRARIES( mcl mmiolib CommGridlib MPITypelib MemoryPoollib Hashlib)
-TARGET_LINK_LIBRARIES( betwcent CommGridlib MPITypelib MemoryPoollib Hashlib)
+TARGET_LINK_LIBRARIES( betwcent CommGridlib MPITypelib MemoryPoollib Hashlib mmiolib)
 
 
