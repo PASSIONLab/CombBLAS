@@ -1,11 +1,11 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.5 -------------------------------------------------*/
-/* date: 10/09/2015 ---------------------------------------------*/
-/* authors: Ariful Azad, Aydin Buluc, Adam Lugowski ------------*/
+/* version 1.6 -------------------------------------------------*/
+/* date: 6/15/2017 ---------------------------------------------*/
+/* authors: Ariful Azad, Aydin Buluc  --------------------------*/
 /****************************************************************/
 /*
- Copyright (c) 2010-2015, The Regents of the University of California
+ Copyright (c) 2010-2017, The Regents of the University of California
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -104,11 +104,12 @@ int main(int argc, char* argv[])
         	FullyDistVec<int64_t, double> x(fullWorld);
         	FullyDistSpVec<int64_t, double> spycontrol(fullWorld);
         	FullyDistSpVec<int64_t, double> spx(fullWorld);
-		
-		A.ReadDistribute(Aname, 0);
+	
+		A.ParallelReadMM(Aname, true, maximum<double>());
 #ifndef NOGEMM
-		B.ReadDistribute(Bname, 0);
-		CControl.ReadDistribute(Cname, 0);
+		B.ParallelReadMM(Bname, true, maximum<double>());
+
+		CControl.ParallelReadMM(Cname, true, maximum<double>());
 #endif
 		x.ReadDistribute(vecinpx, 0);
 		spx.ReadDistribute(vecinpx, 0);
@@ -123,9 +124,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Dense SpMV, go fix it!\n");	
-			ofstream ydense("ycontrol_dense.txt");
-			y.SaveGathered(ydense,0);
-			ydense.close();
+			y.ParallelWrite("ycontrol_dense.txt",true);
 		}
 
 		//FullyDistSpVec<int64_t, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
@@ -140,25 +139,23 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Sparse SpMV, go fix it!\n");	
-			ofstream ysparse("ycontrol_sparse.txt");
-			spy.SaveGathered(ysparse,0);
-			ysparse.close();
+			spy.ParallelWrite("ycontrol_sparse.txt",true);
 		}
         
-        // Test SpMSpV-bucket for general CSC matrices
-        SpParMat < int64_t, double, SpCCols<int64_t,double> >  ACsc (A);
-        PreAllocatedSPA<double> SPA(ACsc.seq(), cblas_splits*4);
-        FullyDistSpVec<int64_t, double> spy_csc(spx.getcommgrid(), ACsc.getnrow());
-        SpMV<PTDOUBLEDOUBLE>(ACsc, spx, spy_csc, false, SPA);
+        	// Test SpMSpV-bucket for general CSC matrices
+        	SpParMat < int64_t, double, SpCCols<int64_t,double> >  ACsc (A);
+       		PreAllocatedSPA<double> SPA(ACsc.seq(), cblas_splits*4);
+        	FullyDistSpVec<int64_t, double> spy_csc(spx.getcommgrid(), ACsc.getnrow());
+        	SpMV<PTDOUBLEDOUBLE>(ACsc, spx, spy_csc, false, SPA);
         
-        if (spy == spy_csc)
-        {
-            SpParHelper::Print("SpMSpV-bucket works correctly for general CSC matrices\n");
-        }
-        else
-        {
-            SpParHelper::Print("SpMSpV-bucket does not work correctly for general CSC matrices, go fix it!\n");
-        }
+        	if (spy == spy_csc)
+        	{
+            		SpParHelper::Print("SpMSpV-bucket works correctly for general CSC matrices\n");
+        	}
+        	else
+        	{
+            		SpParHelper::Print("SpMSpV-bucket does not work correctly for general CSC matrices, go fix it!\n");
+        	}
 
 		
 #ifndef NOGEMM
@@ -206,13 +203,9 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in graph500 optimizations, go fix it!\n");	
-			ofstream of1("Original_SpMSV.txt");
-			ofstream of2("Buffered_SpMSV.txt");
-			spyint64.SaveGathered(of1,0);
-			spyint64buf.SaveGathered(of2,0);
+			spyint64.ParallelWrite("Original_SpMSV.txt",true);
+			spyint64buf.ParallelWrite("Buffered_SpMSV.txt",true);
 		}
-
-        
         
        
 		ABool.ActivateThreading(cblas_splits);
@@ -230,20 +223,20 @@ int main(int argc, char* argv[])
 		}
 		
 
-        // Test SpMSpV-bucket for Boolean CSC matrices
-        SpParMat < int64_t, bool, SpCCols<int64_t,bool> >  ABoolCsc (A);
-        PreAllocatedSPA<int64_t> SPA1(ABoolCsc.seq(), cblas_splits*4);
-        FullyDistSpVec<int64_t, int64_t> spyint64_csc_threaded(spxint64.getcommgrid(), ABoolCsc.getnrow());
-        SpMV<SR>(ABoolCsc, spxint64, spyint64_csc_threaded, false, SPA1);
+        	// Test SpMSpV-bucket for Boolean CSC matrices
+        	SpParMat < int64_t, bool, SpCCols<int64_t,bool> >  ABoolCsc (A);
+        	PreAllocatedSPA<int64_t> SPA1(ABoolCsc.seq(), cblas_splits*4);
+        	FullyDistSpVec<int64_t, int64_t> spyint64_csc_threaded(spxint64.getcommgrid(), ABoolCsc.getnrow());
+        	SpMV<SR>(ABoolCsc, spxint64, spyint64_csc_threaded, false, SPA1);
         
-        if (spyint64 == spyint64_csc_threaded)
-        {
-            SpParHelper::Print("SpMSpV-bucket works correctly for Boolean CSC matrices\n");
-        }
-        else
-        {
-            SpParHelper::Print("ERROR in SpMSpV-bucket with Boolean CSC matrices, go fix it!\n");
-        }
+        	if (spyint64 == spyint64_csc_threaded)
+        	{
+            		SpParHelper::Print("SpMSpV-bucket works correctly for Boolean CSC matrices\n");
+        	}
+        	else
+        	{
+           		SpParHelper::Print("ERROR in SpMSpV-bucket with Boolean CSC matrices, go fix it!\n");
+        	}
         
         
 		vecinpx.clear();
