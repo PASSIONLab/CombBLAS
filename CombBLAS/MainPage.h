@@ -24,7 +24,7 @@
 * 		- <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
+* 	- Test inputs are separately downloadable <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.6.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases.
