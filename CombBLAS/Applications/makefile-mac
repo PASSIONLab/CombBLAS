@@ -9,7 +9,7 @@ OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG 
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  #-DRAND_PERMUTE #ABAB:please define this per class as opposed to globally for each compilation
-FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DTIMING #-DCOMBBLAS_DEBUG 
+FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized #-DTIMING #-DCOMBBLAS_DEBUG 
 COMBBLAS = ..
 
 
@@ -57,8 +57,8 @@ FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpP
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o hash.o
 	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
-cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o 
-	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o 
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o hash.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
 tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 

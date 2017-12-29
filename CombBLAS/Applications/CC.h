@@ -133,8 +133,7 @@ void ConditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & fathe
     FullyDistVec<IT,short> stars = StarCheck(A, father);
     
     FullyDistVec<IT, IT> minNeighborFather ( A.getcommgrid());
-    minNeighborFather = SpMV<Select2ndMinSR<NT, IT>>(A, father); // value is the minimum of all neighbors' fatthers
-    
+    minNeighborFather = SpMV<Select2ndMinSR<NT, IT>>(A, father); // value is the minimum of all neighbors' fathers
     FullyDistSpVec<IT, std::pair<IT, IT>> hooks(A.getcommgrid(), A.getnrow());
     // create entries belonging to stars
     hooks = EWiseApply<std::pair<IT, IT>>(hooks, stars,
@@ -223,31 +222,34 @@ void Shortcut(FullyDistVec<IT, IT> & father)
 }
 
 template <typename IT, typename NT, typename DER>
-void Correctness(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel, IT nCC)
+bool neigborsInSameCC(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel)
 {
-    for(IT i=0; i<nCC; i++)
+    FullyDistVec<IT, IT> minNeighborCCLabel ( A.getcommgrid());
+    minNeighborCCLabel = SpMV<Select2ndMinSR<NT, IT>>(A, cclabel);
+    return minNeighborCCLabel==cclabel;
+}
+
+
+// works only on P=1
+template <typename IT, typename NT, typename DER>
+void Correctness(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel, IT nCC, FullyDistVec<IT,IT> father)
+{
+    DER* spSeq = A.seqptr(); // local submatrix
+    
+    for(auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) // iterate over columns
     {
-        FullyDistSpVec<IT, IT> vtx (cclabel, bind2nd(std::equal_to<IT>(), i));
-        FullyDistSpVec<IT, IT> vtx1(vtx.getcommgrid());
-        //TODO: fix the broken SpMV interface for non-Boolean matrices
-        SpParMat < IT, bool, SpDCCols<IT,bool> > A1 = A;
-        SpMV<Select2ndMinSR<bool, IT>>(A1, vtx, vtx1, false);
-        
-        //vtx1 \setminus vtx
-        
-        FullyDistSpVec<IT, IT> vtx2 = EWiseApply<IT>(vtx1, vtx,
-                                                           [](IT x, IT y){return x;},
-                                                           [](IT x, IT y){return true;},
-                                                           true, false, (IT)0, (IT)0, false);
-        if(vtx2.getnnz()!=0)
+        IT j = colit.colid(); // local numbering
+        for(auto nzit = spSeq->begnz(colit); nzit < spSeq->endnz(colit); ++nzit)
         {
-            std::cout << "Component " << i << " is not a propoer component\n";
+            IT i = nzit.rowid();
+            if( cclabel[i] != cclabel[j])
+            {
+                std::cout << i << " (" << father[i] << ", "<< cclabel[i] << ") & "<< j << "("<< father[j] << ", " << cclabel[j] << ")\n";
+            }
         }
-        
         
     }
 }
-
 
 // Input:
 // father: father of each vertex. Father is essentilly the root of the star which a vertex belongs to.
@@ -279,58 +281,40 @@ FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     IT nonstars = 1;
     int iteration = 0;
     std::ostringstream outs;
-    do{
+    while (true)
+    {
 #ifdef TIMING
         double t1 = MPI_Wtime();
 #endif
         ConditionalHook(A, father);
         UnconditionalHook(A, father);
         Shortcut(father);
-        //father.DebugPrint();
         FullyDistVec<IT,short> stars = StarCheck(A, father);
         nonstars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==0);});
+        if(nonstars==0)
+        {
+            if(neigborsInSameCC(A, father)) break;
+            
+        }
+        iteration++;
 #ifdef CC_TIMING
         double t2 = MPI_Wtime();
         outs.str("");
         outs.clear();
-        outs << "Iteration: " << ++iteration << " Non stars: " << nonstars;
+        outs << "Iteration: " << iteration << " Non stars: " << nonstars;
         outs << " Time: " << t2 - t1;
         outs<< endl;
         SpParHelper::Print(outs.str());
 #endif
-
-
-        //father.DebugPrint();
-    }while(nonstars>0);
-    
-    //father.DebugPrint();
+    }
     
     FullyDistVec<IT, IT> cc(father.getcommgrid());
     nCC = LabelCC(father, cc);
     
     // TODO: Print to file
     //PrintCC(cc, nCC);
-    //Correctness(A, cc, nCC);
-    A.RemoveLoops();
-    FullyDistVec<IT,double> ColSums = A.Reduce(Column, std::plus<double>(), 0.0);
-    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(std::greater<double>(), 0));
-    int64_t numIsolated = A.getnrow() - nonisov.TotalLength();
-                                              
+    //Correctness(A, cc, nCC, father);
     
-    FullyDistSpVec<IT, IT> cc1 = cc.Find([](IT label){return label==0;});
-    FullyDistSpVec<IT, IT> cc2 = cc.Find([](IT label){return label==1;});
-    FullyDistSpVec<IT, IT> cc3 = cc.Find([](IT label){return label==2;});
-    FullyDistSpVec<IT, IT> cc4 = cc.Find([](IT label){return label==3;});
-    
-    //outs.str("");
-    //outs.clear();
-    //outs << "Number of components: " << nCC << endl;
-    //outs << "Number of components excluding isolated vertices: " << nCC - numIsolated  << endl;
-    //outs << "Size of the first component: " << cc1.getnnz() << endl;
-    //outs << "Size of the second component: " << cc2.getnnz() << endl;
-    //outs << "Size of the third component: " << cc3.getnnz() << endl;
-    //outs << "Size of the fourth component: " << cc4.getnnz() << endl;
-    //SpParHelper::Print(outs.str());
     return cc;
 }
 
@@ -345,6 +329,23 @@ void PrintCC(FullyDistVec<IT, IT> CC, IT nCC)
     }
 }
 
+// Print the size of the first 4 clusters
+template <typename IT>
+void First4Clust(FullyDistVec<IT, IT>& cc)
+{
+    FullyDistSpVec<IT, IT> cc1 = cc.Find([](IT label){return label==0;});
+    FullyDistSpVec<IT, IT> cc2 = cc.Find([](IT label){return label==1;});
+    FullyDistSpVec<IT, IT> cc3 = cc.Find([](IT label){return label==2;});
+    FullyDistSpVec<IT, IT> cc4 = cc.Find([](IT label){return label==3;});
+    
+    std::ostringstream outs;
+    outs.str("");
+    outs.clear();
+    outs << "Size of the first component: " << cc1.getnnz() << std::endl;
+    outs << "Size of the second component: " << cc2.getnnz() << std::endl;
+    outs << "Size of the third component: " << cc3.getnnz() << std::endl;
+    outs << "Size of the fourth component: " << cc4.getnnz() << std::endl;
+}
 
 
 template <typename IT>

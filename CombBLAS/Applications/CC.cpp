@@ -95,10 +95,12 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./cc -M <FILENAME_MATRIX_MARKET> (required)\n";
+            cout << "Usage: ./cc -I <mm|triples> -M <FILENAME_MATRIX_MARKET> (required)\n";
+            cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples. default:mm)\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
             cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
             cout << "Example (0-indexed mtx with random permutation): ./cc -M input.mtx -base 0 -rand 1" << endl;
+            cout << "Example (triples format): ./cc -I triples -M input.txt" << endl;
         }
         MPI_Finalize();
         return -1;
@@ -107,9 +109,15 @@ int main(int argc, char* argv[])
         string ifilename = "";
         int base = 1;
         int randpermute = 0;
+        bool isMatrixMarket = true;
         
         for (int i = 1; i < argc; i++)
         {
+            if (strcmp(argv[i],"-I")==0)
+            {
+                string ifiletype = string(argv[i+1]);
+                if(ifiletype == "triples") isMatrixMarket = false;
+            }
             if (strcmp(argv[i],"-M")==0)
             {
                 ifilename = string(argv[i+1]);
@@ -129,15 +137,28 @@ int main(int argc, char* argv[])
         
         double tIO = MPI_Wtime();
         Dist::MPI_DCCols A;	// construct object
-        A.ParallelReadMM(ifilename, base, maximum<bool>());	// if base=0, then it is implicitly converted to Boolean false
-        //A.ReadDistribute(ifilename, 0);
-        //A.PrintInfo();
+        
+        if(isMatrixMarket)
+            A.ParallelReadMM(ifilename, base, maximum<bool>());
+        else
+            A.ReadGeneralizedTuples(ifilename,  maximum<bool>());
+        A.PrintInfo();
+        
+        Dist::MPI_DCCols AT = A;
+        AT.Transpose();
+        if(!(AT == A))
+        {
+            SpParHelper::Print("Symmatricizing an unsymmetric input matrix.\n");
+            A += AT;
+        }
+        A.PrintInfo();
+        
         
         ostringstream outs;
         outs << "File Read time: " << MPI_Wtime() - tIO << endl;
         SpParHelper::Print(outs.str());
         
-        if(randpermute)
+        if(randpermute && isMatrixMarket) // no need for GeneralizedTuples
         {
             // randomly permute for load balance
             if(A.getnrow() == A.getncol())
@@ -174,11 +195,22 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
         
         double t2 = MPI_Wtime();
-        outs.str("");
-        outs.clear();
-        outs << "Total time: " << t2 - t1 << endl;
-        SpParHelper::Print(outs.str());
-        HistCC(cclabels, nCC);
+        //outs.str("");
+        //outs.clear();
+        //outs << "Total time: " << t2 - t1 << endl;
+        //SpParHelper::Print(outs.str());
+        //HistCC(cclabels, nCC);
+        
+        int64_t nclusters = cclabels.Reduce(maximum<int64_t>(), (int64_t) 0 ) ;
+        nclusters ++; // because of zero based indexing for clusters
+        
+        double tend = MPI_Wtime();
+        stringstream s2;
+        s2 << "Number of clusters: " << nclusters << endl;
+        s2 << "Total time: " << (t2-t1) << endl;
+        s2 <<  "=================================================\n" << endl ;
+        SpParHelper::Print(s2.str());
+
     }
     
     MPI_Finalize();
