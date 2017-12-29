@@ -1,29 +1,30 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/"> Ariful Azad </a>, <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a> (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a>).
+* @authors <a href="http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/"> Ariful Azad </a>, <a href="http://eecs.berkeley.edu/~aydin"> Aydın Buluç </a>, and <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a> (with contributions from <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>, <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="https://ucsb-ccs-computing.github.io/alumni/konolige_tristan/">Tristan Konolige</a>).
 *
-* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a> described <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/LICENSE">here</a>. </i>
+* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a> described <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE">here</a>. </i>
 *
 *
 * @section intro Introduction
-* The Combinatorial BLAS is an extensible distributed-memory parallel graph library offering a small but powerful set of linear
+* The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel graph library offering a small but powerful set of linear
 * algebra primitives specifically targeting graph analytics. 
 * - The Combinatorial BLAS development influences the <a href="http://graphblas.org">Graph BLAS</a> standardization process.
 * - It achieves scalability via its two dimensional distribution and coarse-grained parallelism. 
-* - For an illustrative overview, check out <a href="http://gauss.cs.ucsb.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
+* - For an illustrative overview, check out <a href="http://eecs.berkeley.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
+* - CombBLAS powers <a href="https://bitbucket.org/azadcse/hipmcl">HipMCL</a>, a highly-scalable parallel implementation of the Markov Cluster Algorithm (MCL).
 * - Operations among sparse matrices and vectors use arbitrary user defined semirings. Here is a semiring <a href="http://kdt.sourceforge.net/wiki/index.php/Using_Semirings">primer</a>
-* - Check out the <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/FAQ-combblas.html">Frequently asked questions about CombBLAS</a>.
+* - Check out the <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/FAQ-combblas.html">Frequently asked questions about CombBLAS</a>.
 *
 * <b>Download</b> 
-* - Read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
-* - The latest CMake'd tarball (version 1.6.0, Oct 2017) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
- The previous version (version 1.5.0, Jan 2016) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_15_0.tgz"> here </a> for backwards compatibility and benchmarking.
+* - Read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
+* - The latest CMake'd tarball (version 1.6.1, Jan 2018) <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz"> here</a>. (NERSC users read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
+ The previous version (version 1.6.0, Oct 2017) is also available <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_0.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		- <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
+* 	- Test inputs are separately downloadable <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.6.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases.
@@ -33,7 +34,7 @@
 * has them). The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated.
 *
 * <b>Documentation</b>:
-* This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
+* This is a beta implementation of the Combinatorial BLAS Library in written in C++ with MPI and OpenMP for parallelism.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
 * It contains efficient implementations of novel data structures/algorithms
 * as well as reimplementations of some previously known data structures/algorithms for convenience. More details can be found in the accompanying paper [1]. One of
@@ -43,7 +44,7 @@
 *
 * The implementation supports both formatted and binary I/O. The latter is faster but not human readable. Formatted I/O can read both a tuples format very similar to the Matrix Market and the Matrix Market format itself.
 * We encourage in-memory generators for faster benchmarking. More info on I/O formats (other than the well-known Matrix Market Format) are
-* <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/Input_File_Formats.pdf">here</a>
+* <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/Input_File_Formats.pdf">here</a>
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
 * can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
@@ -133,7 +134,7 @@
 *
 * 
 * <b> Applications </b>  implemented using Combinatorial BLAS:
-* - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/scale17_bc_inp.tar.gz"> here </a>.
+* - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/scale17_bc_inp.tar.gz"> here </a>.
 * - TopDownBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the traditional top-down BFS.
 * - DirOptBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the faster direction-optimizing BFS.
 * - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
