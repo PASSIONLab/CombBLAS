@@ -390,7 +390,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // estimate kselect memory
         int64_t d = ceil( (asquareNNZ * sqrt(p))/ B.getlocalcols() ); // average nnz per column in A^2 (it is an overestimate because asquareNNZ is estimated based on unmerged matrices)
         // this is equivalent to (asquareNNZ * p) / B.getcol()
-        int64_t k = std::min(std::max(selectNum, recoverNum), d );
+        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
         int64_t kselectmem = B.getlocalcols() * k * 8 * 3;
         
         // estimate output memory
