@@ -376,15 +376,18 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         MPI_Comm World = GridC->GetWorld();
         MPI_Comm_size(World,&p);
         
+        int64_t perNNZMem_in = sizeof(IU)*2 + sizeof(NU1);
+        int64_t perNNZMem_out = sizeof(IU)*2 + sizeof(NUO);
+        
         // max nnz(A) in a porcess
         int64_t lannz = A.getlocalnnz();
         int64_t gannz;
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, World);
-        int64_t inputMem = gannz * 20 * 4; // for four copies (two for SUMMA)
+        int64_t inputMem = gannz * perNNZMem_in * 4; // for four copies (two for SUMMA)
         
         // max nnz(A^2) stored by summa in a porcess
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B);
-        int64_t asquareMem = asquareNNZ * 24 * 2; // an extra copy in multiway merge and in selection/recovery step
+        int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
         
         
         // estimate kselect memory
@@ -395,7 +398,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         // estimate output memory
         int64_t outputNNZ = (B.getlocalcols() * k)/sqrt(p);
-        int64_t outputMem = outputNNZ * 20 * 2;
+        int64_t outputMem = outputNNZ * perNNZMem_in * 2;
         
         //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
         int64_t remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
@@ -910,10 +913,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
      * @pre { Input matrices, A and B, should not alias }
      **/
     template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-    IU EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)
+    int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)
     
     {
-        IU nnzC_SUMMA = 0;
+        int64_t nnzC_SUMMA = 0;
         
         if(A.getncol() != B.getnrow())
         {
@@ -1004,8 +1007,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
         SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
         
-        IU nnzC_SUMMA_max = 0;
-        MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<IU>(), MPI_MAX, GridC->GetWorld());
+        int64_t nnzC_SUMMA_max = 0;
+        MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<int64_t>(), MPI_MAX, GridC->GetWorld());
         
         return nnzC_SUMMA_max;
     }
