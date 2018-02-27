@@ -699,9 +699,6 @@ int main(int argc, char* argv[])
             MainBody<int64_t, int64_t, float>(param);
         else
             MainBody<int32_t, int32_t, float>(param); // memory effecient case
-        // TODO: if |V| < 2B, we should be able to use MainBody<int32_t, int32_t, float>(param);
-        // But, we can not use this because nnz calculation often uses the same template param (int32_t)
-        // One solution is to force nnz related calculation to int64_t
     }
     
     
