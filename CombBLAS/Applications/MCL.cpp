@@ -103,6 +103,7 @@ typedef struct
     int phases;
     int perProcessMem;
     bool isDoublePrecision; // true: double, false: float
+    bool is64bInt; // true: int64_t, false: int32_t (currently for both local and global indexing)
     
     //debugging
     bool show;
@@ -139,6 +140,7 @@ void InitParam(HipMCLParam & param)
     param.phases = 1;
     param.perProcessMem = 0;
     param.isDoublePrecision = true;
+    param.is64bInt = true;
     
     //debugging
     param.show = false;
@@ -193,6 +195,8 @@ void ShowParam(HipMCLParam & param)
     else runinfo << "not provided" << endl;
     if(param.isDoublePrecision) runinfo << "Using double precision floating point" << endl;
     else runinfo << "Using single precision floating point" << endl;
+    if(param.is64bInt ) runinfo << "Using 64 bit indexing" << endl;
+    else runinfo << "Using 32 bit indexing" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    Show matrices after major steps? : ";
@@ -259,6 +263,9 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"--single-precision")==0) {
             param.isDoublePrecision = false;
         }
+        else if (strcmp(argv[i],"--32bit-index")==0) {
+            param.is64bInt = false;
+        }
     }
     
     if(param.ofilename=="") // construct output file name if it is not provided
@@ -306,6 +313,7 @@ void ShowOptions()
     runinfo << "    -phases <number of phases> (default:1)\n";
     runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n";
     runinfo << "    --single-precision (if not provided, use double precision floating point numbers)\n" << endl;
+    runinfo << "    --32bit-index (if not provided, use 64 bit indexing for vertex ids)\n" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    --show: show information about matrices after major steps (default: do not show matrices)" << endl;
@@ -487,7 +495,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << " #edges: " << A.getnnz() << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
         it++;
         
@@ -568,11 +576,15 @@ void MainBody(HipMCLParam & param)
     Symmetricize(A);
     
     double balance = A.LoadImbalance();
-    GIT nnz = A.getnnz();
-    GIT nv = A.getnrow();
+    
     outs.str("");
     outs.clear();
-    outs << "Number of vertices: " << nv << " number of edges: "<< nnz << endl;
+    if(!param.is64bInt) // don't compute nnz because it may overflow
+    {
+        GIT nnz = A.getnnz();
+        GIT nv = A.getnrow();
+        outs << "Number of vertices: " << nv << " number of edges: "<< nnz << endl;
+    }
     outs << "Load balance: " << balance << endl;
     SpParHelper::Print(outs.str());
     
@@ -679,9 +691,14 @@ int main(int argc, char* argv[])
     
     {
         if(param.isDoublePrecision)
-            MainBody<int64_t, int64_t, double>(param);
-        else
+            if(param.is64bInt) // default case
+                MainBody<int64_t, int64_t, double>(param);
+            else
+                MainBody<int32_t, int32_t, double>(param);
+        else if(param.is64bInt)
             MainBody<int64_t, int64_t, float>(param);
+        else
+            MainBody<int32_t, int32_t, float>(param); // memory effecient case
         // TODO: if |V| < 2B, we should be able to use MainBody<int32_t, int32_t, float>(param);
         // But, we can not use this because nnz calculation often uses the same template param (int32_t)
         // One solution is to force nnz related calculation to int64_t
