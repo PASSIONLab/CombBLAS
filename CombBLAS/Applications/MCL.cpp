@@ -102,6 +102,7 @@ typedef struct
     //HipMCL optimization
     int phases;
     int perProcessMem;
+    bool isDoublePrecision; // true: double, false: float
     
     //debugging
     bool show;
@@ -137,6 +138,7 @@ void InitParam(HipMCLParam & param)
     //HipMCL optimization
     param.phases = 1;
     param.perProcessMem = 0;
+    param.isDoublePrecision = true;
     
     //debugging
     param.show = false;
@@ -184,11 +186,13 @@ void ShowParam(HipMCLParam & param)
     
     
     
-    runinfo << "HiMCL optimization" << endl;
+    runinfo << "HipMCL optimization" << endl;
     runinfo << "    Number of phases: " << param.phases << endl;
     runinfo << "    Memory avilable per process: ";
     if(param.perProcessMem>0) runinfo << param.perProcessMem << "GB" << endl;
     else runinfo << "not provided" << endl;
+    if(param.isDoublePrecision) runinfo << "Using double precision floating point" << endl;
+    else runinfo << "Using single precision floating point" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    Show matrices after major steps? : ";
@@ -252,6 +256,9 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"-per-process-mem")==0) {
             param.perProcessMem = atoi(argv[i + 1]);
         }
+        else if (strcmp(argv[i],"--single-precision")==0) {
+            param.isDoublePrecision = false;
+        }
     }
     
     if(param.ofilename=="") // construct output file name if it is not provided
@@ -297,7 +304,8 @@ void ShowOptions()
     
     runinfo << "HipMCL optimization" << endl;
     runinfo << "    -phases <number of phases> (default:1)\n";
-    runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n" << endl;
+    runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n";
+    runinfo << "    --single-precision (if not provided, use double precision floating point numbers)\n" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    --show: show information about matrices after major steps (default: do not show matrices)" << endl;
@@ -670,8 +678,13 @@ int main(int argc, char* argv[])
     }
     
     {
-        MainBody<int64_t, int64_t, float>(param);
-        //MainBody<int32_t, int32_t, float>(param);
+        if(param.isDoublePrecision)
+            MainBody<int64_t, int64_t, double>(param);
+        else
+            MainBody<int64_t, int64_t, float>(param);
+        // TODO: if |V| < 2B, we should be able to use MainBody<int32_t, int32_t, float>(param);
+        // But, we can not use this because nnz calculation often uses the same template param (int32_t)
+        // One solution is to force nnz related calculation to int64_t
     }
     
     
