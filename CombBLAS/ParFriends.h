@@ -981,6 +981,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
             
 
             IU* colnnzC = estimateNNZ(*ARecv, *BRecv);
+            
+
             IU nzc = BRecv->GetDCSC()->nzc;
             IU nnzC_stage = 0;
 #ifdef THREADED
@@ -990,8 +992,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
             {
                 nnzC_stage = nnzC_stage + colnnzC[k];
             }
-            
             nnzC_SUMMA += nnzC_stage;
+            
+            // delete received data
+            if(i != Aself)
+                delete ARecv;
+            if(i != Bself)
+                delete BRecv;
         }
         
         SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
