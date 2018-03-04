@@ -84,7 +84,7 @@ mcl:	CommGrid.o MPIType.o MCL.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o hash.o
 
 cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o hash.o
-	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o hash.o
 
 nqp:	CommGrid.o MPIType.o nqp.o
 	$(COMPILER) $(FLAGS) -o nqp nqp.o CommGrid.o MPIType.o
