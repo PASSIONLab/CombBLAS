@@ -28,7 +28,7 @@ COMPILER = CC
 GCCFLAGS = $(GCCOPT) -DTIMING 
 PGIFLAGS = $(INCADD) $(OPTPGI) -DCOMBBLAS_BOOST
 CRAYFLAGS = $(INCADD) -DCOMBBLAS_BOOST -DCRAYCOMP -h msglevel_4
-FLAGS = $(GCCFLAGS) -std=c++11 -std=gnu++14 -DTHREADED -fopenmp -DCOMBBLAS_DEBUG #-DKSELECTLIMIT=40 
+FLAGS = $(GCCFLAGS) -std=c++11 -std=gnu++14 -DTHREADED -fopenmp #-DCOMBBLAS_DEBUG #-DKSELECTLIMIT=40 
 COMBBLAS = ..
 
 #
@@ -83,7 +83,7 @@ nqp.o:  nqp.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFr
 mcl:	CommGrid.o MPIType.o MCL.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) -o mcl MCL.o mmio.o CommGrid.o MPIType.o hash.o
 
-cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o
+cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) -o cc CC.o mmio.o CommGrid.o MPIType.o
 
 nqp:	CommGrid.o MPIType.o nqp.o
