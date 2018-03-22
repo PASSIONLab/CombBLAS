@@ -204,6 +204,9 @@ public:
 	IT getncol() const;
 	IT getnnz() const;
 
+    template <typename LIT>
+    int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
+    
 	SpParMat<IT,NT,DER> SubsRefCol (const std::vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
 
 	//! General indexing with serial semantics
@@ -373,10 +376,7 @@ private:
                     const std::vector<IT> & actcolsmap, std::vector<IT> & klimits, std::vector<IT> & toretain, std::vector<std::vector<std::pair<IT,NT>>> & tmppair,
                     IT coffset, const FullyDistVec<GIT,VT> & rvec) const;
     
-	template <typename LIT>
-	int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
-	
-	void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;
+    void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;
 	
 	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, std::vector < std::tuple <IT,IT,NT> > & localtuples,
 						int * rcurptrs, int * rdispls, IT buffperrowneigh, int rowneighs, int recvcount, IT m_perproc, IT n_perproc, int rankinrow);
