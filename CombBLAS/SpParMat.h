@@ -278,6 +278,9 @@ public:
 	typename DER::LocalIT getlocalnnz() const { return spSeq->getnnz(); }
 	DER & seq() { return (*spSeq); }
 	DER * seqptr() { return spSeq; }
+    
+    template <typename _BinaryOperation, typename LIT>
+    void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
 	//! Friend declarations
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
@@ -367,8 +370,6 @@ private:
 	template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
     	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
     
-    	template <typename _BinaryOperation, typename LIT>
-	void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
     	template <typename VT, typename GIT>	// GIT: global index type of vector
     	void TopKGather(std::vector<NT> & all_medians, std::vector<IT> & nnz_per_col, int & thischunk, int & chunksize,
