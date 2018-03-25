@@ -20,8 +20,8 @@
 #endif
 
 using namespace std;
+using namespace combblas;
 
-namespace combblas {
 
 bool prune, mvInvertMate, randMM, moreSplit;
 int init;
@@ -416,5 +416,4 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-}
 

@@ -23,8 +23,8 @@ int cblas_splits = 1;
 #include "BPMaximumMatching.h"
 
 using namespace std;
+using namespace combblas;
 
-namespace combblas {
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t, int64_t> > Par_DCSC_int64_t;
@@ -39,16 +39,6 @@ bool fewexp;
 bool randPerm;
 bool saveMatching;
 string ofname;
-
-template <typename PARMAT>
-void Symmetricize(PARMAT & A)
-{
-    // boolean addition is practically a "logical or"
-    // therefore this doesn't destruct any links
-    PARMAT AT = A;
-    AT.Transpose();
-    A += AT;
-}
 
 
 
@@ -527,5 +517,4 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-}
 

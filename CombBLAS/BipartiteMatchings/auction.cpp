@@ -10,8 +10,7 @@
 
 
 using namespace std;
-
-namespace combblas {
+using namespace combblas;
 
 bool prune, mvInvertMate, randMM, moreSplit;
 int init;
@@ -442,7 +441,5 @@ void auction(PSpMat_s32p64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
     
     //objects.DebugPrint();
     
-}
-
 }
 
