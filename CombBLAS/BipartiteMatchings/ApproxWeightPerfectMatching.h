@@ -9,10 +9,14 @@
 #ifndef ApproxWeightPerfectMatching_h
 #define ApproxWeightPerfectMatching_h
 
+#include "../CombBLAS.h"
 #include <parallel/algorithm>
 #include <parallel/numeric>
 #include <memory>
-#include "../CombBLAS.h"
+#include <limits>
+
+
+using namespace std;
 
 namespace combblas {
 
@@ -32,7 +36,6 @@ struct AWPM_param
     IT n_perproc;
     std::shared_ptr<CommGrid> commGrid;
 };
-
 
 double t1Comp, t1Comm, t2Comp, t2Comm, t3Comp, t3Comm, t4Comp, t4Comm, t5Comp, t5Comm, tUpdateMateComp;
     
@@ -1138,6 +1141,98 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	
 	
 }
+    
+    
+    template <class IT, class NT, class DER>
+    void TransformWeight(SpParMat < IT, NT, DER > & A, bool applylog)
+    {
+        //A.Apply([](NT val){return log(1+abs(val));});
+        // if the matrix has explicit zero entries, we can still have problem.
+        // One solution is to remove explicit zero entries before cardinality matching (to be tested)
+        //A.Apply([](NT val){if(val==0) return log(numeric_limits<NT>::min()); else return log(fabs(val));});
+        A.Apply([](NT val){return (fabs(val));});
+        
+        FullyDistVec<IT, NT> maxvRow(A.getcommgrid());
+        A.Reduce(maxvRow, Row, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
+        A.DimApply(Row, maxvRow, [](NT val, NT maxval){return val/maxval;});
+        
+        FullyDistVec<IT, NT> maxvCol(A.getcommgrid());
+        A.Reduce(maxvCol, Column, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
+        A.DimApply(Column, maxvCol, [](NT val, NT maxval){return val/maxval;});
+        
+        if(applylog)
+            A.Apply([](NT val){return log(val);});
+        
+    }
+    
+    template <class IT, class NT>
+    void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true)
+    {
+        SpParMat < IT, NT, SpCCols<IT, NT> > A(A1); // creating a copy because it is being transformed
+        
+        if(optimizeProd)
+            TransformWeight(A, true);
+        else
+            TransformWeight(A, false);
+        SpParMat < IT, NT, SpCCols<IT, NT> > Acsc(A);
+        SpParMat < IT, NT, SpDCCols<IT, bool> > Abool(A);
+        FullyDistVec<IT, IT> degCol(A.getcommgrid());
+        Abool.Reduce(degCol, Column, plus<IT>(), static_cast<IT>(0));
+        double ts;
+        
+        // Compute the initial trace
+        int64_t diagnnz;
+        double origWeight = Trace(A, diagnnz);
+        bool isOriginalPerfect = diagnnz==A.getnrow();
+        
+        // compute the maximal matching
+        WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
+        double mclWeight = MatchingWeight( A, mateRow2Col, mateCol2Row);
+        SpParHelper::Print("After Greedy sanity check\n");
+        bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
+        
+        // if the original matrix has a perfect matching and better weight
+        if(isOriginalPerfect && mclWeight<=origWeight)
+        {
+            SpParHelper::Print("Maximal is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            mateRow2Col.iota(A.getnrow(), 0);
+            mateCol2Row.iota(A.getncol(), 0);
+            mclWeight = origWeight;
+            isPerfectMCL = true;
+        }
+        
+        
+        // MCM
+        double tmcm = 0;
+        double mcmWeight = mclWeight;
+        if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
+        {
+            ts = MPI_Wtime();
+            maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
+            tmcm = MPI_Wtime() - ts;
+            mcmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
+            SpParHelper::Print("After MCM sanity check\n");
+            CheckMatching(mateRow2Col,mateCol2Row);
+        }
+        
+        
+        // AWPM
+        ts = MPI_Wtime();
+        TwoThirdApprox(A, mateRow2Col, mateCol2Row);
+        double tawpm = MPI_Wtime() - ts;
+        
+        double awpmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
+        SpParHelper::Print("After AWPM sanity check\n");
+        CheckMatching(mateRow2Col,mateCol2Row);
+        if(isOriginalPerfect && awpmWeight<origWeight) // keep original
+        {
+            SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            mateRow2Col.iota(A.getnrow(), 0);
+            mateCol2Row.iota(A.getncol(), 0);
+            awpmWeight = origWeight;
+        }
+        
+    }
 
 }
 

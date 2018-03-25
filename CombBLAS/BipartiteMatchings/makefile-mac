@@ -60,3 +60,6 @@ clean:
 	rm -rf ../*.o
 	rm -f bpmm bpml awpm auction
 	rm -f *.o
+	rm -f ../graph500-1.2/generator/*.o
+	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
+

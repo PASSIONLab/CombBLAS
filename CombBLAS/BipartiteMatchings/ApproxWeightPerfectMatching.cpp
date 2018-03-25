@@ -25,8 +25,7 @@ int cblas_splits = 1;
 #include "ApproxWeightPerfectMatching.h"
 
 using namespace std;
-
-namespace combblas {
+using namespace combblas;
 
 // algorithmic options
 bool prune,randMM, moreSplit;
@@ -44,27 +43,6 @@ typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
 typedef SpParMat < int64_t, double, SpCCols<int64_t, double> > Par_CSC_Double;
 typedef SpParMat < int64_t, bool, SpCCols<int64_t,bool> > Par_CSC_Bool;
 
-template <class IT, class NT, class DER>
-void TransformWeight(SpParMat < IT, NT, DER > & A, bool applylog)
-{
-	//A.Apply([](NT val){return log(1+abs(val));});
-	// if the matrix has explicit zero entries, we can still have problem.
-	// One solution is to remove explicit zero entries before cardinality matching (to be tested)
-	//A.Apply([](NT val){if(val==0) return log(numeric_limits<NT>::min()); else return log(fabs(val));});
-	A.Apply([](NT val){return (fabs(val));});
-	
-	FullyDistVec<IT, NT> maxvRow(A.getcommgrid());
-	A.Reduce(maxvRow, Row, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
-	A.DimApply(Row, maxvRow, [](NT val, NT maxval){return val/maxval;});
-	
-	FullyDistVec<IT, NT> maxvCol(A.getcommgrid());
-	A.Reduce(maxvCol, Column, maximum<NT>(), static_cast<NT>(numeric_limits<NT>::lowest()));
-	A.DimApply(Column, maxvCol, [](NT val, NT maxval){return val/maxval;});
-	
-    if(applylog)
-        A.Apply([](NT val){return log(val);});
-
-}
 void ShowUsage()
 {
     int myrank;
@@ -316,5 +294,4 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-}
 
