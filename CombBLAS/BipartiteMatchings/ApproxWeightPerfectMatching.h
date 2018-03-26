@@ -10,6 +10,8 @@
 #define ApproxWeightPerfectMatching_h
 
 #include "../CombBLAS.h"
+#include "BPMaximalMatching.h"
+#include "BPMaximumMatching.h"
 #include <parallel/algorithm>
 #include <parallel/numeric>
 #include <memory>
@@ -1168,7 +1170,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     template <class IT, class NT>
     void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true)
     {
-        SpParMat < IT, NT, SpCCols<IT, NT> > A(A1); // creating a copy because it is being transformed
+        SpParMat < IT, NT, SpDCCols<IT, NT> > A(A1); // creating a copy because it is being transformed
         
         if(optimizeProd)
             TransformWeight(A, true);
@@ -1181,7 +1183,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         double ts;
         
         // Compute the initial trace
-        int64_t diagnnz;
+        IT diagnnz;
         double origWeight = Trace(A, diagnnz);
         bool isOriginalPerfect = diagnnz==A.getnrow();
         
