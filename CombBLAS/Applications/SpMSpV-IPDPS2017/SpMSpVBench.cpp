@@ -173,7 +173,7 @@ void BFS_CSC(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int64_t> 
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
-        cout << "\nOverall stats:" << source << endl;
+        cout << "\nOverall stats:"  << endl;
         cout << "  starting vertex: " << source << endl;
         cout << "  Avg number iterations: " << iterall/ITERS << endl;
         cout << "  Avg number of vertices found: " << visitedV/ITERS << endl;
@@ -242,6 +242,7 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
         }
         MPI_Barrier(MPI_COMM_WORLD);
         double t2 = MPI_Wtime();
+        tall += (t2 - t1);
         
         FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
         parentsp.Apply(myset<int64_t>(1));
@@ -258,7 +259,7 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
-        cout << "\nOverall stats:" << source << endl;
+        cout << "\nOverall stats:" << endl;
         cout << "  starting vertex: " << source << endl;
         cout << "  Avg number iterations: " << iterall/ITERS << endl;
         cout << "  Avg number of vertices found: " << visitedV/ITERS << endl;
@@ -348,7 +349,7 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
-        cout << "\nOverall stats:" << source << endl;
+        cout << "\nOverall stats:" << endl;
         cout << "  starting vertex: " << source << endl;
         cout << "  Avg number iterations: " << iterall/ITERS << endl;
         cout << "  Avg number of vertices found: " << visitedV/ITERS << endl;
