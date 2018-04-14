@@ -3459,7 +3459,7 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const std::string & filename, bool o
             std::cout << "Matrix is Boolean" << std::endl;
             type = 2;
         }
-        if(mm_is_symmetric(matcode))
+        if(mm_is_symmetric(matcode) || mm_is_hermitian(matcode))
         {
             std::cout << "Matrix is symmetric" << std::endl;
             symmetric = 1;
