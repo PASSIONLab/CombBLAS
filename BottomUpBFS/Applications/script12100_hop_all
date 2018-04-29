@@ -1,9 +1,0 @@
-#PBS -S /bin/bash
-#PBS -q debug
-#PBS -l mppwidth=12100
-#PBS -l walltime=00:30:00
-#PBS -j eo
-#PBS -V
-
-cd $SCRATCH
-aprun -n 12100 ./graph500 Force 32 FastGen

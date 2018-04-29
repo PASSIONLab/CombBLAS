@@ -56,9 +56,8 @@ This material is based upon work supported by the National Science Foundation un
 * sequential parts of the computation, making it possible to implement new formats and plug them in
 * without changing the rest of the library.
 *
-* The implementation supports both formatted and binary I/O. The latter is faster but not human readable. Formatted I/O can read both a tuples format very similar to the Matrix Market and the Matrix Market format itself.
-* We encourage in-memory generators for faster benchmarking. More info on I/O formats (other than the well-known Matrix Market Format) are
-* <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/Input_File_Formats.pdf">here</a>
+* For I/O purposes, the implementation supports both a tuples format very similar to the Matrix Market and the Matrix Market format itself. We recommend using the Matrix Market version and associated ParallelReadMM() functions.
+* We encourage in-memory generators for faster benchmarking. 
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
 * can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
@@ -67,8 +66,6 @@ This material is based upon work supported by the National Science Foundation un
 * SpDCCols <int,float> for the underlying sequential matrix operations is: 
 * - SpParMat<int, float, SpDCCols<int,float> > A; 
 *
-* The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
-* and is akin to some STL constructs such as vector<int, SomeAllocator<int> >. If your compiler support "auto", then you can have the compiler infer the type.
 *
 * Sparse and dense vectors are distributed along all processors. This is very space efficient and provides 
 * good load balance for SpMSV (sparse matrix-sparse vector multiplication).
