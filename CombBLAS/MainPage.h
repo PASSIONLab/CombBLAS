@@ -2,8 +2,8 @@
 *
 * @authors <a href="http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/"> Ariful Azad </a>, <a href="http://eecs.berkeley.edu/~aydin"> Aydın Buluç </a>, and <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a> (with contributions from <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>, <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="https://ucsb-ccs-computing.github.io/alumni/konolige_tristan/">Tristan Konolige</a>).
 *
+* @copyright
 * <i> 
-*** Copyright Notice ***
 
 Combinatorial BLAS, Copyright (c) 2018, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara.  All rights reserved.
 
@@ -29,8 +29,7 @@ This material is based upon work supported by the National Science Foundation un
 * - Read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
 * - The latest CMake'd tarball (version 1.6.2, April 2018) <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz"> here</a>. (NERSC users read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
  The previous version (version 1.6.1, Jan 2018) is also available <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz"> here </a> for backwards compatibility and benchmarking.
-* 	- To create sample applications
-* and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
+* - Installation and testing can be done by executing these commands within the CombBLAS directory: 
 * 		- <i> mkdir _build </i>
 *		- <i> mkdir _install </i>
 *		- <i> cd _build </i>
