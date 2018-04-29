@@ -1,8 +1,18 @@
-/** @mainpage Combinatorial BLAS Library (MPI reference implementation)
+/** @mainpage The Combinatorial BLAS Library
 *
 * @authors <a href="http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/"> Ariful Azad </a>, <a href="http://eecs.berkeley.edu/~aydin"> Aydın Buluç </a>, and <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a> (with contributions from <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>, <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="https://ucsb-ccs-computing.github.io/alumni/konolige_tristan/">Tristan Konolige</a>).
 *
-* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a> described <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE">here</a>. </i>
+* <i> 
+*** Copyright Notice ***
+
+Combinatorial BLAS, Copyright (c) 2018, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara.  All rights reserved.
+
+If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
+ 
+
+NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, prepare derivative works, and perform publicly and display publicly, and to permit other to do so. 
+
+This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under the following <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE">license</a>. </i>
 *
 *
 * @section intro Introduction
@@ -17,17 +27,22 @@
 *
 * <b>Download</b> 
 * - Read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
-* - The latest CMake'd tarball (version 1.6.1, Jan 2018) <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz"> here</a>. (NERSC users read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
- The previous version (version 1.6.0, Oct 2017) is also available <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_0.tgz"> here </a> for backwards compatibility and benchmarking.
+* - The latest CMake'd tarball (version 1.6.2, April 2018) <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz"> here</a>. (NERSC users read <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
+ The previous version (version 1.6.1, Jan 2018) is also available <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
-* 		- <i> cmake . </i>
+* 		- <i> mkdir _build </i>
+*		- <i> mkdir _install </i>
+*		- <i> cd _build </i>
+* 		- <i> cmake .. -DCMAKE_INSTALL_PREFIX=../_install</i>
 * 		- <i> make </i>
+* 		- <i> make install </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.6.1.tgz"
+* 	- Test inputs are separately downloadable <a href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz"> here</a>. Extract them inside the _build directory you've just created with the command "tar -xzvf testdata_combblas1.6.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
-* - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases.
+* - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases. You just need to make sure that your OMP_NUM_THREADS environmental variable is set to the right value for the configuration you are running and you are not oversubscribing or undersubscribing cores. 
+* - At this point, you can incorporate CombBLAS into your own code by linking against the contents of the <i>_install/lib</i> directory and including the header <i>_install/include/CombBLAS/CombBLAS.h</i>. If you need an example, <a href="https://github.com/xiaoyeli/superlu_dist">SuperLU_Dist</a> does that 
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (gcc version 4.8+, Intel version 15.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
