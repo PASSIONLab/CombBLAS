@@ -1,78 +1,12 @@
-<div id="top">
-
-<div id="titlearea">
-
-<table cellspacing="0" cellpadding="0">
-
-<tbody>
-
-<tr style="height: 56px;">
-
-<td id="projectalign" style="padding-left: 0.5em;">
-
-<div id="projectname">COMBINATORIAL_BLAS  <span id="projectnumber">1.6</span></div>
-
-</td>
-
-<td>
-
-<div id="MSearchBox" class="MSearchBoxInactive"><span class="left">![](search/mag_sel.png) <input type="text" id="MSearchField" value="Search" accesskey="S" onfocus="searchBox.OnSearchFieldFocus(true)" onblur="searchBox.OnSearchFieldFocus(false)" onkeyup="searchBox.OnSearchFieldChange(event)"> </span><span class="right">[![](search/close.png)](javascript:searchBox.CloseResultsWindow())</span> </div>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-<script type="text/javascript">var searchBox = new SearchBox("searchBox", "search",false,'Search');</script></div>
-
-<script type="text/javascript">$(document).ready(function(){initNavTree('index.html','');});</script>
-
-<div id="doc-content">
-
-<div id="MSearchResultsWindow"><iframe src="javascript:void(0)" frameborder="0" name="MSearchResults" id="MSearchResults"></iframe></div>
-
-<div class="header">
-
-<div class="headertitle">
-
-<div class="title">The Combinatorial BLAS Library</div>
-
-</div>
-
-</div>
-
-<div class="contents">
-
-<div class="textblock">
-
-<dl class="section author">
-
-<dt>Authors</dt>
-
-<dd>[Ariful Azad](http://crd.lbl.gov/departments/computer-science/PAR/staff/ariful-azad/) , [AydÄ±n BuluÃ§](http://eecs.berkeley.edu/~aydin) , and [John R. Gilbert](http://cs.ucsb.edu/~gilbert) (with contributions from [Adam Lugowski](http://www.cs.ucsb.edu/~alugowski/), [Scott Beamer](http://www.cs.berkeley.edu/~sbeamer/) and [Tristan Konolige](https://ucsb-ccs-computing.github.io/alumni/konolige_tristan/)).</dd>
-
-</dl>
-
-<dl class="section copyright">
-
-<dt>Copyright</dt>
-
-</dl>
-
 Combinatorial BLAS, Copyright (c) 2018, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara. All rights reserved.
 
-_If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office at [IPO@l<span style="display: none;">.nosp@m.</span>bl.g<span style="display: none;">.nosp@m.</span>ov](#)._
+_If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office.
 
 _NOTICE. This Software was developed under funding from the U.S. Department of Energy and the U.S. Government consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, prepare derivative works, and perform publicly and display publicly, and to permit other to do so._
 
 _This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231\. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under the following [license](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE)._
 
-# <a class="anchor" id="intro"></a>Introduction
+**Introduction**
 
 The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel graph library offering a small but powerful set of linear algebra primitives specifically targeting graph analytics.
 
@@ -216,28 +150,17 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 
 **Citation:** Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 
-*   [1] AydÄ±n BuluÃ§ and John R. Gilbert, _The Combinatorial BLAS: Design, implementation, and applications_ . International Journal of High Performance Computing Applications (IJHPCA), 2011\. [Preprint](http://gauss.cs.ucsb.edu/~aydin/combblas-r2.pdf) , [Link](http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract)
-*   [2] AydÄ±n BuluÃ§ and John R. Gilbert, _On the Representation and Multiplication of Hypersparse Matrices_ . The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
-*   [3] AydÄ±n BuluÃ§ and John R. Gilbert, _Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication_ . The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
-*   [4] AydÄ±n BuluÃ§ and Kamesh Madduri, _Parallel Breadth-First Search on Distributed-Memory Systems_ . Supercomputing (SC'11), Seattle, USA. [Extended preprint](http://arxiv.org/abs/1104.4518) [PDF](http://gauss.cs.ucsb.edu/~aydin/sc11_bfs.pdf)
-*   [5] AydÄ±n BuluÃ§ and John R. Gilbert. _Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments_ . SIAM Journal of Scientific Computing, 2012\. [Preprint](http://arxiv.org/abs/1109.3739) [PDF](http://gauss.cs.ucsb.edu/~aydin/spgemm_sisc12.pdf)
-*   [6] AydÄ±n BuluÃ§. _Linear Algebraic Primitives for Computation on Large Graphs_ . PhD thesis, University of California, Santa Barbara, 2010\. [PDF](http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf)
-*   [7] AydÄ±n BuluÃ§, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. _High-Productivity and High-Performance Analysis of Filtered Semantic Graphs_ , International Parallel and Distributed Processing Symposium (IPDPS), 2013\. [PDF](http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf)
-*   [8] Scott Beamer, Aydin BuluÃ§, Krste AsanoviÄ, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013\. [PDF](http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf)
-*   [9] Ariful Azad, Grey Ballard, Aydin BuluÃ§, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624–C651, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/M104253.pdf)
-*   [10] Ariful Azad and Aydin BuluÃ§. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015\. [PDF](http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf)
+*   [1] Aydin Buluc and John R. Gilbert, _The Combinatorial BLAS: Design, implementation, and applications_ . International Journal of High Performance Computing Applications (IJHPCA), 2011\. [Preprint](http://gauss.cs.ucsb.edu/~aydin/combblas-r2.pdf) , [Link](http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract)
+*   [2] Aydin Buluc and John R. Gilbert, _On the Representation and Multiplication of Hypersparse Matrices_ . The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+*   [3] Aydin Buluc and John R. Gilbert, _Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication_ . The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
+*   [4] Aydin Buluc and Kamesh Madduri, _Parallel Breadth-First Search on Distributed-Memory Systems_ . Supercomputing (SC'11), Seattle, USA. [Extended preprint](http://arxiv.org/abs/1104.4518) [PDF](http://gauss.cs.ucsb.edu/~aydin/sc11_bfs.pdf)
+*   [5] Aydin Buluc and John R. Gilbert. _Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments_ . SIAM Journal of Scientific Computing, 2012\. [Preprint](http://arxiv.org/abs/1109.3739) [PDF](http://gauss.cs.ucsb.edu/~aydin/spgemm_sisc12.pdf)
+*   [6] Aydin Buluc. _Linear Algebraic Primitives for Computation on Large Graphs_ . PhD thesis, University of California, Santa Barbara, 2010\. [PDF](http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf)
+*   [7] Aydin Buluc, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. _High-Productivity and High-Performance Analysis of Filtered Semantic Graphs_ , International Parallel and Distributed Processing Symposium (IPDPS), 2013\. [PDF](http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf)
+*   [8] Scott Beamer, Aydin Buluc, Krste Asanovic, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013\. [PDF](http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf)
+*   [9] Ariful Azad, Grey Ballard, Aydin Buluc, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624–C651, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/M104253.pdf)
+*   [10] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015\. [PDF](http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf)
 *   [11] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/MCM_IPDPS16_Azad.pdf)
-*   [12] Ariful Azad, Mathias Jacquelin, Aydin BuluÃ§, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/RCM-ipdps17.pdf)
-*   [13] Ariful Azad and Aydin BuluÃ§. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/SpMSpV-ipdps17.pdf)
+*   [12] Ariful Azad, Mathias Jacquelin, Aydin Buluc, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/RCM-ipdps17.pdf)
+*   [13] Ariful Azad and Aydin Buluc. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/SpMSpV-ipdps17.pdf)
 
-</div>
-
-</div>
-
-</div>
-
-<div id="nav-path" class="navpath">
-
-*   Generated by [![doxygen](doxygen.png)](http://www.doxygen.org/index.html) 1.8.13
-
-</div>
