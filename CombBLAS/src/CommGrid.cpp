@@ -27,8 +27,8 @@
  */
 
 #include <memory>
-#include "CommGrid.h"
-#include "SpDefs.h"
+#include "CombBLAS/CommGrid.h"
+#include "CombBLAS/SpDefs.h"
 
 using namespace std;
 

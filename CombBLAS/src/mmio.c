@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "mmio.h"
+#include "CombBLAS/mmio.h"
 
 int mm_is_valid(MM_typecode matcode)
 {

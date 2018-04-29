@@ -2,7 +2,7 @@
 #define RESTRICTION_OP_H
 
 //#define DETERMINISTIC
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #ifdef THREADED
 	#ifndef _OPENMP
 	#define _OPENMP

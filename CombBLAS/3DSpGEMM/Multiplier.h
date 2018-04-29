@@ -1,7 +1,7 @@
 #ifndef _MULTIPLIER_H_
 #define _MULTIPLIER_H_
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "CCGrid.h"
 #include "SUMMALayer.h"
 

@@ -9,11 +9,16 @@ ADD_EXECUTABLE( mcl MCL.cpp )
 ADD_EXECUTABLE( betwcent BetwCent.cpp )
 
 
-TARGET_LINK_LIBRARIES( tdbfs CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
-TARGET_LINK_LIBRARIES( dobfs CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
-TARGET_LINK_LIBRARIES( fbfs CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
-TARGET_LINK_LIBRARIES( fmis CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib)
-TARGET_LINK_LIBRARIES( mcl mmiolib CommGridlib MPITypelib MemoryPoollib Hashlib)
-TARGET_LINK_LIBRARIES( betwcent CommGridlib MPITypelib MemoryPoollib Hashlib mmiolib)
+TARGET_LINK_LIBRARIES( tdbfs CombBLAS)
+TARGET_LINK_LIBRARIES( dobfs CombBLAS)
+TARGET_LINK_LIBRARIES( fbfs CombBLAS)
+TARGET_LINK_LIBRARIES( fmis CombBLAS)
+TARGET_LINK_LIBRARIES( mcl CombBLAS)
+TARGET_LINK_LIBRARIES( betwcent CombBLAS)
 
+ADD_TEST(NAME BetwCent_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:betwcent> ../TESTDATA/SCALE16BTW-TRANSBOOL/ 10 96 )
+ADD_TEST(NAME TopDownBFS_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:tdbfs> Force 17 FastGen)
+ADD_TEST(NAME DirOptBFS_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:dobfs> 17 )
+ADD_TEST(NAME FBFS_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:fbfs> Gen 16 )
+ADD_TEST(NAME FMIS_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:fmis> 17 )
 

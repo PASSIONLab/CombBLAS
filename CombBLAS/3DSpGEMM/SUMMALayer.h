@@ -12,9 +12,9 @@
 #include <sstream>
 
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "Glue.h"
-#include "../mtSpGEMM.h"
+#include "CombBLAS/mtSpGEMM.h"
 #include "CCGrid.h"
 
 namespace combblas {

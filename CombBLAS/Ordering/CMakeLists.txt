@@ -3,4 +3,7 @@
 
 ADD_EXECUTABLE( rcm RCM.cpp )
 
-TARGET_LINK_LIBRARIES( rcm CommGridlib MPITypelib MemoryPoollib GraphGenlib Hashlib mmiolib MPIOplib)
+TARGET_LINK_LIBRARIES( rcm CombBLAS)
+
+ADD_TEST(NAME RCM_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:rcm> er 18 )
+
