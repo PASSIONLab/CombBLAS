@@ -41,7 +41,7 @@
 #include "CommGrid.h"
 #include "MPIType.h"
 #include "SpDefs.h"
-#include "psort-1.0/src/psort.h"
+#include "psort/psort.h"
 
 namespace combblas {
 

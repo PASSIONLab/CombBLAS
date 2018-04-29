@@ -27,7 +27,7 @@
  */
 
 #define DETERMINISTIC
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
