@@ -42,6 +42,8 @@ This material is based upon work supported by the National Science Foundation un
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * - The CMake now automatically compiles for hybrid MPI+OpenMP mode because almost all expensive primitives are now multithreaded. Example makefiles are also multithreaded for many cases. You just need to make sure that your OMP_NUM_THREADS environmental variable is set to the right value for the configuration you are running and you are not oversubscribing or undersubscribing cores. 
 * - At this point, you can incorporate CombBLAS into your own code by linking against the contents of the <i>_install/lib</i> directory and including the header <i>_install/include/CombBLAS/CombBLAS.h</i>. If you need an example, <a href="https://github.com/xiaoyeli/superlu_dist">SuperLU_Dist</a> does that 
+*
+* - While we do not recommend using the code from our development repository, you can certainly issue pull requests <a href="https://bitbucket.org/berkeleylab/combinatorial-blas-2.0">there</a>
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (gcc version 4.8+, Intel version 15.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++
