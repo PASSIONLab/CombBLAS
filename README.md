@@ -1,3 +1,9 @@
+* This is the development repository and any code obtained directly from here is likely to be buggy. 
+* Please download an official release here: https://people.eecs.berkeley.edu/~aydin/CombBLAS/html/
+* We made this repository public so that pull requests can be issued.
+
+**Copyright** 
+
 Combinatorial BLAS, Copyright (c) 2018, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara. All rights reserved.
 
 _If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office.
@@ -158,7 +164,7 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [6] Aydin Buluc. _Linear Algebraic Primitives for Computation on Large Graphs_ . PhD thesis, University of California, Santa Barbara, 2010\. [PDF](http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf)
 *   [7] Aydin Buluc, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. _High-Productivity and High-Performance Analysis of Filtered Semantic Graphs_ , International Parallel and Distributed Processing Symposium (IPDPS), 2013\. [PDF](http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf)
 *   [8] Scott Beamer, Aydin Buluc, Krste Asanovic, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013\. [PDF](http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf)
-*   [9] Ariful Azad, Grey Ballard, Aydin Buluc, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624–C651, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/M104253.pdf)
+*   [9] Ariful Azad, Grey Ballard, Aydin Buluc, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624�C651, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/M104253.pdf)
 *   [10] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015\. [PDF](http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf)
 *   [11] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/MCM_IPDPS16_Azad.pdf)
 *   [12] Ariful Azad, Mathias Jacquelin, Aydin Buluc, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/RCM-ipdps17.pdf)
