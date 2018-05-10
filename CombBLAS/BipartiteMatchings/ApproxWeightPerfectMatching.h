@@ -9,7 +9,7 @@
 #ifndef ApproxWeightPerfectMatching_h
 #define ApproxWeightPerfectMatching_h
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include "BPMaximalMatching.h"
 #include "BPMaximumMatching.h"
 #include <parallel/algorithm>
