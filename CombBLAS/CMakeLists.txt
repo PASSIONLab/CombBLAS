@@ -119,8 +119,8 @@ INCLUDE(CTest)
 
 ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications )
-ADD_SUBDIRECTORY( Ordering )
-ADD_SUBDIRECTORY( BipartiteMatchings )
+ADD_SUBDIRECTORY( Applications/Ordering )
+ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
 ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
 ADD_SUBDIRECTORY( 3DSpGEMM )
 
