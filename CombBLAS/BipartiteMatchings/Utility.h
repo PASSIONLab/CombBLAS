@@ -1,7 +1,7 @@
 #ifndef BP_UTILITY_H
 #define BP_UTILITY_H
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 
 namespace combblas {
 

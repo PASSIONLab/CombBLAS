@@ -1,7 +1,7 @@
 #ifndef BP_MAXIMUM_MATCHING_H
 #define BP_MAXIMUM_MATCHING_H
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h>
 #include <iostream>

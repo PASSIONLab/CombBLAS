@@ -8,7 +8,7 @@
 int cblas_splits = 1;
 #endif
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h>
 #include <iostream>
@@ -493,6 +493,9 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
         
+        // TODO: Follow the AWPM guideline to use CSC matrices.
+        // Currently this file does not use multithreading in SpMSpV
+/*
         int nthreads;
 #ifdef THREADED
 #pragma omp parallel
@@ -505,9 +508,10 @@ int main(int argc, char* argv[])
         tinfo.str("");
         tinfo << "Threading activated with " << nthreads << " threads, and matrix split into "<< cblas_splits <<  " parts" << endl;
         SpParHelper::Print(tinfo.str());
-        A.ActivateThreading(cblas_splits); // note: crash on empty matrix
-        AT.ActivateThreading(cblas_splits);
+        //A.ActivateThreading(cblas_splits); // note: crash on empty matrix
+        //AT.ActivateThreading(cblas_splits);
 #endif
+ */
         
         
         SpParHelper::Print("**************************************************\n\n");

@@ -1,7 +1,7 @@
 #ifndef BP_MAXIMAL_MATCHING_H
 #define BP_MAXIMAL_MATCHING_H
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include <iostream>
 #include <functional>
 #include <algorithm>

@@ -9,7 +9,7 @@
 #ifndef MatchingDefs_h
 #define MatchingDefs_h
 
-#include "../CombBLAS.h"
+#include "CombBLAS/CombBLAS.h"
 #include <iostream>
 
 namespace combblas {
