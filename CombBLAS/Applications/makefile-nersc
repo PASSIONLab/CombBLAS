@@ -100,21 +100,6 @@ fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/g
 fmis:	MemoryPool.o CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
-BPMaximalMatching.o:  BPMaximalMatching.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h
-	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
-
-
-BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
-
-
-BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
-
-
-bpmm:	MemoryPool.o CommGrid.o MPIType.o BPMaximumMatching.o mmio.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o bpmm BPMaximumMatching.o MemoryPool.o CommGrid.o mmio.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
-
 
 clean:
 	rm -f betwcent
@@ -125,7 +110,6 @@ clean:
 	rm -f apowers
 	rm -f dobfs
 	rm -f tdbfs
-	rm -f BPMaximumMatching
 	rm -f *.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
