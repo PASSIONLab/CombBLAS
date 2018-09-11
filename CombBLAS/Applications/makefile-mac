@@ -18,7 +18,7 @@ FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized #-DTIMING #-DCOMBBLAS_DEBUG
 #
 # build Graph500 generator
 #
-../graph500-1.2/generator/libgraph_generator_seq.a:
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
