@@ -1,5 +1,7 @@
-INCDIR = $(HOME)
-INCADD = -I$(INCDIR)
+COMBBLAS = ..
+COMBBLAS_INC = $(COMBBLAS)/include/CombBLAS
+COMBBLAS_SRC = $(COMBBLAS)/src
+INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
 
 # notes for configure:
 # -fno-exceptions does not work with MPICH2
@@ -8,50 +10,51 @@ INCADD = -I$(INCDIR)
 OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  #-DRAND_PERMUTE #ABAB:please define this per class as opposed to globally for each compilation
+COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
 FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized #-DTIMING #-DCOMBBLAS_DEBUG 
-COMBBLAS = ..
+
 
 
 #
 # build Graph500 generator
 #
-$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+../graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
-mmio.o: ../mmio.c
-	mpicc $(INCADD) $(FLAGS) -c -o mmio.o ../mmio.c
+CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
+mmio.o: $(COMBBLAS_SRC)/mmio.c
+	mpicc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
-MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
+MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
 
-MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
+MemoryPool.o:	$(COMBBLAS_SRC)/MemoryPool.cpp $(COMBBLAS_INC)/SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS_SRC)/MemoryPool.cpp 
 
-hash.o:	../hash.cpp ../hash.hpp
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o ../hash.cpp
+hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
 
-BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+
+BetwCent.o: BetwCent.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp 
 
-MCL.o:  MCL.cpp CC.h WriteMCLClusters.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+MCL.o:  MCL.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
 
-CC.o:  CC.cpp CC.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp 
+CC.o:  CC.cpp CC.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
-TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+TopDownBFS.o:  TopDownBFS.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TopDownBFS.o TopDownBFS.cpp 
 
-DirOptBFS.o:  DirOptBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+DirOptBFS.o:  DirOptBFS.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o DirOptBFS.o DirOptBFS.cpp 
 
-FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
+FilteredBFS.o:  FilteredBFS.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h $(COMBBLAS_INC)/SpParHelper.cpp $(COMBBLAS_INC)/Friends.h TwitterEdge.h $(COMBBLAS_INC)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp 
 
-FilteredMIS.o:  FilteredMIS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
+FilteredMIS.o:  FilteredMIS.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h $(COMBBLAS_INC)/SpParHelper.cpp $(COMBBLAS_INC)/Friends.h TwitterEdge.h $(COMBBLAS_INC)/MPIType.h $(COMBBLAS_INC)/FullyDistVec.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredMIS.o FilteredMIS.cpp
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o hash.o
@@ -75,7 +78,7 @@ fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/g
 fmis:	MemoryPool.o CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
-BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximalMatching.o:  BPMaximalMatching.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h
 	$(COMPILER) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
 
 
@@ -83,7 +86,7 @@ BPMaximalMatching: MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o $(COMBB
 	$(COMPILER) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
-BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+BPMaximumMatching.o:  BPMaximumMatching.cpp BPMaximalMatching.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp     $(COMBBLAS_INC)/SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximumMatching.o BPMaximumMatching.cpp 
 
 
@@ -101,8 +104,8 @@ clean:
 	rm -f tdbfs
 	rm -f *.o
 	rm -f BPMaximumMatching
-	rm -f ../graph500-1.2/generator/*.o
-	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
+	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 
 cleanout:
 	rm out.*

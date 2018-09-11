@@ -1,7 +1,8 @@
+INCADD = -I./include/graph500/generator/
 AR = ar
 RANLIB = ranlib
 CC = cc
-CFLAGS = -g -Wall -Drestrict=__restrict__ -O3 -DNDEBUG -ffast-math -DGRAPH_GENERATOR_SEQ # -g -pg
+CFLAGS = -g -Wall -Drestrict=__restrict__ -O3 -DNDEBUG -ffast-math -DGRAPH_GENERATOR_SEQ  $(INCADD)# -g -pg
 # CFLAGS = -g -Wall -Drestrict=__restrict__
 LDFLAGS = -g # -g -pg
 
