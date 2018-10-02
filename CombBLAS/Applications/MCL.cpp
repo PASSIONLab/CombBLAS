@@ -684,7 +684,7 @@ int main(int argc, char* argv[])
     
     {
 	
-	#if 0
+	#if 1
 	    MainBody<int64_t, int32_t, double>(param);
 	#endif
         if(param.isDoublePrecision)
