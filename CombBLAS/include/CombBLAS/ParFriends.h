@@ -349,6 +349,9 @@ template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, 
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                            int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory)
 {
+    typedef typename UDERA::LocalIT LIA;
+    typedef typename UDERB::LocalIT LIB;
+
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(A.getncol() != B.getnrow())
@@ -437,8 +440,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     MPI_Barrier(GridC->GetWorld());
 
     
-    IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
-    IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+    LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
+    LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
     
   
     
