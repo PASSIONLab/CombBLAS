@@ -66,16 +66,6 @@ double tIO;
 
 
 
-class Dist
-{
-    public:
-    typedef SpDCCols < int64_t, double > DCCols;
-    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
-    typedef FullyDistVec < int64_t, double> MPI_DenseVec;
-};
-
-
-
 typedef struct
 {
     //Input/Output file
@@ -504,15 +494,18 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     }
     
     
+#ifdef TIMING    
     double tcc1 = MPI_Wtime();
+#endif
+    
     // bool does not work because A.AddLoops(1) can not create a fullydist vector with Bool?
     // write a promote train for float
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A;
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
-    double tcc = MPI_Wtime() - tcc1;
     
     
 #ifdef TIMING
+    double tcc = MPI_Wtime() - tcc1;    
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank==0)
@@ -690,6 +683,10 @@ int main(int argc, char* argv[])
     }
     
     {
+	
+	#if 0
+	    MainBody<int64_t, int32_t, double>(param);
+	#endif
         if(param.isDoublePrecision)
             if(param.is64bInt) // default case
                 MainBody<int64_t, int64_t, double>(param);
