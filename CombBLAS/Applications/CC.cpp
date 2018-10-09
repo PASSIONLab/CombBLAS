@@ -59,8 +59,8 @@ using namespace combblas;
 class Dist
 {
 public:
-    typedef SpDCCols < int64_t, double > DCCols;
-    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
+    typedef SpDCCols < int64_t, bool > DCCols;
+    typedef SpParMat < int64_t, bool, DCCols > MPI_DCCols;
 };
 
 
@@ -175,12 +175,14 @@ int main(int argc, char* argv[])
             }
         }
         
+        /*
         FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
         FullyDistVec<int64_t, int64_t> isov = ColSums.FindInds(bind2nd(equal_to<double>(), 0));
         outs.str("");
         outs.clear();
         outs << "isolated vertice: " << isov.TotalLength() << endl;
         SpParHelper::Print(outs.str());
+        */
         
         float balance = A.LoadImbalance();
         int64_t nnz = A.getnnz();
@@ -191,6 +193,7 @@ int main(int argc, char* argv[])
         SpParHelper::Print(outs.str());
         double t1 = MPI_Wtime();
         
+        A.ActivateThreading(nthreads*4);
         int64_t nCC = 0;
         FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
         
