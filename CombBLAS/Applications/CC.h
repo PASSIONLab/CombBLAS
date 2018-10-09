@@ -1386,20 +1386,27 @@ namespace combblas {
     {
         cclabel = parent;
         cclabel.ApplyInd([](IT val, IT ind){return val==ind ? -1 : val;});
+        
         FullyDistSpVec<IT, IT> roots (cclabel, bind2nd(std::equal_to<IT>(), -1));
+        // parents of leaves are still correct
+        FullyDistSpVec<IT, IT> pOfLeaves (cclabel, bind2nd(std::not_equal_to<IT>(), -1));
+        
         roots.nziota(0);
         cclabel.Set(roots);
-        cclabel = cclabel(parent);
+        
+        
+        FullyDistSpVec<IT,IT> labelOfParents = Extract(cclabel, pOfLeaves);
+        cclabel.Set(labelOfParents);
+        //cclabel = cclabel(parent);
         return roots.getnnz();
     }
     
-    // Compute strongly connected components
-    // If you need weakly connected components, symmetricize the matrix beforehand
+
     template <typename IT, typename NT, typename DER>
     FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     {
         IT nrows = A.getnrow();
-        A.AddLoops(1); // needed for isolated vertices
+        //A.AddLoops(1); // needed for isolated vertices: not needed anymore
         FullyDistVec<IT,IT> parent(A.getcommgrid());
         parent.iota(nrows, 0);    // parent(i)=i initially
         FullyDistVec<IT,short> stars(A.getcommgrid(), nrows, STAR);// initially every vertex belongs to a star
