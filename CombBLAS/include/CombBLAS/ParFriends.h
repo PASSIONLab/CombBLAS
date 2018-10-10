@@ -41,6 +41,7 @@
 #include "mtSpGEMM.h"
 #include "MultiwayMerge.h"
 
+#include <type_traits>
 
 namespace combblas {
 
@@ -351,7 +352,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 {
     typedef typename UDERA::LocalIT LIA;
     typedef typename UDERB::LocalIT LIB;
-
+    typedef typename UDERO::LocalIT LIC;
+    
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(A.getncol() != B.getnrow())
@@ -411,8 +413,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
         
         
-       
-        
         if(myrank==0)
         {
             if(remainingMem < 0)
@@ -430,8 +430,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
     }
     
-    IU C_m = A.spSeq->getnrow();
-    IU C_n = B.spSeq->getncol();
+    LIA C_m = A.spSeq->getnrow();
+    LIB C_n = B.spSeq->getncol();
     
     std::vector< UDERB > PiecesOfB;
     UDERB CopyB = *(B.spSeq); // we allow alias matrices as input because of this local copy
@@ -443,7 +443,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
     LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
     
-  
+    static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
+    static_assert(std::is_same<LIA, LIC>::value, "local index types for input and output matrices should be the same");
+    
     
     SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
     
@@ -459,10 +461,10 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     for(int p = 0; p< phases; ++p)
     {
         SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.commGrid)->GetColWorld());
-        std::vector< SpTuples<IU,NUO>  *> tomerge;
+        std::vector< SpTuples<LIC,NUO>  *> tomerge;
         for(int i = 0; i < stages; ++i)
         {
-            std::vector<IU> ess;
+            std::vector<LIA> ess;
             if(i == Aself)  ARecv = A.spSeq;	// shallow-copy
             else
             {
@@ -503,7 +505,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #ifdef TIMING
             double t4=MPI_Wtime();
 #endif
-            SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
@@ -541,7 +543,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #endif
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
         // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
-        SpTuples<IU,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
+        SpTuples<LIC,NUO> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
         
 #ifdef SHOW_MEMORY_USAGE
         int64_t gcnnz_merged, lcnnz_merged ;
@@ -625,11 +627,17 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	{
 		return SpParMat< IU,NUO,UDERO >();
 	}
+	typedef typename UDERA::LocalIT LIA;
+    	typedef typename UDERB::LocalIT LIB;
+	typedef typename UDERO::LocalIT LIC;
+
+	static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
+    	static_assert(std::is_same<LIA, LIC>::value, "local index types for input and output matrices should be the same");
 
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
 	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
-	IU C_m = A.spSeq->getnrow();
-	IU C_n = B.spSeq->getncol();
+	LIA C_m = A.spSeq->getnrow();
+	LIB C_n = B.spSeq->getncol();
     
 	UDERA * A1seq = new UDERA();
 	UDERA * A2seq = new UDERA(); 
@@ -640,8 +648,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	(B.spSeq)->Split( *B1seq, *B2seq);
 	MPI_Barrier(GridC->GetWorld());
 
-	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
-	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
+	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
 
 	SpParHelper::GetSetSizes( *A1seq, ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *B1seq, BRecvSizes, (B.commGrid)->GetColWorld());
@@ -649,14 +657,14 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	// Remotely fetched matrices are stored as pointers
 	UDERA * ARecv; 
 	UDERB * BRecv;
-	std::vector< SpTuples<IU,NUO>  *> tomerge;
+	std::vector< SpTuples<LIC,NUO>  *> tomerge;
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
 
 	for(int i = 0; i < stages; ++i) 
 	{
-		std::vector<IU> ess;	
+		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
 			ARecv = A1seq;	// shallow-copy 
@@ -688,7 +696,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		
 		
-		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
@@ -709,7 +717,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	// Start the second round
 	for(int i = 0; i < stages; ++i) 
 	{
-		std::vector<IU> ess;	
+		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
 			ARecv = A2seq;	// shallow-copy 
@@ -742,7 +750,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
-		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
@@ -877,7 +885,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			tomerge.push_back(C_cont);
 
 		#ifdef COMBBLAS_DEBUG
-    std::ostringstream outs;
+   		std::ostringstream outs;
 		outs << i << "th SUMMA iteration"<< std::endl;
 		SpParHelper::Print(outs.str());
 		#endif
@@ -911,14 +919,18 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
     
 
     
-    /**
-     * Estimate the maximum nnz needed to store in a process from all stages of SUMMA before reduction
-     * @pre { Input matrices, A and B, should not alias }
-     **/
-    template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-    int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)
-    
-    {
+/**
+  * Estimate the maximum nnz needed to store in a process from all stages of SUMMA before reduction
+  * @pre { Input matrices, A and B, should not alias }
+  **/
+template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)  
+{
+    	typedef typename UDERA::LocalIT LIA;
+    	typedef typename UDERB::LocalIT LIB;
+	static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
+
+
         int64_t nnzC_SUMMA = 0;
         
         if(A.getncol() != B.getnrow())
@@ -936,8 +948,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
   
         MPI_Barrier(GridC->GetWorld());
         
-        IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
-        IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+        LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
+        LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
         SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
         SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
         
@@ -951,7 +963,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         
         for(int i = 0; i < stages; ++i)
         {
-            std::vector<IU> ess;
+            std::vector<LIA> ess;
             if(i == Aself)
             {
                 ARecv = A.spSeq;    // shallow-copy
@@ -985,16 +997,16 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
             
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
             
+	    // no need to keep entries of colnnzC in larger precision 
+	    // because colnnzC is of length nzc and estimates nnzs per column
+            LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);            
 
-            IU* colnnzC = estimateNNZ(*ARecv, *BRecv);
-            
-
-            IU nzc = BRecv->GetDCSC()->nzc;
-            IU nnzC_stage = 0;
+            LIB nzc = BRecv->GetDCSC()->nzc;
+            int64_t nnzC_stage = 0;
 #ifdef THREADED
 #pragma omp parallel for reduction (+:nnzC_stage)
 #endif
-            for (IU k=0; k<nzc; k++)
+            for (LIB k=0; k<nzc; k++)
             {
                 nnzC_stage = nnzC_stage + colnnzC[k];
             }
@@ -1014,9 +1026,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<int64_t>(), MPI_MAX, GridC->GetWorld());
         
         return nnzC_SUMMA_max;
-    }
-    
-
+}
     
     
 template <typename MATRIX, typename VECTOR>
