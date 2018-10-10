@@ -1011,6 +1011,7 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
                 nnzC_stage = nnzC_stage + colnnzC[k];
             }
             nnzC_SUMMA += nnzC_stage;
+            if(colnnzC) delete [] colnnzC;
             
             // delete received data
             if(i != Aself)
