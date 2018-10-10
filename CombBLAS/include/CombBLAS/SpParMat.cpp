@@ -1882,8 +1882,10 @@ template <class IT, class NT, class DER>
 template <typename PTNTBOOL, typename PTBOOLNT>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace)
 {
-	// infer the concrete type SpMat<IT,IT>
-	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+	typedef typename DER::LocalIT LIT;
+
+	// infer the concrete type SpMat<LIT,LIT>
+	typedef typename create_trait<DER, LIT, bool>::T_inferred DER_IT;
 
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
@@ -1899,9 +1901,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	if(!ci.arr.empty())
 		locmax_ci = *std::max_element(ci.arr.begin(), ci.arr.end());
 
-	IT total_m = getnrow();
-	IT total_n = getncol();
-	if(locmax_ri > total_m || locmax_ci > total_n)	
+	IT totalm = getnrow();
+	IT totaln = getncol();
+	if(locmax_ri > totalm || locmax_ci > totaln)	
 	{
 		throw outofrangeexception();
 	}
@@ -1921,8 +1923,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	// Range(ci) = {0,...,n-1}
 
 	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-	IT totalm = getnrow();	// collective call
-	IT totaln = getncol();
 	IT m_perproccol = totalm / rowneighs;
 	IT n_perproccol = totaln / rowneighs;
 
@@ -1969,23 +1969,23 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
   	IT * senddata = new IT[locvec];	// re-used for both rows and columns
 	for(int i=0; i<rowneighs; ++i)
 	{
-    std::copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+    		std::copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
 		std::vector<IT>().swap(rowid[i]);	// clear memory of rowid
 	}
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
 
 	for(int i=0; i<rowneighs; ++i)
 	{
-    std::copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+    		std::copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
 		std::vector<IT>().swap(colid[i]);	// clear memory of colid
 	}
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
 	delete [] senddata;
 
-	std::tuple<IT,IT,bool> * p_tuples = new std::tuple<IT,IT,bool>[p_nnz]; 
+	std::tuple<LIT,LIT,bool> * p_tuples = new std::tuple<LIT,LIT,bool>[p_nnz]; 
 	for(IT i=0; i< p_nnz; ++i)
 	{
-		p_tuples[i] = std::make_tuple(p_rows[i], p_cols[i], 1);
+		p_tuples[i] = std::make_tuple(p_rows[i], p_cols[i], 1);	// here we can convert to local indices
 	}
 	DeleteAll(p_rows, p_cols);
 
@@ -2064,20 +2064,20 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
   	senddata = new IT[locvec];	
 	for(int i=0; i<rowneighs; ++i)
 	{
-    std::copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+    		std::copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
 		std::vector<IT>().swap(rowid[i]);	// clear memory of rowid
 	}
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), q_rows, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
 
 	for(int i=0; i<rowneighs; ++i)
 	{
-    std::copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+    		std::copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
 		std::vector<IT>().swap(colid[i]);	// clear memory of colid
 	}
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), q_cols, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
 	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
 
-	std::tuple<IT,IT,bool> * q_tuples = new std::tuple<IT,IT,bool>[q_nnz]; 
+	std::tuple<LIT,LIT,bool> * q_tuples = new std::tuple<LIT,LIT,bool>[q_nnz]; 	// here we can convert to local indices (2018 note by Aydin)
 	for(IT i=0; i< q_nnz; ++i)
 	{
 		q_tuples[i] = std::make_tuple(q_rows[i], q_cols[i], 1);
@@ -2699,7 +2699,8 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 	IT removed = 0;
 	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		SpTuples<IT,NT> tuples(*spSeq);
+		typedef typename DER::LocalIT LIT;
+		SpTuples<LIT,NT> tuples(*spSeq);
 		delete spSeq;
 		removed  = tuples.RemoveLoops();
 		spSeq = new DER(tuples, false);	// Convert to DER
