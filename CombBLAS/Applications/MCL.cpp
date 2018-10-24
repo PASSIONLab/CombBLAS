@@ -93,7 +93,7 @@ typedef struct
     int phases;
     int perProcessMem;
     bool isDoublePrecision; // true: double, false: float
-    bool is64bInt; // true: int64_t, false: int32_t (currently for both local and global indexing)
+    bool is64bInt; // true: int64_t for local indexing, false: int32_t (for local indexing)
     
     //debugging
     bool show;
@@ -185,8 +185,8 @@ void ShowParam(HipMCLParam & param)
     else runinfo << "not provided" << endl;
     if(param.isDoublePrecision) runinfo << "Using double precision floating point" << endl;
     else runinfo << "Using single precision floating point" << endl;
-    if(param.is64bInt ) runinfo << "Using 64 bit indexing" << endl;
-    else runinfo << "Using 32 bit indexing" << endl;
+    if(param.is64bInt ) runinfo << "Using 64 bit local indexing" << endl;
+    else runinfo << "Using 32 bit local indexing" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    Show matrices after major steps? : ";
@@ -253,7 +253,7 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"--single-precision")==0) {
             param.isDoublePrecision = false;
         }
-        else if (strcmp(argv[i],"--32bit-index")==0) {
+        else if (strcmp(argv[i],"--32bit-local-index")==0) {
             param.is64bInt = false;
         }
     }
@@ -303,7 +303,7 @@ void ShowOptions()
     runinfo << "    -phases <number of phases> (default:1)\n";
     runinfo << "    -per-process-mem <memory (GB) available per process> (default:0, number of phases is not estimated)\n";
     runinfo << "    --single-precision (if not provided, use double precision floating point numbers)\n" << endl;
-    runinfo << "    --32bit-index (if not provided, use 64 bit indexing for vertex ids)\n" << endl;
+    runinfo << "    --32bit-local-index (if not provided, use 64 bit indexing for vertex ids)\n" << endl;
     
     runinfo << "Debugging" << endl;
     runinfo << "    --show: show information about matrices after major steps (default: do not show matrices)" << endl;
@@ -498,8 +498,10 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     double tcc1 = MPI_Wtime();
 #endif
     
-    // bool does not work because A.AddLoops(1) can not create a fullydist vector with Bool?
-    // write a promote train for float
+    // bool can not be used because
+    // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
+    // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
+    // hence, we are forcing this with IT and double
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A;
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
     
@@ -572,12 +574,11 @@ void MainBody(HipMCLParam & param)
     
     outs.str("");
     outs.clear();
-    if(!param.is64bInt) // don't compute nnz because it may overflow
-    {
-        GIT nnz = A.getnnz();
-        GIT nv = A.getnrow();
-        outs << "Number of vertices: " << nv << " number of edges: "<< nnz << endl;
-    }
+    
+    GIT nnz = A.getnnz();
+    GIT nv = A.getnrow();
+    outs << "Number of vertices: " << nv << " number of edges: "<< nnz << endl;
+    
     outs << "Load balance: " << balance << endl;
     SpParHelper::Print(outs.str());
     
@@ -683,19 +684,17 @@ int main(int argc, char* argv[])
     }
     
     {
-	
-	#if 0
-	    MainBody<int64_t, int32_t, double>(param);
-	#endif
         if(param.isDoublePrecision)
+        {
             if(param.is64bInt) // default case
                 MainBody<int64_t, int64_t, double>(param);
             else
-                MainBody<int32_t, int32_t, double>(param);
+                MainBody<int64_t, int32_t, double>(param);
+        }
         else if(param.is64bInt)
             MainBody<int64_t, int64_t, float>(param);
         else
-            MainBody<int32_t, int32_t, float>(param); // memory effecient case
+            MainBody<int64_t, int32_t, float>(param);
     }
     
     
