@@ -120,13 +120,14 @@ SpTuples<IT, NTO> * LocalSpGEMM
     IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
     IT flop = flopptr[Bdcsc->nzc];
     // std::cout << "FLOP of A * B is " << flop << std::endl;
-    delete [] flopC;
 
-    IT* colnnzC = estimateNNZ(A, B);
+    IT* colnnzC = estimateNNZ_Hash(A, B, flopC);
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
     delete [] colnnzC;
+    delete [] flopC;
     IT nnzc = colptrC[Bdcsc->nzc];
     double compression_ratio = (double)flop / nnzc;
+
     // std::cout << "NNZ of A * B is " << nnzc << std::endl;
     // std::cout << "Compression ratio is " << compression_ratio << std::endl;
 
@@ -403,6 +404,121 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
             else
             {
                 --hsize;
+            }
+        }
+    }
+    
+    delete [] aux;
+    return colnnzC;
+}
+
+// estimate space for result of SpGEMM
+template <typename IT, typename NT1, typename NT2>
+IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, const IT *flopC)
+{
+    IT nnzA = A.getnnz();
+    if(A.isZero() || B.isZero())
+    {
+        return NULL;
+    }
+    
+    Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
+    Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
+    
+    float cf  = static_cast<float>(A.getncol()+1) / static_cast<float>(Adcsc->nzc);
+    IT csize = static_cast<IT>(ceil(cf));   // chunk size
+    IT * aux;
+    Adcsc->ConstructAux(A.getncol(), aux);
+	
+	
+    int numThreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+#endif
+    
+
+    IT* colnnzC = new IT[Bdcsc->nzc]; // nnz in every nonempty column of C
+	
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(IT i=0; i< Bdcsc->nzc; ++i)
+    {
+        colnnzC[i] = 0;
+    }
+    
+    // thread private space for heap and colinds
+    std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
+
+    for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
+    {
+        colindsVec[i].resize(nnzA/numThreads);
+    }
+
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+    for(int i=0; i < Bdcsc->nzc; ++i)
+    {
+        size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+		int myThread = 0;
+#ifdef THREADED
+        myThread = omp_get_thread_num();
+#endif
+        if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
+        {
+            colindsVec[myThread].resize(nnzcolB);
+        }
+		
+        // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+        // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+        Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
+        std::pair<IT,IT> * colinds = colindsVec[myThread].data();
+
+        // Hash
+        const IT minHashTableSize = 16;
+        const IT hashScale = 107;
+
+        // Initialize hash tables
+        IT ht_size = minHashTableSize;
+        while(ht_size < flopC[i]) //ht_size is set as 2^n
+        {
+            ht_size <<= 1;
+        }
+        std::vector<IT> globalHashVec(ht_size);
+
+        for(IT j=0; (unsigned)j < ht_size; ++j)
+        {
+            globalHashVec[j] = -1;
+        }
+            
+        for (IT j=0; (unsigned)j < nnzcolB; ++j)
+        {
+            IT t_bcol = Bdcsc->ir[Bdcsc->cp[i] + j];
+            for (IT k = colinds[j].first; (unsigned)k < colinds[j].second; ++k)
+            {
+                IT key = Adcsc->ir[k];
+                IT hash = (key*hashScale) & (ht_size-1);
+                while (1) //hash probing
+                {
+                    if (globalHashVec[hash] == key) //key is found in hash table
+                    {
+                        break;
+                    }
+                    else if (globalHashVec[hash] == -1) //key is not registered yet
+                    {
+                        globalHashVec[hash] = key;
+                        colnnzC[i] ++;
+                        break;
+                    }
+                    else //key is not found
+                    {
+                        hash = (hash+1) & (ht_size-1);
+                    }
+                }
             }
         }
     }
