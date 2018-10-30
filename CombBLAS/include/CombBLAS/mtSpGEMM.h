@@ -162,7 +162,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
         Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
         std::pair<IT,IT> * colinds = colindsVec[myThread].data();
 
-        if (float(flopptr[i+1]-flopptr[i]) / (float)(colptrC[i+1]-colptrC[i]) < 2.0) // Heap Algorithm
+        double cr = double(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
+        if (cr < 2.0) // Heap Algorithm
         {
             std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
             HeapEntry<IT, NT1> * wset = globalheapVec.data();
@@ -447,8 +448,6 @@ IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     {
         colflopC[i] = 0;
     }
-    
-    
 
 
     // thread private space for heap and colinds
