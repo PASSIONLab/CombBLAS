@@ -275,7 +275,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         colindsVec[i].resize(nnzA/numThreads);
     }
 
-    IT hashSelected = 0;
+    // IT hashSelected = 0;
 
 #ifdef THREADED
 #pragma omp parallel for
@@ -299,7 +299,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         std::pair<IT,IT> * colinds = colindsVec[myThread].data();
 
         double cr = double(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
-        if (cr < 2.0) // Heap Algorithm
+        if (cr < 0.0) // Heap Algorithm
         {
             std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
             HeapEntry<IT, NT1> * wset = globalheapVec.data();
@@ -349,8 +349,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         
         else // Hash Algorithm
         {
-#pragma omp atomic
-            hashSelected++;
+// #pragma omp atomic
+//             hashSelected++;
             const IT minHashTableSize = 16;
             const IT hashScale = 107;
             size_t nnzcolC = colptrC[i+1] - colptrC[i]; //nnz in the current column of C (=Output)
@@ -434,7 +434,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     double t1=MPI_Wtime();
 
     std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
-    std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
+    // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
 
     return spTuplesC;
 }
