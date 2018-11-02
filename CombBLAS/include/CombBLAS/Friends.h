@@ -79,7 +79,7 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 
 //! SpMV with dense vector (multithreaded version)
 template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
-void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
+void dcsc_gespmv_threaded_nosplit (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 {
 	if(A.nnz > 0)
 	{	
@@ -129,6 +129,49 @@ void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 		SpHelper::deallocate2D(tomerge, nthreads);
 	}
 }
+    
+    
+    
+    
+    /**
+     * Multithreaded SpMV with dense vector
+     */
+    template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+    void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
+    {
+        if(A.nnz > 0)
+        {
+            int splits = A.getnsplit();
+            if(splits > 0)
+            {
+                IU nlocrows = A.getnrow();
+                IU perpiece = nlocrows / splits;
+                std::vector<int> disp(splits, 0);
+                for(int i=1; i<splits; ++i)
+                    disp[i] = disp[i-1] + perpiece;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for(int s=0; s<splits; ++s)
+                {
+                    Dcsc<IU, NU> * dcsc = A.GetInternal(s);
+                    for(IU j =0; j<dcsc->nzc; ++j)    // for all nonzero columns
+                    {
+                        IU colid = dcsc->jc[j];
+                        for(IU i = dcsc->cp[j]; i< dcsc->cp[j+1]; ++i)
+                        {
+                            IU rowid = dcsc->ir[i] + disp[s];
+                            SR::axpy(dcsc->numx[i], x[colid], y[rowid]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                dcsc_gespmv_threaded_nosplit<SR>(A,x,y);
+            }
+        }
+    }
 
 
 /** 
