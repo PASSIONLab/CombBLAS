@@ -14,7 +14,7 @@ $(COMBBLAS)/Tommy/%.o : $(COMBBLAS)/Tommy/%.c
 	$(CC) $(CXXFLAGS) -o $@ -c $<
 
 mcl2mtx: mcl2mtx.cpp MMConverter.h mmio.o $(TOMMYS) gzstream/libgzstream.a
-	$(CC) -std=c++11 $(CFLAGS) -o mcl2mtx mmio.o $(TOMMYS) mcl2mtx.cpp -Lgzstream -lgzstream -lz
+	$(CC) -std=c++11 $(CFLAGS) -DSUBGRAPHS -o mcl2mtx mmio.o $(TOMMYS) mcl2mtx.cpp -Lgzstream -lgzstream -lz
 
 cc: cc.cpp MMConverter.h mmio.o $(TOMMYS) gzstream/libgzstream.a
 	$(CC) -std=c++11 $(CFLAGS) -o cc mmio.o $(TOMMYS) cc.cpp -Lgzstream -lgzstream -lz
