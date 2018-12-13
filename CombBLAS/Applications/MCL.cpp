@@ -438,6 +438,16 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // Make stochastic
     MakeColStochastic(A);
     SpParHelper::Print("Made stochastic\n");
+    
+    
+    IT nnz = A.getnnz();
+    IT nv = A.getnrow();
+    IT avgDegree = nnz/nv;
+    if(avgDegree > std::max(param.select, param.recover_num))
+    {
+        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\nApplying the prune/select/recovery logic before the first iteration\n\n");
+        MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
+    }
 
     if(param.show)
     {
