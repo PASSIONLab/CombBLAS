@@ -48,6 +48,11 @@
 #include "CombBLAS/CombBLAS.h"
 #include "CC.h"
 #include "WriteMCLClusters.h"
+#undef Max
+#undef Min
+#undef Abs
+#undef Assert
+#include "meSpGEMM.h"
 
 using namespace std;
 using namespace combblas;
@@ -97,8 +102,9 @@ typedef struct
     
     //debugging
     bool show;
-    
-    
+
+	// @EDIT
+	lspg_t local_spgemm;    
 }HipMCLParam;
 
 
@@ -134,6 +140,9 @@ void InitParam(HipMCLParam & param)
     
     //debugging
     param.show = false;
+
+	// @EDIT
+	param.local_spgemm = LSPG_CPU;
 }
 
 void ShowParam(HipMCLParam & param)
@@ -192,6 +201,14 @@ void ShowParam(HipMCLParam & param)
     runinfo << "    Show matrices after major steps? : ";
     if (param.show) runinfo << "yes";
     else runinfo << "no" << endl;
+
+	// @EDIT
+	string tmp = param.local_spgemm == LSPG_CPU ? "on cpu" :
+		(param.local_spgemm == LSPG_RMERGE2 ? "gpu/rmerge2" :
+		 (param.local_spgemm == LSPG_BHSPARSE ? "gpu/bhsparse" :
+		  "gpu/nsparse"));
+	runinfo << "local spgemm type: " << tmp << endl;
+												  
     runinfo << "======================================" << endl;
     SpParHelper::Print(runinfo.str());
 }
@@ -256,6 +273,17 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"--32bit-local-index")==0) {
             param.is64bInt = false;
         }
+		// @EDIT
+		else if (strcmp(argv[i],"-lspgemm") == 0) {
+			if (strcmp(argv[i+1], "cpu")==0)
+				param.local_spgemm = LSPG_CPU;
+			else if (strcmp(argv[i+1], "rmerge2")==0)
+				param.local_spgemm = LSPG_RMERGE2;
+			else if (strcmp(argv[i+1], "bhsparse")==0)
+				param.local_spgemm = LSPG_BHSPARSE;
+			else if (strcmp(argv[i+1], "nsparse")==0)
+				param.local_spgemm = LSPG_NSPARSE;
+		}
     }
     
     if(param.ofilename=="") // construct output file name if it is not provided
@@ -438,16 +466,16 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // Make stochastic
     MakeColStochastic(A);
     SpParHelper::Print("Made stochastic\n");
-    
-    
+
+	
     IT nnz = A.getnnz();
-    IT nv = A.getnrow();
-    IT avgDegree = nnz/nv;
-    if(avgDegree > std::max(param.select, param.recover_num))
-    {
-        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\nApplying the prune/select/recovery logic before the first iteration\n\n");
-        MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
-    }
+	IT nv = A.getnrow();
+	IT avgDegree = nnz/nv;
+	if(avgDegree > std::max(param.select, param.recover_num))
+	{
+		SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\nApplying the prune/select/recovery logic before the first iteration\n\n");
+		MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
+	}
 
     if(param.show)
     {
@@ -467,7 +495,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     {
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;		// expand
-        A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+        // A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+		A = MemEfficientSpGEMMg<PTFF, NT, DER>
+			(A, A, param.phases, param.prunelimit, (IT)param.select,
+			 (IT)param.recover_num, param.recover_pct,
+			 param.kselectVersion, param.perProcessMem, param.local_spgemm);
         
         MakeColStochastic(A);
         tExpand += (MPI_Wtime() - t1);

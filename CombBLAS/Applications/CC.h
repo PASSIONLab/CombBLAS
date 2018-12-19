@@ -51,7 +51,7 @@
 #define NONSTAR 0
 #define STAR 1
 #define CONVERGED 2
-using namespace std;
+//using namespace std;
 
 /**
  ** Connected components based on Awerbuch-Shiloach algorithm
@@ -325,7 +325,7 @@ namespace combblas {
         int totalCommCnt = 0;
         MPI_Allreduce(&commCnt, &totalCommCnt, 1, MPI_INT, MPI_SUM, comm);
         
-        if(totalCommCnt < 2*log2(nprocs))
+        if(totalCommCnt < 2*std::log2(nprocs))
         {
             return par::Mpi_Alltoallv_sparse(sbuff, s_cnt, sdisp, rbuff, r_cnt, rdisp, comm);
         }
@@ -344,14 +344,14 @@ namespace combblas {
     
 		
     template <class IT, class NT>
-    int replicate(const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri, vector<vector<NT>> &bcastBuffer)
+    int replicate(const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri, std::vector<std::vector<NT>> &bcastBuffer)
     {
         auto commGrid = dense.getcommgrid();
         MPI_Comm World = commGrid->GetWorld();
         int nprocs = commGrid->GetSize();
         
-        vector<int> sendcnt (nprocs,0);
-        vector<int> recvcnt (nprocs,0);
+        std::vector<int> sendcnt (nprocs,0);
+        std::vector<int> recvcnt (nprocs,0);
         std::vector<IT> rinum = ri.GetLocalNum();
         IT riloclen = rinum.size();
         for(IT i=0; i < riloclen; ++i)
@@ -364,9 +364,9 @@ namespace combblas {
         MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, World);
         IT totrecv = std::accumulate(recvcnt.begin(),recvcnt.end(), static_cast<IT>(0));
         
-        double broadcast_cost = dense.LocArrSize() * log2(nprocs); // bandwidth cost
+        double broadcast_cost = dense.LocArrSize() * std::log2(nprocs); // bandwidth cost
         IT bcastsize = 0;
-        vector<IT> bcastcnt(nprocs,0);
+        std::vector<IT> bcastcnt(nprocs,0);
         
         int nbcast = 0;
         if(broadcast_cost < totrecv)
@@ -431,7 +431,7 @@ namespace combblas {
         
        
         
-        vector<vector<NT>> bcastBuffer(nprocs);
+        std::vector<std::vector<NT>> bcastBuffer(nprocs);
 #ifdef CC_TIMING
         double t1 = MPI_Wtime();
 #endif
@@ -576,7 +576,7 @@ namespace combblas {
 #ifdef CC_TIMING
         double total = MPI_Wtime() - ts;
         outs << "others: " << total  - (bcast + all2ll1 + all2ll2 + all2ll3) << " ";
-        outs<< endl;
+        outs<< std::endl;
         SpParHelper::Print(outs.str());
 #endif
         
@@ -587,7 +587,7 @@ namespace combblas {
     
     
     template <class IT, class NT>
-    int ReduceAssign(FullyDistSpVec<IT,IT> & ind, FullyDistSpVec<IT,NT> & val, vector<vector<NT>> &reduceBuffer, NT MAX_FOR_REDUCE)
+    int ReduceAssign(FullyDistSpVec<IT,IT> & ind, FullyDistSpVec<IT,NT> & val, std::vector<std::vector<NT>> &reduceBuffer, NT MAX_FOR_REDUCE)
     {
         auto commGrid = ind.getcommgrid();
         MPI_Comm World = commGrid->GetWorld();
@@ -595,8 +595,8 @@ namespace combblas {
         int myrank;
         MPI_Comm_rank(World,&myrank);
         
-        vector<int> sendcnt (nprocs,0);
-        vector<int> recvcnt (nprocs);
+        std::vector<int> sendcnt (nprocs,0);
+        std::vector<int> recvcnt (nprocs);
         std::vector<std::vector<IT>> indBuf(nprocs);
         std::vector<std::vector<NT>> valBuf(nprocs);
         std::vector<IT> indices = ind.GetLocalNum();
@@ -615,9 +615,9 @@ namespace combblas {
         
         MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, World);
         IT totrecv = std::accumulate(recvcnt.begin(),recvcnt.end(), static_cast<IT>(0));
-        double reduceCost = ind.MyLocLength() * log2(nprocs); // bandwidth cost
+        double reduceCost = ind.MyLocLength() * std::log2(nprocs); // bandwidth cost
         IT reducesize = 0;
-        vector<IT> reducecnt(nprocs,0);
+        std::vector<IT> reducecnt(nprocs,0);
         
         int nreduce = 0;
         if(reduceCost < totrecv)
@@ -669,7 +669,7 @@ namespace combblas {
     
     // for fixed value
     template <class IT, class NT>
-    int ReduceAssign(FullyDistSpVec<IT,IT> & ind, NT val, vector<vector<NT>> &reduceBuffer, NT MAX_FOR_REDUCE)
+    int ReduceAssign(FullyDistSpVec<IT,IT> & ind, NT val, std::vector<std::vector<NT>> &reduceBuffer, NT MAX_FOR_REDUCE)
     {
         auto commGrid = ind.getcommgrid();
         MPI_Comm World = commGrid->GetWorld();
@@ -677,8 +677,8 @@ namespace combblas {
         int myrank;
         MPI_Comm_rank(World,&myrank);
         
-        vector<int> sendcnt (nprocs,0);
-        vector<int> recvcnt (nprocs);
+        std::vector<int> sendcnt (nprocs,0);
+        std::vector<int> recvcnt (nprocs);
         std::vector<std::vector<IT>> indBuf(nprocs);
         std::vector<IT> indices = ind.GetLocalNum();
         
@@ -694,9 +694,9 @@ namespace combblas {
         
         MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, World);
         IT totrecv = std::accumulate(recvcnt.begin(),recvcnt.end(), static_cast<IT>(0));
-        double reduceCost = ind.MyLocLength() * log2(nprocs); // bandwidth cost
+        double reduceCost = ind.MyLocLength() * std::log2(nprocs); // bandwidth cost
         IT reducesize = 0;
-        vector<IT> reducecnt(nprocs,0);
+        std::vector<IT> reducecnt(nprocs,0);
         
         int nreduce = 0;
         if(reduceCost < totrecv)
@@ -781,7 +781,7 @@ namespace combblas {
         int * sendcnt = new int[nprocs](); // initialize to 0
         int * sdispls = new int[nprocs+1];
         
-        vector<vector<NT>> reduceBuffer(nprocs);
+        std::vector<std::vector<NT>> reduceBuffer(nprocs);
 
         
 #ifdef CC_TIMING
@@ -834,8 +834,8 @@ namespace combblas {
         IT totrecv = rdispls[nprocs];
         
         
-        vector<IT> sendInd(totsend);
-        vector<NT> sendVal(totsend);
+        std::vector<IT> sendInd(totsend);
+        std::vector<NT> sendVal(totsend);
         for(int i=0; i<nprocs; ++i)
         {
             std::copy(indBuf[i].begin(), indBuf[i].end(), sendInd.begin()+sdispls[i]);
@@ -844,8 +844,8 @@ namespace combblas {
             std::vector<NT>().swap(valBuf[i]);
         }
         
-        vector<IT> recvInd(totrecv);
-        vector<NT> recvVal(totrecv);
+        std::vector<IT> recvInd(totrecv);
+        std::vector<NT> recvVal(totrecv);
 #ifdef CC_TIMING
         t1 = MPI_Wtime();
 #endif
@@ -874,7 +874,7 @@ namespace combblas {
         MPI_Comm_rank(World,&myrank);
         if(reduceBuffer[myrank].size()>0)
         {
-            //cout << myrank << " : " << recvInd.size() << endl;
+            //cout << myrank << " : " << recvInd.size() << std::endl;
             for(int i=0; i<reduceBuffer[myrank].size(); i++)
             {
                 
@@ -893,7 +893,7 @@ namespace combblas {
 #ifdef CC_TIMING
         double total = MPI_Wtime() - ts;
         outs << "others: " << total  - (reduce + all2ll1 + all2ll2 + all2ll3) << " ";
-        outs<< endl;
+        outs<< std::endl;
         SpParHelper::Print(outs.str());
 #endif
         return indexed;
@@ -928,7 +928,7 @@ namespace combblas {
         int * sendcnt = new int[nprocs](); // initialize to 0
         int * sdispls = new int[nprocs+1];
         
-        vector<vector<NT>> reduceBuffer(nprocs);
+        std::vector<std::vector<NT>> reduceBuffer(nprocs);
         
         
 #ifdef CC_TIMING
@@ -978,14 +978,14 @@ namespace combblas {
         IT totrecv = rdispls[nprocs];
         
         
-        vector<IT> sendInd(totsend);
+        std::vector<IT> sendInd(totsend);
         for(int i=0; i<nprocs; ++i)
         {
             std::copy(indBuf[i].begin(), indBuf[i].end(), sendInd.begin()+sdispls[i]);
             std::vector<IT>().swap(indBuf[i]);
         }
         
-        vector<IT> recvInd(totrecv);
+        std::vector<IT> recvInd(totrecv);
 #ifdef CC_TIMING
         t1 = MPI_Wtime();
 #endif
@@ -1003,10 +1003,10 @@ namespace combblas {
         
         int myrank;
         MPI_Comm_rank(World,&myrank);
-        vector<NT> recvVal(totrecv);
+        std::vector<NT> recvVal(totrecv);
         if(reduceBuffer[myrank].size()>0)
         {
-            //cout << myrank << " : " << recvInd.size() << endl;
+            //cout << myrank << " : " << recvInd.size() << std::endl;
             for(int i=0; i<reduceBuffer[myrank].size(); i++)
             {
                 if(reduceBuffer[myrank][i] < MAX_FOR_REDUCE)
@@ -1021,7 +1021,7 @@ namespace combblas {
 #ifdef CC_TIMING
         double total = MPI_Wtime() - ts;
         outs << "others: " << total  - (reduce + all2ll1 + all2ll2) << " ";
-        outs<< endl;
+        outs<< std::endl;
         SpParHelper::Print(outs.str());
 #endif
         return indexed;
@@ -1233,7 +1233,7 @@ namespace combblas {
         outs.str("");
         outs.clear();
         outs << " Conditional Hooking Time: SpMV: " << tspmv << " Other: "<< tall-tspmv;
-        outs<< endl;
+        outs<< std::endl;
         SpParHelper::Print(outs.str());
 #endif
         return finalhooks;
@@ -1247,7 +1247,7 @@ namespace combblas {
 #ifdef CC_TIMING
         double ts =  MPI_Wtime();
         double t1, tspmv;
-        string spmv = "dense";
+        std::string spmv = "dense";
 #endif
         IT nNonStars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==NONSTAR);});
         IT nv = A.getnrow();
@@ -1309,7 +1309,7 @@ namespace combblas {
         outs.str("");
         outs.clear();
         outs << " Unconditional Hooking Time " << spmv << " : " << tspmv << " Other: "<< tall-tspmv;
-        outs<< endl;
+        outs<< std::endl;
         SpParHelper::Print(outs.str());
 #endif
         
@@ -1499,7 +1499,7 @@ namespace combblas {
             outs.clear();
             outs << "Iteration: " << iteration << " converged: " << nconverged << " stars: " << nstars << " nonstars: " << nonstars;
             outs << " Time:  t_cond_hook: " << t_cond_hook << " t_starcheck1: " << t_starcheck1 << " t_uncond_hook: " << t_uncond_hook << " t_starcheck2: " << t_starcheck2 << " t_shortcut: " << t_shortcut << " t_starcheck: " << t_starcheck;
-            outs<< endl;
+            outs<< std::endl;
             SpParHelper::Print(outs.str());
 #endif
              iteration++;

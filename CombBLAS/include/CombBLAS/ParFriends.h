@@ -999,7 +999,10 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
             
 	    // no need to keep entries of colnnzC in larger precision 
 	    // because colnnzC is of length nzc and estimates nnzs per column
-            LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);            
+			// @EDIT Using hash spgemm for estimation
+            // LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
+			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;
@@ -1155,7 +1158,7 @@ void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * &
 	}	
 #ifdef TIMING
 	double t1=MPI_Wtime();
-	cblas_allgathertime += (t1-t0);
+	//cblas_allgathertime += (t1-t0);
 #endif
 	DeleteAll(colnz,dpls);
 }	
@@ -1430,7 +1433,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     
 #ifdef TIMING
     double t1=MPI_Wtime();
-    cblas_transvectime += (t1-t0);
+    //cblas_transvectime += (t1-t0);
 #endif
     
     if(x.commGrid->GetGridRows() > 1)
@@ -1459,7 +1462,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 
 #ifdef TIMING
     double t3=MPI_Wtime();
-    cblas_localspmvtime += (t3-t2);
+    //cblas_localspmvtime += (t3-t2);
 #endif
 	
 
@@ -1527,7 +1530,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	}
 #ifdef TIMING
 	double t5=MPI_Wtime();
-	cblas_alltoalltime += (t5-t4);
+	//cblas_alltoalltime += (t5-t4);
 #endif
 	
 #ifdef TIMING
@@ -1558,7 +1561,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
     DeleteAll(recvcnt, rdispls,recvindbuf, recvnumbuf);
 #ifdef TIMING
     double t7=MPI_Wtime();
-    cblas_mergeconttime += (t7-t6);
+    //cblas_mergeconttime += (t7-t6);
 #endif
     
 }

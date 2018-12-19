@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{db176062-f66a-4173-a119-739968acc566}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EndsWith.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="fopen_s.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessMemory.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SplitString.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Verify.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WallTime.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WinOnlyStatic.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleProgress.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DummyProgress.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FolderSizes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetMacAdresses.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IniParser.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IniParsing.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Minimal.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomGenerator.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialize.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Sort.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StdCoutLogger.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FolderSizesAndOwners.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DualStream.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ToWString.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapEndian.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ToDump.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ToString.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FileSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefileGeneral" />
+  </ItemGroup>
+</Project>
