@@ -97,9 +97,16 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), sizes, 1, MPIType<IT>(), World);
 	glen = std::accumulate(sizes, sizes+nprocs, static_cast<IT>(0));
 
-	std::vector<IT> uniq_sizes;
-	std::unique_copy(sizes, sizes+nprocs, std::back_inserter(uniq_sizes));
-	if(uniq_sizes.size() == 1)
+	bool unique = true;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		if(sizes[i] != sizes[i+1])
+		{
+			unique = false;
+			break;
+		}
+	}
+	if(unique)
 	{
 		arr = fillarr;
 	}
@@ -111,8 +118,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 		// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
 		
 		// rebalance/redistribute
-		int * sendcnt = new int[nprocs];
-		std::fill(sendcnt, sendcnt+nprocs, 0);
+		int * sendcnt = new int[nprocs](); // no need to std::fill as this type of new[] with () will initialize PODs correctly
 		for(IT i=0; i<nsize; ++i)
 		{
 			IT locind;
@@ -132,11 +138,10 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 			rdispls[i+1] = rdispls[i] + recvcnt[i];
 		}
 		IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-		std::vector<IT> recvbuf(totrecv);
+		arr.resize(totrecv);
 		
 		// data is already in the right order in found.arr
-		MPI_Alltoallv(&(arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), World);
-		arr.swap(recvbuf);
+		MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<IT>(), arr.data(), recvcnt, rdispls, MPIType<IT>(), World);
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
 	delete [] sizes;
