@@ -25,7 +25,7 @@ std::vector<RT> findColSplitters(SpTuples<IT,NT> * & spTuples, int nsplits)
     for(int i=1; i< nsplits; i++)
     {
         IT cur_col = i * (spTuples->getncol()/nsplits);
-        std::tuple<IT,IT,NT> search_tuple(0, cur_col, 0);
+        std::tuple<IT,IT,NT> search_tuple(0, cur_col, NT());
         std::tuple<IT,IT,NT>* it = std::lower_bound (spTuples->tuples, spTuples->tuples + spTuples->getnnz(), search_tuple, comp);
         splitters[i] = (RT) (it - spTuples->tuples);
     }
