@@ -103,14 +103,11 @@ SpTuples<IT, NTO> * LocalSpGEMM
     }
 #endif
    
-    IT* colnnzC = estimateNNZ(A, B);
+    IT* colnnzC = estimateNNZ(A, B, aux);
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
     delete [] colnnzC;
     IT nnzc = colptrC[Bdcsc->nzc];
     std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
-	
-	
-
 	
     // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
@@ -122,11 +119,11 @@ SpTuples<IT, NTO> * LocalSpGEMM
         globalheapVec[i].resize(nnzA/numThreads);
     }
 
-
+    size_t Bnzc = (size_t) Bdcsc->nzc;
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-    for(int i=0; i < Bdcsc->nzc; ++i)
+    for(size_t i=0; i < Bnzc; ++i)
     {
         size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
 		int myThread = 0;
@@ -148,7 +145,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         IT hsize = 0;
         
         
-        for(IT j = 0; (unsigned)j < nnzcolB; ++j)		// create the initial heap
+        for(size_t j = 0; j < nnzcolB; ++j)		// create the initial heap
         {
             if(colinds[j].first != colinds[j].second)	// current != end
             {
@@ -280,7 +277,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-    for(int i=0; i < Bdcsc->nzc; ++i)
+    for(size_t i=0; i < Bdcsc->nzc; ++i)
     {
         size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
         int myThread = 0;
@@ -298,7 +295,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
         std::pair<IT,IT> * colinds = colindsVec[myThread].data();
 
-        double cr = double(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
+        double cr = static_cast<double>(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
         if (cr < 0.0) // Heap Algorithm
         {
             std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
@@ -306,7 +303,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             
             IT hsize = 0;
         
-            for(IT j = 0; (unsigned)j < nnzcolB; ++j)		// create the initial heap
+            for(size_t j = 0; j < nnzcolB; ++j)		// create the initial heap
             {
                 if(colinds[j].first != colinds[j].second)	// current != end
                 {
@@ -349,13 +346,13 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         
         else // Hash Algorithm
         {
-// #pragma omp atomic
-//             hashSelected++;
+	// #pragma omp atomic
+	// 	hashSelected++;
             const IT minHashTableSize = 16;
             const IT hashScale = 107;
             size_t nnzcolC = colptrC[i+1] - colptrC[i]; //nnz in the current column of C (=Output)
 
-            IT ht_size = minHashTableSize;
+            size_t ht_size = minHashTableSize;
             while(ht_size < nnzcolC) //ht_size is set as 2^n
             {
                 ht_size <<= 1;
@@ -366,17 +363,17 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
             
             // Initialize hash tables
-            for(IT j=0; (unsigned)j < ht_size; ++j)
+            for(size_t j=0; j < ht_size; ++j)
             {
                 globalHashVec[j].first = -1;
             }
             
             // Multiply and add on Hash table
-            for (IT j=0; (unsigned)j < nnzcolB; ++j)
+            for (size_t j=0; j < nnzcolB; ++j)
             {
                 IT t_bcol = Bdcsc->ir[Bdcsc->cp[i] + j];
                 NT2 t_bval = Bdcsc->numx[Bdcsc->cp[i] + j];
-                for (IT k = colinds[j].first; (unsigned)k < colinds[j].second; ++k)
+                for (IT k = colinds[j].first; k < colinds[j].second; ++k)
                 {
                     NTO mrhs = SR::multiply(Adcsc->numx[k], t_bval);
                     IT key = Adcsc->ir[k];
@@ -402,8 +399,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                 }
             }
             // gather non-zero elements from hash table, and then sort them by row indices
-            IT index = 0;
-            for (IT j=0; j < ht_size; ++j)
+            size_t index = 0;
+            for (size_t j=0; j < ht_size; ++j)
             {
                 if (globalHashVec[j].first != -1)
                 {
@@ -413,7 +410,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT1>);
 
             IT curptr = colptrC[i];
-            for (IT j=0; j < index; ++j)
+            for (size_t j=0; j < index; ++j)
             {
                 tuplesC[curptr++]= std::make_tuple(globalHashVec[j].first, Bdcsc->jc[i], globalHashVec[j].second);
             }
@@ -441,7 +438,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
 // estimate space for result of SpGEMM
 template <typename IT, typename NT1, typename NT2>
-IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
+IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * aux = nullptr)
 {
     IT nnzA = A.getnnz();
     if(A.isZero() || B.isZero())
@@ -454,8 +451,10 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     
     float cf  = static_cast<float>(A.getncol()+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
-    IT * aux;
-    Adcsc->ConstructAux(A.getncol(), aux);
+    if(aux == nullptr)
+    {
+	    Adcsc->ConstructAux(A.getncol(), aux);
+    }
 	
 	
     int numThreads = 1;
