@@ -82,6 +82,8 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 /**
   * Initialize a FullyDistVec with a separate vector from each processor
   * Optimizes for the common case where all fillarr's in separate processors are of the same size
+  * \pre{fillarr sizes exactly follow how CombBLAS would distribute a FullyDistVec}
+  * \warning{This should only be used by an expert user who fully understands CombBLAS's FullyDistVec distribution}
   */
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ) 
@@ -144,8 +146,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 		MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<IT>(), arr.data(), recvcnt, rdispls, MPIType<IT>(), World);
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
-	delete [] sizes;
-	
+	delete [] sizes;	
 }
 
 
