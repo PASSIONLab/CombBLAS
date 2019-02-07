@@ -813,7 +813,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
 	
-	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
+	const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
 	MPI_Barrier(GridC->GetWorld());
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
@@ -866,29 +866,31 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
-		/*
+		
 		 // before activating this transpose B first
 		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
-						false, true,	// transpose information (B is transposed)
+						false, true,	// transpose information (none are transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		 */
+		 
 		
-		SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
+		/*SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-
+		*/
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
+		MPI_Barrier(MPI_COMM_WORLD);
 		#ifdef COMBBLAS_DEBUG
    		std::ostringstream outs;
 		outs << i << "th SUMMA iteration"<< std::endl;
 		SpParHelper::Print(outs.str());
 		#endif
+		MPI_Barrier(MPI_COMM_WORLD);		
 	}
 	if(clearA && A.spSeq != NULL) 
 	{	
@@ -911,8 +913,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
 	UDERO * C = new UDERO(*C_tuples, false);
 
-	//if(!clearB)
-	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	if(!clearB)
+		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
