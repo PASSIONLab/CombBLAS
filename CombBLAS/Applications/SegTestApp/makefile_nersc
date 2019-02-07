@@ -1,0 +1,49 @@
+COMBBLAS = /global/homes/e/esaliya/sali/git/bitbucket/combinatorial-blas-2.0/CombBLAS
+COMBBLAS_INC = $(COMBBLAS)/include/CombBLAS
+COMBBLAS_SRC = $(COMBBLAS)/src
+INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/
+
+# notes for configure:
+# -fno-exceptions does not work with MPICH2
+# -fno-rtti does not work with tr1:tuples
+
+OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
+PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
+COMPILER = CC -std=c++11 -std=c++14 -fpermissive #-DTHREADED -fopenmp  
+FLAGS = $(DEB) -Wall -Wno-maybe-uninitialized #-DTIMING #-DCOMBBLAS_DEBUG
+
+
+
+#
+# build Graph500 generator
+#
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
+
+CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp
+
+MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp
+
+
+
+SegTest.o:  SegTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SegTest.o SegTest.cpp
+
+segtest:	CommGrid.o MPIType.o SegTest.o
+	$(COMPILER) $(INCADD) $(FLAGS)  -o segtest SegTest.o CommGrid.o MPIType.o
+
+all:	segtest
+
+clean:
+	rm -f segtest
+	rm -f *.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+
+cleanout:
+	rm out.*
+	rm err.*
+
