@@ -884,13 +884,11 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
-		MPI_Barrier(MPI_COMM_WORLD);
 		#ifdef COMBBLAS_DEBUG
    		std::ostringstream outs;
 		outs << i << "th SUMMA iteration"<< std::endl;
 		SpParHelper::Print(outs.str());
 		#endif
-		MPI_Barrier(MPI_COMM_WORLD);		
 	}
 	if(clearA && A.spSeq != NULL) 
 	{	
