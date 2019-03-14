@@ -245,7 +245,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     }
 #endif
    
-    std::cout << "numThreads: " << numThreads << std::endl;
+    // std::cout << "numThreads: " << numThreads << std::endl;
 
     IT* flopC = estimateFLOP(A, B);
     IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
@@ -430,7 +430,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
     double t1=MPI_Wtime();
 
-    std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
+    // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
     // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
 
     return spTuplesC;
@@ -662,6 +662,127 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
     
     delete [] aux;
     return colnnzC;
+}
+
+// sampling-based nnz estimation (within SUMMA)
+template <typename IT, typename NT1, typename NT2>
+int64_t
+estimateNNZ_sampling(
+    const SpDCCols<IT, NT1> &A,
+	const SpDCCols<IT, NT2> &B,
+	int						 nrounds = 5
+	)
+{
+	IT nnzA = A.getnnz();
+    if (A.isZero() || B.isZero())
+        return 0;
+
+	Dcsc<IT,NT1>    *Adcsc	 = A.GetDCSC();
+    Dcsc<IT,NT2>    *Bdcsc	 = B.GetDCSC();
+	float			 lambda	 = 1.0f;
+	float			 usedmem = 0.0f;
+	IT				 m		 = A.getnrow();
+	IT				 p		 = A.getncol();
+	float			*samples_init, *samples_mid, *samples_final;
+	float			*colest;
+
+	// samples
+	samples_init = (float *) malloc(m * nrounds * sizeof(*samples_init));
+	samples_mid	 = (float *) malloc(p * nrounds * sizeof(*samples_mid));
+
+	int nthds = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		nthds = omp_get_num_threads();
+	}	
+
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		std::default_random_engine gen;
+		std::exponential_distribution<float> exp_dist(lambda);
+
+		#ifdef THREADED
+		#pragma omp parallel for
+		#endif
+		for (IT i = 0; i < m * nrounds; ++i)
+			samples_init[i] = exp_dist(gen);
+	}
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+	for (IT i = 0; i < p * nrounds; ++i)
+		samples_mid[i] = std::numeric_limits<float>::max();
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+	for (IT i = 0; i < Adcsc->nzc; ++i)
+	{
+		IT	col		= Adcsc->jc[i];
+		IT	beg_mid = col * nrounds;
+		for (IT j = Adcsc->cp[i]; j < Adcsc->cp[i + 1]; ++j)
+		{
+			IT	row		 = Adcsc->ir[j];
+			IT	beg_init = row * nrounds;
+			for (int k = 0; k < nrounds; ++k)
+			{
+				if (samples_init[beg_init + k] < samples_mid[beg_mid + k])
+					samples_mid[beg_mid + k] = samples_init[beg_init + k];
+			}
+		}
+	}
+
+	free(samples_init);
+
+	samples_final = (float *) malloc(B.getnzc() * nrounds *
+									 sizeof(*samples_final));
+	colest		  = (float *) malloc(B.getnzc() * sizeof(*colest));
+
+	float nnzest = 0.0f;
+	
+	#ifdef THREADED
+	#pragma omp parallel for reduction (+:nnzest)
+	#endif
+	for (IT i = 0; i < Bdcsc->nzc; ++i)
+	{
+		int tid = 0;
+		#ifdef THREADED
+        tid = omp_get_thread_num();
+		#endif
+
+		IT beg_final = i * nrounds;
+		for (IT k = beg_final; k < beg_final + nrounds; ++k)
+			samples_final[k] = std::numeric_limits<float>::max();
+		
+		for (IT j = Bdcsc->cp[i]; j < Bdcsc->cp[i + 1]; ++j)
+		{
+			IT	row		= Bdcsc->ir[j];
+			IT	beg_mid = row * nrounds;
+			for (int k = 0; k < nrounds; ++k)
+			{
+				if (samples_mid[beg_mid + k] < samples_final[beg_final + k])
+					samples_final[beg_final + k] = samples_mid[beg_mid + k];
+			}
+		}
+
+		colest[i] = 0.0f;
+		for (IT k = beg_final; k < beg_final + nrounds; ++k)
+			colest[i] += samples_final[k];
+		colest[i] = static_cast<float>(nrounds - 1) / colest[i];
+
+		nnzest += colest[i];
+	}
+
+	free(samples_mid);
+	free(samples_final);
+	free(colest);
+	
+	return static_cast<int64_t>(nnzest);
 }
 
 // estimate the number of floating point operations of SpGEMM
