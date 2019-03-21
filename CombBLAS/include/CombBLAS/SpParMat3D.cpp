@@ -47,9 +47,9 @@ extern "C" {
 namespace combblas
 {
     template <class IT, class NT, class DER>
-    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit)
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit)
     {
-        
+        colsplit = csplit;
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
         int nprocs = commGrid2D->GetSize();
@@ -78,7 +78,7 @@ namespace combblas
                 IT grow = nzit.rowid() + localRowStart2d;
                 
                 //, nzit.value();
-                int owner = Owner(nrows, ncols, grow, gcol, lrow3d, lcol3d, colsplit); //3D owner
+                int owner = Owner(nrows, ncols, grow, gcol, lrow3d, lcol3d); //3D owner
                 tsendcnt[owner]++;
             }
         }
@@ -92,7 +92,7 @@ namespace combblas
                 IT grow = nzit.rowid() + localRowStart2d;
                 
                 NT val = nzit.value();
-                int owner = Owner(nrows, ncols, grow, gcol, lrow3d, lcol3d, colsplit); //3D owner
+                int owner = Owner(nrows, ncols, grow, gcol, lrow3d, lcol3d); //3D owner
                 sendTuples[owner].push_back(std::make_tuple(lrow3d, lcol3d, val));
             }
         }
@@ -101,7 +101,7 @@ namespace combblas
         
      
         IT mdim, ndim;
-        LocalDim(nrows, ncols, mdim, ndim, colsplit);
+        LocalDim(nrows, ncols, mdim, ndim);
         SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
         DER * localm3d = new DER(spTuples3d, false);
         // not layer SpParMat
@@ -111,7 +111,7 @@ namespace combblas
     
     template <class IT, class NT,class DER>
     template <typename LIT>
-    int SpParMat3D<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol, bool colsplit) const
+    int SpParMat3D<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const
     {
         
         // first map to Layer 0 and then split
@@ -194,9 +194,37 @@ namespace combblas
         return commGrid3D->GetRank(layer, procrow_layer, proccol_layer);
     }
     
+    template <class IT, class NT, class DER>
+    IT SpParMat3D< IT,NT,DER >::getnrow() const
+    {
+        IT totalrows_layer = layermat->getnrow();
+        IT totalrows = 0;
+        if(!colsplit)
+        {
+            MPI_Allreduce( &totalrows_layer, &totalrows, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
+        }
+        else
+            totalrows = totalrows_layer;
+        return totalrows;
+    }
+    
+    
+    template <class IT, class NT, class DER>
+    IT SpParMat3D< IT,NT,DER >::getncol() const
+    {
+        IT totalcols_layer = layermat->getncol();
+        IT totalcols = 0;
+        if(!colsplit)
+        {
+            MPI_Allreduce( &totalcols_layer, &totalcols, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
+        }
+        else
+            totalcols = totalcols_layer;
+        return totalcols;
+    }
     
     template <class IT, class NT,class DER>
-    void SpParMat3D<IT,NT,DER>::LocalDim(IT total_m, IT total_n, IT &localm, IT& localn, bool colsplit) const
+    void SpParMat3D<IT,NT,DER>::LocalDim(IT total_m, IT total_n, IT &localm, IT& localn) const
     {
         // first map to Layer 0 and then split
         std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer; // CommGrid for my layer
@@ -276,5 +304,41 @@ namespace combblas
         DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
         MPI_Type_free(&MPI_tuple);
         return recvTuples;
+    }
+    
+    
+    template <class IT, class NT, class DER>
+    SpParMat<IT, NT, DER> SpParMat3D<IT,NT,DER>::Convert2D()
+    {
+        int nprocs = commGrid3D->GetSize();
+        IT total_m = getnrow();
+        IT total_n = getncol();
+    
+        std::shared_ptr<CommGrid> grid2d;
+        grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
+        
+        SpParMat<IT, NT, DER> A2D (grid2d);
+        std::vector< std::vector < std::tuple<IT,IT,NT> > > data(nprocs);
+        DER* spSeq = layermat->seqptr(); // local submatrix
+        
+        IT locsize = 0;
+        for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
+        {
+            
+            IT gcol = colit.colid(); //+ localColStart2d;
+            for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+            {
+                IT grow = nzit.rowid(); //+ localRowStart2d;
+                NT val = nzit.value();
+                
+                IT lrow2d, lcol2d;
+                int owner = A2D.Owner(total_m, total_n, grow, gcol, lrow2d, lcol2d);
+                data[owner].push_back(std::make_tuple(lrow2d,lcol2d,val));
+                locsize++;
+                
+            }
+        }
+        A2D.SparseCommon(data, locsize, total_m, total_n, maximum<NT>());
+         
     }
 }

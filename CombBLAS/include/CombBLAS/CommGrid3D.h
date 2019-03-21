@@ -73,6 +73,8 @@ public:
 
     // Processor grid is (gridLayers x gridRows X gridCols)
     int GetRank(int layerrank, int rowrank, int colrank) { return layerrank * gridRows * gridCols + rowrank * gridCols + colrank; }
+    int GetSize() { return gridLayers * gridRows * gridCols; }
+    MPI_Comm GetWorld(){return world3D;}
     int myrank;
 	int gridRows;
 	int gridCols;

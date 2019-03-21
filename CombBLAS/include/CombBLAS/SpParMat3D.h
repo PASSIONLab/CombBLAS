@@ -71,6 +71,7 @@ namespace combblas
         SpParMat3D ();
         SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit); // 2D to 3D converter
       
+        SpParMat<IT, NT, DER> Convert2D();
         //~SpParMat3D () ;
         
         
@@ -84,8 +85,8 @@ namespace combblas
         IT getnnz() const;
         
         template <typename LIT>
-        int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol,  bool colsplit) const;
-        void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn, bool colsplit) const;
+        int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
+        void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn) const;
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
        // DER & seq() { return (*spSeq); }
@@ -94,8 +95,9 @@ namespace combblas
     private:
         
         std::shared_ptr<CommGrid3D> commGrid3D;
-        
         SpParMat<IT, NT, DER>* layermat;
+        bool colsplit;
+        
         
     };
     

@@ -70,12 +70,11 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
-	if(argc < 6)
+	if(argc < 2)
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./MultTest <MatrixA> <MatrixB> <MatrixC> <vecX> <vecY>" << endl;
-			cout << "<MatrixA>,<MatrixB>,<MatrixC> are absolute addresses, and files should be in triples format" << endl;
+			cout << "Usage: ./MultTest <MatrixA> " << endl;
 		}
 		MPI_Finalize(); 
 		return -1;
@@ -90,6 +89,10 @@ int main(int argc, char* argv[])
 		A.ParallelReadMM(Aname, true, maximum<double>());
 		
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 1, true);
+        SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
+        
+        if(A==A2D) cout << "Equal....\n";
+        else cout << "Not Equal....\n";
 		
 	}
 	MPI_Finalize();
