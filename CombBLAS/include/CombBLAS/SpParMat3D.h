@@ -88,13 +88,14 @@ namespace combblas
         void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn, bool colsplit) const;
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
-        DER & seq() { return (*spSeq); }
-        DER * seqptr() { return spSeq; }
+       // DER & seq() { return (*spSeq); }
+        //DER * seqptr() { return spSeq; }
         
     private:
         
         std::shared_ptr<CommGrid3D> commGrid3D;
-        DER * spSeq;
+        
+        SpParMat<IT, NT, DER>* layermat;
         
     };
     

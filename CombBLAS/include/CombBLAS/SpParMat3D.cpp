@@ -103,12 +103,10 @@ namespace combblas
         IT mdim, ndim;
         LocalDim(nrows, ncols, mdim, ndim, colsplit);
         SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
-        spSeq = new DER(spTuples3d, false);
+        DER * localm3d = new DER(spTuples3d, false);
         // not layer SpParMat
         std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer;
-        //SpParMat layermat(localm3d, commGridLayer);
-        
-        
+        layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
     }
     
     template <class IT, class NT,class DER>
