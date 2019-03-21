@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     
-    
     {
         SpDCCols<int64_t, double> splitA, splitB;
         SpDCCols<int64_t, double> *splitC;
