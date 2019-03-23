@@ -1,0 +1,16 @@
+COMBBLAS = ..
+COMBBLAS_INC = $(COMBBLAS)/include/CombBLAS
+COMBBLAS_SRC = $(COMBBLAS)/src
+INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
+
+OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
+PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
+COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
+FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DGNU_PARALLEL#-DTIMING #-DCOMBBLAS_DEBUG 
+
+hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
+
+#SpGEMM3D:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	#$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
