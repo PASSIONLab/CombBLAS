@@ -12,5 +12,20 @@ FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DGNU_PARALLEL#-DTIMING #-DCOMBBLA
 hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
 
-#SpGEMM3D:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
-	#$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+mmio.o: $(COMBBLAS_SRC)/mmio.c
+	mpicc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
+
+MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
+
+CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
+
+MemoryPool.o:	$(COMBBLAS_SRC)/MemoryPool.cpp $(COMBBLAS_INC)/SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS_SRC)/MemoryPool.cpp 
+
+SpGEMM3D.o:  SpGEMM3D.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpGEMM3D.o SpGEMM3D.cpp
+
+SpGEMM3D:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o

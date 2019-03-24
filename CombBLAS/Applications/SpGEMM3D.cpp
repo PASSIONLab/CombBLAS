@@ -87,8 +87,13 @@ int main(int argc, char* argv[])
         	// construct objects
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> A(fullWorld);
 		A.ParallelReadMM(Aname, true, maximum<double>());
+
+        cout << "Read complete" << endl;
 		
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 1, true);
+        
+        cout << "Went to 3D from 2D" << endl;
+
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
         
         if(A==A2D) cout << "Equal....\n";
