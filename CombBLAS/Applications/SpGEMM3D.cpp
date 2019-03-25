@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./MultTest <MatrixA> " << endl;
+			cout << "Usage: ./<Binary> <MatrixA> " << endl;
 		}
 		MPI_Finalize(); 
 		return -1;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 		
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 1, true);
         
-        cout << "Went to 3D from 2D" << endl;
+        cout << "Went from 2D to 3D" << endl;
 
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
         
