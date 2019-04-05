@@ -80,7 +80,6 @@ namespace combblas
         IT localRowStart2d = colrank2d * m_perproc2d; // first row in this process
         // Global column index of matrix from where current processor starts to store
         IT localColStart2d = rowrank2d * n_perproc2d; // first col in this process
-        cout << localRowStart2d << " , " << localColStart2d << endl;
 
         LIT lrow3d, lcol3d;
         // Data structure to contain the information about how much data would be sent to each other processors from current processor.
@@ -129,16 +128,29 @@ namespace combblas
             }
         }
         
+        for(int i = 0; i < sendTuples.size(); i++){
+            cout << "Processor " << i << " would get " << sendTuples[i].size() << endl;
+        }
+
+        // Now it's known which nonzero would go to which in 3D grid. Next stage is to send those to appropriate places
+        // and receive appropriate non-zeros from other places.
         std::vector<std::tuple<IT,IT,NT>> recvTuples = ExchangeData(sendTuples, commGrid2D->GetWorld());
+
+        cout << "recvTuples : " << recvTuples.size() << endl;
         
      
         IT mdim, ndim;
         LocalDim(nrows, ncols, mdim, ndim);
-        SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
-        DER * localm3d = new DER(spTuples3d, false);
-        // not layer SpParMat
-        std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer;
-        layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
+        cout << "mdim , ndim : "<< mdim << " , " << ndim << endl;
+        //SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
+        //cout << "After SpTuples" << endl;
+        //DER * localm3d = new DER(spTuples3d, false);
+        //cout << "After DER *" << endl;
+        //// not layer SpParMat
+        //std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer;
+        //cout << "After commGridLayer" << endl;
+        //layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
+        //cout << "After layermat" << endl;
     }
    
     // Function to calculate owner processor of a particular non-zero in 3D processor grid
@@ -153,7 +165,6 @@ namespace combblas
     template <typename LIT>
     int SpParMat3D<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const
     {
-        
         // first map to Layer 0 and then split
         // We would consider distributing whole matrix on only one layer(let say layer zero or L0) of 3D CommGrid. Then split accordingly.
         std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer; // 2D CommGrid for my layer

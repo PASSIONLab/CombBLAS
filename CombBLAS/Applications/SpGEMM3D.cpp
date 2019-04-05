@@ -94,10 +94,10 @@ int main(int argc, char* argv[])
         
         cout << "Went from 2D to 3D" << endl;
 
-        SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
+        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
         
-        if(A==A2D) cout << "Equal....\n";
-        else cout << "Not Equal....\n";
+        //if(A==A2D) cout << "Equal....\n";
+        //else cout << "Not Equal....\n";
 		
 	}
 	MPI_Finalize();
