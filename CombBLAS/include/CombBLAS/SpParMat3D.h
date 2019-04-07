@@ -70,6 +70,7 @@ namespace combblas
         // Constructors
         SpParMat3D ();
         SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit); // 2D to 3D converter
+        SpParMat3D (const SpParMat <IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special);
       
         SpParMat<IT, NT, DER> Convert2D();
         //~SpParMat3D () ;

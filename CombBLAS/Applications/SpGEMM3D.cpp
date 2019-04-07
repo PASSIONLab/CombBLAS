@@ -70,36 +70,38 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
-	if(argc < 2)
-	{
-		if(myrank == 0)
-		{
-			cout << "Usage: ./<Binary> <MatrixA> " << endl;
-		}
-		MPI_Finalize(); 
-		return -1;
-	}				
-	{
-		string Aname(argv[1]);		
-		
-		shared_ptr<CommGrid> fullWorld;
-		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-        	// construct objects
-        SpParMat<int64_t,double, SpDCCols < int64_t, double >> A(fullWorld);
-		A.ParallelReadMM(Aname, true, maximum<double>());
-
-        cout << "Read complete" << endl;
-		
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 1, true);
+    if(argc < 2)
+    {
+        if(myrank == 0)
+        {
+            cout << "Usage: ./<Binary> <MatrixA> " << endl;
+        }
+        MPI_Finalize(); 
+        return -1;
+    }				
+    {
+        string Aname(argv[1]);		
         
-        cout << "Went from 2D to 3D" << endl;
+        shared_ptr<CommGrid> fullWorld;
+        fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+            // construct objects
+        SpParMat<int64_t,double, SpDCCols < int64_t, double >> A(fullWorld);
+        A.ParallelReadMM(Aname, true, maximum<double>());
+        //std::cout << "Process No: "<< myrank << " : total number of rows " << A.getlocalrows() << std::endl;
+        //std::cout << "Process No: "<< myrank << " : total number of columns " << A.getlocalcols() << std::endl;
+
+        //cout << "Read complete" << endl;
+        
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 4, true, true);
+        
+        //cout << "Went from 2D to 3D" << endl;
 
         //SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
         
         //if(A==A2D) cout << "Equal....\n";
         //else cout << "Not Equal....\n";
-		
-	}
+        
+    }
 	MPI_Finalize();
 	return 0;
 }

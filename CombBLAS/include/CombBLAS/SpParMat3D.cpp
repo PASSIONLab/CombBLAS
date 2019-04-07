@@ -152,6 +152,20 @@ namespace combblas
         //layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
         //cout << "After layermat" << endl;
     }
+
+    template <class IT, class NT, class DER>
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special)
+    {
+        // Save the flag whether this 3D distributed matrix is formed by splitting the 2D distributed matrix columnwise
+        colsplit = csplit;
+        typedef typename DER::LocalIT LIT;
+        auto commGrid2D = A2D.getcommgrid();
+        // Get total number of processors in the original 2D CommGrid.
+        // Because number of processors in each layer of 3D grid would be determined from this number
+        int nprocs = commGrid2D->GetSize();
+        // Create a 3D CommGrid with all the processors involved in the 2D CommGrid
+        commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, true));
+    }
    
     // Function to calculate owner processor of a particular non-zero in 3D processor grid
     // Patameters:
