@@ -113,7 +113,7 @@ public:
         }
         if(((int)std::sqrt((float)nlayers) * (int)std::sqrt((float)nlayers)) != nlayers)
         {
-            // If number of layers doesn't evenly divide total number of processors in the world then it's invalid
+            // Number of layers need to be a square number for this special distribution.
             cerr << "Number of layers is not a square number" << endl;
             MPI_Abort(MPI_COMM_WORLD,NOTSQUARE);
         }
@@ -143,18 +143,20 @@ public:
         int rankInCol2D = myrank % nCol2D;
         int sqrtLayer = (int)std::sqrt((float)nlayers);
         // Determine on which layer does the currently running processor belong
-        rankInFiber = (rankInRow2D % sqrtLayer) * sqrtLayer + (rankInCol2D % sqrtLayer);
+        rankInFiber = (rankInCol2D % sqrtLayer) * sqrtLayer + (rankInRow2D % sqrtLayer);
         // Determine ID of running processor in the scope of it's corresponding layer
         rankInLayer = (rankInRow2D / sqrtLayer) * gridCols + (rankInCol2D / sqrtLayer);
+        rankInSpecialWorld = rankInFiber % sqrtLayer;
         // MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm)
         // MPI_Allgather call to gather color and key from all participating processors
         // Count the number of processors with the same color; create a communicator with that many processes.
         // Use key to order the ranks
         MPI_Comm_split(world3D, rankInFiber, rankInLayer, &layerWorld);
         MPI_Comm_split(world3D, rankInLayer, rankInFiber, &fiberWorld);
+        MPI_Comm_split(fiberWorld, rankInFiber / sqrtLayer, rankInFiber % sqrtLayer, &specialWorld);
         // Create a 2D CommmGrid object corresponding to the layer a processor belongs to
         commGridLayer.reset(new CommGrid(layerWorld, gridRows, gridCols));
-        //printf("myrank: %d --> layer: %d layerrank: %d\n", myrank, rankInFiber, rankInLayer);
+        printf("myrank: %d --> layer: %d layerrank: %d | rankInSpecialWorld: %d\n", myrank, rankInFiber, rankInLayer, rankInSpecialWorld);
     }
     
     ~CommGrid3D()
@@ -184,9 +186,11 @@ public:
     int gridLayers; // Number of layers in this 3D CommGrid
     int rankInFiber;
     int rankInLayer;
+    int rankInSpecialWorld;
     MPI_Comm world3D;
     MPI_Comm layerWorld;
     MPI_Comm fiberWorld;
+    MPI_Comm specialWorld;
     std::shared_ptr<CommGrid> commGridLayer; // 2D CommGrid corresponding to the layer to which running processor belongs
 };
 
