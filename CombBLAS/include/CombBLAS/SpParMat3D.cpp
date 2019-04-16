@@ -165,6 +165,65 @@ namespace combblas
         int nprocs = commGrid2D->GetSize();
         // Create a 3D CommGrid with all the processors involved in the 2D CommGrid
         commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, true));
+
+        DER* spSeq = A2D.seqptr(); // local submatrix
+        std::vector< DER >localChunks;
+        int numChunks = (int)std::sqrt((float)nlayers);
+        spSeq->ColSplit(numChunks, localChunks);
+        MPI_Barrier(commGrid3D->GetWorld());
+        //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
+            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
+            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+        //}
+
+        //vector< vector< tuple<IT, IT, NT> > > sendTuples(numChunks);
+        std::vector<std::vector<std::tuple<IT,IT, NT>>> sendTuples (numChunks);
+        for (int i = 0; i < numChunks; i++){
+            for(typename DER::SpColIter colit = localChunks[i].begcol(); colit != localChunks[i].endcol(); ++colit){
+                for(typename DER::SpColIter::NzIter nzit = localChunks[i].begnz(colit); nzit != localChunks[i].endnz(colit); ++nzit){
+                    NT val = nzit.value();
+                    sendTuples[i].push_back(std::make_tuple(nzit.rowid(), colit.colid(), nzit.value()));
+                }
+            }
+        }
+        IT datasize;
+        std::tuple<IT,IT,NT>* recvTuples = SpecialExchangeData(sendTuples, commGrid3D->specialWorld, datasize);
+
+        //vector< vector<LIT> > chunkEssentials(numChunks);
+        //vector<LIT> chunkEssentialsBuf(numChunks * DER::esscount);
+        //vector<LIT> rcvEssentialsBuf(numChunks * DER::esscount);
+        //for(int i = 0; i < numChunks; i++){
+            //chunkEssentials[i] = localChunks[i].GetEssentials();
+            //for(int j = 0; j < DER::esscount; j++){
+                //chunkEssentialsBuf[i*DER::esscount+j] = chunkEssentials[i][j];
+                ////if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+                    ////printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
+                            ////commGrid3D->myrank, i, j, chunkEssentials[i][j]);
+                ////}
+            //}
+        //}
+        //for(int i = 0; i < numChunks; i++){
+            //for(int j = 0; j < DER::esscount; j++){
+                //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+                    //printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
+                            //commGrid3D->myrank, i, j, chunkEssentialsBuf[i*DER::esscount+j]);
+                //}
+            //}
+        //}
+        //std::vector< DER >rcvChunks(numChunks);
+        //MPI_Alltoall(chunkEssentialsBuf.data(), DER::esscount, MPIType< LIT >(),
+                     //rcvEssentialsBuf.data(), DER::esscount, MPIType< LIT >(), 
+                     //commGrid3D->specialWorld);
+        //MPI_Barrier(commGrid3D->GetWorld());
+        //for(int i = 0; i < numChunks; i++){
+            //for(int j = 0; j < DER::esscount; j++){
+                //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+                    //printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
+                            //commGrid3D->myrank, i, j, rcvEssentialsBuf[i*DER::esscount+j]);
+                //}
+            //}
+        //}
     }
    
     // Function to calculate owner processor of a particular non-zero in 3D processor grid
@@ -352,24 +411,24 @@ namespace combblas
         }
     }
     
-    
+
     template <class IT, class NT>
-    std::vector<std::tuple<IT,IT,NT>>  ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World)
+    std::tuple<IT,IT,NT>*  ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
     {
-        
+
         /* Create/allocate variables for vector assignment */
         MPI_Datatype MPI_tuple;
         MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
         MPI_Type_commit(&MPI_tuple);
-        
+
         int nprocs;
         MPI_Comm_size(World, &nprocs);
-        
+
         int * sendcnt = new int[nprocs];
         int * recvcnt = new int[nprocs];
         int * sdispls = new int[nprocs]();
         int * rdispls = new int[nprocs]();
-        
+
         // Set the newly found vector entries
         IT totsend = 0;
         for(IT i=0; i<nprocs; ++i)
@@ -377,23 +436,81 @@ namespace combblas
             sendcnt[i] = tempTuples[i].size();
             totsend += tempTuples[i].size();
         }
-        
+
         MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
-        
+
         std::partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
         std::partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
         IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-        
+
         std::vector< std::tuple<IT,IT,NT> > sendTuples(totsend);
         for(int i=0; i<nprocs; ++i)
         {
             copy(tempTuples[i].begin(), tempTuples[i].end(), sendTuples.data()+sdispls[i]);
             std::vector< std::tuple<IT,IT,NT> >().swap(tempTuples[i]);    // clear memory
         }
-        std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
-        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
+
+        std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
+        //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
+        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
         DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
         MPI_Type_free(&MPI_tuple);
+        datasize = totrecv;
+        return recvTuples;
+    }
+
+    template <class IT, class NT>
+    std::tuple<IT,IT,NT>*  SpecialExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
+    {
+
+        /* Create/allocate variables for vector assignment */
+        MPI_Datatype MPI_tuple;
+        MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
+        MPI_Type_commit(&MPI_tuple);
+
+        int nprocs;
+        MPI_Comm_size(World, &nprocs);
+
+        int * sendcnt = new int[nprocs];
+        int * recvcnt = new int[nprocs];
+        int * sdispls = new int[nprocs]();
+        int * rdispls = new int[nprocs]();
+
+        // Set the newly found vector entries
+        IT totsend = 0;
+        for(IT i=0; i<nprocs; ++i)
+        {
+            sendcnt[i] = tempTuples[i].size();
+            totsend += tempTuples[i].size();
+        }
+
+        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+
+        std::partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+        std::partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+        IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+
+        std::vector< std::tuple<IT,IT,NT> > sendTuples(totsend);
+        for(int i=0; i<nprocs; ++i)
+        {
+            copy(tempTuples[i].begin(), tempTuples[i].end(), sendTuples.data()+sdispls[i]);
+            std::vector< std::tuple<IT,IT,NT> >().swap(tempTuples[i]);    // clear memory
+        }
+
+        std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
+        //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
+        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+        DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
+        MPI_Type_free(&MPI_tuple);
+        datasize = totrecv;
+
+        //IT mdim, ndim;
+        //LocalDim(nrows, ncols, mdim, ndim);
+        //cout << "mdim , ndim : "<< mdim << " , " << ndim << endl;
+        //SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
+        //cout << "After SpTuples" << endl;
+        //DER * localm3d = new DER(spTuples3d, false);
+
         return recvTuples;
     }
     

@@ -156,7 +156,7 @@ public:
         MPI_Comm_split(fiberWorld, rankInFiber / sqrtLayer, rankInFiber % sqrtLayer, &specialWorld);
         // Create a 2D CommmGrid object corresponding to the layer a processor belongs to
         commGridLayer.reset(new CommGrid(layerWorld, gridRows, gridCols));
-        printf("myrank: %d --> layer: %d layerrank: %d | rankInSpecialWorld: %d\n", myrank, rankInFiber, rankInLayer, rankInSpecialWorld);
+        //printf("myrank: %d --> layer: %d layerrank: %d | rankInSpecialWorld: %d\n", myrank, rankInFiber, rankInLayer, rankInSpecialWorld);
     }
     
     ~CommGrid3D()
