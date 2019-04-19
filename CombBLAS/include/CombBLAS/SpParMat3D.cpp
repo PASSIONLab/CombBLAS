@@ -497,6 +497,9 @@ namespace combblas
 
         std::vector< std::tuple<IT,IT,NT> > sendTuples;
         for (int i = 0; i < numChunks; i++){
+            if(myrank == 12 && i == 1){
+                printf("nnz: %d, mdim: %d, ndim: %d\n",sendprfl[i*3], sendprfl[i*3+1], sendprfl[i*3+2]);
+            }
             int cnt = 0;
             for(typename DER::SpColIter colit = localChunks[i].begcol(); colit != localChunks[i].endcol(); ++colit){
                 for(typename DER::SpColIter::NzIter nzit = localChunks[i].begnz(colit); nzit != localChunks[i].endnz(colit); ++nzit){
@@ -524,15 +527,19 @@ namespace combblas
                 tempTuples[i].push_back(recvTuples[j]);
             }
             if(myrank == 6 && i == 2){
+                printf("nnz: %d, mdim: %d, ndim: %d\n",recvprfl[i*3], recvprfl[i*3+1], recvprfl[i*3+2]);
                 cout << get<0>(tempTuples[i][0]) << " " << get<1>(tempTuples[i][0]) << " " << get<2>(tempTuples[i][0]) << endl;
                 cout << get<0>(tempTuples[i][tempTuples[i].size()-1]) << " " << get<1>(tempTuples[i][tempTuples[i].size()-1]) << " " << get<2>(tempTuples[i][tempTuples[i].size()-1]) << endl;
             }
         }
-        if(myrank == 0){
-            int i = 0;
-            //SpTuples<IT,NT>xt(tempTuples[i].size(), recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i].data());
+        if(myrank == 6){
+            int i = 2;
+            //SpTuples<IT,NT>xt(tempTuples[i].size(), recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i].data(), true, true);
+            vector < tuple < IT, IT, NT > > dumv;
+            dumv.push_back(make_tuple(0,0,1));
+            dumv.push_back(make_tuple(1,1,1));
+            SpTuples<IT,NT>xt(dumv.size(), 2, 2, dumv.data());
             //DER * x = new DER(SpTuples<IT,NT>(tempTuples[i].size(), recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i].data()), false);
-            //printf("%d %d %d\n", hehe->getnnz(), hehe->getnrow(), hehe->getncol());
         }
 
         ////IT mdim, ndim;
