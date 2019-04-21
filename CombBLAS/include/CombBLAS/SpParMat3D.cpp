@@ -163,66 +163,36 @@ namespace combblas
         commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, true));
 
         DER* spSeq = A2D.seqptr(); // local submatrix
-        std::vector< DER >localChunks;
+        std::vector<DER> localChunks;
         int numChunks = (int)std::sqrt((float)nlayers);
         spSeq->ColSplit(numChunks, localChunks);
         MPI_Barrier(commGrid3D->GetWorld());
         //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
-            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
-            //printf("myrank: %d, chunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
+            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
+            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
         //}
 
         IT datasize;
         NT x = 0.0;
-        SpecialExchangeData(localChunks, commGrid3D->specialWorld, datasize, x, commGrid3D->world3D);
-
-        //vector< vector< tuple<IT, IT, NT> > > sendTuples(numChunks);
-        //for (int i = 0; i < numChunks; i++){
-            //for(typename DER::SpColIter colit = localChunks[i].begcol(); colit != localChunks[i].endcol(); ++colit){
-                //for(typename DER::SpColIter::NzIter nzit = localChunks[i].begnz(colit); nzit != localChunks[i].endnz(colit); ++nzit){
-                    //NT val = nzit.value();
-                    //sendTuples[i].push_back(std::make_tuple(nzit.rowid(), colit.colid(), nzit.value()));
-                //}
-            //}
+        std::vector<DER> recvChunks;
+        SpecialExchangeData(localChunks, commGrid3D->specialWorld, datasize, x, commGrid3D->world3D, recvChunks);
+        IT concat_row = 0, concat_col = 0;
+        for(int i  = 0; i < numChunks; i++){
+            recvChunks[i].Transpose();
+            concat_row = std::max(concat_row, recvChunks[i].getnrow());
+            concat_col = concat_col + recvChunks[i].getncol();
+        }
+        DER * localMatrix = new DER(0, concat_row, concat_col, 0);
+        localMatrix->ColConcatenate(recvChunks);
+        localMatrix->Transpose();
+        //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
+            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
+            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
+            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
         //}
-        //IT datasize;
-        //std::tuple<IT,IT,NT>* recvTuples = SpecialExchangeData(sendTuples, commGrid3D->specialWorld, datasize);
-
-        //vector< vector<LIT> > chunkEssentials(numChunks);
-        //vector<LIT> chunkEssentialsBuf(numChunks * DER::esscount);
-        //vector<LIT> rcvEssentialsBuf(numChunks * DER::esscount);
-        //for(int i = 0; i < numChunks; i++){
-            //chunkEssentials[i] = localChunks[i].GetEssentials();
-            //for(int j = 0; j < DER::esscount; j++){
-                //chunkEssentialsBuf[i*DER::esscount+j] = chunkEssentials[i][j];
-                ////if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-                    ////printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
-                            ////commGrid3D->myrank, i, j, chunkEssentials[i][j]);
-                ////}
-            //}
-        //}
-        //for(int i = 0; i < numChunks; i++){
-            //for(int j = 0; j < DER::esscount; j++){
-                //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-                    //printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
-                            //commGrid3D->myrank, i, j, chunkEssentialsBuf[i*DER::esscount+j]);
-                //}
-            //}
-        //}
-        //std::vector< DER >rcvChunks(numChunks);
-        //MPI_Alltoall(chunkEssentialsBuf.data(), DER::esscount, MPIType< LIT >(),
-                     //rcvEssentialsBuf.data(), DER::esscount, MPIType< LIT >(), 
-                     //commGrid3D->specialWorld);
-        //MPI_Barrier(commGrid3D->GetWorld());
-        //for(int i = 0; i < numChunks; i++){
-            //for(int j = 0; j < DER::esscount; j++){
-                //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-                    //printf("myrank: %d, chunk: %d, ess[%d]: %d\n", 
-                            //commGrid3D->myrank, i, j, rcvEssentialsBuf[i*DER::esscount+j]);
-                //}
-            //}
-        //}
+        layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
    
     // Function to calculate owner processor of a particular non-zero in 3D processor grid
@@ -459,10 +429,9 @@ namespace combblas
     }
 
     template <class IT, class NT, class DER>
-    void SpecialExchangeData( std::vector<DER> & localChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld)
-    {
-        int myrank;
-        MPI_Comm_rank(secondaryWorld, &myrank);
+    vector<DER> SpecialExchangeData( std::vector<DER> & localChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
+        //int myrank;
+        //MPI_Comm_rank(secondaryWorld, &myrank);
         int numChunks = localChunks.size();
 
         MPI_Datatype MPI_tuple;
@@ -471,9 +440,9 @@ namespace combblas
 
         int * sendcnt = new int[numChunks];
         int * sendprfl = new int[numChunks*3];
+        int * sdispls = new int[numChunks]();
         int * recvcnt = new int[numChunks];
         int * recvprfl = new int[numChunks*3];
-        int * sdispls = new int[numChunks]();
         int * rdispls = new int[numChunks]();
 
         IT totsend = 0;
@@ -504,65 +473,65 @@ namespace combblas
                 }
             }
         }
-        if(myrank == 12){
-            int i = 1;
-            printf("[SENDING] Processor: %d, Chunk: %d\n", myrank, i);
-            printf("nnz: %d, mdim: %d, ndim: %d\n",sendprfl[i*3], sendprfl[i*3+1], sendprfl[i*3+2]);
-            printf("first tuple: < %lld, %lld, %lf >\n", 
-                    get<0>(sendTuples[sdispls[i]]), 
-                    get<1>(sendTuples[sdispls[i]]), 
-                    get<2>(sendTuples[sdispls[i]]));
-            printf("last tuple: < %lld, %lld, %lf >\n", 
-                    get<0>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
-                    get<1>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
-                    get<2>(sendTuples[sdispls[i]+sendcnt[i]-1]));
-            //for(int j = sdispls[i]; j < sdispls[i]+sendcnt[i]; j++){
-                //cout << get<0>(sendTuples[j]) << " " << get<1>(sendTuples[j]) << " " << get<2>(sendTuples[j]) << endl;
-            //}
-        }
+        //if(myrank == 12){
+            //int i = 1;
+            //printf("[SENDING] Processor: %d, Chunk: %d\n", myrank, i);
+            //printf("nnz: %d, mdim: %d, ndim: %d\n",sendprfl[i*3], sendprfl[i*3+1], sendprfl[i*3+2]);
+            //printf("first tuple: < %lld, %lld, %lf >\n", 
+                    //get<0>(sendTuples[sdispls[i]]), 
+                    //get<1>(sendTuples[sdispls[i]]), 
+                    //get<2>(sendTuples[sdispls[i]]));
+            //printf("last tuple: < %lld, %lld, %lf >\n", 
+                    //get<0>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
+                    //get<1>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
+                    //get<2>(sendTuples[sdispls[i]+sendcnt[i]-1]));
+            ////for(int j = sdispls[i]; j < sdispls[i]+sendcnt[i]; j++){
+                ////cout << get<0>(sendTuples[j]) << " " << get<1>(sendTuples[j]) << " " << get<2>(sendTuples[j]) << endl;
+            ////}
+        //}
         std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
         MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+
+        DeleteAll(sendcnt, sendprfl, sdispls);
+        sendTuples.clear();
+        sendTuples.shrink_to_fit();
+
         //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
         //MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
-        if(myrank == 6){
-            int i = 2;
-            printf("[RECEIVING] Processor: %d, Chunk: %d\n", myrank, i);
-            printf("nnz: %d, mdim: %d, ndim: %d\n",recvprfl[i*3], recvprfl[i*3+1], recvprfl[i*3+2]);
-            printf("first tuple: < %lld, %lld, %lf >\n", 
-                    get<0>(recvTuples[rdispls[i]]), 
-                    get<1>(recvTuples[rdispls[i]]), 
-                    get<2>(recvTuples[rdispls[i]]));
-            printf("last tuple: < %lld, %lld, %lf >\n", 
-                    get<0>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
-                    get<1>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
-                    get<2>(recvTuples[rdispls[i]+recvcnt[i]-1]));
-            //for(int j = rdispls[i]; j < rdispls[i]+recvcnt[i]; j++){
-                //cout << get<0>(recvTuples[j]) << " " << get<1>(recvTuples[j]) << " " << get<2>(recvTuples[j]) << endl;
-            //}
-            
-            SpTuples<IT,NT>xt(recvprfl[i*3], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples+rdispls[i]);
-            //vector < tuple < IT, IT, NT > > dumv;
-            //dumv.push_back(make_tuple(0,0,1));
-            //dumv.push_back(make_tuple(1,1,1));
-            //SpTuples<IT,NT>xt(dumv.size(), 2, 2, dumv.data());
-            //tuple<IT, IT, NT> * dumv = new tuple<IT,IT,NT>[2];
-            //dumv[0] = make_tuple(0,0,1);
-            //dumv[1] = make_tuple(1,1,1);
-            //SpTuples<IT,NT>xt(2, 2, 2, dumv);
+        tuple<IT, IT, NT> ** tempTuples = new tuple<IT, IT, NT>*[numChunks];
+        //vector<DER> recvChunks;
+        for (int i = 0; i < numChunks; i++){
+            tempTuples[i] = new tuple<IT, IT, NT>[recvcnt[i]];
+            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<IT, IT, NT>));
+            recvChunks.push_back(DER(SpTuples<IT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
         }
 
-        ////IT mdim, ndim;
-        ////LocalDim(nrows, ncols, mdim, ndim);
-        ////cout << "mdim , ndim : "<< mdim << " , " << ndim << endl;
-        ////SpTuples<IT, NT>spTuples3d(recvTuples.size(), mdim, ndim, recvTuples.data());
-        ////cout << "After SpTuples" << endl;
-        ////DER * localm3d = new DER(spTuples3d, false);
-
+        //if(myrank == 6){
+            //int i = 2;
+            //printf("[RECEIVING] Processor: %d, Chunk: %d\n", myrank, i);
+            //printf("nnz: %d, mdim: %d, ndim: %d\n",recvprfl[i*3], recvprfl[i*3+1], recvprfl[i*3+2]);
+            //printf("first tuple: < %lld, %lld, %lf >\n", 
+                    //get<0>(recvTuples[rdispls[i]]), 
+                    //get<1>(recvTuples[rdispls[i]]), 
+                    //get<2>(recvTuples[rdispls[i]]));
+            //printf("last tuple: < %lld, %lld, %lf >\n", 
+                    //get<0>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
+                    //get<1>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
+                    //get<2>(recvTuples[rdispls[i]+recvcnt[i]-1]));
+            ////for(int j = rdispls[i]; j < rdispls[i]+recvcnt[i]; j++){
+                ////cout << get<0>(recvTuples[j]) << " " << get<1>(recvTuples[j]) << " " << get<2>(recvTuples[j]) << endl;
+            ////}
+        //}
+        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples);
+        //for(int i = 0; i < numChunks; i++){
+            //delete[] tempTuples[i];
+        //}
+        //delete[] tempTuples;
         //DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
         //MPI_Type_free(&MPI_tuple);
         //datasize = totrecv;
         //return recvTuples;
-        return;
+        return recvChunks;
     }
     
     
