@@ -92,7 +92,8 @@ int main(int argc, char* argv[])
 
         //cout << "Read complete" << endl;
         
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);
+        //SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(A, 9, false, true);   // Row split
         
         //cout << "Went from 2D to 3D" << endl;
 

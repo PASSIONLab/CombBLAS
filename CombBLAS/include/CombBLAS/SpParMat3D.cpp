@@ -53,18 +53,32 @@ namespace combblas
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
         int nprocs = commGrid2D->GetSize();
-        commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, true));
+        if(colsplit) commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, true, true));
+        else commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, false, true));
 
         DER* spSeq = A2D.seqptr(); // local submatrix
         std::vector<DER> localChunks;
         int numChunks = (int)std::sqrt((float)nlayers);
+        if(!colsplit) spSeq->Transpose();
         spSeq->ColSplit(numChunks, localChunks);
+        if(!colsplit){
+            for(int i = 0; i < numChunks; i++) localChunks[i].Transpose();
+        }
         MPI_Barrier(commGrid3D->GetWorld());
-        //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
-            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
-            //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
-        //}
+        if(colsplit){
+            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
+                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
+                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+            }
+        }
+        else{
+            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 1 || commGrid3D->myrank == 2){
+                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
+                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
+                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+            }
+        }
 
         IT datasize;
         NT x = 0.0;
@@ -72,19 +86,29 @@ namespace combblas
         SpecialExchangeData(localChunks, commGrid3D->specialWorld, datasize, x, commGrid3D->world3D, recvChunks);
         IT concat_row = 0, concat_col = 0;
         for(int i  = 0; i < numChunks; i++){
-            recvChunks[i].Transpose();
+            if(colsplit) recvChunks[i].Transpose();
             concat_row = std::max(concat_row, recvChunks[i].getnrow());
             concat_col = concat_col + recvChunks[i].getncol();
         }
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
-        localMatrix->Transpose();
-        //if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
-            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
-            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
-            //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-        //}
+        if(colsplit) localMatrix->Transpose();
+        if(colsplit){
+            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
+                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
+                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
+                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
+                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+            }
+        }
+        else{
+            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 1 || commGrid3D->myrank == 2){
+                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
+                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
+                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
+                printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+            }
+        }
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
    
