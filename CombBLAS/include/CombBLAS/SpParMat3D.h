@@ -59,8 +59,7 @@ namespace combblas
 {
     
     template <class IT, class NT, class DER>
-    class SpParMat3D
-    {
+    class SpParMat3D{
     public:
         typedef typename DER::LocalIT LocalIT;
         typedef typename DER::LocalNT LocalNT;
@@ -90,6 +89,7 @@ namespace combblas
         void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn) const;
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
+        
        // DER & seq() { return (*spSeq); }
         //DER * seqptr() { return spSeq; }
         
