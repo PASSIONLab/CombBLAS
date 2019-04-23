@@ -36,6 +36,7 @@
 #include "CombBLAS/CombBLAS.h"
 #include "CombBLAS/CommGrid3D.h"
 #include "CombBLAS/SpParMat3D.h"
+#include "CombBLAS/ParFriends.h"
 
 using namespace std;
 using namespace combblas;
@@ -86,14 +87,17 @@ int main(int argc, char* argv[])
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
             // construct objects
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> A(fullWorld);
+        SpParMat<int64_t,double, SpDCCols < int64_t, double >> B(fullWorld);
         A.ParallelReadMM(Aname, true, maximum<double>());
+        B.ParallelReadMM(Aname, true, maximum<double>());
         //std::cout << "Process No: "<< myrank << " : total number of rows " << A.getlocalrows() << std::endl;
         //std::cout << "Process No: "<< myrank << " : total number of columns " << A.getlocalcols() << std::endl;
 
         //cout << "Read complete" << endl;
         
-        //SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(A, 9, false, true);   // Row split
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
+        func(B3D);
         
         //cout << "Went from 2D to 3D" << endl;
 
