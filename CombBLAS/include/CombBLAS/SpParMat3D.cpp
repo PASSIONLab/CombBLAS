@@ -111,7 +111,11 @@ namespace combblas
         }
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
-   
+    
+    template <class IT, class NT, class DER>
+    void SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
+        printf("Hello\n");
+    }
     
     template <class IT, class NT, class DER>
     IT SpParMat3D< IT,NT,DER >::getnrow() const

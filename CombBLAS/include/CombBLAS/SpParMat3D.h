@@ -93,6 +93,7 @@ namespace combblas
        // DER & seq() { return (*spSeq); }
         //DER * seqptr() { return spSeq; }
         //friend void func(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
+        void mult(SpParMat3D<IT, NT, DER> & M);
         
     private:
         
