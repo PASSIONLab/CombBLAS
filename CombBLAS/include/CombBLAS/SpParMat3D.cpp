@@ -113,8 +113,14 @@ namespace combblas
     }
     
     template <class IT, class NT, class DER>
+    template <typename SR>
     void SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
-        printf("Hello\n");
+        //printf("Hello\n");
+        //SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
+        //Mult_AnXBn_DoubleBuff <SR, NT, DER>(*layermat, *Mlayermat);
+        layermat->template Square<SR>();
+        //CheckSpGEMMCompliance(*layermat, *Mlayermat);
+        //typedef PlusTimesSRing<NT, NT> PTFF;
     }
     
     template <class IT, class NT, class DER>
