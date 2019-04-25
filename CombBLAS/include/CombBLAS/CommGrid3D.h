@@ -72,8 +72,9 @@ public:
         int rankInCol2D = myrank % nCol2D;
         int sqrtLayer = (int)std::sqrt((float)nlayers);
         // Determine on which layer does the currently running processor belong
-        if(colsplit) rankInFiber = (rankInCol2D % sqrtLayer) * sqrtLayer + (rankInRow2D % sqrtLayer);
-        else rankInFiber = (rankInRow2D % sqrtLayer) * sqrtLayer + (rankInCol2D % sqrtLayer);
+        //if(colsplit) rankInFiber = (rankInCol2D % sqrtLayer) * sqrtLayer + (rankInRow2D % sqrtLayer);
+        //else rankInFiber = (rankInRow2D % sqrtLayer) * sqrtLayer + (rankInCol2D % sqrtLayer);
+        rankInFiber = (rankInCol2D % sqrtLayer) * sqrtLayer + (rankInRow2D % sqrtLayer);
         // Determine ID of running processor in the scope of it's corresponding layer
         rankInLayer = (rankInRow2D / sqrtLayer) * gridCols + (rankInCol2D / sqrtLayer);
         rankInSpecialWorld = rankInFiber % sqrtLayer;

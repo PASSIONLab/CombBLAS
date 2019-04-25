@@ -96,8 +96,9 @@ int main(int argc, char* argv[])
         //cout << "Read complete" << endl;
         
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) printf("-------------------------------------------------------\n");
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
-        //func(B3D);
         typedef PlusTimesSRing<double, double> PTFF;
         A3D.template mult<PTFF>(B3D);
         

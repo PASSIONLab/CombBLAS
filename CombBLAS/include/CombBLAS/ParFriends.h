@@ -34,7 +34,6 @@
 #include <iostream>
 #include <cstdarg>
 #include "SpParMat.h"	
-#include "SpParMat3D.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
 #include "Friends.h"
@@ -48,13 +47,6 @@ namespace combblas {
 
 template <class IT, class NT, class DER>
 class SpParMat;
-template <class IT, class NT, class DER>
-class SpParMat3D;
-
-template<typename IT, typename NT, typename DER>
-void func(SpParMat3D<IT, NT, DER> & A){
-    printf("Hello\n");
-}
 
 /*************************************************************************************************/
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/

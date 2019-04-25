@@ -62,30 +62,47 @@ namespace combblas
         if(!colsplit) spSeq->Transpose();
         spSeq->ColSplit(numChunks, localChunks);
         if(!colsplit){
-            for(int i = 0; i < numChunks; i++) localChunks[i].Transpose();
+            for(int i = 0; i < localChunks.size(); i++) localChunks[i].Transpose();
         }
-        MPI_Barrier(commGrid3D->GetWorld());
+
+        // Some necessary processing before exchanging data
+        int fiberWorldSize;
+        int sqrtLayer = (int)std::sqrt((float)nlayers);
+        MPI_Comm_size(commGrid3D->fiberWorld, &fiberWorldSize);
+        std::vector<DER> sendChunks(fiberWorldSize);
         if(colsplit){
-            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
-                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
-                //printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+            for(int i = 0; i < sendChunks.size(); i++){
+                //if( i / sqrtLayer != commGrid3D->rankInFiber / sqrtLayer ) sendChunks[i] = DER(0, 0, 0, 0);
+                sendChunks[i] = DER(0, 0, 0, 0);
+            }
+            for(int i = 0; i < localChunks.size(); i++){
+                int rcvRankInFiber = ( ( commGrid3D->rankInFiber / sqrtLayer ) * sqrtLayer ) + i;
+                sendChunks[rcvRankInFiber] = localChunks[i];
             }
         }
         else{
-            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 1 || commGrid3D->myrank == 2){
-                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, localChunks[0].getnrow(), localChunks[0].getncol(), localChunks[0].getnnz());
-                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, localChunks[1].getnrow(), localChunks[1].getncol(), localChunks[1].getnnz());
-                printf("myrank: %d, sendchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localChunks[2].getnrow(), localChunks[2].getncol(), localChunks[2].getnnz());
+            for(int i = 0; i < sendChunks.size(); i++){
+                //if( i % sqrtLayer != commGrid3D->rankInFiber % sqrtLayer ) sendChunks[i] = DER(0, 0, 0, 0);
+                sendChunks[i] = DER(0, 0, 0, 0);
+            }
+            for(int i = 0; i < localChunks.size(); i++){
+                int rcvRankInFiber = ( ( commGrid3D->rankInFiber % sqrtLayer ) * sqrtLayer ) + i;
+                sendChunks[rcvRankInFiber] = localChunks[i];
             }
         }
+        MPI_Barrier(commGrid3D->GetWorld());
 
         IT datasize;
         NT x = 0.0;
         std::vector<DER> recvChunks;
-        SpecialExchangeData(localChunks, commGrid3D->specialWorld, datasize, x, commGrid3D->world3D, recvChunks);
+        SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
+        //if(commGrid3D->myrank == 12){
+            //for(int i = 0; i < recvChunks.size(); i++){
+                //printf("recvChunks[%d]\trows:%d\tcols:%d\tnnz:%d\n", i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
+            //}
+        //}
         IT concat_row = 0, concat_col = 0;
-        for(int i  = 0; i < numChunks; i++){
+        for(int i  = 0; i < recvChunks.size(); i++){
             if(colsplit) recvChunks[i].Transpose();
             concat_row = std::max(concat_row, recvChunks[i].getnrow());
             concat_col = concat_col + recvChunks[i].getncol();
@@ -93,34 +110,30 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
-        if(colsplit){
-            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 6 || commGrid3D->myrank == 12){
-                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
-                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
-                ////printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
-                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-            }
-        }
-        else{
-            if(commGrid3D->myrank == 0 || commGrid3D->myrank == 1 || commGrid3D->myrank == 2){
-                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 0, recvChunks[0].getnrow(), recvChunks[0].getncol(), recvChunks[0].getnnz());
-                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 1, recvChunks[1].getnrow(), recvChunks[1].getncol(), recvChunks[1].getnnz());
-                //printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, recvChunks[2].getnrow(), recvChunks[2].getncol(), recvChunks[2].getnnz());
-                printf("myrank: %d, recvchunk: %d, rows: %d, cols: %d, nnz: %d\n", commGrid3D->myrank, 2, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-            }
-        }
+        //printf("myrank: %d, rankInFiber: %d, rankInLayer: %d, rankInSpecialWorld: %d, nrows: %d, ncols: %d, nnz: %d\n", 
+                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+        
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+        
+        //MPI_Barrier(commGrid3D->GetWorld());
+        //cout << layermat->getncol() << endl;
     }
     
     template <class IT, class NT, class DER>
     template <typename SR>
     void SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
-        //printf("Hello\n");
-        //SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
+        SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
         //Mult_AnXBn_DoubleBuff <SR, NT, DER>(*layermat, *Mlayermat);
-        layermat->template Square<SR>();
+        //if(commGrid3D->rankInFiber == 0){
+            //layermat->template Square<SR>();
+        //}
+        typedef PlusTimesSRing<NT, NT> PTFF;
+        //Mult_AnXBn_Synch<PTFF, NT, DER>(*layermat, *Mlayermat);
+        Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Mlayermat);
         //CheckSpGEMMCompliance(*layermat, *Mlayermat);
-        //typedef PlusTimesSRing<NT, NT> PTFF;
+        //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
+                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, M.commGrid3D->rankInFiber, M.commGrid3D->rankInLayer,
+                //layermat->getnrow(), layermat->getncol(), Mlayermat->getnrow(), Mlayermat->getncol());
     }
     
     template <class IT, class NT, class DER>
@@ -169,10 +182,10 @@ namespace combblas
 
 
     template <class IT, class NT, class DER>
-    vector<DER> SpecialExchangeData( std::vector<DER> & localChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
+    vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
         //int myrank;
         //MPI_Comm_rank(secondaryWorld, &myrank);
-        int numChunks = localChunks.size();
+        int numChunks = sendChunks.size();
 
         MPI_Datatype MPI_tuple;
         MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
@@ -187,18 +200,16 @@ namespace combblas
 
         IT totsend = 0;
         for(IT i=0; i<numChunks; ++i){
-            sendprfl[i*3] = localChunks[i].getnnz();
-            sendprfl[i*3+1] = localChunks[i].getnrow();
-            sendprfl[i*3+2] = localChunks[i].getncol();
+            sendprfl[i*3] = sendChunks[i].getnnz();
+            sendprfl[i*3+1] = sendChunks[i].getnrow();
+            sendprfl[i*3+2] = sendChunks[i].getncol();
             sendcnt[i] = sendprfl[i*3];
             totsend += sendcnt[i];
         }
 
         MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
 
-        for(IT i = 0; i < numChunks; i++){
-            recvcnt[i] = recvprfl[i*3];
-        }
+        for(IT i = 0; i < numChunks; i++) recvcnt[i] = recvprfl[i*3];
 
         std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
         std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
@@ -206,8 +217,8 @@ namespace combblas
 
         std::vector< std::tuple<IT,IT,NT> > sendTuples;
         for (int i = 0; i < numChunks; i++){
-            for(typename DER::SpColIter colit = localChunks[i].begcol(); colit != localChunks[i].endcol(); ++colit){
-                for(typename DER::SpColIter::NzIter nzit = localChunks[i].begnz(colit); nzit != localChunks[i].endnz(colit); ++nzit){
+            for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
+                for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
                     NT val = nzit.value();
                     sendTuples.push_back(std::make_tuple(nzit.rowid(), colit.colid(), nzit.value()));
                 }
@@ -262,15 +273,12 @@ namespace combblas
                 ////cout << get<0>(recvTuples[j]) << " " << get<1>(recvTuples[j]) << " " << get<2>(recvTuples[j]) << endl;
             ////}
         //}
-        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples);
+        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); // Free all memory
         //for(int i = 0; i < numChunks; i++){
             //delete[] tempTuples[i];
         //}
         //delete[] tempTuples;
-        //DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
-        //MPI_Type_free(&MPI_tuple);
-        //datasize = totrecv;
-        //return recvTuples;
+        MPI_Type_free(&MPI_tuple);
         return recvChunks;
     }
 }
