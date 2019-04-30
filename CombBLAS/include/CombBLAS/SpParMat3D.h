@@ -94,14 +94,13 @@ namespace combblas
         //DER * seqptr() { return spSeq; }
         //friend void func(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
         template <class SR>
-        void mult(SpParMat3D<IT, NT, DER> & M);
+        SpParMat<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
         
     private:
         
         std::shared_ptr<CommGrid3D> commGrid3D;
         SpParMat<IT, NT, DER>* layermat;
         bool colsplit;
-        
         
     };
     

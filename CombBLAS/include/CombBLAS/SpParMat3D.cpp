@@ -43,6 +43,7 @@ extern "C" {
 #include <algorithm>
 #include <set>
 #include <stdexcept>
+#include <string>
 
 namespace combblas
 {
@@ -72,7 +73,6 @@ namespace combblas
         std::vector<DER> sendChunks(fiberWorldSize);
         if(colsplit){
             for(int i = 0; i < sendChunks.size(); i++){
-                //if( i / sqrtLayer != commGrid3D->rankInFiber / sqrtLayer ) sendChunks[i] = DER(0, 0, 0, 0);
                 sendChunks[i] = DER(0, 0, 0, 0);
             }
             for(int i = 0; i < localChunks.size(); i++){
@@ -82,7 +82,6 @@ namespace combblas
         }
         else{
             for(int i = 0; i < sendChunks.size(); i++){
-                //if( i % sqrtLayer != commGrid3D->rankInFiber % sqrtLayer ) sendChunks[i] = DER(0, 0, 0, 0);
                 sendChunks[i] = DER(0, 0, 0, 0);
             }
             for(int i = 0; i < localChunks.size(); i++){
@@ -92,10 +91,23 @@ namespace combblas
         }
         MPI_Barrier(commGrid3D->GetWorld());
 
-        IT datasize;
-        NT x = 0.0;
+        IT datasize; NT x;
         std::vector<DER> recvChunks;
+
+        string prefix("3D-stdout-"); 
+        string proc = to_string(commGrid3D->myrank); 
+        string filename = prefix + proc;
+        FILE * fp;
+        fp = fopen(filename.c_str(), "a");
+        fprintf(fp, "[SENDING] --> \n");
+        for(int i = 0; i < sendChunks.size(); i++){
+            fprintf(fp, "myrank:%2d\tsendChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, sendChunks[i].getnrow(), sendChunks[i].getncol(), sendChunks[i].getnnz());
+        }
         SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
+        fprintf(fp, "[RECEIVING] <-- \n");
+        for(int i = 0; i < recvChunks.size(); i++){
+            fprintf(fp, "myrank:%2d\trecvChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
+        }
         //if(commGrid3D->myrank == 12){
             //for(int i = 0; i < recvChunks.size(); i++){
                 //printf("recvChunks[%d]\trows:%d\tcols:%d\tnnz:%d\n", i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
@@ -110,30 +122,54 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
-        //printf("myrank: %d, rankInFiber: %d, rankInLayer: %d, rankInSpecialWorld: %d, nrows: %d, ncols: %d, nnz: %d\n", 
-                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-        
+        fprintf(fp, "myrank:%2d\trankInFiber:%2d\trankInLayer:%2d\trankInSpecialWorld:%2d\tnrows:%2d\tncols:%2d\tnnz:%2d\n", 
+                commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+        //fprintf(fp, "*************** [AFTER ONE ROUND OF EXCHANGE] *************\n");
+        fclose(fp);
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
-        
-        //MPI_Barrier(commGrid3D->GetWorld());
-        //cout << layermat->getncol() << endl;
     }
     
     template <class IT, class NT, class DER>
     template <typename SR>
-    void SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
+    SpParMat<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
         SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
-        //Mult_AnXBn_DoubleBuff <SR, NT, DER>(*layermat, *Mlayermat);
-        //if(commGrid3D->rankInFiber == 0){
-            //layermat->template Square<SR>();
-        //}
-        typedef PlusTimesSRing<NT, NT> PTFF;
-        //Mult_AnXBn_Synch<PTFF, NT, DER>(*layermat, *Mlayermat);
-        Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Mlayermat);
         //CheckSpGEMMCompliance(*layermat, *Mlayermat);
         //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
                 //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, M.commGrid3D->rankInFiber, M.commGrid3D->rankInLayer,
                 //layermat->getnrow(), layermat->getncol(), Mlayermat->getnrow(), Mlayermat->getncol());
+        typedef PlusTimesSRing<NT, NT> PTFF;
+        //Mult_AnXBn_Synch<PTFF, NT, DER>(*layermat, *Mlayermat);
+        SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Mlayermat);
+        int nlayers;
+        MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
+        int sqrtLayers = (int)std::sqrt((float)nlayers);
+        DER* C3D_localMat = C3D_layer.seqptr();
+        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, C3D_localMat->getnrow(), C3D_localMat->getncol(), C3D_localMat->getnnz());
+        vector<DER> chunkArr1;
+        vector<DER> sendChunks(nlayers);
+        C3D_localMat->ColSplit(sqrtLayers, chunkArr1);
+        for(int i = 0; i < chunkArr1.size(); i++){
+            vector<DER> chunkArr2;
+            chunkArr1[i].Transpose();
+            chunkArr1[i].ColSplit(sqrtLayers, chunkArr2);
+            for(int j = 0; j < chunkArr2.size(); j++){
+                chunkArr2[j].Transpose();
+                sendChunks[i*sqrtLayers+j] = chunkArr2[j];
+            }
+        }
+        vector<DER> rcvChunks;
+        IT datasize;
+        NT dummy;
+        SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
+        DER * chunk = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
+        //DER chunk = recvChunks[0];
+        for(int i = 1; i < rcvChunks.size(); i++) *chunk += rcvChunks[i];
+        std::shared_ptr<CommGrid> grid2d;
+        grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
+        SpParMat<IT, NT, DER> C2D(chunk, grid2d);
+        return C2D;
+        //printf("[hihi] myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, chunk->getnrow(), chunk->getncol(), chunk->getnnz());
+        
     }
     
     template <class IT, class NT, class DER>

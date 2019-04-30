@@ -81,34 +81,79 @@ int main(int argc, char* argv[])
         return -1;
     }				
     {
-        string Aname(argv[1]);		
-        
+        string Aname(argv[1]);
+
+        string prefix("3D-stdout-"); 
+        string proc = to_string(myrank); 
+        string filename = prefix + proc;
+        FILE * fp;
+        fp = fopen(filename.c_str(), "w");
+        fclose(fp);
+
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-            // construct objects
+
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> A(fullWorld);
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> B(fullWorld);
         A.ParallelReadMM(Aname, true, maximum<double>());
         B.ParallelReadMM(Aname, true, maximum<double>());
-        //std::cout << "Process No: "<< myrank << " : total number of rows " << A.getlocalrows() << std::endl;
-        //std::cout << "Process No: "<< myrank << " : total number of columns " << A.getlocalcols() << std::endl;
-
-        //cout << "Read complete" << endl;
         
+        double t0, t1;
+        
+        fp = fopen(filename.c_str(), "a");
+        fprintf(fp, "---------------------------[COLUMN SPLITTING]----------------------------\n");
+        fclose(fp);
+
+        t0=MPI_Wtime();
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
         MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) printf("-------------------------------------------------------\n");
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
-        typedef PlusTimesSRing<double, double> PTFF;
-        A3D.template mult<PTFF>(B3D);
-        
-        //cout << "Went from 2D to 3D" << endl;
+        t1=MPI_Wtime();
+        if(myrank == 0){
+            printf("2D->3D Distribution Time: %lf\n", t1-t0);
+            //printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
+        }
 
-        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> A2D = A3D.Convert2D();
-        
-        //if(A==A2D) cout << "Equal....\n";
-        //else cout << "Not Equal....\n";
-        
+        fp = fopen(filename.c_str(), "a");
+        fprintf(fp, "---------------------------[ROW SPLITTING]----------------------------\n");
+        fclose(fp);
+
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
+        t0=MPI_Wtime();
+        typedef PlusTimesSRing<double, double> PTFF;
+        SpParMat<int64_t,double, SpDCCols<int64_t, double> > C3D2D = A3D.template mult<PTFF>(B3D);
+        t1=MPI_Wtime();
+        int bli = C3D2D.getnnz();
+        //printf("[3D] myrank %d\tnrow %d\tncol %d\tnnz %d\n", myrank, C3D2D.seqptr()->getnrow(), C3D2D.seqptr()->getncol(), C3D2D.seqptr()->getnnz());
+        if(myrank == 0){
+            printf("3D Multiplication Time: %lf\n", t1-t0);
+            //printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
+        }
+        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Ap(fullWorld);
+        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Bp(fullWorld);
+        //Ap.ParallelReadMM(Aname, true, maximum<double>());
+        //Bp.ParallelReadMM(Aname, true, maximum<double>());
+        //t0 = MPI_Wtime();
+        //SpParMat<int64_t,double, SpDCCols<int64_t, double> > C2D = Mult_AnXBn_DoubleBuff<PTFF, double, SpDCCols < int64_t, double > >(Ap, Bp);
+        //int ibl = C2D.getnnz();
+        ////printf("[ohoh] myrank %d\tnrow %d\tncol %d\tnnz %d\n", myrank, C2D.seqptr()->getnrow(), C2D.seqptr()->getncol(), C2D.seqptr()->getnnz());
+        //t1 = MPI_Wtime();
+        //if(myrank == 0){
+            //printf("%lf\n", t1-t0);
+            //printf("[ihih] myrank %2d\tnnz %d\n", myrank, ibl);
+        //}
+        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Aq(fullWorld);
+        //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Bq(fullWorld);
+        //Aq.ParallelReadMM(Aname, true, maximum<double>());
+        //Bq.ParallelReadMM(Aname, true, maximum<double>());
+        //t0 = MPI_Wtime();
+        //SpParMat<int64_t,double, SpDCCols<int64_t, double> > Cq2D = Mult_AnXBn_Synch<PTFF, double, SpDCCols < int64_t, double > >(Aq, Bq);
+        //int iqbl = Cq2D.getnnz();
+        ////printf("[ohoh] myrank %d\tnrow %d\tncol %d\tnnz %d\n", myrank, C2D.seqptr()->getnrow(), C2D.seqptr()->getncol(), C2D.seqptr()->getnnz());
+        //t1 = MPI_Wtime();
+        //if(myrank == 0){
+            //printf("%lf\n", t1-t0);
+            //printf("[ohoh] myrank %2d\tnnz %d\n", myrank, iqbl);
+        //}
     }
 	MPI_Finalize();
 	return 0;
