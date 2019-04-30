@@ -94,24 +94,19 @@ namespace combblas
         IT datasize; NT x;
         std::vector<DER> recvChunks;
 
-        string prefix("3D-stdout-"); 
-        string proc = to_string(commGrid3D->myrank); 
-        string filename = prefix + proc;
-        FILE * fp;
-        fp = fopen(filename.c_str(), "a");
-        fprintf(fp, "[SENDING] --> \n");
-        for(int i = 0; i < sendChunks.size(); i++){
-            fprintf(fp, "myrank:%2d\tsendChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, sendChunks[i].getnrow(), sendChunks[i].getncol(), sendChunks[i].getnnz());
-        }
+        //string prefix("3D-stdout-"); 
+        //string proc = to_string(commGrid3D->myrank); 
+        //string filename = prefix + proc;
+        //FILE * fp;
+        //fp = fopen(filename.c_str(), "a");
+        //fprintf(fp, "[SENDING] --> \n");
+        //for(int i = 0; i < sendChunks.size(); i++){
+            //fprintf(fp, "myrank:%2d\tsendChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, sendChunks[i].getnrow(), sendChunks[i].getncol(), sendChunks[i].getnnz());
+        //}
         SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
-        fprintf(fp, "[RECEIVING] <-- \n");
-        for(int i = 0; i < recvChunks.size(); i++){
-            fprintf(fp, "myrank:%2d\trecvChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
-        }
-        //if(commGrid3D->myrank == 12){
-            //for(int i = 0; i < recvChunks.size(); i++){
-                //printf("recvChunks[%d]\trows:%d\tcols:%d\tnnz:%d\n", i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
-            //}
+        //fprintf(fp, "[RECEIVING] <-- \n");
+        //for(int i = 0; i < recvChunks.size(); i++){
+            //fprintf(fp, "myrank:%2d\trecvChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
         //}
         IT concat_row = 0, concat_col = 0;
         for(int i  = 0; i < recvChunks.size(); i++){
@@ -122,10 +117,9 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
-        fprintf(fp, "myrank:%2d\trankInFiber:%2d\trankInLayer:%2d\trankInSpecialWorld:%2d\tnrows:%2d\tncols:%2d\tnnz:%2d\n", 
-                commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-        //fprintf(fp, "*************** [AFTER ONE ROUND OF EXCHANGE] *************\n");
-        fclose(fp);
+        //fprintf(fp, "myrank:%2d\trankInFiber:%2d\trankInLayer:%2d\trankInSpecialWorld:%2d\tnrows:%2d\tncols:%2d\tnnz:%2d\n", 
+                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+        //fclose(fp);
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     

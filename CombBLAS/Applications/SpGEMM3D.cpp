@@ -83,12 +83,12 @@ int main(int argc, char* argv[])
     {
         string Aname(argv[1]);
 
-        string prefix("3D-stdout-"); 
-        string proc = to_string(myrank); 
-        string filename = prefix + proc;
-        FILE * fp;
-        fp = fopen(filename.c_str(), "w");
-        fclose(fp);
+        //string prefix("3D-stdout-"); 
+        //string proc = to_string(myrank); 
+        //string filename = prefix + proc;
+        //FILE * fp;
+        //fp = fopen(filename.c_str(), "w");
+        //fclose(fp);
 
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
@@ -100,9 +100,9 @@ int main(int argc, char* argv[])
         
         double t0, t1;
         
-        fp = fopen(filename.c_str(), "a");
-        fprintf(fp, "---------------------------[COLUMN SPLITTING]----------------------------\n");
-        fclose(fp);
+        //fp = fopen(filename.c_str(), "a");
+        //fprintf(fp, "---------------------------[COLUMN SPLITTING]----------------------------\n");
+        //fclose(fp);
 
         t0=MPI_Wtime();
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
@@ -113,9 +113,9 @@ int main(int argc, char* argv[])
             //printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
         }
 
-        fp = fopen(filename.c_str(), "a");
-        fprintf(fp, "---------------------------[ROW SPLITTING]----------------------------\n");
-        fclose(fp);
+        //fp = fopen(filename.c_str(), "a");
+        //fprintf(fp, "---------------------------[ROW SPLITTING]----------------------------\n");
+        //fclose(fp);
 
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
         t0=MPI_Wtime();
