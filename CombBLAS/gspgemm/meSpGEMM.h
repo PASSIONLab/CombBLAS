@@ -22,12 +22,16 @@
 
 #include <pthread.h>
 
+#include <cmath>
+#include <stack>
+
 #include "gSpGEMM.h"
 
 // #define LOG_GNRL_ME_SPGEMM
-// #define D_SPEC_ENSURE_GPU_RESULTS
 
-typedef enum {LSPG_CPU, LSPG_RMERGE2, LSPG_BHSPARSE, LSPG_NSPARSE} lspg_t;
+
+typedef enum {LSPG_CPU, LSPG_RMERGE2,
+			  LSPG_BHSPARSE, LSPG_NSPARSE, LSPG_HYBRID} lspg_t;
 
 
 template <typename UDERA, typename UDERB, typename LIC,
@@ -45,13 +49,39 @@ struct thd_data_spgemm
 	std::ofstream	 *lfile;
 	double			 *t_lspgemm;
 	double			 *t_wait;
-	std::vector< combblas::SpTuples<LIC,NUO>  *> *tomerge;
+	// std::vector< combblas::SpTuples<LIC,NUO>  *> *tomerge;
+	combblas::SpTuples<LIC,NUO>	**tomerge; // produces for merger
 	
 	// thread coordination
 	pthread_cond_t	*input_ready;
 	pthread_cond_t	*input_freed;
 	pthread_mutex_t *mutex;
 	int				*signal_sent;
+
+	// thread coordination - merger
+	pthread_cond_t	*output_ready;
+	pthread_mutex_t *mutex_merger;
+	int				*stage_idx;
+};
+
+
+
+template <typename LIC, typename NUO>
+struct thd_data_merger
+{
+	int					  nstages;
+	LIC					  m;
+	LIC					  n;	
+	combblas::SpTuples<LIC,NUO>	**merged;	// output
+	std::ofstream		 *lfile;
+	double				 *t_multiwaymerge;
+	// std::vector< combblas::SpTuples<LIC,NUO>  *> *tomerge;
+	combblas::SpTuples<LIC,NUO>  **tomerge;	// consumes from spgemm thread
+	
+	// thread coordination - spgemm
+	pthread_cond_t	*output_ready;
+	pthread_mutex_t *mutex_merger;
+	int				*stage_idx;
 };
 
 
@@ -66,6 +96,9 @@ run_spgemm (
 	#if defined(LOG_GNRL_ME_SPGEMM) || defined(TIMING)
 	double t_tmp;
 	#endif
+
+	typedef typename UDERA::LocalIT LIA;
+	typedef typename UDERB::LocalIT LIB;
 	
 	GSpGEMM<NU1> *gsp = tds->gsp;
 	for (int i = 0; i < tds->nstages; ++i)
@@ -99,20 +132,23 @@ run_spgemm (
 			pthread_mutex_unlock(tds->mutex);
 		}
 		else if (tds->local_spgemm == LSPG_RMERGE2)
-			C_cont = gsp->mult(**(tds->ARecv), **(tds->BRecv),
-							   i != tds->Aself, i != tds->Bself,
-							   RMerge<NU1>(), tds->iter, tds->phase, i,
-							   tds->input_freed, tds->mutex);
+			C_cont = gsp->template mult<LIC, RMerge>
+				(**(tds->ARecv), **(tds->BRecv),
+				 i != tds->Aself, i != tds->Bself,
+				 tds->iter, tds->phase, i, tds->input_freed,
+				 tds->mutex);
 		else if (tds->local_spgemm == LSPG_BHSPARSE)
-			C_cont = gsp->mult(**(tds->ARecv), **(tds->BRecv),
-							   i != tds->Aself, i != tds->Bself,
-							   Bhsparse<NU1>(), tds->iter, tds->phase, i,
-							   tds->input_freed, tds->mutex);
+			C_cont = gsp->template mult<LIC, Bhsparse>
+				(**(tds->ARecv), **(tds->BRecv),
+				 i != tds->Aself, i != tds->Bself,
+				 tds->iter, tds->phase, i, tds->input_freed,
+				 tds->mutex);		
 		else if (tds->local_spgemm == LSPG_NSPARSE)
-			C_cont = gsp->mult(**(tds->ARecv), **(tds->BRecv),
-							   i != tds->Aself, i != tds->Bself,
-							   NSparse<NU1>(), tds->iter, tds->phase, i,
-							   tds->input_freed, tds->mutex);
+			C_cont = gsp->template mult<LIC, NSparse>
+				(**(tds->ARecv), **(tds->BRecv),
+				 i != tds->Aself, i != tds->Bself,
+				 tds->iter, tds->phase, i, tds->input_freed,
+				 tds->mutex);		
 		
 		#ifdef TIMING
 		mcl_localspgemmtime += MPI_Wtime() - t_tmp;
@@ -122,213 +158,94 @@ run_spgemm (
 		*(tds->t_lspgemm) += MPI_Wtime() - t_tmp;
 		#endif
 
-		#ifdef D_SPEC_ENSURE_GPU_RESULTS
-		assert (C_cont->getnnz() == C_contx->getnnz() &&
-				C_cont->getnrow() == C_contx->getnrow() &&
-				C_cont->getncol() == C_contx->getncol());
-		for (int64_t i = 0; i < C_cont->getnnz(); ++i)
-		{
-			assert ((C_cont->rowindex(i) == C_contx->rowindex(i)) &&
-					(C_cont->colindex(i) == C_contx->colindex(i)) &&
-					(compare(C_cont->numvalue(i), C_contx->numvalue(i)))
-					&& ("tuples computed by CPU and GPU are not equal\n"));
-			// std::cout << "(" << C_cont->rowindex(i) << ", "
-			// 		  << C_cont->colindex(i) << ", "
-			// 		  << C_cont->numvalue(i) << ") "
-			// 		  << "x(" << C_contx->rowindex(i) << ", "
-			// 		  << C_contx->colindex(i) << ", "
-			// 		  << C_contx->numvalue(i) << ")" << std::endl;
-
-		}
-		// exit(1);
-		#endif
-
-		if(!C_cont->isZero())
-			tds->tomerge->push_back(C_cont);
-		else
-			delete C_cont;
+		tds->tomerge[i] = C_cont;
+		pthread_mutex_lock(tds->mutex_merger);
+		*(tds->stage_idx) += 1;
+		pthread_cond_signal(tds->output_ready);
+		pthread_mutex_unlock(tds->mutex_merger);
 	}
 }
 
 
 
-/**
-  * Estimate the maximum nnz needed to store in a process from all stages of
-  * SUMMA before reduction  
-  * @pre { Input matrices, A and B, should not alias }
-  **/
-template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-int64_t
-EstPerProcessNnzSUMMAg(
-    combblas::SpParMat<IU,NU1,UDERA> &	 A,
-	combblas::SpParMat<IU,NU2,UDERB> &	 B,
-	GSpGEMM<NU1>						&gsp,
-	std::ofstream						&lfile
-					   )
+template <typename LIC, typename NUO, typename SR>
+void
+run_merger (thd_data_merger<LIC, NUO> *tdm)
 {
-	#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-	double t_tmp;
+	#ifdef TIMING
+	double t6=MPI_Wtime();
 	#endif
 	
-	#ifdef LOG_GNRL_ME_SPGEMM
-	static double	t_stage		= 0.0;
-	static double	t_symb_comm	= 0.0;
-	static double	t_symb_mult	= 0.0;	
-	#endif
+	std::stack<combblas::SpTuples<LIC, NUO> *> merge_stack;
 	
-	typedef typename UDERA::LocalIT LIA;
-	typedef typename UDERB::LocalIT LIB;
-	static_assert(std::is_same<LIA, LIB>::value, "local index types for "
-				  "both input matrices should be the same");
-
-	int64_t nnzC_SUMMA = 0;
-
-	if(A.getncol() != B.getnrow())
-	{
-		std::ostringstream outs;
-		outs << "Can not multiply, dimensions does not match"<< std::endl;
-		outs << A.getncol() << " != " << B.getnrow() << std::endl;
-		combblas::SpParHelper::Print(outs.str());
-		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
-		return nnzC_SUMMA;
-	}
-
-	int stages, dummy;     // last two parameters of ProductGrid are ignored for
-						   // Synch multiplication
-	std::shared_ptr<combblas::CommGrid> GridC =
-		ProductGrid(A.getcommgrid().get(), B.getcommgrid().get(),
-					stages, dummy, dummy);
-
-	MPI_Barrier(GridC->GetWorld());
-
-	LIA ** ARecvSizes = combblas::SpHelper::allocate2D<LIA>
-		(UDERA::esscount, stages);
-	LIB ** BRecvSizes = combblas::SpHelper::allocate2D<LIB>
-		(UDERB::esscount, stages);
-	combblas::SpParHelper::GetSetSizes( *(A.seqptr()), ARecvSizes,
-										(A.getcommgrid())->GetRowWorld());
-	combblas::SpParHelper::GetSetSizes( *(B.seqptr()), BRecvSizes,
-										(B.getcommgrid())->GetColWorld());
-
-	// Remotely fetched matrices are stored as pointers
-	UDERA * ARecv;
-	UDERB * BRecv;
-
-	int Aself = (A.getcommgrid())->GetRankInProcRow();
-    int Bself = (B.getcommgrid())->GetRankInProcCol();
-
-	#ifdef LOG_GNRL_ME_SPGEMM
-	double t_stage_tmp = MPI_Wtime();
-	#endif
-
-	for(int i = 0; i < stages; ++i)
-	{
-		std::vector<LIA> ess;
-		if(i == Aself)
+	for (int i = 0; i < tdm->nstages; ++i)
+	{	
+		pthread_mutex_lock(tdm->mutex_merger);
+		while (i >= *(tdm->stage_idx))
+			pthread_cond_wait(tdm->output_ready, tdm->mutex_merger);
+		pthread_mutex_unlock(tdm->mutex_merger);
+		
+		int nmerges = log2((i+1) & -(i+1)) + 1;
+		merge_stack.push(tdm->tomerge[i]);
+		if (nmerges == 1)
+			continue;
+		
+		std::vector< combblas::SpTuples<LIC, NUO>  *> tmp;
+		while (nmerges-- > 0)
 		{
-			ARecv = A.seqptr();    // shallow-copy
-		}
-		else
-		{
-			ess.resize(UDERA::esscount);
-			for(int j=0; j< UDERA::esscount; ++j)
-			{
-				ess[j] = ARecvSizes[j][i];        // essentials of the ith
-												  // matrix in this row
-			}
-			ARecv = new UDERA();                // first, create the object
+			if (!(merge_stack.top()->isZero()))
+				tmp.push_back(merge_stack.top());
+			merge_stack.pop();
 		}
 
-		#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-		t_tmp = MPI_Wtime();
-		#endif
-
-		// then, receive its elements
-		combblas::SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);
-		ess.clear();
-
-		#ifdef TIMING
-		mcl_Abcasttime += MPI_Wtime() - t_tmp;
+		#ifdef LOG_GNRL_ME_SPGEMM
+		double t_tmp = MPI_Wtime();
 		#endif
 		
+		combblas::SpTuples<LIC,NUO> *merged = combblas::MultiwayMerge<SR>(tmp, tdm->m, tdm->n, true);
+		
 		#ifdef LOG_GNRL_ME_SPGEMM
-		t_symb_comm += MPI_Wtime() - t_tmp;
+		*(tdm->t_multiwaymerge) += MPI_Wtime() - t_tmp;
 		#endif
-
-		if(i == Bself)
-		{
-			BRecv = B.seqptr();    // shallow-copy
-		}
-		else
-		{
-			ess.resize(UDERB::esscount);
-			for(int j=0; j< UDERB::esscount; ++j)
-			{
-				ess[j] = BRecvSizes[j][i];
-			}
-			BRecv = new UDERB();
-		}
-
-		#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-		t_tmp = MPI_Wtime();
-		#endif
-
-		// then, receive its elements
-		combblas::SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    
-
-		#ifdef TIMING
-		mcl_Bbcasttime += MPI_Wtime() - t_tmp;
-		#endif
-
-		#ifdef LOG_GNRL_ME_SPGEMM
-		t_symb_comm += MPI_Wtime() - t_tmp;
-		#endif
-
-		#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-		t_tmp = MPI_Wtime();
-		#endif
-
-		// no need to keep entries of colnnzC in larger precision 
-		// because colnnzC is of length nzc and estimates nnzs per column
-		int64_t nnzC_stage = gsp.mult_symb(*ARecv, *BRecv, NSparseSymbolic()); 
-		nnzC_SUMMA += nnzC_stage;
-
-		#ifdef TIMING
-		mcl_localspgemmtime += MPI_Wtime() - t_tmp;
-		#endif
-
-		#ifdef LOG_GNRL_ME_SPGEMM
-		t_symb_mult += MPI_Wtime() - t_tmp;
-		#endif
-
-		// delete received data
-		if(i != Aself)
-			delete ARecv;
-		if(i != Bself)
-			delete BRecv;
+		
+		merge_stack.push(merged);
 	}
 
-	#ifdef LOG_GNRL_ME_SPGEMM
-	t_stage += MPI_Wtime() - t_stage_tmp;
+
+	combblas::SpTuples<LIC,NUO> *result = NULL;
+	if (merge_stack.size() > 1)
+	{
+		std::vector< combblas::SpTuples<LIC, NUO>  *> tmp;
+		while (!merge_stack.empty())
+		{
+			if (!(merge_stack.top()->isZero()))
+				tmp.push_back(merge_stack.top());
+			merge_stack.pop();
+		}
+
+		#ifdef LOG_GNRL_ME_SPGEMM
+		double t_tmp = MPI_Wtime();
+		#endif
+		
+		result = combblas::MultiwayMerge<SR>(tmp, tdm->m, tdm->n, true);
+
+		#ifdef LOG_GNRL_ME_SPGEMM
+		*(tdm->t_multiwaymerge) += MPI_Wtime() - t_tmp;
+		#endif
+	}
+	else
+	{
+		result = merge_stack.top();
+		merge_stack.pop();
+	}
+
+	*(tdm->merged) = result;
+
+	#ifdef TIMING
+	double t7=MPI_Wtime();
+	mcl_multiwaymergetime += (t7-t6);
 	#endif
-
-	combblas::SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
-	combblas::SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
-
-	int64_t nnzC_SUMMA_max = 0;
-	MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1,
-				  combblas::MPIType<int64_t>(), MPI_MAX, GridC->GetWorld());
-
-	#ifdef LOG_GNRL_ME_SPGEMM
-	lfile << std::fixed << std::setprecision(4);
-	lfile << "symb comm        " << t_symb_comm << std::endl;
-	lfile << "symb mult        " << t_symb_mult << std::endl;
-	lfile << "symb stage       " << t_stage << std::endl;
-	#endif
-
-	return nnzC_SUMMA_max;
 }
-
 
 
 /**
@@ -350,13 +267,16 @@ MemEfficientSpGEMMg (
 	NUO									recoverPct,
 	int									kselectVersion,
 	int64_t								perProcessMemory,
-	lspg_t								local_spgemm
+	lspg_t								local_spgemm,
+	int 								nrounds
 					 )
 {
     typedef typename UDERA::LocalIT LIA;
     typedef typename UDERB::LocalIT LIB;
     typedef typename UDERO::LocalIT LIC;
-    
+
+	int np;
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
@@ -367,8 +287,6 @@ MemEfficientSpGEMMg (
 	std::ofstream lfile;
 	
 	#ifdef LOG_GNRL_ME_SPGEMM
-	int np;
-	MPI_Comm_size(MPI_COMM_WORLD, &np);
 	double t_tmp;
 	char logstr[64];
 	memset(logstr, '\0', 64);
@@ -376,7 +294,8 @@ MemEfficientSpGEMMg (
 			(local_spgemm == LSPG_CPU ? "cpu" :
 			 (local_spgemm == LSPG_RMERGE2 ? "gpu_rmerge2" :
 			  (local_spgemm == LSPG_BHSPARSE ? "gpu_bhsparse" :
-			   "gpu_nsparse"))), myrank);	
+			   (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" :
+		"hybrid")))), myrank);	
 	lfile.open(std::string(logstr), std::ofstream::out | std::ofstream::app);
 	gsp.lfile_ = &lfile;
 	
@@ -391,14 +310,12 @@ MemEfficientSpGEMMg (
 
 	static double	t_thd_spgemm_wait = 0.0;
 	static double	t_thd_main_wait	  = 0.0;
+
+	static double t_est_comm = 0.0;
+	static double t_est_comp = 0.0;
+	static double t_est_comp_sampling = 0.0;
 	#endif
 
-	if (local_spgemm != LSPG_CPU && iter > 0)
-	{
-		if (iter > 10)
-			local_spgemm = LSPG_CPU;
-	}
-	
     if(A.getncol() != B.getnrow())
     {
         std::ostringstream outs;
@@ -422,6 +339,8 @@ MemEfficientSpGEMMg (
     std::shared_ptr<combblas::CommGrid> GridC =
 		ProductGrid(A.getcommgrid().get(), B.getcommgrid().get(),
 					stages, dummy, dummy);
+
+	std::vector<std::pair<int64_t, double> > stage_stats(stages);
 
 	// estimate the number of phases permitted by memory
 	if(perProcessMemory>0) 
@@ -447,10 +366,11 @@ MemEfficientSpGEMMg (
 		
         // max nnz(A^2) stored by summa in a porcess
 		int64_t asquareNNZ = 0;
-		if (local_spgemm == LSPG_CPU)
-			asquareNNZ = EstPerProcessNnzSUMMA(A,B);
-		else
-			asquareNNZ = EstPerProcessNnzSUMMAg(A, B, gsp, lfile);
+		// if (local_spgemm == LSPG_CPU)
+		// EstPerProcessNnzSpMV(A, B);
+		asquareNNZ = EstPerProcessNnzSUMMA(A, B, nrounds, stage_stats, iter);
+		// else
+		//	asquareNNZ = EstPerProcessNnzSUMMAg(A, B, gsp, lfile);
 
 		#ifdef LOG_GNRL_ME_SPGEMM
 		lfile << "estimated number of nnzs for iter " << iter << ": "
@@ -515,9 +435,35 @@ MemEfficientSpGEMMg (
             
         }
     }
-    
-    // LIA C_m = A.spSeq->getnrow();
-    // LIB C_n = B.spSeq->getncol();
+
+
+	// hybrid spgemm selection
+	int64_t flops = 0;
+	double	cf	  = 0.0;
+	for (int i = 0; i < stages; ++i)
+	{
+		flops += stage_stats[i].first;
+		cf	  += stage_stats[i].second;
+	}
+	flops /= stages;
+	cf	  /= stages;
+	if (local_spgemm == LSPG_HYBRID)
+	{
+		local_spgemm = LSPG_NSPARSE;
+		if (flops / phases < (2 * 1e6))
+			local_spgemm = LSPG_CPU;
+		else if (cf <= 5)
+			local_spgemm = LSPG_RMERGE2;
+		
+		#ifdef LOG_GNRL_ME_SPGEMM
+		lfile << "local hybrid spgemm " <<
+			(local_spgemm == LSPG_CPU ? "cpu" :
+			 (local_spgemm == LSPG_RMERGE2 ? "gpu_rmerge2" :
+			  (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A")))
+			  << std::endl;
+		#endif
+	}
+
 	LIA C_m = A.seqptr()->getnrow();
     LIB C_n = B.seqptr()->getncol();
 
@@ -563,16 +509,21 @@ MemEfficientSpGEMMg (
 		
         combblas::SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes,
 											(B.getcommgrid())->GetColWorld());
-        std::vector< combblas::SpTuples<LIC,NUO>  *> tomerge;
+        // std::vector< combblas::SpTuples<LIC,NUO>  *> tomerge;
+		combblas::SpTuples<LIC,NUO> **tomerge = new combblas::SpTuples<LIC,NUO> *[stages];
+		combblas::SpTuples<LIC,NUO> *merged_tuples;
 
 		// spgemm thread
-		pthread_cond_t	input_ready, input_freed;
-		pthread_mutex_t mutex;
-		int				signal_sent;
+		pthread_cond_t	input_ready, input_freed, output_ready;
+		pthread_mutex_t mutex, mutex_merger;
+		int				signal_sent, stage_idx;
 		pthread_cond_init(&input_ready, NULL);
 		pthread_cond_init(&input_freed, NULL);
 		pthread_mutex_init(&mutex, NULL);
 		signal_sent = 0;
+		pthread_cond_init(&output_ready, NULL);
+		pthread_mutex_init(&mutex_merger, NULL);
+		stage_idx	  = 0;
 
 		// spgemm thread data
 		thd_data_spgemm<UDERA, UDERB, LIC, NUO, NU1> tds;
@@ -582,7 +533,7 @@ MemEfficientSpGEMMg (
 		tds.phase		 = p;
 		tds.iter		 = iter;
 		tds.nstages		 = stages;
-		tds.tomerge		 = &tomerge;
+		tds.tomerge		 = tomerge;
 		tds.Aself		 = Aself;
 		tds.Bself		 = Bself;
 		tds.gsp			 = &gsp;
@@ -595,12 +546,34 @@ MemEfficientSpGEMMg (
 		tds.input_freed	 = &input_freed;
 		tds.mutex		 = &mutex;
 		tds.signal_sent	 = &signal_sent;
+		tds.mutex_merger = &mutex_merger;
+		tds.output_ready = &output_ready;
+		tds.stage_idx	 = &stage_idx;
 
 		pthread_t thd_spgemm;
 		pthread_create(&thd_spgemm, (pthread_attr_t *) NULL,
 					   (void * (*) (void *))
 					   run_spgemm<UDERA, UDERB, LIC, NUO, SR, NU1>,
 					   &tds);
+
+		// merger thread
+		thd_data_merger<LIC, NUO>  tdm;
+		tdm.nstages			= stages;
+		tdm.m				= C_m;
+		tdm.n				= PiecesOfB[p].getncol();
+		tdm.tomerge			= tomerge;
+		tdm.merged			= &merged_tuples;
+		#ifdef LOG_GNRL_ME_SPGEMM
+		tdm.lfile			= &lfile;
+		tdm.t_multiwaymerge = &t_multiwaymerge;
+		#endif
+		tdm.output_ready	= &output_ready;
+		tdm.mutex_merger	= &mutex_merger;
+		tdm.stage_idx		= &stage_idx;
+		pthread_t thd_merger;
+		pthread_create(&thd_merger, (pthread_attr_t *) NULL,
+					   (void * (*) (void *)) run_merger<LIC, NUO, SR>,
+					   &tdm);
 		
         for(int i = 0; i < stages; ++i)
         {
@@ -681,84 +654,17 @@ MemEfficientSpGEMMg (
         }   // all stages executed
 
 		pthread_join(thd_spgemm, NULL);
-		
+		pthread_join(thd_merger, NULL);
+
 		#ifdef LOG_GNRL_ME_SPGEMM
-		t_phase += MPI_Wtime() - t_phase_begin;
-		#endif
-        
-		#ifdef SHOW_MEMORY_USAGE
-        int64_t gcnnz_unmerged, lcnnz_unmerged = 0;
-         for(size_t i = 0; i < tomerge.size(); ++i)
-         {
-              lcnnz_unmerged += tomerge[i]->getnnz();
-         }
-		 MPI_Allreduce(&lcnnz_unmerged, &gcnnz_unmerged, 1,
-					   combblas::MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-        int64_t summa_memory = gcnnz_unmerged*20;//(gannz*2 + phase_nnz +
-												 //gcnnz_unmerged + gannz +
-												 //gannz/phases) * 20; // last
-												 //two for broadcasts
-        
-        if(myrank==0)
-        {
-            if(summa_memory>1000000000)
-                std::cout << p+1 << ". unmerged: " << summa_memory/1000000000.00 << "GB " ;
-            else
-                std::cout << p+1 << ". unmerged: " << summa_memory/1000000.00 << " MB " ;
-            
-        }
+		lfile << "iter " << iter << " phase " << p << " merged number of elements "
+			  << merged_tuples->getnnz() << "\n";
+		t_phase += MPI_Wtime() - t_phase_begin;		
 		#endif
 
-		#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-        double t6=MPI_Wtime();
-		#endif
-		
-		// merge the nonzeros in all stages produced by this proc. Note that a
-		// proc updates the subblock of C and it is disjoint with other procs
-
-        //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m,
-        //PiecesOfB[p].getncol(),true), false);		
-        // TODO: MultiwayMerge can directly return UDERO inorder to avoid the
-        // extra copy
-        combblas::SpTuples<LIC,NUO> * OnePieceOfC_tuples =
-			combblas::MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true);
-        
-		#ifdef SHOW_MEMORY_USAGE
-        int64_t gcnnz_merged, lcnnz_merged ;
-        lcnnz_merged = OnePieceOfC_tuples->getnnz();
-        MPI_Allreduce(&lcnnz_merged, &gcnnz_merged, 1,
-					  combblas::MPIType<int64_t>(), MPI_MAX, MPI_COMM_WORLD);
-       
-        // TODO: we can remove gcnnz_merged memory here because we don't need to
-        // concatenate anymore
-        int64_t merge_memory = gcnnz_merged*2*20;
-		//(gannz*2 + phase_nnz + gcnnz_unmerged + gcnnz_merged*2) * 20;
-        
-        if(myrank==0)
-        {
-            if(merge_memory>1000000000)
-                std::cout << " merged: " << merge_memory/1000000000.00 << "GB " ;
-            else
-                std::cout << " merged: " << merge_memory/1000000.00 << " MB " ;
-            
-        }
-		#endif
-        
-        
-		#if defined(TIMING) || defined(LOG_GNRL_ME_SPGEMM)
-        double t7=MPI_Wtime();
-        mcl_multiwaymergetime += (t7-t6);
-		#endif
-		
-		#ifdef LOG_GNRL_ME_SPGEMM
-		t_multiwaymerge += t7 - t6;
-		#endif
-
-		// Create output sparse matrix from tuples. The second option is the
-		// transpose option, which may come handy
-        UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
-        delete OnePieceOfC_tuples;
-
+		UDERO * OnePieceOfC = new UDERO(*merged_tuples, false);
+        delete merged_tuples;
+		        
 		#ifdef LOG_GNRL_ME_SPGEMM
 		double t8 = MPI_Wtime();
 		#endif
@@ -824,6 +730,9 @@ MemEfficientSpGEMMg (
 	lfile << "time wait" << std::endl;
 	lfile << "  spgemm thread    " << t_thd_spgemm_wait << std::endl;
 	lfile << "  main thread      " << t_thd_main_wait << std::endl;
+	lfile << "time est comm            " << t_est_comm << std::endl;
+	lfile << "time est comp (hash)     " << t_est_comp << std::endl;
+	lfile << "time est comp (sampling) " << t_est_comp_sampling << std::endl;
 	if (local_spgemm != LSPG_CPU)
 	{
 		lfile << "gpu time details" << std::endl;

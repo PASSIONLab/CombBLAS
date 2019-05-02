@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <cassert>
 #include <string>
+#include <thread>
+#include <tuple>
 #include "mpi.h"
 
 #include "gSpGEMM.h"
@@ -35,20 +37,22 @@
 #define NUM 0
 
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // 							Constructors/Destructors                          //
 ////////////////////////////////////////////////////////////////////////////////
 template<class NT>
 GSpGEMM<NT>::GSpGEMM (
 	int		rank,
-	int		deviceId,
 	bool	compute_flops
 					  ):
 	rank_(rank),
-	deviceId_(deviceId),
 	compute_flops_(compute_flops)
+	
 {
 	gst_ = {};
+	cudaGetDeviceCount(&ndevices_);
 }
 
 
@@ -162,7 +166,6 @@ GSpGEMM<NT>::prep_in (
 		(A.getnnz() * sizeof(unsigned int)) + (A.getnnz() * sizeof(NT)) +
 		((B.getncol()+1) * sizeof(unsigned int)) +
 		(B.getnnz() * sizeof(unsigned int)) + (B.getnnz() * sizeof(NT));
-	free_mem, total_mem;
 	cudaMemGetInfo(&free_mem, &total_mem);
 	gst_.m_d_after_pre = total_mem-free_mem;
 	#endif
@@ -345,14 +348,13 @@ GSpGEMM<NT>::report_time (
 
 
 template<class NT>
-template<typename IT, typename MulFunctor>
+template<typename IT, template<typename T> class Mul>
 combblas::SpTuples<IT, NT> *
 GSpGEMM<NT>::mult (
 	const combblas::SpDCCols<IT, NT>	&A,
 	const combblas::SpDCCols<IT, NT>	&B,
 	bool								 clearA,
 	bool								 clearB,
-	MulFunctor							 mf,
 	int									 iter,
 	int									 phase,
 	int									 stage,
@@ -360,21 +362,31 @@ GSpGEMM<NT>::mult (
 	pthread_mutex_t						*mutex
 				   )
 {
-	// cudaSetDevice(deviceId_);
-	// #ifdef LOG_GNRL_GPU_SPGEMM
-	// lfile_ << "rank " << rank_ << " device " << deviceId_ << std::endl;
-	// lfile_ << "iter " << iter << " phase "  << phase
-	// 	   << " stage " << stage << std::endl;
-	// lfile_ << "A nrows " << A.getnrow() << " ncols " << A.getncol()
-	// 	   << " nnzs " << A.getnnz()
-	// 	   <<  " B nrows " << B.getnrow() << " ncols " << B.getncol()
-	// 	   << " nnzs " << B.getnnz() << std::endl;
-	// #endif
-
 	// report_memusage("GB");
 	A_nrows_ = A.getnrow(); A_ncols_ = A.getncol(); A_nnzs_ = A.getnnz();
 	B_nrows_ = B.getnrow(); B_ncols_ = B.getncol(); B_nnzs_ = B.getnnz();
 
+	#ifdef LOG_GNRL_GPU_SPGEMM
+	int64_t mem_A_cp = (A_ncols_ + 1) * sizeof(unsigned int);
+	int64_t mem_A_ind = A_nnzs_ * sizeof(unsigned int);
+	int64_t mem_A_val = A_nnzs_ * sizeof(NT);
+	int64_t mem_B_cp = (B_ncols_ + 1) * sizeof(unsigned int);
+	int64_t mem_B_ind = B_nnzs_ * sizeof(unsigned int);
+	int64_t mem_B_val = B_nnzs_ * sizeof(NT);
+	size_t free_mem, total_mem;
+	cudaMemGetInfo(&free_mem, &total_mem);
+	(*lfile_) << std::fixed << std::setprecision(2)
+			  << "mem info: Acp " << static_cast<double>(mem_A_cp) / (1<<30)
+			  << " Aind " << static_cast<double>(mem_A_ind) / (1<<30)
+			  << " Aval " << static_cast<double>(mem_A_val) / (1<<30)
+			  << " Bcp " << static_cast<double>(mem_B_cp) / (1<<30)
+			  << " Bind " << static_cast<double>(mem_B_ind) / (1<<30)
+			  << " Bval " << static_cast<double>(mem_B_val) / (1<<30)
+			  << " --- gpu total " << static_cast<double>(total_mem) / (1<<30)
+			  << " free " <<  static_cast<double>(free_mem) / (1<<30)
+			  << std::endl;
+	#endif
+	
 	#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
 	double t_tmp_all = MPI_Wtime();
 	#endif
@@ -395,29 +407,138 @@ GSpGEMM<NT>::mult (
 		#endif
 	}
 
-	mf.copy(A_nrows_, A_ncols_, A_nnzs_, A_cp_, A_ind_, A_val_,
-			B_nrows_, B_ncols_, B_nnzs_, B_cp_, B_ind_, B_val_, &gst_);
+	
+	////////////////////////////////////////////////////////////////////////////
+	// multi-gpu spgemm
+	#ifdef LOG_GNRL_GPU_SPGEMM
+	(*lfile_) << std::fixed;
+	(*lfile_) << std::setprecision(5);
+	(*lfile_) << "rank " << rank_ << " #devices " << ndevices_ << std::endl;
+	#endif
+	
+	unsigned int	nelems	= B_ncols_ / ndevices_;
+	unsigned int	nnz_tot = 0;
+	vector<mult_res<NT> > 	mres(ndevices_);
+	vector<unsigned int>	nnz_cnts(ndevices_);
+	double t_spgemm, t_spgemm_copy, t_post_tuple;
+	std::tuple<IT,IT,NT>   *tuplesC;
+	omp_set_num_threads(ndevices_);
+	#pragma omp parallel reduction(max: t_spgemm, t_spgemm_copy, t_post_tuple)
+	{
+		int tid = omp_get_thread_num();
+		cudaSetDevice(tid);
 
-	if(clearA)
-        delete const_cast<combblas::SpDCCols<IT, NT> *>(&A);
-    if(clearB)
-        delete const_cast<combblas::SpDCCols<IT, NT> *>(&B);
+		int gpu_id = -1;
+		int num_cpu_threads = omp_get_num_threads();
+		cudaGetDevice(&gpu_id);
+		
+		unsigned int beg = tid * nelems;
+		unsigned int end = -1;
+		if (tid == ndevices_ - 1)
+			end = B_ncols_;
+		else
+			end = (tid + 1) * nelems;
+		unsigned int ncols = end - beg;
 
-	// main thread is assured to be waiting for this condition
-	pthread_mutex_lock(mutex);
-	pthread_cond_signal(input_freed);
-	pthread_mutex_unlock(mutex);
+		unsigned int *B_cp_tmp = (unsigned int *)
+			malloc(sizeof(*B_cp_tmp) * (ncols + 1));
 
-	combblas::SpTuples<IT, NT> *ctuples = mf.mult<IT>(&gst_);
+		for (int i = 0; i <= ncols; ++i)
+			B_cp_tmp[i] = B_cp_[beg + i] - B_cp_[beg];
+
+		unsigned int nnzs = B_cp_[end] - B_cp_[beg];
+
+		#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
+		double t_tmp = MPI_Wtime();
+		#endif
+
+		Mul<NT> mf;
+		mf.copy(A_nrows_, A_ncols_, A_nnzs_, A_cp_, A_ind_, A_val_,
+				B_nrows_, end - beg, B_cp_[end] - B_cp_[beg],
+				B_cp_tmp, &(B_ind_[B_cp_[beg]]),
+				&(B_val_[B_cp_[beg]]), &gst_);
+		
+		free(B_cp_tmp);
+
+		#pragma omp barrier
+
+		#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
+		gst_.t_pre_copy += MPI_Wtime() - t_tmp;
+		#endif
+		
+		if (tid == 0)
+		{
+			if(clearA)
+				delete const_cast<combblas::SpDCCols<IT, NT> *>(&A);
+			if(clearB)
+				delete const_cast<combblas::SpDCCols<IT, NT> *>(&B);
+
+			// main thread is assured to be waiting for this condition
+			pthread_mutex_lock(mutex);
+			pthread_cond_signal(input_freed);
+			pthread_mutex_unlock(mutex);
+		}
+		
+		mf.mult(&gst_, &mres[tid], &t_spgemm, &t_spgemm_copy);
+				
+		#pragma omp barrier
+
+		// concatenate results
+		if (tid == 0)
+		{
+			nnz_cnts[0]	= 0;
+			for (int i = 0; i < ndevices_; ++i)
+			{
+				nnz_tot += mres[i].nnzs;
+				if (i < ndevices_ - 1)
+					nnz_cnts[i + 1] = nnz_cnts[i] + mres[i].nnzs;
+			}
+			tuplesC = static_cast<std::tuple<IT,IT,NT> *>
+				(::operator new (sizeof(std::tuple<IT, IT, NT>[nnz_tot])));
+		}
+
+		#pragma omp barrier
+
+		#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
+		t_post_tuple = MPI_Wtime();
+		#endif
+		
+		unsigned int	 i	 = nnz_cnts[tid];
+		mult_res<NT>	*res = &mres[tid];
+		for (unsigned int j = 0; j < res->pidx_len; ++j)
+		{
+			for (unsigned int k = res->pidx[j]; k < res->pidx[j+1]; ++k)
+			{
+				tuplesC[i++] = std::make_tuple(static_cast<IT>(res->idx[k]),
+											   j + (tid * nelems),
+											   res->vals[k]);
+			}
+		}
+		
+		#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
+		t_post_tuple = MPI_Wtime() - t_post_tuple;
+		#endif
+
+		delete [] mres[tid].pidx;
+		delete [] mres[tid].idx;
+		delete [] mres[tid].vals;
+	}
+	
+	#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
+	gst_.t_spgemm	   += t_spgemm;
+	gst_.t_spgemm_copy += t_spgemm_copy;
+	gst_.t_post_tuple  += t_post_tuple;
+	(*lfile_) << "mult: " << t_spgemm
+			  << " copy: " << t_spgemm_copy
+			  << " post-tuple: " << t_post_tuple << std::endl;
+	gst_.t_total += MPI_Wtime() - t_tmp_all;
+	// report_time(lfile_);
+	#endif
+	////////////////////////////////////////////////////////////////////////////
+	
 
 	#ifdef DBG_SPEC_GPU_SPGEMM_MSTATS
 	report_memusage("GB");
-	#endif
-
-	
-	#ifdef DBG_SPEC_GPU_SPGEMM_TSTATS
-	gst_.t_total += MPI_Wtime() - t_tmp_all;
-	// report_time(lfile_);
 	#endif
 
 	delete[] A_cp_;
@@ -425,9 +546,9 @@ GSpGEMM<NT>::mult (
 	delete[] B_cp_;
 	// delete[] B_ind_;
 
-	return ctuples;
+	return new combblas::SpTuples<IT, NT>
+		(nnz_tot, A_nrows_, B_ncols_, tuplesC, true, true);
 }
-
 
 
 
@@ -458,4 +579,83 @@ GSpGEMM<NT>::mult_symb (
 	// delete[] B_ind_;
 
 	return c_nnz;
+}
+
+
+
+template<class NT>
+void
+GSpGEMM<NT>::print_res (mult_res<NT> *res, std::ofstream &out)
+{
+	out << "pidx_len " << res->pidx_len
+		<< " nnzs " << res->nnzs << std::endl;
+	for (unsigned int i = 0; i < res->pidx_len; ++i)
+	{
+		out << "col/row " << i << " beg " << res->pidx[i]
+			<< " end " << res->pidx[i+1] << " -> ";
+		for (unsigned int j = res->pidx[i]; j < res->pidx[i+1]; ++j)
+			out << res->idx[j] << " " << res->vals[j] << " ### ";
+		out << std::endl;
+	}	
+}
+ 
+
+
+template<class NT>
+void
+GSpGEMM<NT>::print_mat (void)
+{
+	(*lfile_) << "A: \n"
+			  << "  nrows " << A_nrows_ << " ncols " << A_ncols_
+			  << " nnz " << A_nnzs_ << "\n";
+	for (unsigned int i = 0; i < A_ncols_; ++i)
+	{
+		(*lfile_) << "  col " << i << ": [" << A_cp_[i] << ", "
+				  << A_cp_[i+1] << ") -> ";
+		for (unsigned int j = A_cp_[i]; j < A_cp_[i+1]; ++j)
+		{
+			(*lfile_) << "(" << A_ind_[j] << ", " << A_val_[j] << ") ";
+		}
+		(*lfile_) << "\n";
+	}
+
+	(*lfile_) << "\n";
+
+	(*lfile_) << "B: \n"
+			  << "  nrows " << B_nrows_ << " ncols " << B_ncols_
+			  << " nnz " << B_nnzs_ << "\n";
+	for (unsigned int i = 0; i < B_ncols_; ++i)
+	{
+		(*lfile_) << "  col " << i << ": [" << B_cp_[i] << ", "
+				  << B_cp_[i+1] << ") -> ";
+		for (unsigned int j = B_cp_[i]; j < B_cp_[i+1]; ++j)
+		{
+			(*lfile_) << "(" << B_ind_[j] << ", " << B_val_[j] << ") ";
+		}
+		(*lfile_) << "\n";
+	}
+}
+
+
+
+template<class NT>
+void
+GSpGEMM<NT>::print_mat_v2 (
+    unsigned int nrows, unsigned int ncols, unsigned int nnzs,
+	unsigned int *pidx, unsigned int *idx, NT *val)
+{
+	(*lfile_) << "matrix: \n"
+			  << "  nrows " << nrows << " ncols " << ncols
+			  << " nnz " << nnzs << "\n";
+	for (unsigned int i = 0; i < ncols; ++i)
+	{
+		(*lfile_) << "  col " << i << ": [" << pidx[i] << ", "
+				  << pidx[i+1] << ") -> ";
+		for (unsigned int j = pidx[i]; j < pidx[i+1]; ++j)
+		{
+			(*lfile_) << "(" << idx[j] << ", " << val[j] << ") ";
+		}
+		(*lfile_) << "\n";
+	}
+
 }

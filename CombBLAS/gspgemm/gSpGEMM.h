@@ -43,7 +43,7 @@ class GSpGEMM
 	NT				*B_val_;
 
 	// multi-gpu
-	int deviceId_;
+	int ndevices_;
 
 	// stats & debugging
 	bool compute_flops_;
@@ -55,20 +55,24 @@ class GSpGEMM
 
 	void report_memusage(const std::string &unitstr);
 	int64_t get_flops(void);
+	void print_mat(void);
+	void print_mat_v2(unsigned int nrows, unsigned int ncols, unsigned int nnzs,
+					  unsigned int *pidx, unsigned int *idx, NT *val);
+	void print_res(mult_res<NT> *res, std::ofstream &out);
 
 
 public:
 	gstats			 gst_;
 	std::ofstream	*lfile_;
 	
-	GSpGEMM (int rank, int deviceId = 0, bool computeFlops = true);
+	GSpGEMM (int rank, bool computeFlops = true);
 	~GSpGEMM ();
 
-	template<typename IT, typename MulFunctor>
+	template<typename IT, template<typename T> class Mul>
 	combblas::SpTuples<IT, NT> *
 	mult (const combblas::SpDCCols<IT, NT> &A,
 		  const combblas::SpDCCols<IT, NT> &B,
-		  bool clearA, bool clearB, MulFunctor mf,
+		  bool clearA, bool clearB,
 		  int iter, int phase, int stage,
 		  pthread_cond_t *input_freed, pthread_mutex_t *mutex);
 	

@@ -104,7 +104,8 @@ typedef struct
     bool show;
 
 	// @EDIT
-	lspg_t local_spgemm;    
+	lspg_t	local_spgemm;
+	int		nrounds;
 }HipMCLParam;
 
 
@@ -206,7 +207,8 @@ void ShowParam(HipMCLParam & param)
 	string tmp = param.local_spgemm == LSPG_CPU ? "on cpu" :
 		(param.local_spgemm == LSPG_RMERGE2 ? "gpu/rmerge2" :
 		 (param.local_spgemm == LSPG_BHSPARSE ? "gpu/bhsparse" :
-		  "gpu/nsparse"));
+		  (param.local_spgemm == LSPG_NSPARSE ? "gpu/nsparse" :
+		   "hybrid")));
 	runinfo << "local spgemm type: " << tmp << endl;
 												  
     runinfo << "======================================" << endl;
@@ -283,6 +285,11 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
 				param.local_spgemm = LSPG_BHSPARSE;
 			else if (strcmp(argv[i+1], "nsparse")==0)
 				param.local_spgemm = LSPG_NSPARSE;
+			else if (strcmp(argv[i+1], "hybrid")==0)
+				param.local_spgemm = LSPG_HYBRID;
+		}
+		else if (strcmp(argv[i],"--nrounds") == 0) {
+			param.nrounds = atoi(argv[i + 1]);
 		}
     }
     
@@ -499,7 +506,8 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 		A = MemEfficientSpGEMMg<PTFF, NT, DER>
 			(A, A, param.phases, param.prunelimit, (IT)param.select,
 			 (IT)param.recover_num, param.recover_pct,
-			 param.kselectVersion, param.perProcessMem, param.local_spgemm);
+			 param.kselectVersion, param.perProcessMem,
+			 param.local_spgemm, param.nrounds);
         
         MakeColStochastic(A);
         tExpand += (MPI_Wtime() - t1);
@@ -712,6 +720,28 @@ int main(int argc, char* argv[])
     {
         cout << "\nProcess Grid used (pr x pc x threads): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
+
+	// @OGUZ-EDIT Begin
+	int ndevices;
+	cudaGetDeviceCount(&ndevices);
+	// std::cout << "rank " << myrank << " #devices " << ndevices << std::endl;
+	int ts = 0;
+	for (int i = 0; i < ndevices; ++i)
+	{
+		cudaSetDevice(i);
+		int *array;
+	 	int *dArray;
+	 	int	 count = 7;
+	 	int	 size  = count * sizeof(int);
+	 	array	   = new int[count];
+	 	for (int j = 0; j < count; j += 1)
+	 		array[j] = j;
+		cudaMalloc(&dArray, size);
+		cudaMemcpy(dArray, array, size, cudaMemcpyHostToDevice);
+		cudaFree(dArray);
+		delete[] array;
+	}
+	// @OGUZ-EDIT End
     
     
     // show parameters used to run HipMCL

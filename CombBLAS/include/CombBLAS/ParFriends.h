@@ -924,14 +924,24 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
   * @pre { Input matrices, A and B, should not alias }
   **/
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)  
+int64_t
+EstPerProcessNnzSUMMA(
+	SpParMat<IU,NU1,UDERA> & A,
+	SpParMat<IU,NU2,UDERB> & B,
+	int nrounds,
+	std::vector<std::pair<int64_t, double> > &stage_stats,
+	int iter
+	)
 {
+		int myrank;
+    	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+		
     	typedef typename UDERA::LocalIT LIA;
     	typedef typename UDERB::LocalIT LIB;
-	static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
-
+		static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
 
         int64_t nnzC_SUMMA = 0;
+		int64_t nnzC_SUMMA_sampled = 0;
         
         if(A.getncol() != B.getnrow())
         {
@@ -963,6 +973,8 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
         
         for(int i = 0; i < stages; ++i)
         {
+			double t_tmp = MPI_Wtime();
+			
             std::vector<LIA> ess;
             if(i == Aself)
             {
@@ -996,25 +1008,52 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
             }
             
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
+			
             
-	    // no need to keep entries of colnnzC in larger precision 
-	    // because colnnzC is of length nzc and estimates nnzs per column
-			// @EDIT Using hash spgemm for estimation
+	    	// no need to keep entries of colnnzC in larger precision 
+	    	// because colnnzC is of length nzc and estimates nnzs per column
+			// @OGUZ-EDIT Using hash spgemm for estimation
             // LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
-			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
-			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+			LIB*	flopC		= estimateFLOP(*ARecv, *BRecv);
+			LIB		nzc			= BRecv->GetDCSC()->nzc;
+			int64_t flopC_stage = 0;
+			int64_t nnzC_stage	= 0;
+			if (iter >= 10)				// !!!
+			{
+				t_tmp = MPI_Wtime();
+				LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+				
+				#ifdef THREADED
+				#pragma omp parallel for reduction (+:nnzC_stage, flopC_stage)
+				#endif
+            	for (LIB k=0; k<nzc; k++)
+            	{
+                	nnzC_stage	= nnzC_stage + colnnzC[k];
+					flopC_stage = flopC_stage + flopC[k];
+            	}
 
-            LIB nzc = BRecv->GetDCSC()->nzc;
-            int64_t nnzC_stage = 0;
-#ifdef THREADED
-#pragma omp parallel for reduction (+:nnzC_stage)
-#endif
-            for (LIB k=0; k<nzc; k++)
-            {
-                nnzC_stage = nnzC_stage + colnnzC[k];
-            }
+				if(colnnzC)
+					delete [] colnnzC;
+			}
+			else
+			{
+				t_tmp = MPI_Wtime();
+				#ifdef THREADED
+				#pragma omp parallel for reduction (+:flopC_stage)
+				#endif
+				for (LIB k=0; k<nzc; k++)
+				{
+					flopC_stage = flopC_stage + flopC[k];
+				}
+				nnzC_stage = estimateNNZ_sampling(*ARecv, *BRecv, nrounds);
+			}
+
+			stage_stats[i] =
+				std::make_pair(flopC_stage,
+							   static_cast<double>(flopC_stage) /
+							   static_cast<double>(nnzC_stage));
+
             nnzC_SUMMA += nnzC_stage;
-            if(colnnzC) delete [] colnnzC;
             
             // delete received data
             if(i != Aself)
@@ -1028,10 +1067,12 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
         
         int64_t nnzC_SUMMA_max = 0;
         MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<int64_t>(), MPI_MAX, GridC->GetWorld());
-        
-        return nnzC_SUMMA_max;
+		int64_t nnzC_SUMMA_tot = 0;
+        MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_tot, 1, MPIType<int64_t>(), MPI_SUM, GridC->GetWorld());
+		return nnzC_SUMMA_max;
 }
-    
+
+
     
 template <typename MATRIX, typename VECTOR>
 void CheckSpMVCompliance(const MATRIX & A, const VECTOR & x)
@@ -2362,6 +2403,211 @@ FullyDistSpVec<IU,RET> EWiseApply
 					allowVNulls, allowWNulls, Vzero, Wzero, allowIntersect, true);
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+// sampling-based nnz estimation via SpMV
+#define NROUNDS 5
+typedef std::array<float, NROUNDS> samparr_t;
+
+template <typename NZT>
+struct combblas::promote_trait<NZT, samparr_t>
+{
+	typedef samparr_t T_promote;
+};
+
+class SamplesSaveHandler
+{
+public:
+	template<typename c, typename t, typename V>
+	void save(std::basic_ostream<c, t> &os,
+			  std::array<V, NROUNDS> &sample_vec,
+			  int64_t index)
+	{
+		for (auto it = sample_vec.begin(); it != sample_vec.end(); ++it)
+			os << *it << " ";
+	}
+};
+
+template<typename NZT>
+struct SelectMinSR
+{
+	static samparr_t id()
+	{
+		samparr_t arr;
+		for (auto it = arr.begin(); it != arr.end(); ++it)
+			*it = std::numeric_limits<float>::max();
+		return arr;
+	}
+
+
+	static bool returnedSAID()
+	{
+		return false;
+	}
+
+
+	static samparr_t
+	add (const samparr_t &arg1, const samparr_t &arg2)
+	{
+		samparr_t out;
+		for (int i = 0; i < NROUNDS; ++i)
+			out[i] = std::min(arg1[i], arg2[i]);
+		return out;
+	}
+
+
+	static samparr_t
+	multiply (const NZT arg1, const samparr_t &arg2)
+	{
+		return arg2;
+	}
+
+
+	static void axpy (const NZT a, const samparr_t &x, samparr_t &y)
+	{
+		y = add(y, multiply(a, x));
+	}
+
+
+	static MPI_Op mpi_op()
+	{
+		static MPI_Op mpiop;
+		static bool exists = false;
+		if (exists)
+			return mpiop;
+		else
+		{
+			MPI_Op_create(MPI_func, true, &mpiop);
+			exists = true;
+			return mpiop;
+		}
+	}
+
+
+	static void
+	MPI_func(void *invec, void *inoutvec, int *len, MPI_Datatype *datatype)
+	{
+		samparr_t   *in    = static_cast<samparr_t *>(invec);
+		samparr_t   *inout = static_cast<samparr_t *>(inoutvec);
+		for (int i = 0; i < *len; ++i)
+			inout[i] = add(inout[i], in[i]);
+	}
+};
+	
+template <typename IU, typename NU1, typename NU2,
+		  typename UDERA, typename UDERB>
+int64_t
+EstPerProcessNnzSpMV(
+    SpParMat<IU, NU1, UDERA> &A, SpParMat<IU, NU2, UDERB> &B
+	)  
+{
+	int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	float lambda = 1.0f;
+
+	int nthds = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		nthds = omp_get_num_threads();
+	}
+
+	if (myrank == 0)
+		std::cout << "taking transposes." << std::endl;
+	
+	A.Transpose();
+	B.Transpose();
+
+	if (myrank == 0)
+		std::cout << "setting initial samples." << std::endl;
+	
+	samparr_t sa;
+	FullyDistVec<IU, samparr_t> samples_init(A.getcommgrid(), A.getncol(), sa);
+
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		std::default_random_engine gen;
+		std::exponential_distribution<float> exp_dist(lambda);
+
+		#ifdef THREADED
+		#pragma omp parallel for
+		#endif
+		for (IU i = 0; i < samples_init.LocArrSize(); ++i)
+		{
+			samparr_t tmp;
+			for (auto it = tmp.begin(); it != tmp.end(); ++it)
+				*it = exp_dist(gen);
+			samples_init.SetLocalElement(i, tmp);
+		}
+	}
+
+	// std::string fname("samples_init");
+	// samples_init.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+	
+	if (myrank == 0)
+		std::cout << "computing mid samples." << std::endl;
+
+	FullyDistVec<IU, samparr_t> samples_mid =
+		SpMV<SelectMinSR<NU1> > (A, samples_init);
+
+	// fname = "samples_mid";
+	// samples_mid.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+
+	if (myrank == 0)
+		std::cout << "computing final samples." << std::endl;
+
+	FullyDistVec<IU, samparr_t> samples_final =
+		SpMV<SelectMinSR<NU2> > (B, samples_mid);
+
+	// fname = "samples_final";
+	// samples_final.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+	
+	if (myrank == 0)
+		std::cout << "computing nnz estimation." << std::endl;
+	
+	float nnzest = .0f;
+
+	std::cout << myrank << "samples_final loc size: " << samples_final.LocArrSize() << std::endl;
+
+	const samparr_t *lsamples = samples_final.GetLocArr();
+	
+	#ifdef THREADED
+	#pragma omp parallel for reduction (+:nnzest)
+	#endif
+	for (IU i = 0; i < samples_final.LocArrSize(); ++i)
+	{
+		float tmp = .0f;
+		for (auto it = lsamples[i].begin(); it != lsamples[i].end(); ++it)
+			tmp += *it;
+		nnzest += static_cast<float>(NROUNDS - 1) / tmp;
+	}
+
+	if (myrank == 0)
+		std::cout << "taking transposes again." << std::endl;
+
+	int64_t nnzC_est = nnzest;
+	int64_t nnzC_tot = 0;
+	MPI_Allreduce(&nnzC_est, &nnzC_tot, 1, MPIType<int64_t>(), MPI_SUM,
+				  (B.commGrid)->GetWorld());
+	
+	if (myrank == 0)
+		std::cout << "sampling-based spmv est tot: " << nnzC_tot << std::endl;
+
+	// revert back
+	A.Transpose();
+	B.Transpose();
+
+	return nnzC_tot;
+	
+}
+////////////////////////////////////////////////////////////////////////////////
+
+
+	
 }
 
 

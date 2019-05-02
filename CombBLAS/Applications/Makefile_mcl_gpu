@@ -1,48 +1,51 @@
-CC=mpicc
-CXX=mpicxx
-CUDA_PATH=/usr/local/cuda-9.0
-CUDA_CC:=${CUDA_PATH}/bin/nvcc
-CPP_OPT_FLAGS=-DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
-CPP_DBG_FLAGS=-g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
-CPP_COM_FLAGS=-DTIMING -std=c++14 -DTHREADED -fopenmp
-CPP_FLAGS:=$(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
+CC := mpicc
+CXX := mpicxx
+CUDA_PATH := /usr/local/cuda-9.0
+CUDA_CC := ${CUDA_PATH}/bin/nvcc
+CPP_OPT_FLAGS := -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
+CPP_DBG_FLAGS := -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+CPP_COM_FLAGS := -DTIMING -std=c++14 -DTHREADED -fopenmp
+CPP_FLAGS := $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
 # OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
 # PGIFLAGS = $(OPTPGI) -DCOMBBLAS_BOOST
 # CRAYFLAGS = -DCOMBBLAS_BOOST -DCRAYCOMP -h msglevel_4
 # MCL_FLAGS = -DSHOW_MEMORY_USAGE
 
-NVCC_FLAGS:=-arch sm_35 -std=c++14 -ccbin $(CXX) \
+GPU_ARCH := sm_35
+NVCC_FLAGS := -arch ${GPU_ARCH} -std=c++14 -ccbin $(CXX) -O2 \
   -Wno-deprecated-declarations -w -DNVCC -DSHOW_MEMORY_USAGE -DTIMING
-NVCC_XCMP:=$(addprefix -Xcompiler , -std=c++11 -std=c++14 -fopenmp -DNDEBUG -w \
+NVCC_XCMP := $(addprefix -Xcompiler , -std=c++11 -std=c++14 -fopenmp -DNDEBUG -w \
   -DGRAPH_GENERATOR_SEQ -O2 -DMPICH_IGNORE_CXX_SEEK -DTHREADED \
-  -DSHOW_MEMORY_USAGE -DTIMING -g)
+  -DSHOW_MEMORY_USAGE -DTIMING
 NVCC_FLAGS += $(NVCC_XCMP)
-NVCC_LIB:=-lm -lcusparse -lcudart -lcublas -lcurand 
+NVCC_LIB := -lm -lcusparse -lcudart -lcublas -lcurand
+CUDA_INC := -I$(CUDA_PATH)/include
 
-COMBBLAS:=..
-CBLAS_DIR:=$(COMBBLAS)/include/
-CBLAS_SRC:=$(addprefix $(COMBBLAS)/src/, CommGrid.cpp mmio.c MPIType.cpp hash.cpp)
-CBLAS_OBJ:=$(addprefix $(COMBBLAS)/src/, CommGrid.o mmio.o MPIType.o hash.o)
-CBLAS_INC:=-I$(CBLAS_DIR) -I$(COMBBLAS)/psort-1.0/include/ \
+COMBBLAS := ..
+CBLAS_DIR := $(COMBBLAS)/include/
+CBLAS_SRC := $(addprefix $(COMBBLAS)/src/, CommGrid.cpp mmio.c MPIType.cpp hash.cpp)
+CBLAS_OBJ := $(addprefix $(COMBBLAS)/src/, CommGrid.o mmio.o MPIType.o hash.o)
+CBLAS_INC := -I$(CBLAS_DIR) -I$(COMBBLAS)/psort-1.0/include/ \
   -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
 
-RMERGE_DIR:=../gspgemm/rmerge
-RMERGE_OBJ:=$(addprefix $(RMERGE_DIR)/SPMMProject/, MulCusparse.o cuSpmmTest.o \
+RMERGE_DIR := ../gspgemm/rmerge
+RMERGE_OBJ := $(addprefix $(RMERGE_DIR)/SPMMProject/, MulCusparse.o cuSpmmTest.o \
   cuSpmmOther.o bhsparse.o)
-RMERGE_INC:=-I$(RMERGE_DIR)/SPMMProject -I$(RMERGE_DIR)
+RMERGE_INC := -I$(RMERGE_DIR)/SPMMProject -I$(RMERGE_DIR)
 
-NSPARSE_DIR:=../gspgemm/nsparse
-NSPARSE_FLAGS:=
-NSPARSE_INC:=-I$(NSPARSE_DIR)
+NSPARSE_DIR := ../gspgemm/nsparse
+NSPARSE_FLAGS := 
+NSPARSE_INC := -I$(NSPARSE_DIR)
 
-GSPGEMM_INC:=-I../gspgemm
+GSPGEMM_INC := -I../gspgemm
 
-# BOOST_INC=-I
-BOOST_LIB=-L/usr/lib/x86_64-linux-gnu -lboost_timer \
+BOOST_INC := -I/usr/include/boost
+BOOST_LIB := -L/usr/lib/x86_64-linux-gnu -lboost_timer \
   -lboost_chrono -lboost_system
 
-EXECS=mcl_gpu
+EXECS := mcl_gpu
 
+export
 default: all
 all: $(EXECS)
 opt: CPP_FLAGS = $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)

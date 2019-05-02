@@ -22,9 +22,9 @@
 
 #include <inttypes.h>
 
-#define DBG_SPEC_GPU_SPGEMM_TSTATS
+// #define DBG_SPEC_GPU_SPGEMM_TSTATS
 // #define DBG_SPEC_GPU_SPGEMM_MSTATS
-#define LOG_GNRL_GPU_SPGEMM
+// #define LOG_GNRL_GPU_SPGEMM
 
 
 typedef struct _gstats
@@ -64,5 +64,18 @@ typedef struct _gstats
 	int64_t nnzs_C;
 } gstats;
 
+
+
+// structure for thread return data
+template<typename NT>
+struct mult_res
+{
+	unsigned int	*pidx;
+	unsigned int	*idx;
+	NT				*vals;
+	unsigned int	 pidx_len;
+	int64_t			 nnzs;
+	int64_t			 ncols;
+};
 
 #endif
