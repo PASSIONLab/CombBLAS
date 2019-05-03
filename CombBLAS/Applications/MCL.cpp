@@ -724,7 +724,7 @@ int main(int argc, char* argv[])
 	// @OGUZ-EDIT Begin
 	int ndevices;
 	cudaGetDeviceCount(&ndevices);
-	// std::cout << "rank " << myrank << " #devices " << ndevices << std::endl;
+	std::cout << "rank " << myrank << " #devices " << ndevices << std::endl;
 	int ts = 0;
 	for (int i = 0; i < ndevices; ++i)
 	{
