@@ -90,9 +90,6 @@ namespace combblas
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
         
-       // DER & seq() { return (*spSeq); }
-        //DER * seqptr() { return spSeq; }
-        //friend void func(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
         template <class SR>
         SpParMat<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
         
@@ -101,6 +98,7 @@ namespace combblas
         std::shared_ptr<CommGrid3D> commGrid3D;
         SpParMat<IT, NT, DER>* layermat;
         bool colsplit;
+        int nlayers;
         
     };
     

@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
         A.ParallelReadMM(Aname, true, maximum<double>());
         B.ParallelReadMM(Aname, true, maximum<double>());
         
+        printf("%d\n", A.getnnz());
         double t0, t1;
         
         //fp = fopen(filename.c_str(), "a");
@@ -110,24 +111,26 @@ int main(int argc, char* argv[])
         t1=MPI_Wtime();
         if(myrank == 0){
             printf("2D->3D Distribution Time: %lf\n", t1-t0);
-            //printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
         }
+        SpParMat<int64_t, double, SpDCCols <int64_t, double> > A3D2D = A3D.Convert2D();
+        printf("%d\n", A3D2D.getnnz());
 
         //fp = fopen(filename.c_str(), "a");
         //fprintf(fp, "---------------------------[ROW SPLITTING]----------------------------\n");
         //fclose(fp);
 
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
-        t0=MPI_Wtime();
-        typedef PlusTimesSRing<double, double> PTFF;
-        SpParMat<int64_t,double, SpDCCols<int64_t, double> > C3D2D = A3D.template mult<PTFF>(B3D);
-        t1=MPI_Wtime();
-        int bli = C3D2D.getnnz();
-        //printf("[3D] myrank %d\tnrow %d\tncol %d\tnnz %d\n", myrank, C3D2D.seqptr()->getnrow(), C3D2D.seqptr()->getncol(), C3D2D.seqptr()->getnnz());
-        if(myrank == 0){
-            printf("3D Multiplication Time: %lf\n", t1-t0);
-            //printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
-        }
+        //SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
+        //t0=MPI_Wtime();
+        //typedef PlusTimesSRing<double, double> PTFF;
+        //SpParMat<int64_t,double, SpDCCols<int64_t, double> > C3D2D = A3D.template mult<PTFF>(B3D);
+        //t1=MPI_Wtime();
+        //int bli = C3D2D.getnnz();
+        ////printf("[3D] myrank %d\tnrow %d\tncol %d\tnnz %d\n", myrank, C3D2D.seqptr()->getnrow(), C3D2D.seqptr()->getncol(), C3D2D.seqptr()->getnnz());
+        //if(myrank == 0){
+            //printf("3D Multiplication Time: %lf\n", t1-t0);
+            ////printf("[3D] myrank %2d\tnnz %d\n", myrank, bli);
+        //}
+
         //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Ap(fullWorld);
         //SpParMat<int64_t,double, SpDCCols < int64_t, double >> Bp(fullWorld);
         //Ap.ParallelReadMM(Aname, true, maximum<double>());

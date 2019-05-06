@@ -48,9 +48,9 @@ extern "C" {
 namespace combblas
 {
     template <class IT, class NT, class DER>
-    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special)
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special): nlayers(nlayers), colsplit(csplit)
     {
-        colsplit = csplit;
+        //colsplit = csplit;
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
         int nprocs = commGrid2D->GetSize();
@@ -58,6 +58,7 @@ namespace combblas
         else commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, false, true));
 
         DER* spSeq = A2D.seqptr(); // local submatrix
+        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, spSeq->getnrow(), spSeq->getncol(), spSeq->getnnz());
         std::vector<DER> localChunks;
         int numChunks = (int)std::sqrt((float)nlayers);
         if(!colsplit) spSeq->Transpose();
@@ -67,23 +68,18 @@ namespace combblas
         }
 
         // Some necessary processing before exchanging data
-        int fiberWorldSize;
         int sqrtLayer = (int)std::sqrt((float)nlayers);
-        MPI_Comm_size(commGrid3D->fiberWorld, &fiberWorldSize);
-        std::vector<DER> sendChunks(fiberWorldSize);
+        std::vector<DER> sendChunks(nlayers);
+        for(int i = 0; i < sendChunks.size(); i++){
+            sendChunks[i] = DER(0, 0, 0, 0);
+        }
         if(colsplit){
-            for(int i = 0; i < sendChunks.size(); i++){
-                sendChunks[i] = DER(0, 0, 0, 0);
-            }
             for(int i = 0; i < localChunks.size(); i++){
                 int rcvRankInFiber = ( ( commGrid3D->rankInFiber / sqrtLayer ) * sqrtLayer ) + i;
                 sendChunks[rcvRankInFiber] = localChunks[i];
             }
         }
         else{
-            for(int i = 0; i < sendChunks.size(); i++){
-                sendChunks[i] = DER(0, 0, 0, 0);
-            }
             for(int i = 0; i < localChunks.size(); i++){
                 int rcvRankInFiber = ( ( commGrid3D->rankInFiber % sqrtLayer ) * sqrtLayer ) + i;
                 sendChunks[rcvRankInFiber] = localChunks[i];
@@ -124,6 +120,48 @@ namespace combblas
     }
     
     template <class IT, class NT, class DER>
+    SpParMat<IT, NT, DER> SpParMat3D<IT, NT, DER>::Convert2D(){
+        DER * spSeq = layermat->seqptr();
+        std::vector<DER> localChunks;
+        int numChunks = (int)std::sqrt((float)nlayers);
+        if(colsplit) spSeq->Transpose();
+        spSeq->ColSplit(numChunks, localChunks);
+        if(colsplit){
+            for(int i = 0; i < localChunks.size(); i++) localChunks[i].Transpose();
+        }
+        std::vector<DER> sendChunks(nlayers);
+        int sqrtLayer = (int)std::sqrt((float)nlayers);
+        for(int i = 0; i < sendChunks.size(); i++){
+            sendChunks[i] = DER(0, 0, 0, 0);
+        }
+        if(colsplit){
+            for(int i = 0; i < localChunks.size(); i++){
+                int rcvRankInFiber = ( ( commGrid3D->rankInFiber / sqrtLayer ) * sqrtLayer ) + i;
+                sendChunks[rcvRankInFiber] = localChunks[i];
+            }
+        }
+        IT datasize; NT x;
+        std::vector<DER> recvChunks;
+
+        SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
+
+        IT concat_row = 0, concat_col = 0;
+        for(int i  = 0; i < recvChunks.size(); i++){
+            if(!colsplit) recvChunks[i].Transpose();
+            concat_row = std::max(concat_row, recvChunks[i].getnrow());
+            concat_col = concat_col + recvChunks[i].getncol();
+        }
+        DER * localMatrix = new DER(0, concat_row, concat_col, 0);
+        localMatrix->ColConcatenate(recvChunks);
+        if(!colsplit) localMatrix->Transpose();
+        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
+        std::shared_ptr<CommGrid> grid2d;
+        grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
+        SpParMat<IT, NT, DER> mat2D(localMatrix, grid2d);
+        return mat2D;
+    }
+    
+    template <class IT, class NT, class DER>
     template <typename SR>
     SpParMat<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
         SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
@@ -156,14 +194,11 @@ namespace combblas
         NT dummy;
         SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
         DER * chunk = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
-        //DER chunk = recvChunks[0];
         for(int i = 1; i < rcvChunks.size(); i++) *chunk += rcvChunks[i];
         std::shared_ptr<CommGrid> grid2d;
         grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
         SpParMat<IT, NT, DER> C2D(chunk, grid2d);
         return C2D;
-        //printf("[hihi] myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, chunk->getnrow(), chunk->getncol(), chunk->getnnz());
-        
     }
     
     template <class IT, class NT, class DER>
