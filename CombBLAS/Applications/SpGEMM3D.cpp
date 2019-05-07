@@ -97,8 +97,7 @@ int main(int argc, char* argv[])
         SpParMat<int64_t,double, SpDCCols < int64_t, double >> B(fullWorld);
         A.ParallelReadMM(Aname, true, maximum<double>());
         B.ParallelReadMM(Aname, true, maximum<double>());
-        
-        printf("%d\n", A.getnnz());
+
         double t0, t1;
         
         //fp = fopen(filename.c_str(), "a");
@@ -113,7 +112,6 @@ int main(int argc, char* argv[])
             printf("2D->3D Distribution Time: %lf\n", t1-t0);
         }
         SpParMat<int64_t, double, SpDCCols <int64_t, double> > A3D2D = A3D.Convert2D();
-        printf("%d\n", A3D2D.getnnz());
 
         //fp = fopen(filename.c_str(), "a");
         //fprintf(fp, "---------------------------[ROW SPLITTING]----------------------------\n");
