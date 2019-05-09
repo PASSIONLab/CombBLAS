@@ -218,12 +218,7 @@ namespace combblas
     {
         IT totalnz_layer = layermat->getnnz();
         IT totalnz = 0;
-        if(!colsplit)
-        {
-            MPI_Allreduce( &totalnz_layer, &totalnz, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
-        }
-        else
-            totalnz = totalnz_layer;
+        MPI_Allreduce( &totalnz_layer, &totalnz, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
         return totalnz;
     }
 

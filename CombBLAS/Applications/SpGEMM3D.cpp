@@ -123,11 +123,17 @@ int main(int argc, char* argv[])
             printf("2D 1st Multiplication Time: %lf\n", t1-t0);
         }
 
-        SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
-        bool equal = (C2D == C3D2D);
+        //SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
+        //bool equal = (C2D == C3D2D);
+        //if(myrank == 0){
+            //if(equal) printf("Equal\n");
+            //else printf("Not Equal\n");
+        //}
+
+        int C3D_nnz = C3D.getnnz();
+        int C2D_nnz = C2D.getnnz();
         if(myrank == 0){
-            if(equal) printf("Equal\n");
-            else printf("Not Equal\n");
+            printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
         }
 
         t0=MPI_Wtime();
