@@ -48,9 +48,18 @@ extern "C" {
 namespace combblas
 {
     template <class IT, class NT, class DER>
+    SpParMat3D< IT,NT,DER >::SpParMat3D (DER * localMatrix, std::shared_ptr<CommGrid3D> grid3d): commGrid3D(grid3d)
+    {
+        assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
+        commGrid3D = grid3d;
+        colsplit = true;
+        MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
+        layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+    }
+
+    template <class IT, class NT, class DER>
     SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special): nlayers(nlayers), colsplit(csplit)
     {
-        //colsplit = csplit;
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
         int nprocs = commGrid2D->GetSize();
@@ -58,7 +67,6 @@ namespace combblas
         else commGrid3D.reset(new CommGrid3D(commGrid2D->GetWorld(), nlayers, 0, 0, false, true));
 
         DER* spSeq = A2D.seqptr(); // local submatrix
-        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, spSeq->getnrow(), spSeq->getncol(), spSeq->getnnz());
         std::vector<DER> localChunks;
         int numChunks = (int)std::sqrt((float)nlayers);
         if(!colsplit) spSeq->Transpose();
@@ -87,23 +95,10 @@ namespace combblas
         }
         MPI_Barrier(commGrid3D->GetWorld());
 
-        IT datasize; NT x;
+        IT datasize; NT x = 0.0;
         std::vector<DER> recvChunks;
 
-        //string prefix("3D-stdout-"); 
-        //string proc = to_string(commGrid3D->myrank); 
-        //string filename = prefix + proc;
-        //FILE * fp;
-        //fp = fopen(filename.c_str(), "a");
-        //fprintf(fp, "[SENDING] --> \n");
-        //for(int i = 0; i < sendChunks.size(); i++){
-            //fprintf(fp, "myrank:%2d\tsendChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, sendChunks[i].getnrow(), sendChunks[i].getncol(), sendChunks[i].getnnz());
-        //}
         SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
-        //fprintf(fp, "[RECEIVING] <-- \n");
-        //for(int i = 0; i < recvChunks.size(); i++){
-            //fprintf(fp, "myrank:%2d\trecvChunks[%d]\trows:%10d\tcols:%10d\tnnz:%10d\n", commGrid3D->myrank, i, recvChunks[i].getnrow(), recvChunks[i].getncol(), recvChunks[i].getnnz());
-        //}
         IT concat_row = 0, concat_col = 0;
         for(int i  = 0; i < recvChunks.size(); i++){
             if(colsplit) recvChunks[i].Transpose();
@@ -113,9 +108,6 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
-        //fprintf(fp, "myrank:%2d\trankInFiber:%2d\trankInLayer:%2d\trankInSpecialWorld:%2d\tnrows:%2d\tncols:%2d\tnnz:%2d\n", 
-                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, commGrid3D->rankInSpecialWorld, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
-        //fclose(fp);
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     
@@ -140,9 +132,8 @@ namespace combblas
                 sendChunks[rcvRankInFiber] = localChunks[i];
             }
         }
-        IT datasize; NT x;
+        IT datasize; NT x=1.0;
         std::vector<DER> recvChunks;
-
         SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
 
         IT concat_row = 0, concat_col = 0;
@@ -154,7 +145,6 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(!colsplit) localMatrix->Transpose();
-        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, localMatrix->getnrow(), localMatrix->getncol(), localMatrix->getnnz());
         std::shared_ptr<CommGrid> grid2d;
         grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
         SpParMat<IT, NT, DER> mat2D(localMatrix, grid2d);
@@ -163,7 +153,7 @@ namespace combblas
     
     template <class IT, class NT, class DER>
     template <typename SR>
-    SpParMat<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
+    SpParMat3D<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
         SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
         //CheckSpGEMMCompliance(*layermat, *Mlayermat);
         //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
@@ -172,33 +162,25 @@ namespace combblas
         typedef PlusTimesSRing<NT, NT> PTFF;
         //Mult_AnXBn_Synch<PTFF, NT, DER>(*layermat, *Mlayermat);
         SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Mlayermat);
-        int nlayers;
-        MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
         int sqrtLayers = (int)std::sqrt((float)nlayers);
         DER* C3D_localMat = C3D_layer.seqptr();
-        //printf("myrank %d\trankInLayer %d\tnrow %d\tncol %d\tnnz %d\n", commGrid3D->myrank, commGrid3D->rankInLayer, C3D_localMat->getnrow(), C3D_localMat->getncol(), C3D_localMat->getnnz());
-        vector<DER> chunkArr1;
-        vector<DER> sendChunks(nlayers);
-        C3D_localMat->ColSplit(sqrtLayers, chunkArr1);
-        for(int i = 0; i < chunkArr1.size(); i++){
-            vector<DER> chunkArr2;
-            chunkArr1[i].Transpose();
-            chunkArr1[i].ColSplit(sqrtLayers, chunkArr2);
-            for(int j = 0; j < chunkArr2.size(); j++){
-                chunkArr2[j].Transpose();
-                sendChunks[i*sqrtLayers+j] = chunkArr2[j];
-            }
+
+        vector<DER> sendChunks;
+        vector<DER> tempChunks;
+        C3D_localMat->ColSplit(sqrtLayers, tempChunks);
+        for(int i = 0; i < tempChunks.size(); i++){
+            vector<DER> temp;
+            tempChunks[i].ColSplit(sqrtLayers, sendChunks);
         }
         vector<DER> rcvChunks;
-        IT datasize;
-        NT dummy;
+        IT datasize; NT dummy = 0.0;
         SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
-        DER * chunk = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
-        for(int i = 1; i < rcvChunks.size(); i++) *chunk += rcvChunks[i];
-        std::shared_ptr<CommGrid> grid2d;
-        grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
-        SpParMat<IT, NT, DER> C2D(chunk, grid2d);
-        return C2D;
+        DER * localMatrix = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
+        for(int i = 0; i < rcvChunks.size(); i++) *localMatrix += rcvChunks[i];
+        std::shared_ptr<CommGrid3D> grid3d;
+        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), nlayers, 0, 0, true, true));
+        SpParMat3D<IT, NT, DER> C3D(localMatrix, grid3d);
+        return C3D;
     }
     
     template <class IT, class NT, class DER>
@@ -248,9 +230,9 @@ namespace combblas
 
     template <class IT, class NT, class DER>
     vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
-        //int myrank;
-        //MPI_Comm_rank(secondaryWorld, &myrank);
         int numChunks = sendChunks.size();
+        int myrank;
+        MPI_Comm_rank(secondaryWorld, &myrank);
 
         MPI_Datatype MPI_tuple;
         MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
@@ -274,14 +256,16 @@ namespace combblas
 
         MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
 
-        for(IT i = 0; i < numChunks; i++) recvcnt[i] = recvprfl[i*3];
+        for(IT i = 0; i < numChunks; i++){
+            recvcnt[i] = recvprfl[i*3];
+        }
 
         std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
         std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
         IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
 
         std::vector< std::tuple<IT,IT,NT> > sendTuples;
-        for (int i = 0; i < numChunks; i++){
+        for(int i = 0; i < numChunks; i++){
             for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
                 for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
                     NT val = nzit.value();
@@ -289,60 +273,27 @@ namespace combblas
                 }
             }
         }
-        //if(myrank == 12){
-            //int i = 1;
-            //printf("[SENDING] Processor: %d, Chunk: %d\n", myrank, i);
-            //printf("nnz: %d, mdim: %d, ndim: %d\n",sendprfl[i*3], sendprfl[i*3+1], sendprfl[i*3+2]);
-            //printf("first tuple: < %lld, %lld, %lf >\n", 
-                    //get<0>(sendTuples[sdispls[i]]), 
-                    //get<1>(sendTuples[sdispls[i]]), 
-                    //get<2>(sendTuples[sdispls[i]]));
-            //printf("last tuple: < %lld, %lld, %lf >\n", 
-                    //get<0>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
-                    //get<1>(sendTuples[sdispls[i]+sendcnt[i]-1]), 
-                    //get<2>(sendTuples[sdispls[i]+sendcnt[i]-1]));
-            ////for(int j = sdispls[i]; j < sdispls[i]+sendcnt[i]; j++){
-                ////cout << get<0>(sendTuples[j]) << " " << get<1>(sendTuples[j]) << " " << get<2>(sendTuples[j]) << endl;
-            ////}
-        //}
+
+        //if(dummy == 1.0) printf("totrecv: %d\n", totrecv);
+        MPI_Barrier(MPI_COMM_WORLD);
         std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
+        //if(dummy == 1.0) printf("Here\n");
+        //MPI_Barrier(MPI_COMM_WORLD);
         MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
 
         DeleteAll(sendcnt, sendprfl, sdispls);
         sendTuples.clear();
         sendTuples.shrink_to_fit();
 
-        //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
-        //MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples.data(), recvcnt, rdispls, MPI_tuple, World);
         tuple<IT, IT, NT> ** tempTuples = new tuple<IT, IT, NT>*[numChunks];
-        //vector<DER> recvChunks;
         for (int i = 0; i < numChunks; i++){
             tempTuples[i] = new tuple<IT, IT, NT>[recvcnt[i]];
             memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<IT, IT, NT>));
             recvChunks.push_back(DER(SpTuples<IT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
         }
-
-        //if(myrank == 6){
-            //int i = 2;
-            //printf("[RECEIVING] Processor: %d, Chunk: %d\n", myrank, i);
-            //printf("nnz: %d, mdim: %d, ndim: %d\n",recvprfl[i*3], recvprfl[i*3+1], recvprfl[i*3+2]);
-            //printf("first tuple: < %lld, %lld, %lf >\n", 
-                    //get<0>(recvTuples[rdispls[i]]), 
-                    //get<1>(recvTuples[rdispls[i]]), 
-                    //get<2>(recvTuples[rdispls[i]]));
-            //printf("last tuple: < %lld, %lld, %lf >\n", 
-                    //get<0>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
-                    //get<1>(recvTuples[rdispls[i]+recvcnt[i]-1]), 
-                    //get<2>(recvTuples[rdispls[i]+recvcnt[i]-1]));
-            ////for(int j = rdispls[i]; j < rdispls[i]+recvcnt[i]; j++){
-                ////cout << get<0>(recvTuples[j]) << " " << get<1>(recvTuples[j]) << " " << get<2>(recvTuples[j]) << endl;
-            ////}
-        //}
-        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); // Free all memory
-        //for(int i = 0; i < numChunks; i++){
-            //delete[] tempTuples[i];
-        //}
-        //delete[] tempTuples;
+        
+        // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
+        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); 
         MPI_Type_free(&MPI_tuple);
         return recvChunks;
     }

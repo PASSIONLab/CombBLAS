@@ -68,8 +68,9 @@ namespace combblas
         
         // Constructors
         SpParMat3D ();
-        SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit); // 2D to 3D converter
-        SpParMat3D (const SpParMat <IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special);
+        SpParMat3D (const SpParMat < IT,NT,DER > & A2D, int nlayers, bool colsplit); // 2D to 3D converter
+        SpParMat3D (const SpParMat < IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special); // Special 2D to 3D converter
+        SpParMat3D (DER * myseq, std::shared_ptr<CommGrid3D> grid3d);
       
         SpParMat<IT, NT, DER> Convert2D();
         //~SpParMat3D () ;
@@ -91,7 +92,9 @@ namespace combblas
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
         
         template <class SR>
-        SpParMat<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
+        SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
+
+        DER * seqptr(){ return layermat->seqptr(); }
         
     private:
         

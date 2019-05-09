@@ -111,6 +111,8 @@ public:
     int GetSize() { return gridLayers * gridRows * gridCols; }
     // Function to return all the communicators involved in the 3D processor grid
     MPI_Comm GetWorld(){return world3D;}
+    MPI_Comm GetFiberWorld(){return fiberWorld;}
+    MPI_Comm GetLayerWorld(){return layerWorld;}
     int myrank; // ID of the running processor in the communication world
 	int gridRows; // Number of processors along row of each layer in this 3D CommGrid
 	int gridCols; // Number of processors along column of each layer in this 3D CommGrid
