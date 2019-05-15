@@ -108,6 +108,7 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
+        //printf("%d : %d x %d\n", commGrid3D->myrank, localMatrix->getnrow(), localMatrix->getncol());
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     
@@ -153,24 +154,42 @@ namespace combblas
     
     template <class IT, class NT, class DER>
     template <typename SR>
-    SpParMat3D<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & M){
-        SpParMat<IT, NT, DER>* Mlayermat = M.layermat;
-        //CheckSpGEMMCompliance(*layermat, *Mlayermat);
+    SpParMat3D<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & B){
+        //printf("%d = %d\n", A.getncol(), B.getnrow());
+        SpParMat<IT, NT, DER>* Blayermat = B.layermat;
+        MPI_Barrier(MPI_COMM_WORLD);
+        //printf("%d: %d = %d\n", commGrid3D->myrank, layermat->getncol(), Blayermat->getnrow());
         //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
-                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, M.commGrid3D->rankInFiber, M.commGrid3D->rankInLayer,
-                //layermat->getnrow(), layermat->getncol(), Mlayermat->getnrow(), Mlayermat->getncol());
+                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, B.commGrid3D->rankInFiber, B.commGrid3D->rankInLayer,
+                //layermat->getnrow(), layermat->getncol(), Blayermat->getnrow(), Blayermat->getncol());
+        //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
+                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, B.commGrid3D->rankInFiber, B.commGrid3D->rankInLayer,
+                //layermat->seqptr()->getnrow(), layermat->seqptr()->getncol(), Blayermat->seqptr()->getnrow(), Blayermat->seqptr()->getncol());
         typedef PlusTimesSRing<NT, NT> PTFF;
-        //Mult_AnXBn_Synch<PTFF, NT, DER>(*layermat, *Mlayermat);
-        SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Mlayermat);
+        SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Blayermat);
         int sqrtLayers = (int)std::sqrt((float)nlayers);
         DER* C3D_localMat = C3D_layer.seqptr();
-
+        //printf("%d C3D_layer: %d x %d\n", commGrid3D->myrank, C3D_layer.getnrow(), C3D_layer.getnrow());
+        //printf("%d C3D_localMat: %d x %d\n", commGrid3D->myrank, C3D_localMat->getnrow(), C3D_localMat->getnrow());
+        
+        vector<DER> tempChunks_1;
+        vector<DER> tempChunks_2;
+        C3D_localMat->ColSplit(sqrtLayers * commGrid3D->gridCols, tempChunks_1);
+        for(int i = 0; i < sqrtLayers; i++){
+            std::vector<DER> tempChunks_3;
+            IT concat_row = 0, concat_col = 0;
+            for(int j = 0; j < commGrid3D->gridCols; j++){
+                int k = i*commGrid3D->gridCols+j;
+                concat_row = std::max(concat_row, tempChunks_1[k].getnrow());
+                concat_col = concat_col + tempChunks_1[k].getncol();
+                tempChunks_3.push_back(tempChunks_1[k]);
+            }
+            tempChunks_2.push_back(DER(0, concat_row, concat_col, 0));
+            tempChunks_2[i].ColConcatenate(tempChunks_3);
+        }
         vector<DER> sendChunks;
-        vector<DER> tempChunks;
-        C3D_localMat->ColSplit(sqrtLayers, tempChunks);
-        for(int i = 0; i < tempChunks.size(); i++){
-            vector<DER> temp;
-            tempChunks[i].ColSplit(sqrtLayers, sendChunks);
+        for(int i = 0; i < tempChunks_2.size(); i++){
+            tempChunks_2[i].ColSplit(sqrtLayers, sendChunks);
         }
         vector<DER> rcvChunks;
         IT datasize; NT dummy = 0.0;
