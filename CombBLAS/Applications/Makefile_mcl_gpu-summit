@@ -1,0 +1,78 @@
+CXX := mpiCC
+CUDA_PATH := ${OLCF_CUDA_ROOT}
+CUDA_CC := ${CUDA_PATH}/bin/nvcc
+CPP_OPT_FLAGS := -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
+CPP_DBG_FLAGS := -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+CPP_COM_FLAGS := -DTIMING -std=c++14 -DTHREADED -fopenmp
+CPP_FLAGS := $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
+# OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
+# PGIFLAGS = $(OPTPGI) -DCOMBBLAS_BOOST
+# CRAYFLAGS = -DCOMBBLAS_BOOST -DCRAYCOMP -h msglevel_4
+# MCL_FLAGS = -DSHOW_MEMORY_USAGE
+
+# GPU_ARCH := sm_35
+NVCC_FLAGS := -std=c++14 -ccbin $(CXX) -O2 \
+  -Wno-deprecated-declarations -w -DNVCC -DSHOW_MEMORY_USAGE -DTIMING
+NVCC_XCMP := $(addprefix -Xcompiler , -std=c++11 -std=c++14 -fopenmp -DNDEBUG -w \
+  -DGRAPH_GENERATOR_SEQ -O2 -DMPICH_IGNORE_CXX_SEEK -DTHREADED \
+  -DSHOW_MEMORY_USAGE -DTIMING)
+NVCC_FLAGS += $(NVCC_XCMP)
+NVCC_LIB := -L${CUDA_PATH}/lib64 -lm -lcusparse -lcudart -lcublas -lcurand
+CUDA_INC := -I${CUDA_PATH}/include
+
+COMBBLAS := ..
+CBLAS_DIR := $(COMBBLAS)/include/
+CBLAS_SRC := $(addprefix $(COMBBLAS)/src/, CommGrid.cpp mmio.c MPIType.cpp hash.cpp)
+CBLAS_OBJ := $(addprefix $(COMBBLAS)/src/, CommGrid.o mmio.o MPIType.o hash.o)
+CBLAS_INC := -I$(CBLAS_DIR) -I$(COMBBLAS)/psort-1.0/include/ \
+  -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
+
+RMERGE_DIR := ../gspgemm/rmerge
+RMERGE_OBJ := $(addprefix $(RMERGE_DIR)/SPMMProject/, MulCusparse.o cuSpmmTest.o \
+  cuSpmmOther.o bhsparse.o)
+RMERGE_INC := -I$(RMERGE_DIR)/SPMMProject -I$(RMERGE_DIR)
+
+NSPARSE_DIR := ../gspgemm/nsparse
+NSPARSE_FLAGS := 
+NSPARSE_INC := -I$(NSPARSE_DIR)
+
+GSPGEMM_INC := -I../gspgemm
+
+BOOST_INC := -I${OLCF_BOOST_ROOT}/include
+BOOST_LIB_X := -L${OLCF_BOOST_ROOT}/lib -lboost_timer -lboost_chrono -lboost_system
+
+EXECS := mcl_gpu
+
+export
+default: all
+all: $(EXECS)
+opt: CPP_FLAGS = $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
+opt: all
+dbg: CPP_FLAGS = $(CPP_DBG_FLAGS) $(CPP_COM_FLAGS)
+dbg: all
+prf: CPP_FLAGS = $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS) -pg
+prf: all
+
+mcl_gpu: build $(CBLAS_OBJ) rmergelib MCL.o
+	$(CXX) $(CPP_FLAGS) -o $@ $(CBLAS_OBJ) $(RMERGE_OBJ) MCL.o ${BOOST_LIB_X} ${NVCC_LIB}
+
+%.o: %.cu
+	$(CUDA_CC) $(NVCC_FLAGS) -c $< -o $@ $(RMERGE_INC) \
+      $(NSPARSE_INC) $(NSPARSE_FLAGS) $(CBLAS_INC) $(GSPGEMM_INC)  $(BOOST_INC) $(CUDA_INC)
+
+%.o: %.cpp
+	$(CXX) $(CBLAS_INC) $(CPP_FLAGS) -c $< -o $@
+
+%.o: %.c
+	$(CXX) $(CBLAS_INC) $(CPP_FLAGS) -x c -c $< -o $@
+
+rmergelib:
+	cd $(RMERGE_DIR)/SPMMProject && $(MAKE) lib
+
+build:
+	@echo $(value CBLAS_OBJ)
+	test -d bin || mkdir bin
+
+.PHONY: clean
+clean:
+	rm $(CBLAS_OBJ) $(RMERGE_OBJ) MCL.o mcl_gpu

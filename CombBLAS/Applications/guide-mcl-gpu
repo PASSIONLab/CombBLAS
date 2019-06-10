@@ -13,6 +13,14 @@ module commands prior to compilation:
 compile by running (under CombBLAS/Applications directory):
   make -f Makefile_mcl_gpu-cori
 
+* Compilation on Cori GPU nodes *
+module commands prior to compilation:
+  module load cuda/9.2.148
+  module load gcc/5.4.0
+  module load boost
+compile by running (under CombBLAS/Applications directory):
+  make -f Makefile_mcl_gpu-summit
+
 * Running *
 The GPU version of HipMCL uses both the CPU and GPU for certain tasks. The CPU
 section is multi-threaded (so it is useful to allocate a number of cores and use
