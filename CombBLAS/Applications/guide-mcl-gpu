@@ -13,7 +13,7 @@ module commands prior to compilation:
 compile by running (under CombBLAS/Applications directory):
   make -f Makefile_mcl_gpu-cori
 
-* Compilation on Cori GPU nodes *
+* Compilation on Summit *
 module commands prior to compilation:
   module load cuda/9.2.148
   module load gcc/5.4.0
@@ -29,6 +29,7 @@ CPU a bottleneck) and the GPU section can handle multiple GPUs on a node. The
 tasks run on GPU and CPU are interleaved in several aspects.
 Example run command:
   mpirun -n 1 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 64 -lspgemm hybrid --nrounds 7
+  mpirun -n 1 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 64 -lspgemm nsparse --nrounds 7
 
 * Options *
 In addition to already existing options in HipMCL, there are two additional
