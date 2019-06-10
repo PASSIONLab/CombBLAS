@@ -6,7 +6,7 @@
 * Compilation on Cori GPU nodes *
 module commands prior to compilation:
   module load esslurm
-  module load cuda
+  module load cuda/9.2
   module swap gcc/7.3.0 gcc/6.1.0 [boost conflicts with gcc/7.3.0]
   module load boost
   module swap cray-mpich openmpi
@@ -28,8 +28,9 @@ export OMP_NUM_THREADS to set the number of threads for CPU to use not to make
 CPU a bottleneck) and the GPU section can handle multiple GPUs on a node. The
 tasks run on GPU and CPU are interleaved in several aspects.
 Example run command:
-  mpirun -n 1 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 64 -lspgemm hybrid --nrounds 7
-  mpirun -n 1 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 64 -lspgemm nsparse --nrounds 7
+  cori: mpirun -n 1 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 64 -lspgemm hybrid --nrounds 7
+  summit (single GPU): jsrun -n 1 -r 1 -a 1 -g 1 -c 42 -bpacked:42 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 96 -lspgemm nsparse --nrounds 7
+  summit (multiple GPUs): jsrun -n 1 -r 1 -a 1 -g 6 -c 42 -bpacked:42 ./mcl_gpu -M Renamed_vir_vs_vir_30_50length.indexed.mtx --matrix-market -base 0 -I 2 --32bit-local-index -per-process-mem 96 -lspgemm nsparse --nrounds 7
 
 * Options *
 In addition to already existing options in HipMCL, there are two additional
