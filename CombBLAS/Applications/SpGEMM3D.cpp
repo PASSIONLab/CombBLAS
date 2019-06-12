@@ -98,22 +98,32 @@ int main(int argc, char* argv[])
         double t0, t1;
 
         t0=MPI_Wtime();
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 9, true, true);    // Column split
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > A3D(A, 4, true, true);    // Column split
         MPI_Barrier(MPI_COMM_WORLD);
         t1=MPI_Wtime();
         if(myrank == 0){
             printf("2D->3D Distribution Time: %lf\n", t1-t0);
         }
+        printf("myrank: %d\t:\tA2D [%dx%d(%d)]\tA3D [%dx%d(%d)]\n", myrank, 
+                Ap.seqptr()->getnrow(), Ap.seqptr()->getncol(), Ap.seqptr()->getnnz(),
+                A3D.seqptr()->getnrow(), A3D.seqptr()->getncol(), A3D.seqptr()->getnnz()
+                );
 
-        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 9, false, true);   // Row split
+        SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 4, false, true);   // Row split
         t0=MPI_Wtime();
         typedef PlusTimesSRing<double, double> PTFF;
         SpParMat3D<int64_t, double, SpDCCols<int64_t, double> > C3D = A3D.template mult<PTFF>(B3D);
+        //A3D.template mult<PTFF>(B3D);
         MPI_Barrier(MPI_COMM_WORLD);
         t1=MPI_Wtime();
         if(myrank == 0){
             printf("3D 1st Multiplication Time: %lf\n", t1-t0);
         }
+        //printf("myrank: %d\tA3D: [%dx%d]\tC3D: [%dx%d]\tnnz: %d=%d\n", myrank, 
+                //A3D.seqptr()->getnrow(), A3D.seqptr()->getncol(), 
+                //C3D.seqptr()->getnrow(), C3D.seqptr()->getncol(), 
+                //A3D.seqptr()->getnnz(), C3D.seqptr()->getnnz()
+                //);
 
         t0 = MPI_Wtime();
         SpParMat<int64_t,double, SpDCCols<int64_t, double> > C2D = Mult_AnXBn_DoubleBuff<PTFF, double, SpDCCols < int64_t, double > >(Ap, Bp);
@@ -129,6 +139,11 @@ int main(int argc, char* argv[])
             //if(equal) printf("Equal\n");
             //else printf("Not Equal\n");
         //}
+        //printf("myrank: %d\tC2D: [%dx%d]\tC3D2D: [%dx%d]\tnnz: %d=%d\n", myrank, 
+                //C2D.seqptr()->getnrow(), C2D.seqptr()->getncol(), 
+                //C3D2D.seqptr()->getnrow(), C3D2D.seqptr()->getncol(), 
+                //C2D.seqptr()->getnnz(), C3D2D.seqptr()->getnnz()
+                //);
 
         int C3D_nnz = C3D.getnnz();
         int C2D_nnz = C2D.getnnz();
@@ -144,20 +159,27 @@ int main(int argc, char* argv[])
             printf("3D 2nd Multiplication Time: %lf\n", t1-t0);
         }
 
-        //t0 = MPI_Wtime();
-        //C2D = Mult_AnXBn_DoubleBuff<PTFF, double, SpDCCols < int64_t, double > >(C2D, Bp);
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //t1=MPI_Wtime();
-        //if(myrank == 0){
-            //printf("2D 2nd Multiplication Time: %lf\n", t1-t0);
-        //}
+        t0 = MPI_Wtime();
+        C2D = Mult_AnXBn_DoubleBuff<PTFF, double, SpDCCols < int64_t, double > >(C2D, Bp);
+        MPI_Barrier(MPI_COMM_WORLD);
+        t1=MPI_Wtime();
+        if(myrank == 0){
+            printf("2D 2nd Multiplication Time: %lf\n", t1-t0);
+        }
 
-        //C3D2D = C3D.Convert2D();
-        //equal = (C2D == C3D2D);
+        //SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
+        ////equal = (C2D == C3D2D);
+        //bool equal = (C2D == C3D2D);
         //if(myrank == 0){
             //if(equal) printf("Equal\n");
             //else printf("Not Equal\n");
         //}
+
+        C3D_nnz = C3D.getnnz();
+        C2D_nnz = C2D.getnnz();
+        if(myrank == 0){
+            printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
+        }
     }
 	MPI_Finalize();
 	return 0;

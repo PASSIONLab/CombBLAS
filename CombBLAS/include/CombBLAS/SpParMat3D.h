@@ -92,6 +92,7 @@ namespace combblas
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
         
         template <class SR>
+        //void mult(SpParMat3D<IT, NT, DER> & M);
         SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
 
         DER * seqptr(){ return layermat->seqptr(); }
