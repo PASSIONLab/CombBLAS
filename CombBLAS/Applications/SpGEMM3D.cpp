@@ -104,10 +104,10 @@ int main(int argc, char* argv[])
         if(myrank == 0){
             printf("2D->3D Distribution Time: %lf\n", t1-t0);
         }
-        printf("myrank: %d\t:\tA2D [%dx%d(%d)]\tA3D [%dx%d(%d)]\n", myrank, 
-                Ap.seqptr()->getnrow(), Ap.seqptr()->getncol(), Ap.seqptr()->getnnz(),
-                A3D.seqptr()->getnrow(), A3D.seqptr()->getncol(), A3D.seqptr()->getnnz()
-                );
+        //printf("myrank: %d\t:\tA2D [%dx%d(%d)]\tA3D [%dx%d(%d)]\n", myrank, 
+                //Ap.seqptr()->getnrow(), Ap.seqptr()->getncol(), Ap.seqptr()->getnnz(),
+                //A3D.seqptr()->getnrow(), A3D.seqptr()->getncol(), A3D.seqptr()->getnnz()
+                //);
 
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 4, false, true);   // Row split
         t0=MPI_Wtime();
@@ -145,11 +145,11 @@ int main(int argc, char* argv[])
                 //C2D.seqptr()->getnnz(), C3D2D.seqptr()->getnnz()
                 //);
 
-        int C3D_nnz = C3D.getnnz();
-        int C2D_nnz = C2D.getnnz();
-        if(myrank == 0){
-            printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
-        }
+        //int C3D_nnz = C3D2D.getncol();
+        //int C2D_nnz = C2D.getncol();
+        //if(myrank == 0){
+            //printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
+        //}
 
         t0=MPI_Wtime();
         C3D = C3D.template mult<PTFF>(B3D);
@@ -167,21 +167,20 @@ int main(int argc, char* argv[])
             printf("2D 2nd Multiplication Time: %lf\n", t1-t0);
         }
 
-        //SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
-        ////equal = (C2D == C3D2D);
-        //bool equal = (C2D == C3D2D);
-        //if(myrank == 0){
-            //if(equal) printf("Equal\n");
-            //else printf("Not Equal\n");
-        //}
-
-        C3D_nnz = C3D.getnnz();
-        C2D_nnz = C2D.getnnz();
+        SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
+        //equal = (C2D == C3D2D);
+        bool equal = (C2D == C3D2D);
         if(myrank == 0){
-            printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
+            if(equal) printf("Equal\n");
+            else printf("Not Equal\n");
         }
+
+        //C3D_nnz = C3D.getnnz();
+        //C2D_nnz = C2D.getnnz();
+        //if(myrank == 0){
+            //printf("C3D_nnz: %d C2D_nnz: %d\n", C3D_nnz, C2D_nnz);
+        //}
     }
 	MPI_Finalize();
 	return 0;
 }
-

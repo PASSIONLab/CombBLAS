@@ -997,12 +997,12 @@ void SpDCCols<IT,NT>::ColConcatenate(std::vector< SpDCCols<IT,NT> > & matrices)
         std::cout << "Nothing to ColConcatenate" << std::endl;
 #endif
         n = runningoffset;
-    }
+    }/*
     else if(nonempties.size() < 2)
     {
         *this =  *(nonempties[0]);
         n = runningoffset; 
-    }
+    }*/
     else // nonempties.size() > 1
     {
         Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
