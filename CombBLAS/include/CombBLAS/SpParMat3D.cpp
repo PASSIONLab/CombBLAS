@@ -85,12 +85,6 @@ namespace combblas
             int rcvRankInFiber = (colsplit) ? ( ( ( commGrid3D->rankInFiber / sqrtLayer ) * sqrtLayer ) + i ) : ( ( ( commGrid3D->rankInFiber % sqrtLayer ) * sqrtLayer ) + i );
             sendChunks[rcvRankInFiber] = localChunks[i];
         }
-        //else{
-            //for(int i = 0; i < localChunks.size(); i++){
-                //int rcvRankInFiber = ( ( ( commGrid3D->rankInFiber % sqrtLayer ) * sqrtLayer ) + i );
-                //sendChunks[rcvRankInFiber] = localChunks[i];
-            //}
-        //}
         MPI_Barrier(commGrid3D->GetWorld());
 
         IT datasize; NT x = 0.0;
@@ -106,18 +100,6 @@ namespace combblas
         DER * localMatrix = new DER(0, concat_row, concat_col, 0);
         localMatrix->ColConcatenate(recvChunks);
         if(colsplit) localMatrix->Transpose();
-        //if(commGrid3D->rankInFiber == 2 && commGrid3D->rankInLayer == 2){
-            //for(typename DER::SpColIter colit = localMatrix->begcol(); colit != localMatrix->endcol(); colit++){
-                //for(typename DER::SpColIter::NzIter nzit = localMatrix->begnz(colit); nzit != localMatrix->endnz(colit); nzit++){
-                    //IT rowid = nzit.rowid();
-                    //IT colid = colit.colid();
-                    //NT val = nzit.value();
-                    //cout << "(" << rowid << "," << colid << "," << val << ")" << " "; 
-                //}
-            //}
-            //cout << endl;
-        //}
-        //printf("%d : %d x %d\n", commGrid3D->myrank, localMatrix->getnrow(), localMatrix->getncol());
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     
@@ -134,7 +116,6 @@ namespace combblas
         if(colsplit){
             for(IT i = 0; i < grid2dRows-1; i++) divisions2d.push_back(y);
             divisions2d.push_back(layermat->getnrow()-(grid2dRows-1)*y);
-            //if(commGrid3D->myrank == 9) printf("%d ", divisions2d[i]);
         }
         else{
             for(IT i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
@@ -181,54 +162,12 @@ namespace combblas
     template <class IT, class NT, class DER>
     template <typename SR>
     SpParMat3D<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & B){
-    //void SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & B){
         SpParMat<IT, NT, DER>* Blayermat = B.layermat;
         MPI_Barrier(MPI_COMM_WORLD);
-        //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
-                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, B.commGrid3D->rankInFiber, B.commGrid3D->rankInLayer,
-                //layermat->getnrow(), layermat->getncol(), Blayermat->getnrow(), Blayermat->getncol());
-        //printf("myrank %d\tA.rankInFiber %d\tA.rankInLayer %d\tB.rankInFiber %d\tB.rankInLayer %d\t:\t[%d x %d] X [%d x %d]\n", 
-                //commGrid3D->myrank, commGrid3D->rankInFiber, commGrid3D->rankInLayer, B.commGrid3D->rankInFiber, B.commGrid3D->rankInLayer,
-                //layermat->seqptr()->getnrow(), layermat->seqptr()->getncol(), Blayermat->seqptr()->getnrow(), Blayermat->seqptr()->getncol());
-        //DER* A3D_localMat = layermat->seqptr();
-        //DER* B3D_localMat = Blayermat->seqptr();
-        //if(commGrid3D->rankInFiber == 2 && commGrid3D->rankInLayer == 3){
-            //for(typename DER::SpColIter colit = A3D_localMat->begcol(); colit != A3D_localMat->endcol(); colit++){
-                //for(typename DER::SpColIter::NzIter nzit = A3D_localMat->begnz(colit); nzit != A3D_localMat->endnz(colit); nzit++){
-                    //IT rowid = nzit.rowid();
-                    //IT colid = colit.colid();
-                    //NT val = nzit.value();
-                    //cout << "(" << rowid << "," << colid << "," << val << ")" << " "; 
-                //}
-            //}
-            //cout << endl;
-            //for(typename DER::SpColIter colit = B3D_localMat->begcol(); colit != B3D_localMat->endcol(); colit++){
-                //for(typename DER::SpColIter::NzIter nzit = B3D_localMat->begnz(colit); nzit != B3D_localMat->endnz(colit); nzit++){
-                    //IT rowid = nzit.rowid();
-                    //IT colid = colit.colid();
-                    //NT val = nzit.value();
-                    //cout << "(" << rowid << "," << colid << "," << val << ")" << " "; 
-                //}
-            //}
-            //cout << endl;
-        //}
         typedef PlusTimesSRing<NT, NT> PTFF;
         SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Blayermat);
         int sqrtLayers = (int)std::sqrt((float)nlayers);
         DER* C3D_localMat = C3D_layer.seqptr();
-        //printf("%d C3D_layer: %d x %d\n", commGrid3D->myrank, C3D_layer.getnrow(), C3D_layer.getncol());
-        //printf("%d C3D_localMat: %d x %d (%d)\n", commGrid3D->myrank, C3D_localMat->getnrow(), C3D_localMat->getncol(), C3D_localMat->getnnz());
-        //if(commGrid3D->myrank == 3){
-            //for(typename DER::SpColIter colit = C3D_localMat->begcol(); colit != C3D_localMat->endcol(); colit++){
-                //for(typename DER::SpColIter::NzIter nzit = C3D_localMat->begnz(colit); nzit != C3D_localMat->endnz(colit); nzit++){
-                    //IT rowid = nzit.rowid();
-                    //IT colid = colit.colid();
-                    //NT val = nzit.value();
-                    //cout << "(" << rowid << "," << colid << "," << val << ")" << " "; 
-                //}
-            //}
-            //cout << endl;
-        //}
         IT grid3dCols = commGrid3D->gridCols;
         IT grid2dCols = grid3dCols * sqrtLayers;
         IT x = C3D_layer.getncol();
@@ -259,10 +198,9 @@ namespace combblas
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), nlayers, 0, 0, true, true));
         SpParMat3D<IT, NT, DER> C3D(localMatrix, grid3d);
-        //printf("%d C3D_localMat: %d x %d (%d)\n", commGrid3D->myrank, C3D.seqptr()->getnrow(), C3D.seqptr()->getncol(), C3D.seqptr()->getnnz());
         return C3D;
     }
-    
+
     template <class IT, class NT, class DER>
     IT SpParMat3D< IT,NT,DER >::getnrow() const
     {
@@ -349,11 +287,8 @@ namespace combblas
             }
         }
 
-        //if(dummy == 1.0) printf("totrecv: %d\n", totrecv);
         MPI_Barrier(MPI_COMM_WORLD);
         std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
-        //if(dummy == 1.0) printf("Here\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
         MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
 
         DeleteAll(sendcnt, sendprfl, sdispls);
