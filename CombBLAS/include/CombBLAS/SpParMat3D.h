@@ -94,6 +94,9 @@ namespace combblas
         template <class SR>
         //void mult(SpParMat3D<IT, NT, DER> & M);
         SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
+        template <class SR>
+        //void MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, int phases, double perProcessMemory);
+        SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, int phases, double perProcessMemory);
 
         DER * seqptr(){ return layermat->seqptr(); }
         

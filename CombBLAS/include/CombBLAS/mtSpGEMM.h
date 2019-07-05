@@ -187,14 +187,14 @@ SpTuples<IT, NTO> * LocalSpGEMM
             }
         }
     }
-    
+
     if(clearA)
         delete const_cast<SpDCCols<IT, NT1> *>(&A);
     if(clearB)
         delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
     delete [] colptrC;
-    delete [] aux;
+    //delete [] aux;
     
     SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
     return spTuplesC;
