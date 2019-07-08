@@ -103,7 +103,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     }
 #endif
    
-    IT* colnnzC = estimateNNZ(A, B, aux);
+    IT* colnnzC = estimateNNZ(A, B, aux,false);	// don't free aux	
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
     delete [] colnnzC;
     IT nnzc = colptrC[Bdcsc->nzc];
@@ -438,7 +438,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
 // estimate space for result of SpGEMM
 template <typename IT, typename NT1, typename NT2>
-IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * aux = nullptr)
+IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * aux = nullptr, bool freeaux = true)
 {
     IT nnzA = A.getnnz();
     if(A.isZero() || B.isZero())
@@ -545,7 +545,7 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * au
         }
     }
     
-    delete [] aux;
+    if (freeaux) delete [] aux;
     return colnnzC;
 }
 
