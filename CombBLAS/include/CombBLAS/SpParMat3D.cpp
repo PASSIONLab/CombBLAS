@@ -1,6 +1,5 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.6 -------------------------------------------------*/
 /* date: 6/15/2017 ---------------------------------------------*/
 /* authors: Ariful Azad, Aydin Buluc  --------------------------*/
 /****************************************************************/
@@ -18,7 +17,6 @@
  all copies or substantial portions of the Software.
  
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
@@ -253,7 +251,7 @@ namespace combblas
                 }
             }
         }
-
+        
         vector<DER> PiecesOfB;
         DER CopyB = *(B.layermat->seqptr());
         CopyB.ColSplit(phases, PiecesOfB);
@@ -329,6 +327,8 @@ namespace combblas
                 else
                     delete C_cont;
             }
+            MPI_Barrier(MPI_COMM_WORLD);
+            printf("myrank: %d, phase: %d all stage completed\n", myrank, p);
 
             /*
              *  Merge all the resultants for each stage of SUMMA operation.
@@ -358,6 +358,8 @@ namespace combblas
             DER * paddedMatrix = new DER(0, OnePieceOfC.getnrow(), ncol_total, 0);
             paddedMatrix->ColConcatenate(chunksWithPadding);
 
+            MPI_Barrier(MPI_COMM_WORLD);
+            printf("myrank: %d, phase: %d matrix padding completed\n", myrank, p);
             /*
              *  Now column split the padded matrix for 3D reduction and do the it
              * */
@@ -369,7 +371,15 @@ namespace combblas
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
+
+            MPI_Barrier(MPI_COMM_WORLD);
+            printf("myrank: %d, phase: %d padded matrix exchange completed\n", myrank, p);
+
             MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            printf("myrank: %d, phase: %d completed\n", myrank, p);
+
             layerResultant += phaseResultantLayer;
         }
         SpHelper::deallocate2D(ARecvSizes, DER::esscount);

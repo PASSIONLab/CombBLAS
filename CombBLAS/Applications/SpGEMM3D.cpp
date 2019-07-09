@@ -112,9 +112,7 @@ int main(int argc, char* argv[])
         SpParMat3D<int64_t,double, SpDCCols < int64_t, double > > B3D(B, 4, false, true);   // Row split
         t0=MPI_Wtime();
         typedef PlusTimesSRing<double, double> PTFF;
-        //A3D.template mult<PTFF>(B3D);
         //SpParMat3D<int64_t, double, SpDCCols<int64_t, double> > C3D = A3D.template mult<PTFF>(B3D);
-        //A3D.template MemEfficientSpGEMM3D<PTFF>(B3D, 0, 0.25);
         //SpParMat3D<int64_t, double, SpDCCols<int64_t, double> > C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D, 0, 0.25);
         SpParMat3D<int64_t, double, SpDCCols<int64_t, double> > C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D, 
                 10, 2.0, 1000000, 500000, 0.5, 1, 0.25);
@@ -131,20 +129,13 @@ int main(int argc, char* argv[])
 
         t0 = MPI_Wtime();
         //SpParMat<int64_t,double, SpDCCols<int64_t, double> > C2D = Mult_AnXBn_DoubleBuff<PTFF, double, SpDCCols < int64_t, double > >(Ap, Bp);
-        //SpParMat<int64_t,double, SpDCCols<int64_t, double> > C2D = MemEfficientSpGEMM<PTFF, double, SpDCCols < int64_t, double >, int64_t>(Ap, Bp, 
-                //10, 2.0, 1000000, 500000, 0.5, 1, 0);
+        SpParMat<int64_t,double, SpDCCols<int64_t, double> > C2D = MemEfficientSpGEMM<PTFF, double, SpDCCols < int64_t, double >, int64_t>(Ap, Bp, 
+                10, 2.0, 1000000, 500000, 0.5, 1, 0);
         MPI_Barrier(MPI_COMM_WORLD);
         t1=MPI_Wtime();
-        //if(myrank == 0){
-            //printf("2D 1st Multiplication Time: %lf\n", t1-t0);
-        //}
-        
-        //printf("myrank: %d, row: %d, col: %d, nnz: %d\n", myrank, C3D.seqptr()->getnrow(), C3D.seqptr()->getncol(), C3D.seqptr()->getnnz());
-        //int64_t a = C2D.getnnz();
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //int64_t b = C3D.getnnz();
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //printf("%d == %d\n", a, b);
+        if(myrank == 0){
+            printf("2D 1st Multiplication Time: %lf\n", t1-t0);
+        }
 
         //SpParMat<int64_t, double, SpDCCols <int64_t, double> > C3D2D = C3D.Convert2D();
         //bool equal = (C2D == C3D2D);
@@ -152,6 +143,7 @@ int main(int argc, char* argv[])
             //if(equal) printf("Equal\n");
             //else printf("Not Equal\n");
         //}
+        
         //printf("myrank: %d\tC2D: [%dx%d]\tC3D2D: [%dx%d]\tnnz: %d=%d\n", myrank, 
                 //C2D.seqptr()->getnrow(), C2D.seqptr()->getncol(), 
                 //C3D2D.seqptr()->getnrow(), C3D2D.seqptr()->getncol(), 
