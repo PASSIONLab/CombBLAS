@@ -33,8 +33,7 @@ int init;
 bool randMaximal;
 bool fewexp;
 bool randPerm;
-bool saveMatching;
-string ofname;
+bool saveMCM;
 
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
@@ -54,7 +53,8 @@ void ShowUsage()
         cout << "Optional parameters: -randPerm: randomly permute the matrix for load balance (default: no random permutation)\n";
         cout << "                     -optsum: Optimize the sum of diagonal (default: Optimize the product of diagonal)\n";
         cout << "                     -noWeightedCard: do not use weighted cardinality matching (default: use weighted cardinality matching)\n";
-        cout << "                     -output <output file>: output file name (if not provided: inputfile.awpm.txt)\n";
+        cout << "                     -output <output file>: output file name \n";
+	cout << "                     -saveMCM <output file>: output file where maximum cardinality matching is saved \n";
         cout << " \n-------------- examples ----------\n";
         cout << "Example: mpirun -np 4 ./awpm -input cage12.mtx \n" << endl;
         cout << "(output matching is saved to cage12.mtx.awpm.txt)\n" << endl;
@@ -94,23 +94,23 @@ int main(int argc, char* argv[])
     randMM = true;
     moreSplit = false;
     fewexp=false;
-    saveMatching = true;
-    ofname = "";
     randPerm = false;
+   // saveMCM = false;
     bool optimizeProd = true; // by default optimize sum_log_abs(aii) (after equil)
     
     bool weightedCard = true;
     string ifilename = "";
     string ofname = "";
+    string ofnameMCM = "";
     for(int i = 1; i<argc; i++)
     {
         if (string(argv[i]) == string("-input")) ifilename = argv[i+1];
         if (string(argv[i]) == string("-output")) ofname = argv[i+1];
+	if (string(argv[i]) == string("-saveMCM")) ofnameMCM = argv[i+1];
         if (string(argv[i]) == string("-optsum")) optimizeProd = false;
         if (string(argv[i]) == string("-noWeightedCard")) weightedCard = false;
         if (string(argv[i]) == string("-randPerm")) randPerm = true;
     }
-    if(ofname=="") ofname = ifilename + ".awpm.txt";
 
     
     
@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
             }
             
             tinfo.str("");
+	    tinfo << "Input file name: " << ifilename << endl;
             tinfo << "Reading input matrix in" << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
@@ -164,8 +165,13 @@ int main(int argc, char* argv[])
             {
                 randp.iota(AWeighted->getnrow(), 0);
                 randp.RandPerm();
+		double oldbalance = AWeighted->LoadImbalance();
                 (*AWeighted)(randp,randp,true);
+ 		double newbalance = AWeighted->LoadImbalance();
                 SpParHelper::Print("Matrix is randomly permuted for load balance.\n");
+		stringstream s;
+        	s << "load-balance: before:"  << oldbalance << " after:" << newbalance << endl;
+        	SpParHelper::Print(s.str());
             }
             else
             {
@@ -178,8 +184,13 @@ int main(int argc, char* argv[])
         // Reduce is not multithreaded, so I am doing it here
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
-       
-        
+      
+	int64_t maxdeg = degCol.Reduce(maximum<int64_t>(), static_cast<int64_t>(0)); 
+        tinfo.str("");
+        tinfo << "Maximum degree: " << maxdeg << endl;
+	SpParHelper::Print(tinfo.str());
+
+
         // transform weights
         if(optimizeProd)
             TransformWeight(*AWeighted, true);
@@ -245,6 +256,19 @@ int main(int argc, char* argv[])
             CheckMatching(mateRow2Col,mateCol2Row);
         }
         
+	if(ofnameMCM != "")
+        {
+		if(randPerm==true && randp.TotalLength() >0)
+        	{
+			FullyDistVec<int64_t, int64_t>invRandp = randp.sort();
+                	FullyDistVec<int64_t, int64_t> mateRow2Col1 = mateRow2Col(invRandp);
+			mateRow2Col1.ParallelWrite(ofnameMCM,false,false);
+		}
+		else
+		{
+            		mateRow2Col.ParallelWrite(ofnameMCM,false,false);
+		}
+        }
         
         // AWPM
         ts = MPI_Wtime();
@@ -283,7 +307,7 @@ int main(int argc, char* argv[])
             FullyDistVec<int64_t, int64_t>invRandp = randp.sort();
             mateRow2Col = mateRow2Col(invRandp);
         }
-        if(saveMatching && ofname!="")
+        if(ofname!="")
         {
             mateRow2Col.ParallelWrite(ofname,false,false);
         }
