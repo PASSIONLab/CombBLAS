@@ -46,7 +46,7 @@
 #include <ctime>
 #include <cmath>
 #include "CombBLAS/CombBLAS.h"
-#define CC_TIMING 1
+//#define CC_TIMING 1
 
 #define NONSTAR 0
 #define STAR 1
@@ -1247,8 +1247,8 @@ namespace combblas {
 #ifdef CC_TIMING
         double ts =  MPI_Wtime();
         double t1, tspmv;
-        string spmv = "dense";
 #endif
+         string spmv = "dense";
         IT nNonStars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==NONSTAR);});
         IT nv = A.getnrow();
         
@@ -1412,12 +1412,28 @@ namespace combblas {
         FullyDistVec<IT,short> stars(A.getcommgrid(), nrows, STAR);// initially every vertex belongs to a star
         int iteration = 1;
         std::ostringstream outs;
+        
+        // isolated vertices are marked as converged
+        FullyDistVec<int64_t,double> degree = A.Reduce(Column, plus<double>(), 0.0);
+        stars.EWiseApply(degree, [](short isStar, double degree){return degree == 0.0? CONVERGED: isStar;});
+        
+        int nthreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+        }
+#endif
+        SpParMat<IT,bool,SpDCCols < IT, bool >>  Abool = A;
+        Abool.ActivateThreading(nthreads*4);
+
+        
         while (true)
         {
 #ifdef CC_TIMING
             double t1 = MPI_Wtime();
 #endif
-            FullyDistSpVec<IT, IT> condhooks = ConditionalHook(A, parent, stars, iteration);
+            FullyDistSpVec<IT, IT> condhooks = ConditionalHook(Abool, parent, stars, iteration);
 #ifdef CC_TIMING
             double t_cond_hook =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
@@ -1432,7 +1448,7 @@ namespace combblas {
             
             if(iteration > 1)
             {
-                StarCheckAfterHooking(A, parent, stars, condhooks, true);
+                StarCheckAfterHooking(Abool, parent, stars, condhooks, true);
             }
             else
             {
@@ -1447,7 +1463,7 @@ namespace combblas {
             t1 = MPI_Wtime();
 #endif
 
-            FullyDistSpVec<IT, IT> uncondHooks = UnconditionalHook2(A, parent, stars);
+            FullyDistSpVec<IT, IT> uncondHooks = UnconditionalHook2(Abool, parent, stars);
 #ifdef CC_TIMING
             double t_uncond_hook =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
@@ -1455,7 +1471,7 @@ namespace combblas {
 
             if(iteration > 1)
             {
-                StarCheckAfterHooking(A, parent, stars, uncondHooks, false);
+                StarCheckAfterHooking(Abool, parent, stars, uncondHooks, false);
                 stars.Apply([](short isStar){return isStar==STAR? CONVERGED: isStar;});
             }
             else
@@ -1467,7 +1483,13 @@ namespace combblas {
             
             IT nconverged = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==CONVERGED);});
             
-            if(nconverged==nrows) break;
+            if(nconverged==nrows)
+            {
+                outs.clear();
+                outs << "Iteration: " << iteration << " converged: " << nrows << " stars: 0" << " nonstars: 0" << endl;
+                SpParHelper::Print(outs.str());
+                break;
+            }
             
 #ifdef CC_TIMING
             double t_starcheck2 =  MPI_Wtime() - t1;
@@ -1493,15 +1515,17 @@ namespace combblas {
            
             
            
-#ifdef CC_TIMING
+
             double t2 = MPI_Wtime();
             outs.str("");
             outs.clear();
             outs << "Iteration: " << iteration << " converged: " << nconverged << " stars: " << nstars << " nonstars: " << nonstars;
-            outs << " Time:  t_cond_hook: " << t_cond_hook << " t_starcheck1: " << t_starcheck1 << " t_uncond_hook: " << t_uncond_hook << " t_starcheck2: " << t_starcheck2 << " t_shortcut: " << t_shortcut << " t_starcheck: " << t_starcheck;
+#ifdef CC_TIMING
+            //outs << " Time:  t_cond_hook: " << t_cond_hook << " t_starcheck1: " << t_starcheck1 << " t_uncond_hook: " << t_uncond_hook << " t_starcheck2: " << t_starcheck2 << " t_shortcut: " << t_shortcut << " t_starcheck: " << t_starcheck;
+#endif
             outs<< endl;
             SpParHelper::Print(outs.str());
-#endif
+
              iteration++;
             
             
