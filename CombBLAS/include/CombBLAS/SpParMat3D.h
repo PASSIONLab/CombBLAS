@@ -72,10 +72,10 @@ namespace combblas
         SpParMat3D (const SpParMat < IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special); // Special 2D to 3D converter
         SpParMat3D (DER * myseq, std::shared_ptr<CommGrid3D> grid3d);
       
-        SpParMat<IT, NT, DER> Convert2D();
         //~SpParMat3D () ;
         
-        
+        SpParMat<IT, NT, DER> Convert2D();
+
         float LoadImbalance() const;
         void FreeMemory();
         void PrintInfo() const;
@@ -87,23 +87,28 @@ namespace combblas
         
         template <typename LIT>
         int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
+
         void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn) const;
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const { return commGrid3D; }
         
         template <class SR>
         SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
+
         template <class SR>
         SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, 
                 int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
 
         DER * seqptr(){ return layermat->seqptr(); }
+
+        SpParMat<IT, NT, DER>* getLayerMat(){ return layermat; }
         
     private:
-        
+        vector<IT> CalculateColSplit();
         std::shared_ptr<CommGrid3D> commGrid3D;
         SpParMat<IT, NT, DER>* layermat;
         bool colsplit;
+        bool special;
         int nlayers;
         
     };

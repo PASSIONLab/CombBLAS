@@ -56,7 +56,7 @@ namespace combblas
     }
 
     template <class IT, class NT, class DER>
-    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special): nlayers(nlayers), colsplit(csplit)
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool csplit, bool special): nlayers(nlayers), colsplit(csplit), special(special)
     {
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
@@ -228,6 +228,7 @@ namespace combblas
 
             int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat));
             int64_t gasquareNNZ;
+            // 3D Specific
             MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
             int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
 
@@ -255,18 +256,6 @@ namespace combblas
         vector<DER> PiecesOfB;
         DER CopyB = *(B.layermat->seqptr());
         CopyB.ColSplit(phases, PiecesOfB);
-
-        int stages = commGrid3D->gridRows;
-        IT ** ARecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
-        IT ** BRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
-
-        SpParHelper::GetSetSizes( *(layermat->seqptr()), ARecvSizes, layermat->getcommgrid()->GetRowWorld());
-
-        DER * ARecv;
-        DER * BRecv;
-
-        int Aself = layermat->getcommgrid()->GetRankInProcRow();
-        int Bself = (B.layermat)->getcommgrid()->GetRankInProcCol();
         
         /*
          *  Calculate, accross fibers, which process should get how many columns 
@@ -297,49 +286,10 @@ namespace combblas
         SpParMat<IT, NT, DER> layerResultant(localLayerResultant, commGrid3D->layerWorld);
 
         for(int p = 0; p < phases; p++){
-            SpParHelper::GetSetSizes(PiecesOfB[p], BRecvSizes, (B.layermat)->getcommgrid()->GetColWorld());
-            vector< SpTuples<IT, NT> *> tomerge;
-            for(int i = 0; i < stages; i++){
-                vector<IT> ess;
-                if(i == Aself) ARecv = layermat->seqptr();
-                else{
-                    ess.resize(DER::esscount);
-                    for(int j = 0; j < DER::esscount; j++)
-                        ess[j] = ARecvSizes[j][i];
-                    ARecv = new DER();
-                }
-                SpParHelper::BCastMatrix(layermat->getcommgrid()->GetRowWorld(), *ARecv, ess, i);
-
-                ess.clear();
-                if(i == Bself) BRecv = &(PiecesOfB[p]);
-                else{
-                    ess.resize(DER::esscount);
-                    for(int j = 0; j < DER::esscount; j++)
-                        ess[j] = BRecvSizes[j][i];
-                    BRecv = new DER();
-                }
-                SpParHelper::BCastMatrix((B.layermat)->getcommgrid()->GetColWorld(), *BRecv, ess, i);
-                
-                MPI_Barrier(MPI_COMM_WORLD);
-                SpTuples<IT, NT> * C_cont = LocalSpGEMM<SR, NT>(*ARecv, *BRecv, i!=Aself, i!=Bself);
-                if(!C_cont->isZero())
-                    tomerge.push_back(C_cont);
-                else
-                    delete C_cont;
-            }
-            MPI_Barrier(MPI_COMM_WORLD);
-            printf("myrank: %d, phase: %d all stage completed\n", myrank, p);
-
-            /*
-             *  Merge all the resultants for each stage of SUMMA operation.
-             *  Basically same as summing all the elements up as C1 = A0B1+A1B3
-             * */
-            SpTuples<IT, NT> * OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, layermat->seqptr()->getnrow(), PiecesOfB[p].getncol(), true);
-
-            /*
-             *  Create a local matrix witht the tuples got for this phase of multiplication
-             * */
-            DER OnePieceOfC(*OnePieceOfC_tuples, false);
+            DER * OnePieceOfB = new DER(PiecesOfB[p]);
+            SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
+            SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
+            DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
 
             /*
              *  Pad OnePieceOfC with empty matrices on left and right to match 
@@ -348,20 +298,18 @@ namespace combblas
             int ncol_left = 0, ncol_right = 0, ncol_total = 0;
             for(int j = 0; j < p; j++) ncol_left += PiecesOfB[j].getncol();
             ncol_total += ncol_left;
-            ncol_total += OnePieceOfC.getncol();
+            ncol_total += OnePieceOfC->getncol();
             for(int j = p+1; j < phases; j++) ncol_right += PiecesOfB[j].getncol();
             ncol_total += ncol_right;
             vector<DER>chunksWithPadding;
-            chunksWithPadding.push_back(DER(0, OnePieceOfC.getnrow(), ncol_left, 0));
-            chunksWithPadding.push_back(OnePieceOfC);
-            chunksWithPadding.push_back(DER(0, OnePieceOfC.getnrow(), ncol_right, 0));
-            DER * paddedMatrix = new DER(0, OnePieceOfC.getnrow(), ncol_total, 0);
+            chunksWithPadding.push_back(DER(0, OnePieceOfC->getnrow(), ncol_left, 0));
+            chunksWithPadding.push_back(*OnePieceOfC);
+            chunksWithPadding.push_back(DER(0, OnePieceOfC->getnrow(), ncol_right, 0));
+            DER * paddedMatrix = new DER(0, OnePieceOfC->getnrow(), ncol_total, 0);
             paddedMatrix->ColConcatenate(chunksWithPadding);
 
-            MPI_Barrier(MPI_COMM_WORLD);
-            printf("myrank: %d, phase: %d matrix padding completed\n", myrank, p);
             /*
-             *  Now column split the padded matrix for 3D reduction and do the it
+             *  Now column split the padded matrix for 3D reduction and do it
              * */
             vector<DER> sendChunks;
             paddedMatrix->ColSplit(divisions3d, sendChunks);
@@ -372,24 +320,15 @@ namespace combblas
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
 
-            MPI_Barrier(MPI_COMM_WORLD);
-            printf("myrank: %d, phase: %d padded matrix exchange completed\n", myrank, p);
-
             MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-            MPI_Barrier(MPI_COMM_WORLD);
-
-            printf("myrank: %d, phase: %d completed\n", myrank, p);
 
             layerResultant += phaseResultantLayer;
         }
-        SpHelper::deallocate2D(ARecvSizes, DER::esscount);
-        SpHelper::deallocate2D(BRecvSizes, DER::esscount);
 
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), nlayers, 0, 0, true, true));
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d);
-        //printf("myrank: %d, row: %d, col: %d, nnz: %d\n", myrank, C3D.seqptr()->getnrow(), C3D.seqptr()->getncol(), C3D.seqptr()->getnnz());
         return C3D;
     }
 
