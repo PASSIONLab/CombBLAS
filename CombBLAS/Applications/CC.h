@@ -647,7 +647,7 @@ namespace combblas {
                 {
                     reduceBuffer[i].resize(reducecnt[i], MAX_FOR_REDUCE); // this is specific to LACC
                     for(int j=0; j<sendcnt[i]; j++)
-                        reduceBuffer[i][indBuf[i][j]] = valBuf[i][j];
+                        reduceBuffer[i][indBuf[i][j]] = std::min(reduceBuffer[i][indBuf[i][j]], valBuf[i][j]);
                     if(myrank==i)
                         MPI_Ireduce(MPI_IN_PLACE, reduceBuffer[i].data(), reducecnt[i], MPIType<NT>(), MPI_MIN, i, World, &requests[ireduce++]);
                     else
@@ -1486,7 +1486,8 @@ namespace combblas {
             if(nconverged==nrows)
             {
                 outs.clear();
-                outs << "Iteration: " << iteration << " converged: " << nrows << " stars: 0" << " nonstars: 0" << endl;
+                outs << "Iteration: " << iteration << " converged: " << nrows << " stars: 0" << " nonstars: 0" ;
+                outs<< endl;
                 SpParHelper::Print(outs.str());
                 break;
             }
