@@ -408,6 +408,14 @@ namespace combblas {
     }
 
     // SubRef usign a sparse vector
+    // given a dense vector dv and a sparse vector sv
+    // sv_out[i]=dv[sv[i]] for all nonzero index i in sv
+    // return sv_out
+    // If sv has repeated entries, many processes are requesting same entries of dv from the same processes
+    // (usually from the low rank processes in LACC)
+    // In this case, it may be beneficial to broadcast some entries of dv so that dv[sv[i]] can be obtained locally.
+    // This logic is implemented in this function: replicate(dense, ri, bcastBuffer)
+
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Extract (const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri)
     {
@@ -479,24 +487,6 @@ namespace combblas {
         double all2ll1 = MPI_Wtime() - t1;
         outs << "all2ll1: " << all2ll1 << " ";
         
-        /*
-        int myrank;
-        MPI_Comm_rank(World,&myrank);
-        int * sendcnt_all = new int[nprocs*nprocs];
-        MPI_Gather(sendcnt, nprocs, MPI_INT, sendcnt_all, nprocs, MPI_INT, 0, World);
-        if(myrank==0)
-        {
-            for(int i=0; i<nprocs; i++)
-            {
-                for(int j=0; j<nprocs; j++)
-                {
-                    std::cout << sendcnt_all[i*nprocs+j] << " ";
-                }
-                std::cout << std::endl;
-            }
-        }
-        delete [] sendcnt_all;
-         */
 #endif
         sdispls[0] = 0;
         rdispls[0] = 0;
@@ -747,7 +737,12 @@ namespace combblas {
     }
     
     
-    
+    // given two sparse vectors sv and val
+    // sv_out[sv[i]] = val[i] for all nonzero index i in sv, whre sv_out is the output sparse vector
+    // If sv has repeated entries, a process may receive the same values of sv from different processes
+    // In this case, it may be beneficial to reduce some entries of sv so that sv_out[sv[i]] can be updated locally.
+    // This logic is implemented in this function: ReduceAssign
+
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Assign (FullyDistSpVec<IT,IT> & ind, FullyDistSpVec<IT,NT> & val)
     {
@@ -901,7 +896,11 @@ namespace combblas {
     }
     
 
-    
+    // given a sparse vector sv
+    // sv_out[sv[i]] = val for all nonzero index i in sv, whre sv_out is the output sparse vector
+    // If sv has repeated entries, a process may receive the same values of sv from different processes
+    // In this case, it may be beneficial to reduce some entries of sv so that sv_out[sv[i]] can be updated locally.
+    // This logic is implemented in this function: ReduceAssign
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Assign (FullyDistSpVec<IT,IT> & ind, NT val)
     {
