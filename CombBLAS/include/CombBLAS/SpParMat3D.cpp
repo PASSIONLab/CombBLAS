@@ -312,16 +312,45 @@ namespace combblas
             return mat2D;
         }
         else{
-            int nprocs = commGrid3D->GetSize();
-            int nlayers = commGrid3D->GetGridLayers();
-            int proccols = commGrid3D->GetGridCols();
-            int procrows = commGrid3D->GetGridRows();
-            IT total_m = getnrow();
-            IT total_n = getncol();
-            IT m_perproc_L0 = total_m / procrows;
-            IT n_perproc_L0 = total_n / proccols;
-            IT m_perproc = colsplit ? m_perproc_L0 : (m_perproc_L0 / nlayers);
-            IT n_perproc = colsplit ? (n_perproc_L0 / nlayers) : n_perproc_L0;
+            int nprocs = commGrid3D->GetSize(); // Total number of processes in the process grid
+            int nlayers = commGrid3D->GetGridLayers(); // Number of layers in the grid
+            int proccols = commGrid3D->GetGridCols(); // Number of process columns in a layer of the grid
+            int procrows = commGrid3D->GetGridRows(); // Number of process rows in a layer of the grid
+            int procrow_L0 = commGrid3D->commGridLayer->GetRankInProcCol();
+            int proccol_L0 = commGrid3D->commGridLayer->GetRankInProcRow();
+            IT total_m = getnrow(); // Total number of rows of the matrix
+            IT total_n = getncol(); // Total number of columns of the matrix
+            IT m_perproc_L0 = total_m / procrows; // Number of rows per process if matrix is mapped to L0
+            IT n_perproc_L0 = total_n / proccols; // Number of cols per process if matrix is mapped to L0
+            IT m_perproc, n_perproc; // Number of rows and columns per process after splitting in L0 and distributing to other layers
+            if(colsplit){
+                if(proccol_L0 < proccols-1){
+                    n_perproc = n_perproc_L0 / nlayers;
+                }
+                else{
+                    n_perproc = (total_n - (n_perproc_L0 * proccol_L0)) / nlayers;
+                }
+                if(procrow_L0 < procrows-1){
+                    m_perproc = m_perproc_L0;
+                }
+                else{
+                    m_perproc = (total_m - (m_perproc_L0 * procrow_L0));
+                }
+            }
+            else{
+                if(proccol_L0 < proccols-1){
+                    n_perproc = n_perproc_L0;
+                }
+                else{
+                    n_perproc = (total_n - (n_perproc_L0 * proccol_L0));
+                }
+                if(procrow_L0 < procrows-1){
+                    m_perproc = m_perproc_L0 / nlayers;
+                }
+                else{
+                    m_perproc = (total_m - (m_perproc_L0 * procrow_L0)) / nlayers;
+                }
+            }
 
             std::shared_ptr<CommGrid> grid2d;
             grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
@@ -337,8 +366,8 @@ namespace combblas
                     NT val = nzit.value();
                     IT lrow_L0 = colsplit ? lrow : ((commGrid3D->rankInLayer * m_perproc) + lrow); 
                     IT lcol_L0 = colsplit ? ((commGrid3D->rankInLayer * n_perproc) + lcol) : lcol;
-                    IT grow = (commGrid3D->commGridLayer->GetRankInProcCol() * m_perproc_L0) + lrow_L0;
-                    IT gcol = (commGrid3D->commGridLayer->GetRankInProcRow() * n_perproc_L0) + lcol_L0;
+                    IT grow = (procrow_L0 * m_perproc_L0) + lrow_L0;
+                    IT gcol = (proccol_L0 * n_perproc_L0) + lcol_L0;
                     
                     IT lrow2d, lcol2d;
                     int owner = A2D.Owner(total_m, total_n, grow, gcol, lrow2d, lcol2d);
@@ -346,7 +375,6 @@ namespace combblas
                     locsize++;
                 }
             }
-            //printf("myrank %d: %d\n", commGrid3D->myrank, locsize);
             A2D.SparseCommon(data, locsize, total_m, total_n, maximum<NT>());
             
             return A2D;
