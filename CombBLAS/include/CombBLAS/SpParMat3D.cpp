@@ -477,77 +477,49 @@ namespace combblas
             }
         }
         
-        vector<DER> PiecesOfB;
-        DER CopyB = *(B.layermat->seqptr());
-        CopyB.ColSplit(phases, PiecesOfB);
-        
         /*
          *  Calculate, accross fibers, which process should get how many columns 
          *  after redistribution
          * */
         vector<IT> divisions3d;
-        if(special){
-            vector<IT> divisions2d;
-            int sqrtLayers = (int)std::sqrt((float)commGrid3D->GetGridLayers());
-            IT grid3dCols = commGrid3D->gridCols;
-            IT grid2dCols = grid3dCols * sqrtLayers;
-            IT x = (B.layermat)->getncol();
-            IT y = x / grid2dCols;
-            for(IT i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
-            divisions2d.push_back((B.layermat)->getncol()-(grid2dCols-1)*y);
-            vector<IT> divisions2dChunk;
-            IT start = (commGrid3D->rankInLayer % grid3dCols) * sqrtLayers;
-            IT end = start + sqrtLayers;
-            for(int i = start; i < end; i++){
-                divisions2dChunk.push_back(divisions2d[i]);
+        B.CalculateColSplitDistributionOfLayer(divisions3d);
+
+        /*
+         * Split B according to calculated number of phases
+         * For better load balancing split B into nlayers*phases chunks
+         * */
+        vector<DER> PiecesOfB;
+        vector<DER> tempPiecesOfB;
+        DER CopyB = *(B.layermat->seqptr());
+        CopyB.ColSplit(divisions3d, tempPiecesOfB); // Split B into `nlayers` chunks at first
+        for(int i = 0; i < tempPiecesOfB.size(); i++){
+            vector<DER> temp;
+            tempPiecesOfB[i].ColSplit(phases, temp); // Split each chunk of B into `phases` chunks
+            for(int j = 0; j < temp.size(); j++){
+                PiecesOfB.push_back(temp[j]);
             }
-            for(int i = 0; i < divisions2dChunk.size(); i++){
-                IT y = divisions2dChunk[i]/sqrtLayers;
-                for(int j = 0; j < sqrtLayers-1; j++) divisions3d.push_back(y);
-                divisions3d.push_back(divisions2dChunk[i]-(sqrtLayers-1)*y);
-            }
-        }
-        else{
-            // Partitioning for 3D can be achieved by dividing local columns in #layers equal partitions
-            IT x = ((B.layermat)->seqptr())->getncol();
-            int nlayers = commGrid3D->GetGridLayers();
-            IT y = x / nlayers;
-            for(int i = 0; i < nlayers-1; i++) divisions3d.push_back(y);
-            divisions3d.push_back(x-(nlayers-1)*y);
         }
 
         DER * localLayerResultant = new DER(0, layermat->seqptr()->getnrow(), divisions3d[commGrid3D->rankInFiber], 0);
         SpParMat<IT, NT, DER> layerResultant(localLayerResultant, commGrid3D->layerWorld);
 
         for(int p = 0; p < phases; p++){
-            DER * OnePieceOfB = new DER(PiecesOfB[p]);
+            DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
+            vector<DER> targetPiecesOfB;
+            for(int i = 0; i < PiecesOfB.size(); i++){
+                if(i % phases == p) targetPiecesOfB.push_back(DER(PiecesOfB[i]));
+                else targetPiecesOfB.push_back(DER(0, PiecesOfB[i].getnrow(), PiecesOfB[i].getncol(), 0));
+            }
+            OnePieceOfB->ColConcatenate(targetPiecesOfB);
             SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
             SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
             DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
 
             /*
-             *  Pad OnePieceOfC with empty matrices on left and right to match 
-             *  the dimension that it was supposed to be in the case of multiplication without phases
-             * */
-            int ncol_left = 0, ncol_right = 0, ncol_total = 0;
-            for(int j = 0; j < p; j++) ncol_left += PiecesOfB[j].getncol();
-            ncol_total += ncol_left;
-            ncol_total += OnePieceOfC->getncol();
-            for(int j = p+1; j < phases; j++) ncol_right += PiecesOfB[j].getncol();
-            ncol_total += ncol_right;
-            vector<DER>chunksWithPadding;
-            chunksWithPadding.push_back(DER(0, OnePieceOfC->getnrow(), ncol_left, 0));
-            chunksWithPadding.push_back(*OnePieceOfC);
-            chunksWithPadding.push_back(DER(0, OnePieceOfC->getnrow(), ncol_right, 0));
-            DER * paddedMatrix = new DER(0, OnePieceOfC->getnrow(), ncol_total, 0);
-            paddedMatrix->ColConcatenate(chunksWithPadding);
-
-            /*
              *  Now column split the padded matrix for 3D reduction and do it
              * */
             vector<DER> sendChunks;
-            if(special) paddedMatrix->ColSplit(divisions3d, sendChunks);
-            else paddedMatrix->ColSplit(commGrid3D->GetGridLayers(), sendChunks);
+            OnePieceOfC->ColSplit(divisions3d, sendChunks);
             vector<DER> rcvChunks;
             IT datasize; NT dummy = 0.0;
             SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
@@ -555,7 +527,7 @@ namespace combblas
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
 
-            MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+            //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
 
             layerResultant += phaseResultantLayer;
         }
@@ -565,6 +537,43 @@ namespace combblas
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
         return C3D;
+    }
+    
+    /*
+     *  Calculate, which process accross fiber should get how many columns 
+     *  if layer matrix of this 3D matrix is distributed in column split way
+     * */
+    template <class IT, class NT, class DER>
+    void SpParMat3D<IT,NT,DER>::CalculateColSplitDistributionOfLayer(vector<IT> & divisions3d){
+        if(special){
+            vector<IT> divisions2d;
+            int sqrtLayers = (int)std::sqrt((float)commGrid3D->GetGridLayers());
+            int grid3dCols = commGrid3D->GetGridCols();
+            int grid2dCols = grid3dCols * sqrtLayers;
+            IT x = (layermat)->getncol();
+            IT y = x / grid2dCols;
+            for(int i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
+            divisions2d.push_back(x-(grid2dCols-1)*y);
+            vector<IT> divisions2dChunk;
+            IT start = (commGrid3D->rankInLayer % grid3dCols) * sqrtLayers;
+            IT end = start + sqrtLayers;
+            for(int i = start; i < end; i++){
+                divisions2dChunk.push_back(divisions2d[i]);
+            }
+            for(int i = 0; i < divisions2dChunk.size(); i++){
+                IT z = divisions2dChunk[i]/sqrtLayers;
+                for(int j = 0; j < sqrtLayers-1; j++) divisions3d.push_back(z);
+                divisions3d.push_back(divisions2dChunk[i]-(sqrtLayers-1)*z);
+            }
+        }
+        else{
+            // For non-special distribution, partitioning for 3D can be achieved by dividing local columns in #layers equal partitions
+            IT x = layermat->seqptr()->getncol();
+            int nlayers = commGrid3D->GetGridLayers();
+            IT y = x / nlayers;
+            for(int i = 0; i < nlayers-1; i++) divisions3d.push_back(y);
+            divisions3d.push_back(x-(nlayers-1)*y);
+        }
     }
 
     template <class IT, class NT, class DER>
@@ -656,8 +665,6 @@ namespace combblas
     template <class IT, class NT, class DER>
     vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
         int numChunks = sendChunks.size();
-        int myrank;
-        MPI_Comm_rank(secondaryWorld, &myrank);
 
         MPI_Datatype MPI_tuple;
         MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);

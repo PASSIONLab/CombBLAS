@@ -101,6 +101,8 @@ namespace combblas
         SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, 
                 int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
 
+        void CalculateColSplitDistributionOfLayer(vector<IT> & divisions3d);
+
         
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
