@@ -60,7 +60,14 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
-double cblas_allgathertime;	// for compilation (TODO: fix this dependency)
+// for compilation (TODO: fix this dependency)
+extern int cblas_splits;
+extern double cblas_alltoalltime;
+extern double cblas_allgathertime;
+extern double cblas_localspmvtime;
+extern double cblas_mergeconttime;
+extern double cblas_transvectime;
+
 int64_t mcl_memory;
 double tIO;
 
