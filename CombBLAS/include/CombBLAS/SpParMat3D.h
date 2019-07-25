@@ -98,6 +98,10 @@ namespace combblas
         SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
 
         template <class SR>
+        int CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
+                NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
+
+        template <class SR>
         SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, 
                 int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
 

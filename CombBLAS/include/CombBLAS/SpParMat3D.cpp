@@ -149,7 +149,10 @@ namespace combblas
             layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
         }
     }
-
+    
+    /*
+     *  Only calculates owner in terms of non-special distribution
+     * */
     template <class IT, class NT,class DER>
     template <typename LIT>
     int SpParMat3D<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const {
@@ -441,46 +444,11 @@ namespace combblas
             phases = 1;
         }
         else{
-            int p = 16;
-            int64_t perNNZMem_in = sizeof(IT)*2 + sizeof(NT);
-            int64_t perNNZMem_out = sizeof(IT)*2 + sizeof(NT);
-
-            int64_t lannz = layermat->getlocalnnz();
-            int64_t gannz;
-            MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetWorld());
-            int64_t inputMem = gannz * perNNZMem_in * 4;
-
-            int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat));
-            int64_t gasquareNNZ;
-            // 3D Specific
-            MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
-            int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
-
-            int64_t d = ceil( (gasquareNNZ * sqrt(p))/ B.layermat->getlocalcols() );
-            int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
-            int64_t kselectmem = B.layermat->getlocalcols() * k * 8 * 3;
-
-            // estimate output memory
-            int64_t outputNNZ = (B.layermat->getlocalcols() * k)/sqrt(p);
-            int64_t outputMem = outputNNZ * perNNZMem_in * 2;
-
-            //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
-            double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
-            if(remainingMem > 0){
-                // Omitting phase calculation for now. Can be uncommented later again.
-                //phases = 1 + ceil((asquareMem+kselectmem) / remainingMem);
-            }
-            else{
-                if(myrank == 0){
-                    cout << "Not enough memory available" << endl;
-                }
-            }
+            CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+            //phases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
         }
         
-        /*
-         *  Calculate, accross fibers, which process should get how many columns 
-         *  after redistribution
-         * */
+        // Calculate, accross fibers, which process should get how many columns after redistribution
         vector<IT> divisions3d;
         B.CalculateColSplitDistributionOfLayer(divisions3d);
 
@@ -537,6 +505,44 @@ namespace combblas
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
         return C3D;
+    }
+
+    template <class IT, class NT, class DER>
+    template <typename SR>
+    int SpParMat3D<IT, NT, DER>::CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
+            NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
+        int p, phases;
+        MPI_Comm_size(MPI_COMM_WORLD,&p);
+        int64_t perNNZMem_in = sizeof(IT)*2 + sizeof(NT);
+        int64_t perNNZMem_out = sizeof(IT)*2 + sizeof(NT);
+
+        int64_t lannz = layermat->getlocalnnz();
+        int64_t gannz;
+        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetWorld());
+        int64_t inputMem = gannz * perNNZMem_in * 4;
+
+        int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat));
+        int64_t gasquareNNZ;
+        // 3D Specific
+        MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
+        int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
+
+        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ B.layermat->getlocalcols() );
+        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
+        int64_t kselectmem = B.layermat->getlocalcols() * k * 8 * 3;
+
+        // estimate output memory
+        int64_t outputNNZ = (B.layermat->getlocalcols() * k)/sqrt(p);
+        int64_t outputMem = outputNNZ * perNNZMem_in * 2;
+
+        //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+        double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+        if(remainingMem > 0){
+            // Omitting phase calculation for now. Can be uncommented later again.
+            phases = 1 + ceil((asquareMem+kselectmem) / remainingMem);
+            return phases;
+        }
+        else return -1;
     }
     
     /*
