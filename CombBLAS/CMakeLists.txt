@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 set(CombBLAS_VERSION 1.16.0)
+SET(CMAKE_CXX_FLAGS "-O3")
 
 project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX)
 
@@ -35,7 +36,7 @@ endif()
 
 if(OPENMP_FOUND OR OpenMP_CXX_FOUND)
   # Set THREADED if OpenMP is found
-  target_compile_definitions(CombBLAS PUBLIC THREADED)
+  target_compile_definitions(CombBLAS PUBLIC THREADED):q
   if(TARGET OpenMP::OpenMP_CXX)
     target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
   else()
@@ -59,6 +60,7 @@ target_link_libraries(CombBLAS PUBLIC GraphGenlib)
 #      dependent projects.
 # Either way, we need to create a CombBLASConfig.cmake.
 set(ConfigPackageLocation lib/cmake/CombBLAS)
+
 
 # Generate version number header
 include(GenerateExportHeader)

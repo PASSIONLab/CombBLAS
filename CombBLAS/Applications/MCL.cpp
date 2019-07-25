@@ -334,6 +334,8 @@ FullyDistVec<IT, IT> Interpret(SpParMat<IT,NT,DER> & A)
     SpParMat<IT,NT,DER> AT = A;
     AT.Transpose();
     A += AT;
+    SpParHelper::Print("Finding connected components....\n");
+    
     FullyDistVec<IT, IT> cclabels = CC(A, nCC);
     return cclabels;
 }
