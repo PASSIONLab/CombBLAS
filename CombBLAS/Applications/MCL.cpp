@@ -61,12 +61,12 @@ double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
 // for compilation (TODO: fix this dependency)
-extern int cblas_splits;
-extern double cblas_alltoalltime;
-extern double cblas_allgathertime;
-extern double cblas_localspmvtime;
-extern double cblas_mergeconttime;
-extern double cblas_transvectime;
+int cblas_splits;
+double cblas_alltoalltime;
+double cblas_allgathertime;
+double cblas_localspmvtime;
+double cblas_mergeconttime;
+double cblas_transvectime;
 
 int64_t mcl_memory;
 double tIO;
@@ -698,7 +698,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "******** Number of phases will not be estimated as -per-process-mem option is supplied. It is highly recommended that you provide -per-process-mem option for large-scale runs. *********** " << endl;
+            cout << "******** Number of phases will not be estimated as -per-process-mem option is not supplied. It is highly recommended that you provide -per-process-mem option for large-scale runs. *********** " << endl;
         }
     }
     
