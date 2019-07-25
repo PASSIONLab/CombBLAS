@@ -505,7 +505,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #ifdef TIMING
             double t4=MPI_Wtime();
 #endif
-            SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
