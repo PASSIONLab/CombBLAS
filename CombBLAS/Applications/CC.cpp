@@ -59,8 +59,8 @@ using namespace combblas;
 class Dist
 {
 public:
-    typedef SpDCCols < int64_t, bool > DCCols;
-    typedef SpParMat < int64_t, bool, DCCols > MPI_DCCols;
+    typedef SpDCCols < int64_t, double > DCCols;
+    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
 };
 
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
     {
         string ifilename = "";
         int base = 1;
-        int randpermute = 0;
+        int randpermute = 1;
         bool isMatrixMarket = true;
         
         for (int i = 1; i < argc; i++)
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
             if (strcmp(argv[i],"-M")==0)
             {
                 ifilename = string(argv[i+1]);
-                if(myrank == 0) printf("filename: %s",ifilename.c_str());
+                if(myrank == 0) printf("filename: %s\n",ifilename.c_str());
             }
             else if (strcmp(argv[i],"-base")==0)
             {
@@ -136,12 +136,12 @@ int main(int argc, char* argv[])
         }
         
         double tIO = MPI_Wtime();
-        Dist::MPI_DCCols A;	// construct object
+        Dist::MPI_DCCols A(MPI_COMM_WORLD);	// construct object
         
         if(isMatrixMarket)
-            A.ParallelReadMM(ifilename, base, maximum<bool>());
+            A.ParallelReadMM(ifilename, base, maximum<double>());
         else
-            A.ReadGeneralizedTuples(ifilename,  maximum<bool>());
+            A.ReadGeneralizedTuples(ifilename,  maximum<double>());
         A.PrintInfo();
         
         Dist::MPI_DCCols AT = A;
@@ -192,8 +192,6 @@ int main(int argc, char* argv[])
         outs << "Nonzeros: " << nnz << endl;
         SpParHelper::Print(outs.str());
         double t1 = MPI_Wtime();
-        
-        A.ActivateThreading(nthreads*4);
         int64_t nCC = 0;
         FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
         
