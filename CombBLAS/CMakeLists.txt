@@ -36,7 +36,7 @@ endif()
 
 if(OPENMP_FOUND OR OpenMP_CXX_FOUND)
   # Set THREADED if OpenMP is found
-  target_compile_definitions(CombBLAS PUBLIC THREADED):q
+  target_compile_definitions(CombBLAS PUBLIC THREADED)
   if(TARGET OpenMP::OpenMP_CXX)
     target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
   else()
