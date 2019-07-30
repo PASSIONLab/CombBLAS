@@ -1001,9 +1001,9 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
 	    // no need to keep entries of colnnzC in larger precision 
 	    // because colnnzC is of length nzc and estimates nnzs per column
 			// @OGUZ-EDIT Using hash spgemm for estimation
-            LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
-			// LIB* flopC = estimateFLOP(*ARecv, *BRecv);
-			// LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+            //LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
+			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;
