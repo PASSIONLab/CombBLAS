@@ -1370,8 +1370,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     IT nActiveCols = accnz;//count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
-    delete [] activeCols;
-    delete [] numacc;
+   
     
     std::vector<IT> send_coldisp(n_thiscol+1,0);
     std::vector<IT> local_coldisp(n_thiscol+1,0);
@@ -1589,7 +1588,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
-    
+    delete [] activeCols;
+    delete [] numacc;
     
     return true;
 }
