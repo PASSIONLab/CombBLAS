@@ -315,51 +315,32 @@ namespace combblas
             return mat2D;
         }
         else{
-            int nprocs = commGrid3D->GetSize(); // Total number of processes in the process grid
-            int nlayers = commGrid3D->GetGridLayers(); // Number of layers in the grid
-            int proccols = commGrid3D->GetGridCols(); // Number of process columns in a layer of the grid
-            int procrows = commGrid3D->GetGridRows(); // Number of process rows in a layer of the grid
-            int procrow_L0 = commGrid3D->commGridLayer->GetRankInProcCol();
-            int proccol_L0 = commGrid3D->commGridLayer->GetRankInProcRow();
-            IT total_m = getnrow(); // Total number of rows of the matrix
-            IT total_n = getncol(); // Total number of columns of the matrix
-            IT m_perproc_L0 = total_m / procrows; // Number of rows per process if matrix is mapped to L0
-            IT n_perproc_L0 = total_n / proccols; // Number of cols per process if matrix is mapped to L0
-            IT m_perproc, n_perproc; // Number of rows and columns per process after splitting in L0 and distributing to other layers
-            if(colsplit){
-                if(proccol_L0 < proccols-1){
-                    n_perproc = n_perproc_L0 / nlayers;
-                }
-                else{
-                    n_perproc = (total_n - (n_perproc_L0 * proccol_L0)) / nlayers;
-                }
-                if(procrow_L0 < procrows-1){
-                    m_perproc = m_perproc_L0;
-                }
-                else{
-                    m_perproc = (total_m - (m_perproc_L0 * procrow_L0));
-                }
-            }
-            else{
-                if(proccol_L0 < proccols-1){
-                    n_perproc = n_perproc_L0;
-                }
-                else{
-                    n_perproc = (total_n - (n_perproc_L0 * proccol_L0));
-                }
-                if(procrow_L0 < procrows-1){
-                    m_perproc = m_perproc_L0 / nlayers;
-                }
-                else{
-                    m_perproc = (total_m - (m_perproc_L0 * procrow_L0)) / nlayers;
-                }
-            }
+            int nProcs = commGrid3D->GetSize(); // Total number of processes in the process grid
+            int nGridLayers = commGrid3D->GetGridLayers(); // Number of layers in the process grid
+            int nGridCols = commGrid3D->GetGridCols(); // Number of process columns in a layer of the grid, which can be thought of L0
+            int nGridRows = commGrid3D->GetGridRows(); // Number of process rows in a layer of the grid, which can be thought of L0
+            int rankInProcCol_L0 = commGrid3D->commGridLayer->GetRankInProcCol();
+            int rankInProcRow_L0 = commGrid3D->commGridLayer->GetRankInProcRow();
+            IT m = getnrow(); // Total number of rows of the matrix
+            IT n = getncol(); // Total number of columns of the matrix
+            IT a = n / nGridCols;
+            IT b = n - (a * (nGridCols - 1));
+            IT c = m / nGridRows;
+            IT d = m - (c * (nGridRows - 1));
+            IT w = a / nGridLayers;
+            IT x = a - (w * (nGridLayers - 1));
+            IT y = b / nGridLayers;
+            IT z = b - (y * (nGridLayers - 1));
+            IT p = c / nGridLayers;
+            IT q = c - (p * (nGridLayers - 1));
+            IT r = d / nGridLayers;
+            IT s = d - (r * (nGridLayers - 1));
 
             std::shared_ptr<CommGrid> grid2d;
             grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
             SpParMat<IT, NT, DER> A2D (grid2d);
 
-            std::vector< std::vector < std::tuple<IT,IT,NT> > > data(nprocs);
+            std::vector< std::vector < std::tuple<IT,IT,NT> > > data(nProcs);
             DER* spSeq = layermat->seqptr(); // local submatrix
             IT locsize = 0;
             for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit){
@@ -367,65 +348,46 @@ namespace combblas
                 for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit){
                     IT lrow = nzit.rowid();
                     NT val = nzit.value();
-                    IT lrow_L0 = colsplit ? lrow : ((commGrid3D->rankInLayer * m_perproc) + lrow); 
-                    IT lcol_L0 = colsplit ? ((commGrid3D->rankInLayer * n_perproc) + lcol) : lcol;
-                    IT grow = (procrow_L0 * m_perproc_L0) + lrow_L0;
-                    IT gcol = (proccol_L0 * n_perproc_L0) + lcol_L0;
+                    IT lrow_L0, lcol_L0;
+                    if(colsplit){
+                        // If 3D distribution is column split
+                        lrow_L0 = lrow;
+                        if(commGrid3D->commGridLayer->GetRankInProcRow() < (nGridCols-1)){
+                            // If this process is not last in the process column
+                            lcol_L0 = w * commGrid3D->rankInFiber + lcol;
+                        }
+                        else{
+                            // If this process is last in the process column
+                            lcol_L0 = y * commGrid3D->rankInFiber + lcol;
+                        }
+                    }
+                    else{
+                        // If 3D distribution is rowsplit
+                        lcol_L0 = lcol; 
+                        if(commGrid3D->commGridLayer->GetRankInProcCol() < (nGridRows-1)){
+                            // If this process is not last in the process column
+                            lrow_L0 = p * commGrid3D->rankInFiber + lrow;
+                        }
+                        else{
+                            // If this process is last in the process column
+                            lrow_L0 = r * commGrid3D->rankInFiber + lrow;
+                        }
+                    }
+                    IT grow = commGrid3D->commGridLayer->GetRankInProcCol() * c + lrow_L0;
+                    IT gcol = commGrid3D->commGridLayer->GetRankInProcRow() * a + lcol_L0;
                     
                     IT lrow2d, lcol2d;
-                    int owner = A2D.Owner(total_m, total_n, grow, gcol, lrow2d, lcol2d);
+                    int owner = A2D.Owner(m, n, grow, gcol, lrow2d, lcol2d);
                     data[owner].push_back(std::make_tuple(lrow2d,lcol2d,val));
                     locsize++;
                 }
             }
-            A2D.SparseCommon(data, locsize, total_m, total_n, maximum<NT>());
+            A2D.SparseCommon(data, locsize, m, n, maximum<NT>());
             
             return A2D;
         }
     }
     
-    template <class IT, class NT, class DER>
-    template <typename SR>
-    SpParMat3D<IT, NT, DER> SpParMat3D< IT,NT,DER >::mult(SpParMat3D<IT, NT, DER> & B){
-        SpParMat<IT, NT, DER>* Blayermat = B.layermat;
-        MPI_Barrier(MPI_COMM_WORLD);
-        typedef PlusTimesSRing<NT, NT> PTFF;
-        SpParMat<IT, NT, DER> C3D_layer = Mult_AnXBn_DoubleBuff<PTFF, NT, DER>(*layermat, *Blayermat);
-        int sqrtLayers = (int)std::sqrt((float)commGrid3D->GetGridLayers());
-        DER* C3D_localMat = C3D_layer.seqptr();
-        IT grid3dCols = commGrid3D->gridCols;
-        IT grid2dCols = grid3dCols * sqrtLayers;
-        IT x = C3D_layer.getncol();
-        IT y = x / grid2dCols;
-        vector<IT> divisions2d;
-        for(IT i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
-        divisions2d.push_back(C3D_layer.getncol()-(grid2dCols-1)*y);
-        vector<IT> divisions2dChunk;
-        IT start = (commGrid3D->rankInLayer % grid3dCols) * sqrtLayers;
-        IT end = start + sqrtLayers;
-        for(IT i = start; i < end; i++){
-            divisions2dChunk.push_back(divisions2d[i]);
-        }
-        vector<IT> divisions3d;
-        for(int i = 0; i < divisions2dChunk.size(); i++){
-            IT y = divisions2dChunk[i]/sqrtLayers;
-            for(int j = 0; j < sqrtLayers-1; j++) divisions3d.push_back(y);
-            divisions3d.push_back(divisions2dChunk[i]-(sqrtLayers-1)*y);
-        }
-        vector<DER> sendChunks;
-        C3D_localMat->ColSplit(divisions3d, sendChunks);
-        
-        vector<DER> rcvChunks;
-        IT datasize; NT dummy = 0.0;
-        SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
-        DER * localMatrix = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
-        for(int i = 0; i < rcvChunks.size(); i++) *localMatrix += rcvChunks[i];
-        std::shared_ptr<CommGrid3D> grid3d;
-        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, true));
-        SpParMat3D<IT, NT, DER> C3D(localMatrix, grid3d, isColSplit(), isSpecial());
-        return C3D;
-    }
-
     template <class IT, class NT, class DER>
     template <typename SR>
     SpParMat3D<IT, NT, DER> SpParMat3D<IT, NT, DER>::MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, 
@@ -443,10 +405,8 @@ namespace combblas
             SpParHelper::Print("MemEfficientSpGEMM: The value of phases is too small or large. Resetting to 1.\n");
             phases = 1;
         }
-        else{
-            CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
-            //phases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
-        }
+        int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+        if(calculatedPhases > phases) phases = calculatedPhases;
         
         // Calculate, accross fibers, which process should get how many columns after redistribution
         vector<IT> divisions3d;
@@ -495,13 +455,13 @@ namespace combblas
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
 
-            //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+            MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
 
             layerResultant += phaseResultantLayer;
         }
 
         std::shared_ptr<CommGrid3D> grid3d;
-        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, true));
+        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, isSpecial()));
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
         return C3D;
@@ -622,7 +582,7 @@ namespace combblas
     }
 
     template <class IT, class NT>
-    std::tuple<IT,IT,NT>*  ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
+    std::tuple<IT,IT,NT>* ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
     {
 
         /* Create/allocate variables for vector assignment */

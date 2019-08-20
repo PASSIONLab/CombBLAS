@@ -1361,7 +1361,6 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         numacc = trxnums;     //aliasing ptr
     }
     
-    
     std::vector<bool> isactive(n_thiscol,false);
     for(int i=0; i<accnz ; i++)
     {
@@ -1370,9 +1369,6 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     IT nActiveCols = accnz;//count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
     // check, memory should be min(n_thiscol*k, local nnz)
     // hence we will not overflow for very large k
-    delete [] activeCols;
-    delete [] numacc;
-    
     std::vector<IT> send_coldisp(n_thiscol+1,0);
     std::vector<IT> local_coldisp(n_thiscol+1,0);
     //vector<VT> sendbuf(nActiveCols*k);
@@ -1585,6 +1581,9 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     MPI_Gather(&lsize,1, MPI_INT, sendcnts.data(), 1, MPI_INT, rowroot, RowWorld);
     std::partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
     MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.num.data(), rvec.num.size(), MPIType<VT>(),rowroot, RowWorld);
+
+    delete [] activeCols;
+    delete [] numacc;
     
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);

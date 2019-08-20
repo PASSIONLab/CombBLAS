@@ -93,9 +93,6 @@ namespace combblas
         int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;
 
         void LocalDim(IT total_m, IT total_n, IT &localm, IT& localn) const;
-        
-        template <class SR>
-        SpParMat3D<IT, NT, DER> mult(SpParMat3D<IT, NT, DER> & M);
 
         template <class SR>
         int CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
