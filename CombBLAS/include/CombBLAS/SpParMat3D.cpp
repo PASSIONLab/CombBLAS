@@ -42,6 +42,7 @@ extern "C" {
 #include <set>
 #include <stdexcept>
 #include <string>
+#include "CombBLAS/CombBLAS.h"
 
 namespace combblas
 {
@@ -84,7 +85,7 @@ namespace combblas
             std::vector<DER> recvChunks;
 
             SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
-            IT concat_row = 0, concat_col = 0;
+            typename DER::LocalIT concat_row = 0, concat_col = 0;
             for(int i  = 0; i < recvChunks.size(); i++){
                 if(colsplit) recvChunks[i].Transpose();
                 concat_row = std::max(concat_row, recvChunks[i].getnrow());
@@ -122,7 +123,7 @@ namespace combblas
                 }
             }
 
-            std::vector<std::vector<std::tuple<IT,IT, NT>>> sendTuples (nprocs);
+            std::vector<std::vector<std::tuple<LIT,LIT, NT>>> sendTuples (nprocs);
             for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
             {
                 IT gcol = colit.colid() + localColStart2d;
@@ -135,13 +136,13 @@ namespace combblas
                 }
             }
 
-            IT datasize;
-            std::tuple<IT,IT,NT>* recvTuples = ExchangeData(sendTuples, commGrid2D->GetWorld(), datasize);
+            LIT datasize;
+            std::tuple<LIT,LIT,NT>* recvTuples = ExchangeData(sendTuples, commGrid2D->GetWorld(), datasize);
 
             IT mdim, ndim;
             LocalDim(nrows, ncols, mdim, ndim);
             //cout << mdim << " " << ndim << " "<< datasize << endl;
-            SpTuples<IT, NT>spTuples3d(datasize, mdim, ndim, recvTuples);
+            SpTuples<LIT, NT>spTuples3d(datasize, mdim, ndim, recvTuples);
 
             DER * localm3d = new DER(spTuples3d, false);
             std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer;
@@ -260,27 +261,28 @@ namespace combblas
     
     template <class IT, class NT, class DER>
     SpParMat<IT, NT, DER> SpParMat3D<IT, NT, DER>::Convert2D(){
+        typedef typename DER::LocalIT LIT;
         if(special){
             DER * spSeq = layermat->seqptr();
             std::vector<DER> localChunks;
             int sqrtLayers = (int)std::sqrt((float)commGrid3D->GetGridLayers());
-            IT grid3dCols = commGrid3D->gridCols; IT grid3dRows = commGrid3D->gridRows;
-            IT grid2dCols = grid3dCols * sqrtLayers; IT grid2dRows = grid3dRows * sqrtLayers;
+            LIT grid3dCols = commGrid3D->gridCols; LIT grid3dRows = commGrid3D->gridRows;
+            LIT grid2dCols = grid3dCols * sqrtLayers; LIT grid2dRows = grid3dRows * sqrtLayers;
             IT x = (colsplit) ? layermat->getnrow() : layermat->getncol();
-            IT y = (colsplit) ? (x / grid2dRows) : (x / grid2dCols);
-            vector<IT> divisions2d;
+            LIT y = (colsplit) ? (x / grid2dRows) : (x / grid2dCols);
+            vector<LIT> divisions2d;
             if(colsplit){
-                for(IT i = 0; i < grid2dRows-1; i++) divisions2d.push_back(y);
+                for(LIT i = 0; i < grid2dRows-1; i++) divisions2d.push_back(y);
                 divisions2d.push_back(layermat->getnrow()-(grid2dRows-1)*y);
             }
             else{
-                for(IT i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
+                for(LIT i = 0; i < grid2dCols-1; i++) divisions2d.push_back(y);
                 divisions2d.push_back(layermat->getncol()-(grid2dCols-1)*y);
             }
-            vector<IT> divisions2dChunk;
-            IT start = (colsplit) ? ((commGrid3D->rankInLayer / grid3dRows) * sqrtLayers) : ((commGrid3D->rankInLayer % grid3dCols) * sqrtLayers);
-            IT end = start + sqrtLayers;
-            for(IT i = start; i < end; i++){
+            vector<LIT> divisions2dChunk;
+            LIT start = (colsplit) ? ((commGrid3D->rankInLayer / grid3dRows) * sqrtLayers) : ((commGrid3D->rankInLayer % grid3dCols) * sqrtLayers);
+            LIT end = start + sqrtLayers;
+            for(LIT i = start; i < end; i++){
                 divisions2dChunk.push_back(divisions2d[i]);
             }
             if(colsplit) spSeq->Transpose();
@@ -300,7 +302,7 @@ namespace combblas
             std::vector<DER> recvChunks;
             SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, z, commGrid3D->world3D, recvChunks);
 
-            IT concat_row = 0, concat_col = 0;
+            LIT concat_row = 0, concat_col = 0;
             for(int i  = 0; i < recvChunks.size(); i++){
                 if(!colsplit) recvChunks[i].Transpose();
                 concat_row = std::max(concat_row, recvChunks[i].getnrow());
@@ -340,15 +342,15 @@ namespace combblas
             grid2d.reset(new CommGrid(commGrid3D->GetWorld(), 0, 0));
             SpParMat<IT, NT, DER> A2D (grid2d);
 
-            std::vector< std::vector < std::tuple<IT,IT,NT> > > data(nProcs);
+            std::vector< std::vector < std::tuple<LIT,LIT,NT> > > data(nProcs);
             DER* spSeq = layermat->seqptr(); // local submatrix
-            IT locsize = 0;
+            LIT locsize = 0;
             for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit){
-                IT lcol = colit.colid();
+                LIT lcol = colit.colid();
                 for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit){
-                    IT lrow = nzit.rowid();
+                    LIT lrow = nzit.rowid();
                     NT val = nzit.value();
-                    IT lrow_L0, lcol_L0;
+                    LIT lrow_L0, lcol_L0;
                     if(colsplit){
                         // If 3D distribution is column split
                         lrow_L0 = lrow;
@@ -376,7 +378,7 @@ namespace combblas
                     IT grow = commGrid3D->commGridLayer->GetRankInProcCol() * c + lrow_L0;
                     IT gcol = commGrid3D->commGridLayer->GetRankInProcRow() * a + lcol_L0;
                     
-                    IT lrow2d, lcol2d;
+                    LIT lrow2d, lcol2d;
                     int owner = A2D.Owner(m, n, grow, gcol, lrow2d, lcol2d);
                     data[owner].push_back(std::make_tuple(lrow2d,lcol2d,val));
                     locsize++;
@@ -394,6 +396,7 @@ namespace combblas
             int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
         int myrank;
         MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+        typedef typename DER::LocalIT LIT;
         if(getncol() != B.getnrow()){
             std::ostringstream outs;
             outs << "Can not multiply, dimensions does not match"<< std::endl;
@@ -409,7 +412,7 @@ namespace combblas
         if(calculatedPhases > phases) phases = calculatedPhases;
         
         // Calculate, accross fibers, which process should get how many columns after redistribution
-        vector<IT> divisions3d;
+        vector<LIT> divisions3d;
         B.CalculateColSplitDistributionOfLayer(divisions3d);
 
         /*
@@ -510,7 +513,7 @@ namespace combblas
      *  if layer matrix of this 3D matrix is distributed in column split way
      * */
     template <class IT, class NT, class DER>
-    void SpParMat3D<IT,NT,DER>::CalculateColSplitDistributionOfLayer(vector<IT> & divisions3d){
+    void SpParMat3D<IT,NT,DER>::CalculateColSplitDistributionOfLayer(vector<typename DER::LocalIT> & divisions3d){
         if(special){
             vector<IT> divisions2d;
             int sqrtLayers = (int)std::sqrt((float)commGrid3D->GetGridLayers());
@@ -630,10 +633,12 @@ namespace combblas
 
     template <class IT, class NT, class DER>
     vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
+        typedef typename DER::LocalIT LIT;
+
         int numChunks = sendChunks.size();
 
         MPI_Datatype MPI_tuple;
-        MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
+        MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
         MPI_Type_commit(&MPI_tuple);
 
         int * sendcnt = new int[numChunks];
@@ -654,7 +659,7 @@ namespace combblas
 
         MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
 
-        for(IT i = 0; i < numChunks; i++){
+        for(int i = 0; i < numChunks; i++){
             recvcnt[i] = recvprfl[i*3];
         }
 
@@ -662,7 +667,7 @@ namespace combblas
         std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
         IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
 
-        std::vector< std::tuple<IT,IT,NT> > sendTuples;
+        std::vector< std::tuple<LIT,LIT,NT> > sendTuples;
         for(int i = 0; i < numChunks; i++){
             for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
                 for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
@@ -673,18 +678,18 @@ namespace combblas
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
-        std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
+        std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
         MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
 
         DeleteAll(sendcnt, sendprfl, sdispls);
         sendTuples.clear();
         sendTuples.shrink_to_fit();
 
-        tuple<IT, IT, NT> ** tempTuples = new tuple<IT, IT, NT>*[numChunks];
+        tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
         for (int i = 0; i < numChunks; i++){
-            tempTuples[i] = new tuple<IT, IT, NT>[recvcnt[i]];
-            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<IT, IT, NT>));
-            recvChunks.push_back(DER(SpTuples<IT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
+            tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
+            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
+            recvChunks.push_back(DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
         }
         
         // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.

@@ -2424,7 +2424,9 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation, typename LIT>
 void SpParMat< IT,NT,DER >::SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
+//void SpParMat< IT,NT,DER >::SparseCommon(std::vector< std::vector < std::tuple<typename DER::LocalIT,typename DER::LocalIT,NT> > > & data, typename DER::LocalIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
 {
+    //typedef typename DER::LocalIT LIT;
 	int nprocs = commGrid->GetSize();
 	int * sendcnt = new int[nprocs];
 	int * recvcnt = new int[nprocs];

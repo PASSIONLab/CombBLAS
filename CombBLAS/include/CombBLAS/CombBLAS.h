@@ -111,6 +111,7 @@ class EWiseExtToPlainAdapter
 #include "SpDCCols.h"
 #include "SpCCols.h"
 #include "SpParMat.h"
+#include "SpParMat3D.h"
 #include "FullyDistVec.h"
 #include "FullyDistSpVec.h"
 #include "VecIterator.h"
