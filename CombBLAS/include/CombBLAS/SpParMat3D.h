@@ -68,8 +68,9 @@ namespace combblas
         
         // Constructors
         SpParMat3D ();
-        SpParMat3D (const SpParMat < IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special = false); // Special 2D to 3D converter
+        SpParMat3D (const SpParMat < IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special = false);
         SpParMat3D (DER * myseq, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special = false);
+        SpParMat3D (const SpParMat3D <IT,NT,DER> & A3D, bool colsplit);
       
         //~SpParMat3D () ;
         
@@ -103,7 +104,6 @@ namespace combblas
                 int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
 
         void CalculateColSplitDistributionOfLayer(vector<typename DER::LocalIT> & divisions3d);
-
         
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;

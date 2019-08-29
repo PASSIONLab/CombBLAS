@@ -357,6 +357,15 @@ void MakeColStochastic(SpParMat<IT,NT,DER> & A)
 }
 
 template <typename IT, typename NT, typename DER>
+void MakeColStochastic3D(SpParMat3D<IT,NT,DER> & A3D)
+{
+    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    FullyDistVec<IT, NT> colsums = ALayer->Reduce(Column, plus<NT>(), 0.0);
+    colsums.Apply(safemultinv<NT>());
+    ALayer->DimApply(Column, colsums, multiplies<NT>());	// scale each "Column" with the given vector
+}
+
+template <typename IT, typename NT, typename DER>
 NT Chaos(SpParMat<IT,NT,DER> & A)
 {
     // sums of squares of columns
@@ -373,9 +382,38 @@ NT Chaos(SpParMat<IT,NT,DER> & A)
 }
 
 template <typename IT, typename NT, typename DER>
+NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
+{
+    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+
+    // sums of squares of columns
+    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+    // Matrix entries are non-negative, so max() can use zero as identity
+    FullyDistVec<IT, NT> colmaxs = ALayer->Reduce(Column, maximum<NT>(), 0.0);
+    colmaxs -= colssqs;
+
+    // multiply by number of nonzeros in each column
+    FullyDistVec<IT, NT> nnzPerColumn = ALayer->Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+    colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
+    
+    NT layerChaos = colmaxs.Reduce(maximum<NT>(), 0.0);
+
+    NT totalChaos = 0.0;
+    MPI_Allreduce( &layerChaos, &totalChaos, 1, MPIType<NT>(), MPI_MAX, A3D.getcommgrid3D()->GetFiberWorld());
+    return totalChaos;
+}
+
+template <typename IT, typename NT, typename DER>
 void Inflate(SpParMat<IT,NT,DER> & A, double power)
 {
     A.Apply(bind2nd(exponentiate(), power));
+}
+
+template <typename IT, typename NT, typename DER>
+void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
+{
+    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    ALayer->Apply(bind2nd(exponentiate(), power));
 }
 
 // default adjustloop setting
@@ -467,6 +505,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // chaos doesn't make sense for non-stochastic matrices
     // it is in the range {0,1} for stochastic matrices
     NT chaos = 1;
+    NT chaos3D = 1;
     int it=1;
     double tInflate = 0;
     double tExpand = 0;
@@ -482,39 +521,25 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     /////////////////
 
-    while( chaos > EPS)
+    while( chaos3D > EPS)
     {
         /////////////////
-        A2D_rs = SpParMat<IT, NT, DER>(A2D_cs);
-        A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, 4, true, false);    // Non-special column split
-        A3D_rs = SpParMat3D<IT,NT,DER>(A2D_rs, 4, false, false);    // Non-special row split
+        //A2D_rs = SpParMat<IT, NT, DER>(A2D_cs);
+        //A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, 4, true, false);    // Non-special column split
+        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
         /////////////////
 
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;		// expand
-        A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+        //A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
 
         /////////////////
         A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
-        int nnz3 = A3D_cs.getnnz();
-        if(myrank == 0) printf("nnz3: %d\n", nnz3);
-        A2D_cs = A3D_cs.Convert2D();
-
-        bool equal = (A2D_cs == A);
-        if(equal){
-            if(myrank == 0) printf("Equal\n");
-        }
-        else{
-            if(myrank == 0) printf("Not Equal\n");
-            int nnz1 = A.getnnz();
-            int nnz2 = A2D_cs.getnnz();
-            if(myrank == 0) printf("%d - %d\n", nnz1, nnz2);
-        }
         /////////////////
 
-        MakeColStochastic(A);
+        //MakeColStochastic(A);
         /////////////////
-        MakeColStochastic(A2D_cs);
+        MakeColStochastic3D(A3D_cs);
         /////////////////
 
         tExpand += (MPI_Wtime() - t1);
@@ -522,19 +547,30 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         if(param.show)
         {
             SpParHelper::Print("After expansion\n");
-            A.PrintInfo();
+            //A.PrintInfo();
         }
-        chaos = Chaos(A);
+
+        //chaos = Chaos(A);
+        /////////////////
+        chaos3D = Chaos3D(A3D_cs);
+        //if(chaos == chaos3D){
+            //if(myrank == 0) printf("Equal 2D and 3D Chaos\n");
+        //}
+        //else{
+            //if(myrank == 0) printf("Not Equal 2D and 3D Chaos\n");
+            //if(myrank == 0) printf("%lf - %lf\n", chaos, chaos3D);
+        //}
+        /////////////////
         
         double tInflate1 = MPI_Wtime();
-        Inflate(A, param.inflation);
+        //Inflate(A, param.inflation);
         /////////////////
-        Inflate(A2D_cs, param.inflation);
+        Inflate3D(A3D_cs, param.inflation);
         /////////////////
 
-        MakeColStochastic(A);
+        //MakeColStochastic(A);
         /////////////////
-        MakeColStochastic(A2D_cs);
+        MakeColStochastic3D(A3D_cs);
         /////////////////
         
         tInflate += (MPI_Wtime() - tInflate1);
@@ -542,18 +578,35 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         if(param.show)
         {
             SpParHelper::Print("After inflation\n");
-            A.PrintInfo();
+            //A.PrintInfo();
         }
         
-        
-        
-        double newbalance = A.LoadImbalance();
         /////////////////
-        A2D_cs.LoadImbalance();
+        //int nnz3 = A3D_cs.getnnz();
+        //if(myrank == 0) printf("nnz3: %d\n", nnz3);
+        //A2D_cs = A3D_cs.Convert2D();
+
+        //bool equal = (A2D_cs == A);
+        //if(equal){
+            //if(myrank == 0) printf("Equal\n");
+        //}
+        //else{
+            //if(myrank == 0) printf("Not Equal\n");
+            //int nnz1 = A.getnnz();
+            //int nnz2 = A2D_cs.getnnz();
+            //if(myrank == 0) printf("%d - %d\n", nnz1, nnz2);
+        //}
         /////////////////
+        
+        //double newbalance = A.LoadImbalance();
+        /////////////////
+        //A2D_cs.LoadImbalance();
+        /////////////////
+        
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        //s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
         it++;
         

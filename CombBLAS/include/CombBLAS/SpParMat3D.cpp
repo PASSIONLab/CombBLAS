@@ -84,7 +84,7 @@ namespace combblas
             IT datasize; NT x = 0.0;
             std::vector<DER> recvChunks;
 
-            SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, commGrid3D->world3D, recvChunks);
+            SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, recvChunks);
             typename DER::LocalIT concat_row = 0, concat_col = 0;
             for(int i  = 0; i < recvChunks.size(); i++){
                 if(colsplit) recvChunks[i].Transpose();
@@ -149,6 +149,60 @@ namespace combblas
 
             layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
         }
+    }
+
+    // Create a new copy of a 3D matrix in row split or column split manner
+    template <class IT, class NT, class DER>
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat3D< IT,NT,DER > & A, bool colsplit): colsplit(colsplit){
+        int myrank;
+        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
+        typedef typename DER::LocalIT LIT;
+        auto AcommGrid3D = A.getcommgrid3D();
+        int nprocs = AcommGrid3D->GetSize();
+        commGrid3D.reset(new CommGrid3D(AcommGrid3D->GetWorld(), AcommGrid3D->GetGridLayers(), 0, 0, A.isSpecial()));
+
+        // Intialize these two variables for new SpParMat3D
+        special = A.isSpecial();
+        nlayers = AcommGrid3D->GetGridLayers();
+
+        DER * spSeq = A.seqptr(); // local submatrix
+        DER * localMatrix = new DER(*spSeq);
+        if((A.isColSplit() && !colsplit) || (!A.isColSplit() && colsplit)){
+            // If given matrix is column split and desired matrix is row split
+            // Or if given matrix is row split and desired matrix is column split
+            std::vector<DER> sendChunks;
+            int numChunks = commGrid3D->GetGridLayers();
+            if(!colsplit) localMatrix->Transpose();
+            localMatrix->ColSplit(numChunks, sendChunks);
+            if(!colsplit){
+                for(int i = 0; i < sendChunks.size(); i++) sendChunks[i].Transpose();
+            }
+
+            MPI_Barrier(commGrid3D->GetWorld());
+
+            IT datasize; NT x = 0.0;
+            std::vector<DER> recvChunks;
+
+            SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, recvChunks);
+
+            typename DER::LocalIT concat_row = 0, concat_col = 0;
+            for(int i  = 0; i < recvChunks.size(); i++){
+                if(colsplit) recvChunks[i].Transpose();
+                concat_row = std::max(concat_row, recvChunks[i].getnrow());
+                concat_col = concat_col + recvChunks[i].getncol();
+            }
+            localMatrix = new DER(0, concat_row, concat_col, 0);
+            localMatrix->ColConcatenate(recvChunks);
+            if(colsplit) localMatrix->Transpose();
+        }
+        else{
+            // If given and desired matrix both are row split
+            // Or if given and desired matrix both are column split
+            // Do nothing
+        }
+        //printf("%d - %d, %d, %d\n", );
+        layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     
     /*
@@ -300,7 +354,7 @@ namespace combblas
             }
             IT datasize; NT z=1.0;
             std::vector<DER> recvChunks;
-            SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, z, commGrid3D->world3D, recvChunks);
+            SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, z, recvChunks);
 
             LIT concat_row = 0, concat_col = 0;
             for(int i  = 0; i < recvChunks.size(); i++){
@@ -453,7 +507,7 @@ namespace combblas
             OnePieceOfC->ColSplit(divisions3d, sendChunks);
             vector<DER> rcvChunks;
             IT datasize; NT dummy = 0.0;
-            SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, commGrid3D->fiberWorld, rcvChunks);
+            SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
@@ -632,7 +686,7 @@ namespace combblas
     }
 
     template <class IT, class NT, class DER>
-    vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, MPI_Comm secondaryWorld, vector<DER> & recvChunks){
+    vector<DER> SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, vector<DER> & recvChunks){
         typedef typename DER::LocalIT LIT;
 
         int numChunks = sendChunks.size();
