@@ -623,7 +623,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
     // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
     // hence, we are forcing this with IT and double
-    SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A;
+    SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A3D_cs.Convert2D();
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
     
     
@@ -634,7 +634,8 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     if(myrank==0)
     {
         cout << "================detailed timing==================" << endl;
-        
+        Implemented new SpParMat3D constructor for split conversion
+
         cout << "Expansion: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
         cout << "       Abcast= " << mcl_Abcasttime << endl;
         cout << "       Bbcast= " << mcl_Bbcasttime << endl;
