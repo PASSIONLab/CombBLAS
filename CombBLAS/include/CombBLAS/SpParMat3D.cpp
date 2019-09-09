@@ -462,7 +462,12 @@ namespace combblas
             SpParHelper::Print("MemEfficientSpGEMM: The value of phases is too small or large. Resetting to 1.\n");
             phases = 1;
         }
+        double t0 = MPI_Wtime();
         int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+        double t1 = MPI_Wtime();
+        if(myrank == 0){
+            printf("[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
+        }
         if(calculatedPhases > phases) phases = calculatedPhases;
         
         // Calculate, accross fibers, which process should get how many columns after redistribution
@@ -487,6 +492,8 @@ namespace combblas
 
         DER * localLayerResultant = new DER(0, layermat->seqptr()->getnrow(), divisions3d[commGrid3D->rankInFiber], 0);
         SpParMat<IT, NT, DER> layerResultant(localLayerResultant, commGrid3D->layerWorld);
+        
+        double kselectTime = 0;
 
         for(int p = 0; p < phases; p++){
             DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
@@ -511,10 +518,17 @@ namespace combblas
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
-
+            
+            double t2 = MPI_Wtime();
             MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+            double t3 = MPI_Wtime();
+            kselectTime += (t3-t2);
 
             layerResultant += phaseResultantLayer;
+        }
+         
+        if(myrank == 0){
+            printf("[MemEfficientSpGEMM3D]\tMCLPruneRecoverySelect time: %lf\n", kselectTime);
         }
 
         std::shared_ptr<CommGrid3D> grid3d;

@@ -805,6 +805,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	if(!CheckSpGEMMCompliance(A,B) )
 	{
 		return SpParMat< IU,NUO,UDERO >();
@@ -829,6 +831,9 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
+
+    double Abcast_time = 0;
+    double Bbcast_time = 0;
 	
 	for(int i = 0; i < stages; ++i) 
 	{
@@ -846,8 +851,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}
 			ARecv = new UDERA();				// first, create the object
 		}
-
+        double t0 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+        double t1 = MPI_Wtime();
+        Abcast_time += (t1-t0);
 		ess.clear();	
 		
 		if(i == Bself)
@@ -863,9 +870,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}	
 			BRecv = new UDERB();
 		}
-		
+		double t2 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-
+		double t3 = MPI_Wtime();
+        Bbcast_time += (t3-t2);
 		
 		 // before activating this transpose B first
 		/*SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -914,6 +922,11 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+    
+    if(myrank == 0){
+        printf("[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
+        printf("[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
+    }
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
