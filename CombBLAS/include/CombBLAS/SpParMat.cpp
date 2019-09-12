@@ -1129,7 +1129,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
-            if(i==colit.colid())
+            if( (colit != spSeq->endcol()) && (i==colit.colid()) )
             {
                 local_coldisp[i+1] += colit.nnz();
                 if(colit.nnz()>=k)
@@ -1386,7 +1386,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
-            if(i==colit.colid())
+            if( (colit != spSeq->endcol()) && (i==colit.colid()) )
             {
                 if(isactive[i])
                 {
