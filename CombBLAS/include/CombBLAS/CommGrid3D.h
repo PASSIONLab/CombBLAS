@@ -70,8 +70,8 @@ public:
             MPI_Comm_split(world3D, rankInLayer, rankInFiber, &fiberWorld);
         }
         else{
-            rankInFiber = myrank / gridLayers;
-            rankInLayer = myrank % gridLayers;
+            rankInFiber = myrank / procPerLayer;
+            rankInLayer = myrank % procPerLayer;
             MPI_Comm_split(world3D, rankInFiber, rankInLayer, &layerWorld);
             MPI_Comm_split(world3D, rankInLayer, rankInFiber, &fiberWorld);
         }

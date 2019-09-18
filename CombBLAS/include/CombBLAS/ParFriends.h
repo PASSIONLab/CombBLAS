@@ -834,6 +834,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
     double Abcast_time = 0;
     double Bbcast_time = 0;
+    double Local_multiplication_time = 0;
 	
 	for(int i = 0; i < stages; ++i) 
 	{
@@ -882,13 +883,16 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
 						*/
-		 
 		
-		SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
+        MPI_Barrier(MPI_COMM_WORLD);
+        double t4 = MPI_Wtime();
+		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		
+        MPI_Barrier(MPI_COMM_WORLD);
+        double t5 = MPI_Wtime();
+		Local_multiplication_time += (t5-t4);
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -926,6 +930,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
     if(myrank == 0){
         printf("[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
         printf("[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
+        printf("[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
     }
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object

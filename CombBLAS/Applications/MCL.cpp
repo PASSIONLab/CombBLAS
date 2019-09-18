@@ -60,6 +60,13 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+///////////////////////////
+double mcl_Abcasttime_prev;
+double mcl_Bbcasttime_prev;
+double mcl_localspgemmtime_prev;
+double mcl_multiwaymergetime_prev;
+double mcl_kselecttime_prev;
+double mcl_prunecolumntime_prev;
 // for compilation (TODO: fix this dependency)
 int cblas_splits;
 double cblas_alltoalltime;
@@ -435,6 +442,10 @@ void RandPermute(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 template <typename IT, typename NT, typename DER>
 FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 {
+
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
     if(param.remove_isolated)
         RemoveIsolated(A, param);
     
@@ -474,6 +485,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // while there is an epsilon improvement
     while( chaos > EPS)
     {
+        mcl_Abcasttime_prev = mcl_Abcasttime;
+        mcl_Bbcasttime_prev = mcl_Bbcasttime;
+        mcl_localspgemmtime_prev = mcl_localspgemmtime;
+        mcl_multiwaymergetime_prev = mcl_multiwaymergetime;
+        mcl_kselecttime_prev = mcl_kselecttime;
+        mcl_prunecolumntime_prev = mcl_prunecolumntime;
+
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;		// expand
         A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
@@ -499,7 +517,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             A.PrintInfo();
         }
         
-        
+        if(myrank == 0){
+            printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl_Abcasttime - mcl_Abcasttime_prev));
+            printf("[Iteration: %d] Bbcasttime: %lf\n", it, (mcl_Bbcasttime - mcl_Bbcasttime_prev));
+            printf("[Iteration: %d] LocalSPGEMM: %lf\n", it, (mcl_localspgemmtime - mcl_localspgemmtime_prev));
+            printf("[Iteration: %d] Merge: %lf\n", it, (mcl_multiwaymergetime - mcl_multiwaymergetime_prev));
+            printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl_kselecttime + mcl_prunecolumntime - mcl_kselecttime_prev - mcl_prunecolumntime_prev));
+        }
         
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
@@ -527,8 +551,6 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     
 #ifdef TIMING
     double tcc = MPI_Wtime() - tcc1;    
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank==0)
     {
         cout << "================detailed timing==================" << endl;
