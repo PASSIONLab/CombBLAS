@@ -647,8 +647,12 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
+    
+    // Transpose back for the column-by-column algorithm
+    const_cast< UDERB* >(B1seq)->Transpose();
+    const_cast< UDERB* >(B2seq)->Transpose();
 	MPI_Barrier(GridC->GetWorld());
-
+    
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
 
@@ -696,12 +700,23 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		
-		
+		// before activating this remove transposing B1seq
+        /*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
+        
+        */
+        
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                        (*ARecv, *BRecv, // parameters themselves
+                        i != Aself,    // 'delete A' condition
+                        i != Bself);   // 'delete B' condition
+        
+        
+        
 		
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
@@ -751,12 +766,22 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
+        // before activating this remove transposing B2seq
+        /*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
 		
+        
+        */
+        
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                (*ARecv, *BRecv, // parameters themselves
+                 i != Aself,    // 'delete A' condition
+                 i != Bself);   // 'delete B' condition
+        
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -873,15 +898,20 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-						*/
-		 
-		
+						
+         */
+		/*
 		SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
 		
-		
+        */
+        SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                    (*ARecv, *BRecv, // parameters themselves
+                     i != Aself,    // 'delete A' condition
+                     i != Bself);   // 'delete B' condition
+    
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 

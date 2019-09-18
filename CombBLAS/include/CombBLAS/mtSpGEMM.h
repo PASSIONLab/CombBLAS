@@ -296,7 +296,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         std::pair<IT,IT> * colinds = colindsVec[myThread].data();
 
         double cr = static_cast<double>(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
-        if (cr < 0.0) // Heap Algorithm
+        if (cr < 2.0) // Heap Algorithm
         {
             std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
             HeapEntry<IT, NT1> * wset = globalheapVec.data();
