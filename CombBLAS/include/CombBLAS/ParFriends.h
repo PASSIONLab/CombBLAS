@@ -188,18 +188,27 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
     double t0, t1;
 #endif
+    
+    
     // Prune and create a new pruned matrix
     SpParMat<IT,NT,DER> PrunedA = A.Prune(std::bind2nd(std::less_equal<NT>(), hardThreshold), false);
     // column-wise statistics of the pruned matrix
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, std::plus<NT>(), 0.0);
+    FullyDistVec<IT,NT> nnzPerColumnUnpruned = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistVec<IT,NT> nnzPerColumn = PrunedA.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
     PrunedA.FreeMemory();
     
     
-    // Check if we need recovery
-    // columns with nnz < recoverNum (r)
     FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, std::bind2nd(std::less<NT>(), recoverNum));
+    
+    // recover only when nnzs in unprunned columns are greater than nnzs in pruned column
+    recoverCols = EWiseApply<NT>(recoverCols, nnzPerColumnUnpruned,
+                                 [](NT spval, NT dval){return spval;},
+                                 [recoverNum](NT spval, NT dval){return dval > spval;},
+                                 false, NT());
+
+    
     recoverCols = recoverPct;
     // columns with nnz < r AND sum < recoverPct (pct)
     recoverCols = EWiseApply<NT>(recoverCols, colSums,
