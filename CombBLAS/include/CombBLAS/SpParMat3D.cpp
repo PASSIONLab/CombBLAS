@@ -156,13 +156,13 @@ namespace combblas
     SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat3D< IT,NT,DER > & A, bool colsplit): colsplit(colsplit){
         int myrank;
         MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-        if(myrank == 0) printf("[Splitconversion] Checkpoint 1\n");
+        if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 1\n");
         typedef typename DER::LocalIT LIT;
         auto AcommGrid3D = A.getcommgrid3D();
         int nprocs = AcommGrid3D->GetSize();
         commGrid3D.reset(new CommGrid3D(AcommGrid3D->GetWorld(), AcommGrid3D->GetGridLayers(), 0, 0, A.isSpecial()));
 
-        if(myrank == 0) printf("[Splitconversion] Checkpoint 2\n");
+        if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 2\n");
 
         // Intialize these two variables for new SpParMat3D
         special = A.isSpecial();
@@ -170,11 +170,11 @@ namespace combblas
 
         DER * spSeq = A.seqptr(); // local submatrix
         DER * localMatrix = new DER(*spSeq);
-        if(myrank == 0) printf("[Splitconversion] Checkpoint 3\n");
+        if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 3\n");
         if((A.isColSplit() && !colsplit) || (!A.isColSplit() && colsplit)){
             // If given matrix is column split and desired matrix is row split
             // Or if given matrix is row split and desired matrix is column split
-            if(myrank == 0) printf("[Splitconversion] Checkpoint 4: A.isColsplit: %d colsplit: %d\n", A.isColSplit(), colsplit);
+            if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 4: A.isColsplit: %d colsplit: %d\n", A.isColSplit(), colsplit);
             std::vector<DER> sendChunks;
             int numChunks = commGrid3D->GetGridLayers();
             if(!colsplit) localMatrix->Transpose();
@@ -186,9 +186,9 @@ namespace combblas
             IT datasize; NT x = 71.0;
             std::vector<DER> recvChunks;
 
-            if(myrank == 0) printf("[Splitconversion] Checkpoint 5: Just before data exchange\n");
+            if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 5: Just before data exchange\n");
             SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, x, recvChunks);
-            if(myrank == 0) printf("[Splitconversion] Checkpoint 6: Just after data exchange\n");
+            if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 6: Just after data exchange\n");
 
             typename DER::LocalIT concat_row = 0, concat_col = 0;
             for(int i  = 0; i < recvChunks.size(); i++){
@@ -205,9 +205,9 @@ namespace combblas
             // Or if given and desired matrix both are column split
             // Do nothing
         }
-        if(myrank == 0) printf("[Splitconversion] Checkpoint 7: Just before creating layermatrix\n");
+        if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 7: Just before creating layermatrix\n");
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
-        if(myrank == 0) printf("[Splitconversion] Checkpoint 8: Just after creating layermatrix\n");
+        if(myrank == 0) fprintf(stderr, "[Splitconversion] Checkpoint 8: Just after creating layermatrix\n");
     }
     
     /*
@@ -471,7 +471,7 @@ namespace combblas
         int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
         double t1 = MPI_Wtime();
         if(myrank == 0){
-            printf("[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
+            fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
         }
         if(calculatedPhases > phases) phases = calculatedPhases;
         
@@ -502,7 +502,9 @@ namespace combblas
         double reductionTime = 0;
         double mergeTime = 0;
 
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tMultiplication starting with %d phases\n", phases);
         for(int p = 0; p < phases; p++){
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase %d starting\n", p);
             DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
             vector<DER> targetPiecesOfB;
             for(int i = 0; i < PiecesOfB.size(); i++){
@@ -525,26 +527,26 @@ namespace combblas
             SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
             double t5 = MPI_Wtime();
             reductionTime += (t5-t4);
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tReduction time: %lf\n", (t5-t4));
             double t6 = MPI_Wtime();
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
             double t7 = MPI_Wtime();
             mergeTime += (t7-t6);
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tMerge time: %lf\n", (t7-t6));
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
             
             double t2 = MPI_Wtime();
             MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
             double t3 = MPI_Wtime();
             kselectTime += (t3-t2);
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tMCLPruneRecoverySelect time: %lf\n", (t3-t2));
 
             layerResultant += phaseResultantLayer;
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase %d finished\n", p);
         }
-         
-        if(myrank == 0){
-            printf("[MemEfficientSpGEMM3D]\tMerge time: %lf\n", mergeTime);
-            printf("[MemEfficientSpGEMM3D]\tReduction time: %lf\n", reductionTime);
-            printf("[MemEfficientSpGEMM3D]\tMCLPruneRecoverySelect time: %lf\n", kselectTime);
-        }
+
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tAll phase done\n");
 
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, isSpecial()));
@@ -741,9 +743,9 @@ namespace combblas
             sendcnt[i] = sendprfl[i*3];
             totsend += sendcnt[i];
         }
-        if(myrank == 0 && dummy == 71.0) printf("[SpecialExchangeData] Checkpoint 1: Just before essentials alltoall\n");
+        if(myrank == 0 && dummy == 71.0) fprintf(stderr, "[SpecialExchangeData] Checkpoint 1: Just before essentials alltoall\n");
         MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
-        if(myrank == 0 && dummy == 71.0) printf("[SpecialExchangeData] Checkpoint 2: Just after essentials alltoall\n");
+        if(myrank == 0 && dummy == 71.0) fprintf(stderr, "[SpecialExchangeData] Checkpoint 2: Just after essentials alltoall\n");
 
         for(int i = 0; i < numChunks; i++){
             recvcnt[i] = recvprfl[i*3];
@@ -763,10 +765,10 @@ namespace combblas
             }
         }
 
-        if(myrank == 0 && dummy == 71.0) printf("[SpecialExchangeData] Checkpoint 3: Just before tuples alltoall\n");
+        if(myrank == 0 && dummy == 71.0) fprintf(stderr, "[SpecialExchangeData] Checkpoint 3: Just before tuples alltoall\n");
         std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
         MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
-        if(myrank == 0 && dummy == 71.0) printf("[SpecialExchangeData] Checkpoint 4: Just after tuples alltoall\n");
+        if(myrank == 0 && dummy == 71.0) fprintf(stderr, "[SpecialExchangeData] Checkpoint 4: Just after tuples alltoall\n");
 
         DeleteAll(sendcnt, sendprfl, sdispls);
         sendTuples.clear();
@@ -782,7 +784,7 @@ namespace combblas
         // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
         DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); 
         MPI_Type_free(&MPI_tuple);
-        if(myrank == 0 && dummy == 71.0) printf("[SpecialExchangeData] Checkpoint 5: Just after freeing all necessary memory\n");
+        if(myrank == 0 && dummy == 71.0) fprintf(stderr, "[SpecialExchangeData] Checkpoint 5: Just after freeing all necessary memory\n");
         return recvChunks;
     }
 }

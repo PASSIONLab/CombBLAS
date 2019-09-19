@@ -522,7 +522,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, 4, true, false);    // Non-special column split
     double t1 = MPI_Wtime();
     if(myrank == 0){
-        printf("[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
+        fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
     }
 
     SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, 4, false, false);    // Non-special row split
@@ -532,10 +532,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     {
         /////////////////
         double t2 = MPI_Wtime();
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\t Started iteration %d\n", it);
+        }
         A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
         double t3 = MPI_Wtime();
         if(myrank == 0){
-            printf("[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
+            fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
         /////////////////
 
@@ -554,7 +557,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 
         double t5 = MPI_Wtime();
         if(myrank == 0){
-            printf("[MCL3D]\tExpansion time: %lf\n", (t5-t4));
+            fprintf(stderr, "[MCL3D]\tExpansion time: %lf\n", (t5-t4));
         }
         
         if(param.show)
@@ -612,14 +615,14 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A3D_cs.Convert2D();
     double t8 = MPI_Wtime();
     if(myrank == 0){
-        printf("[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t8-t7));
+        fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t8-t7));
     }
 
     double t9 = MPI_Wtime();
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
     double t10 = MPI_Wtime();
     if(myrank == 0){
-        printf("[MCL3D]\tConnected component computation time: %lf\n", (t10-t9));
+        fprintf(stderr, "[MCL3D]\tConnected component computation time: %lf\n", (t10-t9));
     }
     
 #ifdef TIMING
