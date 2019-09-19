@@ -205,7 +205,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     // recover only when nnzs in unprunned columns are greater than nnzs in pruned column
     recoverCols = EWiseApply<NT>(recoverCols, nnzPerColumnUnpruned,
                                  [](NT spval, NT dval){return spval;},
-                                 [recoverNum](NT spval, NT dval){return dval > spval;},
+                                 [](NT spval, NT dval){return dval > spval;},
                                  false, NT());
 
     
