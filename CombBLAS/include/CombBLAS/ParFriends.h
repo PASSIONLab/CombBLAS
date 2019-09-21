@@ -184,14 +184,17 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 template <typename IT, typename NT, typename DER>
 void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion)
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
 #ifdef TIMING
     double t0, t1;
 #endif
     
-    
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 1: Before pruning\n");
     // Prune and create a new pruned matrix
     SpParMat<IT,NT,DER> PrunedA = A.Prune(std::bind2nd(std::less_equal<NT>(), hardThreshold), false);
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 2: After pruning\n");
     // column-wise statistics of the pruned matrix
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, std::plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumnUnpruned = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
@@ -216,6 +219,9 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                                  [](NT spval, NT dval){return dval < spval;},
                                  false, NT());
     
+    //MPI_Barrier(MPI_COMM_WORLD);
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 3\n");
+
     IT nrecover = recoverCols.getnnz();
     if(nrecover > 0)
     {
@@ -239,6 +245,8 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         
     }
     
+    //MPI_Barrier(MPI_COMM_WORLD);
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 4\n");
     
     if(selectNum>0)
     {
@@ -326,6 +334,10 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             }
         }
     }
+
+
+    //MPI_Barrier(MPI_COMM_WORLD);
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 5\n");
     
 
     // final prune
@@ -336,6 +348,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
     t1=MPI_Wtime();
     mcl_prunecolumntime += (t1-t0);
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 6\n");
 #endif
     // Add loops for empty columns
     if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
@@ -346,6 +359,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         //Ariful: We need a selective AddLoops function with a sparse vector
         //A.AddLoops(emptyColumns);
     }
+    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 7\n");
 }
 
 
@@ -893,13 +907,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						i != Bself);	// 'delete B' condition
 						*/
 		
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
         double t4 = MPI_Wtime();
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime();
 		Local_multiplication_time += (t5-t4);
 		

@@ -510,9 +510,6 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     double tInflate = 0;
     double tExpand = 0;
     typedef PlusTimesSRing<NT, NT> PTFF;
-    // while there is an epsilon improvement
-
-    /////////////////
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     SpParMat<IT,NT,DER> A2D_rs;
@@ -520,41 +517,28 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 
     double t0 = MPI_Wtime();
     SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, 4, true, false);    // Non-special column split
+    SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, 4, false, false);    // Non-special row split
     double t1 = MPI_Wtime();
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
+        fprintf(stderr, "Note: this time is of two 2D->3D conversions\n");
     }
-
-    SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, 4, false, false);    // Non-special row split
-    /////////////////
 
     while( chaos3D > EPS)
     {
-        /////////////////
-        double t2 = MPI_Wtime();
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\t Started iteration %d\n", it);
         }
+        double t2 = MPI_Wtime();
         A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
         double t3 = MPI_Wtime();
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
-        /////////////////
 
         double t4 = MPI_Wtime();
-        //A.Square<PTFF>() ;		// expand
-        //A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
-
-        /////////////////
         A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
-        /////////////////
-
-        //MakeColStochastic(A);
-        /////////////////
         MakeColStochastic3D(A3D_cs);
-        /////////////////
-
         double t5 = MPI_Wtime();
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tExpansion time: %lf\n", (t5-t4));
@@ -565,22 +549,22 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After expansion\n");
             //A.PrintInfo();
         }
-
-        //chaos = Chaos(A);
-        /////////////////
+        
+        double t6 = MPI_Wtime();
         chaos3D = Chaos3D(A3D_cs);
-        /////////////////
+        double t7 = MPI_Wtime();
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\tChaos calculation time: %lf\n", (t7-t6));
+        }
         
         double tInflate1 = MPI_Wtime();
-        //Inflate(A, param.inflation);
-        /////////////////
+        double t8 = MPI_Wtime();
         Inflate3D(A3D_cs, param.inflation);
-        /////////////////
-
-        //MakeColStochastic(A);
-        /////////////////
         MakeColStochastic3D(A3D_cs);
-        /////////////////
+        double t9 = MPI_Wtime();
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\tInflation time: %lf\n", (t9-t8));
+        }
         
         tInflate += (MPI_Wtime() - tInflate1);
         
@@ -590,12 +574,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             //A.PrintInfo();
         }
         
-        double t6=MPI_Wtime();
+        double t10=MPI_Wtime();
         stringstream s;
         //s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t6-t2) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t10-t2) << endl;
         s << endl;
         SpParHelper::Print(s.str());
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\t Finished iteration %d\n", it);
+        }
         it++;
         
         
@@ -611,24 +598,24 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
     // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
     // hence, we are forcing this with IT and double
-    double t7 = MPI_Wtime();
+    double t11 = MPI_Wtime();
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A3D_cs.Convert2D();
-    double t8 = MPI_Wtime();
+    double t12 = MPI_Wtime();
     if(myrank == 0){
-        fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t8-t7));
+        fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t11-t12));
     }
 
-    double t9 = MPI_Wtime();
+    double t13 = MPI_Wtime();
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
-    double t10 = MPI_Wtime();
+    double t14 = MPI_Wtime();
     if(myrank == 0){
-        fprintf(stderr, "[MCL3D]\tConnected component computation time: %lf\n", (t10-t9));
+        fprintf(stderr, "[MCL3D]\tConnected component computation time: %lf\n", (t14-t13));
     }
     
 #ifdef TIMING
-    double tcc = MPI_Wtime() - tcc1;    
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    double tcc = MPI_Wtime() - tcc1;
+    //int myrank;
+    //MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank==0)
     {
         cout << "================detailed timing==================" << endl;

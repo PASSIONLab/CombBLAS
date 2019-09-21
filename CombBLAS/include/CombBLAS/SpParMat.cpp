@@ -1449,7 +1449,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     std::vector<IT> recv_coldisp(n_thiscol+1);
     std::vector<IT> templen(n_thiscol);
     
-    
+   // Put a barrier and then print sth 
     
     for(int p=2; p <= colneighs; p*=2)
     {
@@ -1513,7 +1513,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         }
     }
     MPI_Barrier(commGrid->GetWorld());
-    
+    // Print sth here as well
     
     
     
@@ -1563,6 +1563,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         MPI_Recv(kthItem.data(), nActiveCols, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
     
+    // Put a barrier and print sth
+
     /*--------------------------------------------------------
      At this point, kth largest elements in every active column
      are gathered on the diagonal processors P(i,i).
