@@ -191,10 +191,8 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     double t0, t1;
 #endif
     
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 1: Before pruning\n");
     // Prune and create a new pruned matrix
     SpParMat<IT,NT,DER> PrunedA = A.Prune(std::bind2nd(std::less_equal<NT>(), hardThreshold), false);
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 2: After pruning\n");
     // column-wise statistics of the pruned matrix
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, std::plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumnUnpruned = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
@@ -219,8 +217,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                                  [](NT spval, NT dval){return dval < spval;},
                                  false, NT());
     
-    //MPI_Barrier(MPI_COMM_WORLD);
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 3\n");
 
     IT nrecover = recoverCols.getnnz();
     if(nrecover > 0)
@@ -245,8 +241,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         
     }
     
-    //MPI_Barrier(MPI_COMM_WORLD);
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 4\n");
     
     if(selectNum>0)
     {
@@ -335,9 +329,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         }
     }
 
-
-    //MPI_Barrier(MPI_COMM_WORLD);
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 5\n");
     
 
     // final prune
@@ -348,7 +339,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #ifdef TIMING
     t1=MPI_Wtime();
     mcl_prunecolumntime += (t1-t0);
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 6\n");
 #endif
     // Add loops for empty columns
     if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
@@ -359,7 +349,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         //Ariful: We need a selective AddLoops function with a sparse vector
         //A.AddLoops(emptyColumns);
     }
-    if(myrank == 0) fprintf(stderr, "[MCLPruneRecoverySelect]\tCheckpoint 7\n");
 }
 
 
@@ -397,7 +386,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
     std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
     
-    
+    double t0, t1, t2, t3, t4, t5;
+    t0 = MPI_Wtime();
     if(perProcessMemory>0) // estimate the number of phases permitted by memory
     {
         int p;
@@ -452,6 +442,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }
     }
+    t1 = MPI_Wtime();
+#ifdef TIMING
+    //if(myrank == 0){
+        //fprintf(stderr, "[MemEfficientSpGEMM]\tSymbolic stage time:%d\n", (t1-t0));
+        //fprintf(stderr, "[MemEfficientSpGEMM]\tNumber of phases:%d\n", phases);
+    //}
+    mcl_symbolictime += (t1-t0);
+#endif
     
     LIA C_m = A.spSeq->getnrow();
     LIB C_n = B.spSeq->getncol();
@@ -528,8 +526,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #ifdef TIMING
             double t4=MPI_Wtime();
 #endif
-            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
-            SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            //SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
@@ -878,7 +876,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         double t0 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
         double t1 = MPI_Wtime();
-        Abcast_time += (t1-t0);
+        mcl3d_Abcasttime += (t1-t0);
 		ess.clear();	
 		
 		if(i == Bself)
@@ -897,7 +895,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		double t2 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		double t3 = MPI_Wtime();
-        Bbcast_time += (t3-t2);
+        mcl3d_Bbcasttime += (t3-t2);
 		
 		 // before activating this transpose B first
 		/*SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -915,7 +913,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						i != Bself);	// 'delete B' condition
         //MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime();
-		Local_multiplication_time += (t5-t4);
+		mcl3d_localspgemmtime += (t5-t4);
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -943,8 +941,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	//UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
-	
+	double t0 = MPI_Wtime();
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+	double t1 = MPI_Wtime();
+    mcl3d_SUMMAmergetime += (t1-t0);
 	UDERO * C = new UDERO(*C_tuples, false);
 
 	//if(!clearB)
@@ -954,6 +954,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         fprintf(stderr, "[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
         fprintf(stderr, "[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
         fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
+        fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
     }
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object

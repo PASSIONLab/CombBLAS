@@ -2186,7 +2186,9 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Barrier(World);
     if(getncol() != pvals.TotalLength())
     {
         std::ostringstream outs;
@@ -2201,7 +2203,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
-    MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
     
     int xsize = (int) pvals.LocArrSize();
@@ -2265,7 +2266,9 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Barrier(World);
     if(getncol() != pvals.TotalLength())
     {
         std::ostringstream outs;
@@ -2298,7 +2301,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
     MPI_Sendrecv(pvals.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, &status);
     MPI_Sendrecv(pvals.num.data(), xlocnz, MPIType<NT>(), diagneigh, TRX, trxnums.data(), trxlocnz, MPIType<NT>(), diagneigh, TRX, World, &status);
     std::transform(trxinds.data(), trxinds.data()+trxlocnz, trxinds.data(), std::bind2nd(std::plus<IT>(), roffset));
-
     
     int colneighs, colrank;
     MPI_Comm_size(ColWorld, &colneighs);

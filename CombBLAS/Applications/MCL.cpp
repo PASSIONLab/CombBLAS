@@ -60,6 +60,7 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+double mcl_symbolictime;
 ///////////////////////////
 double mcl_Abcasttime_prev;
 double mcl_Bbcasttime_prev;
@@ -67,6 +68,7 @@ double mcl_localspgemmtime_prev;
 double mcl_multiwaymergetime_prev;
 double mcl_kselecttime_prev;
 double mcl_prunecolumntime_prev;
+double mcl_symbolictime_prev;
 // for compilation (TODO: fix this dependency)
 int cblas_splits;
 double cblas_alltoalltime;
@@ -491,6 +493,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl_multiwaymergetime_prev = mcl_multiwaymergetime;
         mcl_kselecttime_prev = mcl_kselecttime;
         mcl_prunecolumntime_prev = mcl_prunecolumntime;
+        mcl_symbolictime_prev = mcl_symbolictime;
 
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;		// expand
@@ -518,6 +521,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         }
         
         if(myrank == 0){
+            printf("[Iteration: %d] Symbolictime: %lf\n", it, (mcl_symbolictime - mcl_symbolictime_prev));
             printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl_Abcasttime - mcl_Abcasttime_prev));
             printf("[Iteration: %d] Bbcasttime: %lf\n", it, (mcl_Bbcasttime - mcl_Bbcasttime_prev));
             printf("[Iteration: %d] LocalSPGEMM: %lf\n", it, (mcl_localspgemmtime - mcl_localspgemmtime_prev));
@@ -528,7 +532,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl << endl;
         SpParHelper::Print(s.str());
         it++;
         
