@@ -60,6 +60,25 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
+///////////////////////////
+double mcl3d_conversiontime;
+double mcl3d_symbolictime;
+double mcl3d_Abcasttime;
+double mcl3d_Bbcasttime;
+double mcl3d_localspgemmtime;
+double mcl3d_SUMMAmergetime;
+double mcl3d_reductiontime;
+double mcl3d_3dmergetime;
+double mcl3d_kselecttime;
+double mcl3d_conversiontime_prev;
+double mcl3d_symbolictime_prev;
+double mcl3d_Abcasttime_prev;
+double mcl3d_Bbcasttime_prev;
+double mcl3d_localspgemmtime_prev;
+double mcl3d_SUMMAmergetime_prev;
+double mcl3d_reductiontime_prev;
+double mcl3d_3dmergetime_prev;
+double mcl3d_kselecttime_prev;
 // for compilation (TODO: fix this dependency)
 int cblas_splits;
 double cblas_alltoalltime;
@@ -101,6 +120,7 @@ typedef struct
     int perProcessMem;
     bool isDoublePrecision; // true: double, false: float
     bool is64bInt; // true: int64_t for local indexing, false: int32_t (for local indexing)
+    int layers;
     
     //debugging
     bool show;
@@ -138,6 +158,7 @@ void InitParam(HipMCLParam & param)
     param.perProcessMem = 0;
     param.isDoublePrecision = true;
     param.is64bInt = true;
+    param.layers = 4;
     
     //debugging
     param.show = false;
@@ -187,6 +208,7 @@ void ShowParam(HipMCLParam & param)
     
     runinfo << "HipMCL optimization" << endl;
     runinfo << "    Number of phases: " << param.phases << endl;
+    runinfo << "    Number of layers: " << param.layers << endl;
     runinfo << "    Memory avilable per process: ";
     if(param.perProcessMem>0) runinfo << param.perProcessMem << "GB" << endl;
     else runinfo << "not provided" << endl;
@@ -253,6 +275,9 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         }
         else if (strcmp(argv[i],"-phases")==0) {
             param.phases = atoi(argv[i + 1]);
+        }
+        else if (strcmp(argv[i],"-layers")==0) {
+            param.layers = atoi(argv[i + 1]);
         }
         else if (strcmp(argv[i],"-per-process-mem")==0) {
             param.perProcessMem = atoi(argv[i + 1]);
@@ -512,12 +537,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     typedef PlusTimesSRing<NT, NT> PTFF;
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    SpParMat<IT,NT,DER> A2D_rs;
+    SpParMat<IT,NT,DER> A2D_rs = SpParMat<IT, NT, DER>(A);
     SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
 
     double t0 = MPI_Wtime();
-    SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, 4, true, false);    // Non-special column split
-    SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, 4, false, false);    // Non-special row split
+    SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, param.layers, true, false);    // Non-special column split
+    SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, param.layers, false, false);    // Non-special row split
     double t1 = MPI_Wtime();
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
@@ -526,21 +551,24 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 
     while( chaos3D > EPS)
     {
-        if(myrank == 0){
-            fprintf(stderr, "[MCL3D]\t Started iteration %d\n", it);
-        }
-        double t2 = MPI_Wtime();
-        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
-        double t3 = MPI_Wtime();
-        if(myrank == 0){
-            fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
-        }
+        mcl3d_conversiontime_prev = mcl3d_conversiontime;
+        mcl3d_symbolictime_prev = mcl3d_symbolictime;
+        mcl3d_Abcasttime_prev = mcl3d_Abcasttime;
+        mcl3d_Bbcasttime_prev = mcl3d_Bbcasttime;
+        mcl3d_localspgemmtime_prev = mcl3d_localspgemmtime;
+        mcl3d_SUMMAmergetime_prev = mcl3d_SUMMAmergetime;
+        mcl3d_reductiontime_prev = mcl3d_reductiontime;
+        mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
+        mcl3d_kselecttime_prev = mcl3d_kselecttime;
+
 
         double t4 = MPI_Wtime();
         A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+        double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();
         if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\tColStochastic time: %lf\n", (t5-t15));
             fprintf(stderr, "[MCL3D]\tExpansion time: %lf\n", (t5-t4));
         }
         
@@ -573,16 +601,32 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After inflation\n");
             //A.PrintInfo();
         }
+
+        if(myrank == 0){
+            printf("[Iteration: %d] Conversiontime: %lf\n", it, (mcl3d_conversiontime - mcl3d_conversiontime_prev));
+            printf("[Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
+            printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl3d_Abcasttime - mcl3d_Abcasttime_prev));
+            printf("[Iteration: %d] Bbcasttime: %lf\n", it, (mcl3d_Bbcasttime - mcl3d_Bbcasttime_prev));
+            printf("[Iteration: %d] LocalSPGEMM: %lf\n", it, (mcl3d_localspgemmtime - mcl3d_localspgemmtime_prev));
+            printf("[Iteration: %d] SUMMAmerge: %lf\n", it, (mcl3d_SUMMAmergetime - mcl3d_SUMMAmergetime_prev));
+            printf("[Iteration: %d] Reduction: %lf\n", it, (mcl3d_reductiontime - mcl3d_reductiontime_prev));
+            printf("[Iteration: %d] 3D Merge: %lf\n", it, (mcl3d_3dmergetime - mcl3d_3dmergetime_prev));
+            printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
+        }
         
+        double t2 = MPI_Wtime();
+        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
+        double t3 = MPI_Wtime();
+        mcl3d_conversiontime += (t3-t2);
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
+        }
+
         double t10=MPI_Wtime();
         stringstream s;
         //s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t10-t2) << endl;
-        s << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t10-t2) << endl << endl;
         SpParHelper::Print(s.str());
-        if(myrank == 0){
-            fprintf(stderr, "[MCL3D]\t Finished iteration %d\n", it);
-        }
         it++;
         
         
@@ -619,16 +663,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     if(myrank==0)
     {
         cout << "================detailed timing==================" << endl;
-        Implemented new SpParMat3D constructor for split conversion
-
-        cout << "Expansion: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
-        cout << "       Abcast= " << mcl_Abcasttime << endl;
-        cout << "       Bbcast= " << mcl_Bbcasttime << endl;
-        cout << "       localspgemm= " << mcl_localspgemmtime << endl;
-        cout << "       multiwaymergetime= "<< mcl_multiwaymergetime << endl;
-        cout << "Prune: " << mcl_kselecttime + mcl_prunecolumntime << endl;
-        cout << "       kselect= " << mcl_kselecttime << endl;
-        cout << "       prunecolumn= " << mcl_prunecolumntime << endl;
+        cout << "Expansion: " << mcl3d_Abcasttime + mcl3d_Bbcasttime + mcl3d_localspgemmtime + mcl3d_SUMMAmergetime << endl;
+        cout << "       Abcast= " << mcl3d_Abcasttime << endl;
+        cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
+        cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
+        cout << "       multiwaymergetime= "<< mcl3d_SUMMAmergetime << endl;
+        cout << "Prune: " << mcl3d_kselecttime << endl;
         cout << "Inflation " << tInflate << endl;
         cout << "Component: " << tcc << endl;
         cout << "File I/O: " << tIO << endl;
@@ -636,6 +676,20 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     }
     
 #endif
+
+    if(myrank==0)
+    {
+        cout << "================detailed timing==================" << endl;
+        cout << "Expansion: " << mcl3d_symbolictime + mcl3d_Abcasttime + mcl3d_Bbcasttime + mcl3d_localspgemmtime + mcl3d_SUMMAmergetime + mcl3d_reductiontime + mcl3d_3dmergetime << endl;
+        cout << "       Symbolic=" << mcl3d_symbolictime << endl;
+        cout << "       Abcast= " << mcl3d_Abcasttime << endl;
+        cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
+        cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
+        cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
+        cout << "       reductiontime= "<< mcl3d_reductiontime << endl;
+        cout << "       3dmergetime= "<< mcl3d_3dmergetime << endl;
+        cout << "=================================================" << endl;
+    }
     
     return cclabels;
 
