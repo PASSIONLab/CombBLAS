@@ -2186,6 +2186,8 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     //MPI_Barrier(MPI_COMM_WORLD);
     MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Barrier(World);
@@ -2247,6 +2249,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     delete [] dpls;
 
     //sanity check
+    if(accsize != getlocalcols()){
+        fprintf(stderr, "[PruneColumn]\tmyrank:%d\taccsize:%d\tgetlocalcols():%d\n", myrank, accsize, getlocalcols());
+    }
     assert(accsize == getlocalcols());
     if (inPlace)
     {

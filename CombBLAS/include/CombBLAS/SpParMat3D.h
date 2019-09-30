@@ -104,7 +104,7 @@ namespace combblas
                 int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
 
         void CalculateColSplitDistributionOfLayer(vector<typename DER::LocalIT> & divisions3d);
-        
+        bool CheckSpParMatCompatibility();       
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
         SpParMat<IT, NT, DER>* layermat;

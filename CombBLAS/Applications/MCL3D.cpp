@@ -561,6 +561,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
 
+        if(A3D_cs.CheckSpParMatCompatibility() == false){
+            fprintf(stderr, "[MCL3D]\tmyrank: %d\tA3D_cs is not SpParMat Compatible\n", myrank);
+        }
+        if(A3D_rs.CheckSpParMatCompatibility() == false){
+            fprintf(stderr, "[MCL3D]\tmyrank: %d\tA3D_rs is not SpParMat Compatible\n", myrank);
+        }
 
         double t4 = MPI_Wtime();
         A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);

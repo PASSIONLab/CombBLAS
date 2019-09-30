@@ -877,6 +877,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
         double t1 = MPI_Wtime();
         mcl3d_Abcasttime += (t1-t0);
+        Abcast_time += (t1-t0);
 		ess.clear();	
 		
 		if(i == Bself)
@@ -896,6 +897,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		double t3 = MPI_Wtime();
         mcl3d_Bbcasttime += (t3-t2);
+        Bbcast_time += (t3-t2);
 		
 		 // before activating this transpose B first
 		/*SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -914,6 +916,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         //MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime();
 		mcl3d_localspgemmtime += (t5-t4);
+        Local_multiplication_time += (t5-t4);
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);

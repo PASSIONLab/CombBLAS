@@ -626,6 +626,40 @@ namespace combblas
         }
     }
 
+    /*
+     * Checks if the layer matrix is 2D SpParMat compatible
+     * */
+    template <class IT, class NT, class DER>
+    bool SpParMat3D<IT,NT,DER>::CheckSpParMatCompatibility(){
+        IT nLayerCols = layermat->getncol();
+        IT nLayerRows = layermat->getnrow();
+        IT localCols = layermat->getlocalcols();
+        IT localRows = layermat->getlocalrows();
+        int nGridCols = layermat->getcommgrid()->GetGridCols();
+        int nGridRows = layermat->getcommgrid()->GetGridRows();
+        int idxGridRow = layermat->getcommgrid()->GetRankInProcCol();
+        int idxGridCol = layermat->getcommgrid()->GetRankInProcRow();
+        IT x, y, a, b;
+        x = nLayerRows / nGridRows;
+        y = (nLayerRows % nGridRows == 0) ? x : (nLayerRows - x * (nGridRows - 1)); 
+        a = nLayerCols / nGridCols;
+        b = (nLayerCols % nGridCols == 0) ? a : (nLayerCols - a * (nGridCols - 1)); 
+        bool flag = true;
+        if(idxGridRow == nGridRows-1){
+            if(localRows != y) flag = false;
+        }
+        else{
+            if(localRows != x) flag = false;
+        }
+        if(idxGridCol == nGridCols-1){
+            if(localCols != b) flag = false;
+        }
+        else{
+            if(localCols != a) flag = false;
+        }
+        return flag;
+    }
+
     template <class IT, class NT, class DER>
     IT SpParMat3D< IT,NT,DER >::getnrow() const
     {
