@@ -109,7 +109,6 @@ namespace combblas
             IT localRowStart2d = colrank2d * m_perproc2d; // first row in this process
             IT localColStart2d = rowrank2d * n_perproc2d; // first col in this process
 
-
             LIT lrow3d, lcol3d;
             std::vector<IT> tsendcnt(nprocs,0);
             for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
@@ -557,7 +556,7 @@ namespace combblas
     int SpParMat3D<IT, NT, DER>::CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
             NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
         int p, phases;
-        MPI_Comm_size(MPI_COMM_WORLD,&p);
+        MPI_Comm_size(getcommgrid3D()->GetLayerWorld(),&p);
         int64_t perNNZMem_in = sizeof(IT)*2 + sizeof(NT);
         int64_t perNNZMem_out = sizeof(IT)*2 + sizeof(NT);
 
@@ -572,12 +571,12 @@ namespace combblas
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
         int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
 
-        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ B.layermat->getlocalcols() );
+        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
         int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
-        int64_t kselectmem = B.layermat->getlocalcols() * k * 8 * 3;
+        int64_t kselectmem = layermat->getlocalcols() * k * 8 * 3;
 
         // estimate output memory
-        int64_t outputNNZ = (B.layermat->getlocalcols() * k)/sqrt(p);
+        int64_t outputNNZ = (layermat->getlocalcols() * k)/sqrt(p);
         int64_t outputMem = outputNNZ * perNNZMem_in * 2;
 
         //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
