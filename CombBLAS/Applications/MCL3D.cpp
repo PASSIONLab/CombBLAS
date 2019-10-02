@@ -541,13 +541,18 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
 
     double t0 = MPI_Wtime();
-    SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, param.layers, true, false);    // Non-special column split
     SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, param.layers, false, false);    // Non-special row split
+    SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, param.layers, true, false);    // Non-special column split
     double t1 = MPI_Wtime();
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
         fprintf(stderr, "Note: this time is of two 2D->3D conversions\n");
     }
+    //A2D_rs = A3D_rs.Convert2D();
+    //if(A2D_cs == A2D_rs){
+       //if(myrank == 0) fprintf(stderr, "2D->3D->2D seemingly okay\n"); 
+    //}
+    
 
     while( chaos3D > EPS)
     {
@@ -560,6 +565,14 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_reductiontime_prev = mcl3d_reductiontime;
         mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
+
+        double t2 = MPI_Wtime();
+        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
+        double t3 = MPI_Wtime();
+        mcl3d_conversiontime += (t3-t2);
+        if(myrank == 0){
+            fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
+        }
 
         //if(A3D_cs.CheckSpParMatCompatibility() == false){
             //fprintf(stderr, "[MCL3D]\tmyrank: %d\tA3D_cs is not SpParMat Compatible\n", myrank);
@@ -620,13 +633,6 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
         }
         
-        double t2 = MPI_Wtime();
-        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
-        double t3 = MPI_Wtime();
-        mcl3d_conversiontime += (t3-t2);
-        if(myrank == 0){
-            fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
-        }
 
         double t10=MPI_Wtime();
         stringstream s;

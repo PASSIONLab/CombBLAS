@@ -555,6 +555,8 @@ namespace combblas
     template <typename SR>
     int SpParMat3D<IT, NT, DER>::CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
             NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
+        int myrank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
         int p, phases;
         MPI_Comm_size(getcommgrid3D()->GetLayerWorld(),&p);
         int64_t perNNZMem_in = sizeof(IT)*2 + sizeof(NT);
@@ -562,8 +564,8 @@ namespace combblas
 
         int64_t lannz = layermat->getlocalnnz();
         int64_t gannz;
-        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetWorld());
-        int64_t inputMem = gannz * perNNZMem_in * 4;
+        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
+        int64_t inputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
 
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat));
         int64_t gasquareNNZ;
@@ -571,16 +573,23 @@ namespace combblas
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
         int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
 
-        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
-        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
-        int64_t kselectmem = layermat->getlocalcols() * k * 8 * 3;
+        //int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
+        //int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
+        int64_t k = int64_t(std::max(selectNum, recoverNum));
 
         // estimate output memory
         int64_t outputNNZ = (layermat->getlocalcols() * k)/sqrt(p);
-        int64_t outputMem = outputNNZ * perNNZMem_in * 2;
+        int64_t outputMem = outputNNZ * perNNZMem_out * 2;
+
+        double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+
+        int64_t kselectmem = layermat->getlocalcols() * k * sizeof(NT) * 3;
+
+
+        if(myrank == 0) fprintf(stderr, "[CalculateNumberOfPhases]\tinputMem: %lf\toutputMem: %lf\tasquareMem: %lf\tkselectmem: %lf\n", 
+                inputMem*1.0/1000000000, outputMem*1.0/1000000000, asquareMem*1.0/1000000000, kselectmem*1.0/1000000000 );
 
         //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
-        double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
         if(remainingMem > 0){
             phases = ceil((asquareMem+kselectmem) / remainingMem);
             return phases;
