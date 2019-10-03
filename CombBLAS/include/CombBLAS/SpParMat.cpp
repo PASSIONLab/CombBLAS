@@ -1331,7 +1331,9 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
      return false;
      }
      */
-    
+   
+ 
+
     IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
     MPI_Comm World = rvec.commGrid->GetWorld();
     MPI_Comm ColWorld = rvec.commGrid->GetColWorld();
@@ -1339,8 +1341,18 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
     int coldiagrank = commGrid->GetDiagOfProcCol();
+   
     
-    
+    //double memk = 3 * (double)n_thiscol*k*sizeof(VT)/1000000000;
+    //double maxmemk =0.0; // nnz in a process column
+    //MPI_Allreduce(&memk, &maxmemk , 1, MPIType<double>(), MPI_MAX, MPI_COMM_WORLD);
+
+    //int myrank;
+    //MPI_Comm_rank( MPI_COMM_WORLD, &myrank ) ;
+    //if(myrank==0)
+//	    std::cerr << "Actual kselect memory: " << maxmemk << "GB " << " columns " << n_thiscol << " activecol: " << nActiveCols << " \n";
+  //  MPI_Barrier(MPI_COMM_WORLD);
+
     //replicate sparse indices along processor column
     int accnz;
     int32_t trxlocnz;
@@ -1367,14 +1379,21 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         isactive[activeCols[i]] = true;
     }
     IT nActiveCols = accnz;//count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
-    // check, memory should be min(n_thiscol*k, local nnz)
+
+	
+    int64_t lannz = getlocalnnz();
+    int64_t nnzColWorld=0; // nnz in a process column
+    MPI_Allreduce(&lannz, &nnzColWorld, 1, MPIType<int64_t>(), MPI_SUM, ColWorld);
+    int64_t maxPerProcMemory = std::min(nnzColWorld, (int64_t)nActiveCols*k) * sizeof(VT);
+
     // hence we will not overflow for very large k
     std::vector<IT> send_coldisp(n_thiscol+1,0);
     std::vector<IT> local_coldisp(n_thiscol+1,0);
     //vector<VT> sendbuf(nActiveCols*k);
-    VT * sendbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
-    
-    
+    //VT * sendbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * sendbuf = static_cast<VT *> (::operator new (nActiveCols*k*sizeof(VT)));
+    VT * sendbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
+
     //displacement of local columns
     //local_coldisp is the displacement of all nonzeros per column
     //send_coldisp is the displacement of k nonzeros per column
@@ -1442,12 +1461,20 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     ::operator delete(localmat);
     std::vector<IT>().swap(local_coldisp);
     
-    VT * recvbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
-    VT * tempbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * recvbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * tempbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+
+    //VT * recvbuf = static_cast<VT *> (::operator new ( nActiveCols*k*sizeof(VT)));
+    //VT * tempbuf = static_cast<VT *> (::operator new ( nActiveCols*k*sizeof(VT)));
+    
+
+    VT * recvbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
+    VT * tempbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
     //vector<VT> recvbuf(n_thiscol*k);
     //vector<VT> tempbuf(n_thiscol*k);
     std::vector<IT> recv_coldisp(n_thiscol+1);
-    std::vector<IT> templen(n_thiscol);
+    std::vector<IT> temp_coldisp(n_thiscol+1);
+    //std::vector<IT> templen(n_thiscol);
     
    // Put a barrier and then print sth 
     
@@ -1470,6 +1497,14 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                 MPI_Recv(recv_coldisp.data(), n_thiscol+1, MPIType<IT>(), sender, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 MPI_Recv(recvbuf, recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 
+		temp_coldisp[0] = 0;
+                for(IT i=0; i<n_thiscol; ++i)
+                {
+		    IT sendlen = send_coldisp[i+1] - send_coldisp[i];
+		    IT recvlen = recv_coldisp[i+1] - recv_coldisp[i];
+                    IT templen = std::min((sendlen+recvlen), k);
+		    temp_coldisp[i+1] = temp_coldisp[i] + templen;
+                }
                 
                 
 #ifdef THREADED
@@ -1480,7 +1515,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                     // partial merge until first k elements
                     IT j=send_coldisp[i], l=recv_coldisp[i];
                     //IT templen[i] = k*i;
-                    IT offset = k*i;
+                    //IT offset = k*i;
+		    IT offset = temp_coldisp[i];
                     IT lid = 0;
                     for(; j<send_coldisp[i+1] && l<recv_coldisp[i+1] && lid<k;)
                     {
@@ -1491,13 +1527,18 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                     }
                     while(j<send_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = sendbuf[j++];
                     while(l<recv_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = recvbuf[l++];
-                    templen[i] = lid;
+                    //templen[i] = lid;
                 }
                 
+		std::copy(temp_coldisp.begin(), temp_coldisp.end(), send_coldisp.begin());
+		std::copy(tempbuf, tempbuf+temp_coldisp[n_thiscol], sendbuf);
+		
+		/*
                 send_coldisp[0] = 0;
                 for(IT i=0; i<n_thiscol; i++)
                 {
                     send_coldisp[i+1] = send_coldisp[i] + templen[i];
+		    assert(send_coldisp[i+1] == temp_coldisp[i+1]);
                 }
                 
                 
@@ -1506,9 +1547,12 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
 #endif
                 for(IT i=0; i<n_thiscol; i++) // direct copy
                 {
-                    IT offset = k*i;
+                    //IT offset = k*i;
+		    IT offset = temp_coldisp[i];
                     std::copy(tempbuf+offset, tempbuf+offset+templen[i], sendbuf + send_coldisp[i]);
                 }
+
+		*/
             }
         }
     }

@@ -541,7 +541,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
 
     double t0 = MPI_Wtime();
-    SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, param.layers, false, false);    // Non-special row split
+    //SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, param.layers, false, false);    // Non-special row split
     SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, param.layers, true, false);    // Non-special column split
     double t1 = MPI_Wtime();
     if(myrank == 0){
@@ -567,7 +567,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
 
         double t2 = MPI_Wtime();
-        A3D_rs = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
+        SpParMat3D<IT,NT,DER> A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
         double t3 = MPI_Wtime();
         mcl3d_conversiontime += (t3-t2);
         if(myrank == 0){
@@ -658,16 +658,18 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A3D_cs.Convert2D();
     double t12 = MPI_Wtime();
     if(myrank == 0){
-        fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t11-t12));
+        fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t12-t11));
     }
 
     double t13 = MPI_Wtime();
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
     double t14 = MPI_Wtime();
+    double tcc = t14-t13;
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\tConnected component computation time: %lf\n", (t14-t13));
     }
     
+    /*
 #ifdef TIMING
     double tcc = MPI_Wtime() - tcc1;
     //int myrank;
@@ -688,6 +690,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     }
     
 #endif
+*/
 
     if(myrank==0)
     {
@@ -700,6 +703,10 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
         cout << "       reductiontime= "<< mcl3d_reductiontime << endl;
         cout << "       3dmergetime= "<< mcl3d_3dmergetime << endl;
+	cout << "Prune: " << mcl3d_kselecttime << endl;
+        cout << "Inflation " << tInflate << endl;
+        cout << "Component: " << tcc << endl;
+        cout << "File I/O: " << tIO << endl;
         cout << "=================================================" << endl;
     }
     

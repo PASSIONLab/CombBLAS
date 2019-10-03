@@ -197,7 +197,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, std::plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumnUnpruned = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
     FullyDistVec<IT,NT> nnzPerColumn = PrunedA.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
-   // FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
+    //FullyDistVec<IT,NT> pruneCols(A.getcommgrid(), A.getncol(), hardThreshold);
     FullyDistVec<IT,NT> pruneCols(nnzPerColumn);
     pruneCols = hardThreshold;
 
@@ -407,7 +407,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         int64_t inputMem = gannz * perNNZMem_in * 4; // for four copies (two for SUMMA)
         
         // max nnz(A^2) stored by summa in a porcess
-        int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B);
+        int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B, false);
 		int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
         
         
@@ -943,7 +943,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
-		
+
 	//UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
@@ -973,7 +973,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
   * @pre { Input matrices, A and B, should not alias }
   **/
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B)  
+int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool hashEstimate)  
 {
     	typedef typename UDERA::LocalIT LIA;
     	typedef typename UDERB::LocalIT LIB;
@@ -1049,9 +1049,16 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
 	    // no need to keep entries of colnnzC in larger precision 
 	    // because colnnzC is of length nzc and estimates nnzs per column
 			// @OGUZ-EDIT Using hash spgemm for estimation
-            //LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
-			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
-			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+            LIB * colnnzC;
+	    if(hashEstimate)
+	    {
+		LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+            	colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+	    }
+	    else
+	    {
+	    	 colnnzC = estimateNNZ(*ARecv, *BRecv);
+	    }
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;

@@ -559,14 +559,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     {
         cout << "================detailed timing==================" << endl;
         
-        cout << "Expansion: " << mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
-        cout << "       Abcast= " << mcl_Abcasttime << endl;
+        cout << "Expansion: " << mcl_symbolictime + mcl_Abcasttime + mcl_Bbcasttime + mcl_localspgemmtime + mcl_multiwaymergetime << endl;
+        cout << "	Symbolic= " << mcl_symbolictime << endl;
+	cout << "       Abcast= " << mcl_Abcasttime << endl;
         cout << "       Bbcast= " << mcl_Bbcasttime << endl;
         cout << "       localspgemm= " << mcl_localspgemmtime << endl;
         cout << "       multiwaymergetime= "<< mcl_multiwaymergetime << endl;
         cout << "Prune: " << mcl_kselecttime + mcl_prunecolumntime << endl;
-        cout << "       kselect= " << mcl_kselecttime << endl;
-        cout << "       prunecolumn= " << mcl_prunecolumntime << endl;
         cout << "Inflation " << tInflate << endl;
         cout << "Component: " << tcc << endl;
         cout << "File I/O: " << tIO << endl;

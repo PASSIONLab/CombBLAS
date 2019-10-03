@@ -526,10 +526,12 @@ namespace combblas
             t1 = MPI_Wtime();
             mcl3d_reductiontime += (t1-t0);
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
+            sendChunks.clear();
 
             t0 = MPI_Wtime();
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
+	    rcvChunks.clear();
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
             t1 = MPI_Wtime();
             mcl3d_3dmergetime += (t1-t0);
@@ -542,6 +544,7 @@ namespace combblas
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
             
             layerResultant += phaseResultantLayer;
+	    phaseResultantLayer.FreeMemory();
         }
 
         std::shared_ptr<CommGrid3D> grid3d;
@@ -567,15 +570,15 @@ namespace combblas
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
         int64_t inputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
 
-        int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat));
+        int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat), true);
         int64_t gasquareNNZ;
         // 3D Specific
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
         int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
 
-        //int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
-        //int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
-        int64_t k = int64_t(std::max(selectNum, recoverNum));
+        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
+        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
+        //int64_t k = int64_t(std::max(selectNum, recoverNum));
 
         // estimate output memory
         int64_t outputNNZ = (layermat->getlocalcols() * k)/sqrt(p);
@@ -586,12 +589,13 @@ namespace combblas
         int64_t kselectmem = layermat->getlocalcols() * k * sizeof(NT) * 3;
 
 
-        if(myrank == 0) fprintf(stderr, "[CalculateNumberOfPhases]\tinputMem: %lf\toutputMem: %lf\tasquareMem: %lf\tkselectmem: %lf\n", 
-                inputMem*1.0/1000000000, outputMem*1.0/1000000000, asquareMem*1.0/1000000000, kselectmem*1.0/1000000000 );
 
         //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
         if(remainingMem > 0){
             phases = ceil((asquareMem+kselectmem) / remainingMem);
+
+	    if(myrank == 0) fprintf(stderr, "[CalculateNumberOfPhases] phases: %d \tinputMem: %lf\toutputMem: %lf\tasquareMem: %lf\tkselectmem: %lf\n",
+                phases, inputMem*1.0/1000000000, outputMem*1.0/1000000000, asquareMem*1.0/1000000000, kselectmem*1.0/1000000000 );
             return phases;
         }
         else return -1;
