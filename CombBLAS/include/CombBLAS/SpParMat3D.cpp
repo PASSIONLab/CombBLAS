@@ -43,6 +43,7 @@ extern "C" {
 #include <stdexcept>
 #include <string>
 #include "CombBLAS/CombBLAS.h"
+#include <unistd.h>
 
 namespace combblas
 {
@@ -439,7 +440,45 @@ namespace combblas
             return A2D;
         }
     }
-    
+
+/*
+void process_mem_usage(double& vm_usage, double& resident_set)
+{
+   using std::ios_base;
+   using std::ifstream;
+   using std::string;
+
+   vm_usage     = 0.0;
+   resident_set = 0.0;
+
+   // 'file' stat seems to give the most reliable results
+   //
+   ifstream stat_stream("/proc/self/stat",ios_base::in);
+
+   // dummy vars for leading entries in stat that we don't care about
+   //
+   string pid, comm, state, ppid, pgrp, session, tty_nr;
+   string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+   string utime, stime, cutime, cstime, priority, nice;
+   string O, itrealvalue, starttime;
+
+   // the two fields we want
+   //
+   unsigned long vsize;
+   long rss;
+
+   stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+               >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+               >> utime >> stime >> cutime >> cstime >> priority >> nice
+               >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+
+   stat_stream.close();
+
+   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+   vm_usage     = vsize / (1024.0 * 1024 * 1024);
+   resident_set = rss * page_size_kb/(1024 * 1024.0);
+}
+  */  
     template <class IT, class NT, class DER>
     template <typename SR>
     SpParMat3D<IT, NT, DER> SpParMat3D<IT, NT, DER>::MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & B, 
@@ -498,6 +537,43 @@ namespace combblas
         double reductionTime = 0;
         double mergeTime = 0;
 
+	double vm_usage, resident_set;
+	process_mem_usage(vm_usage, resident_set);
+	MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+	process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+	/*
+	for(int i=0; i<20; i++)
+	{
+		double * dumm1 = new double[700000000];
+		delete[] dumm1;
+		process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+	}
+	double * dumm1 = new double[200000000];
+        process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+	double * dumm2 = new double[200000000];
+        delete[] dumm1;
+	delete[] dumm2;
+        process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+*/
+
         for(int p = 0; p < phases; p++){
             t0 = MPI_Wtime();
             DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
@@ -508,11 +584,33 @@ namespace combblas
             }
             OnePieceOfB->ColConcatenate(targetPiecesOfB);
             SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
-            t1 = MPI_Wtime();
+            
+	     process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+	    t1 = MPI_Wtime();
             t0 = MPI_Wtime();
             SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
             t1 = MPI_Wtime();
             DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
+	
+
+	process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+
+	    int64_t lannz = OnePieceOfCLayer.getlocalnnz();
+            int64_t gannz=0;
+            MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
+            if(myrank == 0) fprintf(stderr, "mult before reduction  memory: %lf GB\n", (gannz*24)/1000000000.0);
+
+	    if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: local multiplication done: %lf\n", p);
 
             /*
              *  Now column split the padded matrix for 3D reduction and do it
@@ -520,18 +618,43 @@ namespace combblas
             t0 = MPI_Wtime();
             vector<DER> sendChunks;
             OnePieceOfC->ColSplit(divisions3d, sendChunks);
+	    MPI_Barrier(MPI_COMM_WORLD);
+	    if(myrank == 0) fprintf(stderr, "colsplit done\n");
+	MPI_Barrier(MPI_COMM_WORLD);
             vector<DER> rcvChunks;
-            IT datasize; NT dummy = 0.0;
+            
+	    
+	     process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+	    
+	    IT datasize; NT dummy = 0.0;
             SpecialExchangeData( sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
             t1 = MPI_Wtime();
             mcl3d_reductiontime += (t1-t0);
+	    MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
-            sendChunks.clear();
+            MPI_Barrier(MPI_COMM_WORLD);
+	    sendChunks.clear();
+		sendChunks.shrink_to_fit();
+
+
+ process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+
 
             t0 = MPI_Wtime();
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
             for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += rcvChunks[i];
 	    rcvChunks.clear();
+		rcvChunks.shrink_to_fit();
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
             t1 = MPI_Wtime();
             mcl3d_3dmergetime += (t1-t0);
@@ -544,7 +667,27 @@ namespace combblas
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
             
             layerResultant += phaseResultantLayer;
+
+
+ process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+
+	    lannz = layerResultant.getlocalnnz();
+            gannz=0;
+            MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
+	    if(myrank == 0) fprintf(stderr, "result memory: %lf GB\n", (gannz*24)/1000000000.0);
 	    phaseResultantLayer.FreeMemory();
+
+	     process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
         }
 
         std::shared_ptr<CommGrid3D> grid3d;
@@ -566,7 +709,7 @@ namespace combblas
         int64_t perNNZMem_out = sizeof(IT)*2 + sizeof(NT);
 
         int64_t lannz = layermat->getlocalnnz();
-        int64_t gannz;
+        int64_t gannz = 0;
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
         int64_t inputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
 
@@ -574,14 +717,14 @@ namespace combblas
         int64_t gasquareNNZ;
         // 3D Specific
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
-        int64_t asquareMem = gasquareNNZ * perNNZMem_out * 2;
+        int64_t asquareMem = gasquareNNZ * perNNZMem_out * 4; // because += operation needs three times memory!!
 
         int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
         int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
         //int64_t k = int64_t(std::max(selectNum, recoverNum));
 
         // estimate output memory
-        int64_t outputNNZ = (layermat->getlocalcols() * k)/sqrt(p);
+        int64_t outputNNZ =ceil((layermat->getlocalcols() * k)/sqrt(p));
         int64_t outputMem = outputNNZ * perNNZMem_out * 2;
 
         double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
@@ -795,34 +938,120 @@ namespace combblas
         std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
         std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
         IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
+double vm_usage, resident_set;
+         process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);	
 
-        std::vector< std::tuple<LIT,LIT,NT> > sendTuples;
-        for(int i = 0; i < numChunks; i++){
+        //std::vector< std::tuple<LIT,LIT,NT> > sendTuples;
+  	std::tuple<LIT,LIT,NT>* sendTuples = new std::tuple<LIT,LIT,NT>[totsend];
+ 	        process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+	int kk=0;
+	for(int i = 0; i < numChunks; i++){
             for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
                 for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
                     NT val = nzit.value();
-                    sendTuples.push_back(std::make_tuple(nzit.rowid(), colit.colid(), nzit.value()));
+                    sendTuples[kk++] = std::make_tuple(nzit.rowid(), colit.colid(), nzit.value());
+		    //sendTuples.push_back(std::make_tuple(nzit.rowid(), colit.colid(), nzit.value()));
                 }
             }
         }
 
-        std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
-        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+	       process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
 
-        DeleteAll(sendcnt, sendprfl, sdispls);
-        sendTuples.clear();
-        sendTuples.shrink_to_fit();
 
-        tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
-        for (int i = 0; i < numChunks; i++){
-            tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
-            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
-            recvChunks.push_back(DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
-        }
+	
+	std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
+
+       process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+	
+	//MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+	MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
         
+	  process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "111**** mem usage: %lf %lf \n", vm_usage, resident_set);
+	
+	DeleteAll(sendcnt, sendprfl, sdispls);
+        //sendTuples.clear();
+        //sendTuples.shrink_to_fit();
+        delete[] sendTuples; 
+
+	 process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "111**** mem usage: %lf %lf \n", vm_usage, resident_set);
+
+	DER** recvChunks1 = new DER*[numChunks];
+        
+	 process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "**** mem usage: %lf %lf \n", vm_usage, resident_set);
+
+	tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
+
+	 process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "**** mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        for (int i = 0; i < numChunks; i++){
+		tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
+		memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
+	}
+
+
+       process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "**** mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < numChunks; i++){
+            //tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
+            //memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
+           
+	    //DER* test = new DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false);
+	    //recvChunks1[i] = test;
+	    recvChunks.push_back(DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
+        }
+
+       process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+/*
+	for (int i = 0; i < numChunks; i++){
+	recvChunks.push_back(*recvChunks1[i]);
+	}
+	*/
+        
+	  process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
         // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
         DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); 
-        MPI_Type_free(&MPI_tuple);
-        return recvChunks;
+	MPI_Type_free(&MPI_tuple);
+
+       process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+	return recvChunks;
+
     }
 }

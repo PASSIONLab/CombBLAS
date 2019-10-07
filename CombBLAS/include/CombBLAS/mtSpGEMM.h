@@ -262,8 +262,9 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     // std::cout << "NNZ of A * B is " << nnzc << std::endl;
     // std::cout << "Compression ratio is " << compression_ratio << std::endl;
 
-    std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
-	
+   // std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
+   std::tuple<IT,IT,NTO> * tuplesC = new std::tuple<IT,IT,NTO>[nnzc];
+       
     // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
     
@@ -426,7 +427,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     delete [] flopptr;
     delete [] aux;
     
-    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, false);
 
     double t1=MPI_Wtime();
 

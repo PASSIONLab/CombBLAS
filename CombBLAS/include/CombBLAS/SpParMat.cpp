@@ -1098,7 +1098,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
-    
+   
+    std::cerr << "Dense kslect is called!! " << std::endl;
     FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
     Reduce(nnzPerColumn, Column, std::plus<IT>(), (IT)0, [](NT val){return (IT)1;});
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
@@ -2332,7 +2333,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
-    MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
     int diagneigh = pvals.commGrid->GetComplementRank();
     

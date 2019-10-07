@@ -160,15 +160,17 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         }
         else // copy input to output
         {
-            std::tuple<IT, IT, NT>* mergeTups = static_cast<std::tuple<IT, IT, NT>*>
-            (::operator new (sizeof(std::tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+        //    std::tuple<IT, IT, NT>* mergeTups = static_cast<std::tuple<IT, IT, NT>*>
+         //   (::operator new (sizeof(std::tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+
+	    std::tuple<IT, IT, NT>* mergeTups = new std::tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()];
 #ifdef THREADED
 #pragma omp parallel for
 #endif
             for(int i=0; i<ArrSpTups[0]->getnnz(); i++)
                 mergeTups[i] = ArrSpTups[0]->tuples[i];
             
-            return new SpTuples<IT,NT> (ArrSpTups[0]->getnnz(), mdim, ndim, mergeTups, true);
+            return new SpTuples<IT,NT> (ArrSpTups[0]->getnnz(), mdim, ndim, mergeTups, false);
         }
     }
     
@@ -233,8 +235,8 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
     
     
     // ------ allocate memory outside of the parallel region ------
-   std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[mergedNnzAll])));
-    
+   //std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[mergedNnzAll])));
+   std::tuple<IT, IT, NT> * mergeBuf = new std::tuple<IT, IT, NT>[mergedNnzAll]; 
     // ------ perform merge in parallel ------
 #ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
@@ -255,7 +257,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         if(delarrs)
             delete ArrSpTups[i]; // May be expensive for large local matrices
     }
-    return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, true);
+    return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, false);
 }
 
 }

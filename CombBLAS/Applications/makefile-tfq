@@ -14,7 +14,7 @@ hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
 
 mmio.o: $(COMBBLAS_SRC)/mmio.c
-	mpicc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
+	cc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
 MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
@@ -44,4 +44,5 @@ mcl3d:	MemoryPool.o CommGrid.o MPIType.o MCL3D.o mmio.o hash.o
 	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl3d MCL3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
 clean:
+	rm -f *.o
 	rm MCL3D.o mcl3d

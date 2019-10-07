@@ -87,8 +87,18 @@ extern double mcl_localspgemmtime;
 extern double mcl_multiwaymergetime;
 extern double mcl_kselecttime;
 extern double mcl_prunecolumntime;
+extern double mcl_symbolictime;
 
 
+extern double mcl3d_conversiontime;
+extern double mcl3d_symbolictime;
+extern double mcl3d_Abcasttime;
+extern double mcl3d_Bbcasttime;
+extern double mcl3d_localspgemmtime;
+extern double mcl3d_SUMMAmergetime;
+extern double mcl3d_reductiontime;
+extern double mcl3d_3dmergetime;
+extern double mcl3d_kselecttime;
 
 // An adapter function that allows using extended-callback EWiseApply with plain-old binary functions that don't want the extra parameters.
 template <typename RETT, typename NU1, typename NU2, typename BINOP>

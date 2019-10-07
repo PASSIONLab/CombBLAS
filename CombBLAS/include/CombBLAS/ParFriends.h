@@ -40,7 +40,7 @@
 #include "OptBuf.h"
 #include "mtSpGEMM.h"
 #include "MultiwayMerge.h"
-
+#include <unistd.h>
 #include <type_traits>
 
 namespace combblas {
@@ -819,6 +819,45 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 }
 
 
+void process_mem_usage(double& vm_usage, double& resident_set)
+{
+   using std::ios_base;
+   using std::ifstream;
+   using std::string;
+
+   vm_usage     = 0.0;
+   resident_set = 0.0;
+
+   // 'file' stat seems to give the most reliable results
+   //
+   ifstream stat_stream("/proc/self/stat",ios_base::in);
+
+   // dummy vars for leading entries in stat that we don't care about
+   //
+   string pid, comm, state, ppid, pgrp, session, tty_nr;
+   string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+   string utime, stime, cutime, cstime, priority, nice;
+   string O, itrealvalue, starttime;
+
+   // the two fields we want
+   //
+   unsigned long vsize;
+   long rss;
+
+   stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+               >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+               >> utime >> stime >> cutime >> cstime >> priority >> nice
+               >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+
+   stat_stream.close();
+
+   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+   vm_usage     = vsize / (1024.0 * 1024 * 1024);
+   resident_set = rss * page_size_kb/(1024 * 1024.0);
+}
+
+
+
 /**
  * Parallel A = B*C routine that uses only MPI-1 features
  * Relies on simple blocking broadcast
@@ -847,6 +886,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+
+	double vm_usage, resident_set;
+	    process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
 
 	// Remotely fetched matrices are stored as pointers
 	UDERA * ARecv; 
@@ -902,21 +948,21 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         mcl3d_Bbcasttime += (t3-t2);
         Bbcast_time += (t3-t2);
 		
-		 // before activating this transpose B first
-		/*SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+/*		 // before activating this transpose B first
+		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-						*/
 		
-        //MPI_Barrier(MPI_COMM_WORLD);
+  */
+  	//MPI_Barrier(MPI_COMM_WORLD);
         double t4 = MPI_Wtime();
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-        //MPI_Barrier(MPI_COMM_WORLD);
+  	//MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime();
 		mcl3d_localspgemmtime += (t5-t4);
         Local_multiplication_time += (t5-t4);
@@ -930,6 +976,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		SpParHelper::Print(outs.str());
 		#endif
 	}
+
+	    process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
 	if(clearA && A.spSeq != NULL) 
 	{	
 		delete A.spSeq;
@@ -941,6 +994,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		B.spSeq = NULL;
 	}
 
+
+	    process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
@@ -951,7 +1012,16 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
 	double t1 = MPI_Wtime();
     mcl3d_SUMMAmergetime += (t1-t0);
-	UDERO * C = new UDERO(*C_tuples, false);
+	
+    
+        process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+
+
+        UDERO * C = new UDERO(*C_tuples, false);
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
@@ -962,6 +1032,12 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
         fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
     }
+
+        process_mem_usage(vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
+        MPI_Barrier(MPI_COMM_WORLD);
+
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
