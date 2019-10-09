@@ -1022,6 +1022,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 
         UDERO * C = new UDERO(*C_tuples, false);
+        delete C_tuples;
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
