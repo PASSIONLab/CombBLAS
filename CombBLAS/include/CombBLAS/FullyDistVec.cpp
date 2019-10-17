@@ -143,7 +143,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 		arr.resize(totrecv);
 		
 		// data is already in the right order in found.arr
-		MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<IT>(), arr.data(), recvcnt, rdispls, MPIType<IT>(), World);
+		MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<NT>(), arr.data(), recvcnt, rdispls, MPIType<NT>(), World);
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
 	delete [] sizes;	
