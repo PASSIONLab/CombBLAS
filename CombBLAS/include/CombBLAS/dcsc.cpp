@@ -34,6 +34,7 @@
 #include "Friends.h"
 #include "SpHelper.h"
 
+
 namespace combblas {
 
 template <class IT, class NT>
@@ -530,7 +531,7 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace, Globa
 		bool colexists = false;
 		for(IT j=cp[i]; j < cp[i+1]; ++j)
 		{
-			if(!(__unary_op(make_tuple(rowOffset+ir[j], colOffset+jc[i], numx[j])))) 	// keep this nonzero
+			if(!(__unary_op(std::make_tuple(rowOffset+ir[j], colOffset+jc[i], numx[j])))) 	// keep this nonzero
 			{
 				++prunednnz;
 				colexists = true;
@@ -555,7 +556,7 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace, Globa
 	{
 		for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
 		{
-			if(!(__unary_op(make_tuple(rowOffset+oldir[j], colOffset+oldjc[i], oldnumx[j])))) // keep this nonzero
+			if(!(__unary_op(std::make_tuple(rowOffset+oldir[j], colOffset+oldjc[i], oldnumx[j])))) // keep this nonzero
 			{
 				ir[cnnz] = oldir[j];	
 				numx[cnnz++] = 	oldnumx[j];

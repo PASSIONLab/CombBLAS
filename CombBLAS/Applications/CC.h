@@ -46,7 +46,7 @@
 #include <ctime>
 #include <cmath>
 #include "CombBLAS/CombBLAS.h"
-#define CC_TIMING 1
+//#define CC_TIMING 1
 
 #define NONSTAR 0
 #define STAR 1
@@ -408,6 +408,14 @@ namespace combblas {
     }
 
     // SubRef usign a sparse vector
+    // given a dense vector dv and a sparse vector sv
+    // sv_out[i]=dv[sv[i]] for all nonzero index i in sv
+    // return sv_out
+    // If sv has repeated entries, many processes are requesting same entries of dv from the same processes
+    // (usually from the low rank processes in LACC)
+    // In this case, it may be beneficial to broadcast some entries of dv so that dv[sv[i]] can be obtained locally.
+    // This logic is implemented in this function: replicate(dense, ri, bcastBuffer)
+
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Extract (const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri)
     {
@@ -479,24 +487,6 @@ namespace combblas {
         double all2ll1 = MPI_Wtime() - t1;
         outs << "all2ll1: " << all2ll1 << " ";
         
-        /*
-        int myrank;
-        MPI_Comm_rank(World,&myrank);
-        int * sendcnt_all = new int[nprocs*nprocs];
-        MPI_Gather(sendcnt, nprocs, MPI_INT, sendcnt_all, nprocs, MPI_INT, 0, World);
-        if(myrank==0)
-        {
-            for(int i=0; i<nprocs; i++)
-            {
-                for(int j=0; j<nprocs; j++)
-                {
-                    std::cout << sendcnt_all[i*nprocs+j] << " ";
-                }
-                std::cout << std::endl;
-            }
-        }
-        delete [] sendcnt_all;
-         */
 #endif
         sdispls[0] = 0;
         rdispls[0] = 0;
@@ -647,7 +637,7 @@ namespace combblas {
                 {
                     reduceBuffer[i].resize(reducecnt[i], MAX_FOR_REDUCE); // this is specific to LACC
                     for(int j=0; j<sendcnt[i]; j++)
-                        reduceBuffer[i][indBuf[i][j]] = valBuf[i][j];
+                        reduceBuffer[i][indBuf[i][j]] = std::min(reduceBuffer[i][indBuf[i][j]], valBuf[i][j]);
                     if(myrank==i)
                         MPI_Ireduce(MPI_IN_PLACE, reduceBuffer[i].data(), reducecnt[i], MPIType<NT>(), MPI_MIN, i, World, &requests[ireduce++]);
                     else
@@ -747,7 +737,12 @@ namespace combblas {
     }
     
     
-    
+    // given two sparse vectors sv and val
+    // sv_out[sv[i]] = val[i] for all nonzero index i in sv, whre sv_out is the output sparse vector
+    // If sv has repeated entries, a process may receive the same values of sv from different processes
+    // In this case, it may be beneficial to reduce some entries of sv so that sv_out[sv[i]] can be updated locally.
+    // This logic is implemented in this function: ReduceAssign
+
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Assign (FullyDistSpVec<IT,IT> & ind, FullyDistSpVec<IT,NT> & val)
     {
@@ -901,7 +896,11 @@ namespace combblas {
     }
     
 
-    
+    // given a sparse vector sv
+    // sv_out[sv[i]] = val for all nonzero index i in sv, whre sv_out is the output sparse vector
+    // If sv has repeated entries, a process may receive the same values of sv from different processes
+    // In this case, it may be beneficial to reduce some entries of sv so that sv_out[sv[i]] can be updated locally.
+    // This logic is implemented in this function: ReduceAssign
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Assign (FullyDistSpVec<IT,IT> & ind, NT val)
     {
@@ -1247,8 +1246,8 @@ namespace combblas {
 #ifdef CC_TIMING
         double ts =  MPI_Wtime();
         double t1, tspmv;
-        string spmv = "dense";
 #endif
+         string spmv = "dense";
         IT nNonStars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==NONSTAR);});
         IT nv = A.getnrow();
         
@@ -1412,12 +1411,28 @@ namespace combblas {
         FullyDistVec<IT,short> stars(A.getcommgrid(), nrows, STAR);// initially every vertex belongs to a star
         int iteration = 1;
         std::ostringstream outs;
+        
+        // isolated vertices are marked as converged
+        FullyDistVec<int64_t,double> degree = A.Reduce(Column, plus<double>(), 0.0);
+        stars.EWiseApply(degree, [](short isStar, double degree){return degree == 0.0? CONVERGED: isStar;});
+        
+        int nthreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+        }
+#endif
+        SpParMat<IT,bool,SpDCCols < IT, bool >>  Abool = A;
+        Abool.ActivateThreading(nthreads*4);
+
+        
         while (true)
         {
 #ifdef CC_TIMING
             double t1 = MPI_Wtime();
 #endif
-            FullyDistSpVec<IT, IT> condhooks = ConditionalHook(A, parent, stars, iteration);
+            FullyDistSpVec<IT, IT> condhooks = ConditionalHook(Abool, parent, stars, iteration);
 #ifdef CC_TIMING
             double t_cond_hook =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
@@ -1432,7 +1447,7 @@ namespace combblas {
             
             if(iteration > 1)
             {
-                StarCheckAfterHooking(A, parent, stars, condhooks, true);
+                StarCheckAfterHooking(Abool, parent, stars, condhooks, true);
             }
             else
             {
@@ -1447,7 +1462,7 @@ namespace combblas {
             t1 = MPI_Wtime();
 #endif
 
-            FullyDistSpVec<IT, IT> uncondHooks = UnconditionalHook2(A, parent, stars);
+            FullyDistSpVec<IT, IT> uncondHooks = UnconditionalHook2(Abool, parent, stars);
 #ifdef CC_TIMING
             double t_uncond_hook =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
@@ -1455,7 +1470,7 @@ namespace combblas {
 
             if(iteration > 1)
             {
-                StarCheckAfterHooking(A, parent, stars, uncondHooks, false);
+                StarCheckAfterHooking(Abool, parent, stars, uncondHooks, false);
                 stars.Apply([](short isStar){return isStar==STAR? CONVERGED: isStar;});
             }
             else
@@ -1467,7 +1482,14 @@ namespace combblas {
             
             IT nconverged = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==CONVERGED);});
             
-            if(nconverged==nrows) break;
+            if(nconverged==nrows)
+            {
+                outs.clear();
+                outs << "Iteration: " << iteration << " converged: " << nrows << " stars: 0" << " nonstars: 0" ;
+                outs<< endl;
+                SpParHelper::Print(outs.str());
+                break;
+            }
             
 #ifdef CC_TIMING
             double t_starcheck2 =  MPI_Wtime() - t1;
@@ -1493,15 +1515,17 @@ namespace combblas {
            
             
            
-#ifdef CC_TIMING
+
             double t2 = MPI_Wtime();
             outs.str("");
             outs.clear();
             outs << "Iteration: " << iteration << " converged: " << nconverged << " stars: " << nstars << " nonstars: " << nonstars;
-            outs << " Time:  t_cond_hook: " << t_cond_hook << " t_starcheck1: " << t_starcheck1 << " t_uncond_hook: " << t_uncond_hook << " t_starcheck2: " << t_starcheck2 << " t_shortcut: " << t_shortcut << " t_starcheck: " << t_starcheck;
+#ifdef CC_TIMING
+            //outs << " Time:  t_cond_hook: " << t_cond_hook << " t_starcheck1: " << t_starcheck1 << " t_uncond_hook: " << t_uncond_hook << " t_starcheck2: " << t_starcheck2 << " t_shortcut: " << t_shortcut << " t_starcheck: " << t_starcheck;
+#endif
             outs<< endl;
             SpParHelper::Print(outs.str());
-#endif
+
              iteration++;
             
             
