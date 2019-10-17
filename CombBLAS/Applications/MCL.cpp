@@ -60,7 +60,14 @@ double mcl_localspgemmtime;
 double mcl_multiwaymergetime;
 double mcl_kselecttime;
 double mcl_prunecolumntime;
-double cblas_allgathertime;	// for compilation (TODO: fix this dependency)
+// for compilation (TODO: fix this dependency)
+int cblas_splits;
+double cblas_alltoalltime;
+double cblas_allgathertime;
+double cblas_localspmvtime;
+double cblas_mergeconttime;
+double cblas_transvectime;
+
 int64_t mcl_memory;
 double tIO;
 
@@ -334,6 +341,8 @@ FullyDistVec<IT, IT> Interpret(SpParMat<IT,NT,DER> & A)
     SpParMat<IT,NT,DER> AT = A;
     AT.Transpose();
     A += AT;
+    SpParHelper::Print("Finding connected components....\n");
+    
     FullyDistVec<IT, IT> cclabels = CC(A, nCC);
     return cclabels;
 }
@@ -689,7 +698,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "******** Number of phases will not be estimated as -per-process-mem option is supplied. It is highly recommended that you provide -per-process-mem option for large-scale runs. *********** " << endl;
+            cout << "******** Number of phases will not be estimated as -per-process-mem option is not supplied. It is highly recommended that you provide -per-process-mem option for large-scale runs. *********** " << endl;
         }
     }
     

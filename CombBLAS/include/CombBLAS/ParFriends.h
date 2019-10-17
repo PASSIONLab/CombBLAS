@@ -392,7 +392,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         // max nnz(A^2) stored by summa in a porcess
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B);
-        int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
+		int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
         
         
         // estimate kselect memory
@@ -505,7 +505,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #ifdef TIMING
             double t4=MPI_Wtime();
 #endif
-            SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
@@ -646,8 +647,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
-	MPI_Barrier(GridC->GetWorld());
-
+    
+    	// Transpose back for the column-by-column algorithm
+    	const_cast< UDERB* >(B1seq)->Transpose();
+    	const_cast< UDERB* >(B2seq)->Transpose();
+    
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
 
@@ -695,12 +699,23 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		
-		
+		// before activating this remove transposing B1seq
+        	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                        (*ARecv, *BRecv, // parameters themselves
+                        i != Aself,    // 'delete A' condition
+                        i != Bself);   // 'delete B' condition
+        
+        
+        
 		
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
@@ -750,12 +765,22 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
+        	// before activating this remove transposing B2seq
+        	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
 		
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                	(*ARecv, *BRecv, // parameters themselves
+                 	i != Aself,    // 'delete A' condition
+                 	i != Bself);   // 'delete B' condition
+        
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -783,6 +808,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	}
 	else
 	{
+		B1seq->Transpose();
+		B2seq->Transpose();
 		(B.spSeq)->Merge(*B1seq, *B2seq);	
 		delete B1seq;
 		delete B2seq;
@@ -813,8 +840,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
 	
-	const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
-	MPI_Barrier(GridC->GetWorld());
+	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -868,29 +894,33 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 		
 		 // before activating this transpose B first
-		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+		/*SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
-						false, true,	// transpose information (none are transposed)
+						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		 
-		
-		/*SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
+						
+         */
+		/*
+		SpTuples<IU,NUO> * C_cont = LocalSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-		*/
 		
+        */
+        SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                    (*ARecv, *BRecv, // parameters themselves
+                     i != Aself,    // 'delete A' condition
+                     i != Bself);   // 'delete B' condition
+    
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
-		MPI_Barrier(MPI_COMM_WORLD);
 		#ifdef COMBBLAS_DEBUG
    		std::ostringstream outs;
 		outs << i << "th SUMMA iteration"<< std::endl;
 		SpParHelper::Print(outs.str());
 		#endif
-		MPI_Barrier(MPI_COMM_WORLD);		
 	}
 	if(clearA && A.spSeq != NULL) 
 	{	
@@ -913,8 +943,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
 	UDERO * C = new UDERO(*C_tuples, false);
 
-	if(!clearB)
-		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	//if(!clearB)
+	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
@@ -1001,7 +1031,10 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
             
 	    // no need to keep entries of colnnzC in larger precision 
 	    // because colnnzC is of length nzc and estimates nnzs per column
-            LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);            
+			// @OGUZ-EDIT Using hash spgemm for estimation
+            //LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
+			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;
@@ -1014,6 +1047,11 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
             }
             nnzC_SUMMA += nnzC_stage;
             if(colnnzC) delete [] colnnzC;
+
+			// sampling-based estimation (comment the estimation above, and
+			// comment out below to use)			
+			// int64_t nnzC_stage = estimateNNZ_sampling(*ARecv, *BRecv);
+			// nnzC_SUMMA += nnzC_stage;
             
             // delete received data
             if(i != Aself)
@@ -2360,6 +2398,227 @@ FullyDistSpVec<IU,RET> EWiseApply
 					EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
 					allowVNulls, allowWNulls, Vzero, Wzero, allowIntersect, true);
 }
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// sampling-based nnz estimation via SpMV
+// @OGUZ-NOTE This is not based on SUMMA, do not use. Estimates the number of
+// nonzeros in the final output matrix.
+
+
+#define NROUNDS 5
+typedef std::array<float, NROUNDS> samparr_t;
+
+template <typename NZT>
+struct promote_trait<NZT, samparr_t>
+{
+	typedef samparr_t T_promote;
+};
+
+
+
+class SamplesSaveHandler
+{
+public:
+	template<typename c, typename t, typename V>
+	void save(std::basic_ostream<c, t> &os,
+			  std::array<V, NROUNDS> &sample_vec,
+			  int64_t index)
+	{
+		for (auto it = sample_vec.begin(); it != sample_vec.end(); ++it)
+			os << *it << " ";
+	}
+};
+
+
+
+template<typename NZT>
+struct SelectMinxSR
+{
+	static samparr_t id()
+	{
+		samparr_t arr;
+		for (auto it = arr.begin(); it != arr.end(); ++it)
+			*it = std::numeric_limits<float>::max();
+		return arr;
+	}
+
+
+	static bool returnedSAID()
+	{
+		return false;
+	}
+
+
+	static samparr_t
+	add (const samparr_t &arg1, const samparr_t &arg2)
+	{
+		samparr_t out;
+		for (int i = 0; i < NROUNDS; ++i)
+			out[i] = std::min(arg1[i], arg2[i]);
+		return out;
+	}
+
+
+	static samparr_t
+	multiply (const NZT arg1, const samparr_t &arg2)
+	{
+		return arg2;
+	}
+
+
+	static void axpy (const NZT a, const samparr_t &x, samparr_t &y)
+	{
+		y = add(y, multiply(a, x));
+	}
+
+
+	static MPI_Op mpi_op()
+	{
+		static MPI_Op mpiop;
+		static bool exists = false;
+		if (exists)
+			return mpiop;
+		else
+		{
+			MPI_Op_create(MPI_func, true, &mpiop);
+			exists = true;
+			return mpiop;
+		}
+	}
+
+
+	static void
+	MPI_func(void *invec, void *inoutvec, int *len, MPI_Datatype *datatype)
+	{
+		samparr_t   *in    = static_cast<samparr_t *>(invec);
+		samparr_t   *inout = static_cast<samparr_t *>(inoutvec);
+		for (int i = 0; i < *len; ++i)
+			inout[i] = add(inout[i], in[i]);
+	}
+};
+
+
+
+template <typename IU, typename NU1, typename NU2,
+		  typename UDERA, typename UDERB>
+int64_t
+EstPerProcessNnzSpMV(
+    SpParMat<IU, NU1, UDERA> &A, SpParMat<IU, NU2, UDERB> &B
+	)  
+{
+	int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	float lambda = 1.0f;
+
+	int nthds = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		nthds = omp_get_num_threads();
+	}
+
+	if (myrank == 0)
+		std::cout << "taking transposes." << std::endl;
+	
+	A.Transpose();
+	B.Transpose();
+
+	if (myrank == 0)
+		std::cout << "setting initial samples." << std::endl;
+	
+	samparr_t sa;
+	FullyDistVec<IU, samparr_t> samples_init(A.getcommgrid(), A.getncol(), sa);
+
+	#ifdef THREADED
+	#pragma omp parallel
+	#endif
+	{
+		std::default_random_engine gen;
+		std::exponential_distribution<float> exp_dist(lambda);
+
+		#ifdef THREADED
+		#pragma omp parallel for
+		#endif
+		for (IU i = 0; i < samples_init.LocArrSize(); ++i)
+		{
+			samparr_t tmp;
+			for (auto it = tmp.begin(); it != tmp.end(); ++it)
+				*it = exp_dist(gen);
+			samples_init.SetLocalElement(i, tmp);
+		}
+	}
+
+	// std::string fname("samples_init");
+	// samples_init.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+	
+	if (myrank == 0)
+		std::cout << "computing mid samples." << std::endl;
+
+	FullyDistVec<IU, samparr_t> samples_mid =
+		SpMV<SelectMinxSR<NU1> > (A, samples_init);
+
+	// fname = "samples_mid";
+	// samples_mid.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+
+	if (myrank == 0)
+		std::cout << "computing final samples." << std::endl;
+
+	FullyDistVec<IU, samparr_t> samples_final =
+		SpMV<SelectMinxSR<NU2> > (B, samples_mid);
+
+	// fname = "samples_final";
+	// samples_final.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
+	
+	if (myrank == 0)
+		std::cout << "computing nnz estimation." << std::endl;
+	
+	float nnzest = 0.0f;
+
+	std::cout << myrank << "samples_final loc size: "
+			  << samples_final.LocArrSize() << std::endl;
+
+	const samparr_t *lsamples = samples_final.GetLocArr();
+	
+	#ifdef THREADED
+	#pragma omp parallel for reduction (+:nnzest)
+	#endif
+	for (IU i = 0; i < samples_final.LocArrSize(); ++i)
+	{
+		float tmp = 0.0f;
+		for (auto it = lsamples[i].begin(); it != lsamples[i].end(); ++it)
+			tmp += *it;
+		nnzest += static_cast<float>(NROUNDS - 1) / tmp;
+	}
+
+	if (myrank == 0)
+		std::cout << "taking transposes again." << std::endl;
+
+	int64_t nnzC_est = nnzest;
+	int64_t nnzC_tot = 0;
+	MPI_Allreduce(&nnzC_est, &nnzC_tot, 1, MPIType<int64_t>(), MPI_SUM,
+				  (B.commGrid)->GetWorld());
+	
+	if (myrank == 0)
+		std::cout << "sampling-based spmv est tot: " << nnzC_tot << std::endl;
+
+	// revert back
+	A.Transpose();
+	B.Transpose();
+
+	return nnzC_tot;
+	
+}
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
 }
 
