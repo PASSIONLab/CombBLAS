@@ -357,7 +357,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             {
                 ht_size <<= 1;
             }
-            std::vector< std::pair<IT,NT1>> globalHashVec(ht_size);
+            std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
 
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
@@ -407,7 +407,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                     globalHashVec[index++] = globalHashVec[j];
                 }
             }
-            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT1>);
+            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
 
             IT curptr = colptrC[i];
             for (size_t j=0; j < index; ++j)
