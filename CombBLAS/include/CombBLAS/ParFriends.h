@@ -447,10 +447,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     }
     t1 = MPI_Wtime();
 #ifdef TIMING
-    //if(myrank == 0){
-        //fprintf(stderr, "[MemEfficientSpGEMM]\tSymbolic stage time:%d\n", (t1-t0));
-        //fprintf(stderr, "[MemEfficientSpGEMM]\tNumber of phases:%d\n", phases);
-    //}
     mcl_symbolictime += (t1-t0);
 #endif
     
@@ -462,7 +458,6 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     
     CopyB.ColSplit(phases, PiecesOfB); // CopyB's memory is destroyed at this point
     MPI_Barrier(GridC->GetWorld());
-
     
     LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
     LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
@@ -529,14 +524,24 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #ifdef TIMING
             double t4=MPI_Wtime();
 #endif
-            SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
-            //SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            double vm_usage, resident_set;
+            //for(int ii = 0; ii < 100; ii++){
+                //SpTuples<LIC,NUO> * tt = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,false, false);
+                //process_mem_usage(vm_usage, resident_set);
+                //if(myrank == 0) fprintf(stderr, "VmSize after %dth LocalSpGEMM %lf %lf\n", ii+1, vm_usage, resident_set);
+                //delete tt;
+            //}
+            //process_mem_usage(vm_usage, resident_set);
+            //if(myrank == 0) fprintf(stderr, "VmSize before LocalSpGEMM at %dth stage of %dth phase: %lf %lf\n", i+1, p+1, vm_usage, resident_set);
+            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            //process_mem_usage(vm_usage, resident_set);
+            //if(myrank == 0) fprintf(stderr, "VmSize after LocalSpGEMM at %dth stage of %dth phase: %lf %lf\n", i+1, p+1, vm_usage, resident_set);
+            SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
 #endif
-            
             if(!C_cont->isZero())
                 tomerge.push_back(C_cont);
             else
@@ -594,6 +599,13 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         mcl_multiwaymergetime += (t7-t6);
 #endif
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
+        //double vm_usage, resident_set;
+        //for(int ii = 0; ii < 100; ii++){
+            //UDERO(*OnePieceOfC_tuples, false);
+            //process_mem_usage(vm_usage, resident_set);
+            //if(myrank == 0) fprintf(stderr, "VmSize after %dth SpDCCol: %lf %lf\n", ii+1, vm_usage, resident_set);
+
+        //}
         delete OnePieceOfC_tuples;
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
@@ -852,8 +864,10 @@ void process_mem_usage(double& vm_usage, double& resident_set)
    stat_stream.close();
 
    long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
-   vm_usage     = vsize / (1024.0 * 1024 * 1024);
-   resident_set = rss * page_size_kb/(1024 * 1024.0);
+   //vm_usage     = vsize / (1024.0 * 1024 * 1024);
+   //resident_set = rss * page_size_kb/(1024 * 1024.0);
+   vm_usage     = vsize / (1024.0);
+   resident_set = rss * page_size_kb/(1.0);
 }
 
 
@@ -887,13 +901,6 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 
-	double vm_usage, resident_set;
-	    process_mem_usage(vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
 	// Remotely fetched matrices are stored as pointers
 	UDERA * ARecv; 
 	UDERB * BRecv;
@@ -925,7 +932,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         double t0 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
         double t1 = MPI_Wtime();
-        mcl3d_Abcasttime += (t1-t0);
+        //mcl3d_Abcasttime += (t1-t0);
         Abcast_time += (t1-t0);
 		ess.clear();	
 		
@@ -945,7 +952,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		double t2 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		double t3 = MPI_Wtime();
-        mcl3d_Bbcasttime += (t3-t2);
+        //mcl3d_Bbcasttime += (t3-t2);
         Bbcast_time += (t3-t2);
 		
 /*		 // before activating this transpose B first
@@ -956,15 +963,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						i != Bself);	// 'delete B' condition
 		
   */
-  	//MPI_Barrier(MPI_COMM_WORLD);
         double t4 = MPI_Wtime();
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-  	//MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime();
-		mcl3d_localspgemmtime += (t5-t4);
+		//mcl3d_localspgemmtime += (t5-t4);
         Local_multiplication_time += (t5-t4);
 		
 		if(!C_cont->isZero()) 
@@ -977,12 +982,6 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		#endif
 	}
 
-	    process_mem_usage(vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
 	if(clearA && A.spSeq != NULL) 
 	{	
 		delete A.spSeq;
@@ -994,14 +993,6 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		B.spSeq = NULL;
 	}
 
-
-	    process_mem_usage(vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
-
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
@@ -1011,18 +1002,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	double t0 = MPI_Wtime();
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
 	double t1 = MPI_Wtime();
-    mcl3d_SUMMAmergetime += (t1-t0);
+    //mcl3d_SUMMAmergetime += (t1-t0);
 	
-    
-        process_mem_usage(vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
-
-        UDERO * C = new UDERO(*C_tuples, false);
-        delete C_tuples;
+    UDERO * C = new UDERO(*C_tuples, false);
+    delete C_tuples;
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
@@ -1033,12 +1016,6 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
         fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
     }
-
-        process_mem_usage(vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "## mem usage: %lf %lf \n", vm_usage, resident_set);
-        MPI_Barrier(MPI_COMM_WORLD);
-
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
@@ -1054,7 +1031,7 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
 {
     	typedef typename UDERA::LocalIT LIA;
     	typedef typename UDERB::LocalIT LIB;
-	static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
+        static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
 
 
         int64_t nnzC_SUMMA = 0;
