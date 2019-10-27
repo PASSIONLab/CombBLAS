@@ -1010,12 +1010,12 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
     
-    if(myrank == 0){
-        fprintf(stderr, "[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
-        fprintf(stderr, "[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
-        fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
-        fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
-    }
+    //if(myrank == 0){
+        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
+        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
+        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
+        //fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
+    //}
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }

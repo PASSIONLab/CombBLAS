@@ -463,7 +463,7 @@ namespace combblas
         int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
         t1 = MPI_Wtime();
         //mcl3d_symbolictime+=(t1-t0);
-        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
+        //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
         
         if(calculatedPhases > phases) phases = calculatedPhases;
         
@@ -505,7 +505,6 @@ namespace combblas
             SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
             SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
             DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
-            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: local multiplication done: %lf\n", p);
 
             /*
              *  Now column split the padded matrix for 3D reduction and do it
@@ -520,7 +519,7 @@ namespace combblas
             sendChunks.shrink_to_fit();
             t1 = MPI_Wtime();
             //mcl3d_reductiontime += (t1-t0);
-            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
+            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
 
             t0 = MPI_Wtime();
             DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
@@ -530,13 +529,13 @@ namespace combblas
             SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
             t1 = MPI_Wtime();
             //mcl3d_3dmergetime += (t1-t0);
-            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
+            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
             
             t0 = MPI_Wtime();
             MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
             t1 = MPI_Wtime();
-            mcl3d_kselecttime += (t1-t0);
-            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
+            //mcl3d_kselecttime += (t1-t0);
+            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
             
             layerResultant += phaseResultantLayer;
             phaseResultantLayer.FreeMemory();

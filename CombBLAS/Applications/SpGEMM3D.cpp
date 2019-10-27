@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
         
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
 
-        //M.ParallelReadMM(Aname, true, maximum<double>());
-        M.ReadGeneralizedTuples(Aname, maximum<double>());
+        M.ParallelReadMM(Aname, true, maximum<double>());
+        //M.ReadGeneralizedTuples(Aname, maximum<double>());
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
         SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
@@ -97,15 +97,13 @@ int main(int argc, char* argv[])
 
         typedef PlusTimesSRing<double, double> PTFF;
 
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 100; i++){
             A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
+            MPI_Barrier(MPI_COMM_WORLD);
             process_mem_usage(vm_usage, resident_set);
             if(myrank == 0) fprintf(stderr, "VmSize after %dth multiplication %lf %lf\n", i+1, vm_usage, resident_set);
         }
-        //if(A3D.Convert2D() == B3D.Convert2D()){
-            //if(myrank == 0) fprintf(stderr, "Equal\n");
-        //}
     }
     MPI_Finalize();
     return 0;
