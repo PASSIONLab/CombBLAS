@@ -48,6 +48,11 @@ extern "C" {
 namespace combblas
 {
     template <class IT, class NT, class DER>
+    SpParMat3D<IT, NT, DER>::~SpParMat3D(){
+        delete layermat;
+    }
+
+    template <class IT, class NT, class DER>
     SpParMat3D< IT,NT,DER >::SpParMat3D (DER * localMatrix, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special = false): commGrid3D(grid3d), colsplit(colsplit), special(special){
         assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
         MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
@@ -141,13 +146,9 @@ namespace combblas
 
             IT mdim, ndim;
             LocalDim(nrows, ncols, mdim, ndim);
-            //cout << mdim << " " << ndim << " "<< datasize << endl;
             SpTuples<LIT, NT>spTuples3d(datasize, mdim, ndim, recvTuples);
-
             DER * localm3d = new DER(spTuples3d, false);
-            std::shared_ptr<CommGrid> commGridLayer = commGrid3D->commGridLayer;
-
-            layermat = new SpParMat<IT, NT, DER>(localm3d, commGridLayer);
+            layermat = new SpParMat<IT, NT, DER>(localm3d, commGrid3D->GetCommGridLayer());
         }
     }
 

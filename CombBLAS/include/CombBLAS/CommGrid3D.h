@@ -101,6 +101,7 @@ public:
     MPI_Comm GetWorld(){return world3D;}
     MPI_Comm GetFiberWorld(){return fiberWorld;}
     MPI_Comm GetLayerWorld(){return layerWorld;}
+    std::shared_ptr<CommGrid> GetCommGridLayer(){return commGridLayer;}
     bool special;
 	int gridRows; // Number of processors along row of each layer in this 3D CommGrid
 	int gridCols; // Number of processors along column of each layer in this 3D CommGrid

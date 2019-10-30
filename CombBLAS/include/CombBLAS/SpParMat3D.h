@@ -72,7 +72,7 @@ namespace combblas
         SpParMat3D (DER * myseq, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special = false);
         SpParMat3D (const SpParMat3D <IT,NT,DER> & A3D, bool colsplit);
       
-        //~SpParMat3D () ;
+        ~SpParMat3D () ;
         
         SpParMat<IT, NT, DER> Convert2D();
 
