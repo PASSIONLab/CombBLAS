@@ -1108,6 +1108,7 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
 	    {
 		LIB* flopC = estimateFLOP(*ARecv, *BRecv);
             	colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+                delete [] flopC;
 	    }
 	    else
 	    {
