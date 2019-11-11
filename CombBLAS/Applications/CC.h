@@ -84,7 +84,7 @@ namespace combblas {
     };
     
     
-
+    
     template <class T, class I>
     void omp_par_scan(T* A, T* B,I cnt)
     {
@@ -124,14 +124,14 @@ namespace combblas {
     }
     
     
-  
+    
     
     // copied from usort so that we can select k
     // an increased value of k reduces the bandwidth cost, but increases the latency cost
     // this does not work when p is not power of two and a processor is not sending data,
     template <typename T>
     int Mpi_Alltoallv_kway(T* sbuff_, int* s_cnt_, int* sdisp_,
-                      T* rbuff_, int* r_cnt_, int* rdisp_, MPI_Comm c, int kway=2)
+                           T* rbuff_, int* r_cnt_, int* rdisp_, MPI_Comm c, int kway=2)
     {
         int np, pid;
         MPI_Comm_size(c, &np);
@@ -304,7 +304,7 @@ namespace combblas {
         return 1;
         
     }
-
+    
     
     
     template <typename T>
@@ -339,10 +339,10 @@ namespace combblas {
         }
         
         return 1;
-            
+        
     }
     
-		
+    
     template <class IT, class NT>
     int replicate(const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri, vector<vector<NT>> &bcastBuffer)
     {
@@ -406,7 +406,7 @@ namespace combblas {
         }
         return nbcast;
     }
-
+    
     // SubRef usign a sparse vector
     // given a dense vector dv and a sparse vector sv
     // sv_out[i]=dv[sv[i]] for all nonzero index i in sv
@@ -415,7 +415,7 @@ namespace combblas {
     // (usually from the low rank processes in LACC)
     // In this case, it may be beneficial to broadcast some entries of dv so that dv[sv[i]] can be obtained locally.
     // This logic is implemented in this function: replicate(dense, ri, bcastBuffer)
-
+    
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Extract (const FullyDistVec<IT,NT> dense, FullyDistSpVec<IT,IT> ri)
     {
@@ -437,7 +437,7 @@ namespace combblas {
             return FullyDistSpVec<IT,NT>();
         }
         
-       
+        
         
         vector<vector<NT>> bcastBuffer(nprocs);
 #ifdef CC_TIMING
@@ -448,7 +448,7 @@ namespace combblas {
         double bcast = MPI_Wtime() - t1;
         outs << "bcast ( " << nbcast << " ): " << bcast << " ";
 #endif
-
+        
         std::vector< std::vector< IT > > data_req(nprocs);
         std::vector< std::vector< IT > > revr_map(nprocs);    // to put the incoming data to the correct location
         const NT * arr = dense.GetLocArr();
@@ -497,8 +497,8 @@ namespace combblas {
         }
         IT totsend = std::accumulate(sendcnt,sendcnt+nprocs, static_cast<IT>(0));
         IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
- 
-
+        
+        
         IT * sendbuf = new IT[totsend];
         for(int i=0; i<nprocs; ++i)
         {
@@ -518,9 +518,9 @@ namespace combblas {
 #ifdef CC_TIMING
         t1 = MPI_Wtime();
 #endif
-
+        
         Mpi_Alltoallv(sendbuf, sendcnt, sdispls, recvbuf, recvcnt, rdispls, World);
-
+        
 #ifdef CC_TIMING
         double all2ll2 = MPI_Wtime() - t1;
         outs << "all2ll2: " << all2ll2 << " ";
@@ -529,7 +529,7 @@ namespace combblas {
         
         // access requested data
         NT * databack = new NT[totrecv];
-
+        
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -546,13 +546,13 @@ namespace combblas {
         //Mpi_Alltoallv_sparse(databack, recvcnt, rdispls,databuf, sendcnt, sdispls, World);
         
         Mpi_Alltoallv(databack, recvcnt, rdispls,databuf, sendcnt, sdispls, World);
-
+        
         
 #ifdef CC_TIMING
         double all2ll3 = MPI_Wtime() - t1;
         outs << "all2ll3: " << all2ll3 << " ";
 #endif
-       
+        
         // Create the output from databuf
         for(int i=0; i<totsend; ++i)
             num[reversemap[i]] = databuf[i];
@@ -615,7 +615,7 @@ namespace combblas {
             reducesize = ind.MyLocLength();
         }
         MPI_Allgather(&reducesize, 1, MPIType<IT>(), reducecnt.data(), 1, MPIType<IT>(), World);
-
+        
         
         for(int i=0; i<nprocs; ++i)
         {
@@ -742,7 +742,7 @@ namespace combblas {
     // If sv has repeated entries, a process may receive the same values of sv from different processes
     // In this case, it may be beneficial to reduce some entries of sv so that sv_out[sv[i]] can be updated locally.
     // This logic is implemented in this function: ReduceAssign
-
+    
     template <class IT, class NT>
     FullyDistSpVec<IT,NT> Assign (FullyDistSpVec<IT,IT> & ind, FullyDistSpVec<IT,NT> & val)
     {
@@ -777,7 +777,7 @@ namespace combblas {
         int * sdispls = new int[nprocs+1];
         
         vector<vector<NT>> reduceBuffer(nprocs);
-
+        
         
 #ifdef CC_TIMING
         double t1 = MPI_Wtime();
@@ -845,9 +845,9 @@ namespace combblas {
         t1 = MPI_Wtime();
 #endif
         
-
+        
         Mpi_Alltoallv(sendInd.data(), sendcnt, sdispls, recvInd.data(), recvcnt, rdispls, World);
-       //MPI_Alltoallv(sendInd.data(), sendcnt, sdispls, MPIType<IT>(), recvInd.data(), recvcnt, rdispls, MPIType<IT>(), World);
+        //MPI_Alltoallv(sendInd.data(), sendcnt, sdispls, MPIType<IT>(), recvInd.data(), recvcnt, rdispls, MPIType<IT>(), World);
 #ifdef CC_TIMING
         double all2ll2 = MPI_Wtime() - t1;
         outs << "all2ll2: " << all2ll2 << " ";
@@ -855,16 +855,16 @@ namespace combblas {
 #ifdef CC_TIMING
         t1 = MPI_Wtime();
 #endif
-
+        
         Mpi_Alltoallv(sendVal.data(), sendcnt, sdispls, recvVal.data(), recvcnt, rdispls, World);
-
+        
 #ifdef CC_TIMING
         double all2ll3 = MPI_Wtime() - t1;
         outs << "all2ll3: " << all2ll3 << " ";
 #endif
         DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
-       
-       
+        
+        
         int myrank;
         MPI_Comm_rank(World,&myrank);
         if(reduceBuffer[myrank].size()>0)
@@ -882,7 +882,7 @@ namespace combblas {
         }
         
         FullyDistSpVec<IT, NT> indexed(commGrid, globallen, recvInd, recvVal, false, false);
-
+        
         
         
 #ifdef CC_TIMING
@@ -895,7 +895,7 @@ namespace combblas {
         
     }
     
-
+    
     // given a sparse vector sv
     // sv_out[sv[i]] = val for all nonzero index i in sv, whre sv_out is the output sparse vector
     // If sv has repeated entries, a process may receive the same values of sv from different processes
@@ -1028,7 +1028,7 @@ namespace combblas {
     }
     
     
-
+    
     
     // special starcheck after conditional and unconditional hooking
     template <typename IT, typename NT, typename DER>
@@ -1040,9 +1040,9 @@ namespace combblas {
         
         if(isStar2StarHookPossible)
         {
-        // this is not needed in the first iteration see the complicated proof in the paper
-        // parents of hooks are nonstars
-        // needed only after conditional hooking because in that case star can hook to a star
+            // this is not needed in the first iteration see the complicated proof in the paper
+            // parents of hooks are nonstars
+            // needed only after conditional hooking because in that case star can hook to a star
             FullyDistSpVec<IT, short> pNonStar= Assign(condhooks, NONSTAR);
             star.Set(pNonStar);
         }
@@ -1062,56 +1062,56 @@ namespace combblas {
     }
     
     /*
-    // In iteration 1: "stars" has both vertices belongihg to stars and nonstars (no converged)
-    //                  we only process nonstars and identify starts from them
-    // After iteration 1: "stars" has vertices belongihg to converged and nonstars (no stars)
-    //                  we only process nonstars and identify starts from them
-    template <typename IT>
-    void StarCheck(FullyDistVec<IT, IT> & parents, FullyDistVec<IT,short>& stars)
-    {
-
-        // this is done here so that in the first iteration, we don't process STAR vertices
-        FullyDistSpVec<IT,short> nonStars(stars, [](short isStar){return isStar==NONSTAR;});
-        // initialize all nonstars to stars
-        stars.Apply([](short isStar){return isStar==NONSTAR? STAR: isStar;});
-        
-        // identify vertices at level >= 2 (grandchildren of roots)
-        FullyDistSpVec<IT, IT> pOfNonStars = EWiseApply<IT>(nonStars, parents,
-                                                                  [](short isStar, IT p){return p;},
-                                                                  [](short isStar, IT p){return true;},
-                                                                  false, static_cast<short>(0));
-        FullyDistSpVec<IT,IT> gpOfNonStars = Extract(parents, pOfNonStars);
-        
-        FullyDistSpVec<IT,short> keptNonStars = EWiseApply<short>(pOfNonStars, gpOfNonStars,
-                                              [](IT p, IT gp){return static_cast<short>(NONSTAR);},
-                                              [](IT p, IT gp){return p!=gp;},
-                                              false, false, static_cast<IT>(0), static_cast<IT>(0));
-        stars.Set(keptNonStars); // setting level > 2 vertices as nonstars
-        
-        // identify grand parents of kept nonstars
-        FullyDistSpVec<IT,IT> gpOfKeptNonStars = EWiseApply<IT>(pOfNonStars, gpOfNonStars,
-                                                                         [](IT p, IT gp){return gp;},
-                                                                         [](IT p, IT gp){return p!=gp;},
-                                                                         false, false, static_cast<IT>(0), static_cast<IT>(0));
-        
-        //FullyDistSpVec<IT, short> fixedNS = gpOfKeptNonStars;
-        //fixedNS = NONSTAR;
-        FullyDistSpVec<IT, short> gpNonStar= Assign(gpOfKeptNonStars, NONSTAR);
-        stars.Set(gpNonStar);
-        
-        
-        // remaining vertices: level-1 leaves of nonstars and any vertices in previous stars (iteration 1 only)
-        FullyDistSpVec<IT,short> spStars(stars, [](short isStar){return isStar==STAR;});
-        // further optimization can be done to remove previous stars
-        
-        FullyDistSpVec<IT, IT> pOfStars = EWiseApply<IT>(spStars, parents,
-                                                               [](short isStar, IT p){return p;},
-                                                               [](short isStar, IT p){return true;},
-                                                               false, static_cast<short>(0));
-        
-        FullyDistSpVec<IT,short> isParentStar = Extract(stars, pOfStars);
-        stars.Set(isParentStar);
-    }
+     // In iteration 1: "stars" has both vertices belongihg to stars and nonstars (no converged)
+     //                  we only process nonstars and identify starts from them
+     // After iteration 1: "stars" has vertices belongihg to converged and nonstars (no stars)
+     //                  we only process nonstars and identify starts from them
+     template <typename IT>
+     void StarCheck(FullyDistVec<IT, IT> & parents, FullyDistVec<IT,short>& stars)
+     {
+     
+     // this is done here so that in the first iteration, we don't process STAR vertices
+     FullyDistSpVec<IT,short> nonStars(stars, [](short isStar){return isStar==NONSTAR;});
+     // initialize all nonstars to stars
+     stars.Apply([](short isStar){return isStar==NONSTAR? STAR: isStar;});
+     
+     // identify vertices at level >= 2 (grandchildren of roots)
+     FullyDistSpVec<IT, IT> pOfNonStars = EWiseApply<IT>(nonStars, parents,
+     [](short isStar, IT p){return p;},
+     [](short isStar, IT p){return true;},
+     false, static_cast<short>(0));
+     FullyDistSpVec<IT,IT> gpOfNonStars = Extract(parents, pOfNonStars);
+     
+     FullyDistSpVec<IT,short> keptNonStars = EWiseApply<short>(pOfNonStars, gpOfNonStars,
+     [](IT p, IT gp){return static_cast<short>(NONSTAR);},
+     [](IT p, IT gp){return p!=gp;},
+     false, false, static_cast<IT>(0), static_cast<IT>(0));
+     stars.Set(keptNonStars); // setting level > 2 vertices as nonstars
+     
+     // identify grand parents of kept nonstars
+     FullyDistSpVec<IT,IT> gpOfKeptNonStars = EWiseApply<IT>(pOfNonStars, gpOfNonStars,
+     [](IT p, IT gp){return gp;},
+     [](IT p, IT gp){return p!=gp;},
+     false, false, static_cast<IT>(0), static_cast<IT>(0));
+     
+     //FullyDistSpVec<IT, short> fixedNS = gpOfKeptNonStars;
+     //fixedNS = NONSTAR;
+     FullyDistSpVec<IT, short> gpNonStar= Assign(gpOfKeptNonStars, NONSTAR);
+     stars.Set(gpNonStar);
+     
+     
+     // remaining vertices: level-1 leaves of nonstars and any vertices in previous stars (iteration 1 only)
+     FullyDistSpVec<IT,short> spStars(stars, [](short isStar){return isStar==STAR;});
+     // further optimization can be done to remove previous stars
+     
+     FullyDistSpVec<IT, IT> pOfStars = EWiseApply<IT>(spStars, parents,
+     [](short isStar, IT p){return p;},
+     [](short isStar, IT p){return true;},
+     false, static_cast<short>(0));
+     
+     FullyDistSpVec<IT,short> isParentStar = Extract(stars, pOfStars);
+     stars.Set(isParentStar);
+     }
      */
     
     // In iteration>1:
@@ -1145,16 +1145,16 @@ namespace combblas {
         FullyDistSpVec<IT,short> pOfNonStarsIdx = Assign(pOfNonStars, NONSTAR);
         // copy parent information (the values are grandparents)
         FullyDistSpVec<IT,IT> gpOfNonStars_pindexed = EWiseApply<IT>(pOfNonStarsIdx, parents,
-                                                                    [](short isStar, IT p){return p;},
-                                                                    [](short isStar, IT p){return true;},
-                                                                    false, static_cast<short>(0));
+                                                                     [](short isStar, IT p){return p;},
+                                                                     [](short isStar, IT p){return true;},
+                                                                     false, static_cast<short>(0));
         // identify if they are parents/grandparents of a vertex with level > 2
         FullyDistSpVec<IT,IT> temp = gpOfNonStars_pindexed;
         temp.setNumToInd();
         gpOfNonStars_pindexed = EWiseApply<IT>(temp, gpOfNonStars_pindexed,
-                                            [](IT p, IT gp){return gp;},
-                                            [](IT p, IT gp){return p!=gp;},
-                                            false, false, static_cast<IT>(0), static_cast<IT>(0));
+                                               [](IT p, IT gp){return gp;},
+                                               [](IT p, IT gp){return p!=gp;},
+                                               false, false, static_cast<IT>(0), static_cast<IT>(0));
         
         // index has parents of vertices with level > 2
         // value has grand parents of vertices with level > 2
@@ -1165,10 +1165,10 @@ namespace combblas {
         
         // now everything is updated except the root and leaves of nonstars
         // identify roots (indexed by level-1 vertices)
-        FullyDistSpVec<IT,IT> rootsOfNonStars = EWiseApply<IT>(pOfNonStarsIdx, stars,
-                                                                     [](IT p, short isStar){return p;},
-                                                                     [](IT p, short isStar){return isStar==NONSTAR;},
-                                                                     false, static_cast<short>(0));
+        FullyDistSpVec<IT,IT> rootsOfNonStars = EWiseApply<IT>(pOfNonStars, stars,
+                                                               [](IT p, short isStar){return p;},
+                                                               [](IT p, short isStar){return isStar==NONSTAR;},
+                                                               false, static_cast<IT>(0));
         
         
         FullyDistSpVec<IT,short> rootsOfNonStarsIdx = Assign(rootsOfNonStars, NONSTAR);
@@ -1178,9 +1178,9 @@ namespace combblas {
         // remaining vertices
         // they must be stars (created after the shortcut) or level-1 leaves of a non-star
         FullyDistSpVec<IT,IT> pOflevel1V = EWiseApply<IT>(nonStars, stars,
-                                                       [](short s, short isStar){return static_cast<IT> (s);},
-                                                       [](short s, short isStar){return isStar==STAR;},
-                                                       false, static_cast<short>(0));
+                                                          [](short s, short isStar){return static_cast<IT> (s);},
+                                                          [](short s, short isStar){return isStar==STAR;},
+                                                          false, static_cast<short>(0));
         pOflevel1V = EWiseApply<IT>(pOflevel1V, parents,
                                     [](IT s, IT p){return p;},
                                     [](IT s, IT p){return true;},
@@ -1189,7 +1189,7 @@ namespace combblas {
         FullyDistSpVec<IT,short> isParentStar = Extract(stars, pOflevel1V);
         stars.Set(isParentStar);
     }
-
+    
     
     template <typename IT, typename NT, typename DER>
     FullyDistSpVec<IT, IT> ConditionalHook(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & parent, FullyDistVec<IT,short> stars, int iteration)
@@ -1204,12 +1204,12 @@ namespace combblas {
 #ifdef CC_TIMING
         double tspmv =  MPI_Wtime() - t1;
 #endif
-      
+        
         FullyDistSpVec<IT,IT> hooksMNP(stars, [](short isStar){return isStar==STAR;});
         hooksMNP = EWiseApply<IT>(hooksMNP, minNeighborparent, [](IT x, IT mnp){return mnp;},
-                                [](IT x, IT mnp){return true;}, false, static_cast<IT> (0));
+                                  [](IT x, IT mnp){return true;}, false, static_cast<IT> (0));
         hooksMNP = EWiseApply<IT>(hooksMNP, parent, [](IT mnp, IT p){return mnp;},
-                                [](IT mnp, IT p){return p > mnp;}, false, static_cast<IT> (0));
+                                  [](IT mnp, IT p){return p > mnp;}, false, static_cast<IT> (0));
         
         FullyDistSpVec<IT, IT> finalhooks (A.getcommgrid());
         if(iteration == 1)
@@ -1238,7 +1238,7 @@ namespace combblas {
         return finalhooks;
     }
     
-
+    
     template <typename IT, typename NT, typename DER>
     FullyDistSpVec<IT, IT> UnconditionalHook2(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & parents, FullyDistVec<IT,short> stars)
     {
@@ -1247,7 +1247,7 @@ namespace combblas {
         double ts =  MPI_Wtime();
         double t1, tspmv;
 #endif
-         string spmv = "dense";
+        string spmv = "dense";
         IT nNonStars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==NONSTAR);});
         IT nv = A.getnrow();
         
@@ -1333,15 +1333,15 @@ namespace combblas {
     {
         FullyDistSpVec<IT,short> spNonStars(stars, [](short isStar){return isStar==NONSTAR;});
         FullyDistSpVec<IT, IT> parentsOfNonStars = EWiseApply<IT>(spNonStars, parents,
-                                                              [](short isStar, IT p){return p;},
-                                                              [](short isStar, IT p){return true;},
-                                                              false, static_cast<short>(0));
+                                                                  [](short isStar, IT p){return p;},
+                                                                  [](short isStar, IT p){return true;},
+                                                                  false, static_cast<short>(0));
         FullyDistSpVec<IT,IT> grandParentsOfNonStars = Extract(parents, parentsOfNonStars);
         parents.Set(grandParentsOfNonStars);
     }
     
     
-
+    
     
     template <typename IT, typename NT, typename DER>
     bool neigborsInSameCC(const SpParMat<IT,NT,DER> & A, FullyDistVec<IT, IT> & cclabel)
@@ -1400,7 +1400,7 @@ namespace combblas {
         return roots.getnnz();
     }
     
-
+    
     template <typename IT, typename NT, typename DER>
     FullyDistVec<IT, IT> CC(SpParMat<IT,NT,DER> & A, IT & nCC)
     {
@@ -1413,7 +1413,7 @@ namespace combblas {
         std::ostringstream outs;
         
         // isolated vertices are marked as converged
-        FullyDistVec<int64_t,double> degree = A.Reduce(Column, plus<double>(), 0.0);
+        FullyDistVec<int64_t,double> degree = A.Reduce(Column, plus<double>(), 0.0, [](double val){return 1.0;});
         stars.EWiseApply(degree, [](short isStar, double degree){return degree == 0.0? CONVERGED: isStar;});
         
         int nthreads = 1;
@@ -1425,7 +1425,7 @@ namespace combblas {
 #endif
         SpParMat<IT,bool,SpDCCols < IT, bool >>  Abool = A;
         Abool.ActivateThreading(nthreads*4);
-
+        
         
         while (true)
         {
@@ -1454,20 +1454,22 @@ namespace combblas {
                 // explain
                 stars.EWiseApply(condhooks, [](short isStar, IT x){return static_cast<short>(NONSTAR);},
                                  false, static_cast<IT>(NONSTAR));
+                FullyDistSpVec<IT, short> pNonStar= Assign(condhooks, NONSTAR);
+                stars.Set(pNonStar);
                 // it does not create any cycle in the unconditional hooking, see the proof in the paper
             }
-
+            
 #ifdef CC_TIMING
             double t_starcheck1 =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
 #endif
-
+            
             FullyDistSpVec<IT, IT> uncondHooks = UnconditionalHook2(Abool, parent, stars);
 #ifdef CC_TIMING
             double t_uncond_hook =  MPI_Wtime() - t1;
             t1 = MPI_Wtime();
 #endif
-
+            
             if(iteration > 1)
             {
                 StarCheckAfterHooking(Abool, parent, stars, uncondHooks, false);
@@ -1501,7 +1503,7 @@ namespace combblas {
             t1 = MPI_Wtime();
 #endif
             
-
+            
             StarCheck(parent, stars);
 #ifdef CC_TIMING
             double t_starcheck =  MPI_Wtime() - t1;
@@ -1510,12 +1512,12 @@ namespace combblas {
             IT nonstars = stars.Reduce(std::plus<IT>(), static_cast<IT>(0), [](short isStar){return static_cast<IT>(isStar==NONSTAR);});
             IT nstars = nrows - (nonstars + nconverged);
             
-
-
-           
             
-           
-
+            
+            
+            
+            
+            
             double t2 = MPI_Wtime();
             outs.str("");
             outs.clear();
@@ -1525,8 +1527,8 @@ namespace combblas {
 #endif
             outs<< endl;
             SpParHelper::Print(outs.str());
-
-             iteration++;
+            
+            iteration++;
             
             
         }
@@ -1615,5 +1617,4 @@ namespace combblas {
     }
     
 }
-
 
