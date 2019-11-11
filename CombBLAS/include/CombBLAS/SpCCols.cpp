@@ -312,6 +312,56 @@ void SpCCols<IT,NT>::PrintInfo() const
 }
 
 
+template <class IT, class NT>
+template <typename UnaryOperation, typename GlobalIT>
+SpCCols<IT, NT> *
+SpCCols<IT, NT>::PruneI (UnaryOperation unary_op,
+						 bool			inPlace,
+						 GlobalIT		rowOffset,
+						 GlobalIT		colOffset
+						 )
+{
+	SpCCols<IT, NT> *retcols = NULL;
+	
+	if (nnz > 0)
+	{
+		Csc<IT, NT> *ret = csc->PruneI(unary_op, inPlace, rowOffset, colOffset);
+		if (inPlace)
+		{
+			nnz = csc->nz;
+			if (nnz == 0)
+			{
+				delete csc;
+				csc = NULL;
+			}
+			retcols = NULL;
+		}
+		else
+		{
+			// wrap the pruned csc into a new SpCCols
+			retcols		 = new SpCCols<IT, NT>();
+			retcols->csc = ret;
+			retcols->nnz = retcols->csc->nz;
+			retcols->n	 = n;
+			retcols->m	 = m;
+		}
+	}
+	else
+	{
+		if (inPlace)
+			retcols = NULL;
+		else
+		{
+			retcols		 = new SpCCols<IT, NT>();
+			retcols->csc = NULL;
+			retcols->nnz = 0;
+			retcols->n	 = 0;
+			retcols->m	 = 0;
+		}
+	}
+
+	return retcols;
+}
 
 
 /****************************************************************************/
