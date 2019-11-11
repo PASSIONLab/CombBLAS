@@ -34,6 +34,13 @@ namespace combblas {
 
 // Constructing empty Csc objects (size = 0) are not allowed.
 template <class IT, class NT>
+Csc<IT, NT>::Csc () :
+	jc(NULL), ir(NULL), num(NULL), n(0), nz(0)
+{
+}
+	
+	
+template <class IT, class NT>
 Csc<IT,NT>::Csc (IT size, IT nCol): nz(size),n(nCol)
 {
     assert(size != 0 && n != 0);
@@ -130,6 +137,76 @@ void Csc<IT,NT>::Resize(IT nsize)
     delete [] tmpnum;		// delete the memory pointed by previous pointers
     delete [] tmpir;
     nz = nsize;
+}
+
+
+
+template <class IT, class NT>
+template <typename UnaryOperation, typename GlobalIT>
+Csc<IT, NT> *
+Csc<IT, NT>::PruneI (UnaryOperation unary_op,
+					 bool			inPlace,
+					 GlobalIT		rowOffset,
+					 GlobalIT		colOffset
+					 )
+{
+	IT prunednnz = 0;
+	for (IT i = 0; i < n; ++i)
+	{
+		for (IT j = jc[i]; j < jc[i+1]; ++j)
+		{
+			if (!(unary_op(std::make_tuple(rowOffset + ir[j],
+										   colOffset + i, num[j]))))
+				++prunednnz;
+		}
+	}
+
+	IT	*oldjc	= jc;
+	IT	*oldir	= ir;
+	NT	*oldnum = num;
+	jc			= new IT[n + 1];
+	ir			= new IT[prunednnz];
+	num			= new NT[prunednnz];
+
+	IT cnnz = 0;
+	for (IT i = 0; i < n; ++i)
+	{
+		for (IT j = oldjc[i]; j < oldjc[i+1]; ++j)
+		{
+			if (!(unary_op(std::make_tuple(rowOffset + oldir[j],
+										   colOffset + i, oldnum[j]))))
+			{
+				ir[cnnz]	= oldir[j];
+				num[cnnz++] = oldnum[j];
+			}
+
+			jc[i+1] = cnnz;										 
+		}
+	}
+
+	assert (cnnz == prunednnz);
+
+	Csc<IT, NT> *ret = NULL;
+	if (inPlace)
+	{
+		DeleteAll(oldnum, oldir, oldjc);
+		nz = cnnz;
+	}
+	else
+	{
+		ret = new Csc<IT, NT>();
+		ret->jc	 = jc;
+		ret->ir	 = ir;
+		ret->num = num;
+		ret->n	 = n;
+		ret->nz	 = cnnz;
+
+		jc	= oldjc;
+		ir	= oldir;
+		num = oldnum;
+	}
+
+	return ret;
 }
 
 }

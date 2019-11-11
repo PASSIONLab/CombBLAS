@@ -53,6 +53,13 @@ public:
     Csc<IT,NT> & operator=(const Csc<IT,NT> & rhs);	// assignment operator
     void Resize(IT nsize);
 
+	// index-based pruning
+	template <typename UnaryOperation,
+			  typename GlobalIT>
+	Csc<IT, NT> *
+	PruneI (UnaryOperation unary_op, bool inPlace,
+			GlobalIT rowOffset, GlobalIT colOffset);
+
 
     IT * jc ;	    //	col pointers, size n+1
     IT * ir ;	    //  row indices, size nzmax
