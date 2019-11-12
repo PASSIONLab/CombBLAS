@@ -969,6 +969,44 @@ void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols
 }
 
 /**
+ * Splits the matrix into "parts", simply by cutting along the columns
+ * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
+ * Practically destructs the calling object also (frees most of its memory)
+ */
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols<IT,NT>* > & matrices)
+{
+    IT totn = 0;
+    int parts = cutSizes.size();
+    for(int i = 0; i < parts; i++) totn += cutSizes[i];
+    if(parts < 2){
+        matrices.emplace_back(this);
+    }
+    else if(totn != n){
+        std::cout << "Cut sizes are not appropriate" << std::endl;
+        return;
+    }
+    else{
+        std::vector<IT> cuts(parts-1);
+        cuts[0] = cutSizes[0];
+        for(int i = 1; i < parts-1; i++){
+            cuts[i] = cuts[i-1] + cutSizes[i];
+        }
+        std::vector< Dcsc<IT,NT> * > dcscs(parts, NULL);
+        
+        if(nnz != 0){
+            dcsc->ColSplit(dcscs, cuts);
+        }
+        
+        for(int i=0; i< parts; ++i){
+            SpDCCols<IT,NT>* matrix = new SpDCCols<IT,NT>(m, cutSizes[i], dcscs[i]);
+            matrices.emplace_back(matrix);
+        }
+    }
+    *this = SpDCCols<IT, NT>();
+}
+
+/**
  * Concatenates (merges) multiple matrices (cut along the columns) into 1 piece
  * ColSplit() method should have been executed on the object beforehand
  */

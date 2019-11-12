@@ -88,22 +88,34 @@ int main(int argc, char* argv[])
         
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
 
-        M.ParallelReadMM(Aname, true, maximum<double>());
-        //M.ReadGeneralizedTuples(Aname, maximum<double>());
+        //M.ParallelReadMM(Aname, true, maximum<double>());
+        M.ReadGeneralizedTuples(Aname, maximum<double>());
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 64, true, false);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 64, false, false);
 
         typedef PlusTimesSRing<double, double> PTFF;
 
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 10; i++){
             A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
             MPI_Barrier(MPI_COMM_WORLD);
             process_mem_usage(vm_usage, resident_set);
             if(myrank == 0) fprintf(stderr, "VmSize after %dth multiplication %lf %lf\n", i+1, vm_usage, resident_set);
         }
+
+        //SpDCCols<int64_t, double> * Alocal = M.seqptr();
+        //vector<SpDCCols<int64_t, double>> vec;
+        //Alocal->ColSplit(10, vec);
+        //for(int i = 0; i < 10000; i++) {
+            //vector<SpDCCols<int64_t, double>> vv;
+            //for(int j = 0; j < vec.size(); j++){
+                //vv.push_back(SpDCCols<int64_t, double>(vec[j]));
+            //}
+            //process_mem_usage(vm_usage, resident_set);
+            //if(myrank == 0) fprintf(stderr, "VmSize after %dth iteration %lf %lf\n", i+1, vm_usage, resident_set);
+        //}
     }
     MPI_Finalize();
     return 0;
