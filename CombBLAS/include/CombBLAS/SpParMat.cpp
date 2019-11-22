@@ -1130,7 +1130,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
-            if( (colit != spSeq->endcol()) && (i==colit.colid()) )
+            if((colit != spSeq->endcol()) && (i==colit.colid()))
             {
                 local_coldisp[i+1] += colit.nnz();
                 if(colit.nnz()>=k)
@@ -1388,6 +1388,11 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int64_t maxPerProcMemory = std::min(nnzColWorld, (int64_t)nActiveCols*k) * sizeof(VT);
 
     // hence we will not overflow for very large k
+<<<<<<< HEAD
+=======
+   
+    
+>>>>>>> master
     std::vector<IT> send_coldisp(n_thiscol+1,0);
     std::vector<IT> local_coldisp(n_thiscol+1,0);
     //vector<VT> sendbuf(nActiveCols*k);
@@ -1406,7 +1411,11 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
+<<<<<<< HEAD
             if( (colit != spSeq->endcol()) && (i==colit.colid()) )
+=======
+            if((colit != spSeq->endcol()) && (i==colit.colid()))
+>>>>>>> master
             {
                 if(isactive[i])
                 {
@@ -1635,7 +1644,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
-    
+    delete [] activeCols;
+    delete [] numacc;
     
     return true;
 }

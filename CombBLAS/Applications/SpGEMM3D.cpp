@@ -98,6 +98,8 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
 
         for(int i = 0; i < 100; i++){
+            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> C;
+            //C = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(A, B, 10, 2.0, 1100, 1400, 0.9, 1, 0);
             A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
             MPI_Barrier(MPI_COMM_WORLD);

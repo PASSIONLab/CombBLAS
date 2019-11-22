@@ -683,8 +683,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
-	MPI_Barrier(GridC->GetWorld());
-
+    
+    	// Transpose back for the column-by-column algorithm
+    	const_cast< UDERB* >(B1seq)->Transpose();
+    	const_cast< UDERB* >(B2seq)->Transpose();
+    
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
 
@@ -732,12 +735,23 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		
-		
+		// before activating this remove transposing B1seq
+        	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                        (*ARecv, *BRecv, // parameters themselves
+                        i != Aself,    // 'delete A' condition
+                        i != Bself);   // 'delete B' condition
+        
+        
+        
 		
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
@@ -787,12 +801,22 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
+        	// before activating this remove transposing B2seq
+        	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
 		
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                	(*ARecv, *BRecv, // parameters themselves
+                 	i != Aself,    // 'delete A' condition
+                 	i != Bself);   // 'delete B' condition
+        
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -820,6 +844,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	}
 	else
 	{
+		B1seq->Transpose();
+		B2seq->Transpose();
 		(B.spSeq)->Merge(*B1seq, *B2seq);	
 		delete B1seq;
 		delete B2seq;
@@ -955,14 +981,6 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         //mcl3d_Bbcasttime += (t3-t2);
         Bbcast_time += (t3-t2);
 		
-/*		 // before activating this transpose B first
-		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-						(*ARecv, *BRecv, // parameters themselves
-						false, true,	// transpose information (B is transposed)
-						i != Aself, 	// 'delete A' condition
-						i != Bself);	// 'delete B' condition
-		
-  */
         double t4 = MPI_Wtime();
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
@@ -1100,20 +1118,13 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
             
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
             
-	    // no need to keep entries of colnnzC in larger precision 
-	    // because colnnzC is of length nzc and estimates nnzs per column
+    	    // no need to keep entries of colnnzC in larger precision 
+	        // because colnnzC is of length nzc and estimates nnzs per column
 			// @OGUZ-EDIT Using hash spgemm for estimation
-            LIB * colnnzC;
-	    if(hashEstimate)
-	    {
-		LIB* flopC = estimateFLOP(*ARecv, *BRecv);
-            	colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
-                delete [] flopC;
-	    }
-	    else
-	    {
-	    	 colnnzC = estimateNNZ(*ARecv, *BRecv);
-	    }
+            //LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
+			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+            if (flopC) delete [] flopC;
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;

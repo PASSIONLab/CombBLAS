@@ -297,7 +297,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         std::pair<IT,IT> * colinds = colindsVec[myThread].data();
 
         double cr = static_cast<double>(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
-        if (cr < 0.0) // Heap Algorithm
+        if (cr < 2.0) // Heap Algorithm
         {
             std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
             HeapEntry<IT, NT1> * wset = globalheapVec.data();
@@ -358,7 +358,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             {
                 ht_size <<= 1;
             }
-            std::vector< std::pair<IT,NT1>> globalHashVec(ht_size);
+            std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
 
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
@@ -408,7 +408,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                     globalHashVec[index++] = globalHashVec[j];
                 }
             }
-            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT1>);
+            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
 
             IT curptr = colptrC[i];
             for (size_t j=0; j < index; ++j)
