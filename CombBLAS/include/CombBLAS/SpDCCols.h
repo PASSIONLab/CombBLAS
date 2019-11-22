@@ -281,9 +281,11 @@ public:
 	}
     
     void ColSplit(int parts, std::vector< SpDCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
+    void ColSplit(int parts, std::vector< SpDCCols<IT,NT>* > & matrices); //!< \attention Destroys calling object (*this)
     void ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols<IT,NT> > & matrices); //!< \attention Destroys calling object (*this)
     void ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols<IT,NT>* > & matrices); //!< \attention Destroys calling object (*this)
     void ColConcatenate(std::vector< SpDCCols<IT,NT> > & matrices);    //!< \attention Destroys its parameters (matrices)
+    void ColConcatenate(std::vector< SpDCCols<IT,NT>* > & matrices);    //!< \attention Destroys its parameters (matrices)
 
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)

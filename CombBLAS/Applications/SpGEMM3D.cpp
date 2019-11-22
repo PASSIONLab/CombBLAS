@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
         typedef PlusTimesSRing<double, double> PTFF;
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 100; i++){
             A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
             MPI_Barrier(MPI_COMM_WORLD);
@@ -106,13 +106,21 @@ int main(int argc, char* argv[])
         }
 
         //SpDCCols<int64_t, double> * Alocal = M.seqptr();
-        //vector<SpDCCols<int64_t, double>> vec;
-        //Alocal->ColSplit(10, vec);
         //for(int i = 0; i < 10000; i++) {
-            //vector<SpDCCols<int64_t, double>> vv;
-            //for(int j = 0; j < vec.size(); j++){
-                //vv.push_back(SpDCCols<int64_t, double>(vec[j]));
+            //SpDCCols<int64_t, double> * pp = new SpDCCols<int64_t, double>(*(Alocal));
+            //vector<SpDCCols<int64_t, double>* > vv;
+            //pp->ColSplit(10, vv);
+            //vector<SpDCCols<int64_t, double>* > vt;
+            //for(int j = 0; j < vv.size(); j++) {
+                //vt.push_back(vv[j]);
+                //vt.push_back(new SpDCCols<int64_t, double>(0, vv[j]->getnrow(), vv[j]->getncol(), 0));
             //}
+            //pp->ColConcatenate(vt);
+            //vector<SpDCCols<int64_t, double>* >().swap(vv);
+            //vector<SpDCCols<int64_t, double>* >().swap(vt);
+            //pp->ColSplit(20, vt);
+            //for(int j = 0; j < vt.size(); j++) delete vt[j];
+            //vector<SpDCCols<int64_t, double>* >().swap(vt);
             //process_mem_usage(vm_usage, resident_set);
             //if(myrank == 0) fprintf(stderr, "VmSize after %dth iteration %lf %lf\n", i+1, vm_usage, resident_set);
         //}

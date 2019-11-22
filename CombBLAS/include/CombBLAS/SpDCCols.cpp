@@ -936,6 +936,48 @@ void SpDCCols<IT,NT>::ColSplit(int parts, std::vector< SpDCCols<IT,NT> > & matri
  * Practically destructs the calling object also (frees most of its memory)
  */
 template <class IT, class NT>
+void SpDCCols<IT,NT>::ColSplit(int parts, std::vector< SpDCCols<IT,NT>* > & matrices)
+{
+    if(parts < 2)
+    {
+        matrices.emplace_back(this);
+    }
+    else
+    {
+        std::vector<IT> cuts(parts-1);
+        for(int i=0; i< (parts-1); ++i)
+        {
+            cuts[i] = (i+1) * (n/parts);
+        }
+        if(n < parts)
+        {
+            std::cout<< "Matrix is too small to be splitted" << std::endl;
+            return;
+        }
+        std::vector< Dcsc<IT,NT> * > dcscs(parts, NULL);
+        
+        if(nnz != 0)
+        {
+            dcsc->ColSplit(dcscs, cuts);
+        }
+        
+        for(int i=0; i< (parts-1); ++i)
+        {
+            SpDCCols<IT,NT>* matrix = new SpDCCols<IT,NT>(m, (n/parts), dcscs[i]);
+            matrices.emplace_back(matrix);
+        }
+        SpDCCols<IT,NT>* matrix = new SpDCCols<IT,NT>(m, n-cuts[parts-2], dcscs[parts-1]);
+        matrices.emplace_back(matrix);
+    }
+    *this = SpDCCols<IT, NT>();		    // handle destruction through assignment operator
+}
+
+/**
+ * Splits the matrix into "parts", simply by cutting along the columns
+ * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
+ * Practically destructs the calling object also (frees most of its memory)
+ */
+template <class IT, class NT>
 void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols<IT,NT> > & matrices)
 {
     IT totn = 0;
@@ -1055,6 +1097,54 @@ void SpDCCols<IT,NT>::ColConcatenate(std::vector< SpDCCols<IT,NT> > & matrices)
     }
 }
 
+/**
+ * Concatenates (merges) multiple matrices (cut along the columns) into 1 piece
+ * ColSplit() method should have been executed on the object beforehand
+ */
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ColConcatenate(std::vector< SpDCCols<IT,NT>* > & matrices)
+{
+    std::vector< SpDCCols<IT,NT> * > nonempties;
+    std::vector< Dcsc<IT,NT> * > dcscs;
+    std::vector< IT > offsets;
+    IT runningoffset = 0;
+
+    for(size_t i=0; i< matrices.size(); ++i)
+    {
+        if(matrices[i]->nnz != 0)
+        {
+            nonempties.push_back(matrices[i]);
+            dcscs.push_back(matrices[i]->dcsc);
+            offsets.push_back(runningoffset);
+        }
+        runningoffset += matrices[i]->n;
+    }
+    
+    if(nonempties.size() < 1)
+    {
+#ifdef DEBUG
+        std::cout << "Nothing to ColConcatenate" << std::endl;
+#endif
+        n = runningoffset;
+    }/*
+    else if(nonempties.size() < 2)
+    {
+        *this =  *(nonempties[0]);
+        n = runningoffset; 
+    }*/
+    else // nonempties.size() > 1
+    {
+        Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
+        Cdcsc->ColConcatenate(dcscs, offsets);
+        *this = SpDCCols<IT,NT> (nonempties[0]->m, runningoffset, Cdcsc);
+    }
+    
+    // destruct parameters
+    for(size_t i=0; i< matrices.size(); ++i)
+    {
+        delete matrices[i];
+    }
+}
 
 
 /** 

@@ -462,11 +462,6 @@ namespace combblas
         t0 = MPI_Wtime();
         int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
         t1 = MPI_Wtime();
-        //for(int ii = 0; ii < 1000; ii++){
-            //calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize after %dth symbolic %lf %lf\n", ii+1, vm_usage, resident_set);
-        //}
         //mcl3d_symbolictime+=(t1-t0);
         //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
         
@@ -480,13 +475,15 @@ namespace combblas
          * Split B according to calculated number of phases
          * For better load balancing split B into nlayers*phases chunks
          * */
-        vector<DER> PiecesOfB;
-        vector<DER> tempPiecesOfB;
+        //vector<DER> PiecesOfB;
+        vector<DER*> PiecesOfB;
+        //vector<DER> tempPiecesOfB;
+        vector<DER*> tempPiecesOfB;
         DER CopyB = *(B.layermat->seqptr());
         CopyB.ColSplit(divisions3d, tempPiecesOfB); // Split B into `nlayers` chunks at first
         for(int i = 0; i < tempPiecesOfB.size(); i++){
-            vector<DER> temp;
-            tempPiecesOfB[i].ColSplit(phases, temp); // Split each chunk of B into `phases` chunks
+            vector<DER*> temp;
+            tempPiecesOfB[i]->ColSplit(phases, temp); // Split each chunk of B into `phases` chunks
             for(int j = 0; j < temp.size(); j++){
                 PiecesOfB.push_back(temp[j]);
             }
@@ -500,83 +497,77 @@ namespace combblas
         double mergeTime = 0;
 
         for(int p = 0; p < phases; p++){
-            DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
-            vector<DER> targetPiecesOfB;
-            for(int i = 0; i < PiecesOfB.size(); i++){
-                if(i % phases == p) targetPiecesOfB.push_back(DER(PiecesOfB[i]));
-                else targetPiecesOfB.push_back(DER(0, PiecesOfB[i].getnrow(), PiecesOfB[i].getncol(), 0));
-            }
-            OnePieceOfB->ColConcatenate(targetPiecesOfB);
-            SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
-            SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
-            //for(int ii = 0; ii < 1000; ii++){
-                //OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
-                //process_mem_usage(vm_usage, resident_set);
-                //if(myrank == 0) fprintf(stderr, "VmSize after %dth SUMMA %lf %lf\n", ii+1, vm_usage, resident_set);
-            //}
-            DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
+            for(int jj = 0; jj < 1; jj++){
+                DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
+                //vector<DER> targetPiecesOfB;
+                vector<DER*> targetPiecesOfB;
+                for(int i = 0; i < PiecesOfB.size(); i++){
+                    if(i % phases == p) targetPiecesOfB.push_back(new DER(*(PiecesOfB[i])));
+                    else targetPiecesOfB.push_back(new DER(0, PiecesOfB[i]->getnrow(), PiecesOfB[i]->getncol(), 0));
+                }
+                OnePieceOfB->ColConcatenate(targetPiecesOfB);
+                vector<DER*>().swap(targetPiecesOfB);
+                SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
+                
+                SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
+                DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
+                
+                t0 = MPI_Wtime();
+                //vector<DER> sendChunks;
+                vector<DER*> sendChunks;
+                OnePieceOfC->ColSplit(divisions3d, sendChunks);
+                //vector<DER> rcvChunks;
+                vector<DER*> rcvChunks;
+                /*
+                IT datasize; NT dummy = 55.0;
+                SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
+                */
+                t1 = MPI_Wtime();
+                //mcl3d_reductiontime += (t1-t0);
+                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
 
-            /*
-             *  Now column split the padded matrix for 3D reduction and do it
-             * */
-            t0 = MPI_Wtime();
-            //vector<DER> sendChunks;
-            vector<DER*> sendChunks;
-            OnePieceOfC->ColSplit(divisions3d, sendChunks);
-            //vector<DER> rcvChunks;
-            vector<DER*> rcvChunks;
-            IT datasize; NT dummy = 55.0;
-            ////vector<DER> vv;
-            //for(int ii = 0; ii < 100; ii++){
-                //vector<DER> vv;
-                ////vector<DER*> vv;
-                //SpecialExchangeData(sendChunks, commGrid3D->fiberWorld, datasize, dummy, vv);
-                ////SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, vv);
-                //for(int jj = 0; jj < vv.size(); jj++) vv[jj] = DER();
-                ////vector<DER>().swap(vv);
-                ////for(int jj = 0; jj < vv.size(); jj++) delete vv[jj];
-                ////vector<DER*>().swap(vv);
+                t0 = MPI_Wtime();
+                /*
+                //DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
+                DER * phaseResultant = new DER(0, rcvChunks[0]->getnrow(), rcvChunks[0]->getncol(), 0);
+                //for(int i = 0; i < rcvChunks.size(); i++) phaseResultant += rcvChunks[i];
+                for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += *(rcvChunks[i]);
+                SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
+                */
+                //for(int i = 0; i < sendChunks.size(); i++) sendChunks[i] = DER();
+                //vector<DER>().swap(sendChunks);
+                //for(int i = 0; i < rcvChunks.size(); i++) rcvChunks[i] = DER();
+                //vector<DER>().swap(rcvChunks);
+                for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
+                vector<DER*>().swap(sendChunks);
+                for(int i = 0; i < rcvChunks.size(); i++) delete rcvChunks[i];
+                vector<DER*>().swap(rcvChunks);
+                t1 = MPI_Wtime();
+                //mcl3d_3dmergetime += (t1-t0);
+                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
+                
+                /*
+                t0 = MPI_Wtime();
+                //for(int ii = 0; ii < 1000; ii++){
+                    //SpParMat<IT, NT, DER> blah(phaseResultantLayer);
+                    //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+                    //process_mem_usage(vm_usage, resident_set);
+                    //if(myrank == 0) fprintf(stderr, "VmSize after %dth kselect %lf %lf\n", ii+1, vm_usage, resident_set);
+                //}
+                MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+                t1 = MPI_Wtime();
+                //mcl3d_kselecttime += (t1-t0);
+                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
+                
+                if(jj == 0) layerResultant += phaseResultantLayer;
+                phaseResultantLayer.FreeMemory();
+                */
                 //process_mem_usage(vm_usage, resident_set);
-                //if(myrank == 0) fprintf(stderr, "VmSize after %dth reduction %lf %lf\n", ii+1, vm_usage, resident_set);
-            //}
-            SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
-            t1 = MPI_Wtime();
-            //mcl3d_reductiontime += (t1-t0);
-            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
-
-            t0 = MPI_Wtime();
-            //DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
-            DER * phaseResultant = new DER(0, rcvChunks[0]->getnrow(), rcvChunks[0]->getncol(), 0);
-            //for(int i = 0; i < rcvChunks.size(); i++){
-                //*phaseResultant += rcvChunks[i];
-                //rcvChunks[i] = DER();
-            //}
-            for(int i = 0; i < rcvChunks.size(); i++){
-                *phaseResultant += *(rcvChunks[i]);
-                delete rcvChunks[i];
+                //if(myrank == 0) fprintf(stderr, "VmSize after %dth %dth phase %lf %lf\n", jj+1, p+1, vm_usage, resident_set);
             }
-            //for(int i = 0; i < sendChunks.size(); i++) sendChunks[i] = DER();
-            for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
-            SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
-            t1 = MPI_Wtime();
-            //mcl3d_3dmergetime += (t1-t0);
-            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
-            
-            t0 = MPI_Wtime();
-            //for(int ii = 0; ii < 1000; ii++){
-                //SpParMat<IT, NT, DER> blah(phaseResultantLayer);
-                //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-                //process_mem_usage(vm_usage, resident_set);
-                //if(myrank == 0) fprintf(stderr, "VmSize after %dth kselect %lf %lf\n", ii+1, vm_usage, resident_set);
-            //}
-            MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-            t1 = MPI_Wtime();
-            //mcl3d_kselecttime += (t1-t0);
-            //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
-            
-            layerResultant += phaseResultantLayer;
-            phaseResultantLayer.FreeMemory();
         }
+        
+        for(int i = 0; i < PiecesOfB.size(); i++) delete PiecesOfB[i];
 
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, isSpecial()));
