@@ -168,7 +168,8 @@ Csc<IT, NT>::PruneI (UnaryOperation unary_op,
 	ir			= new IT[prunednnz];
 	num			= new NT[prunednnz];
 
-	IT cnnz = 0;
+	IT	cnnz = 0;
+	jc[0]	 = 0;
 	for (IT i = 0; i < n; ++i)
 	{
 		for (IT j = oldjc[i]; j < oldjc[i+1]; ++j)
@@ -179,9 +180,8 @@ Csc<IT, NT>::PruneI (UnaryOperation unary_op,
 				ir[cnnz]	= oldir[j];
 				num[cnnz++] = oldnum[j];
 			}
-
-			jc[i+1] = cnnz;										 
 		}
+		jc[i+1] = cnnz;
 	}
 
 	assert (cnnz == prunednnz);
@@ -208,5 +208,72 @@ Csc<IT, NT>::PruneI (UnaryOperation unary_op,
 
 	return ret;
 }
+
+
+
+template <class IT, class NT>
+void
+Csc<IT, NT>::Split (Csc<IT, NT> *	&A,
+					Csc<IT, NT> *	&B,
+					IT				 cut
+					)
+{
+	// left
+	if (jc[cut] == 0)
+		A = NULL;
+	else
+	{
+		A = new Csc<IT, NT>(jc[cut], cut);
+		std::copy(jc, jc + cut + 1, A->jc);
+		std::copy(ir, ir + jc[cut], A->ir);
+		std::copy(num, num + jc[cut], A->num);
+	}
+
+	// right
+	if (nz - jc[cut] == 0)
+		B = NULL;
+	else
+	{
+		B = new Csc<IT, NT>(nz - jc[cut], n - cut);
+		std::copy(jc + cut, jc + n + 1, B->jc);
+		transform(B->jc, B->jc + (n - cut + 1), B->jc,
+				  bind2nd(std::minus<IT>(), jc[cut]));
+		std::copy(ir + jc[cut], ir + nz, B->ir);
+		std::copy(num + jc[cut], num + nz, B->num);
+	}
+}
+
+
+
+template <class IT, class NT>
+void
+Csc<IT, NT>::Merge (const Csc<IT, NT>	*A,
+					const Csc<IT, NT>	*B,
+					IT					 cut
+					)
+{
+	assert (A != NULL && B != NULL);
+
+	IT	cnz = A->nz + B->nz;
+	IT	cn	= A->n + B->n;
+	if (cnz > 0)
+	{
+		*this = Csc<IT, NT>(cnz, cn);
+
+		std::copy(A->jc, A->jc + A->n, jc);
+		std::copy(B->jc, B->jc + B->n + 1, jc + A->n);
+		transform(jc + A->n, jc + cn + 1, jc + A->n,
+				  bind2nd(std::plus<IT>(), A->jc[A->n]));
+
+		std::copy(A->ir, A->ir + A->nz, ir);
+		std::copy(B->ir, B->ir + B->nz, ir + A->nz);
+
+		std::copy(A->num, A->num + A->nz, num);
+		std::copy(B->num, B->num + B->nz, num + A->nz);
+	}
+}
+
+
+
 
 }

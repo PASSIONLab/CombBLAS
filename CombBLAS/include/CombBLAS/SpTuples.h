@@ -48,6 +48,11 @@ class SpDCCols;
 template <class IU, class NU>
 class Dcsc;
 
+template <class IU, class NU>
+class SpCCols;
+
+template <class IU, class NU>
+class Csc;
 
 /**
  * Triplets are represented using the boost::tuple class of the Boost library
@@ -67,6 +72,7 @@ public:
 	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, std::pair<IT,IT> > * & multstack);
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
+	SpTuples (const SpCCols<IT,NT> & rhs);
 	~SpTuples();
 
 	SpTuples<IT,NT> & operator=(const SpTuples<IT,NT> & rhs);

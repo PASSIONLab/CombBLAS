@@ -364,9 +364,190 @@ SpCCols<IT, NT>::PruneI (UnaryOperation unary_op,
 }
 
 
+
+template <class IT, class NT>
+std::vector<IT>
+SpCCols<IT, NT>::GetEssentials (void) const
+{
+	std::vector<IT> essentials(esscount);
+	essentials[0] = nnz;
+	essentials[1] = m;
+	essentials[2] = n;
+	return essentials;
+}
+
+
+
+template <class IT, class NT>
+void
+SpCCols<IT, NT>::CreateImpl (const std::vector<IT> &essentials)
+{
+	assert(essentials.size() == esscount);
+	
+	nnz = essentials[0];
+	m	= essentials[1];
+	n	= essentials[2];
+	
+	if (nnz > 0)
+		csc = new Csc<IT, NT>(nnz, n);
+	else
+		csc = NULL;
+}
+
+
+
+template <class IT, class NT>
+void
+SpCCols<IT, NT>::CreateImpl (IT size,
+							 IT nRow,
+							 IT nCol,
+							 std::tuple<IT, IT, NT> *mytuples)
+{
+	SpTuples<IT,NT> tuples(size, nRow, nCol, mytuples);
+	tuples.SortColBased();
+	SpCCols<IT, NT> tmp(tuples, false);
+	*this = tmp;
+}
+
+
+
+template <class IT, class NT>
+Arr<IT, NT>
+SpCCols<IT, NT>::GetArrays (void) const
+{
+	Arr<IT, NT> arr(2, 1);
+
+	if (nnz > 0)
+	{
+		arr.indarrs[0] = LocArr<IT, IT>(csc->jc, csc->n + 1);
+		arr.indarrs[1] = LocArr<IT, IT>(csc->ir, csc->nz);
+		arr.numarrs[0] = LocArr<NT, IT>(csc->num, csc->nz);
+	}
+	else
+	{
+		arr.indarrs[0] = LocArr<IT, IT>(NULL, 0);
+		arr.indarrs[1] = LocArr<IT, IT>(NULL, 0);
+		arr.numarrs[0] = LocArr<NT, IT>(NULL, 0);
+	}
+
+	return arr;
+}
+
+
+
+template <class IT, class NT>
+void
+SpCCols<IT, NT>::Transpose (void)
+{
+	if (nnz > 0)
+	{
+		SpTuples<IT, NT> tuples(*this);
+		tuples.SortRowBased();
+		*this = SpCCols<IT, NT>(tuples, true);
+	}
+	else
+		*this = SpCCols<IT, NT>(0, n, m);
+}
+
+
+
+template <class IT, class NT>
+SpCCols<IT, NT>
+SpCCols<IT, NT>::TransposeConst (void) const
+{
+	SpTuples<IT, NT> tuples(*this);
+	tuples.SortRowBased();
+
+	return SpCCols<IT, NT>(tuples, true);
+}
+
+
+
+template <class IT, class NT>
+SpCCols<IT, NT> *
+SpCCols<IT, NT>::TransposeConstPtr (void) const
+{
+	SpTuples<IT, NT> tuples(*this);
+	tuples.SortRowBased();
+
+	return new SpCCols<IT, NT>(tuples, true);
+}
+
+
+
+template <class IT, class NT>
+void
+SpCCols<IT, NT>::Split (SpCCols<IT, NT> &partA,
+						SpCCols<IT, NT> &partB
+						)
+{
+	IT cut = n/2;
+	if (cut == 0)
+	{
+		std::cout<< "Matrix is too small to be splitted" << std::endl;
+		return;
+	}
+
+	Csc<IT, NT> *Acsc = NULL;
+	Csc<IT, NT> *Bcsc = NULL;
+
+	if (nnz != 0)
+		csc->Split(Acsc, Bcsc, cut);
+
+	partA = SpCCols<IT, NT>(m, cut, Acsc);
+	partB = SpCCols<IT, NT>(m, n - cut, Bcsc);
+
+	*this = SpCCols<IT, NT>();
+}
+
+
+
+template <class IT, class NT>
+void
+SpCCols<IT, NT>::Merge (SpCCols<IT, NT> &partA,
+						SpCCols<IT, NT> &partB
+						)
+{
+	assert (partA.m == partB.m);
+
+	Csc<IT, NT> *Ccsc = new Csc<IT, NT>();
+	if (partA.nnz == 0 && partB.nnz == 0)
+		Ccsc = NULL;
+	else if (partA.nnz == 0)
+		Ccsc = new Csc<IT,NT>(*(partB.csc));
+	else if (partB.nnz == 0)
+		Ccsc = new Csc<IT,NT>(*(partA.csc));
+	else
+		Ccsc->Merge(partA.csc, partB.csc, partA.n); // 3rd param not used
+
+	*this = SpCCols<IT, NT>(partA.m, partA.n + partB.n, Ccsc);
+
+	partA = SpCCols<IT, NT>();
+	partB = SpCCols<IT, NT>();
+}
+
+
+
+
+
 /****************************************************************************/
 /************************* PRIVATE MEMBER FUNCTIONS *************************/
 /****************************************************************************/
+
+
+template <class IT, class NT>
+SpCCols<IT, NT>::SpCCols (IT			 nRow,
+						  IT			 nCol,
+						  Csc<IT, NT>	*mycsc
+						  ) :
+	csc(mycsc), m(nRow), n(nCol), splits(0)
+{
+	if (mycsc == NULL)
+		nnz = 0;
+	else
+		nnz = mycsc->nz;
+}
+
 
 
 template <class IT, class NT>
