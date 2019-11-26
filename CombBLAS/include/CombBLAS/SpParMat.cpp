@@ -1358,7 +1358,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     {
         accnz = trxlocnz;
         activeCols = trxinds;     //aliasing ptr
-        numacc = trxnums;     //aliasing ptr
+        // since indexisvalue is set true in TransposeVector(), trxnums is never allocated
+        //numacc = trxnums;     //aliasing ptr
     }
     
     
@@ -1589,7 +1590,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
     delete [] activeCols;
-    delete [] numacc;
+    //delete [] numacc;
     
     return true;
 }
