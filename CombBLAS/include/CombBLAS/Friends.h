@@ -481,6 +481,11 @@ void generic_gespmv (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IV
 template<typename IU>
 void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
 {
+    if(A.m < numsplits)
+    {
+        std::cerr<< "Warning: Matrix is too small to be splitted for multithreading" << std::endl;
+        return;
+    }
 	A.splits = numsplits;
 	IU perpiece = A.m / A.splits;
 	std::vector<IU> prevcolids(A.splits, -1);	// previous column id's are set to -1
