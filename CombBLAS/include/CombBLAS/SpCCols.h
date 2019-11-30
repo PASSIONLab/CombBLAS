@@ -252,6 +252,9 @@ public:
 	void
 	Merge (SpCCols<IT, NT> &partA, SpCCols<IT, NT> &partB);
 
+	std::ofstream &
+	put (std::ofstream &outfile) const;
+
 
 	
 private:
