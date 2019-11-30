@@ -514,18 +514,50 @@ SpCCols<IT, NT>::Merge (SpCCols<IT, NT> &partA,
 	if (partA.nnz == 0 && partB.nnz == 0)
 		Ccsc = NULL;
 	else if (partA.nnz == 0)
-		Ccsc = new Csc<IT,NT>(*(partB.csc));
+	{
+		Ccsc = new Csc<IT, NT>(partB.nnz, partA.n + partB.n);
+		std::fill(Ccsc->jc, Ccsc->jc + partA.n, 0);
+		std::copy(partB.csc->jc, partB.csc->jc + partB.n + 1,
+				  Ccsc->jc + partA.n);
+		std::copy(partB.csc->ir, partB.csc->ir + partB.nnz, Ccsc->ir);
+		std::copy(partB.csc->num, partB.csc->num + partB.nnz, Ccsc->num);
+		// Ccsc = new Csc<IT,NT>(*(partB.csc));
+	}
 	else if (partB.nnz == 0)
-		Ccsc = new Csc<IT,NT>(*(partA.csc));
+	{
+		Ccsc = new Csc<IT, NT>(partA.nnz, partA.n + partB.n);
+		std::copy(partA.csc->jc, partA.csc->jc + partA.n + 1, Ccsc->jc);
+		std::fill(Ccsc->jc + partA.n + 1, Ccsc->jc + partA.n + partB.n + 1,
+				  partA.csc->jc[partA.n]);
+		std::copy(partA.csc->ir, partA.csc->ir + partA.nnz, Ccsc->ir);
+		std::copy(partA.csc->num, partA.csc->num + partA.nnz, Ccsc->num);
+		// Ccsc = new Csc<IT,NT>(*(partA.csc));
+	}
 	else
 		Ccsc->Merge(partA.csc, partB.csc, partA.n); // 3rd param not used
-
+	
 	*this = SpCCols<IT, NT>(partA.m, partA.n + partB.n, Ccsc);
 
 	partA = SpCCols<IT, NT>();
 	partB = SpCCols<IT, NT>();
 }
 
+
+
+template <class IT, class NT>
+std::ofstream &
+SpCCols<IT, NT>::put (std::ofstream &outfile) const
+{
+	if (nnz == 0)
+	{
+		outfile << "Matrix doesn't have any nonzeros" << std::endl;
+		return outfile;
+	}
+
+	SpTuples<IT, NT> tuples(*this); 
+	outfile << tuples << std::endl;
+	return outfile;
+}
 
 
 
