@@ -218,9 +218,48 @@ public:
 	SpCCols<IT, NT> *
 	PruneI (UnaryOperation unary_op, bool inPlace,
 			GlobalIT rowOffset, GlobalIT colOffset);
-	
 
+	
+    Csc<IT, NT> *
+	GetCSC() const 	// only for single threaded matrices
+    {
+        return csc;
+    }
+
+	
+    Csc<IT, NT> *
+	GetCSC(int i) const 	// only for split (multithreaded) matrices
+    {
+        return cscarr[i];
+    }
+    
+
+	bool
+	isZero() const
+	{
+		return (nnz == 0);
+	}
+
+
+	// Transpose members
+	void Transpose();
+	SpCCols<IT, NT> TransposeConst() const;
+	SpCCols<IT, NT> * TransposeConstPtr() const;
+
+	void
+	Split (SpCCols<IT, NT> &partA, SpCCols<IT, NT> &partB);
+
+	void
+	Merge (SpCCols<IT, NT> &partA, SpCCols<IT, NT> &partB);
+
+	std::ofstream &
+	put (std::ofstream &outfile) const;
+
+
+	
 private:
+
+	SpCCols (IT nRow, IT nCol, Csc<IT, NT> *mycsc);
     
     void SubPrintInfo(Csc<IT,NT> * mycsc) const;
 
@@ -236,17 +275,10 @@ private:
     
     int splits;	// for multithreading
 
+	template <class IU, class NU>
+	friend class SpTuples;
+
     void CopyCsc(Csc<IT,NT> * source);
-    
-    Csc<IT, NT> * GetCSC() const 	// only for single threaded matrices
-    {
-        return csc;
-    }
-    
-    Csc<IT, NT> * GetCSC(int i) const 	// only for split (multithreaded) matrices
-    {
-        return cscarr[i];
-    }
     
     template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
     friend void csc_gespmv_dense (const SpCCols<IU, NU> & A, const RHS * x, LHS * y); //!< dense vector (not implemented)

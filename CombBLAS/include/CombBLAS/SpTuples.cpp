@@ -186,6 +186,32 @@ SpTuples<IT,NT>::SpTuples (const SpDCCols<IT,NT> & rhs):  m(rhs.m), n(rhs.n), nn
     isOperatorNew = false;
 }
 
+
+
+template <class IT, class NT>
+SpTuples<IT, NT>::SpTuples (const SpCCols<IT, NT> &rhs) :
+	m(rhs.m), n(rhs.n), nnz(rhs.nnz)
+{
+	isOperatorNew = false;
+	if (nnz > 0)
+	{
+		tuples = new std::tuple<IT, IT, NT>[nnz];
+		Csc<IT, NT> *csc = rhs.csc;
+		IT k = 0;
+		for (IT i = 0; i < csc->n; ++i)
+		{
+			for (IT j = csc->jc[i]; j < csc->jc[i + 1]; ++j)
+			{
+				colindex(k)	  = i;
+				rowindex(k)	  = csc->ir[j];
+				numvalue(k++) = csc->num[j];
+			}
+		}
+	} 
+}
+
+
+
 template <class IT,class NT>
 inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 {
@@ -201,7 +227,7 @@ inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 		}
 	}
 }
-	
+
 
 // Hint1: The assignment operator (operates on an existing object)
 // Hint2: The assignment operator is the only operator that is not inherited.

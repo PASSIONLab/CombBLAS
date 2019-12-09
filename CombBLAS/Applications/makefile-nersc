@@ -64,6 +64,9 @@ BetwCent.o: BetwCent.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $
 MCL.o:  MCL.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
 
+FastSV.o:  FastSV.cpp FastSV.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o FastSV.o FastSV.cpp 
+
 CC.o:  CC.cpp CC.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CC.o CC.cpp 
 
@@ -84,6 +87,9 @@ mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o hash.o
 
 cc:	MemoryPool.o CommGrid.o MPIType.o CC.o mmio.o hash.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o cc CC.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+fastsv:	MemoryPool.o CommGrid.o MPIType.o FastSV.o mmio.o hash.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o fastsv FastSV.o  MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
 tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 

@@ -861,6 +861,310 @@ IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     return colflopC;
 }
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////// CSC-based local SpGEMM	////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+template <typename SR,
+		  typename NTO,
+		  typename IT,
+		  typename NT1,
+		  typename NT2>
+SpTuples <IT, NTO> *
+LocalHybridSpGEMM (const SpCCols<IT, NT1>	&A,
+				   const SpCCols<IT, NT2>	&B,
+				   bool						 clearA,
+				   bool						 clearB
+				   )
+{
+	double t0 = MPI_Wtime();
+
+	IT mdim = A.getnrow();
+    IT ndim = B.getncol();
+    IT nnzA = A.getnnz();
+
+	if(A.isZero() || B.isZero())
+		return new SpTuples<IT, NTO>(0, mdim, ndim);
+
+	Csc<IT, NT1> *Acsc = A.GetCSC();
+	Csc<IT, NT2> *Bcsc = B.GetCSC();
+
+	int numThreads = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+	{
+		numThreads = omp_get_num_threads();
+	}
+	#endif
+
+	IT	*flopC	 = estimateFLOP(A, B);
+	IT	*flopptr = prefixsum<IT>(flopC, Bcsc->n, numThreads);
+	IT	 flop	 = flopptr[Bcsc->n];
+	
+	IT *colnnzC = estimateNNZ_Hash(A, B, flopC);
+    IT *colptrC = prefixsum<IT>(colnnzC, Bcsc->n, numThreads);
+    delete [] colnnzC;
+    delete [] flopC;
+	IT		nnzc			  = colptrC[Bcsc->n];
+	double	compression_ratio = (double)flop / nnzc;
+	
+	std::tuple<IT, IT, NTO> *tuplesC = static_cast<std::tuple<IT, IT, NTO> *>
+		(::operator new (sizeof(std::tuple<IT, IT, NTO>[nnzc])));
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+	for (size_t i = 0; i < Bcsc->n; ++i)
+	{
+		size_t nnzcolB = Bcsc->jc[i + 1] - Bcsc->jc[i];
+		double cr = static_cast<double>
+			(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
+		if (cr < 2.0) // Heap Algorithm
+		{
+			std::vector<IT> cnt(nnzcolB);
+			std::vector<HeapEntry<IT, NT1>> globalheapVec(nnzcolB);
+            HeapEntry<IT, NT1> *wset = globalheapVec.data();
+			IT hsize = 0;
+			for (IT j = Bcsc->jc[i]; j < Bcsc->jc[i + 1]; ++j)
+			{
+				IT ca = Bcsc->ir[j];
+				cnt[j - Bcsc->jc[i]] = Acsc->jc[ca];
+				if (Acsc->jc[ca] != Acsc->jc[ca + 1]) // col not empty
+					wset[hsize++] = HeapEntry<IT, NT1>
+						(Acsc->ir[Acsc->jc[ca]], j, Acsc->num[Acsc->jc[ca]]);
+			}
+
+			std::make_heap(wset, wset + hsize);
+
+			IT curptr = colptrC[i];
+			while (hsize > 0)
+			{
+				std::pop_heap(wset, wset + hsize);
+				IT	locb = wset[hsize - 1].runr;
+				NTO mrhs = SR::multiply(wset[hsize - 1].num, Bcsc->num[locb]);
+				if (!SR::returnedSAID())
+				{
+					if ((curptr > colptrC[i]) &&
+						std::get<0>(tuplesC[curptr - 1]) == wset[hsize - 1].key)
+						std::get<2>(tuplesC[curptr - 1]) =
+							SR::add(std::get<2>(tuplesC[curptr - 1]), mrhs);
+					else
+						tuplesC[curptr++] = std::make_tuple(wset[hsize - 1].key,
+															i, mrhs) ;
+				}
+
+				IT	locb_offset = locb - Bcsc->jc[i];
+				IT	ca			= Bcsc->ir[locb];
+				++(cnt[locb_offset]);
+				if (cnt[locb_offset] != Acsc->jc[ca + 1])
+				{
+					wset[hsize - 1].key = Acsc->ir[cnt[locb_offset]];
+					wset[hsize - 1].num = Acsc->num[cnt[locb_offset]];
+					std::push_heap(wset, wset + hsize);
+				}
+				else
+					--hsize;
+			}
+		} // Finish heap
+		else					// Hash Algorithm
+		{
+			// Set up hash table
+			const IT	minHashTableSize = 16;
+            const IT	hashScale		 = 107;
+            size_t		nnzcolC			 = colptrC[i+1] - colptrC[i];
+			size_t		ht_size			 = minHashTableSize;
+
+			while (ht_size < nnzcolC)
+                ht_size <<= 1;
+			std::vector< std::pair<IT, NTO>> T(ht_size);
+
+			for (size_t j = 0; j < ht_size; ++j)
+                T[j].first = std::numeric_limits<IT>::max();
+
+			// multiplication
+			for (IT j = Bcsc->jc[i]; j < Bcsc->jc[i + 1]; ++j)
+			{
+				IT	t_bcol = Bcsc->ir[j];
+				NT2 t_bval = Bcsc->num[j];
+				for (IT k = Acsc->jc[t_bcol]; k < Acsc->jc[t_bcol + 1]; ++k)
+				{
+					NTO mrhs = SR::multiply(Acsc->num[k], t_bval);
+					IT	key	 = Acsc->ir[k];
+					IT	hv	 = (key * hashScale) & (ht_size - 1);
+
+				repeat:
+					if (T[hv].first == key)
+						T[hv].second = SR::add(mrhs, T[hv].second);
+					else if (T[hv].first == std::numeric_limits<IT>::max())
+					{
+						T[hv].first	 = key;
+						T[hv].second = mrhs;
+					}
+					else
+					{
+						hv = (hv + 1) & (ht_size - 1);
+						goto repeat;
+					}
+				}
+			}
+
+			size_t index = 0;
+			for (size_t j = 0; j < ht_size; ++j)
+			{
+				if (T[j].first != std::numeric_limits<IT>::max())
+					T[index++] = T[j];
+			}
+
+			std::sort(T.begin(), T.begin() + index, sort_less<IT, NTO>);
+
+			IT curptr = colptrC[i];
+			for (size_t j = 0; j < index; ++j)
+                tuplesC[curptr++] = std::make_tuple(T[j].first, i, T[j].second);
+		}
+	}
+
+	if (clearA)
+		delete const_cast<SpCCols<IT, NT1> *>(&A);
+	if (clearB)
+		delete const_cast<SpCCols<IT, NT2> *>(&B);
+
+	delete [] colptrC;
+    delete [] flopptr;
+
+	SpTuples<IT, NTO> *spTuplesC =
+		new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
+	
+	double t1 = MPI_Wtime();
+
+	return spTuplesC;
+}
+
+
+
+template <typename IT,
+		  typename NT1,
+		  typename NT2>
+IT *
+estimateFLOP (const SpCCols<IT, NT1> &A,
+			  const SpCCols<IT, NT2> &B
+			  )
+{
+	IT nnzA = A.getnnz();
+	if (A.isZero() || B.isZero())
+        return NULL;
+
+	Csc<IT, NT1> *Acsc = A.GetCSC();
+    Csc<IT, NT2> *Bcsc = B.GetCSC();
+
+	int numThreads = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+	#endif
+
+	IT *colflopC = new IT[Bcsc->n];
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+    for (IT i = 0; i < Bcsc->n; ++i)
+        colflopC[i] = 0;
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+	for (IT i = 0; i < Bcsc->n; ++i)
+	{
+		for (IT j = Bcsc->jc[i]; j < Bcsc->jc[i+1]; ++j)
+			colflopC[i] += Acsc->jc[Bcsc->ir[j]+1] - Acsc->jc[Bcsc->ir[j]];
+	}
+
+	return colflopC;
+}
+
+
+
+template <typename IT,
+		  typename NT1,
+		  typename NT2>
+IT *
+estimateNNZ_Hash (const SpCCols<IT, NT1>	&A,
+				  const SpCCols<IT, NT2>	&B,
+				  const IT					*flopC
+				  )
+{
+	IT nnzA = A.getnnz();
+    if (A.isZero() || B.isZero())
+        return NULL;
+    
+    Csc<IT, NT1> *Acsc = A.GetCSC();
+    Csc<IT, NT2> *Bcsc = B.GetCSC();
+
+	int numThreads = 1;
+	#ifdef THREADED
+	#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+	#endif
+
+	IT *colnnzC = new IT[Bcsc->n];
+
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+    for (IT i = 0; i < Bcsc->n; ++i)
+        colnnzC[i] = 0;
+		
+	#ifdef THREADED
+	#pragma omp parallel for
+	#endif
+	for (IT i = 0; i < Bcsc->n; ++i)
+	{	
+		// init hash table
+		const IT	minHashTableSize = 16;
+        const IT	hashScale		 = 107;
+        IT			ht_size			 = minHashTableSize;
+		while (ht_size < flopC[i]) // make size of hash table a power of 2
+            ht_size <<= 1;
+
+		// IT can be unsigned
+		std::vector<IT> T(ht_size);
+		for (IT j = 0; (unsigned)j < ht_size; ++j)
+            T[j] = std::numeric_limits<IT>::max();
+
+		for (IT j = Bcsc->jc[i]; j < Bcsc->jc[i + 1]; ++j)
+		{
+			for (IT k = Acsc->jc[Bcsc->ir[j]]; k < Acsc->jc[Bcsc->ir[j]+1]; ++k)
+			{
+				IT	key	= Acsc->ir[k];
+				IT	hv	= (key * hashScale) & (ht_size - 1);
+
+				while (1)
+				{
+					if (T[hv] == key)
+						break;
+					else if (T[hv] == std::numeric_limits<IT>::max())
+					{
+						T[hv] = key;
+						++(colnnzC[i]);
+						break;
+					}
+					else
+						hv = (hv + 1) & (ht_size - 1);
+				}
+			}
+		}
+	}
+
+	return colnnzC;
+}
+			  
+	
 }
 
 #endif

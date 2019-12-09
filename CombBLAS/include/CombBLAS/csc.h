@@ -57,8 +57,14 @@ public:
 	template <typename UnaryOperation,
 			  typename GlobalIT>
 	Csc<IT, NT> *
-	PruneI (UnaryOperation unary_op, bool inPlace,
-			GlobalIT rowOffset, GlobalIT colOffset);
+	PruneI(UnaryOperation unary_op, bool inPlace,
+		   GlobalIT rowOffset, GlobalIT colOffset);
+
+	void
+	Split(Csc<IT, NT> * &A, Csc<IT, NT> * &B, IT cut);
+
+	void
+	Merge(const Csc<IT, NT> *A, const Csc<IT, NT> *B, IT cut);
 
 
     IT * jc ;	    //	col pointers, size n+1
