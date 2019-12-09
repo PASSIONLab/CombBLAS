@@ -548,11 +548,6 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
         fprintf(stderr, "Note: this time is of two 2D->3D conversions\n");
     }
-    //A2D_rs = A3D_rs.Convert2D();
-    //if(A2D_cs == A2D_rs){
-       //if(myrank == 0) fprintf(stderr, "2D->3D->2D seemingly okay\n"); 
-    //}
-    
 
     while( chaos3D > EPS)
     {
@@ -567,7 +562,10 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
 
         double t2 = MPI_Wtime();
-        SpParMat3D<IT,NT,DER> A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Non-special row split
+        SpParMat3D<IT,NT,DER> A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Create new rowsplit copy of matrix from colsplit copy
+        //IT Ancol = A3D_cs.getncol();
+        //IT Bnrow = A3D_rs.getnrow();
+        //if(myrank == 0) fprintf(stderr, "%lld - %lld\n", Ancol, Bnrow);
         double t3 = MPI_Wtime();
         mcl3d_conversiontime += (t3-t2);
         if(myrank == 0){

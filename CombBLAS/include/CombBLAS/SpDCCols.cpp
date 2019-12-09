@@ -1011,6 +1011,7 @@ void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols
 }
 
 /**
+ * [Overloaded function. To be used in case of vector of SpDCCols pointer.]
  * Splits the matrix into "parts", simply by cutting along the columns
  * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
  * Practically destructs the calling object also (frees most of its memory)
@@ -1025,6 +1026,7 @@ void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols
         matrices.emplace_back(this);
     }
     else if(totn != n){
+        std::cout << totn << " " << n << std::endl;
         std::cout << "Cut sizes are not appropriate" << std::endl;
         return;
     }

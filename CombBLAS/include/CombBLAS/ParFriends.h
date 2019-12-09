@@ -231,7 +231,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 
 #ifdef TIMING
         t1=MPI_Wtime();
-        mcl_kselecttime += (t1-t0);
+        //mcl_kselecttime += (t1-t0);
 #endif
 
         pruneCols.Set(recoverCols);
@@ -268,7 +268,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             A.Kselect(selectCols, selectNum, kselectVersion); // PrunedA would also work
 #ifdef TIMING
             t1=MPI_Wtime();
-            mcl_kselecttime += (t1-t0);
+            //mcl_kselecttime += (t1-t0);
 #endif
         
             pruneCols.Set(selectCols);
@@ -283,7 +283,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             SpParMat<IT,NT,DER> selectedA = A.PruneColumn(pruneCols, std::less<NT>(), false);
 #ifdef TIMING
             t1=MPI_Wtime();
-            mcl_prunecolumntime += (t1-t0);
+            //mcl_prunecolumntime += (t1-t0);
 #endif
             if(recoverNum>0 ) // recovery can be attempted after selection
             {
@@ -317,7 +317,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                     A.Kselect(selectCols, recoverNum, kselectVersion); // Kselect on PrunedA might give different result
 #ifdef TIMING
                     t1=MPI_Wtime();
-                    mcl_kselecttime += (t1-t0);
+                    //mcl_kselecttime += (t1-t0);
 #endif
                     pruneCols.Set(selectCols);
                     
@@ -341,7 +341,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     A.PruneColumn(pruneCols, std::less<NT>(), true);
 #ifdef TIMING
     t1=MPI_Wtime();
-    mcl_prunecolumntime += (t1-t0);
+    //mcl_prunecolumntime += (t1-t0);
 #endif
     // Add loops for empty columns
     if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
@@ -447,7 +447,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     }
     t1 = MPI_Wtime();
 #ifdef TIMING
-    mcl_symbolictime += (t1-t0);
+    //mcl_symbolictime += (t1-t0);
 #endif
     
     LIA C_m = A.spSeq->getnrow();
@@ -499,7 +499,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
 #ifdef TIMING
             double t1=MPI_Wtime();
-            mcl_Abcasttime += (t1-t0);
+            //mcl_Abcasttime += (t1-t0);
 #endif
             ess.clear();
 
@@ -517,7 +517,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 #ifdef TIMING
             double t3=MPI_Wtime();
-            mcl_Bbcasttime += (t3-t2);
+            //mcl_Bbcasttime += (t3-t2);
 #endif
             
             
@@ -540,7 +540,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 
 #ifdef TIMING
             double t5=MPI_Wtime();
-            mcl_localspgemmtime += (t5-t4);
+            //mcl_localspgemmtime += (t5-t4);
 #endif
             if(!C_cont->isZero())
                 tomerge.push_back(C_cont);
@@ -596,7 +596,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
 #ifdef TIMING
         double t7=MPI_Wtime();
-        mcl_multiwaymergetime += (t7-t6);
+        //mcl_multiwaymergetime += (t7-t6);
 #endif
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
         //double vm_usage, resident_set;

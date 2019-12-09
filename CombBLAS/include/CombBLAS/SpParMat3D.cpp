@@ -190,6 +190,8 @@ namespace combblas
                 concat_row = std::max(concat_row, recvChunks[i].getnrow());
                 concat_col = concat_col + recvChunks[i].getncol();
             }
+            localMatrix = new DER(0, concat_row, concat_col, 0);
+            localMatrix->ColConcatenate(recvChunks);
             if(colsplit) localMatrix->Transpose();
         }
         else{
@@ -197,6 +199,7 @@ namespace combblas
             // Or if given and desired matrix both are column split
             // Do nothing
         }
+        fprintf(stderr, "localMatrix (row x col): (%lld x %lld)\n", localMatrix->getnrow(), localMatrix->getncol());
         layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
     }
     
@@ -475,11 +478,10 @@ namespace combblas
          * Split B according to calculated number of phases
          * For better load balancing split B into nlayers*phases chunks
          * */
-        //vector<DER> PiecesOfB;
         vector<DER*> PiecesOfB;
-        //vector<DER> tempPiecesOfB;
         vector<DER*> tempPiecesOfB;
         DER CopyB = *(B.layermat->seqptr());
+        fprintf(stderr, "%lld\n", CopyB.getncol());
         CopyB.ColSplit(divisions3d, tempPiecesOfB); // Split B into `nlayers` chunks at first
         for(int i = 0; i < tempPiecesOfB.size(); i++){
             vector<DER*> temp;
@@ -497,9 +499,10 @@ namespace combblas
         double mergeTime = 0;
 
         for(int p = 0; p < phases; p++){
+            // This loop is just for testing memory leak by doing something over and over again in each phase
+            // It needs to be run only once for normal multiplication process.
             for(int jj = 0; jj < 1; jj++){
                 DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
-                //vector<DER> targetPiecesOfB;
                 vector<DER*> targetPiecesOfB;
                 for(int i = 0; i < PiecesOfB.size(); i++){
                     if(i % phases == p) targetPiecesOfB.push_back(new DER(*(PiecesOfB[i])));
@@ -513,31 +516,23 @@ namespace combblas
                 DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
                 
                 t0 = MPI_Wtime();
-                //vector<DER> sendChunks;
                 vector<DER*> sendChunks;
                 OnePieceOfC->ColSplit(divisions3d, sendChunks);
-                //vector<DER> rcvChunks;
                 vector<DER*> rcvChunks;
-                /*
+                
                 IT datasize; NT dummy = 55.0;
                 SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
-                */
+                
                 t1 = MPI_Wtime();
                 //mcl3d_reductiontime += (t1-t0);
                 //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
 
                 t0 = MPI_Wtime();
-                /*
-                //DER * phaseResultant = new DER(0, rcvChunks[0].getnrow(), rcvChunks[0].getncol(), 0);
+                
                 DER * phaseResultant = new DER(0, rcvChunks[0]->getnrow(), rcvChunks[0]->getncol(), 0);
-                //for(int i = 0; i < rcvChunks.size(); i++) phaseResultant += rcvChunks[i];
                 for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += *(rcvChunks[i]);
                 SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
-                */
-                //for(int i = 0; i < sendChunks.size(); i++) sendChunks[i] = DER();
-                //vector<DER>().swap(sendChunks);
-                //for(int i = 0; i < rcvChunks.size(); i++) rcvChunks[i] = DER();
-                //vector<DER>().swap(rcvChunks);
+                
                 for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
                 vector<DER*>().swap(sendChunks);
                 for(int i = 0; i < rcvChunks.size(); i++) delete rcvChunks[i];
@@ -546,14 +541,7 @@ namespace combblas
                 //mcl3d_3dmergetime += (t1-t0);
                 //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
                 
-                /*
                 t0 = MPI_Wtime();
-                //for(int ii = 0; ii < 1000; ii++){
-                    //SpParMat<IT, NT, DER> blah(phaseResultantLayer);
-                    //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-                    //process_mem_usage(vm_usage, resident_set);
-                    //if(myrank == 0) fprintf(stderr, "VmSize after %dth kselect %lf %lf\n", ii+1, vm_usage, resident_set);
-                //}
                 MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
                 t1 = MPI_Wtime();
                 //mcl3d_kselecttime += (t1-t0);
@@ -561,7 +549,6 @@ namespace combblas
                 
                 if(jj == 0) layerResultant += phaseResultantLayer;
                 phaseResultantLayer.FreeMemory();
-                */
                 //process_mem_usage(vm_usage, resident_set);
                 //if(myrank == 0) fprintf(stderr, "VmSize after %dth %dth phase %lf %lf\n", jj+1, p+1, vm_usage, resident_set);
             }
