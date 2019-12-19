@@ -384,7 +384,8 @@ void MakeColStochastic(SpParMat<IT,NT,DER> & A)
 template <typename IT, typename NT, typename DER>
 void MakeColStochastic3D(SpParMat3D<IT,NT,DER> & A3D)
 {
-    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
     FullyDistVec<IT, NT> colsums = ALayer->Reduce(Column, plus<NT>(), 0.0);
     colsums.Apply(safemultinv<NT>());
     ALayer->DimApply(Column, colsums, multiplies<NT>());	// scale each "Column" with the given vector
@@ -409,7 +410,8 @@ NT Chaos(SpParMat<IT,NT,DER> & A)
 template <typename IT, typename NT, typename DER>
 NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
 {
-    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
 
     // sums of squares of columns
     FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
@@ -437,7 +439,8 @@ void Inflate(SpParMat<IT,NT,DER> & A, double power)
 template <typename IT, typename NT, typename DER>
 void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
 {
-    SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
+    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
     ALayer->Apply(bind2nd(exponentiate(), power));
 }
 
@@ -572,15 +575,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
 
-        //if(A3D_cs.CheckSpParMatCompatibility() == false){
-            //fprintf(stderr, "[MCL3D]\tmyrank: %d\tA3D_cs is not SpParMat Compatible\n", myrank);
-        //}
-        //if(A3D_rs.CheckSpParMatCompatibility() == false){
-            //fprintf(stderr, "[MCL3D]\tmyrank: %d\tA3D_rs is not SpParMat Compatible\n", myrank);
-        //}
-
         double t4 = MPI_Wtime();
-        A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.perProcessMem);
+        A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, 
+                                                            param.phases, 
+                                                            param.prunelimit, 
+                                                            (IT)param.select, 
+                                                            (IT)param.recover_num, 
+                                                            param.recover_pct, 
+                                                            param.kselectVersion, 
+                                                            param.perProcessMem);
         double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();

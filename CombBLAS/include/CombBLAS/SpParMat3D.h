@@ -85,7 +85,7 @@ namespace combblas
         IT getnnz() const;
         
         std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
-        SpParMat<IT, NT, DER> * GetLayerMat() {return layermat;}
+        std::shared_ptr< SpParMat<IT, NT, DER> > GetLayerMat() {return layermat;}
         DER * seqptr() {return layermat->seqptr();}
         bool isSpecial() {return special;}
         bool isColSplit() {return colsplit;}
@@ -107,7 +107,8 @@ namespace combblas
         bool CheckSpParMatCompatibility();       
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
-        SpParMat<IT, NT, DER>* layermat;
+        //SpParMat<IT, NT, DER>* layermat;
+        std::shared_ptr< SpParMat<IT, NT, DER> > layermat;
         bool colsplit;
         bool special;
         int nlayers;

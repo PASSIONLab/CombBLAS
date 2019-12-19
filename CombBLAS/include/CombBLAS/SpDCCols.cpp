@@ -940,7 +940,7 @@ void SpDCCols<IT,NT>::ColSplit(int parts, std::vector< SpDCCols<IT,NT>* > & matr
 {
     if(parts < 2)
     {
-        matrices.emplace_back(this);
+        matrices.emplace_back(new SpDCCols<IT,NT>(*this));
     }
     else
     {
@@ -1023,10 +1023,9 @@ void SpDCCols<IT,NT>::ColSplit(std::vector<IT> & cutSizes, std::vector< SpDCCols
     int parts = cutSizes.size();
     for(int i = 0; i < parts; i++) totn += cutSizes[i];
     if(parts < 2){
-        matrices.emplace_back(this);
+        matrices.emplace_back(new SpDCCols<IT,NT>(*this));
     }
     else if(totn != n){
-        std::cout << totn << " " << n << std::endl;
         std::cout << "Cut sizes are not appropriate" << std::endl;
         return;
     }

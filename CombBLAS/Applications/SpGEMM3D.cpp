@@ -91,17 +91,22 @@ int main(int argc, char* argv[])
         //M.ParallelReadMM(Aname, true, maximum<double>());
         M.ReadGeneralizedTuples(Aname, maximum<double>());
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 64, true, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 64, false, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
 
         typedef PlusTimesSRing<double, double> PTFF;
 
         for(int i = 0; i < 10; i++){
-            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> C;
-            //C = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(A, B, 10, 2.0, 1100, 1400, 0.9, 1, 0);
-            A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
+            SpParMat<int64_t, double, SpDCCols < int64_t, double >> C;
+            C = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
+            SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D;
+            C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
+            if(C == C3D.Convert2D()) printf("Equal\n");
+            else printf("Not Equal\n");
             MPI_Barrier(MPI_COMM_WORLD);
             process_mem_usage(vm_usage, resident_set);
             if(myrank == 0) fprintf(stderr, "VmSize after %dth multiplication %lf %lf\n", i+1, vm_usage, resident_set);

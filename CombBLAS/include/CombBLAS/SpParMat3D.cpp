@@ -49,14 +49,15 @@ namespace combblas
 {
     template <class IT, class NT, class DER>
     SpParMat3D<IT, NT, DER>::~SpParMat3D(){
-        delete layermat;
+        // No need to delete layermat because it is a smart pointer
+        //delete layermat;
     }
 
     template <class IT, class NT, class DER>
     SpParMat3D< IT,NT,DER >::SpParMat3D (DER * localMatrix, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special = false): commGrid3D(grid3d), colsplit(colsplit), special(special){
         assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
         MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
-        layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+        layermat.reset(new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld));
     }
 
     template <class IT, class NT, class DER>
@@ -100,7 +101,8 @@ namespace combblas
             DER * localMatrix = new DER(0, concat_row, concat_col, 0);
             localMatrix->ColConcatenate(recvChunks);
             if(colsplit) localMatrix->Transpose();
-            layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+            //layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+            layermat.reset(new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld));
         }
         else {
             IT nrows = A2D.getnrow();
@@ -128,7 +130,7 @@ namespace combblas
                 }
             }
 
-            std::vector<std::vector<std::tuple<LIT,LIT, NT>>> sendTuples (nprocs);
+            std::vector< std::vector< std::tuple<LIT,LIT, NT> > > sendTuples (nprocs);
             for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
             {
                 IT gcol = colit.colid() + localColStart2d;
@@ -148,7 +150,8 @@ namespace combblas
             LocalDim(nrows, ncols, mdim, ndim);
             SpTuples<LIT, NT>spTuples3d(datasize, mdim, ndim, recvTuples);
             DER * localm3d = new DER(spTuples3d, false);
-            layermat = new SpParMat<IT, NT, DER>(localm3d, commGrid3D->GetCommGridLayer());
+            //layermat = new SpParMat<IT, NT, DER>(localm3d, commGrid3D->GetCommGridLayer());
+            layermat.reset(new SpParMat<IT, NT, DER>(localm3d, commGrid3D->GetCommGridLayer()));
         }
     }
 
@@ -199,8 +202,8 @@ namespace combblas
             // Or if given and desired matrix both are column split
             // Do nothing
         }
-        fprintf(stderr, "localMatrix (row x col): (%lld x %lld)\n", localMatrix->getnrow(), localMatrix->getncol());
-        layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+        //layermat = new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld);
+        layermat.reset(new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld));
     }
     
     /*
@@ -458,7 +461,7 @@ namespace combblas
             MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
         }
         if(phases < 1 || phases >= getncol()){
-            SpParHelper::Print("MemEfficientSpGEMM: The value of phases is too small or large. Resetting to 1.\n");
+            SpParHelper::Print("MemEfficientSpGEMM3D: The value of phases is too small or large. Resetting to 1.\n");
             phases = 1;
         }
         double t0, t1, t2, t3, t4, t5;
@@ -481,7 +484,6 @@ namespace combblas
         vector<DER*> PiecesOfB;
         vector<DER*> tempPiecesOfB;
         DER CopyB = *(B.layermat->seqptr());
-        fprintf(stderr, "%lld\n", CopyB.getncol());
         CopyB.ColSplit(divisions3d, tempPiecesOfB); // Split B into `nlayers` chunks at first
         for(int i = 0; i < tempPiecesOfB.size(); i++){
             vector<DER*> temp;
@@ -553,11 +555,10 @@ namespace combblas
                 //if(myrank == 0) fprintf(stderr, "VmSize after %dth %dth phase %lf %lf\n", jj+1, p+1, vm_usage, resident_set);
             }
         }
-        
         for(int i = 0; i < PiecesOfB.size(); i++) delete PiecesOfB[i];
 
         std::shared_ptr<CommGrid3D> grid3d;
-        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), 0, 0, isSpecial()));
+        grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), commGrid3D->GetGridRows(), commGrid3D->GetGridCols(), isSpecial()));
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
         return C3D;
@@ -581,11 +582,6 @@ namespace combblas
         int64_t inputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
         
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat), true);
-        //for(int ii = 0; ii < 100; ii++){
-            //EstPerProcessNnzSUMMA(*layermat, *(B.layermat), true);
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize after %dth symbolic %lf %lf\n", ii+1, vm_usage, resident_set);
-        //}
         int64_t gasquareNNZ;
         // 3D Specific
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
@@ -681,38 +677,27 @@ namespace combblas
     }
 
     template <class IT, class NT, class DER>
-    IT SpParMat3D< IT,NT,DER >::getnrow() const
-    {
+    IT SpParMat3D< IT,NT,DER >::getnrow() const {
         IT totalrows_layer = layermat->getnrow();
         IT totalrows = 0;
-        if(!colsplit)
-        {
-            MPI_Allreduce( &totalrows_layer, &totalrows, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
-        }
-        else
-            totalrows = totalrows_layer;
+        if(!colsplit) MPI_Allreduce( &totalrows_layer, &totalrows, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
+        else totalrows = totalrows_layer;
         return totalrows;
     }
     
     
     template <class IT, class NT, class DER>
-    IT SpParMat3D< IT,NT,DER >::getncol() const
-    {
+    IT SpParMat3D< IT,NT,DER >::getncol() const {
         IT totalcols_layer = layermat->getncol();
         IT totalcols = 0;
-        if(colsplit)
-        {
-            MPI_Allreduce( &totalcols_layer, &totalcols, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
-        }
-        else
-            totalcols = totalcols_layer;
+        if(colsplit) MPI_Allreduce( &totalcols_layer, &totalcols, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
+        else totalcols = totalcols_layer;
         return totalcols;
     }
 
 
     template <class IT, class NT, class DER>
-    IT SpParMat3D< IT,NT,DER >::getnnz() const
-    {
+    IT SpParMat3D< IT,NT,DER >::getnnz() const {
         IT totalnz_layer = layermat->getnnz();
         IT totalnz = 0;
         MPI_Allreduce( &totalnz_layer, &totalnz, 1, MPIType<IT>(), MPI_SUM, commGrid3D->fiberWorld);
