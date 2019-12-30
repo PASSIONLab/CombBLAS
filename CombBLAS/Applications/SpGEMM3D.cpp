@@ -100,13 +100,11 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
 
         for(int i = 0; i < 10; i++){
-            SpParMat<int64_t, double, SpDCCols < int64_t, double >> C;
-            C = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
-            SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D;
-            C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
+            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
+            SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
-            if(C == C3D.Convert2D()) printf("Equal\n");
-            else printf("Not Equal\n");
+            //if(Z == C3D.Convert2D()) printf("Equal\n");
+            //else printf("Not Equal\n");
             MPI_Barrier(MPI_COMM_WORLD);
             process_mem_usage(vm_usage, resident_set);
             if(myrank == 0) fprintf(stderr, "VmSize after %dth multiplication %lf %lf\n", i+1, vm_usage, resident_set);

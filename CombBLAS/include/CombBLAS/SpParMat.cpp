@@ -1315,6 +1315,9 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
     if(*rvec.commGrid != *commGrid)
     {
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
@@ -1342,8 +1345,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
     int coldiagrank = commGrid->GetDiagOfProcCol();
-   
-    
+
     //double memk = 3 * (double)n_thiscol*k*sizeof(VT)/1000000000;
     //double maxmemk =0.0; // nnz in a process column
     //MPI_Allreduce(&memk, &maxmemk , 1, MPIType<double>(), MPI_MAX, MPI_COMM_WORLD);
@@ -1374,7 +1376,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         // since indexisvalue is set true in TransposeVector(), trxnums is never allocated
         //numacc = trxnums;     //aliasing ptr
     }
-    
+
     std::vector<bool> isactive(n_thiscol,false);
     for(int i=0; i<accnz ; i++)
     {
@@ -1457,7 +1459,6 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
             }
         }
     }
-    
     
     //vector<VT>().swap(localmat);
     ::operator delete(localmat);
@@ -1561,8 +1562,6 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     MPI_Barrier(commGrid->GetWorld());
     // Print sth here as well
     
-    
-    
     /*--------------------------------------------------------
      At this point, top k elements in every active column
      are gathered on the first processor row, P(0,:).
@@ -1636,7 +1635,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
-    delete [] activeCols;
+    //delete [] activeCols;
     //delete [] numacc;
     
     return true;

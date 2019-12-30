@@ -219,7 +219,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                                  [](NT spval, NT dval){return spval;},
                                  [](NT spval, NT dval){return dval < spval;},
                                  false, NT());
-    
 
     IT nrecover = recoverCols.getnnz();
     if(nrecover > 0)
@@ -243,7 +242,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #endif
         
     }
-    
     
     if(selectNum>0)
     {
@@ -331,8 +329,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             }
         }
     }
-
-    
 
     // final prune
 #ifdef TIMING

@@ -513,7 +513,6 @@ namespace combblas
                 OnePieceOfB->ColConcatenate(targetPiecesOfB);
                 vector<DER*>().swap(targetPiecesOfB);
                 SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
-                
                 SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
                 DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
                 
