@@ -100,35 +100,20 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
 
         for(int i = 0; i < 10; i++){
-            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double> >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
+            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
             SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
                 10, 2.0, 1100, 1400, 0.9, 1, 0);
-            //if(Z == C3D.Convert2D()) printf("Equal\n");
-            //else printf("Not Equal\n");
+            //bool flag = false;
+            //if(X == A3D.Convert2D()) flag = true;
+            //else flag = false;
+            //if(myrank == 0){
+                //if(flag == true) fprintf(stderr, "Equal\n");
+                //else fprintf(stderr, "Equal\n");
+            //}
             MPI_Barrier(MPI_COMM_WORLD);
             process_mem_usage(vm_usage, resident_set);
             if(myrank == 0) fprintf(stderr, "VmSize after %dth multiplication %lf %lf\n", i+1, vm_usage, resident_set);
         }
-
-        //SpDCCols<int64_t, double> * Alocal = M.seqptr();
-        //for(int i = 0; i < 10000; i++) {
-            //SpDCCols<int64_t, double> * pp = new SpDCCols<int64_t, double>(*(Alocal));
-            //vector<SpDCCols<int64_t, double>* > vv;
-            //pp->ColSplit(10, vv);
-            //vector<SpDCCols<int64_t, double>* > vt;
-            //for(int j = 0; j < vv.size(); j++) {
-                //vt.push_back(vv[j]);
-                //vt.push_back(new SpDCCols<int64_t, double>(0, vv[j]->getnrow(), vv[j]->getncol(), 0));
-            //}
-            //pp->ColConcatenate(vt);
-            //vector<SpDCCols<int64_t, double>* >().swap(vv);
-            //vector<SpDCCols<int64_t, double>* >().swap(vt);
-            //pp->ColSplit(20, vt);
-            //for(int j = 0; j < vt.size(); j++) delete vt[j];
-            //vector<SpDCCols<int64_t, double>* >().swap(vt);
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize after %dth iteration %lf %lf\n", i+1, vm_usage, resident_set);
-        //}
     }
     MPI_Finalize();
     return 0;
