@@ -547,13 +547,16 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     //SpParMat3D<IT,NT,DER> A3D_rs(A2D_rs, param.layers, false, false);    // Non-special row split
     SpParMat3D<IT,NT,DER> A3D_cs(A2D_cs, param.layers, true, false);    // Non-special column split
     double t1 = MPI_Wtime();
+#ifdef TIMING
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\t2D -> 3D conversion time: %lf\n", (t1-t0));
-        fprintf(stderr, "Note: this time is of two 2D->3D conversions\n");
+        //fprintf(stderr, "Note: this time is of two 2D->3D conversions\n");
     }
+#endif
 
     while( chaos3D > EPS)
     {
+#ifdef TIMING
         mcl3d_conversiontime_prev = mcl3d_conversiontime;
         mcl3d_symbolictime_prev = mcl3d_symbolictime;
         mcl3d_Abcasttime_prev = mcl3d_Abcasttime;
@@ -563,6 +566,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_reductiontime_prev = mcl3d_reductiontime;
         mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
+#endif
 
         double t2 = MPI_Wtime();
         SpParMat3D<IT,NT,DER> A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Create new rowsplit copy of matrix from colsplit copy
@@ -570,10 +574,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         //IT Bnrow = A3D_rs.getnrow();
         //if(myrank == 0) fprintf(stderr, "%lld - %lld\n", Ancol, Bnrow);
         double t3 = MPI_Wtime();
+#ifdef TIMING
         mcl3d_conversiontime += (t3-t2);
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
+#endif
 
         double t4 = MPI_Wtime();
         A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, 
@@ -587,10 +593,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();
+#ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tColStochastic time: %lf\n", (t5-t15));
             fprintf(stderr, "[MCL3D]\tExpansion time: %lf\n", (t5-t4));
         }
+#endif
         
         if(param.show)
         {
@@ -601,18 +609,22 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         double t6 = MPI_Wtime();
         chaos3D = Chaos3D(A3D_cs);
         double t7 = MPI_Wtime();
+#ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tChaos calculation time: %lf\n", (t7-t6));
         }
+#endif
         
         double tInflate1 = MPI_Wtime();
         double t8 = MPI_Wtime();
         Inflate3D(A3D_cs, param.inflation);
         MakeColStochastic3D(A3D_cs);
         double t9 = MPI_Wtime();
+#ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tInflation time: %lf\n", (t9-t8));
         }
+#endif
         
         tInflate += (MPI_Wtime() - tInflate1);
         
@@ -621,7 +633,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After inflation\n");
             //A.PrintInfo();
         }
-
+#ifdef TIMING
         if(myrank == 0){
             printf("[Iteration: %d] Conversiontime: %lf\n", it, (mcl3d_conversiontime - mcl3d_conversiontime_prev));
             printf("[Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
@@ -633,6 +645,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             printf("[Iteration: %d] 3D Merge: %lf\n", it, (mcl3d_3dmergetime - mcl3d_3dmergetime_prev));
             printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
         }
+#endif
         
 
         double t10=MPI_Wtime();
@@ -658,41 +671,23 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     double t11 = MPI_Wtime();
     SpParMat<IT,double, SpDCCols < IT, double >> ADouble = A3D_cs.Convert2D();
     double t12 = MPI_Wtime();
+#ifdef TIMING
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\t3D -> 2D back conversion time: %lf\n", (t12-t11));
     }
+#endif
 
     double t13 = MPI_Wtime();
     FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
     double t14 = MPI_Wtime();
     double tcc = t14-t13;
+#ifdef TIMING
     if(myrank == 0){
         fprintf(stderr, "[MCL3D]\tConnected component computation time: %lf\n", (t14-t13));
     }
-    
-    /*
-#ifdef TIMING
-    double tcc = MPI_Wtime() - tcc1;
-    //int myrank;
-    //MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    if(myrank==0)
-    {
-        cout << "================detailed timing==================" << endl;
-        cout << "Expansion: " << mcl3d_Abcasttime + mcl3d_Bbcasttime + mcl3d_localspgemmtime + mcl3d_SUMMAmergetime << endl;
-        cout << "       Abcast= " << mcl3d_Abcasttime << endl;
-        cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
-        cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
-        cout << "       multiwaymergetime= "<< mcl3d_SUMMAmergetime << endl;
-        cout << "Prune: " << mcl3d_kselecttime << endl;
-        cout << "Inflation " << tInflate << endl;
-        cout << "Component: " << tcc << endl;
-        cout << "File I/O: " << tIO << endl;
-        cout << "=================================================" << endl;
-    }
-    
 #endif
-*/
 
+#ifdef TIMING
     if(myrank==0)
     {
         cout << "================detailed timing==================" << endl;
@@ -704,12 +699,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
         cout << "       reductiontime= "<< mcl3d_reductiontime << endl;
         cout << "       3dmergetime= "<< mcl3d_3dmergetime << endl;
-	cout << "Prune: " << mcl3d_kselecttime << endl;
+	    cout << "Prune: " << mcl3d_kselecttime << endl;
         cout << "Inflation " << tInflate << endl;
         cout << "Component: " << tcc << endl;
         cout << "File I/O: " << tIO << endl;
         cout << "=================================================" << endl;
     }
+#endif
     
     return cclabels;
 

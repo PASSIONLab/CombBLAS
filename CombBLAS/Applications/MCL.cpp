@@ -487,6 +487,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // while there is an epsilon improvement
     while( chaos > EPS)
     {
+#ifdef TIMING
         mcl_Abcasttime_prev = mcl_Abcasttime;
         mcl_Bbcasttime_prev = mcl_Bbcasttime;
         mcl_localspgemmtime_prev = mcl_localspgemmtime;
@@ -494,6 +495,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl_kselecttime_prev = mcl_kselecttime;
         mcl_prunecolumntime_prev = mcl_prunecolumntime;
         mcl_symbolictime_prev = mcl_symbolictime;
+#endif
 
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;		// expand
@@ -519,7 +521,8 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After inflation\n");
             A.PrintInfo();
         }
-        
+
+#ifdef TIMING
         if(myrank == 0){
             printf("[Iteration: %d] Symbolictime: %lf\n", it, (mcl_symbolictime - mcl_symbolictime_prev));
             printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl_Abcasttime - mcl_Abcasttime_prev));
@@ -528,6 +531,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             printf("[Iteration: %d] Merge: %lf\n", it, (mcl_multiwaymergetime - mcl_multiwaymergetime_prev));
             printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl_kselecttime + mcl_prunecolumntime - mcl_kselecttime_prev - mcl_prunecolumntime_prev));
         }
+#endif
         
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();

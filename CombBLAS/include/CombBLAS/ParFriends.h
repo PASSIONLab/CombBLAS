@@ -230,7 +230,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 
 #ifdef TIMING
         t1=MPI_Wtime();
-        //mcl_kselecttime += (t1-t0);
+        mcl_kselecttime += (t1-t0);
 #endif
 
         pruneCols.Set(recoverCols);
@@ -266,7 +266,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             A.Kselect(selectCols, selectNum, kselectVersion); // PrunedA would also work
 #ifdef TIMING
             t1=MPI_Wtime();
-            //mcl_kselecttime += (t1-t0);
+            mcl_kselecttime += (t1-t0);
 #endif
         
             pruneCols.Set(selectCols);
@@ -281,7 +281,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
             SpParMat<IT,NT,DER> selectedA = A.PruneColumn(pruneCols, std::less<NT>(), false);
 #ifdef TIMING
             t1=MPI_Wtime();
-            //mcl_prunecolumntime += (t1-t0);
+            mcl_prunecolumntime += (t1-t0);
 #endif
             if(recoverNum>0 ) // recovery can be attempted after selection
             {
@@ -315,7 +315,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                     A.Kselect(selectCols, recoverNum, kselectVersion); // Kselect on PrunedA might give different result
 #ifdef TIMING
                     t1=MPI_Wtime();
-                    //mcl_kselecttime += (t1-t0);
+                    mcl_kselecttime += (t1-t0);
 #endif
                     pruneCols.Set(selectCols);
                     
@@ -337,7 +337,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     A.PruneColumn(pruneCols, std::less<NT>(), true);
 #ifdef TIMING
     t1=MPI_Wtime();
-    //mcl_prunecolumntime += (t1-t0);
+    mcl_prunecolumntime += (t1-t0);
 #endif
     // Add loops for empty columns
     if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
@@ -443,7 +443,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     }
     t1 = MPI_Wtime();
 #ifdef TIMING
-    //mcl_symbolictime += (t1-t0);
+    mcl_symbolictime += (t1-t0);
 #endif
     
     LIA C_m = A.spSeq->getnrow();
@@ -473,6 +473,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
 
+    for(int dbg = 0; dbg < 1; dbg++){
     for(int p = 0; p< phases; ++p)
     {
         SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.commGrid)->GetColWorld());
@@ -495,7 +496,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
 #ifdef TIMING
             double t1=MPI_Wtime();
-            //mcl_Abcasttime += (t1-t0);
+            mcl_Abcasttime += (t1-t0);
 #endif
             ess.clear();
 
@@ -513,7 +514,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 #ifdef TIMING
             double t3=MPI_Wtime();
-            //mcl_Bbcasttime += (t3-t2);
+            mcl_Bbcasttime += (t3-t2);
 #endif
             
             
@@ -521,22 +522,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             double t4=MPI_Wtime();
 #endif
             double vm_usage, resident_set;
-            //for(int ii = 0; ii < 100; ii++){
-                //SpTuples<LIC,NUO> * tt = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,false, false);
-                //process_mem_usage(vm_usage, resident_set);
-                //if(myrank == 0) fprintf(stderr, "VmSize after %dth LocalSpGEMM %lf %lf\n", ii+1, vm_usage, resident_set);
-                //delete tt;
-            //}
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize before LocalSpGEMM at %dth stage of %dth phase: %lf %lf\n", i+1, p+1, vm_usage, resident_set);
-            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize after LocalSpGEMM at %dth stage of %dth phase: %lf %lf\n", i+1, p+1, vm_usage, resident_set);
             SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             double t5=MPI_Wtime();
-            //mcl_localspgemmtime += (t5-t4);
+            mcl_localspgemmtime += (t5-t4);
 #endif
             if(!C_cont->isZero())
                 tomerge.push_back(C_cont);
@@ -585,23 +575,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                 std::cout << " merged: " << merge_memory/1000000000.00 << "GB " ;
             else
                 std::cout << " merged: " << merge_memory/1000000.00 << " MB " ;
-            
         }
 #endif
         
         
 #ifdef TIMING
         double t7=MPI_Wtime();
-        //mcl_multiwaymergetime += (t7-t6);
+        mcl_multiwaymergetime += (t7-t6);
 #endif
         UDERO * OnePieceOfC = new UDERO(* OnePieceOfC_tuples, false);
-        //double vm_usage, resident_set;
-        //for(int ii = 0; ii < 100; ii++){
-            //UDERO(*OnePieceOfC_tuples, false);
-            //process_mem_usage(vm_usage, resident_set);
-            //if(myrank == 0) fprintf(stderr, "VmSize after %dth SpDCCol: %lf %lf\n", ii+1, vm_usage, resident_set);
-
-        //}
         delete OnePieceOfC_tuples;
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
@@ -628,7 +610,11 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #endif
         
         // ABAB: Change this to accept pointers to objects
-        toconcatenate.push_back(OnePieceOfC_mat.seq());
+        if(dbg == 0) toconcatenate.push_back(OnePieceOfC_mat.seq());
+    }
+        //double vm_usage, resident_set;
+        //process_mem_usage(vm_usage, resident_set);
+        //if(myrank == 0) fprintf(stderr, "VmSize after %dth all phase: %lf %lf\n", dbg+1, vm_usage, resident_set);
     }
     
     
@@ -954,8 +940,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
         double t0 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
         double t1 = MPI_Wtime();
-        //mcl3d_Abcasttime += (t1-t0);
+#ifdef TIMING
+        mcl3d_Abcasttime += (t1-t0);
         Abcast_time += (t1-t0);
+#endif
 		ess.clear();	
 		
 		if(i == Bself)
@@ -974,8 +962,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		double t2 = MPI_Wtime();
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		double t3 = MPI_Wtime();
-        //mcl3d_Bbcasttime += (t3-t2);
+#ifdef TIMING
+        mcl3d_Bbcasttime += (t3-t2);
         Bbcast_time += (t3-t2);
+#endif
 		
         double t4 = MPI_Wtime();
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
@@ -983,8 +973,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
         double t5 = MPI_Wtime();
-		//mcl3d_localspgemmtime += (t5-t4);
+#ifdef TIMING
+        mcl3d_localspgemmtime += (t5-t4);
         Local_multiplication_time += (t5-t4);
+#endif
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -1016,20 +1008,23 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	double t0 = MPI_Wtime();
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
 	double t1 = MPI_Wtime();
-    //mcl3d_SUMMAmergetime += (t1-t0);
+#ifdef TIMING
+    mcl3d_SUMMAmergetime += (t1-t0);
+#endif
 	
     UDERO * C = new UDERO(*C_tuples, false);
     delete C_tuples;
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
-    
-    //if(myrank == 0){
-        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
-        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
-        //fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
-        //fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
-    //}
+#ifdef TIMING   
+    if(myrank == 0){
+        fprintf(stderr, "[Mult_AnXBn_Synch]\t Abcast_time: %lf\n", Abcast_time);
+        fprintf(stderr, "[Mult_AnXBn_Synch]\t Bbcast_time: %lf\n", Bbcast_time);
+        fprintf(stderr, "[Mult_AnXBn_Synch]\t Local_multiplication_time: %lf\n", Local_multiplication_time);
+        fprintf(stderr, "[Mult_AnXBn_Synch]\t SUMMA Merge time: %lf\n", (t1-t0));
+    }
+#endif
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }

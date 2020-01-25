@@ -91,18 +91,18 @@ int main(int argc, char* argv[])
         //M.ParallelReadMM(Aname, true, maximum<double>());
         M.ReadGeneralizedTuples(Aname, maximum<double>());
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 1, true, false);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 1, false, false);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
 
         typedef PlusTimesSRing<double, double> PTFF;
 
-        for(int i = 0; i < 10; i++){
-            //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y, 10, 2.0, 1100, 1400, 0.9, 1, 0);
-            SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
-                10, 2.0, 1100, 1400, 0.9, 1, 0);
+        for(int i = 0; i < 100; i++){
+            SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = MemEfficientSpGEMM<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y, 64, 2.0, 1100, 1400, 0.9, 1, 0);
+            //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
+                //4, 2.0, 1100, 1400, 0.9, 1, 0);
             //bool flag = false;
             //if(X == A3D.Convert2D()) flag = true;
             //else flag = false;
