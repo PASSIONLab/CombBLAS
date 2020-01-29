@@ -590,9 +590,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
                                                             param.recover_pct, 
                                                             param.kselectVersion, 
                                                             param.perProcessMem);
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "[MCL3D]:\tBack in MCL iteration\n");
+        MPI_Barrier(MPI_COMM_WORLD);
         double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) fprintf(stderr, "[MCL3D]:\tColStochastic done\n");
+        MPI_Barrier(MPI_COMM_WORLD);
 #ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tColStochastic time: %lf\n", (t5-t15));

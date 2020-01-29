@@ -876,6 +876,13 @@ void process_mem_usage(double& vm_usage, double& resident_set)
    //resident_set = rss * page_size_kb/(1024 * 1024.0);
    vm_usage     = vsize / (1024.0);
    resident_set = rss * page_size_kb/(1.0);
+
+   double max_vm_usage;
+   double max_resident_set;
+   MPI_Allreduce(&vm_usage, &max_vm_usage, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+   MPI_Allreduce(&resident_set, &max_resident_set, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+   vm_usage = max_vm_usage;
+   resident_set = max_resident_set;
 }
 
 
