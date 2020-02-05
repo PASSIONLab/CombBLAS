@@ -1036,6 +1036,132 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
     
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap 
+		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
+{
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+	if(!CheckSpGEMMCompliance(A,B) )
+	{
+		return SpParMat< IU,NUO,UDERO >();
+	}
+	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+	
+	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
+
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	UDERA ** ARecv = new UDERA* [stages]; 
+	UDERB ** BRecv = new UDERB* [stages];
+
+	Arr<IU,NU1> Aarrinfo = A.seqptr()->GetArrays();
+	Arr<IU,NU2> Barrinfo = B.seqptr()->GetArrays();
+    std::vector< std::vector<MPI_Request> > ABCastIndarrayReq;
+    std::vector< std::vector<MPI_Request> > ABCastNumarrayReq;
+    std::vector< std::vector<MPI_Request> > BBCastIndarrayReq;
+    std::vector< std::vector<MPI_Request> > BBCastNumarrayReq;
+    for(int i = 0; i < stages; i++){
+        ABCastIndarrayReq.push_back( std::vector<MPI_Request>(Aarrinfo.indarrs.size(), MPI_REQUEST_NULL) );
+        ABCastNumarrayReq.push_back( std::vector<MPI_Request>(Aarrinfo.numarrs.size(), MPI_REQUEST_NULL) );
+        BBCastIndarrayReq.push_back( std::vector<MPI_Request>(Barrinfo.indarrs.size(), MPI_REQUEST_NULL) );
+        BBCastNumarrayReq.push_back( std::vector<MPI_Request>(Barrinfo.numarrs.size(), MPI_REQUEST_NULL) );
+    }
+
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();
+
+	std::vector< SpTuples<IU,NUO> *> tomerge;
+
+	for(int i = 0; i < stages; ++i){
+		std::vector<IU> ess;
+		if(i == Aself) ARecv[i] = A.spSeq;	// shallow-copy 
+		else{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j) ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			ARecv[i] = new UDERA();				// first, create the object
+	    }	
+		SpParHelper::IBCastMatrix(GridC->GetRowWorld(), *(ARecv[i]), ess, i, ABCastIndarrayReq[i], ABCastNumarrayReq[i]);	// then, receive its elements	
+
+		ess.clear();	
+		
+		if(i == Bself) BRecv[i] = B.spSeq;	// shallow-copy
+		else{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j) ess[j] = BRecvSizes[j][i];
+			BRecv[i] = new UDERB();
+		}
+		SpParHelper::IBCastMatrix(GridC->GetColWorld(), *(BRecv[i]), ess, i, BBCastIndarrayReq[i], BBCastNumarrayReq[i]);	// then, receive its elements
+
+		if(i > 0){
+            MPI_Waitall(ABCastIndarrayReq[i-1].size(), ABCastIndarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
+            MPI_Waitall(ABCastNumarrayReq[i-1].size(), ABCastNumarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
+            MPI_Waitall(BBCastIndarrayReq[i-1].size(), BBCastIndarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
+            MPI_Waitall(BBCastNumarrayReq[i-1].size(), BBCastNumarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
+
+            SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                            (*(ARecv[i-1]), *(BRecv[i-1]), // parameters themselves
+                            i-1 != Aself, 	// 'delete A' condition
+                            i-1 != Bself);	// 'delete B' condition
+            if(!C_cont->isZero()) tomerge.push_back(C_cont);
+
+            SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+            std::vector< SpTuples<IU,NUO> *>().swap(tomerge);
+            tomerge.push_back(C_tuples);
+        }
+        #ifdef COMBBLAS_DEBUG
+        std::ostringstream outs;
+        outs << i << "th SUMMA iteration"<< std::endl;
+        SpParHelper::Print(outs.str());
+        #endif
+	}
+
+    MPI_Waitall(ABCastIndarrayReq[stages-1].size(), ABCastIndarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
+    MPI_Waitall(ABCastNumarrayReq[stages-1].size(), ABCastNumarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
+    MPI_Waitall(BBCastIndarrayReq[stages-1].size(), BBCastIndarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
+    MPI_Waitall(BBCastNumarrayReq[stages-1].size(), BBCastNumarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
+
+    SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                    (*(ARecv[stages-1]), *(BRecv[stages-1]), // parameters themselves
+                    stages-1 != Aself, 	// 'delete A' condition
+                    stages-1 != Bself);	// 'delete B' condition
+    if(!C_cont->isZero()) tomerge.push_back(C_cont);
+
+	if(clearA && A.spSeq != NULL) {	
+		delete A.spSeq;
+		A.spSeq = NULL;
+	}	
+	if(clearB && B.spSeq != NULL) {
+		delete B.spSeq;
+		B.spSeq = NULL;
+	}
+
+    delete ARecv;
+    delete BRecv;
+
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+
+	// the last parameter to MergeAll deletes tomerge arrays
+	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+    std::vector< SpTuples<IU,NUO> *>().swap(tomerge);
+	
+    UDERO * C = new UDERO(*C_tuples, false);
+    delete C_tuples;
+
+	//if(!clearB)
+	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+
+	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
+}
 
     
 /**
