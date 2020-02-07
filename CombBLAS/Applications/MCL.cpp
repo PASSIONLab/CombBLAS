@@ -724,7 +724,12 @@ int main(int argc, char* argv[])
 	// @OGUZ-EDIT Begin
 	int ndevices;
 	cudaGetDeviceCount(&ndevices);
-	std::cout << "rank " << myrank << " #devices " << ndevices << std::endl;
+	if (myrank == 0)
+	{
+		std::cout << "Number of GPUs per node " << ndevices << "\n"
+				  << std::flush;
+		std::cout << "Waking the GPUs..." << std::flush;
+	}
 	int ts = 0;
 	for (int i = 0; i < ndevices; ++i)
 	{
@@ -741,6 +746,8 @@ int main(int argc, char* argv[])
 		cudaFree(dArray);
 		delete[] array;
 	}
+	if (myrank == 0)
+		std::cout << " DONE!\n" << std::flush;
 	// @OGUZ-EDIT End
     
     

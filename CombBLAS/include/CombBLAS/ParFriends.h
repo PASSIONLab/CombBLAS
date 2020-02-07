@@ -924,14 +924,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
   * @pre { Input matrices, A and B, should not alias }
   **/
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-int64_t
-EstPerProcessNnzSUMMA(
-	SpParMat<IU,NU1,UDERA> & A,
-	SpParMat<IU,NU2,UDERB> & B,
-	int nrounds,
-	std::vector<std::pair<int64_t, double> > &stage_stats,
-	int iter
-	)
+int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
+							  int nrounds,
+							  std::vector<std::pair<int64_t, double> > &stage_stats,
+							  int iter)
 {
 		int myrank;
     	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -1008,6 +1004,8 @@ EstPerProcessNnzSUMMA(
             }
             
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
+
+			// *t_est_comm += MPI_Wtime() - t_tmp;
 			
             
 	    	// no need to keep entries of colnnzC in larger precision 
@@ -1031,6 +1029,7 @@ EstPerProcessNnzSUMMA(
                 	nnzC_stage	= nnzC_stage + colnnzC[k];
 					flopC_stage = flopC_stage + flopC[k];
             	}
+				// *t_est_comp += MPI_Wtime() - t_tmp;
 
 				if(colnnzC)
 					delete [] colnnzC;
@@ -1046,6 +1045,9 @@ EstPerProcessNnzSUMMA(
 					flopC_stage = flopC_stage + flopC[k];
 				}
 				nnzC_stage = estimateNNZ_sampling(*ARecv, *BRecv, nrounds);
+				// if (myrank == 0)
+				// 	std::cout << "nnzC_stage " << nnzC_stage << "\n" << std::flush;
+				// *t_est_comp += MPI_Wtime() - t_tmp;
 			}
 
 			stage_stats[i] =
@@ -1069,6 +1071,9 @@ EstPerProcessNnzSUMMA(
         MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_max, 1, MPIType<int64_t>(), MPI_MAX, GridC->GetWorld());
 		int64_t nnzC_SUMMA_tot = 0;
         MPI_Allreduce(&nnzC_SUMMA, &nnzC_SUMMA_tot, 1, MPIType<int64_t>(), MPI_SUM, GridC->GetWorld());
+		/* if (myrank == 0) */
+		/* 	std::cout << "est max " << nnzC_SUMMA_max */
+		/* 			  << " est tot " << nnzC_SUMMA_tot << std::endl; */
 		return nnzC_SUMMA_max;
 }
 

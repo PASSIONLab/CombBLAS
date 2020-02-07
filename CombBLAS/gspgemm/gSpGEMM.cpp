@@ -567,11 +567,9 @@ GSpGEMM<NT>::mult_symb (
 
 	prep_in(A, B);
 
-	IT c_nnz = mf.mult<IT, NT>(A_nrows_, A_ncols_, A_nnzs_,
-							   A_cp_, A_ind_, A_val_,
-							   B_nrows_, B_ncols_, B_nnzs_,
-							   B_cp_, B_ind_, B_val_,
-							   &gst_);
+	IT c_nnz = mf.template mult<IT, NT>(A_nrows_, A_ncols_, A_nnzs_,
+		A_cp_, A_ind_, A_val_, B_nrows_, B_ncols_, B_nnzs_,
+		B_cp_, B_ind_, B_val_, &gst_);
 
 	delete[] A_cp_;
 	// delete[] A_ind_;

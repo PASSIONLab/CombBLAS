@@ -452,7 +452,7 @@ MemEfficientSpGEMMg (
 		local_spgemm = LSPG_NSPARSE;
 		if (flops / phases < (2 * 1e6))
 			local_spgemm = LSPG_CPU;
-		else if (cf <= 5)
+		else if (cf <= 3)
 			local_spgemm = LSPG_RMERGE2;
 		
 		#ifdef LOG_GNRL_ME_SPGEMM
