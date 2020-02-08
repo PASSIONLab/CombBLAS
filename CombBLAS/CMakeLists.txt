@@ -5,9 +5,6 @@ SET(CMAKE_CXX_FLAGS "-O3")
 SET(CMAKE_CUDA_FLAGS "-std=c++14 -ccbin ${CMAKE_CXX_COMPILER} -O2 \
 -Wno-deprecated-declarations -w -DNVCC -DSHOW_MEMORY_USAGE -DTIMING")
 
-# On Summit only
-SET(CMAKE_CUDA_COMPILER_WORKS 1)
-
 project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX CUDA)
 
 # Main CombBLAS library
@@ -130,11 +127,10 @@ install(
 ENABLE_TESTING()
 INCLUDE(CTest)
 
-# ADD_SUBDIRECTORY( ReleaseTests )
+ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications )
-# ADD_SUBDIRECTORY( Applications/Ordering )
-# ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
-# ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
-# ADD_SUBDIRECTORY( 3DSpGEMM )
-
+ADD_SUBDIRECTORY( Applications/Ordering )
+ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
+ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
+ADD_SUBDIRECTORY( 3DSpGEMM )
 ADD_SUBDIRECTORY( gspgemm/rmerge/SPMMProject )
