@@ -13,7 +13,7 @@ template<int n, typename T>
 __device__ T MinThread(T values[n]){
 	T a=values[0];
 	for(int i=1;i<n;i++)
-		a=Min(a,values[i]);
+		a=Min_rmerge(a,values[i]);
 	return a;
 }
 

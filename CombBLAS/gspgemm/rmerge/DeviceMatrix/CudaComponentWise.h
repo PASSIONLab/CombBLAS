@@ -65,7 +65,7 @@ void __cdecl CudaComponentWiseInline(DeviceCube<T> cube, ElementFunctor functor)
 template<bool StrideIsOne, int BlockSize, int PerThread, typename DST, typename ElementFunctor>
 __global__ void __cdecl CudaComponentWiseInlineKernel(DST* y, uint yStride, uint n,ElementFunctor f){
 	uint start=blockIdx.x*(BlockSize*PerThread);
-	uint end=Min(n,start+(BlockSize*PerThread));
+	uint end=Min_rmerge(n,start+(BlockSize*PerThread));
 	for(uint i=start+threadIdx.x;i<end;i+=BlockSize)
 		f(y[i*(StrideIsOne?1:yStride)],y[i*(StrideIsOne?1:yStride)]);
 }
@@ -99,7 +99,7 @@ void __cdecl CudaComponentWiseInline(CVector<DST> y, ElementFunctor functor)
 template<int BlockSize, int PerThread, typename DST, typename SRC, typename ElementFunctor>
 __global__ void __cdecl CudaComponentWiseKernel(CVector<DST> y, CVector<SRC> x, ElementFunctor f){
 	uint start=blockIdx.x*(BlockSize*PerThread);
-	uint end=Min(uint(x.Length()),start+(BlockSize*PerThread));
+	uint end=Min_rmerge(uint(x.Length()),start+(BlockSize*PerThread));
 	for(uint i=start+threadIdx.x;i<end;i+=BlockSize)
 		f(y[i],x[i]);
 }
@@ -107,7 +107,7 @@ __global__ void __cdecl CudaComponentWiseKernel(CVector<DST> y, CVector<SRC> x, 
 template<int BlockSize, int PerThread, typename DST, typename SRC, typename ElementFunctor>
 __global__ void __cdecl CudaComponentWiseAddUpKernel(CVector<DST> y, CVector<SRC> x, ElementFunctor f){
 	uint start=blockIdx.x*(BlockSize*PerThread);
-	uint end=Min(uint(x.Length()),start+(BlockSize*PerThread));
+	uint end=Min_rmerge(uint(x.Length()),start+(BlockSize*PerThread));
 	for(uint i=start+threadIdx.x;i<end;i+=BlockSize){
 		DST tmp=y[i];
 		f(tmp,x[i]);
@@ -118,7 +118,7 @@ __global__ void __cdecl CudaComponentWiseAddUpKernel(CVector<DST> y, CVector<SRC
 template<bool StrideIsOne, bool AddUp, int BlockSize, int PerThread, typename DST, typename A, typename B, typename ElementFunctor>
 __global__ void __cdecl CudaBinaryComponentWiseKernel(DST* y, uint yStride, A* a, uint aStride, B*b, uint bStride, uint n, ElementFunctor f){
 	uint start=blockIdx.x*(BlockSize*PerThread);
-	uint end=Min(n,start+(BlockSize*PerThread));
+	uint end=Min_rmerge(n,start+(BlockSize*PerThread));
 	for(uint i=start+threadIdx.x;i<end;i+=BlockSize){
 		if(AddUp){
 			DST tmp=y[i*(StrideIsOne?1:yStride)];

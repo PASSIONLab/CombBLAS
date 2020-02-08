@@ -86,8 +86,8 @@ template<typename T>
 static SparseHostMatrixCSR<T> RandomBandedMatrixCSR(int widthHeight, int bandRadius){
 	HostVector<uint> rowLengths(widthHeight);
 	for(int i=0;i<widthHeight;i++){
-		int start=Max(0,i-bandRadius);
-		int end=Min(widthHeight,i+bandRadius+1);
+		int start=Max_rmerge(0,i-bandRadius);
+		int end=Min_rmerge(widthHeight,i+bandRadius+1);
 		rowLengths[i]=end-start;
 	}
 	int nnz=Sum(rowLengths);
@@ -95,8 +95,8 @@ static SparseHostMatrixCSR<T> RandomBandedMatrixCSR(int widthHeight, int bandRad
 	Scan(rowStarts,rowLengths);
 	SparseHostMatrixCSR<T> A(widthHeight,widthHeight,HostVector<T>(nnz),HostVector<uint>(nnz),rowStarts);
 	for(int i=0;i<widthHeight;i++){
-		int start=Max(0,i-bandRadius);
-		int end=Min(widthHeight,i+bandRadius+1);
+		int start=Max_rmerge(0,i-bandRadius);
+		int end=Min_rmerge(widthHeight,i+bandRadius+1);
 		T* rowValues;uint* rowIndices;int rowLength;
 		A.GetRow(i,rowValues,rowIndices,rowLength);
 		int pos=0;

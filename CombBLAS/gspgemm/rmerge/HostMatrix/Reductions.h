@@ -24,7 +24,7 @@ static void Reduce(Dst& dst, HostVector<T> src, ReduceFunctor reduceFunctor){
 		#pragma omp parallel for
 		for(int64 i=0;i<tmp.Length();i++){
 			int64 start=i*blockSize;
-			int64 end=Min(src.Length(),start+blockSize);
+			int64 end=Min_rmerge(src.Length(),start+blockSize);
 			Dst sum(src[start]);
 			for(int64 t=start+1;t<end;t++)
 				reduceFunctor(sum,src[t]);
@@ -162,15 +162,15 @@ template<typename T> static T Sum(HostCube<T> x){T sum;Sum(sum,x);return sum;}
 template<typename T> static T Sum(HostFourD<T> x){T sum;Sum(sum,x);return sum;}
 
 
-template<typename T> static T Min(HostVector<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Min(HostMatrix<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Min(HostCube<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Min(HostFourD<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Min_rmerge(HostVector<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Min_rmerge(HostMatrix<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Min_rmerge(HostCube<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Min_rmerge(HostFourD<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MinFunctor(),ElementFunctors::Identity());return dst;}
 
-template<typename T> static T Max(HostVector<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Max(HostMatrix<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Max(HostCube<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
-template<typename T> static T Max(HostFourD<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Max_rmerge(HostVector<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Max_rmerge(HostMatrix<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Max_rmerge(HostCube<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
+template<typename T> static T Max_rmerge(HostFourD<T> x){T dst;ReduceTransformed(dst,x,ReduceFunctors::MaxFunctor(),ElementFunctors::Identity());return dst;}
 
 template<typename Dst, typename T> static void SumSquared(Dst& sum, HostVector<T> x){ReduceTransformed(sum,x,ReduceFunctors::AddFunctor(),ElementFunctors::Square());}
 template<typename Dst, typename T> static void SumSquared(Dst& sum, HostMatrix<T> x){ReduceTransformed(sum,x,ReduceFunctors::AddFunctor(),ElementFunctors::Square());}

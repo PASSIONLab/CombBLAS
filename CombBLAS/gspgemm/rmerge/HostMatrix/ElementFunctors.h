@@ -559,7 +559,7 @@ class Absolute{
 public:
 	template<typename T>
 	__device__ __host__ void operator()(T& dst, T src){
-		dst=Abs(src);
+		dst=Abs_rmerge(src);
 	}
 };
 
@@ -703,7 +703,7 @@ public:
 	}
 };
 
-class Max{
+class Max_rmerge{
 	char dummy;
 public:	
 	template<typename Dst, typename A, typename B>
@@ -712,7 +712,7 @@ public:
 	}
 };
 
-class Min{
+class Min_rmerge{
 	char dummy;
 public:	
 	template<typename Dst, typename A, typename B>

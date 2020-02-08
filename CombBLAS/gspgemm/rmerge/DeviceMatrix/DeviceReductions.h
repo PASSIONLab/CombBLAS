@@ -62,35 +62,35 @@ template<typename T> T Norm2(DeviceVector<T> a){return sqrt(SumSquared(a));}
 //*****************
 
 template<typename T> 
-static void Max(DeviceVector<T> result, DeviceVector<T> x){
+static void Max_rmerge(DeviceVector<T> result, DeviceVector<T> x){
 	Verify(result.Length()==1,"44343ff3");
 	Verify(x.Stride()==1,"2f24");
 	CudaReduceTransformed(result.Data(),x.Data(),(int)x.Length(), ReduceFunctors::MaxFunctor(),ElementFunctors::Identity(),x[0]);
 }
-template<typename T> static void Max(DeviceVector<T> sum, DeviceMatrix<T> x){Max(sum,x.GetSimple());}
-template<typename T> static void Max(DeviceVector<T> sum, DeviceCube<T> x){Max(sum,x.GetSimple());}
-template<typename T> static void Max(DeviceVector<T> sum, DeviceFourD<T> x){Max(sum,x.GetSimple());}
+template<typename T> static void Max_rmerge(DeviceVector<T> sum, DeviceMatrix<T> x){Max_rmerge(sum,x.GetSimple());}
+template<typename T> static void Max_rmerge(DeviceVector<T> sum, DeviceCube<T> x){Max_rmerge(sum,x.GetSimple());}
+template<typename T> static void Max_rmerge(DeviceVector<T> sum, DeviceFourD<T> x){Max_rmerge(sum,x.GetSimple());}
 
-template<typename T> static T Max(DeviceVector<T> x){DeviceVector<T> sum(1);Max(sum,x);return ToHost(sum)[0];}
-template<typename T> static T Max(DeviceMatrix<T> x){return Max(x.GetSimple());}
-template<typename T> static T Max(DeviceCube<T> x){return Max(x.GetSimple());}
-template<typename T> static T Max(DeviceFourD<T> x){return Max(x.GetSimple());}
+template<typename T> static T Max_rmerge(DeviceVector<T> x){DeviceVector<T> sum(1);Max_rmerge(sum,x);return ToHost(sum)[0];}
+template<typename T> static T Max_rmerge(DeviceMatrix<T> x){return Max_rmerge(x.GetSimple());}
+template<typename T> static T Max_rmerge(DeviceCube<T> x){return Max_rmerge(x.GetSimple());}
+template<typename T> static T Max_rmerge(DeviceFourD<T> x){return Max_rmerge(x.GetSimple());}
 
 //*************************************
 
-template<typename T> static void Min(DeviceVector<T> result, DeviceVector<T> x){
+template<typename T> static void Min_rmerge(DeviceVector<T> result, DeviceVector<T> x){
 	Verify(result.Length()==1,"43x33xr3rdxvv");
 	Verify(x.Stride()==1,"x5t45t4se");
 	CudaReduceTransformed(result.Data(),x.Data(),(int)x.Length(), ReduceFunctors::MinFunctor(),ElementFunctors::Identity(),x[0]);
 }
-template<typename T> static void Min(DeviceVector<T> sum, DeviceMatrix<T> x){Min(sum,x.GetSimple());}
-template<typename T> static void Min(DeviceVector<T> sum, DeviceCube<T> x){Min(sum,x.GetSimple());}
-template<typename T> static void Min(DeviceVector<T> sum, DeviceFourD<T> x){Min(sum,x.GetSimple());}
+template<typename T> static void Min_rmerge(DeviceVector<T> sum, DeviceMatrix<T> x){Min_rmerge(sum,x.GetSimple());}
+template<typename T> static void Min_rmerge(DeviceVector<T> sum, DeviceCube<T> x){Min_rmerge(sum,x.GetSimple());}
+template<typename T> static void Min_rmerge(DeviceVector<T> sum, DeviceFourD<T> x){Min_rmerge(sum,x.GetSimple());}
 
-template<typename T> static T Min(DeviceVector<T> x){DeviceVector<T> sum(1);ComponentWiseInit(sum,T(0));Min(sum,x);return ToHost(sum)[0];}
-template<typename T> static T Min(DeviceMatrix<T> x){return Min(x.GetSimple());}
-template<typename T> static T Min(DeviceCube<T> x){return Min(x.GetSimple());}
-template<typename T> static T Min(DeviceFourD<T> x){return Min(x.GetSimple());}
+template<typename T> static T Min_rmerge(DeviceVector<T> x){DeviceVector<T> sum(1);ComponentWiseInit(sum,T(0));Min_rmerge(sum,x);return ToHost(sum)[0];}
+template<typename T> static T Min_rmerge(DeviceMatrix<T> x){return Min_rmerge(x.GetSimple());}
+template<typename T> static T Min_rmerge(DeviceCube<T> x){return Min_rmerge(x.GetSimple());}
+template<typename T> static T Min_rmerge(DeviceFourD<T> x){return Min_rmerge(x.GetSimple());}
 
 
 

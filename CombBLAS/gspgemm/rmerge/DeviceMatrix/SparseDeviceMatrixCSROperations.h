@@ -83,7 +83,7 @@ template<typename T>
 static double MaxTmpSize(SparseDeviceMatrixCSR<T> A, SparseDeviceMatrixCSR<T> B){
 	DeviceVector<uint> tmp(A.Height());
 	SpmmEstimateTmpSize(tmp,A,B);
-	return Max(tmp);
+	return Max_rmerge(tmp);
 }
 
 template<typename T>

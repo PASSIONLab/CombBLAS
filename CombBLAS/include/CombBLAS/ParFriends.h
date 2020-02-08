@@ -2416,7 +2416,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 typedef std::array<float, NROUNDS> samparr_t;
 
 template <typename NZT>
-struct combblas::promote_trait<NZT, samparr_t>
+struct promote_trait<NZT, samparr_t>
 {
 	typedef samparr_t T_promote;
 };
@@ -2435,7 +2435,7 @@ public:
 };
 
 template<typename NZT>
-struct SelectMinSR
+struct SelectMinxSR
 {
 	static samparr_t id()
 	{
@@ -2557,7 +2557,7 @@ EstPerProcessNnzSpMV(
 		std::cout << "computing mid samples." << std::endl;
 
 	FullyDistVec<IU, samparr_t> samples_mid =
-		SpMV<SelectMinSR<NU1> > (A, samples_init);
+		SpMV<SelectMinxSR<NU1> > (A, samples_init);
 
 	// fname = "samples_mid";
 	// samples_mid.ParallelWrite(fname, 1, SamplesSaveHandler(), true);
@@ -2566,7 +2566,7 @@ EstPerProcessNnzSpMV(
 		std::cout << "computing final samples." << std::endl;
 
 	FullyDistVec<IU, samparr_t> samples_final =
-		SpMV<SelectMinSR<NU2> > (B, samples_mid);
+		SpMV<SelectMinxSR<NU2> > (B, samples_mid);
 
 	// fname = "samples_final";
 	// samples_final.ParallelWrite(fname, 1, SamplesSaveHandler(), true);

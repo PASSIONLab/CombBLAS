@@ -11,7 +11,7 @@ template<int ThreadCount, int PerThread, typename T>
 __global__ void __cdecl CudaExtractSparseKernel(CVector<T> sparse, CVector<T> dense, CVector<uint> indices){
 	uint sparseCount=(uint)sparse.Length();
 	unsigned int start=blockIdx.x*ThreadCount*PerThread+threadIdx.x;
-	unsigned int end=Min(start+ThreadCount*PerThread,sparseCount);
+	unsigned int end=Min_rmerge(start+ThreadCount*PerThread,sparseCount);
 	for(uint i=start;i<end;i+=ThreadCount){
 		uint index=indices[i];
 		sparse[i]=dense[index];
@@ -22,7 +22,7 @@ template<bool AddUp, int ThreadCount, int PerThread, typename A, typename B>
 __global__ void __cdecl CudaInjectSparseKernel(CVector<A> dense, CVector<B> sparse, CVector<uint> indices){
 	uint sparseCount=(uint)sparse.Length();
 	uint start=blockIdx.x*ThreadCount*PerThread+threadIdx.x;
-	uint end=Min(start+ThreadCount*PerThread,sparseCount);
+	uint end=Min_rmerge(start+ThreadCount*PerThread,sparseCount);
 	for(uint i=start;i<end;i+=ThreadCount){
 		uint index=indices[i];
 		if(AddUp)
@@ -37,7 +37,7 @@ template<int WarpSize, int PerWarp, int BlockSizeY, typename T>
 __global__ void __cdecl CudaExtractRowsKernel(CMatrix<T> dst, CMatrix<T> src, CVector<uint> rowIndices){
 	uint sparseCount=(uint)rowIndices.Length();
 	uint start=blockIdx.x*BlockSizeY*PerWarp+threadIdx.y;
-	uint end=Min(start+BlockSizeY*PerWarp,sparseCount);
+	uint end=Min_rmerge(start+BlockSizeY*PerWarp,sparseCount);
 	for(uint y=start;y<end;y+=BlockSizeY){
 		uint srcIndex=rowIndices[y];
 		//Copy row
@@ -51,7 +51,7 @@ template<int WarpSize, int PerWarp, int BlockSizeY, typename T>
 __global__ void __cdecl CudaInjectRowsKernel(CMatrix<T> dst, CMatrix<T> src, CVector<uint> rowIndices){
 	uint sparseCount=(uint)rowIndices.Length();
 	uint start=blockIdx.x*BlockSizeY*PerWarp+threadIdx.y;
-	uint end=Min(start+BlockSizeY*PerWarp,sparseCount);
+	uint end=Min_rmerge(start+BlockSizeY*PerWarp,sparseCount);
 	for(uint y=start;y<end;y+=BlockSizeY){
 		uint rowIndex=rowIndices[y];
 		//Copy row

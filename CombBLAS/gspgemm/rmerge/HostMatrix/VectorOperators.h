@@ -126,10 +126,10 @@ template<typename T> __device__ __host__ static T Norm2(const Vec2<T>& a){return
 template<typename T> __device__ __host__ static T Norm2(const Vec3<T>& a){return sqrt(SumSquared(a));}
 template<typename T> __device__ __host__ static T Norm2(const Vec4<T>& a){return sqrt(SumSquared(a));}
 
-template<typename T> __device__ __host__ static T NormMax(const Vec1<T>& a){return Abs(a.x);}
-template<typename T> __device__ __host__ static T NormMax(const Vec2<T>& a){return Max(Abs(a.x),Abs(a.y));}
-template<typename T> __device__ __host__ static T NormMax(const Vec3<T>& a){return Max(Max(Abs(a.x),Abs(a.y)),Abs(a.z));}
-template<typename T> __device__ __host__ static T NormMax(const Vec4<T>& a){return Max(Max(Max(Abs(a.x),Abs(a.y)),Abs(a.z)),Abs(a.w));}
+template<typename T> __device__ __host__ static T NormMax(const Vec1<T>& a){return Abs_rmerge(a.x);}
+template<typename T> __device__ __host__ static T NormMax(const Vec2<T>& a){return Max_rmerge(Abs_rmerge(a.x),Abs_rmerge(a.y));}
+template<typename T> __device__ __host__ static T NormMax_rmerge(const Vec3<T>& a){return Max_rmerge(Max_rmerge(Abs_rmerge(a.x),Abs_rmerge(a.y)),Abs_rmerge(a.z));}
+template<typename T> __device__ __host__ static T NormMax_rmerge(const Vec4<T>& a){return Max_rmerge(Max_rmerge(Max_rmerge(Abs_rmerge(a.x),Abs_rmerge(a.y)),Abs_rmerge(a.z)),Abs_rmerge(a.w));}
 
 template<typename T> __device__ __host__ static T Distance(const Vec1<T>& a, const Vec1<T>& b){return sqrt(SumSquared(a-b));}
 template<typename T> __device__ __host__ static T Distance(const Vec2<T>& a, const Vec2<T>& b){return sqrt(SumSquared(a-b));}
@@ -152,25 +152,25 @@ template<typename T, typename S> __device__ __host__ static Vec2<T> Lerp(const V
 template<typename T, typename S> __device__ __host__ static Vec3<T> Lerp(const Vec3<T>& a, const Vec3<T>& b, const S& s){return a + s*(b-a);}
 template<typename T, typename S> __device__ __host__ static Vec4<T> Lerp(const Vec4<T>& a, const Vec4<T>& b, const S& s){return a + s*(b-a);}
 
-template<typename T> __device__ __host__ static Vec1<T> Min(const Vec1<T>& a, const Vec1<T>& b){return Vec1<T>(Min(a.x,b.x));}
-template<typename T> __device__ __host__ static Vec2<T> Min(const Vec2<T>& a, const Vec2<T>& b){return Vec2<T>(Min(a.x,b.x),Min(a.y,b.y));}
-template<typename T> __device__ __host__ static Vec3<T> Min(const Vec3<T>& a, const Vec3<T>& b){return Vec3<T>(Min(a.x,b.x),Min(a.y,b.y),Min(a.z,b.z));}
-template<typename T> __device__ __host__ static Vec4<T> Min(const Vec4<T>& a, const Vec4<T>& b){return Vec4<T>(Min(a.x,b.x),Min(a.y,b.y),Min(a.z,b.z),Min(a.w,b.w));}
+template<typename T> __device__ __host__ static Vec1<T> Min_rmerge(const Vec1<T>& a, const Vec1<T>& b){return Vec1<T>(Min_rmerge(a.x,b.x));}
+template<typename T> __device__ __host__ static Vec2<T> Min_rmerge(const Vec2<T>& a, const Vec2<T>& b){return Vec2<T>(Min_rmerge(a.x,b.x),Min_rmerge(a.y,b.y));}
+template<typename T> __device__ __host__ static Vec3<T> Min_rmerge(const Vec3<T>& a, const Vec3<T>& b){return Vec3<T>(Min_rmerge(a.x,b.x),Min_rmerge(a.y,b.y),Min_rmerge(a.z,b.z));}
+template<typename T> __device__ __host__ static Vec4<T> Min_rmerge(const Vec4<T>& a, const Vec4<T>& b){return Vec4<T>(Min_rmerge(a.x,b.x),Min_rmerge(a.y,b.y),Min_rmerge(a.z,b.z),Min_rmerge(a.w,b.w));}
 
-template<typename T> __device__ __host__ static Vec1<T> Max(const Vec1<T>& a, const Vec1<T>& b){return Vec1<T>(Max(a.x,b.x));}
-template<typename T> __device__ __host__ static Vec2<T> Max(const Vec2<T>& a, const Vec2<T>& b){return Vec2<T>(Max(a.x,b.x),Max(a.y,b.y));}
-template<typename T> __device__ __host__ static Vec3<T> Max(const Vec3<T>& a, const Vec3<T>& b){return Vec3<T>(Max(a.x,b.x),Max(a.y,b.y),Max(a.z,b.z));}
-template<typename T> __device__ __host__ static Vec4<T> Max(const Vec4<T>& a, const Vec4<T>& b){return Vec4<T>(Max(a.x,b.x),Max(a.y,b.y),Max(a.z,b.z),Max(a.w,b.w));}
+template<typename T> __device__ __host__ static Vec1<T> Max_rmerge(const Vec1<T>& a, const Vec1<T>& b){return Vec1<T>(Max_rmerge(a.x,b.x));}
+template<typename T> __device__ __host__ static Vec2<T> Max_rmerge(const Vec2<T>& a, const Vec2<T>& b){return Vec2<T>(Max_rmerge(a.x,b.x),Max_rmerge(a.y,b.y));}
+template<typename T> __device__ __host__ static Vec3<T> Max_rmerge(const Vec3<T>& a, const Vec3<T>& b){return Vec3<T>(Max_rmerge(a.x,b.x),Max_rmerge(a.y,b.y),Max_rmerge(a.z,b.z));}
+template<typename T> __device__ __host__ static Vec4<T> Max_rmerge(const Vec4<T>& a, const Vec4<T>& b){return Vec4<T>(Max_rmerge(a.x,b.x),Max_rmerge(a.y,b.y),Max_rmerge(a.z,b.z),Max_rmerge(a.w,b.w));}
 
-template<typename T> __device__ __host__ static T Min(const Vec1<T>& a){return a.x;}
-template<typename T> __device__ __host__ static T Min(const Vec2<T>& a){return Min(a.x,a.y);}
-template<typename T> __device__ __host__ static T Min(const Vec3<T>& a){return Min(a.x,Min(a.y,a.z));}
-template<typename T> __device__ __host__ static T Min(const Vec4<T>& a){return Min(a.x,Min(a.y,Min(a.z,a.w)));}
+template<typename T> __device__ __host__ static T Min_rmerge(const Vec1<T>& a){return a.x;}
+template<typename T> __device__ __host__ static T Min_rmerge(const Vec2<T>& a){return Min_rmerge(a.x,a.y);}
+template<typename T> __device__ __host__ static T Min_rmerge(const Vec3<T>& a){return Min_rmerge(a.x,Min_rmerge(a.y,a.z));}
+template<typename T> __device__ __host__ static T Min_rmerge(const Vec4<T>& a){return Min_rmerge(a.x,Min_rmerge(a.y,Min_rmerge(a.z,a.w)));}
 
-template<typename T> __device__ __host__ static T Max(const Vec1<T>& a){return a.x;}
-template<typename T> __device__ __host__ static T Max(const Vec2<T>& a){return Max(a.x,a.y);}
-template<typename T> __device__ __host__ static T Max(const Vec3<T>& a){return Max(a.x,Max(a.y,a.z));}
-template<typename T> __device__ __host__ static T Max(const Vec4<T>& a){return Max(a.x,Max(a.y,Max(a.z,a.w)));}
+template<typename T> __device__ __host__ static T Max_rmerge(const Vec1<T>& a){return a.x;}
+template<typename T> __device__ __host__ static T Max_rmerge(const Vec2<T>& a){return Max_rmerge(a.x,a.y);}
+template<typename T> __device__ __host__ static T Max_rmerge(const Vec3<T>& a){return Max_rmerge(a.x,Max_rmerge(a.y,a.z));}
+template<typename T> __device__ __host__ static T Max_rmerge(const Vec4<T>& a){return Max_rmerge(a.x,Max_rmerge(a.y,Max_rmerge(a.z,a.w)));}
 
 __device__ __host__ static double Distance(Int2 a, Int2 b){return sqrt(double(SumSquared(a-b)));}
 __device__ __host__ static double Distance(Int3 a, Int3 b){return sqrt(double(SumSquared(a-b)));}

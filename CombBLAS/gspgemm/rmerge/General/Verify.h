@@ -35,7 +35,7 @@ static void Verify(bool expression,const std::string& message){
 }
 
 //Checks an expression in debug mode
-static void Assert(bool expression,const char* message){
+static void Assert_rmerge(bool expression,const char* message){
 	#ifdef DEBUG
 	Verify(expression,message);
 	#endif

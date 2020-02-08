@@ -686,7 +686,7 @@ estimateNNZ_sampling(const SpDCCols<IT, NT1> &A,
 {
 	IT nnzA = A.getnnz();
     if (A.isZero() || B.isZero())
-        return NULL;
+        return 0;
 
 	Dcsc<IT,NT1>*	 Adcsc	 = A.GetDCSC();
     Dcsc<IT,NT2>*	 Bdcsc	 = B.GetDCSC();
@@ -807,7 +807,7 @@ estimateNNZ_sampling_v(const SpDCCols<IT, NT1> &A,
 {
 	IT nnzA = A.getnnz();
     if (A.isZero() || B.isZero())
-        return NULL;
+        return 0;
 
 	Dcsc<IT,NT1>*	 Adcsc	 = A.GetDCSC();
     Dcsc<IT,NT2>*	 Bdcsc	 = B.GetDCSC();

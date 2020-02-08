@@ -119,14 +119,14 @@ static T DiagonalDominance(SparseHostMatrixCSR<T> A){
 		T sumOffDiagonal(0);
 		for(int i=0;i<rowLength;i++){
 			if(rowIndices[i]==y)
-				d=Abs(rowValues[i]);
+				d=Abs_rmerge(rowValues[i]);
 			else
-				sumOffDiagonal+=Abs(rowValues[i]);
+				sumOffDiagonal+=Abs_rmerge(rowValues[i]);
 
 		}
 		differences[y]=d-sumOffDiagonal;
 	}
-	return Min(differences);
+	return Min_rmerge(differences);
 }
 
 template<typename T>

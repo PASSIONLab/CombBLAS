@@ -41,5 +41,5 @@ template<typename DST, typename A, typename B> void ComponentWiseMul(DST dst, A 
 template<typename A, typename B> A ComponentWiseMul(A a, B b){A c(a.Size());BinaryComponentWise(c,a,b,BinaryFunctors::Mul());return c;}
 template<typename DST, typename A, typename B> void ComponentWiseAddUpMul(DST dst, A a, B b){BinaryComponentWiseAddUp(dst,a,b,BinaryFunctors::Mul());}
 template<typename DST, typename A, typename B, typename Scale> void ComponentWiseAddScaled(DST dst, A a, B b, Scale scale){BinaryComponentWise(dst,a,b,BinaryFunctors::AddScaled<Scale>(scale));}
-template<typename DST, typename A, typename B> void ComponentWiseMax(DST dst, A a, B b){BinaryComponentWise(dst,a,b,BinaryFunctors::Max());}
-template<typename DST, typename A, typename B> void ComponentWiseMin(DST dst, A a, B b){BinaryComponentWise(dst,a,b,BinaryFunctors::Min());}
+template<typename DST, typename A, typename B> void ComponentWiseMax(DST dst, A a, B b){BinaryComponentWise(dst,a,b,BinaryFunctors::Max_rmerge());}
+template<typename DST, typename A, typename B> void ComponentWiseMin(DST dst, A a, B b){BinaryComponentWise(dst,a,b,BinaryFunctors::Min_rmerge());}

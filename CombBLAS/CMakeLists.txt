@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.15)
 
 set(CombBLAS_VERSION 1.16.0)
+SET(CMAKE_CXX_FLAGS "-O3")
+SET(CMAKE_CUDA_FLAGS "-std=c++14 -ccbin ${CMAKE_CXX_COMPILER} -O2 \
+-Wno-deprecated-declarations -w -DNVCC -DSHOW_MEMORY_USAGE -DTIMING")
 
-project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX)
+# On Summit only
+SET(CMAKE_CUDA_COMPILER_WORKS 1)
 
+project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX CUDA)
 
 # Main CombBLAS library
 add_library(CombBLAS src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp)
@@ -24,6 +29,7 @@ target_include_directories(CombBLAS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
 # MPI and OpenMP dependencies
 find_package(MPI REQUIRED)
 find_package(OpenMP REQUIRED)
+find_package(CUDA 10 REQUIRED)
 
 if(TARGET MPI::MPI_CXX) # Use target if available (cmake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -44,6 +50,12 @@ if(OPENMP_FOUND OR OpenMP_CXX_FOUND)
   endif()
 endif()
 
+if (CUDA_FOUND)
+	INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
+else()
+	message("CUDA not found")
+endif()
+
 ADD_SUBDIRECTORY( usort )
 target_link_libraries(CombBLAS PUBLIC Usortlib)
 
@@ -59,6 +71,7 @@ target_link_libraries(CombBLAS PUBLIC GraphGenlib)
 #      dependent projects.
 # Either way, we need to create a CombBLASConfig.cmake.
 set(ConfigPackageLocation lib/cmake/CombBLAS)
+
 
 # Generate version number header
 include(GenerateExportHeader)
@@ -117,10 +130,11 @@ install(
 ENABLE_TESTING()
 INCLUDE(CTest)
 
-ADD_SUBDIRECTORY( ReleaseTests )
+# ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications )
-ADD_SUBDIRECTORY( Applications/Ordering )
-ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
-ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
-ADD_SUBDIRECTORY( 3DSpGEMM )
+# ADD_SUBDIRECTORY( Applications/Ordering )
+# ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
+# ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
+# ADD_SUBDIRECTORY( 3DSpGEMM )
 
+ADD_SUBDIRECTORY( gspgemm/rmerge/SPMMProject )

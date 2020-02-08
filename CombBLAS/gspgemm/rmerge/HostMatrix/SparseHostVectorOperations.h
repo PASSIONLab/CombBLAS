@@ -16,7 +16,7 @@ static int OverlapCount(const SparseHostVector<T>& a, const SparseHostVector<T>&
 		bCurrent=b.Index(0);
 	else
 		bCurrent=MaxVal<uint>();
-	uint minIndex=Min(aCurrent,bCurrent);
+	uint minIndex=Min_rmerge(aCurrent,bCurrent);
 	
 	while(minIndex!=MaxVal<uint>()){
 		//Advance the one with the smaller index or both		
@@ -34,7 +34,7 @@ static int OverlapCount(const SparseHostVector<T>& a, const SparseHostVector<T>&
 			else
 				bCurrent=MaxVal<uint>();		
 		}
-		minIndex=Min(aCurrent,bCurrent);
+		minIndex=Min_rmerge(aCurrent,bCurrent);
 		count++;
 	}
 	return count;
@@ -57,7 +57,7 @@ static void Add(SparseHostVector<T> dst, const SparseHostVector<T>& a, const Spa
 		bCurrent=b.Index(0);
 	else
 		bCurrent=MaxVal<uint>();
-	uint minIndex=Min(aCurrent,bCurrent);
+	uint minIndex=Min_rmerge(aCurrent,bCurrent);
 	while(minIndex!=MaxVal<uint>()){
 		T dstVal=0;		
 
@@ -81,7 +81,7 @@ static void Add(SparseHostVector<T> dst, const SparseHostVector<T>& a, const Spa
 		dst.Value(dstPos)=dstVal;
 		dst.Index(dstPos)=minIndex;
 		dstPos++;
-		minIndex=Min(aCurrent,bCurrent);		
+		minIndex=Min_rmerge(aCurrent,bCurrent);		
 	}
 	Verify(dstPos==dst.NonZeroCount(),FileAndLine);
 }

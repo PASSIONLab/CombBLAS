@@ -23,11 +23,11 @@ namespace ReduceFunctors{
 	public:
 		template<typename Dst, typename A, typename B>
 		__host__ __device__ void operator()(Dst& dst, A a, B b){
-			dst=Max(a,b);
+			dst=Max_rmerge(a,b);
 		}
 		template<typename Dst, typename A>
 		__host__ __device__ void operator()(Dst& dst, A a){
-			dst=Max(dst,a);
+			dst=Max_rmerge(dst,a);
 		}
 	};
 
@@ -36,11 +36,11 @@ namespace ReduceFunctors{
 	public:
 		template<typename Dst, typename A, typename B>
 		__host__ __device__ void operator()(Dst& dst, A a, B b){
-			dst=Min(a,b);
+			dst=Min_rmerge(a,b);
 		}
 		template<typename Dst, typename A>
 		__host__ __device__ void operator()(Dst& dst, A a){
-			dst=Min(dst,a);
+			dst=Min_rmerge(dst,a);
 		}
 	};
 

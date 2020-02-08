@@ -73,22 +73,22 @@ template<typename T> static __device__ __host__ T SigmoidDeriv(T d){
 	return tmp*(T(1.0)-tmp);
 }
 
-template<typename T> __device__ __host__ T Abs(T x){return x>=T(0)?x:-x;}
-static __device__ __host__ unsigned int Abs(unsigned int x){return x;}
-static __device__ __host__ unsigned short Abs(unsigned short x){return x;}
-static __device__ __host__ unsigned char Abs(unsigned char x){return x;}
+template<typename T> __device__ __host__ T Abs_rmerge(T x){return x>=T(0)?x:-x;}
+static __device__ __host__ unsigned int Abs_rmerge(unsigned int x){return x;}
+static __device__ __host__ unsigned short Abs_rmerge(unsigned short x){return x;}
+static __device__ __host__ unsigned char Abs_rmerge(unsigned char x){return x;}
 
 template<typename T> __device__ __host__ T Square(T x){return x*x;}
 
 template<typename T> __device__ __host__ T MyMin(T a, T b){return a<b?a:b;}
-template<typename T> __device__ __host__ T Min(T a, T b){
+template<typename T> __device__ __host__ T Min_rmerge(T a, T b){
 	#if defined(__CUDACC__)
 	return min(a,b);
 	#else
 	return a<b?a:b;
 	#endif
 }
-template<typename T> __device__ __host__ T Max(T a, T b){return a>b?a:b;}
+template<typename T> __device__ __host__ T Max_rmerge(T a, T b){return a>b?a:b;}
 
 
 //returns nominator/denominator rounded up.
@@ -188,20 +188,20 @@ static  __device__ __host__ void AddScaled(T& sum, const T& a, const T& b, const
 static double RelativeError(double a, double b){
     if (a == b)
         return 0.0;
-	return abs(a-b)/Max(abs(a),abs(b));
+	return abs(a-b)/Max_rmerge(abs(a),abs(b));
 }
 
 template<typename T>
 static __device__ __host__ T Huber(T src){
-	if (Abs(src) <= 1.28)
+	if (Abs_rmerge(src) <= 1.28)
 		return T(0.5)*src*src;
 	else
-		return T(1.28)*Abs(src)-T(0.8192); // 0.8192=0.5*1.28^2
+		return T(1.28)*Abs_rmerge(src)-T(0.8192); // 0.8192=0.5*1.28^2
 }
 
 template<typename T>
 static __device__ __host__ T HuberDeriv(T src){
-	if (Abs(src) <= 1.28)
+	if (Abs_rmerge(src) <= 1.28)
 		return src;
 	else
 		return src<0?T(-1.28):T(1.28);

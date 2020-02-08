@@ -1,5 +1,6 @@
 # Top level directory has the include files
 
+# MESSAGE("aaa " ${CMAKE_CXX_FLAGS})
 
 ADD_EXECUTABLE( rcm RCM.cpp )
 
