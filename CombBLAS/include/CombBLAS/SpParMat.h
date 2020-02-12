@@ -212,11 +212,25 @@ public:
 	//! General indexing with serial semantics
 	template <typename SelectFirstSR, typename SelectSecondSR>
 	SpParMat<IT,NT,DER> SubsRef_SR (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace=false);
+
+	// Column- or row-only indexing
+	template<typename SelectFirstSR,
+			 typename SelectSecondSR>
+	SpParMat<IT, NT, DER>
+	SubsRef_SR (const FullyDistVec<IT, IT> &v, Dim dim, bool inplace = false);
 	
 	SpParMat<IT,NT,DER> operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace=false)
 	{
 		return SubsRef_SR<BoolCopy1stSRing<NT>, BoolCopy2ndSRing<NT> >(ri, ci, inplace);
 	}
+
+	SpParMat<IT, NT, DER>
+	operator() (const FullyDistVec<IT, IT> &v, Dim dim, bool inplace = false)
+	{
+		return SubsRef_SR<BoolCopy1stSRing<NT>,
+						  BoolCopy2ndSRing<NT>>(v, dim, inplace);
+	}
+	
 	void Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);	//!< prune all entries whose row indices are in ri and column indices are in ci
 	void SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, SpParMat<IT,NT,DER> & B);
 	
