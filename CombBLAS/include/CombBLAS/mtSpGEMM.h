@@ -707,7 +707,12 @@ estimateNNZ_sampling(const SpDCCols<IT, NT1> &A,
 	#endif
 	{
 		nthds = omp_get_num_threads();
-	}	
+	}
+
+	// int myrank;
+	// MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	// if (myrank == 0)
+	// 	std::cout << "#threads " << nthds << "\n";
 
 	#ifdef THREADED
 	#pragma omp parallel
@@ -716,10 +721,17 @@ estimateNNZ_sampling(const SpDCCols<IT, NT1> &A,
 		std::default_random_engine gen;
 		std::exponential_distribution<float> exp_dist(lambda);
 
+		int tid = 0;
 		#ifdef THREADED
-		#pragma omp parallel for
+        tid = omp_get_thread_num();
 		#endif
-		for (IT i = 0; i < m * nrounds; ++i)
+
+		IT sz = (m*nrounds) / nthds;
+		IT beg = tid * sz;
+		IT end = (tid != nthds - 1)
+			? ((tid + 1) * sz) : (m * nrounds);		
+		
+		for (IT i = beg; i < end; ++i)
 			samples_init[i] = exp_dist(gen);
 	}
 

@@ -131,18 +131,18 @@ run_spgemm (
 			pthread_cond_signal(tds->input_freed);
 			pthread_mutex_unlock(tds->mutex);
 		}
-		else if (tds->local_spgemm == LSPG_RMERGE2)
-			C_cont = gsp->template mult<LIC, RMerge>
-				(**(tds->ARecv), **(tds->BRecv),
-				 i != tds->Aself, i != tds->Bself,
-				 tds->iter, tds->phase, i, tds->input_freed,
-				 tds->mutex);
-		else if (tds->local_spgemm == LSPG_BHSPARSE)
-			C_cont = gsp->template mult<LIC, Bhsparse>
-				(**(tds->ARecv), **(tds->BRecv),
-				 i != tds->Aself, i != tds->Bself,
-				 tds->iter, tds->phase, i, tds->input_freed,
-				 tds->mutex);		
+		// else if (tds->local_spgemm == LSPG_RMERGE2)
+		// 	C_cont = gsp->template mult<LIC, RMerge>
+		// 		(**(tds->ARecv), **(tds->BRecv),
+		// 		 i != tds->Aself, i != tds->Bself,
+		// 		 tds->iter, tds->phase, i, tds->input_freed,
+		// 		 tds->mutex);
+		// else if (tds->local_spgemm == LSPG_BHSPARSE)
+		// 	C_cont = gsp->template mult<LIC, Bhsparse>
+		// 		(**(tds->ARecv), **(tds->BRecv),
+		// 		 i != tds->Aself, i != tds->Bself,
+		// 		 tds->iter, tds->phase, i, tds->input_freed,
+		// 		 tds->mutex);		
 		else if (tds->local_spgemm == LSPG_NSPARSE)
 			C_cont = gsp->template mult<LIC, NSparse>
 				(**(tds->ARecv), **(tds->BRecv),
@@ -453,7 +453,10 @@ MemEfficientSpGEMMg (
 		if (flops / phases < (2 * 1e6))
 			local_spgemm = LSPG_CPU;
 		else if (cf <= 3)
-			local_spgemm = LSPG_RMERGE2;
+		{
+			// local_spgemm = LSPG_RMERGE2;
+			local_spgemm = LSPG_CPU;
+		}
 		
 		#ifdef LOG_GNRL_ME_SPGEMM
 		lfile << "local hybrid spgemm " <<

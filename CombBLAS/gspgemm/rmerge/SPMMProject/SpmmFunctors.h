@@ -5,9 +5,9 @@
 #include "cuda_runtime_api.h"
 
 #include "HostMatrix/MulMKL.h"
-#include "MulCusp.h"
-#include "MulCusparse.h"
-#include "LoadMatrixCusp.h"
+/* #include "MulCusp.h" */
+/* #include "MulCusparse.h" */
+/* #include "LoadMatrixCusp.h" */
 #include "HostMatrix/SparseHostMatrixCSR.h"
 #include "DeviceMatrix/SparseDeviceMatrixCSR.h"
 #include "HostMatrix/SparseHostMatrixCSROperations.h"

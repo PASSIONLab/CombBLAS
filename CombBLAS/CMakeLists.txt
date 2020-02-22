@@ -133,4 +133,4 @@ ADD_SUBDIRECTORY( Applications/Ordering )
 ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
 ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
 ADD_SUBDIRECTORY( 3DSpGEMM )
-ADD_SUBDIRECTORY( gspgemm/rmerge/SPMMProject )
+
