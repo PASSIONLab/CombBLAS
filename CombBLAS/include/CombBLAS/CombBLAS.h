@@ -94,6 +94,7 @@ extern double mcl3d_conversiontime;
 extern double mcl3d_symbolictime;
 extern double mcl3d_Abcasttime;
 extern double mcl3d_Bbcasttime;
+extern double mcl3d_SUMMAtime;
 extern double mcl3d_localspgemmtime;
 extern double mcl3d_SUMMAmergetime;
 extern double mcl3d_reductiontime;

@@ -350,9 +350,6 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     }
 }
 
-
-
-
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
@@ -386,7 +383,10 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
     
     double t0, t1, t2, t3, t4, t5;
+#ifdef TIMING
+    MPI_Barrier(A.getcommgrid()->GetWorld());
     t0 = MPI_Wtime();
+#endif
     if(perProcessMemory>0) // estimate the number of phases permitted by memory
     {
         int p;
@@ -402,7 +402,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, World);
         int64_t inputMem = gannz * perNNZMem_in * 4; // for four copies (two for SUMMA)
         
-        // max nnz(A^2) stored by summa in a porcess
+        // max nnz(A^2) stored by SUMMA in a porcess
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B, false);
 		int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
         
@@ -441,8 +441,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             
         }
     }
-    t1 = MPI_Wtime();
+
+    if(myrank == 0){
+        fprintf(stderr, "[MemEfficientSpGEMM] Running with phase: %d\n", phases);
+    }
+
 #ifdef TIMING
+    MPI_Barrier(A.getcommgrid()->GetWorld());
+    t1 = MPI_Wtime();
     mcl_symbolictime += (t1-t0);
 #endif
     
@@ -491,11 +497,13 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             }
             
 #ifdef TIMING
-            double t0=MPI_Wtime();
+            MPI_Barrier(A.getcommgrid()->GetWorld());
+            t0 = MPI_Wtime();
 #endif
             SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
 #ifdef TIMING
-            double t1=MPI_Wtime();
+            MPI_Barrier(A.getcommgrid()->GetWorld());
+            t1 = MPI_Wtime();
             mcl_Abcasttime += (t1-t0);
 #endif
             ess.clear();
@@ -509,22 +517,26 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
                 BRecv = new UDERB();
             }
 #ifdef TIMING
+            MPI_Barrier(A.getcommgrid()->GetWorld());
             double t2=MPI_Wtime();
 #endif
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 #ifdef TIMING
+            MPI_Barrier(A.getcommgrid()->GetWorld());
             double t3=MPI_Wtime();
             mcl_Bbcasttime += (t3-t2);
 #endif
             
             
 #ifdef TIMING
+            MPI_Barrier(A.getcommgrid()->GetWorld());
             double t4=MPI_Wtime();
 #endif
             double vm_usage, resident_set;
             SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
+            MPI_Barrier(A.getcommgrid()->GetWorld());
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
 #endif
@@ -555,6 +567,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #endif
 
 #ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
         double t6=MPI_Wtime();
 #endif
         //UDERO OnePieceOfC(MergeAll<SR>(tomerge, C_m, PiecesOfB[p].getncol(),true), false);
@@ -580,6 +593,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         
 #ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
         double t7=MPI_Wtime();
         mcl_multiwaymergetime += (t7-t6);
 #endif
@@ -944,10 +958,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}
 			ARecv = new UDERA();				// first, create the object
 		}
-        double t0 = MPI_Wtime();
-		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
-        double t1 = MPI_Wtime();
 #ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
+        double t0 = MPI_Wtime();
+#endif
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+#ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
+        double t1 = MPI_Wtime();
         mcl3d_Abcasttime += (t1-t0);
         Abcast_time += (t1-t0);
 #endif
@@ -966,21 +984,29 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}	
 			BRecv = new UDERB();
 		}
-		double t2 = MPI_Wtime();
-		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-		double t3 = MPI_Wtime();
 #ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
+		double t2 = MPI_Wtime();
+#endif
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+#ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
+		double t3 = MPI_Wtime();
         mcl3d_Bbcasttime += (t3-t2);
         Bbcast_time += (t3-t2);
 #endif
-		
+
+#ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
         double t4 = MPI_Wtime();
+#endif
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-        double t5 = MPI_Wtime();
 #ifdef TIMING
+        MPI_Barrier(A.getcommgrid()->GetWorld());
+        double t5 = MPI_Wtime();
         mcl3d_localspgemmtime += (t5-t4);
         Local_multiplication_time += (t5-t4);
 #endif
@@ -988,11 +1014,11 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
-		#ifdef COMBBLAS_DEBUG
+#ifdef COMBBLAS_DEBUG
    		std::ostringstream outs;
 		outs << i << "th SUMMA iteration"<< std::endl;
 		SpParHelper::Print(outs.str());
-		#endif
+#endif
 	}
 
 	if(clearA && A.spSeq != NULL) 
@@ -1012,10 +1038,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	//UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
-	double t0 = MPI_Wtime();
-	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
-	double t1 = MPI_Wtime();
 #ifdef TIMING
+    MPI_Barrier(A.getcommgrid()->GetWorld());
+	double t0 = MPI_Wtime();
+#endif
+	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+#ifdef TIMING
+    MPI_Barrier(A.getcommgrid()->GetWorld());
+	double t1 = MPI_Wtime();
     mcl3d_SUMMAmergetime += (t1-t0);
 #endif
 	

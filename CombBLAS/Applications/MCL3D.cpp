@@ -65,6 +65,7 @@ double mcl3d_conversiontime;
 double mcl3d_symbolictime;
 double mcl3d_Abcasttime;
 double mcl3d_Bbcasttime;
+double mcl3d_SUMMAtime;
 double mcl3d_localspgemmtime;
 double mcl3d_SUMMAmergetime;
 double mcl3d_reductiontime;
@@ -74,6 +75,7 @@ double mcl3d_conversiontime_prev;
 double mcl3d_symbolictime_prev;
 double mcl3d_Abcasttime_prev;
 double mcl3d_Bbcasttime_prev;
+double mcl3d_SUMMAtime_prev;
 double mcl3d_localspgemmtime_prev;
 double mcl3d_SUMMAmergetime_prev;
 double mcl3d_reductiontime_prev;
@@ -561,6 +563,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_symbolictime_prev = mcl3d_symbolictime;
         mcl3d_Abcasttime_prev = mcl3d_Abcasttime;
         mcl3d_Bbcasttime_prev = mcl3d_Bbcasttime;
+        mcl3d_SUMMAtime_prev = mcl3d_SUMMAtime;
         mcl3d_localspgemmtime_prev = mcl3d_localspgemmtime;
         mcl3d_SUMMAmergetime_prev = mcl3d_SUMMAmergetime;
         mcl3d_reductiontime_prev = mcl3d_reductiontime;
@@ -590,15 +593,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
                                                             param.recover_pct, 
                                                             param.kselectVersion, 
                                                             param.perProcessMem);
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "[MCL3D]:\tBack in MCL iteration\n");
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
+        //if(myrank == 0) fprintf(stderr, "[MCL3D]:\tBack in MCL iteration\n");
+        //MPI_Barrier(MPI_COMM_WORLD);
         double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) fprintf(stderr, "[MCL3D]:\tColStochastic done\n");
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
+        //if(myrank == 0) fprintf(stderr, "[MCL3D]:\tColStochastic done\n");
+        //MPI_Barrier(MPI_COMM_WORLD);
 #ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tColStochastic time: %lf\n", (t5-t15));
@@ -643,10 +646,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         if(myrank == 0){
             printf("[Iteration: %d] Conversiontime: %lf\n", it, (mcl3d_conversiontime - mcl3d_conversiontime_prev));
             printf("[Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
-            printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl3d_Abcasttime - mcl3d_Abcasttime_prev));
-            printf("[Iteration: %d] Bbcasttime: %lf\n", it, (mcl3d_Bbcasttime - mcl3d_Bbcasttime_prev));
-            printf("[Iteration: %d] LocalSPGEMM: %lf\n", it, (mcl3d_localspgemmtime - mcl3d_localspgemmtime_prev));
-            printf("[Iteration: %d] SUMMAmerge: %lf\n", it, (mcl3d_SUMMAmergetime - mcl3d_SUMMAmergetime_prev));
+            printf("[Iteration: %d] SUMMAtime: %lf\n", it, (mcl3d_SUMMAtime - mcl3d_SUMMAtime_prev));
+            //printf("[Iteration: %d] Abcasttime: %lf\n", it, (mcl3d_Abcasttime - mcl3d_Abcasttime_prev));
+            //printf("[Iteration: %d] Bbcasttime: %lf\n", it, (mcl3d_Bbcasttime - mcl3d_Bbcasttime_prev));
+            //printf("[Iteration: %d] LocalSPGEMM: %lf\n", it, (mcl3d_localspgemmtime - mcl3d_localspgemmtime_prev));
+            //printf("[Iteration: %d] SUMMAmerge: %lf\n", it, (mcl3d_SUMMAmergetime - mcl3d_SUMMAmergetime_prev));
             printf("[Iteration: %d] Reduction: %lf\n", it, (mcl3d_reductiontime - mcl3d_reductiontime_prev));
             printf("[Iteration: %d] 3D Merge: %lf\n", it, (mcl3d_3dmergetime - mcl3d_3dmergetime_prev));
             printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
@@ -699,10 +703,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         cout << "================detailed timing==================" << endl;
         cout << "Expansion: " << mcl3d_symbolictime + mcl3d_Abcasttime + mcl3d_Bbcasttime + mcl3d_localspgemmtime + mcl3d_SUMMAmergetime + mcl3d_reductiontime + mcl3d_3dmergetime << endl;
         cout << "       Symbolic=" << mcl3d_symbolictime << endl;
-        cout << "       Abcast= " << mcl3d_Abcasttime << endl;
-        cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
-        cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
-        cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
+        cout << "       SUMMAtime= "<< mcl3d_SUMMAtime << endl;
+        //cout << "       Abcast= " << mcl3d_Abcasttime << endl;
+        //cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
+        //cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
+        //cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
         cout << "       reductiontime= "<< mcl3d_reductiontime << endl;
         cout << "       3dmergetime= "<< mcl3d_3dmergetime << endl;
 	    cout << "Prune: " << mcl3d_kselecttime << endl;

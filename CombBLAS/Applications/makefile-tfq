@@ -43,6 +43,12 @@ MCL3D.o:  MCL3D.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBB
 mcl3d:	MemoryPool.o CommGrid.o MPIType.o MCL3D.o mmio.o hash.o
 	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl3d MCL3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
+BcastTest.o: BcastTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BcastTest.o BcastTest.cpp
+
+BcastTest:	BcastTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o BcastTest BcastTest.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
 clean:
 	rm -f *.o
 	rm MCL3D.o mcl3d
