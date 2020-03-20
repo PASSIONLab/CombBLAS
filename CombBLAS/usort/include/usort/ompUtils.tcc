@@ -1,5 +1,8 @@
 #include <cstdlib>
-#include <omp.h>
+
+#ifdef _OPENMP
+	#include <omp.h>
+#endif
 #include <iterator>
 #include <vector>
 #include <algorithm>
