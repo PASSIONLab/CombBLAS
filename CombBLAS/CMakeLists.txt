@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 
 set(CombBLAS_VERSION 1.16.0)
 SET(CMAKE_CXX_FLAGS "-O3")
+SET(CMAKE_C_FLAGS "-O3")
 
 project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX)
 
@@ -24,7 +25,7 @@ target_include_directories(CombBLAS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 # MPI and OpenMP dependencies
 find_package(MPI REQUIRED)
-find_package(OpenMP)
+find_package(OpenMP REQUIRED)
 
 if(TARGET MPI::MPI_CXX) # Use target if available (cmake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -34,7 +35,7 @@ elseif()
   target_include_directories(CombBLAS PUBLIC "${MPI_CXX_INCLUDE_PATH}")
 endif()
 
-if(OPENMP_FOUND)
+if(OPENMP_FOUND OR OpenMP_CXX_FOUND)
   # Set THREADED if OpenMP is found
   target_compile_definitions(CombBLAS PUBLIC THREADED)
   if(TARGET OpenMP::OpenMP_CXX)
@@ -43,16 +44,7 @@ if(OPENMP_FOUND)
     target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
     target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
   endif()
-elseif()
-  target_compile_definitions(CombBLAS PUBLIC)
-  if(TARGET OpenMP::OpenMP_CXX)
-    target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
-  else()
-    target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
-    target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
-  endif()
 endif()
-
 
 
 ADD_SUBDIRECTORY( usort )
