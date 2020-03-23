@@ -1,12 +1,11 @@
 #include <cstdlib>
 
-#ifdef _OPENMP
-	#include <omp.h>
-#endif
+#include <omp.h>
 #include <iterator>
 #include <vector>
 #include <algorithm>
 #include <cstring>
+
 // #include <seqUtils.h>
 
 
