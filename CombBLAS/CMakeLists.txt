@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 
-set(CombBLAS_VERSION 1.16.0)
+set(CombBLAS_VERSION 2.0.0)
 SET(CMAKE_CXX_FLAGS "-O3")
 SET(CMAKE_C_FLAGS "-O3")
 SET(CMAKE_SYSTEM_NAME Generic)
