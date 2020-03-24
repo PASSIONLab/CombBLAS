@@ -350,6 +350,94 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     }
 }
 
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+IU EstimateFLOP 
+		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false)
+
+{
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+	
+	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
+
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	UDERA * ARecv; 
+	UDERB * BRecv;
+    IU local_flops = 0;
+
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
+	
+	for(int i = 0; i < stages; ++i) 
+	{
+		std::vector<IU> ess;	
+		if(i == Aself)
+		{	
+			ARecv = A.spSeq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();				// first, create the object
+		}
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+		ess.clear();
+		
+		if(i == Bself)
+		{
+			BRecv = B.spSeq;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+
+		local_flops += EstimateLocalFLOP<SR>
+						(*ARecv, *BRecv, // parameters themselves
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+	}
+
+	if(clearA && A.spSeq != NULL) {	
+		delete A.spSeq;
+		A.spSeq = NULL;
+	}	
+	if(clearB && B.spSeq != NULL) {
+		delete B.spSeq;
+		B.spSeq = NULL;
+	}
+
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+
+	//if(!clearB)
+	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+
+    IU global_flops = 0;
+    MPI_Allreduce(&local_flops, &global_flops, 1, MPI_LONG_LONG_INT, MPI_SUM, A.getcommgrid()->GetWorld());
+    return global_flops;
+}
+
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
@@ -601,8 +689,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         delete OnePieceOfC_tuples;
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-        
+        //MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+        mcl_nnzc += OnePieceOfC_mat.getnnz();
+
 #ifdef SHOW_MEMORY_USAGE
         int64_t gcnnz_pruned, lcnnz_pruned ;
         lcnnz_pruned = OnePieceOfC_mat.getlocalnnz();
@@ -624,7 +713,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #endif
         
         // ABAB: Change this to accept pointers to objects
-        if(dbg == 0) toconcatenate.push_back(OnePieceOfC_mat.seq());
+        if(dbg == 0) {
+            //toconcatenate.push_back(OnePieceOfC_mat.seq());
+        }
     }
         //double vm_usage, resident_set;
         //process_mem_usage(vm_usage, resident_set);
@@ -641,6 +732,62 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     return SpParMat<IU,NUO,UDERO> (C, GridC);
 }
 
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+int CalculateNumberOfPhases (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
+        NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory){
+    
+    int phases;
+
+    typedef typename UDERA::LocalIT LIA;
+    typedef typename UDERB::LocalIT LIB;
+    typedef typename UDERO::LocalIT LIC;
+    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+    std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+    
+    double t0, t1, t2, t3, t4, t5;
+    int p;
+    MPI_Comm World = GridC->GetWorld();
+    MPI_Comm_size(World,&p);
+    
+    int64_t perNNZMem_in = sizeof(IU)*2 + sizeof(NU1);
+    int64_t perNNZMem_out = sizeof(IU)*2 + sizeof(NUO);
+    
+    // max nnz(A) in a porcess
+    int64_t lannz = A.getlocalnnz();
+    int64_t gannz;
+    MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, World);
+    int64_t inputMem = gannz * perNNZMem_in * 4; // for four copies (two for SUMMA)
+    
+    // max nnz(A^2) stored by SUMMA in a porcess
+    int64_t asquareNNZ = EstPerProcessNnzSUMMA(A,B, false);
+    int64_t asquareMem = asquareNNZ * perNNZMem_out * 2; // an extra copy in multiway merge and in selection/recovery step
+    
+    
+    // estimate kselect memory
+    int64_t d = ceil( (asquareNNZ * sqrt(p))/ B.getlocalcols() ); // average nnz per column in A^2 (it is an overestimate because asquareNNZ is estimated based on unmerged matrices)
+    // this is equivalent to (asquareNNZ * p) / B.getcol()
+    int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
+    int64_t kselectmem = B.getlocalcols() * k * 8 * 3;
+    
+    // estimate output memory
+    int64_t outputNNZ = (B.getlocalcols() * d)/sqrt(p);
+    //int64_t outputNNZ = (B.getlocalcols() * k)/sqrt(p); // if kselect is used
+    int64_t outputMem = outputNNZ * perNNZMem_in * 2;
+    
+    //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+    //int64_t remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+    int64_t remainingMem = perProcessMemory*1000000000 - inputMem; // if each phase result is discarded
+    //if(remainingMem > 0)
+    //{
+        //phases = 1 + (asquareMem+kselectmem) / remainingMem;
+    //}
+    phases = 1 + asquareMem / remainingMem;
+    return phases;
+}
 
 
 /**

@@ -469,7 +469,11 @@ namespace combblas
         MPI_Barrier(B.getcommgrid()->GetWorld());
         t0 = MPI_Wtime();
 #endif
-        int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+        if(perProcessMemory > 0) {
+            int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+            //if(calculatedPhases > phases) phases = calculatedPhases;
+            phases = calculatedPhases;
+        }
 #ifdef TIMING
         MPI_Barrier(B.getcommgrid()->GetWorld());
         t1 = MPI_Wtime();
@@ -477,8 +481,6 @@ namespace combblas
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
 #endif
         
-        //if(calculatedPhases > phases) phases = calculatedPhases;
-        if(perProcessMemory > 0) phases = calculatedPhases;
         
         // Calculate, accross fibers, which process should get how many columns after redistribution
         vector<LIT> divisions3d;
@@ -528,23 +530,16 @@ namespace combblas
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t0 = MPI_Wtime();
 #endif
-                //MPI_Barrier(MPI_COMM_WORLD);
                 //SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Overlap<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
                 SpParMat<IT, NT, DER> OnePieceOfCLayer = Mult_AnXBn_Synch<SR, NT, DER>(*(layermat), OnePieceOfBLayer);
-                //MPI_Barrier(MPI_COMM_WORLD);
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t1 = MPI_Wtime();
-                mcl3d_SUMMAtime+=(t1-t0);
+                mcl3d_SUMMAtime += (t1-t0);
+                mcl3d_layer_nnzc += OnePieceOfCLayer.getnnz();
                 if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSUMMA time: %lf\n", p, (t1-t0));
 #endif
-                //fprintf(stderr, "Checkpoint 2\n");
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSUMMA done\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
                 DER * OnePieceOfC = OnePieceOfCLayer.seqptr();
-                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tnrow %d ncol %d nnz %d\n", p, OnePieceOfCLayer.getnrow(), OnePieceOfCLayer.getncol(), OnePieceOfCLayer.getnnz());
-                
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t0 = MPI_Wtime();
@@ -553,7 +548,7 @@ namespace combblas
                 OnePieceOfC->ColSplit(divisions3d, sendChunks);
                 vector<DER*> rcvChunks;
 
-                IT datasize; NT dummy = 55.0;
+                IT datasize; NT dummy = 17.0;
                 SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
                 
 #ifdef TIMING
@@ -570,22 +565,22 @@ namespace combblas
                 //for(int i = 0; i < rcvChunks.size(); i++) *phaseResultant += *(rcvChunks[i]);
                 vector< SpTuples<IT, NT>* > tomerge;
                 for(int i = 0; i < rcvChunks.size(); i++) tomerge.push_back( new SpTuples<IT, NT>(*(rcvChunks[i])) );
+#ifdef TIMING
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                double tmm0 = MPI_Wtime();
+#endif
                 SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(tomerge, rcvChunks[0]->getnrow(), rcvChunks[0]->getncol(), true);
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiwayMerge done\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
+#ifdef TIMING
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                double tmm1 = MPI_Wtime();
+                if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiway Merge: %lf\n", p, (tmm1-tmm0));
+#endif
                 DER * phaseResultant = new DER(*merged_tuples, false);
                 delete merged_tuples;
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSpDCCol created from merged tuples\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
                 for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
                 vector<DER*>().swap(sendChunks);
                 for(int i = 0; i < rcvChunks.size(); i++) delete rcvChunks[i];
                 vector<DER*>().swap(rcvChunks);
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tsendChunks and rcvChunks cleared\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
                 SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
@@ -598,9 +593,7 @@ namespace combblas
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t0 = MPI_Wtime();
 #endif
-                //MPI_Barrier(MPI_COMM_WORLD);
-                MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-                //MPI_Barrier(MPI_COMM_WORLD);
+                //MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t1 = MPI_Wtime();
@@ -608,37 +601,16 @@ namespace combblas
                 if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
 #endif
                 
-                if(jj == 0) layerResultant += phaseResultantLayer;
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tcolumn concatenation done with +=\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
+                //if(jj == 0) layerResultant += phaseResultantLayer;
                 phaseResultantLayer.FreeMemory();
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tphaseResultantLayer memory freed\n", p);
-                //MPI_Barrier(MPI_COMM_WORLD);
-                //process_mem_usage(vm_usage, resident_set);
-                //if(myrank == 0) fprintf(stderr, "VmSize after %dth %dth phase %lf %lf\n", jj+1, p+1, vm_usage, resident_set);
-                //MPI_Barrier(MPI_COMM_WORLD);
             }
         }
         for(int i = 0; i < PiecesOfB.size(); i++) delete PiecesOfB[i];
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]:\tPiecesOfB freed\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
 
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), commGrid3D->GetGridRows(), commGrid3D->GetGridCols(), isSpecial()));
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]:\tNew process grid created\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
         DER * localResultant = new DER(*localLayerResultant);
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]:\tNew SpParMat created with new process grid\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //process_mem_usage(vm_usage, resident_set);
-        //if(myrank == 0) fprintf(stderr, "VmSize before return %lf %lf\n", vm_usage, resident_set);
-        //MPI_Barrier(MPI_COMM_WORLD);
         return C3D;
     }
 
@@ -664,23 +636,31 @@ namespace combblas
         // 3D Specific
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
         int64_t asquareMem = gasquareNNZ * perNNZMem_out * 4; // because += operation needs three times memory!!
+        if(myrank == 0) {
+            fprintf(stderr, "Per process gasquareNNZ: %lld\n", gasquareNNZ);
+        }
 
         int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
         int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
         //int64_t k = int64_t(std::max(selectNum, recoverNum));
 
         // estimate output memory
-        int64_t outputNNZ =ceil((layermat->getlocalcols() * k)/sqrt(p));
+        //int64_t outputNNZ =ceil((layermat->getlocalcols() * k)/sqrt(p)); // If kselect is run
+        int64_t outputNNZ =ceil((layermat->getlocalcols() * d)/sqrt(p)); // If keselect is not run
         int64_t outputMem = outputNNZ * perNNZMem_out * 2;
-        double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+        //double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
+        double remainingMem = perProcessMemory*1000000000 - inputMem; // If output of each phase is discarded
         int64_t kselectmem = layermat->getlocalcols() * k * sizeof(NT) * 3;
 
-        //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
-        if(remainingMem > 0){
-            phases = ceil((asquareMem+kselectmem) / remainingMem);
-            return phases;
-        }
-        else return -1;
+        ////inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+        //if(remainingMem > 0){
+            //phases = ceil((asquareMem+kselectmem) / remainingMem); // If kselect is run
+            //return phases;
+        //}
+        //else return -1;
+
+        phases = ceil(asquareMem / remainingMem);   // If kselect is not run
+        return phases;
     }
     
     /*
@@ -903,6 +883,7 @@ namespace combblas
         int myrank;
         MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
         double vm_usage, resident_set;
+        double t0, t1;
         typedef typename DER::LocalIT LIT;
         int numChunks = sendChunks.size();
 
@@ -946,7 +927,20 @@ namespace combblas
             }
         }
 
+#ifdef TIMING
+        if(dummy == 17.0){
+            //MPI_Barrier(B.getcommgrid()->GetWorld());
+            t0 = MPI_Wtime();
+        }
+#endif
         MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+#ifdef TIMING
+        if(dummy == 17.0){
+            //MPI_Barrier(B.getcommgrid()->GetWorld());
+            t1 = MPI_Wtime();
+            if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] Alltoallv time: %lf\n", (t1-t0));
+        }
+#endif
 	    DeleteAll(sendcnt, sendprfl, sdispls, sendTuples);
 
         //tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];

@@ -437,6 +437,39 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     return spTuplesC;
 }
 
+/*
+ *  Estimates total flops necessary to multiply A and B
+ *  Then returns the number
+ * */
+template <typename SR, typename IT, typename NT1, typename NT2>
+IT EstimateLocalFLOP
+(const SpDCCols<IT, NT1> & A,
+ const SpDCCols<IT, NT2> & B,
+ bool clearA, bool clearB)
+{
+    Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
+    Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
+    int numThreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+#endif
+    IT* flopC = estimateFLOP(A, B);
+    IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
+    IT flop = flopptr[Bdcsc->nzc];
+    delete [] flopC;
+
+    if(clearA)
+        delete const_cast<SpDCCols<IT, NT1> *>(&A);
+    if(clearB)
+        delete const_cast<SpDCCols<IT, NT2> *>(&B);
+    
+    delete [] flopptr;
+    return flop;
+}
+
 // estimate space for result of SpGEMM
 template <typename IT, typename NT1, typename NT2>
 IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * aux = nullptr, bool freeaux = true)

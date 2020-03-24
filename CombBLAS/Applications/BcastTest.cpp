@@ -60,15 +60,31 @@ int main(int argc, char* argv[])
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
         
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
+        typedef PlusTimesSRing<double, double> PTFF;
 
         //M.ParallelReadMM(Aname, true, maximum<double>());
         M.ReadGeneralizedTuples(Aname, maximum<double>());
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
-        //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
-        //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
         //SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
         //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
+        M.FreeMemory();
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M2 = Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y);
+        X.FreeMemory();
+        Y.FreeMemory();
+        FullyDistVec<int64_t, int64_t> p2( M2.getcommgrid() );
+        p2.iota(M2.getnrow(), 0);
+        p2.RandPerm();
+        (M2)(p2,p2,true);// in-place permute to save memory
+
+        int64_t nnz = M2.getnnz();
+        if(myrank == 0){
+            fprintf(stderr, "nnz: %lld\n", nnz);
+        }
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M2);
+        //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M2);
+        //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
 
         typedef PlusTimesSRing<double, double> PTFF;
         typedef int64_t IT;
@@ -84,7 +100,7 @@ int main(int argc, char* argv[])
         int dummy, stages;
         std::shared_ptr<CommGrid> GridC = ProductGrid((A.getcommgrid()).get(), (B.getcommgrid()).get(), stages, dummy, dummy);
 
-        for(int phases = 1; phases <= 1024; phases = phases * 2){
+        for(int phases = 1; phases <= 128; phases = phases * 2){
             if(myrank == 0) fprintf(stderr, "Running with phase: %d\n", phases);
             for(int it = 0; it < 3; it++){
                 //Abcasttime_prev = Abcasttime;
@@ -125,26 +141,29 @@ int main(int argc, char* argv[])
                                 ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row
                             ARecv = new DER();				// first, create the object
                         }
-                        
+                        MPI_Barrier(A.getcommgrid()->GetWorld());                       
                         t0=MPI_Wtime();
                         SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+                        MPI_Barrier(A.getcommgrid()->GetWorld());                       
                         t1=MPI_Wtime();
                         Abcasttime += (t1-t0);
 
                         ess.clear();
 
-                        //if(i == Bself)  BRecv = &(PiecesOfB[p]);	// shallow-copy
-                        //else
-                        //{
-                            //ess.resize(DER::esscount);
-                            //for(int j=0; j< DER::esscount; ++j)
-                                //ess[j] = BRecvSizes[j][i];
-                            //BRecv = new DER();
-                        //}
-                        //t0=MPI_Wtime();
-                        //SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-                        //t1=MPI_Wtime();
-                        //Bbcasttime += (t1-t0);
+                        if(i == Bself)  BRecv = &(PiecesOfB[p]);	// shallow-copy
+                        else
+                        {
+                            ess.resize(DER::esscount);
+                            for(int j=0; j< DER::esscount; ++j)
+                                ess[j] = BRecvSizes[j][i];
+                            BRecv = new DER();
+                        }
+                        MPI_Barrier(A.getcommgrid()->GetWorld());                       
+                        t0=MPI_Wtime();
+                        SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+                        MPI_Barrier(A.getcommgrid()->GetWorld());                       
+                        t1=MPI_Wtime();
+                        Bbcasttime += (t1-t0);
 
                         if(i != Aself){
                             if(ARecv != NULL) delete ARecv;

@@ -107,8 +107,11 @@ public:
 	int gridCols; // Number of processors along column of each layer in this 3D CommGrid
     int gridLayers; // Number of layers in this 3D CommGrid
     int myrank; // ID of the running processor in the communication world
+    int GetRankInWorld(){return myrank;}
     int rankInFiber;
+    int GetRankInFiber(){return rankInFiber;}
     int rankInLayer;
+    int GetRankInLayer(){return rankInLayer;}
     MPI_Comm world3D;
     MPI_Comm layerWorld;
     MPI_Comm fiberWorld;
