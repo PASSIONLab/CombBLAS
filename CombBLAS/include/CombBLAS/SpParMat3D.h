@@ -84,7 +84,6 @@ namespace combblas
         IT getncol() const;
         IT getnnz() const;
         
-        std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
         std::shared_ptr< SpParMat<IT, NT, DER> > GetLayerMat() {return layermat;}
         DER * seqptr() {return layermat->seqptr();}
         bool isSpecial() {return special;}
@@ -106,6 +105,7 @@ namespace combblas
         void CalculateColSplitDistributionOfLayer(vector<typename DER::LocalIT> & divisions3d);
         bool CheckSpParMatCompatibility();       
         std::shared_ptr<CommGrid3D> getcommgrid() const { return commGrid3D; } 	
+        std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
         //SpParMat<IT, NT, DER>* layermat;
