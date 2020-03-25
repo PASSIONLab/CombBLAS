@@ -31,6 +31,12 @@ SpGEMM3D.o:  SpGEMM3D.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp 
 SpGEMM3D:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
 	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
+SpGEMM2D.o:  SpGEMM2D.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpGEMM2D.o SpGEMM2D.cpp
+
+SpGEMM2D:	SpGEMM2D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM2D SpGEMM2D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
 MCL.o:  MCL.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
 
@@ -48,6 +54,12 @@ BcastTest.o: BcastTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp
 
 BcastTest:	BcastTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
 	$(COMPILER) $(INCADD) $(FLAGS) -o BcastTest BcastTest.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+CFEstimate.o:  CFEstimate.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CFEstimate.o CFEstimate.cpp
+
+CFEstimate:	CFEstimate.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o CFEstimate CFEstimate.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
 
 clean:
 	rm -f *.o
