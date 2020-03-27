@@ -502,8 +502,8 @@ namespace combblas
             }
         }
 
-        DER * localLayerResultant = new DER(0, layermat->seqptr()->getnrow(), divisions3d[commGrid3D->rankInFiber], 0);
-        SpParMat<IT, NT, DER> layerResultant(localLayerResultant, commGrid3D->layerWorld);
+        //DER * localLayerResultant = new DER(0, layermat->seqptr()->getnrow(), divisions3d[commGrid3D->rankInFiber], 0);
+        //SpParMat<IT, NT, DER> layerResultant(localLayerResultant, commGrid3D->layerWorld);
         
         double kselectTime = 0;
         double reductionTime = 0;
@@ -517,12 +517,18 @@ namespace combblas
             // This loop is just for testing memory leak by doing something over and over again in each phase
             // It needs to be run only once for normal multiplication process.
             for(int jj = 0; jj < 1; jj++){
-                DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), (B.layermat)->seqptr()->getnrow(), 0);
+                vector<LIT> lbDivisions3d;
+                LIT totalLocalColumnInvolved = 0;
                 vector<DER*> targetPiecesOfB;
                 for(int i = 0; i < PiecesOfB.size(); i++){
-                    if(i % phases == p) targetPiecesOfB.push_back(new DER(*(PiecesOfB[i])));
-                    else targetPiecesOfB.push_back(new DER(0, PiecesOfB[i]->getnrow(), PiecesOfB[i]->getncol(), 0));
+                    if(i % phases == p){
+                        targetPiecesOfB.push_back(new DER(*(PiecesOfB[i])));
+                        lbDivisions3d.push_back(PiecesOfB[i]->getncol());
+                        totalLocalColumnInvolved += PiecesOfB[i]->getncol();
+                    }
+                    //else targetPiecesOfB.push_back(new DER(0, PiecesOfB[i]->getnrow(), PiecesOfB[i]->getncol(), 0));
                 }
+                DER * OnePieceOfB = new DER(0, (B.layermat)->seqptr()->getnrow(), totalLocalColumnInvolved, 0);
                 OnePieceOfB->ColConcatenate(targetPiecesOfB);
                 vector<DER*>().swap(targetPiecesOfB);
                 SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, commGrid3D->layerWorld);
@@ -545,7 +551,7 @@ namespace combblas
                 t0 = MPI_Wtime();
 #endif
                 vector<DER*> sendChunks;
-                OnePieceOfC->ColSplit(divisions3d, sendChunks);
+                OnePieceOfC->ColSplit(lbDivisions3d, sendChunks);
                 vector<SpTuples<IT, NT>*> rcvChunks(sendChunks.size());
 
                 IT datasize; NT dummy = 17.0;
@@ -575,13 +581,13 @@ namespace combblas
                 double tmm1 = MPI_Wtime();
                 if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiway Merge: %lf\n", p, (tmm1-tmm0));
 #endif
-                DER * phaseResultant = new DER(*merged_tuples, false);
+                //DER * phaseResultant = new DER(*merged_tuples, false);
                 delete merged_tuples;
                 for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
                 vector<DER*>().swap(sendChunks);
                 //for(int i = 0; i < rcvChunks.size(); i++) delete rcvChunks[i];
                 vector<SpTuples<IT,NT>*>().swap(rcvChunks);
-                SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
+                //SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t1 = MPI_Wtime();
@@ -602,14 +608,15 @@ namespace combblas
 #endif
                 
                 //if(jj == 0) layerResultant += phaseResultantLayer;
-                phaseResultantLayer.FreeMemory();
+                //phaseResultantLayer.FreeMemory();
             }
         }
         for(int i = 0; i < PiecesOfB.size(); i++) delete PiecesOfB[i];
 
         std::shared_ptr<CommGrid3D> grid3d;
         grid3d.reset(new CommGrid3D(commGrid3D->GetWorld(), commGrid3D->GetGridLayers(), commGrid3D->GetGridRows(), commGrid3D->GetGridCols(), isSpecial()));
-        DER * localResultant = new DER(*localLayerResultant);
+        //DER * localResultant = new DER(*localLayerResultant);
+        DER * localResultant = new DER();
         SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, isColSplit(), isSpecial());
         return C3D;
     }
