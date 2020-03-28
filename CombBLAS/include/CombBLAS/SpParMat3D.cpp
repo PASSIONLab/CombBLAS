@@ -552,10 +552,164 @@ namespace combblas
 #endif
                 vector<DER*> sendChunks;
                 OnePieceOfC->ColSplit(lbDivisions3d, sendChunks);
-                vector<SpTuples<IT, NT>*> rcvChunks(sendChunks.size());
+                vector<SpTuples<IT, NT>*> recvChunks(sendChunks.size());
 
                 IT datasize; NT dummy = 17.0;
-                SpecialExchangeData_2(sendChunks, commGrid3D->fiberWorld, datasize, dummy, rcvChunks);
+
+                double tsed0, tsed1;
+
+                int numChunks = sendChunks.size();
+
+                MPI_Datatype MPI_tuple;
+                MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
+                MPI_Type_commit(&MPI_tuple);
+
+                int * sendcnt = new int[numChunks];
+                int * sendprfl = new int[numChunks*3];
+                int * sdispls = new int[numChunks]();
+                int * recvcnt = new int[numChunks];
+                int * recvprfl = new int[numChunks*3];
+                int * rdispls = new int[numChunks]();
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+                IT totsend = 0;
+                for(IT i=0; i<numChunks; ++i){
+                    sendprfl[i*3] = sendChunks[i]->getnnz();
+                    sendprfl[i*3+1] = sendChunks[i]->getnrow();
+                    sendprfl[i*3+2] = sendChunks[i]->getncol();
+                    sendcnt[i] = sendprfl[i*3];
+                    totsend += sendcnt[i];
+                }
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] Getting send profile ready: %lf\n", (tsed1-tsed0));
+                }
+#endif
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+                MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, commGrid3D->fiberWorld);
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] send profile alltoall: %lf\n", (tsed1-tsed0));
+                }
+#endif
+                for(int i = 0; i < numChunks; i++) recvcnt[i] = recvprfl[i*3];
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+                std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
+                std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
+                IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] getting receive profile ready: %lf\n", (tsed1-tsed0));
+                }
+#endif
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+                std::tuple<LIT,LIT,NT>* sendTuples = new std::tuple<LIT,LIT,NT>[totsend];
+                std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
+
+#pragma omp parallel for
+                for(int i = 0; i < numChunks; i++){
+                    int kk = sdispls[i];
+                    for(typename DER::SpColIter colit = sendChunks[i]->begcol(); colit != sendChunks[i]->endcol(); ++colit){
+                        for(typename DER::SpColIter::NzIter nzit = sendChunks[i]->begnz(colit); nzit != sendChunks[i]->endnz(colit); ++nzit){
+                            NT val = nzit.value();
+                            sendTuples[kk++] = std::make_tuple(nzit.rowid(), colit.colid(), nzit.value());
+                        }
+                    }
+                }
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] memory allocation and data copy before actual alltoallv: %lf\n", (tsed1-tsed0));
+                }
+#endif
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+                MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, commGrid3D->fiberWorld);
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] alltoallv: %lf\n", (tsed1-tsed0));
+                }
+#endif
+                DeleteAll(sendcnt, sendprfl, sdispls, sendTuples);
+
+//#ifdef TIMING
+                //if(dummy == 17.0){
+                    //MPI_Barrier(MPI_COMM_WORLD);
+                    //tsed0 = MPI_Wtime();
+                //}
+//#endif
+                ////tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
+                //tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
+//#pragma omp parallel for
+                //for (int i = 0; i < numChunks; i++){
+                    //tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
+                    //memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
+                //}
+//#ifdef TIMING
+                //if(dummy == 17.0){
+                    //MPI_Barrier(MPI_COMM_WORLD);
+                    //tsed1 = MPI_Wtime();
+                    //if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] tempTuple allocations and memcpy: %lf\n", (tsed1-tsed0));
+                //}
+//#endif
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed0 = MPI_Wtime();
+                }
+#endif
+#pragma omp parallel for
+                for (int i = 0; i < numChunks; i++){
+                    recvChunks[i] = new SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
+                }
+
+#ifdef TIMING
+                if(dummy == 17.0){
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    tsed1 = MPI_Wtime();
+                    if(myrank == 0) fprintf(stderr, "[SpecialExchangeData_2] creation of SpTuples from recvTuples: %lf\n", (tsed1-tsed0));
+                }
+#endif
+                // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
+                DeleteAll(recvcnt, recvprfl, rdispls/*, recvTuples*/); 
+                MPI_Type_free(&MPI_tuple);
                 
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
@@ -575,7 +729,7 @@ namespace combblas
                 //MPI_Barrier(B.getcommgrid()->GetWorld());
                 double tmm0 = MPI_Wtime();
 #endif
-                SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(rcvChunks, rcvChunks[0]->getnrow(), rcvChunks[0]->getncol(), true);
+                SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
 #ifdef TIMING
                 //MPI_Barrier(B.getcommgrid()->GetWorld());
                 double tmm1 = MPI_Wtime();
@@ -585,9 +739,10 @@ namespace combblas
                 delete merged_tuples;
                 for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
                 vector<DER*>().swap(sendChunks);
-                //for(int i = 0; i < rcvChunks.size(); i++) delete rcvChunks[i];
-                vector<SpTuples<IT,NT>*>().swap(rcvChunks);
+                //for(int i = 0; i < recvChunks.size(); i++) delete recvChunks[i];
+                vector<SpTuples<IT,NT>*>().swap(recvChunks);
                 //SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
+                delete [] recvTuples;
 #ifdef TIMING
                 MPI_Barrier(B.getcommgrid()->GetWorld());
                 t1 = MPI_Wtime();
