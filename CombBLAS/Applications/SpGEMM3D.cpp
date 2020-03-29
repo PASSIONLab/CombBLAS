@@ -171,6 +171,9 @@ int main(int argc, char* argv[])
         double t0, t1;
         
         for(int layers = 16; layers <= 16; layers = layers * 4){
+#ifdef TIMING
+            mcl3d_layer_nnzc = 0;
+#endif
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2(M);
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2(M);
             SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A2, layers, true, false);
@@ -234,6 +237,7 @@ int main(int argc, char* argv[])
                     MPI_Allreduce(&mcl3d_kselecttime, &g_mcl3d_kselecttime, 1, MPI_DOUBLE, MPI_MAX, A3D.getcommgrid3D()->GetFiberWorld());
                     MPI_Allreduce(&mcl3d_totaltime, &g_mcl3d_totaltime, 1, MPI_DOUBLE, MPI_MAX, A3D.getcommgrid3D()->GetWorld());
                     MPI_Allreduce(&mcl3d_floptime, &g_mcl3d_floptime, 1, MPI_DOUBLE, MPI_MIN, A3D.getcommgrid3D()->GetWorld());
+                    MPI_Allreduce(&mcl3d_layer_nnzc, &g_mcl3d_layer_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
 
                     mcl3d_symbolictime = g_mcl3d_symbolictime;
                     mcl3d_Abcasttime = g_mcl3d_Abcasttime;
@@ -246,7 +250,7 @@ int main(int argc, char* argv[])
                     mcl3d_kselecttime = g_mcl3d_kselecttime;
                     mcl3d_totaltime = g_mcl3d_totaltime;
                     mcl3d_floptime = g_mcl3d_floptime;
-                    //mcl3d_totaltime = mcl3d_totaltime - mcl3d_floptime;
+                    mcl3d_layer_nnzc = g_mcl3d_layer_nnzc;
 
                     if(myrank == 0){
                         fprintf(stderr, "[3D: Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
@@ -289,13 +293,6 @@ int main(int argc, char* argv[])
                     false, false);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_flop %lld\n", mcl3d_layer_flop);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", mcl3d_layer_nnzc);
-            //double mcl3d_layer_cf = (mcl3d_layer_flop*1.0) / mcl3d_layer_nnzc;
-            //if(myrank == 0) fprintf(stderr, "mcl3d_layer_cf %llf\n", mcl3d_layer_cf);
-            //double g_mcl3d_layer_cf;
-            //MPI_Allreduce(&mcl3d_layer_cf, &g_mcl3d_layer_cf, 1, MPI_DOUBLE, MPI_SUM, A3D.getcommgrid3D()->GetFiberWorld());
-            //if(myrank == 0) fprintf(stderr, "g_mcl3d_layer_cf %llf\n", g_mcl3d_layer_cf);
-            //g_mcl3d_layer_cf = g_mcl3d_layer_cf / A3D.getcommgrid3D()->GetGridLayers();
-            //if(myrank == 0) fprintf(stderr, "Per layer compression factor %llf\n", g_mcl3d_layer_cf);
 #endif
             if(myrank == 0) fprintf(stderr, "\n\n\n\n********************************************\n\n\n\n\n\n\n");
         }
