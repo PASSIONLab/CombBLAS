@@ -660,7 +660,7 @@ namespace combblas
             MPI_Barrier(layermat->getcommgrid()->GetWorld());
             t2 = MPI_Wtime();
 #endif
-            SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
+            SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
 #ifdef TIMING
             MPI_Barrier(layermat->getcommgrid()->GetWorld());
             double t3 = MPI_Wtime();
@@ -746,6 +746,7 @@ namespace combblas
             t2 = MPI_Wtime();
 #endif
             MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, commGrid3D->fiberWorld);
+            delete C_tuples;
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());
             t3 = MPI_Wtime();
