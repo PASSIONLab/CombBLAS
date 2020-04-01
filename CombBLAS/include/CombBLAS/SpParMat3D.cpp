@@ -714,76 +714,30 @@ namespace combblas
             std::partial_sum(lbDivisions3d.begin(), lbDivisions3d.end()-1, lbDivisions3dPrefixSum.begin()+1);
             ColLexiCompare<IT,NT> comp;
             IT totsend = C_tuples->getnnz();
-
-            //*************************************
-            // These lines are needed for memory movement before alltoallv
-#ifdef TIMING
-            MPI_Barrier(B.getcommgrid()->GetWorld());
-            t2 = MPI_Wtime();
-#endif
-            DER * OnePieceOfC = new DER(*C_tuples, false);
-            //delete C_tuples;
-            vector<DER*> sendChunks;
-            OnePieceOfC->ColSplit(lbDivisions3d, sendChunks);
-            totsend = 0;
-            for(int i=0; i<getcommgrid()->GetGridLayers(); ++i){
-                sendprfl[i*3+0] = sendChunks[i]->getnnz();
-                sendprfl[i*3+1] = sendChunks[i]->getnrow();
-                sendprfl[i*3+2] = sendChunks[i]->getncol();
-                sendcnt[i] = sendprfl[i*3];
-                totsend += sendcnt[i];
+            
+#pragma omp parallel for
+            for(int i=0; i < getcommgrid()->GetGridLayers(); ++i){
+                IT start_col = lbDivisions3dPrefixSum[i];
+                IT end_col = lbDivisions3dPrefixSum[i] + lbDivisions3d[i];
+                std::tuple<IT, IT, NT> search_tuple_start(0, start_col, NT());
+                std::tuple<IT, IT, NT> search_tuple_end(0, end_col, NT());
+                std::tuple<IT, IT, NT>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
+                std::tuple<IT, IT, NT>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
+                // This type casting is important from semantic point of view
+                sendcnt[i] = (int)(end_it - start_it);
+                sendprfl[i*3+0] = (int)(sendcnt[i]); // Number of nonzeros in ith chunk
+                sendprfl[i*3+1] = (int)(layermat->seqptr()->getnrow()); // Number of rows in ith chunk
+                sendprfl[i*3+2] = (int)(lbDivisions3d[i]); // Number of columns in ith chunk
             }
             std::partial_sum(sendcnt, sendcnt+getcommgrid()->GetGridLayers()-1, sdispls+1);
-#ifdef TIMING
-            MPI_Barrier(B.getcommgrid()->GetWorld());
-            t3 = MPI_Wtime();
-            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tGetting sendprfl ready: %lf\n", p, (t3-t2));
-#endif
-#ifdef TIMING
-            MPI_Barrier(B.getcommgrid()->GetWorld());
-            t2 = MPI_Wtime();
-#endif
-            std::tuple<LIT,LIT,NT>* sendTuples = new std::tuple<LIT,LIT,NT>[totsend];
-            //memcpy(sendTuples, C_tuples->tuples, totsend * sizeof(std::tuple<LIT,LIT,NT>));
+
+            // Send profile ready. Now need to update the tuples to reflect correct column id after column split.
 #pragma omp parallel for
-            for(int i = 0; i < getcommgrid()->GetGridLayers(); i++){
-                int kk = sdispls[i];
-                for(typename DER::SpColIter colit = sendChunks[i]->begcol(); colit != sendChunks[i]->endcol(); ++colit){
-                    for(typename DER::SpColIter::NzIter nzit = sendChunks[i]->begnz(colit); nzit != sendChunks[i]->endnz(colit); ++nzit){
-                        NT val = nzit.value();
-                        sendTuples[kk++] = std::make_tuple(nzit.rowid(), colit.colid(), nzit.value());
-                    }
+            for(int i=0; i < getcommgrid()->GetGridLayers(); ++i){
+                for(int j = 0; j < sendcnt[i]; j++){
+                    std::get<1>(C_tuples->tuples[sdispls[i]+j]) = std::get<1>(C_tuples->tuples[sdispls[i]+j]) - lbDivisions3dPrefixSum[i];
                 }
             }
-            for(int i = 0; i < sendChunks.size(); i++) delete sendChunks[i];
-            vector<DER*>().swap(sendChunks);
-#ifdef TIMING
-            MPI_Barrier(B.getcommgrid()->GetWorld());
-            t3 = MPI_Wtime();
-            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMemory movement for Alltoallv: %lf\n", p, (t3-t2));
-#endif
-            // Upto this line
-            //*************************************
-            
-            //*************************************
-            //// Uncomment these lines to avoid memory movement before alltoall
-//#pragma omp parallel for
-            //for(int i=0; i < getcommgrid()->GetGridLayers(); ++i){
-                //IT start_col = lbDivisions3dPrefixSum[i];
-                //IT end_col = lbDivisions3dPrefixSum[i] + lbDivisions3d[i];
-                //std::tuple<IT, IT, NT> search_tuple_start(0, start_col, NT());
-                //std::tuple<IT, IT, NT> search_tuple_end(0, end_col, NT());
-                //std::tuple<IT, IT, NT>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
-                //std::tuple<IT, IT, NT>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
-                //// This type casting is important from semantic point of view
-                //sendcnt[i] = (int)(end_it - start_it);
-                //sendprfl[i*3+0] = (int)(sendcnt[i]); // Number of nonzeros in ith chunk
-                //sendprfl[i*3+1] = (int)(layermat->seqptr()->getnrow()); // Number of rows in ith chunk
-                //sendprfl[i*3+2] = (int)(lbDivisions3d[i]); // Number of columns in ith chunk
-            //}
-            //std::partial_sum(sendcnt, sendcnt+getcommgrid()->GetGridLayers()-1, sdispls+1);
-            //// Upto this line
-            //*************************************
 
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());
@@ -804,7 +758,7 @@ namespace combblas
             MPI_Barrier(B.getcommgrid()->GetWorld());
             t2 = MPI_Wtime();
 #endif
-            MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, commGrid3D->fiberWorld);
+            MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, commGrid3D->fiberWorld);
             delete C_tuples;
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());
@@ -818,7 +772,7 @@ namespace combblas
             }
 
             // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
-            DeleteAll(sendcnt, sendprfl, sdispls, sendTuples);
+            DeleteAll(sendcnt, sendprfl, sdispls);
             DeleteAll(recvcnt, recvprfl, rdispls); 
             MPI_Type_free(&MPI_tuple);
             /*
@@ -849,8 +803,11 @@ namespace combblas
             //DER * phaseResultant = new DER(*merged_tuples, false);
             delete merged_tuples;
             // Do not delete elements of recvChunks, because that would give segmentation fault due to double free
-            //for(int i = 0; i < recvChunks.size(); i++) delete recvChunks[i];
             delete [] recvTuples;
+            for(int i = 0; i < recvChunks.size(); i++){
+                recvChunks[i]->tuples_deleted = true; // Temporary patch to avoid memory leak and segfault
+                delete recvChunks[i];
+            }
             vector<SpTuples<IT,NT>*>().swap(recvChunks);
             //SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, commGrid3D->layerWorld);
             /*
