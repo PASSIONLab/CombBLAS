@@ -715,6 +715,10 @@ namespace combblas
             ColLexiCompare<IT,NT> comp;
             IT totsend = C_tuples->getnnz();
             
+#ifdef TIMING
+            MPI_Barrier(getcommgrid()->GetWorld());
+            t2 = MPI_Wtime();
+#endif
 #pragma omp parallel for
             for(int i=0; i < getcommgrid()->GetGridLayers(); ++i){
                 IT start_col = lbDivisions3dPrefixSum[i];
@@ -730,14 +734,28 @@ namespace combblas
                 sendprfl[i*3+2] = (int)(lbDivisions3d[i]); // Number of columns in ith chunk
             }
             std::partial_sum(sendcnt, sendcnt+getcommgrid()->GetGridLayers()-1, sdispls+1);
+#ifdef TIMING
+            MPI_Barrier(getcommgrid()->GetWorld());
+            t3 = MPI_Wtime();
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tGetting Alltoall data ready: %lf\n", p, (t3-t2));
+#endif
 
             // Send profile ready. Now need to update the tuples to reflect correct column id after column split.
+#ifdef TIMING
+            MPI_Barrier(getcommgrid()->GetWorld());
+            t2 = MPI_Wtime();
+#endif
 #pragma omp parallel for
             for(int i=0; i < getcommgrid()->GetGridLayers(); ++i){
                 for(int j = 0; j < sendcnt[i]; j++){
                     std::get<1>(C_tuples->tuples[sdispls[i]+j]) = std::get<1>(C_tuples->tuples[sdispls[i]+j]) - lbDivisions3dPrefixSum[i];
                 }
             }
+#ifdef TIMING
+            MPI_Barrier(getcommgrid()->GetWorld());
+            t3 = MPI_Wtime();
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tGetting Alltoallv data ready: %lf\n", p, (t3-t2));
+#endif
 
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());
@@ -749,10 +767,19 @@ namespace combblas
             t3 = MPI_Wtime();
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAlltoall: %lf\n", p, (t3-t2));
 #endif
+#ifdef TIMING
+            MPI_Barrier(getcommgrid()->GetWorld());
+            t2 = MPI_Wtime();
+#endif
             for(int i = 0; i < getcommgrid()->GetGridLayers(); i++) recvcnt[i] = recvprfl[i*3];
             std::partial_sum(recvcnt, recvcnt+getcommgrid()->GetGridLayers()-1, rdispls+1);
             IT totrecv = std::accumulate(recvcnt,recvcnt+getcommgrid()->GetGridLayers(), static_cast<IT>(0));
             std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
+#ifdef TIMING
+            MPI_Barrier(B.getcommgrid()->GetWorld());
+            t3 = MPI_Wtime();
+            if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAllocation of receive data: %lf\n", p, (t3-t2));
+#endif
 
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());

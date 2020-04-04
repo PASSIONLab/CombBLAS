@@ -81,6 +81,7 @@ double mcl3d_totaltime;
 double mcl3d_floptime;
 int64_t mcl3d_layer_flop;
 int64_t mcl3d_layer_nnzc;
+int64_t mcl3d_nnzc;
 ///////////////////////////
 double g_mcl3d_conversiontime;
 double g_mcl3d_symbolictime;
@@ -170,9 +171,9 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
         double t0, t1;
         
-        for(int layers = 16; layers <= 16; layers = layers * 4){
+        for(int layers = 1; layers <= 1; layers = layers * 16){
 #ifdef TIMING
-            mcl3d_layer_nnzc = 0;
+            mcl3d_nnzc = 0;
 #endif
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2(M);
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2(M);
@@ -198,6 +199,7 @@ int main(int argc, char* argv[])
                 mcl3d_kselecttime = 0;
                 mcl3d_totaltime = 0;
                 mcl3d_floptime = 0;
+                mcl3d_layer_nnzc = 0;
 #endif
                 int it; // Number of iterations to run
                 for(it = 0; it < 1; it++){
@@ -238,6 +240,7 @@ int main(int argc, char* argv[])
                     MPI_Allreduce(&mcl3d_totaltime, &g_mcl3d_totaltime, 1, MPI_DOUBLE, MPI_MAX, A3D.getcommgrid3D()->GetWorld());
                     MPI_Allreduce(&mcl3d_floptime, &g_mcl3d_floptime, 1, MPI_DOUBLE, MPI_MIN, A3D.getcommgrid3D()->GetWorld());
                     MPI_Allreduce(&mcl3d_layer_nnzc, &g_mcl3d_layer_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
+                    MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
 
                     mcl3d_symbolictime = g_mcl3d_symbolictime;
                     mcl3d_Abcasttime = g_mcl3d_Abcasttime;
@@ -293,6 +296,7 @@ int main(int argc, char* argv[])
                     false, false);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_flop %lld\n", mcl3d_layer_flop);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", mcl3d_layer_nnzc);
+            if(myrank == 0) fprintf(stderr, "mcl3d_nnzc %lld\n", mcl3d_nnzc);
 #endif
             if(myrank == 0) fprintf(stderr, "\n\n\n\n********************************************\n\n\n\n\n\n\n");
         }
