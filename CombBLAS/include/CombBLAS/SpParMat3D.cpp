@@ -662,7 +662,7 @@ namespace combblas
             MPI_Barrier(layermat->getcommgrid()->GetWorld());
             t2 = MPI_Wtime();
 #endif
-            SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+            SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
 #ifdef TIMING
             MPI_Barrier(layermat->getcommgrid()->GetWorld());
             double t3 = MPI_Wtime();
@@ -820,7 +820,7 @@ namespace combblas
             /*
              * 3d-merge starts 
              * */
-            SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+            SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
 #ifdef TIMING
             MPI_Barrier(B.getcommgrid()->GetWorld());
             t3 = MPI_Wtime();
