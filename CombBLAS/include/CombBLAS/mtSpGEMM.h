@@ -214,10 +214,9 @@ template <typename SR, typename NTO, typename IT, typename NT1, typename NT2>
 SpTuples<IT, NTO> * LocalHybridSpGEMM
 (const SpDCCols<IT, NT1> & A,
  const SpDCCols<IT, NT2> & B,
- bool clearA, bool clearB)
+ bool clearA, bool clearB, IT * aux = nullptr)
 {
 
-    double t0=MPI_Wtime();
 
     IT mdim = A.getnrow();
     IT ndim = B.getncol();
@@ -233,9 +232,13 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     IT nA = A.getncol();
     float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
-    IT * aux;
-    Adcsc->ConstructAux(nA, aux);
-
+    //IT * aux;
+    bool deleteAux = false;
+    if(aux==nullptr)
+    {
+	deleteAux = true;
+    	Adcsc->ConstructAux(nA, aux);
+    }
 	
     int numThreads = 1;
 #ifdef THREADED
@@ -247,33 +250,41 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
    
     // std::cout << "numThreads: " << numThreads << std::endl;
 
-    IT* flopC = estimateFLOP(A, B);
-    IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
-    IT flop = flopptr[Bdcsc->nzc];
+    IT* flopC =  estimateFLOP(A, B, aux);
+    //IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
+    //IT flop = flopptr[Bdcsc->nzc];
     // std::cout << "FLOP of A * B is " << flop << std::endl;
 
-    IT* colnnzC = estimateNNZ_Hash(A, B, flopC);
+
+    IT* colnnzC = estimateNNZ_Hash(A, B, flopC, aux);
+    IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
+    IT flop = flopptr[Bdcsc->nzc];
     IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
     delete [] colnnzC;
     delete [] flopC;
     IT nnzc = colptrC[Bdcsc->nzc];
-    double compression_ratio = (double)flop / nnzc;
+    //double compression_ratio = (double)flop / nnzc;
+
 
     // std::cout << "NNZ of A * B is " << nnzc << std::endl;
     // std::cout << "Compression ratio is " << compression_ratio << std::endl;
 
-   // std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
-   std::tuple<IT,IT,NTO> * tuplesC = new std::tuple<IT,IT,NTO>[nnzc];
+    std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
+   //std::tuple<IT,IT,NTO> * tuplesC = new std::tuple<IT,IT,NTO>[nnzc];
        
     // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
-    
+   
+     std::vector<std::vector< std::pair<IT,NTO>>> globalHashVecAll(numThreads); 
+     std::vector<std::vector< HeapEntry<IT,NT1>>> globalHeapVecAll(numThreads);
+    /*
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
         colindsVec[i].resize(nnzA/numThreads);
-    }
+    }*/
 
     // IT hashSelected = 0;
+
 
 #ifdef THREADED
 #pragma omp parallel for
@@ -299,9 +310,12 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         double cr = static_cast<double>(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
         if (cr < 2.0) // Heap Algorithm
         {
-            std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
-            HeapEntry<IT, NT1> * wset = globalheapVec.data();
-            
+	    if(globalHeapVecAll[myThread].size() < nnzcolB)
+	    	globalHeapVecAll[myThread].resize(nnzcolB);	    
+            //std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
+            //HeapEntry<IT, NT1> * wset = globalheapVec.data();
+            HeapEntry<IT, NT1> * wset = globalHeapVecAll[myThread].data();
+
             IT hsize = 0;
         
             for(size_t j = 0; j < nnzcolB; ++j)		// create the initial heap
@@ -358,8 +372,16 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             {
                 ht_size <<= 1;
             }
-            std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
+            
+	    
+	    if(globalHashVecAll[myThread].size() < ht_size)
+                globalHashVecAll[myThread].resize(ht_size);
+            //std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
+            //HeapEntry<IT, NT1> * wset = globalheapVec.data();
+            //HeapEntry<IT, NT1> * wset = globalheapVecAll[myThread].data();
 
+	    //std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
+	    std::pair<IT,NTO>* globalHashVec =  globalHashVecAll[myThread].data();
             // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
             // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
             
@@ -408,8 +430,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                     globalHashVec[index++] = globalHashVec[j];
                 }
             }
-            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
-
+            //std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
+	    std::sort(globalHashVecAll[myThread].begin(), globalHashVecAll[myThread].begin() + index, sort_less<IT, NTO>);
             IT curptr = colptrC[i];
             for (size_t j=0; j < index; ++j)
             {
@@ -425,17 +447,213 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     
     delete [] colptrC;
     delete [] flopptr;
-    delete [] aux;
+    if(deleteAux)
+    	delete [] aux;
     
-    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, false);
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
 
-    double t1=MPI_Wtime();
 
     // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
     // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
 
     return spTuplesC;
 }
+
+    // Hybrid approach of multithreaded HeapSpGEMM and HashSpGEMM
+    template <typename SR, typename NTO, typename IT, typename NT1, typename NT2>
+    SpTuples<IT, NTO> * LocalSpGEMMHash
+    (const SpDCCols<IT, NT1> & A,
+     const SpDCCols<IT, NT2> & B,
+     bool clearA, bool clearB, bool sort=true)
+    {
+
+        double t0=MPI_Wtime();
+
+        IT mdim = A.getnrow();
+        IT ndim = B.getncol();
+        IT nnzA = A.getnnz();
+        if(A.isZero() || B.isZero())
+        {
+            return new SpTuples<IT, NTO>(0, mdim, ndim);
+        }
+
+
+        Dcsc<IT,NT1>* Adcsc = A.GetDCSC();
+        Dcsc<IT,NT2>* Bdcsc = B.GetDCSC();
+        IT nA = A.getncol();
+        float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc->nzc);
+        IT csize = static_cast<IT>(ceil(cf));   // chunk size
+        IT * aux;
+        Adcsc->ConstructAux(nA, aux);
+
+
+        int numThreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+        {
+            numThreads = omp_get_num_threads();
+        }
+#endif
+
+        // std::cout << "numThreads: " << numThreads << std::endl;
+
+        IT* flopC = estimateFLOP(A, B);
+        IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
+        IT flop = flopptr[Bdcsc->nzc];
+        // std::cout << "FLOP of A * B is " << flop << std::endl;
+
+        IT* colnnzC = estimateNNZ_Hash(A, B, flopC);
+        IT* colptrC = prefixsum<IT>(colnnzC, Bdcsc->nzc, numThreads);
+        delete [] colnnzC;
+        delete [] flopC;
+        IT nnzc = colptrC[Bdcsc->nzc];
+        double compression_ratio = (double)flop / nnzc;
+
+        // std::cout << "NNZ of A * B is " << nnzc << std::endl;
+        // std::cout << "Compression ratio is " << compression_ratio << std::endl;
+
+        // std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
+        std::tuple<IT,IT,NTO> * tuplesC = new std::tuple<IT,IT,NTO>[nnzc];
+
+        // thread private space for heap and colinds
+        std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
+
+        for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
+        {
+            colindsVec[i].resize(nnzA/numThreads);
+        }
+
+        // IT hashSelected = 0;
+
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(size_t i=0; i < Bdcsc->nzc; ++i)
+        {
+            size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
+            int myThread = 0;
+
+#ifdef THREADED
+            myThread = omp_get_thread_num();
+#endif
+            if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
+            {
+                colindsVec[myThread].resize(nnzcolB);
+            }
+
+            // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+            // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+            Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
+            std::pair<IT,IT> * colinds = colindsVec[myThread].data();
+
+
+
+
+            // #pragma omp atomic
+            //     hashSelected++;
+            const IT minHashTableSize = 16;
+            const IT hashScale = 107;
+            size_t nnzcolC = colptrC[i+1] - colptrC[i]; //nnz in the current column of C (=Output)
+
+            size_t ht_size = minHashTableSize;
+            while(ht_size < nnzcolC) //ht_size is set as 2^n
+            {
+                ht_size <<= 1;
+            }
+            std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
+
+            // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+            // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+
+            // Initialize hash tables
+            for(size_t j=0; j < ht_size; ++j)
+            {
+                globalHashVec[j].first = -1;
+            }
+
+            // Multiply and add on Hash table
+            for (size_t j=0; j < nnzcolB; ++j)
+            {
+                IT t_bcol = Bdcsc->ir[Bdcsc->cp[i] + j];
+                NT2 t_bval = Bdcsc->numx[Bdcsc->cp[i] + j];
+                for (IT k = colinds[j].first; k < colinds[j].second; ++k)
+                {
+                    NTO mrhs = SR::multiply(Adcsc->numx[k], t_bval);
+                    IT key = Adcsc->ir[k];
+                    IT hash = (key*hashScale) & (ht_size-1);
+                    while (1) //hash probing
+                    {
+                        if (globalHashVec[hash].first == key) //key is found in hash table
+                        {
+                            globalHashVec[hash].second = SR::add(mrhs, globalHashVec[hash].second);
+                            break;
+                        }
+                        else if (globalHashVec[hash].first == -1) //key is not registered yet
+                        {
+                            globalHashVec[hash].first = key;
+                            globalHashVec[hash].second = mrhs;
+                            break;
+                        }
+                        else //key is not found
+                        {
+                            hash = (hash+1) & (ht_size-1);
+                        }
+                    }
+                }
+            }
+            
+	    if(sort)
+            {
+            // gather non-zero elements from hash table, and then sort them by row indices
+            size_t index = 0;
+            for (size_t j=0; j < ht_size; ++j)
+            {   
+                if (globalHashVec[j].first != -1)
+                {   
+                    globalHashVec[index++] = globalHashVec[j];
+                }
+            }
+            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
+
+            IT curptr = colptrC[i];
+            for (size_t j=0; j < index; ++j)
+            {
+                tuplesC[curptr++]= std::make_tuple(globalHashVec[j].first, Bdcsc->jc[i], globalHashVec[j].second);
+            }
+            }
+	    else
+            {
+		IT curptr = colptrC[i];
+                for (size_t j=0; j < ht_size; ++j)
+                {
+                    if (globalHashVec[j].first != -1)
+                    {
+                        tuplesC[curptr++]= std::make_tuple(globalHashVec[j].first, Bdcsc->jc[i], globalHashVec[j].second);
+                    }
+                }
+            }
+	    
+
+        }
+
+        if(clearA)
+            delete const_cast<SpDCCols<IT, NT1> *>(&A);
+        if(clearB)
+            delete const_cast<SpDCCols<IT, NT2> *>(&B);
+
+        delete [] colptrC;
+        delete [] flopptr;
+        delete [] aux;
+
+        SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, false);
+
+        double t1=MPI_Wtime();
+
+        // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
+        // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
+
+        return spTuplesC;
+    }
 
 /*
  *  Estimates total flops necessary to multiply A and B
@@ -583,9 +801,10 @@ IT* estimateNNZ(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * au
     return colnnzC;
 }
 
+
 // estimate space for result of SpGEMM with Hash
 template <typename IT, typename NT1, typename NT2>
-IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, const IT *flopC)
+IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT *flopC, IT * aux=nullptr)
 {
     IT nnzA = A.getnnz();
     if(A.isZero() || B.isZero())
@@ -598,9 +817,12 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
     
     float cf  = static_cast<float>(A.getncol()+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
-    IT * aux;
-    Adcsc->ConstructAux(A.getncol(), aux);
-	
+    bool deleteAux = false;
+    if(aux==nullptr)
+    {
+	deleteAux = true; 
+    	Adcsc->ConstructAux(A.getncol(), aux);
+    }	
 	
     int numThreads = 1;
 #ifdef THREADED
@@ -612,7 +834,10 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
     
 
     IT* colnnzC = new IT[Bdcsc->nzc]; // nnz in every nonempty column of C
+
+
 	
+    /*
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -620,20 +845,22 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
     {
         colnnzC[i] = 0;
     }
-    
+    */
     // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
-
+    std::vector<std::vector< IT>> globalHashVecAll(numThreads);
+    /*
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
         colindsVec[i].resize(nnzA/numThreads);
-    }
+    }*/
 
 #ifdef THREADED
 #pragma omp parallel for
 #endif
     for(int i=0; i < Bdcsc->nzc; ++i)
     {
+	colnnzC[i] = 0;    
         size_t nnzcolB = Bdcsc->cp[i+1] - Bdcsc->cp[i]; //nnz in the current column of B
 		int myThread = 0;
 #ifdef THREADED
@@ -652,14 +879,20 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
         // Hash
         const IT minHashTableSize = 16;
         const IT hashScale = 107;
-
+	
         // Initialize hash tables
         IT ht_size = minHashTableSize;
         while(ht_size < flopC[i]) //ht_size is set as 2^n
         {
             ht_size <<= 1;
         }
-        std::vector<IT> globalHashVec(ht_size);
+
+	if(globalHashVecAll[myThread].size() < ht_size) //resize thread private vectors if needed
+        {
+            globalHashVecAll[myThread].resize(ht_size);
+        }
+
+        IT* globalHashVec = globalHashVecAll[myThread].data();
 
         for(IT j=0; (unsigned)j < ht_size; ++j)
         {
@@ -694,7 +927,8 @@ IT* estimateNNZ_Hash(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, co
         }
     }
     
-    delete [] aux;
+    if(deleteAux)
+    	delete [] aux;
     return colnnzC;
 }
 
@@ -821,7 +1055,7 @@ estimateNNZ_sampling(
 
 // estimate the number of floating point operations of SpGEMM
 template <typename IT, typename NT1, typename NT2>
-IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
+IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B, IT * aux = nullptr)
 {
     IT nnzA = A.getnnz();
     if(A.isZero() || B.isZero())
@@ -834,8 +1068,13 @@ IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     
     float cf  = static_cast<float>(A.getncol()+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
-    IT * aux;
-    Adcsc->ConstructAux(A.getncol(), aux);
+    //IT * aux;
+    bool deleteAux = false;
+    if(aux==nullptr)
+    {
+        deleteAux = true;
+        Adcsc->ConstructAux(A.getncol(), aux);
+    }
 	
 	
     int numThreads = 1;
@@ -861,11 +1100,11 @@ IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
     // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
 
-	
+    /*	
     for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
     {
         colindsVec[i].resize(nnzA/numThreads);
-    }
+    }*/
 
 #ifdef THREADED
 #pragma omp parallel for
@@ -889,8 +1128,8 @@ IT* estimateFLOP(const SpDCCols<IT, NT1> & A,const SpDCCols<IT, NT2> & B)
             colflopC[i] += colindsVec[myThread][j].second - colindsVec[myThread][j].first;
         }
     }
-    
-    delete [] aux;
+    if(deleteAux)
+    	delete [] aux;
     return colflopC;
 }
 
