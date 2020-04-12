@@ -162,7 +162,9 @@ int main(int argc, char* argv[])
     else {
         double vm_usage, resident_set;
         string Aname(argv[1]);
-
+        if(myrank == 0){
+            fprintf(stderr, "data: %s\n", argv[1]);
+        }
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
         
@@ -184,7 +186,7 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
         double t0, t1;
         
-        for(int layers = 1; layers <= 64; layers = layers * 4){
+        for(int layers = 16; layers <= 16; layers = layers * 4){
 #ifdef TIMING
             mcl3d_nnzc = 0;
             mcl3d_flop = 0;
@@ -202,8 +204,8 @@ int main(int argc, char* argv[])
             /**/
             //int phases = calculatedPhases;
             mcl3d_max_phase = 1000;
-            int phases = 8;
-            while(phases <= 64){
+            int phases = 16;
+            while(phases <= 16){
 #ifdef TIMING
                 mcl3d_conversiontime = 0;
                 mcl3d_symbolictime = 0;
@@ -362,8 +364,9 @@ int main(int argc, char* argv[])
                     false, false);
             MPI_Allreduce(&mcl3d_layer_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetFiberWorld());
             MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+            MPI_Allreduce(&mcl3d_layer_nnzc, &g_mcl3d_layer_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_flop %lld\n", mcl3d_layer_flop);
-            if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", mcl3d_layer_nnzc);
+            if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", g_mcl3d_layer_nnzc);
             if(myrank == 0) fprintf(stderr, "mcl3d_nnzc %lld\n", mcl3d_nnzc);
             if(myrank == 0) fprintf(stderr, "mcl3d_flop %lld\n", mcl3d_flop);
 #endif
