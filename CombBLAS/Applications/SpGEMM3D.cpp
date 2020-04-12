@@ -94,6 +94,21 @@ double l_mcl3d_totaltime;
 double l_mcl3d_floptime;
 int64_t l_mcl3d_layer_flop;
 int64_t l_mcl3d_layer_nnzc;
+////////////////////////////
+double a_mcl3d_conversiontime;
+double a_mcl3d_symbolictime;
+double a_mcl3d_Abcasttime;
+double a_mcl3d_Bbcasttime;
+double a_mcl3d_SUMMAtime;
+double a_mcl3d_localspgemmtime;
+double a_mcl3d_SUMMAmergetime;
+double a_mcl3d_reductiontime;
+double a_mcl3d_3dmergetime;
+double a_mcl3d_kselecttime;
+double a_mcl3d_totaltime;
+double a_mcl3d_floptime;
+int64_t a_mcl3d_layer_flop;
+int64_t a_mcl3d_layer_nnzc;
 ///////////////////////////
 double mcl3d_conversiontime_prev;
 double mcl3d_symbolictime_prev;
@@ -163,13 +178,13 @@ int main(int argc, char* argv[])
         //// Read labelled triple files
         //M.ReadGeneralizedTuples(Aname, maximum<double>());
         
+        //// Sparsify the matrix
         //MCLPruneRecoverySelect<int64_t, double, SpDCCols < int64_t, double >>(M, 2.0, 52, 55, 0.9, 1);
 
         typedef PlusTimesSRing<double, double> PTFF;
         double t0, t1;
         
-        mcl3d_max_phase = 1000000;
-        for(int layers = 1; layers <= 1; layers = layers * 4){
+        for(int layers = 1; layers <= 64; layers = layers * 4){
 #ifdef TIMING
             mcl3d_nnzc = 0;
             mcl3d_flop = 0;
@@ -181,11 +196,14 @@ int main(int argc, char* argv[])
             if(myrank == 0) fprintf(stderr, "Running 3D with %d layers\n\n", layers);
 
             int calculatedPhases = A3D.template CalculateNumberOfPhases<PTFF>(B3D,
-                2.0, 1100, 1400, 0.9, 1, 24);
+                2.0, 1100, 1400, 0.9, 1, 24.0);
             if(myrank == 0) fprintf(stderr, "Approximately %d phases required\n", calculatedPhases);
+
+            /**/
             //int phases = calculatedPhases;
-            int phases = 4;
-            while(phases <= 16){
+            mcl3d_max_phase = 1000;
+            int phases = 8;
+            while(phases <= 64){
 #ifdef TIMING
                 mcl3d_conversiontime = 0;
                 mcl3d_symbolictime = 0;
@@ -276,8 +294,24 @@ int main(int argc, char* argv[])
                 MPI_Allreduce(&mcl3d_kselecttime, &l_mcl3d_kselecttime, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
                 MPI_Allreduce(&mcl3d_totaltime, &l_mcl3d_totaltime, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
-                MPI_Allreduce(&mcl3d_layer_nnzc, &g_mcl3d_layer_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
-                MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+                MPI_Allreduce(&mcl3d_symbolictime, &a_mcl3d_symbolictime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_Abcasttime, &a_mcl3d_Abcasttime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_Bbcasttime, &a_mcl3d_Bbcasttime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_localspgemmtime, &a_mcl3d_localspgemmtime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_SUMMAmergetime, &a_mcl3d_SUMMAmergetime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_reductiontime, &a_mcl3d_reductiontime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_3dmergetime, &a_mcl3d_3dmergetime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_kselecttime, &a_mcl3d_kselecttime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                MPI_Allreduce(&mcl3d_totaltime, &a_mcl3d_totaltime, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                a_mcl3d_symbolictime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_Abcasttime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_Bbcasttime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_localspgemmtime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_SUMMAmergetime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_reductiontime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_3dmergetime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_kselecttime /= A3D.getcommgrid()->GetSize();
+                a_mcl3d_totaltime /= A3D.getcommgrid()->GetSize();
 
                 if(myrank == 0){
                     fprintf(stderr, "max: ");
@@ -301,6 +335,17 @@ int main(int argc, char* argv[])
                     fprintf(stderr, " %lf,", ((l_mcl3d_3dmergetime*phases)/(it*std::min(mcl3d_max_phase, phases))));
                     fprintf(stderr, " %lf,", ((l_mcl3d_kselecttime*phases)/(it*std::min(mcl3d_max_phase, phases))));
                     fprintf(stderr, " %lf\n", ((l_mcl3d_totaltime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+
+                    fprintf(stderr, "avg: ");
+                    fprintf(stderr, "%lf,", ((a_mcl3d_symbolictime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_Abcasttime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_Bbcasttime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_localspgemmtime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_SUMMAmergetime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_reductiontime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_3dmergetime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf,", ((a_mcl3d_kselecttime*phases)/(it*std::min(mcl3d_max_phase, phases))));
+                    fprintf(stderr, " %lf\n", ((a_mcl3d_totaltime*phases)/(it*std::min(mcl3d_max_phase, phases))));
                 }
                 if(myrank == 0) fprintf(stderr, "====================================================\n\n");
 #endif
@@ -315,13 +360,15 @@ int main(int argc, char* argv[])
                     *(A3D.GetLayerMat()), 
                     *(B3D.GetLayerMat()), 
                     false, false);
-            MPI_Allreduce(&mcl3d_layer_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+            MPI_Allreduce(&mcl3d_layer_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetFiberWorld());
+            MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_flop %lld\n", mcl3d_layer_flop);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", mcl3d_layer_nnzc);
             if(myrank == 0) fprintf(stderr, "mcl3d_nnzc %lld\n", mcl3d_nnzc);
             if(myrank == 0) fprintf(stderr, "mcl3d_flop %lld\n", mcl3d_flop);
 #endif
             if(myrank == 0) fprintf(stderr, "\n\n\n\n********************************************\n\n\n\n\n\n\n");
+            /**/
         }
         
     }

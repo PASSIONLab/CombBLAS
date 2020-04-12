@@ -62,28 +62,17 @@ int main(int argc, char* argv[])
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
         typedef PlusTimesSRing<double, double> PTFF;
 
-        //M.ParallelReadMM(Aname, true, maximum<double>());
-        M.ReadGeneralizedTuples(Aname, maximum<double>());
-        //SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
-        //SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
-        M.FreeMemory();
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M2 = Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y);
-        X.FreeMemory();
-        Y.FreeMemory();
-        FullyDistVec<int64_t, int64_t> p2( M2.getcommgrid() );
-        p2.iota(M2.getnrow(), 0);
-        p2.RandPerm();
-        (M2)(p2,p2,true);// in-place permute to save memory
+        M.ParallelReadMM(Aname, true, maximum<double>());
+        FullyDistVec<int64_t, int64_t> p( M.getcommgrid() );
+        p.iota(M.getnrow(), 0);
+        p.RandPerm();
+        (M)(p,p,true);// in-place permute to save memory
 
-        int64_t nnz = M2.getnnz();
-        if(myrank == 0){
-            fprintf(stderr, "nnz: %lld\n", nnz);
-        }
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M2);
+        //M.ReadGeneralizedTuples(Aname, maximum<double>());
+        
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A(M);
         //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A, 4, true, false);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M2);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B(M);
         //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B, 4, false, false);
 
         typedef PlusTimesSRing<double, double> PTFF;
@@ -99,12 +88,15 @@ int main(int argc, char* argv[])
 
         int dummy, stages;
         std::shared_ptr<CommGrid> GridC = ProductGrid((A.getcommgrid()).get(), (B.getcommgrid()).get(), stages, dummy, dummy);
+        
+        //int buffsize = 1024 * 1024 * (512 / sizeof(IT));
+        //if(myrank == 0) fprintf(stderr, "Memory to be allocated %d\n", buffsize);
+        //IT * sendbuf = new IT[buffsize];
+        //if(myrank == 0) fprintf(stderr, "Memory allocated\n");
 
-        for(int phases = 1; phases <= 128; phases = phases * 2){
+        for(int phases = 1; phases <= 256; phases = phases * 2){
             if(myrank == 0) fprintf(stderr, "Running with phase: %d\n", phases);
             for(int it = 0; it < 3; it++){
-                //Abcasttime_prev = Abcasttime;
-                //Bbcasttime_prev = Bbcasttime;
                 Abcasttime = 0;
                 Bbcasttime = 0;
                 
@@ -126,16 +118,23 @@ int main(int argc, char* argv[])
                 int Aself = (A.getcommgrid())->GetRankInProcRow();
                 int Bself = (B.getcommgrid())->GetRankInProcCol();
 
+                //int chunksize = buffsize / phases;
+                //if(myrank == 0) fprintf(stderr, "chunksize: %d\n", chunksize);
+
                 for(int p = 0; p < phases; ++p)
                 {
                     SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.getcommgrid())->GetColWorld());
                     for(int i = 0; i < stages; ++i)
                     {
+                        //t0 = MPI_Wtime();
+                        //MPI_Bcast(sendbuf+(chunksize*p), chunksize, MPIType<IT>(), i, GridC->GetColWorld());
+                        //t1 = MPI_Wtime();
+                        //Bbcasttime += (t1-t0);
+                        
                         std::vector<IT> ess;
 
                         if(i == Aself)  ARecv = A.seqptr();	// shallow-copy
-                        else
-                        {
+                        else {
                             ess.resize(DER::esscount);
                             for(int j=0; j< DER::esscount; ++j)
                                 ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row
@@ -143,7 +142,7 @@ int main(int argc, char* argv[])
                         }
                         MPI_Barrier(A.getcommgrid()->GetWorld());                       
                         t0=MPI_Wtime();
-                        SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+                        //SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
                         MPI_Barrier(A.getcommgrid()->GetWorld());                       
                         t1=MPI_Wtime();
                         Abcasttime += (t1-t0);
@@ -151,8 +150,7 @@ int main(int argc, char* argv[])
                         ess.clear();
 
                         if(i == Bself)  BRecv = &(PiecesOfB[p]);	// shallow-copy
-                        else
-                        {
+                        else {
                             ess.resize(DER::esscount);
                             for(int j=0; j< DER::esscount; ++j)
                                 ess[j] = BRecvSizes[j][i];
@@ -165,9 +163,9 @@ int main(int argc, char* argv[])
                         t1=MPI_Wtime();
                         Bbcasttime += (t1-t0);
 
-                        if(i != Aself){
-                            if(ARecv != NULL) delete ARecv;
-                        }
+                        //if(i != Aself){
+                            //if(ARecv != NULL) delete ARecv;
+                        //}
                         if(i != Bself) {
                             if(BRecv != NULL) delete BRecv;
                         }

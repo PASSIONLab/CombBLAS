@@ -585,6 +585,14 @@ namespace combblas
 
             double Abcast_time = 0;
             double Bbcast_time = 0;
+            double Bbcast_create_ess_time = 0;
+            double Bbcast_create_mat_time = 0;
+            double Bbcast_indarr_0_time = 0;
+            double Bbcast_indarr_1_time = 0;
+            double Bbcast_indarr_2_time = 0;
+            double Bbcast_numarr_0_time = 0;
+            IT Bbcast_nzc = 0;
+            IT Bbcast_nnz = 0;
             double Local_multiplication_time = 0;
             
             for(int i = 0; i < stages; ++i) {
@@ -600,9 +608,9 @@ namespace combblas
                     }
                     ARecv = new DER();				// first, create the object
                 }
-                MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
 #ifdef TIMING
-                MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t2 = MPI_Wtime();
 #endif
                 if (Aself != i) {
@@ -619,13 +627,15 @@ namespace combblas
                     MPI_Bcast(Aarrinfo.numarrs[idx].addr, Aarrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetRowWorld());
                 }
 #ifdef TIMING
-                MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t3 = MPI_Wtime();
                 mcl3d_Abcasttime += (t3-t2);
                 Abcast_time += (t3-t2);
 #endif
                 ess.clear();	
                 
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
                 if(i == Bself){
                     BRecv = OnePieceOfBLayer.seqptr();	// shallow-copy
                 }
@@ -636,35 +646,75 @@ namespace combblas
                     }	
                     BRecv = new DER();
                 }
-#ifdef TIMING
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_create_ess_time += (t5-t4);
+
                 MPI_Barrier(layermat->getcommgrid()->GetWorld());
+#ifdef TIMING
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t2 = MPI_Wtime();
 #endif
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
                 if (Bself != i) {
                     BRecv->Create(ess);	
                 }
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_create_mat_time += (t5-t4);
 
                 Arr<IT,NT> Barrinfo = BRecv->GetArrays();
 
-                for(unsigned int idx = 0; idx < Barrinfo.indarrs.size(); ++idx) {
-                    MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetColWorld());
-                }
+                //for(unsigned int idx = 0; idx < Barrinfo.indarrs.size(); ++idx) {
+                    //MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetColWorld());
+                //}
+                //for(unsigned int idx = 0; idx < Barrinfo.numarrs.size(); ++idx) {
+                    //MPI_Bcast(Barrinfo.numarrs[idx].addr, Barrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetColWorld());
+                //}
+                Bbcast_nzc += Barrinfo.indarrs[1].count;
+                Bbcast_nnz += Barrinfo.numarrs[0].count;
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
+                MPI_Bcast(Barrinfo.indarrs[0].addr, Barrinfo.indarrs[0].count, MPIType<IT>(), i, GridC->GetColWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_indarr_0_time += (t5-t4);
 
-                for(unsigned int idx = 0; idx < Barrinfo.numarrs.size(); ++idx) {
-                    MPI_Bcast(Barrinfo.numarrs[idx].addr, Barrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetColWorld());
-                }
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
+                MPI_Bcast(Barrinfo.indarrs[1].addr, Barrinfo.indarrs[1].count, MPIType<IT>(), i, GridC->GetColWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_indarr_1_time += (t5-t4);
+
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
+                MPI_Bcast(Barrinfo.indarrs[2].addr, Barrinfo.indarrs[2].count, MPIType<IT>(), i, GridC->GetColWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_indarr_2_time += (t5-t4);
+
+                
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t4 = MPI_Wtime();
+                MPI_Bcast(Barrinfo.numarrs[0].addr, Barrinfo.numarrs[0].count, MPIType<NT>(), i, GridC->GetColWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                t5 = MPI_Wtime();
+                Bbcast_numarr_0_time += (t5-t4);
+
                 //if(Bself == i){
                     //fprintf(stderr, "myrank: %d broadcasting %d nonzero columns\n", myrank, Barrinfo.indarrs[1].count);
                     //fprintf(stderr, "myrank: %d broadcasting %d nonzeros\n", myrank, Barrinfo.numarrs[0].count);
                     //fprintf(stderr, "sssss\n");
                 //}
 #ifdef TIMING
-                MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t3 = MPI_Wtime();
                 mcl3d_Bbcasttime += (t3-t2);
                 Bbcast_time += (t3-t2);
 #endif
-                MPI_Barrier(layermat->getcommgrid()->GetWorld());
+                //MPI_Barrier(layermat->getcommgrid()->GetWorld());
 
 #ifdef TIMING
                 //MPI_Barrier(layermat->getcommgrid()->GetWorld());
@@ -698,8 +748,68 @@ namespace combblas
             mcl3d_SUMMAmergetime += (t3-t2);
 #endif
 
-#ifdef TIMING   
+#ifdef TIMING 
+            //double max_Abcast_time = 0;
+            //double min_Abcast_time = 0;
+            //double max_Bbcast_time = 0;
+            //double min_Bbcast_time = 0;
+            //double max_Bbcast_create_ess_time = 0;
+            //double min_Bbcast_create_ess_time = 0;
+            //double max_Bbcast_create_mat_time = 0;
+            //double min_Bbcast_create_mat_time = 0;
+            //double max_Bbcast_indarr_0_time = 0;
+            //double min_Bbcast_indarr_0_time = 0;
+            //double max_Bbcast_indarr_1_time = 0;
+            //double min_Bbcast_indarr_1_time = 0;
+            //double max_Bbcast_indarr_2_time = 0;
+            //double min_Bbcast_indarr_2_time = 0;
+            //double max_Bbcast_numarr_0_time = 0;
+            //double min_Bbcast_numarr_0_time = 0;
+            //IT max_Bbcast_nzc = 0;
+            //IT min_Bbcast_nzc = 0;
+            //IT max_Bbcast_nnz = 0;
+            //IT min_Bbcast_nnz = 0;
+            //MPI_Allreduce(&Abcast_time, &max_Abcast_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Abcast_time, &min_Abcast_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_time, &max_Bbcast_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_time, &min_Bbcast_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_create_ess_time, &max_Bbcast_create_ess_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_create_ess_time, &min_Bbcast_create_ess_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_create_mat_time, &max_Bbcast_create_mat_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_create_mat_time, &min_Bbcast_create_mat_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_0_time, &max_Bbcast_indarr_0_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_0_time, &min_Bbcast_indarr_0_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_1_time, &max_Bbcast_indarr_1_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_1_time, &min_Bbcast_indarr_1_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_2_time, &max_Bbcast_indarr_2_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_indarr_2_time, &min_Bbcast_indarr_2_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_numarr_0_time, &max_Bbcast_numarr_0_time, 1, MPI_DOUBLE, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_numarr_0_time, &min_Bbcast_numarr_0_time, 1, MPI_DOUBLE, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_nzc, &max_Bbcast_nzc, 1, MPI_LONG_LONG_INT, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_nzc, &min_Bbcast_nzc, 1, MPI_LONG_LONG_INT, MPI_MIN, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_nnz, &max_Bbcast_nnz, 1, MPI_LONG_LONG_INT, MPI_MAX, getcommgrid3D()->GetWorld());
+            //MPI_Allreduce(&Bbcast_nnz, &min_Bbcast_nnz, 1, MPI_LONG_LONG_INT, MPI_MIN, getcommgrid3D()->GetWorld());
             if(myrank == 0){
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Abcast_time: %lf\n", p, max_Abcast_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Abcast_time: %lf\n", p, min_Abcast_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_create_ess_time: %lf\n", p, max_Bbcast_create_ess_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_create_ess_time: %lf\n", p, min_Bbcast_create_ess_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_create_mat_time: %lf\n", p, max_Bbcast_create_mat_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_create_mat_time: %lf\n", p, min_Bbcast_create_mat_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_nzc: %lld\n", p, max_Bbcast_nzc);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_nzc: %lld\n", p, min_Bbcast_nzc);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_nnz: %lld\n", p, max_Bbcast_nnz);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_nnz: %lld\n", p, min_Bbcast_nnz);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_indarr_0_time: %lf\n", p, max_Bbcast_indarr_0_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_indarr_0_time: %lf\n", p, min_Bbcast_indarr_0_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_indarr_1_time: %lf\n", p, max_Bbcast_indarr_1_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_indarr_1_time: %lf\n", p, min_Bbcast_indarr_1_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_indarr_2_time: %lf\n", p, max_Bbcast_indarr_2_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_indarr_2_time: %lf\n", p, min_Bbcast_indarr_2_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_numarr_0_time: %lf\n", p, max_Bbcast_numarr_0_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_numarr_0_time: %lf\n", p, min_Bbcast_numarr_0_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmax_Bbcast_time: %lf\n", p, max_Bbcast_time);
+                //fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tmin_Bbcast_time: %lf\n", p, min_Bbcast_time);
                 fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAbcast_time: %lf\n", p, Abcast_time);
                 fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tBbcast_time: %lf\n", p, Bbcast_time);
                 fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tLocal_multiplication_time: %lf\n", p, Local_multiplication_time);
@@ -911,7 +1021,6 @@ namespace combblas
     int SpParMat3D<IT, NT, DER>::CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
             NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
         int myrank;
-        double vm_usage, resident_set;
         MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
         int p, phases;
         MPI_Comm_size(getcommgrid3D()->GetLayerWorld(),&p);
@@ -921,28 +1030,22 @@ namespace combblas
         int64_t lannz = layermat->getlocalnnz();
         int64_t gannz = 0;
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
-        int64_t inputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
+        int64_t ginputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
         
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat), true);
         int64_t gasquareNNZ;
-        // 3D Specific
         MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
-        int64_t asquareMem = gasquareNNZ * perNNZMem_out * 4; // because += operation needs three times memory!!
-        if(myrank == 0) {
-            fprintf(stderr, "Per process gasquareNNZ: %lld\n", gasquareNNZ);
-        }
+        int64_t gasquareMem = gasquareNNZ * perNNZMem_out * 4; // because += operation needs three times memory!!
 
-        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
-        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
-        //int64_t k = int64_t(std::max(selectNum, recoverNum));
+        //int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
+        //int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
 
         // estimate output memory
         //int64_t outputNNZ =ceil((layermat->getlocalcols() * k)/sqrt(p)); // If kselect is run
-        int64_t outputNNZ =ceil((layermat->getlocalcols() * d)/sqrt(p)); // If keselect is not run
-        int64_t outputMem = outputNNZ * perNNZMem_out * 2;
+        //int64_t outputMem = outputNNZ * perNNZMem_out * 2;
         //double remainingMem = perProcessMemory*1000000000 - inputMem - outputMem;
-        double remainingMem = perProcessMemory*1000000000 - inputMem; // If output of each phase is discarded
-        int64_t kselectmem = layermat->getlocalcols() * k * sizeof(NT) * 3;
+        //double remainingMem = perProcessMemory*1000000000 - inputMem; // If output of each phase is discarded
+        //int64_t kselectmem = layermat->getlocalcols() * k * sizeof(NT) * 3;
 
         ////inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
         //if(remainingMem > 0){
@@ -951,7 +1054,8 @@ namespace combblas
         //}
         //else return -1;
 
-        phases = ceil(asquareMem / remainingMem);   // If kselect is not run
+        double remainingMem = perProcessMemory * 1000000000 - ginputMem; // If output of each phase is discarded
+        phases = ceil ( gasquareMem / remainingMem );   // If kselect is not run
         return phases;
     }
     
