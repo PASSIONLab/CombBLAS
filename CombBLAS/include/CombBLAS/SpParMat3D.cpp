@@ -469,7 +469,7 @@ namespace combblas
          * If provided number of phase is too low or too high then reset value of phase as 1 
          * */
         if(phases < 1 || phases >= getncol()){
-            SpParHelper::Print("MemEfficientSpGEMM3D: The value of phases is too small or large. Resetting to 1.\n");
+            SpParHelper::Print("[MemEfficientSpGEMM3D]\tThe value of phases is too small or large. Resetting to 1.\n");
             phases = 1;
         }
         double t0, t1, t2, t3, t4, t5, t6, t7, t8, t9; // To time different parts of the function
@@ -1020,6 +1020,7 @@ namespace combblas
     template <typename SR>
     int SpParMat3D<IT, NT, DER>::CalculateNumberOfPhases(SpParMat3D<IT, NT, DER> & B, 
             NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory){
+        double t0, t1;
         int myrank;
         MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
         int p, phases;
@@ -1030,12 +1031,25 @@ namespace combblas
         int64_t lannz = layermat->getlocalnnz();
         int64_t gannz = 0;
         MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, getcommgrid3D()->GetWorld());
-        int64_t ginputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
+        //int64_t ginputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
+        int64_t ginputMem = gannz * perNNZMem_in * 5; // One extra copy for CA-Batched-SpGEMM Experiments
         
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
         int64_t asquareNNZ = EstPerProcessNnzSUMMA(*layermat, *(B.layermat), true);
         int64_t gasquareNNZ;
-        MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_MAX, commGrid3D->GetFiberWorld());
-        int64_t gasquareMem = gasquareNNZ * perNNZMem_out * 4; // because += operation needs three times memory!!
+        MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_SUM, commGrid3D->GetFiberWorld());
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        sym_asquarennztime += t1-t0;
+#endif
+        double avgasquareNNZ = (double) (gasquareNNZ) / commGrid3D->GetGridLayers();
+        double avgasquareMem = avgasquareNNZ * perNNZMem_out * 2; // because += operation needs three times memory!!
+
+        double remainingMem = perProcessMemory * 1000000000 - ginputMem; // If output of each phase is discarded
+        phases = ceil ( avgasquareMem / remainingMem );   // If kselect is not run
+        return phases;
 
         //int64_t d = ceil( (gasquareNNZ * sqrt(p))/ layermat->getlocalcols() );
         //int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
@@ -1054,9 +1068,6 @@ namespace combblas
         //}
         //else return -1;
 
-        double remainingMem = perProcessMemory * 1000000000 - ginputMem; // If output of each phase is discarded
-        phases = ceil ( gasquareMem / remainingMem );   // If kselect is not run
-        return phases;
     }
     
     /*

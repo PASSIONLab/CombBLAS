@@ -163,49 +163,93 @@ int main(int argc, char* argv[])
         double vm_usage, resident_set;
         string Aname(argv[1]);
         if(myrank == 0){
-            fprintf(stderr, "data: %s\n", argv[1]);
+            fprintf(stderr, "Data: %s\n", argv[1]);
         }
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
         
+        double t0, t1;
+
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
 
-        // Read matrix market files
-        M.ParallelReadMM(Aname, true, maximum<double>());
-        FullyDistVec<int64_t, int64_t> p( M.getcommgrid() );
-        p.iota(M.getnrow(), 0);
-        p.RandPerm();
-        (M)(p,p,true);// in-place permute to save memory
+        //// Read matrix market files
+        //t0 = MPI_Wtime();
+        //M.ParallelReadMM(Aname, true, maximum<double>());
+        //t1 = MPI_Wtime();
+        //if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
+        //t0 = MPI_Wtime();
+        //FullyDistVec<int64_t, int64_t> p( M.getcommgrid() );
+        //FullyDistVec<int64_t, int64_t> q( M.getcommgrid() );
+        //p.iota(M.getnrow(), 0);
+        //q.iota(M.getncol(), 0);
+        //p.RandPerm();
+        //q.RandPerm();
+        //(M)(p,q,true);// in-place permute to save memory
+        //t1 = MPI_Wtime();
+        //if(myrank == 0) fprintf(stderr, "Time taken to permuatate input: %lf\n", t1-t0);
         
-        //// Read labelled triple files
-        //M.ReadGeneralizedTuples(Aname, maximum<double>());
+        // Read labelled triple files
+        t0 = MPI_Wtime();
+        M.ReadGeneralizedTuples(Aname, maximum<double>());
+        t1 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
         
         //// Sparsify the matrix
         //MCLPruneRecoverySelect<int64_t, double, SpDCCols < int64_t, double >>(M, 2.0, 52, 55, 0.9, 1);
 
         typedef PlusTimesSRing<double, double> PTFF;
-        double t0, t1;
         
-        for(int layers = 16; layers <= 16; layers = layers * 4){
+        int effectivePhases = 1;
+        for(int layers = 1; layers <= 16; layers = layers * 4){
 #ifdef TIMING
             mcl3d_nnzc = 0;
             mcl3d_flop = 0;
 #endif
+            // Create two copies of input matrix which would be used in multiplication
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2(M);
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2(M);
+            // Needed to compute A x A.transpose
+            //A2.Transpose(); 
+            //B2.Transpose(); 
+            //int64_t A2D_m = A2.getnrow();
+            //int64_t A2D_n = A2.getncol();
+            //int64_t B2D_m = B2.getnrow();
+            //int64_t B2D_n = B2.getncol();
+            //if(myrank == 0) fprintf(stderr, "[%lld x %lld] X [%lld x %lld]\n", A2D_m, A2D_n, B2D_m, B2D_n);
+
+            // Convert 2D matrices to 3D
             SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A2, layers, true, false);
             SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B2, layers, false, false);
-            if(myrank == 0) fprintf(stderr, "Running 3D with %d layers\n\n", layers);
-
+            if(myrank == 0) fprintf(stderr, "Running 3D with %d layers\n", layers);
+            //int64_t A3D_m = A3D.getnrow();
+            //int64_t A3D_n = A3D.getncol();
+            //int64_t B3D_m = B3D.getnrow();
+            //int64_t B3D_n = B3D.getncol();
+            //if(myrank == 0) fprintf(stderr, "[%lld x %lld] X [%lld x %lld]\n", A3D_m, A3D_n, B3D_m, B3D_n);
+            
+            double t0 = MPI_Wtime();
             int calculatedPhases = A3D.template CalculateNumberOfPhases<PTFF>(B3D,
                 2.0, 1100, 1400, 0.9, 1, 24.0);
+            double t1 = MPI_Wtime();
+            if(myrank == 0) fprintf(stderr, "Phase calculation time: %lf\n", t1-t0);
             if(myrank == 0) fprintf(stderr, "Approximately %d phases required\n", calculatedPhases);
+            //if(layers == 1){
+                //// calculate effective number of phases as next 2^k value
+                //// determine effective number of phases based on symbolic stage value for 1 layer
+                //int ii = 1;
+                //while(ii < calculatedPhases) ii = ii * 2;
+                //effectivePhases = ii;
+            //}
+            effectivePhases = calculatedPhases;
+            if(myrank == 0) fprintf(stderr, "Running with %d phases\n", effectivePhases);
 
             /**/
             //int phases = calculatedPhases;
-            mcl3d_max_phase = 1000;
-            int phases = 16;
-            while(phases <= 16){
+            mcl3d_max_phase = 8; // Run at most this many phases to extrapolate final time
+            //int phases = 4;
+            //while(phases <= 4){
+            int phases = effectivePhases;
+            while(phases <= effectivePhases){
 #ifdef TIMING
                 mcl3d_conversiontime = 0;
                 mcl3d_symbolictime = 0;
@@ -367,8 +411,8 @@ int main(int argc, char* argv[])
             MPI_Allreduce(&mcl3d_layer_nnzc, &g_mcl3d_layer_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_flop %lld\n", mcl3d_layer_flop);
             if(myrank == 0) fprintf(stderr, "mcl3d_layer_nnzc %lld\n", g_mcl3d_layer_nnzc);
-            if(myrank == 0) fprintf(stderr, "mcl3d_nnzc %lld\n", mcl3d_nnzc);
             if(myrank == 0) fprintf(stderr, "mcl3d_flop %lld\n", mcl3d_flop);
+            if(myrank == 0) fprintf(stderr, "mcl3d_nnzc %lld\n", mcl3d_nnzc);
 #endif
             if(myrank == 0) fprintf(stderr, "\n\n\n\n********************************************\n\n\n\n\n\n\n");
             /**/
