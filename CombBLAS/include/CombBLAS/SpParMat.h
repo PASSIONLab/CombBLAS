@@ -269,6 +269,10 @@ public:
 	
    	template <typename _BinaryOperation>
     	void ParallelReadMM (const std::string & filename, bool onebased, _BinaryOperation BinOp);
+    
+    template <class HANDLER>
+    void ParallelWriteMM(const std::string & filename, bool onebased, HANDLER handler);
+    void ParallelWriteMM(const std::string & filename, bool onebased) { ParallelWriteMM(filename, onebased, ScalarReadSaveHandler()); };
 
     	template <typename _BinaryOperation>
     	FullyDistVec<IT,std::array<char, MAXVERTNAME>> ReadGeneralizedTuples(const std::string&, _BinaryOperation);
