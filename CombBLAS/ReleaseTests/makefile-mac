@@ -101,6 +101,7 @@ clean:
 	rm -f IteratorTest
 	rm -f ParIOMM
 	rm -f MultTime
+	rm -f GenWrMat
 	rm -f *.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
