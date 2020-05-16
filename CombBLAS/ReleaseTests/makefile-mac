@@ -1,11 +1,12 @@
-INCDIR = /opt/local/include
-INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
+COMBBLAS = ..
+COMBBLAS_INC = $(COMBBLAS)/include/CombBLAS
+COMBBLAS_SRC = $(COMBBLAS)/src
+INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
 
 OPT = -O3 -DMPICH_IGNORE_CXX_SEEK #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DCOMBBLAS_DEBUG
-COMPILER = mpicxx -std=c++14 -DTHREADED -fopenmp
-FLAGS = $(DEB)
-COMBBLAS = ..
+COMPILER = mpicxx -cxx=g++ -std=c++14 -DTHREADED -fopenmp
+FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized 
 
 #
 # build Graph500 generator
@@ -13,48 +14,51 @@ COMBBLAS = ..
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o ../CommGrid.cpp
+CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
 
-mmio.o:	../mmio.c ../mmio.h
-	mpicc $(FLAGS) $(INCADD) -c -o mmio.o ../mmio.c
+mmio.o: $(COMBBLAS_SRC)/mmio.c
+	mpicc -cc=gcc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
-MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o MPIType.o ../MPIType.cpp
+MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
 
-hash.o:	../hash.cpp ../hash.hpp
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o ../hash.cpp
+MemoryPool.o:	$(COMBBLAS_SRC)/MemoryPool.cpp $(COMBBLAS_INC)/SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS_SRC)/MemoryPool.cpp 
 
-MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o ../MemoryPool.cpp
+hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
 
-TransposeTest.o: TransposeTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+TransposeTest.o: TransposeTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TransposeTest.o TransposeTest.cpp
 
-IteratorTest.o: IteratorTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+IteratorTest.o: IteratorTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o IteratorTest.o IteratorTest.cpp
 
-MultTest.o: MultTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+MultTest.o: MultTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTest.o MultTest.cpp
 
-MultTiming.o: MultTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+MultTiming.o: MultTiming.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTiming.o MultTiming.cpp
 
-ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+ReduceTest.o: ReduceTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
-VectorIndexing.o: VectorIndexing.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+VectorIndexing.o: VectorIndexing.cpp $(COMBBLAS_INC)/FullyDistSpVec.cpp $(COMBBLAS_INC)/FullyDistVec.cpp $(COMBBLAS_INC)/FullyDistSpVec.h $(COMBBLAS_INC)/FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIndexing.o VectorIndexing.cpp
 
-VectorIO.o: VectorIOPermute.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+VectorIO.o: VectorIOPermute.cpp $(COMBBLAS_INC)/FullyDistSpVec.cpp $(COMBBLAS_INC)/FullyDistVec.cpp $(COMBBLAS_INC)/FullyDistSpVec.h $(COMBBLAS_INC)/FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIO.o VectorIO.cpp
 
 
-SplitMergeTest.o: SplitMergeTest.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+SplitMergeTest.o: SplitMergeTest.cpp $(COMBBLAS_INC)/FullyDistSpVec.cpp $(COMBBLAS_INC)/FullyDistVec.cpp $(COMBBLAS_INC)/FullyDistSpVec.h $(COMBBLAS_INC)/FullyDistVec.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o SplitMergeTest.o SplitMergeTest.cpp
 
-ParIOTest.o: ParIOTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h  ../SpParHelper.cpp
+ParIOTest.o: ParIOTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h  $(COMBBLAS_INC)/SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ParIOTest.o ParIOTest.cpp
+
+GenWriteMat.o: ParIOTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h  $(COMBBLAS_INC)/SpParHelper.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o GenWriteMat.o GenWriteMatrix.cpp
 
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o
@@ -83,6 +87,10 @@ VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
 ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
+GenWrMat: MemoryPool.o CommGrid.o MPIType.o GenWriteMat.o mmio.o hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) $(INCADD) -o GenWrMat GenWriteMat.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+
 clean: 
 	rm -f TransposeTest
 	rm -f SplitMergeTest
@@ -94,6 +102,8 @@ clean:
 	rm -f ParIOMM
 	rm -f MultTime
 	rm -f *.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 
 cleanout:
 	rm out.*

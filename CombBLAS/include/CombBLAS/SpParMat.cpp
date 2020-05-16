@@ -3731,6 +3731,97 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const std::string & filename, bool o
 }
 
 
+template <class IT, class NT, class DER>
+template <class HANDLER>
+void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool onebased, HANDLER handler)
+{
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    IT totalm = getnrow();
+    IT totaln = getncol();
+    IT totnnz = getnnz();
+
+    std::stringstream ss;
+    if(myrank == 0)
+    {
+        ss << "%%MatrixMarket matrix coordinate real general" << std::endl;
+        ss << totalm << " " << totaln << " " << totnnz << std::endl;
+    }
+    
+    IT entries =  getlocalnnz();
+    IT sizeuntil = 0;
+    MPI_Exscan( &entries, &sizeuntil, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld() );
+    if(myrank == 0) sizeuntil = 0;    // because MPI_Exscan says the recvbuf in process 0 is undefined
+    
+    IT roffset = 0;
+    IT coffset = 0;
+    GetPlaceInGlobalGrid(roffset, roffset);
+    if(onebased)
+    {
+        roffset += 1;    // increment by 1
+        coffset += 1;
+    }
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)    // iterate over nonempty subcolumns
+    {
+        for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+        {
+            IT glrowid = nzit.rowid() + roffset;
+            IT glcolid = colit.colid() + coffset;
+            ss << glrowid << '\t';
+            ss << glcolid << '\t';
+            handler.save(ss, nzit.value(), glrowid, glcolid);
+            ss << '\n';
+        }
+    }
+
+    std::string text = ss.str();
+
+    int64_t * bytes = new int64_t[nprocs];
+    bytes[myrank] = text.size();
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), bytes, 1, MPIType<int64_t>(), commGrid->GetWorld());
+    int64_t bytesuntil = std::accumulate(bytes, bytes+myrank, static_cast<int64_t>(0));
+    int64_t bytestotal = std::accumulate(bytes, bytes+nprocs, static_cast<int64_t>(0));
+
+    if(myrank == 0)    // only leader rights the original file with no content
+    {
+        std::ofstream ofs(filename.c_str(), std::ios::binary | std::ios::out);
+#ifdef COMBBLAS_DEBUG
+        std::cout << "Creating file with " << bytestotal << " bytes" << std::endl;
+#endif
+        ofs.seekp(bytestotal - 1);
+        ofs.write("", 1);    // this will likely create a sparse file so the actual disks won't spin yet
+        ofs.close();
+    }
+    MPI_Barrier(commGrid->GetWorld());
+
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(commGrid->GetWorld(), NOFILE);
+    }
+    if(myrank == nprocs-1)    // let some other processor do the testing
+    {
+#ifdef COMBBLAS_DEBUG
+    std::cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << std::endl;
+#endif
+    }
+
+    FILE *ffinal;
+    if ((ffinal = fopen(filename.c_str(), "rb+")) == NULL)    // then everyone fills it
+    {
+        printf("COMBBLAS: Matrix output file %s failed to open at process %d\n", filename.c_str(), myrank);
+        MPI_Abort(commGrid->GetWorld(), NOFILE);
+    }
+    fseek (ffinal , bytesuntil , SEEK_SET );
+    fwrite(text.c_str(),1, bytes[myrank] ,ffinal);
+    fflush(ffinal);
+    fclose(ffinal);
+    delete [] bytes;
+}
+
+
+
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
 //! if nonum is true, then numerics are not supplied and they are assumed to be all 1's
