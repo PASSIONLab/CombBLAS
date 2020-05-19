@@ -19,7 +19,7 @@ CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
 
 mmio.o: $(COMBBLAS_SRC)/mmio.c
-	mpicc -cxx=gcc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
+	cc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
 MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
@@ -88,8 +88,8 @@ VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
 ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
-GenWrMat: MemoryPool.o CommGrid.o MPIType.o GenWriteMat.o mmio.o hash.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o GenWrMat GenWriteMat.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
+GenWrMat: MemoryPool.o CommGrid.o MPIType.o GenWriteMat.o mmio.o hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) $(INCADD) -o GenWrMat GenWriteMat.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 
 clean: 
@@ -102,7 +102,10 @@ clean:
 	rm -f IteratorTest
 	rm -f ParIOMM
 	rm -f MultTime
+	rm -f GenWrMat
 	rm -f *.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
+	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 
 cleanout:
 	rm out.*
