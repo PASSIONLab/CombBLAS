@@ -23,6 +23,7 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 
 CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
+
 mmio.o: $(COMBBLAS_SRC)/mmio.c
 	mpicc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
