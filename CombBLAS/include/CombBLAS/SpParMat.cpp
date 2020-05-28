@@ -3755,7 +3755,7 @@ void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool o
     
     IT roffset = 0;
     IT coffset = 0;
-    GetPlaceInGlobalGrid(roffset, roffset);
+    GetPlaceInGlobalGrid(roffset, coffset);
     if(onebased)
     {
         roffset += 1;    // increment by 1
