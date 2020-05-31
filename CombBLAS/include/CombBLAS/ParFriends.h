@@ -689,8 +689,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         delete OnePieceOfC_tuples;
         
         SpParMat<IU,NUO,UDERO> OnePieceOfC_mat(OnePieceOfC, GridC);
-        //MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
-        mcl_nnzc += OnePieceOfC_mat.getnnz();
+        MCLPruneRecoverySelect(OnePieceOfC_mat, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+        //mcl_nnzc += OnePieceOfC_mat.getnnz();
 
 #ifdef SHOW_MEMORY_USAGE
         int64_t gcnnz_pruned, lcnnz_pruned ;
@@ -714,7 +714,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         
         // ABAB: Change this to accept pointers to objects
         if(dbg == 0) {
-            //toconcatenate.push_back(OnePieceOfC_mat.seq());
+            toconcatenate.push_back(OnePieceOfC_mat.seq());
         }
     }
         //double vm_usage, resident_set;
@@ -1352,6 +1352,7 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
     	typedef typename UDERB::LocalIT LIB;
         static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
 
+        //double t0, t1;
 
         int64_t nnzC_SUMMA = 0;
         
@@ -1399,8 +1400,15 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
                 }
                 ARecv = new UDERA();                // first, create the object
             }
-            
+
+//#ifdef TIMING
+            //t0 = MPI_Wtime();
+//#endif
             SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);    // then, receive its elements
+//#ifdef TIMING
+            //t1 = MPI_Wtime();
+            //sym_Abcasttime += t1-t0;
+//#endif
             ess.clear();
             
             if(i == Bself)
@@ -1416,19 +1424,44 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
                 }
                 BRecv = new UDERB();
             }
-            
+
+//#ifdef TIMING
+            //MPI_Barrier(GridC->GetWorld());
+            //t0 = MPI_Wtime();
+//#endif
             SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);    // then, receive its elements
+//#ifdef TIMING
+            //t1 = MPI_Wtime();
+            //sym_Bbcasttime += t1-t0;
+//#endif
             
     	    // no need to keep entries of colnnzC in larger precision 
 	        // because colnnzC is of length nzc and estimates nnzs per column
 			// @OGUZ-EDIT Using hash spgemm for estimation
             //LIB * colnnzC = estimateNNZ(*ARecv, *BRecv);
+//#ifdef TIMING
+            //t0 = MPI_Wtime();
+//#endif
 			LIB* flopC = estimateFLOP(*ARecv, *BRecv);
+//#ifdef TIMING
+            //t1 = MPI_Wtime();
+            //sym_estimatefloptime += t1-t0;
+//#endif
+//#ifdef TIMING
+            //t0 = MPI_Wtime();
+//#endif
 			LIB* colnnzC = estimateNNZ_Hash(*ARecv, *BRecv, flopC);
+//#ifdef TIMING
+            //t1 = MPI_Wtime();
+            //sym_estimatennztime += t1-t0;
+//#endif
             if (flopC) delete [] flopC;
 
             LIB nzc = BRecv->GetDCSC()->nzc;
             int64_t nnzC_stage = 0;
+//#ifdef TIMING
+            //t0 = MPI_Wtime();
+//#endif
 #ifdef THREADED
 #pragma omp parallel for reduction (+:nnzC_stage)
 #endif
@@ -1437,6 +1470,10 @@ int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB>
                 nnzC_stage = nnzC_stage + colnnzC[k];
             }
             nnzC_SUMMA += nnzC_stage;
+//#ifdef TIMING
+            //t1 = MPI_Wtime();
+            //sym_SUMMAnnzreductiontime += t1-t0;
+//#endif
             if(colnnzC) delete [] colnnzC;
 
 			// sampling-based estimation (comment the estimation above, and

@@ -560,8 +560,8 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
 
         // ------ allocate memory outside of the parallel region ------
         std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[mergedNnzAll])));
+        //std::tuple<IT, IT, NT> * mergeBuf = new std::tuple<IT, IT, NT>[mergedNnzAll]; 
   
-
         // ------ perform merge in parallel ------
 #ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
@@ -584,6 +584,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 delete ArrSpTups[i]; // May be expensive for large local matrices
         }
         return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, true);
+        //return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, false);
     }
 
 }
