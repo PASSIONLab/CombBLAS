@@ -161,7 +161,7 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
     else    return false;
 }
 
-void MMConverter(const string & filename, ofstream & dictout)
+void MMConverter(const string & filename, ofstream & dictout, const string & outprefix)
 {
     FILE *f;
     if ((f = fopen(filename.c_str(), "r")) == NULL)
@@ -293,7 +293,7 @@ void MMConverter(const string & filename, ofstream & dictout)
             names[i] = "Renamed_subgraph";
             names[i] += std::to_string(i);
             names[i] += "_";
-            names[i] += filename;
+            names[i] += outprefix;
             names[i] += std::to_string(this_thread);
             cout << names[i] << endl;
             outfiles[i].open(names[i]);
@@ -302,7 +302,7 @@ void MMConverter(const string & filename, ofstream & dictout)
 	string name;
         ofstream outfile;
  	name = "Renamed_graph_";
-	name += filename;
+	name += outprefix;
 	name += std::to_string(this_thread);
 	cout << name<< endl;
 	outfile.open(name);
