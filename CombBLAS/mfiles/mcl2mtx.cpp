@@ -19,18 +19,18 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    if(argc < 2)
+    if(argc < 3)
     {
-        cout << "Usage: ./mcl2mtx <input>" << endl;
+        cout << "Usage: ./mcl2mtx <full_path_to_input> <outputprefix>" << endl;
         return 0;
     }
     
     cout << "reading input matrix in MCL format... " << endl;
     
     string dictname = "Vertex_Dict_";
-    dictname += string(argv[1]);
+    dictname += string(argv[2]);
     ofstream dictout(dictname);
     
-    MMConverter(string(argv[1]), dictout);
+    MMConverter(string(argv[1]), dictout, string(argv[2]));
     dictout.close();
 }
