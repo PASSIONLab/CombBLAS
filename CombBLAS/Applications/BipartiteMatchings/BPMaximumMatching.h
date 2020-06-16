@@ -11,7 +11,6 @@
 #include <string>
 #include <sstream>
 #include "MatchingDefs.h"
-double tTotalMaximum;
 
 namespace combblas {
 
@@ -419,9 +418,6 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     
     
     MPI_Win_free(&winLeaves);
-    
-    tTotalMaximum = MPI_Wtime() - tstart;
-    
     //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
     //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
     
