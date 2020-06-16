@@ -1161,13 +1161,15 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         // compute the maximal matching
         WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
         double mclWeight = MatchingWeight( A, mateRow2Col, mateCol2Row);
-        SpParHelper::Print("After Greedy sanity check\n");
         bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
         
         // if the original matrix has a perfect matching and better weight
         if(isOriginalPerfect && mclWeight<=origWeight)
         {
-            SpParHelper::Print("Maximal is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            
+#ifdef VERBOSE
+            SpParHelper::Print("Maximal matching is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+#endif
             mateRow2Col.iota(A.getnrow(), 0);
             mateCol2Row.iota(A.getncol(), 0);
             mclWeight = origWeight;
@@ -1178,16 +1180,18 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         // MCM
         double tmcm = 0;
         double mcmWeight = mclWeight;
+        bool isPerfectMCM = false;
         if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
         {
             ts = MPI_Wtime();
             maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
             tmcm = MPI_Wtime() - ts;
             mcmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
-            SpParHelper::Print("After MCM sanity check\n");
-            CheckMatching(mateRow2Col,mateCol2Row);
+            isPerfectMCM = CheckMatching(mateRow2Col,mateCol2Row);
         }
         
+        if(!isPerfectMCM)
+            SpParHelper::Print("Warning: The Maximum Cardinality Matching did not return a perfect matching! Need to check the input matrix.\n");
         
         // AWPM
         ts = MPI_Wtime();
@@ -1195,11 +1199,16 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         double tawpm = MPI_Wtime() - ts;
         
         double awpmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
-        SpParHelper::Print("After AWPM sanity check\n");
-        CheckMatching(mateRow2Col,mateCol2Row);
+
+        bool isPerfectAWPM = CheckMatching(mateRow2Col,mateCol2Row);
+        if(!isPerfectAWPM)
+            SpParHelper::Print("Warning: The HWPM code did not return a perfect matching! Need to check the input matrix.\n");
+        
         if(isOriginalPerfect && awpmWeight<origWeight) // keep original
         {
+#ifdef VERBOSE
             SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+#endif
             mateRow2Col.iota(A.getnrow(), 0);
             mateCol2Row.iota(A.getncol(), 0);
             awpmWeight = origWeight;

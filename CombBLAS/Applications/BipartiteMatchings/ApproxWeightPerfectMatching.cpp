@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
         double t01, t02;
         if(ifilename!="")
         {
-            AWeighted = new Par_DCSC_Double();
+            AWeighted = new Par_DCSC_Double(MPI_COMM_WORLD);
             t01 = MPI_Wtime();
             AWeighted->ParallelReadMM(ifilename, true, maximum<double>()); // one-based matrix market file
             t02 = MPI_Wtime();
@@ -137,11 +137,11 @@ int main(int argc, char* argv[])
             }
             
             tinfo.str("");
-	    tinfo << "Input file name: " << ifilename << endl;
-            tinfo << "Reading input matrix in" << t02-t01 << " seconds" << endl;
+            tinfo << "Input file name: " << ifilename << endl;
+            tinfo << "Reading the input matrix in" << t02-t01 << " seconds" << endl;
             SpParHelper::Print(tinfo.str());
             
-            SpParHelper::Print("Pruning explicit zero entries....\n");
+            SpParHelper::Print("Pruning explicit zero entries\n");
             AWeighted->Prune([](double val){return fabs(val)==0;}, true);
             
             AWeighted->PrintInfo();
@@ -185,12 +185,13 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
         A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
       
-	int64_t maxdeg = degCol.Reduce(maximum<int64_t>(), static_cast<int64_t>(0)); 
+        int64_t maxdeg = degCol.Reduce(maximum<int64_t>(), static_cast<int64_t>(0));
         tinfo.str("");
         tinfo << "Maximum degree: " << maxdeg << endl;
-	SpParHelper::Print(tinfo.str());
+        SpParHelper::Print(tinfo.str());
 
 
+        SpParHelper::Print("Transforming weights.\n");
         // transform weights
         if(optimizeProd)
             TransformWeight(*AWeighted, true);
@@ -205,17 +206,14 @@ int main(int argc, char* argv[])
         int64_t diagnnz;
         double origWeight = Trace(*AWeighted, diagnnz);
         bool isOriginalPerfect = diagnnz==A.getnrow();
-       
-
         
         
-
+        SpParHelper::Print("Preprocessing is done.\n");
+        SpParHelper::Print("----------------------------------------\n");
+        
+      
         FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-        
-
-      
-        
         init = DMD; randMaximal = false; randMM = false; prune = true;
         
         // Maximal
@@ -297,7 +295,7 @@ int main(int argc, char* argv[])
 
         tinfo.str("");
         tinfo  << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
-        tinfo <<  "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tTotalMaximal + tTotalMaximum + tawpm << endl;
+        //tinfo <<  "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tTotalMaximal + tTotalMaximum + tawpm << endl;
         SpParHelper::Print(tinfo.str());
         
         //revert random permutation if applied before

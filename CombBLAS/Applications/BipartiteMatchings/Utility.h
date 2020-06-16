@@ -127,31 +127,15 @@ bool CheckMatching(FullyDistVec<IT,IT> & mateRow2Col, FullyDistVec<IT,IT> & mate
     bool isMatching = false;
     if((mateCol2RowSparse == mateRow2ColInverted) && (mateRow2ColSparse == mateCol2RowInverted))
         isMatching = true;
-    
-     bool isPerfectMatching = false;
-    if((mateRow2ColSparse.getnnz()==nrow) && (mateCol2RowSparse.getnnz() == ncol))
-        isPerfectMatching = true;
-    
-    
-    if(myrank == 0)
+    else
     {
-        std::cout << "-------------------------------" << std::endl;
-        if(isMatching)
-        {
-            
-            std::cout << "| This is a matching         |" << std::endl;
-            if(isPerfectMatching)
-            std::cout << "| This is a perfect matching |" << std::endl;
-            
-            
-        }
-        else
-            std::cout << "| This is not a matching |" << std::endl;
-        std::cout << "-------------------------------" << std::endl;
+        SpParHelper::Print("Warning: This is not a matching! Need to check the correctness of the matching (HWPM) code\n");
     }
     
+    bool isPerfectMatching = false;
+    if((mateRow2ColSparse.getnnz()==nrow) && (mateCol2RowSparse.getnnz() == ncol))
+        isPerfectMatching = true;
     return isPerfectMatching;
-
 }
 
 
