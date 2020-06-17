@@ -918,7 +918,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	{
 		
 		
+#ifdef DETAIL_STATS
 		if(myrank==0) std::cout << "Iteration " << iterations << ". matching weight: sum = "<< weightCur << " min = " << minw << std::endl;
+#endif
 		// C requests
 		// each row is for a processor where C requests will be sent to
         double tstart = MPI_Wtime();
@@ -1139,7 +1141,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     }
     
     template <class IT, class NT>
-    void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true)
+    void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true, bool weightedCard=true)
     {
         SpParMat < IT, NT, SpDCCols<IT, NT> > A(A1); // creating a copy because it is being transformed
         
@@ -1149,6 +1151,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             TransformWeight(A, false);
         SpParMat < IT, NT, SpCCols<IT, NT> > Acsc(A);
         SpParMat < IT, NT, SpDCCols<IT, bool> > Abool(A);
+        SpParMat < IT, NT, SpCCols<IT, bool> > ABoolCSC(MPI_COMM_WORLD);
+        if(weightedCard)
+            ABoolCSC = A;
+        
         FullyDistVec<IT, IT> degCol(A.getcommgrid());
         Abool.Reduce(degCol, Column, plus<IT>(), static_cast<IT>(0));
         double ts;
@@ -1158,8 +1164,14 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         double origWeight = Trace(A, diagnnz);
         bool isOriginalPerfect = diagnnz==A.getnrow();
         
-        // compute the maximal matching
-        WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
+        //--------------------------------------------------------
+        // Compute the maximal cardinality matching
+        //--------------------------------------------------------
+        if(weightedCard)
+            WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
+        else
+            WeightedGreedy(ABoolCSC, mateRow2Col, mateCol2Row, degCol);
+        
         double mclWeight = MatchingWeight( A, mateRow2Col, mateCol2Row);
         bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
         
@@ -1167,7 +1179,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         if(isOriginalPerfect && mclWeight<=origWeight)
         {
             
-#ifdef VERBOSE
+#ifdef DETAIL_STATS
             SpParHelper::Print("Maximal matching is not better that the natural ordering. Hence, keeping the natural ordering.\n");
 #endif
             mateRow2Col.iota(A.getnrow(), 0);
@@ -1177,14 +1189,21 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         }
         
         
-        // MCM
+        //--------------------------------------------------------
+        // Compute the maximum cardinality matching
+        //--------------------------------------------------------
         double tmcm = 0;
         double mcmWeight = mclWeight;
-        bool isPerfectMCM = false;
+        bool isPerfectMCM = isPerfectMCL;
         if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
         {
             ts = MPI_Wtime();
-            maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
+            if(weightedCard)
+                maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
+            else
+                maximumMatching(ABoolCSC, mateRow2Col, mateCol2Row, true, false, false);
+            
+            
             tmcm = MPI_Wtime() - ts;
             mcmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
             isPerfectMCM = CheckMatching(mateRow2Col,mateCol2Row);
@@ -1193,7 +1212,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         if(!isPerfectMCM)
             SpParHelper::Print("Warning: The Maximum Cardinality Matching did not return a perfect matching! Need to check the input matrix.\n");
         
-        // AWPM
+        //--------------------------------------------------------
+        // Increase the weight of the perfect matching
+        //--------------------------------------------------------
         ts = MPI_Wtime();
         TwoThirdApprox(A, mateRow2Col, mateCol2Row);
         double tawpm = MPI_Wtime() - ts;
@@ -1206,14 +1227,13 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         
         if(isOriginalPerfect && awpmWeight<origWeight) // keep original
         {
-#ifdef VERBOSE
+#ifdef DETAIL_STATS
             SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
 #endif
             mateRow2Col.iota(A.getnrow(), 0);
             mateCol2Row.iota(A.getncol(), 0);
             awpmWeight = origWeight;
         }
-        
     }
 
 }

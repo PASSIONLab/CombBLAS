@@ -424,6 +424,8 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     
     // print statistics
     double combTime;
+    
+#ifdef TIMING
     if(myrank == 0)
     {
         std::cout << "****** maximum matching runtime ********\n";
@@ -461,9 +463,11 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
         }
         printf("%.2lf\n", combTime);
     }
+#endif
     
     IT nrows=A.getnrow();
     IT matchedRow = mateRow2Col.Count([](IT mate){return mate!=-1;});
+#ifdef DETAIL_STATS
     if(myrank==0)
     {
         std::cout << "***Final Maximum Matching***\n";
@@ -472,6 +476,7 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
         printf("matched rows: %lld , which is: %lf percent \n",matchedRow, 100*(double)matchedRow/(nrows));
         std::cout << "-------------------------------------------------------\n\n";
     }
+#endif
     
 }
 

@@ -27,15 +27,6 @@ int cblas_splits = 1;
 using namespace std;
 using namespace combblas;
 
-// algorithmic options
-bool prune,randMM, moreSplit;
-int init;
-bool randMaximal;
-bool fewexp;
-bool randPerm;
-bool saveMCM;
-
-
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > Par_DCSC_Bool;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t, int64_t> > Par_DCSC_int64_t;
 typedef SpParMat < int64_t, double, SpDCCols<int64_t, double> > Par_DCSC_Double;
@@ -54,7 +45,7 @@ void ShowUsage()
         cout << "                     -optsum: Optimize the sum of diagonal (default: Optimize the product of diagonal)\n";
         cout << "                     -noWeightedCard: do not use weighted cardinality matching (default: use weighted cardinality matching)\n";
         cout << "                     -output <output file>: output file name \n";
-	cout << "                     -saveMCM <output file>: output file where maximum cardinality matching is saved \n";
+        //cout << "                     -saveMCM <output file>: output file where maximum cardinality matching is saved \n";
         cout << " \n-------------- examples ----------\n";
         cout << "Example: mpirun -np 4 ./awpm -input cage12.mtx \n" << endl;
         cout << "(output matching is saved to cage12.mtx.awpm.txt)\n" << endl;
@@ -88,25 +79,18 @@ int main(int argc, char* argv[])
         return -1;
     }
     
-    init = DMD;
-    randMaximal = false;
-    prune = false;
-    randMM = true;
-    moreSplit = false;
-    fewexp=false;
-    randPerm = false;
-   // saveMCM = false;
+    bool randPerm = false;
     bool optimizeProd = true; // by default optimize sum_log_abs(aii) (after equil)
     
     bool weightedCard = true;
     string ifilename = "";
     string ofname = "";
-    string ofnameMCM = "";
+    //string ofnameMCM = "";
     for(int i = 1; i<argc; i++)
     {
         if (string(argv[i]) == string("-input")) ifilename = argv[i+1];
         if (string(argv[i]) == string("-output")) ofname = argv[i+1];
-	if (string(argv[i]) == string("-saveMCM")) ofnameMCM = argv[i+1];
+        //if (string(argv[i]) == string("-saveMCM")) ofnameMCM = argv[i+1];
         if (string(argv[i]) == string("-optsum")) optimizeProd = false;
         if (string(argv[i]) == string("-noWeightedCard")) weightedCard = false;
         if (string(argv[i]) == string("-randPerm")) randPerm = true;
@@ -190,112 +174,33 @@ int main(int argc, char* argv[])
         tinfo << "Maximum degree: " << maxdeg << endl;
         SpParHelper::Print(tinfo.str());
 
+        SpParHelper::Print("Preprocessing is done.\n");
+        SpParHelper::Print("----------------------------------------\n");
+        
+        FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+        FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+        
+        double startT = MPI_Wtime();
+        AWPM(*AWeighted, mateRow2Col, mateCol2Row,  optimizeProd, weightedCard);
+        double endT = MPI_Wtime();
+        
 
-        SpParHelper::Print("Transforming weights.\n");
-        // transform weights
+        
         if(optimizeProd)
             TransformWeight(*AWeighted, true);
         else
             TransformWeight(*AWeighted, false);
-        // convert to CSC for SpMSpV calls
-        Par_CSC_Double AWeightedCSC(*AWeighted);
-        Par_CSC_Bool ABoolCSC(*AWeighted);
-        
-        
-		// Compute the initial trace
         int64_t diagnnz;
         double origWeight = Trace(*AWeighted, diagnnz);
-        bool isOriginalPerfect = diagnnz==A.getnrow();
-        
-        
-        SpParHelper::Print("Preprocessing is done.\n");
-        SpParHelper::Print("----------------------------------------\n");
-        
-      
-        FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
-        FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-        init = DMD; randMaximal = false; randMM = false; prune = true;
-        
-        // Maximal
-        double ts = MPI_Wtime();
-        if(weightedCard)
-            WeightedGreedy(AWeightedCSC, mateRow2Col, mateCol2Row, degCol);
-        else
-            WeightedGreedy(ABoolCSC, mateRow2Col, mateCol2Row, degCol);
-        double tmcl = MPI_Wtime() - ts;
-        
-		double mclWeight = MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row);
-        SpParHelper::Print("After Greedy sanity check\n");
-		bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
-        
-        if(isOriginalPerfect && mclWeight<=origWeight) // keep original
-        {
-            SpParHelper::Print("Maximal is not better that the natural ordering. Hence, keeping the natural ordering.\n");
-            mateRow2Col.iota(A.getnrow(), 0);
-            mateCol2Row.iota(A.getncol(), 0);
-            mclWeight = origWeight;
-            isPerfectMCL = true;
-        }
-        
-		
-        // MCM
-        double tmcm = 0;
-        double mcmWeight = mclWeight;
-        if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
-        {
-            ts = MPI_Wtime();
-            if(weightedCard)
-                maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, true);
-            else
-                maximumMatching(AWeightedCSC, mateRow2Col, mateCol2Row, true, false, false);
-            tmcm = MPI_Wtime() - ts;
-            mcmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
-            SpParHelper::Print("After MCM sanity check\n");
-            CheckMatching(mateRow2Col,mateCol2Row);
-        }
-        
-	if(ofnameMCM != "")
-        {
-		if(randPerm==true && randp.TotalLength() >0)
-        	{
-			FullyDistVec<int64_t, int64_t>invRandp = randp.sort();
-                	FullyDistVec<int64_t, int64_t> mateRow2Col1 = mateRow2Col(invRandp);
-			mateRow2Col1.ParallelWrite(ofnameMCM,false,false);
-		}
-		else
-		{
-            		mateRow2Col.ParallelWrite(ofnameMCM,false,false);
-		}
-        }
-        
-        // AWPM
-        ts = MPI_Wtime();
-        TwoThirdApprox(*AWeighted, mateRow2Col, mateCol2Row);
-        double tawpm = MPI_Wtime() - ts;
-        
-		double awpmWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
-        SpParHelper::Print("After AWPM sanity check\n");
-        CheckMatching(mateRow2Col,mateCol2Row);
-        if(isOriginalPerfect && awpmWeight<origWeight) // keep original
-        {
-            SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
-            mateRow2Col.iota(A.getnrow(), 0);
-            mateCol2Row.iota(A.getncol(), 0);
-            awpmWeight = origWeight;
-        }
-        
-
-        int nthreads = 1;
-#ifdef THREADED
-#pragma omp parallel
-        {
-            nthreads = omp_get_num_threads();
-        }
-#endif
-
+        double mWeight =  MatchingWeight( *AWeighted, mateRow2Col, mateCol2Row) ;
         tinfo.str("");
-        tinfo  << "Weight: [ Original Greedy MCM AWPM] " << origWeight << " " << mclWeight << " "<< mcmWeight << " " << awpmWeight << endl;
-        //tinfo <<  "Time: [Processes Threads Cores Greedy MCM AWPM Total] " << nprocs << " " << nthreads << " " << nprocs * nthreads << " " << tTotalMaximal << " "<< tTotalMaximum << " " << tawpm << " "<< tTotalMaximal + tTotalMaximum + tawpm << endl;
+        tinfo  << "Matching is computed " << endl;
+        tinfo  << "Sum of Diagonal (with transformation)" << endl;
+        tinfo << "      After matching: "<< mWeight  << endl;
+        tinfo << "      Before matching: " << origWeight << endl;
+        
+        tinfo  << "Time: " << endT - startT << endl;
+        tinfo  << "----------------------------------------\n";
         SpParHelper::Print(tinfo.str());
         
         //revert random permutation if applied before
