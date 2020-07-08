@@ -46,22 +46,6 @@ using namespace combblas;
 #ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;
-//////////////////////////
-double mcl_Abcasttime;
-double mcl_Bbcasttime;
-double mcl_localspgemmtime;
-double mcl_multiwaymergetime;
-double mcl_kselecttime;
-double mcl_prunecolumntime;
-double mcl_symbolictime;
-///////////////////////////
-double mcl_Abcasttime_prev;
-double mcl_Bbcasttime_prev;
-double mcl_localspgemmtime_prev;
-double mcl_multiwaymergetime_prev;
-double mcl_kselecttime_prev;
-double mcl_prunecolumntime_prev;
-double mcl_symbolictime_prev;
 ///////////////////////////
 double mcl3d_conversiontime;
 double mcl3d_symbolictime;
@@ -73,6 +57,13 @@ double mcl3d_SUMMAmergetime;
 double mcl3d_reductiontime;
 double mcl3d_3dmergetime;
 double mcl3d_kselecttime;
+double mcl3d_totaltime;
+double mcl3d_floptime;
+int64_t mcl3d_layer_flop;
+int64_t mcl3d_layer_nnzc;
+int64_t mcl3d_nnzc;
+int64_t mcl3d_flop;
+int mcl3d_max_phase;
 ///////////////////////////
 double g_mcl3d_conversiontime;
 double g_mcl3d_symbolictime;
@@ -84,6 +75,40 @@ double g_mcl3d_SUMMAmergetime;
 double g_mcl3d_reductiontime;
 double g_mcl3d_3dmergetime;
 double g_mcl3d_kselecttime;
+double g_mcl3d_totaltime;
+double g_mcl3d_floptime;
+int64_t g_mcl3d_layer_flop;
+int64_t g_mcl3d_layer_nnzc;
+////////////////////////////
+double l_mcl3d_conversiontime;
+double l_mcl3d_symbolictime;
+double l_mcl3d_Abcasttime;
+double l_mcl3d_Bbcasttime;
+double l_mcl3d_SUMMAtime;
+double l_mcl3d_localspgemmtime;
+double l_mcl3d_SUMMAmergetime;
+double l_mcl3d_reductiontime;
+double l_mcl3d_3dmergetime;
+double l_mcl3d_kselecttime;
+double l_mcl3d_totaltime;
+double l_mcl3d_floptime;
+int64_t l_mcl3d_layer_flop;
+int64_t l_mcl3d_layer_nnzc;
+////////////////////////////
+double a_mcl3d_conversiontime;
+double a_mcl3d_symbolictime;
+double a_mcl3d_Abcasttime;
+double a_mcl3d_Bbcasttime;
+double a_mcl3d_SUMMAtime;
+double a_mcl3d_localspgemmtime;
+double a_mcl3d_SUMMAmergetime;
+double a_mcl3d_reductiontime;
+double a_mcl3d_3dmergetime;
+double a_mcl3d_kselecttime;
+double a_mcl3d_totaltime;
+double a_mcl3d_floptime;
+int64_t a_mcl3d_layer_flop;
+int64_t a_mcl3d_layer_nnzc;
 ///////////////////////////
 double mcl3d_conversiontime_prev;
 double mcl3d_symbolictime_prev;
@@ -95,6 +120,18 @@ double mcl3d_SUMMAmergetime_prev;
 double mcl3d_reductiontime_prev;
 double mcl3d_3dmergetime_prev;
 double mcl3d_kselecttime_prev;
+double mcl3d_totaltime_prev;
+double mcl3d_floptime_prev;
+int64_t mcl3d_layer_flop_prev;
+int64_t mcl3d_layer_nnzc_prev;
+///////////////////////////
+double sym_Abcasttime;
+double sym_Bbcasttime;
+double sym_estimatefloptime;
+double sym_estimatennztime;
+double sym_asquarennztime;
+double sym_SUMMAnnzreductiontime;
+double sym_totaltime;
 #endif
 
 #ifdef _OPENMP
@@ -133,68 +170,49 @@ int main(int argc, char* argv[])
     else {
         double vm_usage, resident_set;
         string Aname(argv[1]);
-
+        if(myrank == 0){
+            fprintf(stderr, "Data: %s\n", argv[1]);
+        }
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
         
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
-
-        M.ParallelReadMM(Aname, true, maximum<double>());
-        FullyDistVec<int64_t, int64_t> p( M.getcommgrid() );
-        p.iota(M.getnrow(), 0);
-        p.RandPerm();
-        (M)(p,p,true);// in-place permute to save memory
-        //M.ReadGeneralizedTuples(Aname, maximum<double>());
-        //MCLPruneRecoverySelect<int64_t, double, SpDCCols < int64_t, double >>(M, 2.0, 102, 105, 0.9, 1);
-        int64_t n = M.getnrow();
-        int64_t nnz = M.getnnz();
-        if(myrank == 0){
-            fprintf(stderr, "n after MCLPruneRecoverySelect: %lld\n", n);
-            fprintf(stderr, "nnz after MCLPruneRecoverySelect: %lld\n", nnz);
-        }
-
-        typedef PlusTimesSRing<double, double> PTFF;
         double t0, t1;
-        
-        /*
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
-        M.FreeMemory();
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M2 = Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y);
-        X.FreeMemory();
-        Y.FreeMemory();
-        FullyDistVec<int64_t, int64_t> p2( M2.getcommgrid() );
-        p2.iota(M2.getnrow(), 0);
-        p2.RandPerm();
-        (M2)(p2,p2,true);// in-place permute to save memory
 
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
         
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X2(M2);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y2(M2);
-        M2.FreeMemory();
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M4 = Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X2, Y2);
-        X2.FreeMemory();
-        Y2.FreeMemory();
-        FullyDistVec<int64_t, int64_t> p4( M4.getcommgrid());
-        p4.iota(M4.getnrow(), 0);
-        p4.RandPerm();
-        (M4)(p4,p4,true);// in-place permute to save memory
-        */
+        // Read labelled triple files
+        t0 = MPI_Wtime();
+        M.ReadGeneralizedTuples(Aname, maximum<double>());
+        t1 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
+        
+        typedef PlusTimesSRing<double, double> PTFF;
 
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X(M);
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y(M);
-        int64_t flop = EstimateFLOP<PTFF, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >(X, Y, false, false);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2D(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2D(M);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A2D, 4, true, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B2D, 4, false, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
+            10, 2.0, 1100, 1400, 0.9, 1, 0);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D = C3D.Convert2D();
+
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> X2D(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Y2D(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z2D = MemEfficientSpGEMM< PTFF, double, SpDCCols<int64_t, double>, int64_t >(X2D, Y2D, 10, 2.0, 1100, 1400, 0.9, 1, 0);
+        int64_t C2D_m = C2D.getnrow();
+        int64_t C2D_n = C2D.getncol();
+        int64_t C2D_nnz = C2D.getnnz();
+        int64_t Z2D_m = Z2D.getnrow();
+        int64_t Z2D_n = Z2D.getncol();
+        int64_t Z2D_nnz = Z2D.getnnz();
+        bool flag = false;
+        if(Z2D == C2D) flag = true;
+        if(myrank == 0) fprintf(stderr, "%d\n", flag);
         if(myrank == 0){
-            fprintf(stderr, "flop: %lld\n", flop);
+            fprintf(stderr, "m: %lld - %lld\n", C2D_m, Z2D_m);
+            fprintf(stderr, "n: %lld - %lld\n", C2D_n, Z2D_n);
+            fprintf(stderr, "nnz: %lld - %lld\n", C2D_nnz, Z2D_nnz);
         }
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> Z = Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t >(X, Y);
-        int64_t nnzc = Z.getnnz();
-        if(myrank == 0){
-            fprintf(stderr, "nnzc: %lld\n", nnzc);
-        }
-        X.FreeMemory();
-        Y.FreeMemory();
-        Z.FreeMemory();
     }
     MPI_Finalize();
     return 0;

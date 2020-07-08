@@ -533,8 +533,8 @@ namespace combblas
              * At the start of each phase take appropriate pieces from previously created pieces of local B matrix
              * Appropriate means correct pieces so that 3D-merge can be properly load balanced.
              * */
-            MPI_Barrier(B.getcommgrid()->GetWorld());
-            if(myrank == 0) fprintf(stderr, "Starting phase %d\n", p);
+            //MPI_Barrier(B.getcommgrid()->GetWorld());
+            //if(myrank == 0) fprintf(stderr, "Starting phase %d\n", p);
 
             vector<LIT> lbDivisions3d;
             LIT totalLocalColumnInvolved = 0;
@@ -601,8 +601,8 @@ namespace combblas
             double Local_multiplication_time = 0;
             
             for(int i = 0; i < stages; ++i) {
-                MPI_Barrier(B.getcommgrid()->GetWorld());
-                if(myrank == 0) fprintf(stderr, "Starting stage %d\n", i);
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                //if(myrank == 0) fprintf(stderr, "Starting stage %d\n", i);
                 std::vector<IT> ess;	
 
                 if(i == Aself){
@@ -639,8 +639,8 @@ namespace combblas
                 mcl3d_Abcasttime += (t3-t2);
                 Abcast_time += (t3-t2);
 #endif
-                MPI_Barrier(B.getcommgrid()->GetWorld());
-                if(myrank == 0) fprintf(stderr, "Stage %d: Abcast complete\n", i);
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                //if(myrank == 0) fprintf(stderr, "Stage %d: Abcast complete\n", i);
                 ess.clear();	
                 
                 //MPI_Barrier(layermat->getcommgrid()->GetWorld());
@@ -717,8 +717,8 @@ namespace combblas
                     //fprintf(stderr, "myrank: %d broadcasting %d nonzeros\n", myrank, Barrinfo.numarrs[0].count);
                     //fprintf(stderr, "sssss\n");
                 //}
-                MPI_Barrier(B.getcommgrid()->GetWorld());
-                if(myrank == 0) fprintf(stderr, "Stage %d: Bbcast complete\n", i);
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                //if(myrank == 0) fprintf(stderr, "Stage %d: Bbcast complete\n", i);
 #ifdef TIMING
                 //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t3 = MPI_Wtime();
@@ -739,8 +739,8 @@ namespace combblas
                                 (*ARecv, *BRecv, // parameters themselves
                                 i != Aself, 	// 'delete A' condition
                                 i != Bself);	// 'delete B' condition
-                MPI_Barrier(B.getcommgrid()->GetWorld());
-                if(myrank == 0) fprintf(stderr, "Stage %d: Local-SpGEMM complete\n", i);
+                //MPI_Barrier(B.getcommgrid()->GetWorld());
+                //if(myrank == 0) fprintf(stderr, "Stage %d: Local-SpGEMM complete\n", i);
 #ifdef TIMING
                 //MPI_Barrier(layermat->getcommgrid()->GetWorld());
                 t3 = MPI_Wtime();
@@ -758,8 +758,8 @@ namespace combblas
             //MPI_Barrier(layermat->getcommgrid()->GetWorld());
             t2 = MPI_Wtime();
 #endif
-            SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
-            //SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+            //SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
+            SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
 #ifdef TIMING
             //MPI_Barrier(layermat->getcommgrid()->GetWorld());
             t3 = MPI_Wtime();
@@ -978,13 +978,13 @@ namespace combblas
             /*
              * 3d-merge starts 
              * */
-            SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
-            //SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+            //SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+            SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
 #ifdef TIMING
             //MPI_Barrier(B.getcommgrid()->GetWorld());
             t3 = MPI_Wtime();
             if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiway Merge: %lf\n", p, (t3-t2));
-            //mcl3d_layer_nnzc += merged_tuples->getnnz();
+            mcl3d_layer_nnzc += merged_tuples->getnnz();
 #endif
             //delete merged_tuples;
             DER * phaseResultant = new DER(*merged_tuples, false);

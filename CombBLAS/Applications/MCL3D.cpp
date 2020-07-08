@@ -71,6 +71,12 @@ double mcl3d_SUMMAmergetime;
 double mcl3d_reductiontime;
 double mcl3d_3dmergetime;
 double mcl3d_kselecttime;
+int64_t mcl3d_layer_flop;
+int64_t mcl3d_layer_nnzc;
+int64_t mcl3d_nnzc;
+int64_t mcl3d_nnza;
+int64_t mcl3d_flop;
+///////////////////////////
 double mcl3d_conversiontime_prev;
 double mcl3d_symbolictime_prev;
 double mcl3d_Abcasttime_prev;
@@ -81,6 +87,11 @@ double mcl3d_SUMMAmergetime_prev;
 double mcl3d_reductiontime_prev;
 double mcl3d_3dmergetime_prev;
 double mcl3d_kselecttime_prev;
+int64_t mcl3d_layer_flop_prev;
+int64_t mcl3d_layer_nnzc_prev;
+int64_t mcl3d_nnzc_prev;
+int64_t mcl3d_nnza_prev;
+int64_t mcl3d_flop_prev;
 // for compilation (TODO: fix this dependency)
 int cblas_splits;
 double cblas_alltoalltime;
@@ -569,6 +580,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_reductiontime_prev = mcl3d_reductiontime;
         mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
+        mcl3d_layer_flop_prev = mcl3d_layer_flop;
+        mcl3d_layer_nnzc_prev = mcl3d_layer_nnzc;
+        mcl3d_nnzc_prev = mcl3d_nnzc;
+        mcl3d_nnza_prev = mcl3d_nnza;
+        mcl3d_flop_prev = mcl3d_flop;
 #endif
 
         double t2 = MPI_Wtime();
@@ -582,6 +598,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
+        mcl3d_nnza = A3D_cs.getnnz();
+        mcl3d_layer_flop = EstimateFLOP<PTFF, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >(
+                *(A3D_cs.GetLayerMat()), 
+                *(A3D_rs.GetLayerMat()), 
+                false, false);
 #endif
 
         double t4 = MPI_Wtime();
@@ -642,6 +663,8 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After inflation\n");
             //A.PrintInfo();
         }
+        double t10=MPI_Wtime();
+
 #ifdef TIMING
         if(myrank == 0){
             printf("[Iteration: %d] Conversiontime: %lf\n", it, (mcl3d_conversiontime - mcl3d_conversiontime_prev));
@@ -656,9 +679,17 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             printf("[Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
         }
 #endif
+
+
+#ifdef TIMING
+        MPI_Allreduce(&mcl3d_layer_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetFiberWorld());
+        MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetWorld());
+        if(myrank == 0) printf("[Iteration: %d] flop(C) %lld\n", it, mcl3d_flop);
+        if(myrank == 0) printf("[Iteration: %d] nnz(C) %lld\n", it, mcl3d_nnzc);
+        if(myrank == 0) printf("[Iteration: %d] nnz(A) %lld\n", it, mcl3d_nnza);
+#endif
         
 
-        double t10=MPI_Wtime();
         stringstream s;
         //s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
         s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos3D << " Time: " << (t10-t2) << endl << endl;

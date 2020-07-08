@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
                     t0 = MPI_Wtime();
 #endif
                     SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
-                        phases, 2.0, 1100, 1400, 0.9, 1, 0);
+                        10, 2.0, 1100, 1400, 0.9, 1, 0);
 #ifdef TIMING
                     MPI_Barrier(MPI_COMM_WORLD);
                     t1 = MPI_Wtime();
