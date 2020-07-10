@@ -2,7 +2,7 @@
 #define _TOMMY_OBJ_H_
 
 #include "compress_string.h"
-#include "../Tommy/tommyhashdyn.h"
+#include "Tommy/tommyhashdyn.h"
 using namespace std;
 
 struct tommy_object {
