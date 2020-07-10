@@ -12,7 +12,7 @@
 #include <omp.h>
 #include "mmio.h"
 #include <zlib.h>
-#include "../Tommy/tommyhashdyn.h"
+#include "Tommy/tommyhashdyn.h"
 #include "compress_string.h"
 #include "TommyObj.h"
 using namespace std;
@@ -91,7 +91,7 @@ void check_newline(int *bytes_read, int bytes_requested, char *buf)
         if (buf[(*bytes_read) - 1] != '\n') {
             // doesn't terminate with a newline, add one to prevent infinite loop later
             buf[(*bytes_read) - 1] = '\n';
-            cout << "Error in Matrix Market format, appending missing newline at end of file" << endl;
+            cout << "Error in input format, appending missing newline at end of file" << endl;
             (*bytes_read)++;
         }
     }
