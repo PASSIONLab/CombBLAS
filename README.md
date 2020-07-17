@@ -28,13 +28,17 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
 *   Read [release notes](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html).
 *   The latest CMake'd tarball (version 1.6.2, April 2018) [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz). (NERSC users read [this](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html)). The previous version (version 1.6.1, Jan 2018) is also available [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz) for backwards compatibility and benchmarking.
 *   Installation and testing can be done by executing these commands within the CombBLAS directory:
-    *   _mkdir _build_
-    *   _mkdir _install_
-    *   _cd _build_
-    *   _cmake .. -DCMAKE_INSTALL_PREFIX=../_install_
-    *   _make_
-    *   _make install_
-    *   _ctest -V_ (you need the testinputs, see below)
+    1.   _mkdir _build_
+    2.   _mkdir _install_
+    3.   _cd _build_
+    4.   _cmake .. -DCMAKE_INSTALL_PREFIX=../_install_
+    5.   _make_
+    6.   _make install_
+    7.   _ctest -V_ (you need the testinputs, see below)
+
+If running on a Mac, we recommend using gcc compilers instead of clang (which has issues with OpenMP). For that, all you need to do is to replace step (4) above with
+
+*    cmake .. -DCMAKE_INSTALL_PREFIX=../_install  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
 
 Test inputs are separately downloadable [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz). Extract them inside the _build directory you've just created with the command "tar -xzvf testdata_combblas1.6.1.tgz"
 
