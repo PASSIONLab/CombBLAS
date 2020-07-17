@@ -1,53 +1,59 @@
 cmake_minimum_required(VERSION 3.3)
-project(CombBLAS VERSION 1.16.0 LANGUAGES C CXX)
 
-# require c++14
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CombBLAS_VERSION 2.0.0)
+SET(CMAKE_CXX_FLAGS "-O3")
+SET(CMAKE_C_FLAGS "-O3")
+SET(CMAKE_SYSTEM_NAME Generic)
+
+project(CombBLAS VERSION ${CombBLAS_VERSION} LANGUAGES C CXX)
+
 
 # Main CombBLAS library
 add_library(CombBLAS src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp)
 
-# require c++14 in CombBLAS interface
-if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES) # Use language feature if available (CMake >= 3.8)
+# require c++14
+if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES) # check if cmake knows about c++14
   target_compile_features(CombBLAS PUBLIC cxx_std_14)
 else()
-  # Use C++14-specific features for CMake >= 3.3, which will force the appropriate language level flags.
-  target_compile_features(CombBLAS PUBLIC cxx_return_type_deduction)
+  target_compile_options(CombBLAS PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++14>)
 endif()
 
 # set include directories
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include> $<INSTALL_INTERFACE:include>)
-target_include_directories(CombBLAS PRIVATE include/CombBLAS)
+target_include_directories(CombBLAS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/CombBLAS)
+
 
 # MPI and OpenMP dependencies
 find_package(MPI REQUIRED)
-find_package(OpenMP)
+find_package(OpenMP REQUIRED)
 
-if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
+if(TARGET MPI::MPI_CXX) # Use target if available (cmake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
-else()
+elseif()
   target_compile_options(CombBLAS PUBLIC "${MPI_CXX_COMPILE_FLAGS}")
-  target_link_libraries(CombBLAS PUBLIC "${MPI_CXX_LIBRARIES}" "${MPI_CXX_LINKFLAGS}")
+  target_link_libraries(CombBLAS PUBLIC MPI_CXX_LINK_LIBRARIES "${MPI_CXX_LINKFLAGS}")
   target_include_directories(CombBLAS PUBLIC "${MPI_CXX_INCLUDE_PATH}")
 endif()
 
-if(TARGET OpenMP::OpenMP_CXX) # Use target if available (CMake >= 3.9)
+if(OPENMP_FOUND OR OpenMP_CXX_FOUND)
+  # Set THREADED if OpenMP is found
   target_compile_definitions(CombBLAS PUBLIC THREADED)
-  target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
-elseif(OPENMP_FOUND)
-  target_compile_definitions(CombBLAS PUBLIC THREADED)
-  target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
-  target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
+  if(TARGET OpenMP::OpenMP_CXX)
+    target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
+  else()
+    target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
+    target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
+  endif()
 endif()
 
-add_subdirectory(usort)
+
+ADD_SUBDIRECTORY( usort )
 target_link_libraries(CombBLAS PUBLIC Usortlib)
 
-add_subdirectory(graph500-1.2/generator)
+ADD_SUBDIRECTORY( graph500-1.2/generator )
 target_link_libraries(CombBLAS PUBLIC GraphGenlib)
+
 
 # Set up exported configuration
 # This allows CombBLAS to be installed in two ways:
@@ -58,66 +64,68 @@ target_link_libraries(CombBLAS PUBLIC GraphGenlib)
 # Either way, we need to create a CombBLASConfig.cmake.
 set(ConfigPackageLocation lib/cmake/CombBLAS)
 
+
 # Generate version number header
 include(GenerateExportHeader)
 generate_export_header(CombBLAS)
-set_target_properties(CombBLAS PROPERTIES VERSION ${CombBLAS_VERSION})
+set_property(TARGET CombBLAS PROPERTY VERSION ${CombBLAS_VERSION})
 
 # installation
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY psort-1.0/include/ DESTINATION include)
 install(TARGETS CombBLAS EXPORT CombBLASTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-        )
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfigVersion.cmake"
-    VERSION ${CombBLAS_VERSION}
-    COMPATIBILITY AnyNewerVersion
+  "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfigVersion.cmake"
+  VERSION ${CombBLAS_VERSION}
+  COMPATIBILITY AnyNewerVersion
 )
 
 # The following commands allow for option 2.
 export(EXPORT CombBLASTargets
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASTargets.cmake"
-       NAMESPACE CombBLAS::
-       )
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASTargets.cmake"
+  NAMESPACE CombBLAS::
+)
 configure_file(cmake/CombBLASConfig.cmake
-               "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfig.cmake"
-               COPYONLY
-               )
+  "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfig.cmake"
+  COPYONLY
+)
 
 # Allow for option 2
 install(EXPORT CombBLASTargets
-        FILE
-        CombBLASTargets.cmake
-        NAMESPACE
-        CombBLAS::
-        DESTINATION
-        ${ConfigPackageLocation}
-        )
+  FILE
+    CombBLASTargets.cmake
+  NAMESPACE
+    CombBLAS::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
 export(PACKAGE CombBLAS)
 install(
-    FILES
+  FILES
     cmake/CombBLASConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfigVersion.cmake"
-    DESTINATION
+  DESTINATION
     ${ConfigPackageLocation}
-    COMPONENT
+  COMPONENT
     Devel
 )
 
 # Testing
-enable_testing()
-include(CTest)
+ENABLE_TESTING()
+INCLUDE(CTest)
 
-add_subdirectory(ReleaseTests)
-add_subdirectory(Applications)
-add_subdirectory(Applications/Ordering)
-add_subdirectory(Applications/BipartiteMatchings)
-add_subdirectory(Applications/SpMSpV-IPDPS2017)
-add_subdirectory(3DSpGEMM)
+ADD_SUBDIRECTORY( ReleaseTests )
+ADD_SUBDIRECTORY( Applications )
+ADD_SUBDIRECTORY( Applications/Ordering )
+ADD_SUBDIRECTORY( Applications/BipartiteMatchings )
+ADD_SUBDIRECTORY( Applications/SpMSpV-IPDPS2017 )
+ADD_SUBDIRECTORY( 3DSpGEMM )
+
