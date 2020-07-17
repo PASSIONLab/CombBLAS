@@ -11,6 +11,7 @@ ADD_EXECUTABLE( GalerkinNew GalerkinNew.cpp )
 ADD_EXECUTABLE( IndexingTiming IndexingTiming.cpp )
 ADD_EXECUTABLE( FindSparse FindSparse.cpp )
 ADD_EXECUTABLE( ParIOTest ParIOTest.cpp )
+ADD_EXECUTABLE( GenWrMat GenWriteMatrix.cpp )
 
 TARGET_LINK_LIBRARIES( MultTiming CombBLAS)
 TARGET_LINK_LIBRARIES( MultTest CombBLAS)
@@ -23,8 +24,9 @@ TARGET_LINK_LIBRARIES( GalerkinNew CombBLAS)
 TARGET_LINK_LIBRARIES( IndexingTiming CombBLAS)
 TARGET_LINK_LIBRARIES( FindSparse CombBLAS)
 TARGET_LINK_LIBRARIES( ParIOTest CombBLAS)
+TARGET_LINK_LIBRARIES( GenWrMat CombBLAS)
 
-
+ADD_TEST(NAME GenMMWrite_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:GenWrMat> 20 16 1 scale20_ef16_symmetric.mtx)
 ADD_TEST(NAME Multiplication_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:MultTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx ../TESTDATA/x_65536_halfdense.txt ../TESTDATA/y_65536_halfdense.txt )
 ADD_TEST(NAME Reduction_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:ReduceTest> ../TESTDATA/sprand10000 ../TESTDATA/sprand10000_sumcols ../TESTDATA/sprand10000_sumrows)
 ADD_TEST(NAME Iterator_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:IteratorTest> ../TESTDATA sprand10000)
