@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
-	if(argc < 2)
+	if(argc < 3)
 	{
 		if(myrank == 0)
 		{
@@ -73,9 +73,6 @@ int main(int argc, char* argv[])
 		string Aname(argv[1]);	
 		string Bname(argv[2]);
 	
-		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
-		typedef SelectMaxSRing<bool, int64_t> SR;	
-
         	PSpMat<double>::MPI_DCCols A, B;
 		
         	A.ParallelReadMM(Aname, true, maximum<double>());
@@ -89,8 +86,8 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Parallel Matrix Market I/O");
-			A.SaveGathered("A_Error.txt");
-			B.SaveGathered("B_Error.txt");
+			A.ParallelWriteMM("A_Error.mtx", true);
+			B.ParallelWriteMM("B_Error.mtx", true);
 		}
 
 		perm.ParallelWrite("PermutationVec.mtx", 1, StdArrayReadSaveHandler(), true);
