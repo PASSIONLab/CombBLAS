@@ -1,6 +1,4 @@
 * This is the development repository of Combinatorial BLAS. 
-* Please download an official release here: https://people.eecs.berkeley.edu/~aydin/CombBLAS/html/
-* We made this repository public so that pull requests can be issued.
 
 **Copyright** 
 
