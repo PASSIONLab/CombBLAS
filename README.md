@@ -2,7 +2,7 @@
 
 **Copyright** 
 
-Combinatorial BLAS, Copyright (c) 2018, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara. All rights reserved.
+Combinatorial BLAS, Copyright (c) 2020, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara. All rights reserved.
 
 _If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office.
 
