@@ -150,6 +150,7 @@ Important Parallel classes:
 *   [BipartiteMatchings/BPMaximalMatching.cpp](_b_p_maximal_matching_8cpp.html): Maximal matching algorithms on bipartite graphs [10]
 *   [BipartiteMatchings/BPMaximumMatching.cpp](_b_p_maximum_matching_8cpp.html): Maximum matching algorithm on bipartite graphs [11]
 *   [Ordering/RCM.cpp](_r_c_m_8cpp.html): Reverse Cuthill-McKee ordering on distributed memory [12]
+*   [CC.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/Applications/CC.cpp): Linear-algebraic connected components [14, 15]
 
 **Performance** results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7]. Performance of the 3D SpGEMM algorithm can be found in [9]
 
