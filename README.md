@@ -159,6 +159,10 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [TransposeTest.cpp](_transpose_test_8cpp.html) : File I/O and parallel transpose tests
 *   [MultTiming.cpp](_mult_timing_8cpp.html) : Parallel SpGEMM tests
 *   [IndexingTest.cpp](_indexing_test_8cpp.html): Various sparse matrix indexing usages
+*   [ParIOTest.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/ReleaseTests/ParIOTest.cpp) Parallel reading of arbitrary labeled tuples with SpParMat::ReadGeneralizedTuples()
+*   [ReadWriteMtx.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/ReleaseTests/ReadWriteMtx.cpp): Parallel matrix-market I/O
+*   [VectorIO.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/ReleaseTests/VectorIO.cpp): Parallel Vector I/O
+*   [GenWriteMatrix.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/ReleaseTests/GenWriteMatrix.cpp): Parallel generating and writing of Kronecker graphs
 *   [SpAsgnTiming.cpp](_sp_asgn_timing_8cpp.html): Sparse matrix assignment usage and timing.
 *   [FindSparse.cpp](_find_sparse_8cpp.html) : Parallel find/sparse routines akin to Matlab's.
 *   [GalerkinNew.cpp](_galerkin_new_8cpp.html) : Graph contraction or restriction operator (used in Algebraic Multigrid).
