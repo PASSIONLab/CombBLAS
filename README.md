@@ -59,6 +59,7 @@ For example, the standard way to declare a parallel sparse matrix A that uses 32
 Sparse and dense vectors are distributed along all processors. This is very space efficient and provides good load balance for SpMSV (sparse matrix-sparse vector multiplication).
 
 **New since version 1.6**:
+
 *   Connected components in distributed memory, found in Applications/CC.h [14,15], compile with "make cc" in that folder. Usage self explanatory (just try ./cc without any parameters to get usage)
 *   Incorporation of much faster shared-memory hash SpGEMM implementation [16] from [Yusuke Nagasaka](https://bitbucket.org/YusukeNagasaka/mtspgemmlib/src/master/)
 *   Initial CUDA support (for HipMCL initially [17]) for sparse matrix-matrix multiplication
