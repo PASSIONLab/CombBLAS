@@ -15,7 +15,6 @@
 #define KARP_SIPSER 2
 #define DMD 3
 MTRand GlobalMT(123); // for reproducible result
-double tTotalMaximal;
 
 namespace combblas {
 
@@ -254,7 +253,6 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	
-    double tStart = MPI_Wtime();
     
 	//unmatched row and column vertices
 	FullyDistSpVec<IT, IT> unmatchedRow(mateRow2Col, [](IT mate){return mate==-1;});
@@ -353,8 +351,6 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		MPI_Barrier(MPI_COMM_WORLD);
 		
 	}
-	
-    tTotalMaximal = MPI_Wtime() - tStart;
     
 	IT cardinality = mateRow2Col.Count([](IT mate){return mate!=-1;});
 	std::vector<double> totalTimes(timing[0].size(),0);
@@ -388,10 +384,12 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 			printf("%12.5lf ", totalTimes[i]);
 		cout << endl;
 #endif
+#ifdef TIMING
 		std::cout << "****** maximal matching runtime ********\n";
 		std::cout << "Unmatched-Rows  Cardinality Total Time***\n";
 		printf("%lld    %lld     %lf\n", curUnmatchedRow, cardinality, totalTimes.back());
 		std::cout << "-------------------------------------------------------\n\n";
+#endif
 	}
 	//isMatching(mateCol2Row, mateRow2Col);
 }

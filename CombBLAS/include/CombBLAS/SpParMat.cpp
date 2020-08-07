@@ -2150,6 +2150,182 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 }
 
 
+
+template<class IT,
+		 class NT,
+		 class DER>
+template<typename PTNTBOOL,
+		 typename PTBOOLNT>
+SpParMat<IT, NT, DER>
+SpParMat<IT, NT, DER>::SubsRef_SR (
+	const FullyDistVec<IT, IT> &v,
+	Dim dim,
+	bool inplace
+	)
+{
+	typedef typename DER::LocalIT LIT;
+	typedef typename create_trait<DER, LIT, bool>::T_inferred DER_IT;
+
+	if (*(v.commGrid) != *commGrid)
+	{
+		SpParHelper::Print("Grids are not comparable, SpRef fails!");
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}
+
+	IT locmax = 0;
+	if (!v.arr.empty())
+		locmax = *std::max_element(v.arr.begin(), v.arr.end());
+
+	IT	offset	   = v.RowLenUntil();
+	IT	rowlen	   = v.MyRowLength();
+	IT	totalm	   = getnrow();
+	IT	totaln	   = getncol();
+	IT	rowneighs  = commGrid->GetGridCols();
+	IT	perproccol = -1;
+	IT	dimy	   = -1;
+	IT	diagneigh, tmp;
+
+	switch(dim)
+	{
+	case Row:
+		if (locmax > totalm)
+			throw outofrangeexception();
+
+		perproccol = totalm / rowneighs;
+
+		diagneigh = commGrid->GetComplementRank();
+		MPI_Status status;
+		tmp = getlocalrows();
+		MPI_Sendrecv(&tmp, 1, MPIType<IT>(), diagneigh, TRROWX,
+					 &dimy, 1, MPIType<IT>(), diagneigh, TRROWX,
+					 commGrid->GetWorld(), &status);
+
+		break;
+		
+
+	case Column:
+		if (locmax > totaln)
+			throw outofrangeexception();
+
+		perproccol = totaln / rowneighs;
+		dimy	   = getlocalcols();
+
+		break;
+
+
+	default:
+		break;
+	}
+
+
+	// find owner processes and fill in the vectors
+	std::vector<std::vector<IT>> rowid(rowneighs);
+	std::vector<std::vector<IT>> colid(rowneighs);
+	IT locvec = v.arr.size();
+	for(typename std::vector<IT>::size_type i = 0; i < (unsigned)locvec; ++i)
+	{
+		IT rowrec = (perproccol != 0)
+			? std::min(v.arr[i] / perproccol, rowneighs - 1)
+			: (rowneighs - 1);
+
+		rowid[rowrec].push_back(i + offset);	
+		colid[rowrec].push_back(v.arr[i] - (rowrec * perproccol));
+	}
+
+	
+	// exchange data
+	int *sendcnt = new int[rowneighs];
+	int *recvcnt = new int[rowneighs];
+	for (IT i = 0; i < rowneighs; ++i)
+		sendcnt[i] = rowid[i].size();
+
+	MPI_Alltoall(sendcnt, 1, MPI_INT,
+				 recvcnt, 1, MPI_INT,
+				 commGrid->GetRowWorld());
+
+	int *sdispls = new int[rowneighs]();
+	int *rdispls = new int[rowneighs]();
+	std::partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+	std::partial_sum(recvcnt, recvcnt+rowneighs-1, rdispls+1);
+	IT v_nnz = std::accumulate(recvcnt, recvcnt+rowneighs, static_cast<IT>(0));
+
+	IT	*v_rows	  = new IT[v_nnz];
+	IT	*v_cols	  = new IT[v_nnz];
+  	IT	*senddata = new IT[locvec];
+
+	for(int i = 0; i < rowneighs; ++i)
+	{
+		std::copy(rowid[i].begin(), rowid[i].end(), senddata + sdispls[i]);
+		std::vector<IT>().swap(rowid[i]);	// free memory
+	}
+
+	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(),
+				  v_rows, recvcnt, rdispls, MPIType<IT>(),
+				  commGrid->GetRowWorld());
+
+	for(int i = 0; i < rowneighs; ++i)
+	{
+		std::copy(colid[i].begin(), colid[i].end(), senddata + sdispls[i]);
+		std::vector<IT>().swap(colid[i]);	// free memory
+	}
+
+	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(),
+				  v_cols, recvcnt, rdispls, MPIType<IT>(),
+				  commGrid->GetRowWorld());
+
+	delete [] senddata;
+
+
+	// form tuples and create the permutation matrix
+	std::tuple<LIT, LIT, bool> *v_tuples =
+		new std::tuple<LIT, LIT, bool>[v_nnz];
+	for(IT i = 0; i < v_nnz; ++i)
+		v_tuples[i] = std::make_tuple(v_rows[i], v_cols[i], 1);
+
+	DeleteAll(v_rows, v_cols);
+
+	DER_IT *vseq = new DER_IT();
+	vseq->Create(v_nnz, rowlen, dimy, v_tuples);
+	SpParMat<IT, bool, DER_IT> V(vseq, commGrid); // permutation matrix
+
+
+	// generate the final matrix
+	switch(dim)
+	{
+	case Row:
+		if (inplace)
+		{
+			*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(V, *this, true, true);
+			return SpParMat<IT, NT, DER>(commGrid); // dummy
+		}
+		else
+			return Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(V, *this);
+
+		break;
+
+
+	case Column:
+		V.Transpose();
+		if (inplace)
+		{
+			*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, V, true, true);
+			return SpParMat<IT, NT, DER>(commGrid); // dummy
+		}
+		else
+			return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, V);
+
+		
+	default:
+		break;
+	}
+
+
+	// should not reach at this point
+	return SpParMat<IT, NT, DER>(commGrid); // dummy
+}
+								   
+
+
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, SpParMat<IT,NT,DER> & B)
 {
@@ -3607,6 +3783,97 @@ void SpParMat< IT,NT,DER >::ParallelReadMM (const std::string & filename, bool o
     if(spSeq)   delete spSeq;
     SparseCommon(data, locsize, nrows, ncols, BinOp);
 }
+
+
+template <class IT, class NT, class DER>
+template <class HANDLER>
+void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool onebased, HANDLER handler)
+{
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    IT totalm = getnrow();
+    IT totaln = getncol();
+    IT totnnz = getnnz();
+
+    std::stringstream ss;
+    if(myrank == 0)
+    {
+        ss << "%%MatrixMarket matrix coordinate real general" << std::endl;
+        ss << totalm << " " << totaln << " " << totnnz << std::endl;
+    }
+    
+    IT entries =  getlocalnnz();
+    IT sizeuntil = 0;
+    MPI_Exscan( &entries, &sizeuntil, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld() );
+    if(myrank == 0) sizeuntil = 0;    // because MPI_Exscan says the recvbuf in process 0 is undefined
+    
+    IT roffset = 0;
+    IT coffset = 0;
+    GetPlaceInGlobalGrid(roffset, coffset);
+    if(onebased)
+    {
+        roffset += 1;    // increment by 1
+        coffset += 1;
+    }
+    
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)    // iterate over nonempty subcolumns
+    {
+        for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+        {
+            IT glrowid = nzit.rowid() + roffset;
+            IT glcolid = colit.colid() + coffset;
+            ss << glrowid << '\t';
+            ss << glcolid << '\t';
+            handler.save(ss, nzit.value(), glrowid, glcolid);
+            ss << '\n';
+        }
+    }
+
+    std::string text = ss.str();
+
+    int64_t * bytes = new int64_t[nprocs];
+    bytes[myrank] = text.size();
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), bytes, 1, MPIType<int64_t>(), commGrid->GetWorld());
+    int64_t bytesuntil = std::accumulate(bytes, bytes+myrank, static_cast<int64_t>(0));
+    int64_t bytestotal = std::accumulate(bytes, bytes+nprocs, static_cast<int64_t>(0));
+
+    if(myrank == 0)    // only leader rights the original file with no content
+    {
+        std::ofstream ofs(filename.c_str(), std::ios::binary | std::ios::out);
+#ifdef COMBBLAS_DEBUG
+        std::cout << "Creating file with " << bytestotal << " bytes" << std::endl;
+#endif
+        ofs.seekp(bytestotal - 1);
+        ofs.write("", 1);    // this will likely create a sparse file so the actual disks won't spin yet
+        ofs.close();
+    }
+    MPI_Barrier(commGrid->GetWorld());
+
+    struct stat st;     // get file size
+    if (stat(filename.c_str(), &st) == -1)
+    {
+        MPI_Abort(commGrid->GetWorld(), NOFILE);
+    }
+    if(myrank == nprocs-1)    // let some other processor do the testing
+    {
+#ifdef COMBBLAS_DEBUG
+    std::cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << std::endl;
+#endif
+    }
+
+    FILE *ffinal;
+    if ((ffinal = fopen(filename.c_str(), "rb+")) == NULL)    // then everyone fills it
+    {
+        printf("COMBBLAS: Matrix output file %s failed to open at process %d\n", filename.c_str(), myrank);
+        MPI_Abort(commGrid->GetWorld(), NOFILE);
+    }
+    fseek (ffinal , bytesuntil , SEEK_SET );
+    fwrite(text.c_str(),1, bytes[myrank] ,ffinal);
+    fflush(ffinal);
+    fclose(ffinal);
+    delete [] bytes;
+}
+
 
 
 //! Handles all sorts of orderings as long as there are no duplicates

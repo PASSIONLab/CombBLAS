@@ -39,8 +39,6 @@ struct AWPM_param
     std::shared_ptr<CommGrid> commGrid;
 };
 
-double t1Comp, t1Comm, t2Comp, t2Comm, t3Comp, t3Comm, t4Comp, t4Comm, t5Comp, t5Comm, tUpdateMateComp;
-    
 
 template <class IT, class NT>
 std::vector<std::tuple<IT,IT,NT>> ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World)
@@ -528,7 +526,7 @@ std::vector< std::tuple<IT,IT,NT> > Phase1(const AWPM_param<IT>& param, Dcsc<IT,
         }
     }
     
-    t1Comp = MPI_Wtime() - tstart;
+    double t1Comp = MPI_Wtime() - tstart;
     tstart = MPI_Wtime();
     
     // Step 3: Communicate data
@@ -548,7 +546,7 @@ std::vector< std::tuple<IT,IT,NT> > Phase1(const AWPM_param<IT>& param, Dcsc<IT,
     std::vector< std::tuple<IT,IT,NT> > recvTuples1(totrecv);
     MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples1.data(), recvcnt.data(), rdispls.data(), MPI_tuple, World);
     MPI_Type_free(&MPI_tuple);
-    t1Comm = MPI_Wtime() - tstart;
+    double t1Comm = MPI_Wtime() - tstart;
     return recvTuples1;
 }
 
@@ -730,7 +728,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
 
     // Step 4: Communicate data
     
-    t2Comp = MPI_Wtime() - tstart;
+    double t2Comp = MPI_Wtime() - tstart;
     tstart = MPI_Wtime();
     
     std::vector<int> recvcnt (param.nprocs);
@@ -748,7 +746,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
     std::vector< std::tuple<IT,IT,IT,NT> > recvTuples1(totrecv);
     MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples1.data(), recvcnt.data(), rdispls.data(), MPI_tuple, World);
     MPI_Type_free(&MPI_tuple);
-    t2Comm = MPI_Wtime() - tstart;
+    double t2Comm = MPI_Wtime() - tstart;
     return recvTuples1;
 }
 
@@ -836,7 +834,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     param.myrank = myrank;
     param.commGrid = commGrid;
     
-    double t1CompAll = 0, t1CommAll = 0, t2CompAll = 0, t2CommAll = 0, t3CompAll = 0, t3CommAll = 0, t4CompAll = 0, t4CommAll = 0, t5CompAll = 0, t5CommAll = 0, tUpdateMateCompAll = 0, tUpdateWeightAll = 0;
+    //double t1CompAll = 0, t1CommAll = 0, t2CompAll = 0, t2CommAll = 0, t3CompAll = 0, t3CommAll = 0, t4CompAll = 0, t4CommAll = 0, t5CompAll = 0, t5CommAll = 0, tUpdateMateCompAll = 0, tUpdateWeightAll = 0;
+    
+    double tPhase1 = 0, tPhase2 = 0, tPhase3 = 0, tPhase4 = 0, tPhase5 = 0, tUpdate = 0;
+    
 	
 	// -----------------------------------------------------------
 	// replicate mate vectors for mateCol2Row
@@ -917,19 +918,21 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 	{
 		
 		
+#ifdef DETAIL_STATS
 		if(myrank==0) std::cout << "Iteration " << iterations << ". matching weight: sum = "<< weightCur << " min = " << minw << std::endl;
+#endif
 		// C requests
 		// each row is for a processor where C requests will be sent to
-        double tstart;
-        
-        
+        double tstart = MPI_Wtime();
         std::vector<std::tuple<IT,IT,NT>> recvTuples = Phase1(param, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
+        tPhase1 += (MPI_Wtime() - tstart);
+        tstart = MPI_Wtime();
+        
         std::vector<std::tuple<IT,IT,IT,NT>> recvTuples1 = Phase2(param, recvTuples, dcsc, colptr, RepMateR2C, RepMateC2R, RepMateWR2C, RepMateWC2R );
         std::vector< std::tuple<IT,IT,NT> >().swap(recvTuples);
+        tPhase2 += (MPI_Wtime() - tstart);
+        tstart = MPI_Wtime();
         
-        
-        
-		tstart = MPI_Wtime();
         
 		std::vector<std::tuple<IT,IT,IT,NT>> bestTuplesPhase3 (lncol);
 #ifdef THREADED
@@ -973,13 +976,11 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 				tempTuples1[owner].push_back(std::make_tuple(i, j, mj, weight));
 			}
 		}
-		
 		//vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
-		double t3Comp = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
 		recvTuples1 = ExchangeData1(tempTuples1, World);
-		double t3Comm = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
+		
+        tPhase3 += (MPI_Wtime() - tstart);
+        tstart = MPI_Wtime();
 		
 		std::vector<std::tuple<IT,IT,IT,IT, NT>> bestTuplesPhase4 (lncol);
 		// we could have used lnrow in both bestTuplesPhase3 and bestTuplesPhase4
@@ -1038,16 +1039,9 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 				winnerTuples[owner].push_back(std::make_tuple(mj, mi, j, i));
 			}
 		}
-		
-		
-		//vector< tuple<IT,IT,IT, NT> >().swap(recvTuples1);
-		double t4Comp = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
-		
 		std::vector<std::tuple<IT,IT,IT,IT>> recvWinnerTuples = ExchangeData1(winnerTuples, World);
-		
-		double t4Comm = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
+        tPhase4 += (MPI_Wtime() - tstart);
+        tstart = MPI_Wtime();
 		
 		// at the owner of (mj,j)
 		std::vector<std::tuple<IT,IT>> rowBcastTuples(recvWinnerTuples.size()); //(mi,mj)
@@ -1065,14 +1059,13 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			colBcastTuples[k] = std::make_tuple(j,i);
 			rowBcastTuples[k] = std::make_tuple(mj,mi);
 		}
-		double t5Comp = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
 		
 		std::vector<std::tuple<IT,IT>> updatedR2C = MateBcast(rowBcastTuples, RowWorld);
 		std::vector<std::tuple<IT,IT>> updatedC2R = MateBcast(colBcastTuples, ColWorld);
+        
+        tPhase5 += (MPI_Wtime() - tstart);
+        tstart = MPI_Wtime();
 		
-		double t5Comm = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
 		
 #ifdef THREADED
 #pragma omp parallel for
@@ -1094,48 +1087,28 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
 			RepMateC2R[col-localColStart] = mate;
 		}
 		
-		
-		double tUpdateMateComp = MPI_Wtime() - tstart;
-		tstart = MPI_Wtime();
 		// update weights of matched edges
 		// we can do better than this since we are doing sparse updates
 		ReplicateMateWeights(param, dcsc, colptr, RepMateC2R, RepMateWR2C, RepMateWC2R);
-		double tUpdateWeight = MPI_Wtime() - tstart;
-		
-		
 		weightPrev = weightCur;
 		weightCur = MatchingWeight(RepMateWC2R, RowWorld, minw);
 		
+        tUpdate += (MPI_Wtime() - tstart);
 		
 		//UpdateMatching(mateRow2Col, mateCol2Row, RepMateR2C, RepMateC2R);
 		//CheckMatching(mateRow2Col,mateCol2Row);
 		
-		if(myrank==0)
-		{
-			std::cout  <<  t1Comp << " " << t1Comm << " "<< t2Comp << " " << t2Comm << " " << t3Comp << " " << t3Comm << " " << t4Comp << " " << t4Comm << " " << t5Comp << " " << t5Comm << " " << tUpdateMateComp << " " << tUpdateWeight << std::endl;
-            
-            t1CompAll += t1Comp;
-            t1CommAll += t1Comm;
-            t2CompAll += t2Comp;
-            t2CommAll += t2Comm;
-            t3CompAll += t3Comp;
-            t3CommAll += t3Comm;
-            t4CompAll += t4Comp;
-            t4CommAll += t4Comm;
-            t5CompAll += t5Comp;
-            t5CommAll += t5Comm;
-            tUpdateMateCompAll += tUpdateMateComp;
-            tUpdateWeightAll += tUpdateWeight;
-            
-		}
 	}
 	
+#ifdef TIMING
     if(myrank==0)
     {
-        std::cout << "=========== overal timing ==========" << std::endl;
-        std::cout  <<  t1CompAll << " " << t1CommAll << " " << t2CompAll << " " << t2CommAll << " " << t3CompAll << " " << t3CommAll << " " << t4CompAll << " " << t4CommAll << " " << t5CompAll << " " << t5CommAll << " " << tUpdateMateCompAll << " " << tUpdateWeightAll << std::endl;
+        std::cout << "------------- overal timing (HWPM) -------------" << std::endl;
+        //std::cout  <<  t1CompAll << " " << t1CommAll << " " << t2CompAll << " " << t2CommAll << " " << t3CompAll << " " << t3CommAll << " " << t4CompAll << " " << t4CommAll << " " << t5CompAll << " " << t5CommAll << " " << tUpdateMateCompAll << " " << tUpdateWeightAll << std::endl;
+        std::cout  <<"Phase1: "<<  tPhase1 << "\nPhase2: " << tPhase2 << "\nPhase3: " << tPhase3 << "\nPhase4: " << tPhase4 << "\nPhase5: " << tPhase5 << "\nUpdate: " << tUpdate << std::endl;
+        std::cout << "-------------------------------------------------" << std::endl;
     }
-	
+#endif
 	// update the distributed mate vectors from replicated mate vectors
 	UpdateMatching(mateRow2Col, mateCol2Row, RepMateR2C, RepMateC2R);
 	//weightCur = MatchingWeight(RepMateWC2R, RowWorld);
@@ -1168,7 +1141,7 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
     }
     
     template <class IT, class NT>
-    void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true)
+    void AWPM(SpParMat < IT, NT, SpDCCols<IT, NT> > & A1, FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCol2Row, bool optimizeProd=true, bool weightedCard=true)
     {
         SpParMat < IT, NT, SpDCCols<IT, NT> > A(A1); // creating a copy because it is being transformed
         
@@ -1178,6 +1151,10 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
             TransformWeight(A, false);
         SpParMat < IT, NT, SpCCols<IT, NT> > Acsc(A);
         SpParMat < IT, NT, SpDCCols<IT, bool> > Abool(A);
+        SpParMat < IT, NT, SpCCols<IT, bool> > ABoolCSC(MPI_COMM_WORLD);
+        if(weightedCard)
+            ABoolCSC = A;
+        
         FullyDistVec<IT, IT> degCol(A.getcommgrid());
         Abool.Reduce(degCol, Column, plus<IT>(), static_cast<IT>(0));
         double ts;
@@ -1187,16 +1164,24 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         double origWeight = Trace(A, diagnnz);
         bool isOriginalPerfect = diagnnz==A.getnrow();
         
-        // compute the maximal matching
-        WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
+        //--------------------------------------------------------
+        // Compute the maximal cardinality matching
+        //--------------------------------------------------------
+        if(weightedCard)
+            WeightedGreedy(Acsc, mateRow2Col, mateCol2Row, degCol);
+        else
+            WeightedGreedy(ABoolCSC, mateRow2Col, mateCol2Row, degCol);
+        
         double mclWeight = MatchingWeight( A, mateRow2Col, mateCol2Row);
-        SpParHelper::Print("After Greedy sanity check\n");
         bool isPerfectMCL = CheckMatching(mateRow2Col,mateCol2Row);
         
         // if the original matrix has a perfect matching and better weight
         if(isOriginalPerfect && mclWeight<=origWeight)
         {
-            SpParHelper::Print("Maximal is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+            
+#ifdef DETAIL_STATS
+            SpParHelper::Print("Maximal matching is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+#endif
             mateRow2Col.iota(A.getnrow(), 0);
             mateCol2Row.iota(A.getncol(), 0);
             mclWeight = origWeight;
@@ -1204,36 +1189,51 @@ void TwoThirdApprox(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow2
         }
         
         
-        // MCM
+        //--------------------------------------------------------
+        // Compute the maximum cardinality matching
+        //--------------------------------------------------------
         double tmcm = 0;
         double mcmWeight = mclWeight;
+        bool isPerfectMCM = isPerfectMCL;
         if(!isPerfectMCL) // run MCM only if we don't have a perfect matching
         {
             ts = MPI_Wtime();
-            maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
+            if(weightedCard)
+                maximumMatching(Acsc, mateRow2Col, mateCol2Row, true, false, true);
+            else
+                maximumMatching(ABoolCSC, mateRow2Col, mateCol2Row, true, false, false);
+            
+            
             tmcm = MPI_Wtime() - ts;
             mcmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
-            SpParHelper::Print("After MCM sanity check\n");
-            CheckMatching(mateRow2Col,mateCol2Row);
+            isPerfectMCM = CheckMatching(mateRow2Col,mateCol2Row);
         }
         
+        if(!isPerfectMCM)
+            SpParHelper::Print("Warning: The Maximum Cardinality Matching did not return a perfect matching! Need to check the input matrix.\n");
         
-        // AWPM
+        //--------------------------------------------------------
+        // Increase the weight of the perfect matching
+        //--------------------------------------------------------
         ts = MPI_Wtime();
         TwoThirdApprox(A, mateRow2Col, mateCol2Row);
         double tawpm = MPI_Wtime() - ts;
         
         double awpmWeight =  MatchingWeight( A, mateRow2Col, mateCol2Row) ;
-        SpParHelper::Print("After AWPM sanity check\n");
-        CheckMatching(mateRow2Col,mateCol2Row);
+
+        bool isPerfectAWPM = CheckMatching(mateRow2Col,mateCol2Row);
+        if(!isPerfectAWPM)
+            SpParHelper::Print("Warning: The HWPM code did not return a perfect matching! Need to check the input matrix.\n");
+        
         if(isOriginalPerfect && awpmWeight<origWeight) // keep original
         {
+#ifdef DETAIL_STATS
             SpParHelper::Print("AWPM is not better that the natural ordering. Hence, keeping the natural ordering.\n");
+#endif
             mateRow2Col.iota(A.getnrow(), 0);
             mateCol2Row.iota(A.getncol(), 0);
             awpmWeight = origWeight;
         }
-        
     }
 
 }

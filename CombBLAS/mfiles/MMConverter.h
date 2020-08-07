@@ -12,7 +12,7 @@
 #include <omp.h>
 #include "mmio.h"
 #include <zlib.h>
-#include "../Tommy/tommyhashdyn.h"
+#include "Tommy/tommyhashdyn.h"
 #include "compress_string.h"
 #include "TommyObj.h"
 using namespace std;
@@ -91,7 +91,7 @@ void check_newline(int *bytes_read, int bytes_requested, char *buf)
         if (buf[(*bytes_read) - 1] != '\n') {
             // doesn't terminate with a newline, add one to prevent infinite loop later
             buf[(*bytes_read) - 1] = '\n';
-            cout << "Error in Matrix Market format, appending missing newline at end of file" << endl;
+            cout << "Error in input format, appending missing newline at end of file" << endl;
             (*bytes_read)++;
         }
     }
@@ -161,7 +161,7 @@ bool FetchBatch(FILE * f_local, long int & curpos, long int end_fpos, bool first
     else    return false;
 }
 
-void MMConverter(const string & filename, ofstream & dictout)
+void MMConverter(const string & filename, ofstream & dictout, const string & outprefix)
 {
     FILE *f;
     if ((f = fopen(filename.c_str(), "r")) == NULL)
@@ -293,7 +293,7 @@ void MMConverter(const string & filename, ofstream & dictout)
             names[i] = "Renamed_subgraph";
             names[i] += std::to_string(i);
             names[i] += "_";
-            names[i] += filename;
+            names[i] += outprefix;
             names[i] += std::to_string(this_thread);
             cout << names[i] << endl;
             outfiles[i].open(names[i]);
@@ -302,7 +302,7 @@ void MMConverter(const string & filename, ofstream & dictout)
 	string name;
         ofstream outfile;
  	name = "Renamed_graph_";
-	name += filename;
+	name += outprefix;
 	name += std::to_string(this_thread);
 	cout << name<< endl;
 	outfile.open(name);

@@ -1421,10 +1421,10 @@ void SpDCCols<IT,NT>::PrintInfo() const
 
 		if(m < PRINT_LIMIT && n < PRINT_LIMIT)	// small enough to print
 		{
-			NT ** A = SpHelper::allocate2D<NT>(m,n);
+			std::string ** A = SpHelper::allocate2D<std::string>(m,n);
 			for(IT i=0; i< m; ++i)
 				for(IT j=0; j<n; ++j)
-					A[i][j] = NT();
+					A[i][j] = "-";
 			if(dcsc != NULL)
 			{
 				for(IT i=0; i< dcsc->nzc; ++i)
@@ -1433,7 +1433,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 					{
 						IT colid = dcsc->jc[i];
 						IT rowid = dcsc->ir[j];
-						A[rowid][colid] = dcsc->numx[j];
+						A[rowid][colid] = std::to_string(dcsc->numx[j]);
 					}
 				}
 			} 
@@ -1441,8 +1441,8 @@ void SpDCCols<IT,NT>::PrintInfo() const
 			{
 				for(IT j=0; j<n; ++j)
 				{
-					std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2) << A[i][j];
-					std::cout << " ";
+					std::cout << A[i][j];
+					std::cout << "\t";
 				}
 				std::cout << std::endl;
 			}
