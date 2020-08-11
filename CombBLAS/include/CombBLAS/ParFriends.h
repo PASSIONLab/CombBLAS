@@ -34,6 +34,7 @@
 #include <iostream>
 #include <cstdarg>
 #include "SpParMat.h"	
+#include "SpParMat3D.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
 #include "Friends.h"
@@ -3043,9 +3044,449 @@ EstPerProcessNnzSpMV(
 	return nnzC_tot;
 	
 }
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+
+template <typename SR, typename IT, typename NT, typename DER>
+void Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B){
+    printf("Hello world from friends!\n");
+}
+
+template <typename SR, typename IT, typename NT, typename DER>
+SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B,
+           int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, int64_t perProcessMemory){
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    typedef typename DER::LocalIT LIT;
+
+    /* 
+     * Check if A and B are multipliable 
+     * */
+    if(A.getncol() != B.getnrow()){
+        std::ostringstream outs;
+        outs << "Can not multiply, dimensions does not match"<< std::endl;
+        outs << A.getncol() << " != " << B.getnrow() << std::endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+
+    /* 
+     * If provided number of phase is too low or too high then reset value of phase as 1 
+     * */
+    if(phases < 1 || phases >= B.getncol()){
+        SpParHelper::Print("[MemEfficientSpGEMM3D]\tThe value of phases is too small or large. Resetting to 1.\n");
+        phases = 1;
+    }
+    double t0, t1, t2, t3, t4, t5, t6, t7, t8, t9; // To time different parts of the function
+#ifdef TIMING
+    MPI_Barrier(B.getcommgrid3D()->GetWorld());
+    t0 = MPI_Wtime();
+#endif
+    /* 
+     * If per process memory is provided then calculate number of phases 
+     * Otherwise, proceed to multiplication.
+     * */
+    if(perProcessMemory > 0) {
+        // NEED TO DECIDE
+        //int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
+        int calculatedPhases = 10;
+        //if(calculatedPhases > phases) phases = calculatedPhases;
+        phases = calculatedPhases;
+    }
+    else{
+        // Do nothing
+    }
+#ifdef TIMING
+    MPI_Barrier(B.getcommgrid3D()->GetWorld());
+    t1 = MPI_Wtime();
+    mcl3d_symbolictime+=(t1-t0);
+    if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
+#endif
+        
+        
+    /*
+     * Calculate, accross fibers, which process should get how many columns after redistribution
+     * */
+    vector<LIT> divisions3d;
+    // Caluclate split boundaries as if all contents of the layer is being re-distributed along fiber
+    // These boundaries will be used later on
+    B.CalculateColSplitDistributionOfLayer(divisions3d); 
+
+    /*
+     * Split B according to calculated number of phases
+     * For better load balancing split B into nlayers*phases chunks
+     * */
+    vector<DER*> PiecesOfB;
+    vector<DER*> tempPiecesOfB;
+    DER CopyB = *(B.GetLayerMat()->seqptr());
+    CopyB.ColSplit(divisions3d, tempPiecesOfB); // Split B into `nlayers` chunks at first
+    for(int i = 0; i < tempPiecesOfB.size(); i++){
+        vector<DER*> temp;
+        tempPiecesOfB[i]->ColSplit(phases, temp); // Split each chunk of B into `phases` chunks
+        for(int j = 0; j < temp.size(); j++){
+            PiecesOfB.push_back(temp[j]);
+        }
+    }
+
+    vector<DER> toconcatenate;
+    if(myrank == 0){
+        fprintf(stderr, "[MemEfficientSpGEMM3D]\tRunning with phase: %d\n", phases);
+    }
+
+    for(int p = 0; p < phases; p++){
+        /*
+         * At the start of each phase take appropriate pieces from previously created pieces of local B matrix
+         * Appropriate means correct pieces so that 3D-merge can be properly load balanced.
+         * */
+        //MPI_Barrier(B.getcommgrid3D()->GetWorld());
+        //if(myrank == 0) fprintf(stderr, "Starting phase %d\n", p);
+
+        vector<LIT> lbDivisions3d; // load balance friendly division
+        LIT totalLocalColumnInvolved = 0;
+        vector<DER*> targetPiecesOfB; // Pieces of B involved in current phase
+        for(int i = 0; i < PiecesOfB.size(); i++){
+            if(i % phases == p){
+                targetPiecesOfB.push_back(new DER(*(PiecesOfB[i])));
+                lbDivisions3d.push_back(PiecesOfB[i]->getncol());
+                totalLocalColumnInvolved += PiecesOfB[i]->getncol();
+            }
+        }
+
+        /*
+         * Create new local matrix by concatenating appropriately picked pieces
+         * */
+        DER * OnePieceOfB = new DER(0, (B.GetLayerMat())->seqptr()->getnrow(), totalLocalColumnInvolved, 0);
+        OnePieceOfB->ColConcatenate(targetPiecesOfB);
+        vector<DER*>().swap(targetPiecesOfB);
+
+        /*
+         * Create a new layer-wise distributed matrix with the newly created local matrix for this phase
+         * This matrix is used in SUMMA multiplication of respective layer
+         * */
+        SpParMat<IT, NT, DER> OnePieceOfBLayer(OnePieceOfB, A.getcommgrid3D()->layerWorld);
+#ifdef TIMING
+        //MPI_Barrier(getcommgrid3D()->GetWorld());
+        t0 = MPI_Wtime();
+#endif
+        /*
+         *  SUMMA Starts
+         * */
+
+        int stages, dummy; 	// last two parameters of ProductGrid are ignored for this multiplication
+        std::shared_ptr<CommGrid> GridC = ProductGrid((A.GetLayerMat()->getcommgrid()).get(), 
+                                                      (OnePieceOfBLayer.getcommgrid()).get(), 
+                                                      stages, dummy, dummy);		
+        IT C_m = A.GetLayerMat()->seqptr()->getnrow();
+        IT C_n = OnePieceOfBLayer.seqptr()->getncol();
+
+        IT ** ARecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+        IT ** BRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+        
+        SpParHelper::GetSetSizes( *(A.GetLayerMat()->seqptr()), ARecvSizes, (A.GetLayerMat()->getcommgrid())->GetRowWorld() );
+        SpParHelper::GetSetSizes( *(OnePieceOfBLayer.seqptr()), BRecvSizes, (OnePieceOfBLayer.getcommgrid())->GetColWorld() );
+
+        // Remotely fetched matrices are stored as pointers
+        DER * ARecv; 
+        DER * BRecv;
+        std::vector< SpTuples<IT,NT>  *> tomerge;
+
+        int Aself = (A.GetLayerMat()->getcommgrid())->GetRankInProcRow();
+        int Bself = (OnePieceOfBLayer.getcommgrid())->GetRankInProcCol();	
+
+        double Abcast_time = 0;
+        double Bbcast_time = 0;
+        double Local_multiplication_time = 0;
+        
+        for(int i = 0; i < stages; ++i) {
+            std::vector<IT> ess;	
+
+            if(i == Aself){
+                ARecv = A.GetLayerMat()->seqptr();	// shallow-copy 
+            }
+            else{
+                ess.resize(DER::esscount);
+                for(int j=0; j<DER::esscount; ++j) {
+                    ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+                }
+                ARecv = new DER();				// first, create the object
+            }
+#ifdef TIMING
+            t2 = MPI_Wtime();
+#endif
+            if (Aself != i) {
+                ARecv->Create(ess);
+            }
+
+            Arr<IT,NT> Aarrinfo = ARecv->GetArrays();
+
+            for(unsigned int idx = 0; idx < Aarrinfo.indarrs.size(); ++idx) {
+                MPI_Bcast(Aarrinfo.indarrs[idx].addr, Aarrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetRowWorld());
+            }
+
+            for(unsigned int idx = 0; idx < Aarrinfo.numarrs.size(); ++idx) {
+                MPI_Bcast(Aarrinfo.numarrs[idx].addr, Aarrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetRowWorld());
+            }
+#ifdef TIMING
+            t3 = MPI_Wtime();
+            mcl3d_Abcasttime += (t3-t2);
+            Abcast_time += (t3-t2);
+#endif
+            ess.clear();	
+            if(i == Bself){
+                BRecv = OnePieceOfBLayer.seqptr();	// shallow-copy
+            }
+            else{
+                ess.resize(DER::esscount);		
+                for(int j=0; j<DER::esscount; ++j)	{
+                    ess[j] = BRecvSizes[j][i];	
+                }	
+                BRecv = new DER();
+            }
+
+            MPI_Barrier(A.GetLayerMat()->getcommgrid()->GetWorld());
+#ifdef TIMING
+            t2 = MPI_Wtime();
+#endif
+            if (Bself != i) {
+                BRecv->Create(ess);	
+            }
+            Arr<IT,NT> Barrinfo = BRecv->GetArrays();
+
+            for(unsigned int idx = 0; idx < Barrinfo.indarrs.size(); ++idx) {
+                MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetColWorld());
+            }
+            for(unsigned int idx = 0; idx < Barrinfo.numarrs.size(); ++idx) {
+                MPI_Bcast(Barrinfo.numarrs[idx].addr, Barrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetColWorld());
+            }
+#ifdef TIMING
+            t3 = MPI_Wtime();
+            mcl3d_Bbcasttime += (t3-t2);
+            Bbcast_time += (t3-t2);
+#endif
+
+#ifdef TIMING
+            t2 = MPI_Wtime();
+#endif
+            //SpTuples<IT,NT> * C_cont = LocalSpGEMM<SR, NT>
+                            //(*ARecv, *BRecv, // parameters themselves
+                            //i != Aself, 	// 'delete A' condition
+                            //i != Bself);	// 'delete B' condition
+            SpTuples<IT,NT> * C_cont = LocalHybridSpGEMM<SR, NT>
+                            (*ARecv, *BRecv, // parameters themselves
+                            i != Aself, 	// 'delete A' condition
+                            i != Bself);	// 'delete B' condition
+#ifdef TIMING
+            t3 = MPI_Wtime();
+            mcl3d_localspgemmtime += (t3-t2);
+            Local_multiplication_time += (t3-t2);
+#endif
+            
+            if(!C_cont->isZero()) tomerge.push_back(C_cont);
+        }
+
+        SpHelper::deallocate2D(ARecvSizes, DER::esscount);
+        SpHelper::deallocate2D(BRecvSizes, DER::esscount);
+
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+        //SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
+        SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        mcl3d_SUMMAmergetime += (t3-t2);
+#endif
+
+#ifdef TIMING 
+        if(myrank == 0){
+            fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAbcast_time: %lf\n", p, Abcast_time);
+            fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tBbcast_time: %lf\n", p, Bbcast_time);
+            fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tLocal_multiplication_time: %lf\n", p, Local_multiplication_time);
+            fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSUMMA Merge time: %lf\n", p, (t3-t2));
+        }
+#endif
+        /*
+         *  SUMMA Ends
+         * */
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        mcl3d_SUMMAtime += (t1-t0);
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSUMMA time: %lf\n", p, (t1-t0));
+#endif
+        /*
+         * 3d-reduction starts
+         * */
+#ifdef TIMING
+        //MPI_Barrier(getcommgrid3D()->GetWorld());
+        t0 = MPI_Wtime();
+#endif
+        MPI_Datatype MPI_tuple;
+        MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
+        MPI_Type_commit(&MPI_tuple);
+        
+        /*
+         *  Create a profile with information regarding data to be sent and received between layers 
+         *  These memory allocation needs to be `int` specifically because some of these arrays would be used in communication
+         *  This is requirement is for MPI as MPI_Alltoallv takes pointer to integer exclusively as count and displacement
+         * */
+        int * sendcnt    = new int[A.getcommgrid3D()->GetGridLayers()];
+        int * sendprfl   = new int[A.getcommgrid3D()->GetGridLayers()*3];
+        int * sdispls    = new int[A.getcommgrid3D()->GetGridLayers()]();
+        int * recvcnt    = new int[A.getcommgrid3D()->GetGridLayers()];
+        int * recvprfl   = new int[A.getcommgrid3D()->GetGridLayers()*3];
+        int * rdispls    = new int[A.getcommgrid3D()->GetGridLayers()]();
+
+        vector<IT> lbDivisions3dPrefixSum(lbDivisions3d.size());
+        lbDivisions3dPrefixSum[0] = 0;
+        std::partial_sum(lbDivisions3d.begin(), lbDivisions3d.end()-1, lbDivisions3dPrefixSum.begin()+1);
+        ColLexiCompare<IT,NT> comp;
+        IT totsend = C_tuples->getnnz();
+        
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+#pragma omp parallel for
+        for(int i=0; i < A.getcommgrid3D()->GetGridLayers(); ++i){
+            IT start_col = lbDivisions3dPrefixSum[i];
+            IT end_col = lbDivisions3dPrefixSum[i] + lbDivisions3d[i];
+            std::tuple<IT, IT, NT> search_tuple_start(0, start_col, NT());
+            std::tuple<IT, IT, NT> search_tuple_end(0, end_col, NT());
+            std::tuple<IT, IT, NT>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
+            std::tuple<IT, IT, NT>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
+            // This type casting is important from semantic point of view
+            sendcnt[i] = (int)(end_it - start_it);
+            sendprfl[i*3+0] = (int)(sendcnt[i]); // Number of nonzeros in ith chunk
+            sendprfl[i*3+1] = (int)(A.GetLayerMat()->seqptr()->getnrow()); // Number of rows in ith chunk
+            sendprfl[i*3+2] = (int)(lbDivisions3d[i]); // Number of columns in ith chunk
+        }
+        std::partial_sum(sendcnt, sendcnt+A.getcommgrid3D()->GetGridLayers()-1, sdispls+1);
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tGetting Alltoall data ready: %lf\n", p, (t3-t2));
+#endif
+
+        // Send profile ready. Now need to update the tuples to reflect correct column id after column split.
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+        for(int i=0; i < A.getcommgrid3D()->GetGridLayers(); ++i){
+#pragma omp parallel for schedule(static)
+            for(int j = 0; j < sendcnt[i]; j++){
+                std::get<1>(C_tuples->tuples[sdispls[i]+j]) = std::get<1>(C_tuples->tuples[sdispls[i]+j]) - lbDivisions3dPrefixSum[i];
+            }
+        }
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tGetting Alltoallv data ready: %lf\n", p, (t3-t2));
+#endif
+
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+        MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, A.getcommgrid3D()->fiberWorld);
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAlltoall: %lf\n", p, (t3-t2));
+#endif
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+        for(int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++) recvcnt[i] = recvprfl[i*3];
+        std::partial_sum(recvcnt, recvcnt+A.getcommgrid3D()->GetGridLayers()-1, rdispls+1);
+        IT totrecv = std::accumulate(recvcnt,recvcnt+A.getcommgrid3D()->GetGridLayers(), static_cast<IT>(0));
+        //std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
+        std::tuple<LIT,LIT,NT>* recvTuples = static_cast<std::tuple<LIT,LIT,NT>*> (::operator new (sizeof(std::tuple<LIT,LIT,NT>[totrecv])));
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAllocation of receive data: %lf\n", p, (t3-t2));
+#endif
+
+#ifdef TIMING
+        t2 = MPI_Wtime();
+#endif
+        MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, A.getcommgrid3D()->fiberWorld);
+        delete C_tuples;
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAlltoallv: %lf\n", p, (t3-t2));
+#endif
+        vector<SpTuples<IT, NT>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
+#pragma omp parallel for
+        for (int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++){
+            recvChunks[i] = new SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
+        }
+
+        // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
+        DeleteAll(sendcnt, sendprfl, sdispls);
+        DeleteAll(recvcnt, recvprfl, rdispls); 
+        MPI_Type_free(&MPI_tuple);
+        /*
+         * 3d-reduction ends 
+         * */
+        
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        mcl3d_reductiontime += (t1-t0);
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tReduction time: %lf\n", p, (t1-t0));
+#endif
+#ifdef TIMING
+        t0 = MPI_Wtime();
+        t2 = MPI_Wtime();
+#endif
+        /*
+         * 3d-merge starts 
+         * */
+        //SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+        SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+#ifdef TIMING
+        t3 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiway Merge: %lf\n", p, (t3-t2));
+        mcl3d_layer_nnzc += merged_tuples->getnnz();
+#endif
+        //delete merged_tuples;
+        DER * phaseResultant = new DER(*merged_tuples, false);
+
+        // Do not delete elements of recvChunks, because that would give segmentation fault due to double free
+        //delete [] recvTuples;
+        ::operator delete(recvTuples);
+        for(int i = 0; i < recvChunks.size(); i++){
+            recvChunks[i]->tuples_deleted = true; // Temporary patch to avoid memory leak and segfault
+            delete recvChunks[i];
+        }
+        vector<SpTuples<IT,NT>*>().swap(recvChunks);
+        SpParMat<IT, NT, DER> phaseResultantLayer(phaseResultant, A.getcommgrid3D()->layerWorld);
+        /*
+         * 3d-merge ends
+         * */
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        mcl3d_3dmergetime += (t1-t0);
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
+#endif
+
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
+        MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        mcl3d_kselecttime += (t1-t0);
+        if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMCLPruneRecoverySelect time: %lf\n",p, (t1-t0));
+#endif
+        toconcatenate.push_back(phaseResultantLayer.seq());
+#ifdef TIMING
+        if(myrank == 0) fprintf(stderr, "***\n");
+#endif
+    }
+    for(int i = 0; i < PiecesOfB.size(); i++) delete PiecesOfB[i];
+
+    std::shared_ptr<CommGrid3D> grid3d;
+    grid3d.reset(new CommGrid3D(A.getcommgrid3D()->GetWorld(), A.getcommgrid3D()->GetGridLayers(), A.getcommgrid3D()->GetGridRows(), A.getcommgrid3D()->GetGridCols(), A.isSpecial()));
+    //DER * localResultant = new DER(*localLayerResultant);
+    //DER * localResultant = new DER();
+    DER * localResultant = new DER(0, A.GetLayerMat()->seqptr()->getnrow(), divisions3d[A.getcommgrid3D()->rankInFiber], 0);
+    localResultant->ColConcatenate(toconcatenate);
+    SpParMat3D<IT, NT, DER> C3D(localResultant, grid3d, A.isColSplit(), A.isSpecial());
+    return C3D;
+}
 
 
 }

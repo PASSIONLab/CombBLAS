@@ -106,6 +106,16 @@ namespace combblas
         bool CheckSpParMatCompatibility();       
         std::shared_ptr<CommGrid3D> getcommgrid() const { return commGrid3D; } 	
         std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
+
+        /* 3D SUMMA*/
+        template <typename SR, typename IT, typename NT, typename DER>
+        friend void Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
+        
+        /* Memory efficient 3D SUMMA*/
+        template <typename SR, typename IT, typename NT, typename DER>
+        friend SpParMat<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B,
+                int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, double perProcessMemory);
+
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
         //SpParMat<IT, NT, DER>* layermat;
