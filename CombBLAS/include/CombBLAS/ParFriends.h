@@ -3085,11 +3085,51 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
      * Otherwise, proceed to multiplication.
      * */
     if(perProcessMemory > 0) {
-        // NEED TO DECIDE
-        //int calculatedPhases = CalculateNumberOfPhases<SR>(B, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion, perProcessMemory);
-        int calculatedPhases = 10;
-        //if(calculatedPhases > phases) phases = calculatedPhases;
-        phases = calculatedPhases;
+        int p, calculatedPhases;
+        MPI_Comm_size(A.getcommgrid3D()->GetLayerWorld(),&p);
+        int64_t perNNZMem_in = sizeof(IT)*2 + sizeof(NT);
+        int64_t perNNZMem_out = sizeof(IT)*2 + sizeof(NT);
+
+        int64_t lannz = A.GetLayerMat()->getlocalnnz();
+        int64_t gannz = 0;
+        // Get maximum number of nnz owned by one process
+        MPI_Allreduce(&lannz, &gannz, 1, MPIType<int64_t>(), MPI_MAX, A.getcommgrid3D()->GetWorld()); 
+        //int64_t ginputMem = gannz * perNNZMem_in * 4; // Four pieces per process: one piece of own A and B, one piece of received A and B
+        int64_t ginputMem = gannz * perNNZMem_in * 5; // One extra copy for safety
+        
+        // Estimate per layer nnz after multiplication. After this estimation each process would know an estimation of
+        // how many nnz the corresponding layer will have after the layerwise operation.
+        int64_t asquareNNZ = EstPerProcessNnzSUMMA(*(A.GetLayerMat()), *(B.GetLayerMat()), true);
+        int64_t gasquareNNZ;
+        // Sum the previous estimation accross fiber to get an estimation of nnz in total after reduction in fiber
+        MPI_Allreduce(&asquareNNZ, &gasquareNNZ, 1, MPIType<int64_t>(), MPI_SUM, A.getcommgrid3D()->GetFiberWorld());
+
+        // Average estimated total nnz after squaring to get estimated per layer nnz after squaring
+        // This is reestimation of per layer nnz after squaring, but different between previous one
+        // is that previously all layers were not taken into account
+        double avgasquareNNZ = (double) (gasquareNNZ) / A.getcommgrid3D()->GetGridLayers();
+        // Atmost two copies, one of a process's own, another received from fiber reduction
+        double avgasquareMem = avgasquareNNZ * perNNZMem_out * 2; 
+
+        //double remainingMem = perProcessMemory * 1000000000 - ginputMem; // If output of each phase is discarded
+        //calculatedPhases = ceil ( avgasquareMem / remainingMem );
+
+        int64_t d = ceil( (gasquareNNZ * sqrt(p))/ A.GetLayerMat()->getlocalcols() );
+        int64_t k = std::min(int64_t(std::max(selectNum, recoverNum)), d );
+
+        //estimate output memory
+        int64_t postKselectOutputNNZ = ceil((A.GetLayerMat()->getlocalcols() * k)/sqrt(p)); // If kselect is run
+        int64_t postKselectOutputMem = postKselectOutputNNZ * perNNZMem_out * 2;
+        double remainingMem = perProcessMemory*1000000000 - ginputMem - postKselectOutputMem;
+        int64_t kselectMem = A.GetLayerMat()->getlocalcols() * k * sizeof(NT) * 3;
+
+        //inputMem + outputMem + asquareMem/phases + kselectmem/phases < memory
+        if(remainingMem > 0){
+            calculatedPhases = ceil( (avgasquareMem + kselectMem) / remainingMem ); // If kselect is run
+        }
+        else calculatedPhases = -1;
+        if(calculatedPhases > phases) phases = calculatedPhases;
+        //phases = calculatedPhases;
     }
     else{
         // Do nothing
