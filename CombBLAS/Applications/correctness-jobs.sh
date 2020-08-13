@@ -1,7 +1,18 @@
 #!/bin/bash -l
 
 #SBATCH -C knl
-#SBATCH -A m1982
+#SBATCH -A m2865
+
+#SBATCH -q debug
+#SBATCH -t 00:30:00
+#SBATCH -N 1
+#SBATCH -J correctness
+#SBATCH -o correctness.o%j
+#IN_FILE=/global/cscratch1/sd/taufique/euk_vs_euk_30_50length.indexed.triples
+IN_FILE=/global/cscratch1/sd/taufique/vir_vs_vir_30_50length.indexed.triples
+BINARY=./CFEstimate
+export OMP_NUM_THREADS=4
+srun -N 1 -n 16 -c 4 --ntasks-per-node=16 --cpu-bind=cores $BINARY $IN_FILE
 
 ##SBATCH -q debug
 ##SBATCH -t 00:30:00
@@ -60,16 +71,16 @@
 #export OMP_NUM_THREADS=16
 #srun -N 256 -n 1024 -c 16 --ntasks-per-node=4 --cpu-bind=cores $BINARY $IN_FILE
 
-#SBATCH -q regular
-#SBATCH -t 01:30:00
-#SBATCH -N 64
-#SBATCH -J ss_subgraph1_knl_symbolic_1to16l_64
-#SBATCH -o ss_subgraph1_knl_symbolic_1to16l_64.o%j
-#IN_FILE=/global/cscratch1/sd/taufique/subgraph1_iso_vs_iso_30_70length_ALL.m100.indexed.mtx
-IN_FILE=/global/cscratch1/sd/taufique/subgraph1_iso_vs_iso_30_70length_ALL.m100.indexed.triples
-BINARY=./symbolic_1to16l
-export OMP_NUM_THREADS=16
-srun -N 64 -n 256 -c 16 --ntasks-per-node=4 --cpu-bind=cores $BINARY $IN_FILE
+##SBATCH -q regular
+##SBATCH -t 01:30:00
+##SBATCH -N 64
+##SBATCH -J ss_subgraph1_knl_symbolic_1to16l_64
+##SBATCH -o ss_subgraph1_knl_symbolic_1to16l_64.o%j
+##IN_FILE=/global/cscratch1/sd/taufique/subgraph1_iso_vs_iso_30_70length_ALL.m100.indexed.mtx
+#IN_FILE=/global/cscratch1/sd/taufique/subgraph1_iso_vs_iso_30_70length_ALL.m100.indexed.triples
+#BINARY=./symbolic_1to16l
+#export OMP_NUM_THREADS=16
+#srun -N 64 -n 256 -c 16 --ntasks-per-node=4 --cpu-bind=cores $BINARY $IN_FILE
 
 ##SBATCH -q regular
 ##SBATCH -t 01:00:00

@@ -186,14 +186,18 @@ int main(int argc, char* argv[])
         t1 = MPI_Wtime();
         if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
         
-        typedef PlusTimesSRing<double, double> PTFF;
 
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2D(M);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2D(M);
         SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A2D, 4, true, false);
         SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B2D, 4, false, false);
-        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
-            10, 2.0, 1100, 1400, 0.9, 1, 0);
+
+        typedef PlusTimesSRing<double, double> PTFF;
+
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = MemEfficientSpGEMM3D< PTFF, int64_t, double, SpDCCols<int64_t, double> >(A3D, B3D, 10, 2.0, 1100, 1400, 0.9, 1, (int64_t)0);
+
+        //SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = A3D.template MemEfficientSpGEMM3D<PTFF>(B3D,
+            //10, 2.0, 1100, 1400, 0.9, 1, 0);
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D = C3D.Convert2D();
 
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> X2D(M);
