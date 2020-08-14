@@ -23,10 +23,9 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
 
 **Download**
 
-*   Read [release notes](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html).
 *   Just run git clone https://github.com/PASSIONLab/CombBLAS.git for the latest code
 *   NERSC users read [this](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html)
-*   The old CMake'd tarball (version 1.6.2, April 2018) [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz). An even earlier version (version 1.6.1, Jan 2018) is also available [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz) for backwards compatibility and benchmarking.
+*   The old CMake'd tarball (version 1.6.2, April 2018) [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz). An even earlier version (version 1.6.1, Jan 2018) is also available [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz) for backwards compatibility and benchmarking. Read [release notes](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html).
 *   Installation and testing can be done by executing these commands within the CombBLAS directory:
     1.   mkdir _build
     2.   mkdir _install
