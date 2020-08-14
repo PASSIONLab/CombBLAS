@@ -31,7 +31,7 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
     2.   mkdir _install
     3.   cd _build
     4.   cmake .. -DCMAKE_INSTALL_PREFIX=../_install
-    5.   make_
+    5.   make
     6.   make install
     7.   ctest -V (you need the testinputs, see below)
 
