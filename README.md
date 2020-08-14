@@ -28,8 +28,8 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
 *   Installation and testing can be done by executing these commands within the CombBLAS directory:
     1.   mkdir _build
     2.   mkdir _install
-    3.   cd _build_
-    4.   cmake .. -DCMAKE_INSTALL_PREFIX=../_install_
+    3.   cd _build
+    4.   cmake .. -DCMAKE_INSTALL_PREFIX=../_install
     5.   make_
     6.   make install
     7.   ctest -V (you need the testinputs, see below)
