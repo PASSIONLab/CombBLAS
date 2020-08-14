@@ -20,9 +20,7 @@ mkdir _install
 <br />4-
 cd _build
 <br />5-
-cmake ..
--DCMAKE_INSTALL_PREFIX=../_install
--DMPIEXEC_NUMPROC_FLAG=-n
+cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DMPIEXEC_NUMPROC_FLAG=-n -DMPIEXEC_EXECUTABLE=`which srun`
 <br />6- make -j 10
 <br />7- make install
 <br /> 
