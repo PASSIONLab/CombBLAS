@@ -95,6 +95,7 @@ typedef struct
     int64_t recover_num;
     double recover_pct;
     int kselectVersion; // 0: adapt based on k, 1: kselect1, 2: kselect2
+    bool preprune;
     
     //HipMCL optimization
     int phases;
@@ -132,6 +133,7 @@ void InitParam(HipMCLParam & param)
     param.recover_num = 1400;
     param.recover_pct = .9; // we allow both 90 or .9 as input. Internally, we keep it 0.9
     param.kselectVersion = 1;
+    param.preprune = false;
     
     //HipMCL optimization
     param.phases = 1;
@@ -177,6 +179,10 @@ void ShowParam(HipMCLParam & param)
     runinfo << "    Recover number: " << param.recover_num << endl;
     runinfo << "    Recover percent: " << ceil(param.recover_pct*100) << endl;
     runinfo << "    Selection number: " << param.select << endl;
+    runinfo << "    Apply prune/select/recovery before the first iteration?  : ";
+    if (param.preprune) runinfo << "yes"<< endl;
+    else runinfo << "no" << endl;
+    
     // do not expose selection option at this moment
     //runinfo << "Selection algorithm: ";
     //if(kselectVersion==1) runinfo << "tournament select" << endl;
@@ -251,6 +257,9 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"-rand")==0) {
             param.randpermute = atoi(argv[i + 1]);
         }
+        else if (strcmp(argv[i],"--preprune")==0) {
+            param.preprune = true;
+        }
         else if (strcmp(argv[i],"-phases")==0) {
             param.phases = atoi(argv[i + 1]);
         }
@@ -304,7 +313,7 @@ void ShowOptions()
     runinfo << "    -R <recovery number> (default: 1400)\n";
     runinfo << "    -pct <recovery pct> (default: 90)\n";
     runinfo << "    -S <selection number> (default: 1100)\n";
-    
+    runinfo << "    --preprune : if provided, apply prune/select/recovery before the first iteration (needed when dense columns are present) (default: don't preprune. However, if the average nonzero per column is larger than max{S,R}, prepruning is still appled by default)\n";
     
     runinfo << "HipMCL optimization" << endl;
     runinfo << "    -phases <number of phases> (default:1)\n";
@@ -454,7 +463,12 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     IT avgDegree = nnz/nv;
     if(avgDegree > std::max(param.select, param.recover_num))
     {
-        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\nApplying the prune/select/recovery logic before the first iteration\n\n");
+        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\n");
+        param.preprune = true;
+    }
+    if(param.preprune)
+    {
+        SpParHelper::Print("Applying the prune/select/recovery logic before the first iteration\n\n");
         MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
     }
 
