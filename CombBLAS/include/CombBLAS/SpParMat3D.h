@@ -109,7 +109,7 @@ namespace combblas
 
         /* 3D SUMMA*/
         template <typename SR, typename IT, typename NT, typename DER>
-        friend void Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
+        friend SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
         
         /* Memory efficient 3D SUMMA*/
         template <typename SR, typename IT, typename NT, typename DER>
