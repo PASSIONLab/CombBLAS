@@ -606,7 +606,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 #endif
 
         double t4 = MPI_Wtime();
-        A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, 
+        //A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, 
+                                                            //param.phases, 
+                                                            //param.prunelimit, 
+                                                            //(IT)param.select, 
+                                                            //(IT)param.recover_num, 
+                                                            //param.recover_pct, 
+                                                            //param.kselectVersion, 
+                                                            //param.perProcessMem);
+        A3D_cs = MemEfficientSpGEMM3D<PTFF, int64_t, double, SpDCCols<int64_t, double> >(A3D_cs, A3D_rs, 
                                                             param.phases, 
                                                             param.prunelimit, 
                                                             (IT)param.select, 
