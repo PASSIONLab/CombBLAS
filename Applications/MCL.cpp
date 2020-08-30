@@ -313,7 +313,7 @@ void ShowOptions()
     runinfo << "    -R <recovery number> (default: 1400)\n";
     runinfo << "    -pct <recovery pct> (default: 90)\n";
     runinfo << "    -S <selection number> (default: 1100)\n";
-    runinfo << "    --preprune : if provided, apply prune/select/recovery before the first iteration (needed when dense columns are present) (default: don't preprune. However, if the average nonzero per column is larger than max{S,R}, prepruning is still appled by default)\n";
+    runinfo << "    --preprune : if provided, apply prune/select/recovery before the first iteration (needed when dense columns are present) (default: don't preprune. However, if the average nonzero per column is larger than max{S,R}, prepruning is still applied by default)\n";
     
     runinfo << "HipMCL optimization" << endl;
     runinfo << "    -phases <number of phases> (default:1)\n";
