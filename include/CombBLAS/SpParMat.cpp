@@ -1346,7 +1346,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int32_t trxlocnz;
     GIT lenuntil;
     int32_t *trxinds, *activeCols;
-    VT *trxnums, *numacc;
+    VT *trxnums, *numacc=NULL;
     TransposeVector(World, rvec, trxlocnz, lenuntil, trxinds, trxnums, true);
     
     if(rvec.commGrid->GetGridRows() > 1)
