@@ -38,15 +38,13 @@
 namespace combblas {
 
 template <typename T>
-struct inf_plus{
-  T operator()(const T& a, const T& b) const {
+const T inf_plus(const T& a, const T& b) {
 	T inf = std::numeric_limits<T>::max();
-    	if (a == inf || b == inf){
-      		return inf;
-    	}
-    	return a + b;
-  }
-};
+    if (a == inf || b == inf){
+    	return inf;
+    }
+    return a + b;
+}
 
 // This semiring is used in indexing (SpParMat::operator())
 template <class OUT>
