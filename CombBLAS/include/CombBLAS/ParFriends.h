@@ -203,8 +203,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     pruneCols = hardThreshold;
 
     PrunedA.FreeMemory();
-    
-    
+
     FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, std::bind2nd(std::less<NT>(), recoverNum));
     
     // recover only when nnzs in unprunned columns are greater than nnzs in pruned column
@@ -222,6 +221,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
                                  false, NT());
 
     IT nrecover = recoverCols.getnnz();
+
     if(nrecover > 0)
     {
 #ifdef TIMING
@@ -243,7 +243,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #endif
         
     }
-    
+
     if(selectNum>0)
     {
         // remaining columns will be up for selection
@@ -349,6 +349,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
         //Ariful: We need a selective AddLoops function with a sparse vector
         //A.AddLoops(emptyColumns);
     }
+
 }
 
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
@@ -3429,7 +3430,9 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
             calculatedPhases = ceil( (avgasquareMem + kselectMem) / remainingMem ); // If kselect is run
         }
         else calculatedPhases = -1;
-        if(calculatedPhases > phases) phases = calculatedPhases;
+        int64_t gCalculatedPhases;
+        MPI_Allreduce(&calculatedPhases, &gCalculatedPhases, 1, MPIType<int64_t>(), MPI_MAX, A.getcommgrid3D()->GetFiberWorld());
+        if(gCalculatedPhases > phases) phases = gCalculatedPhases;
         //phases = calculatedPhases;
     }
     else{
@@ -3477,8 +3480,6 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
          * At the start of each phase take appropriate pieces from previously created pieces of local B matrix
          * Appropriate means correct pieces so that 3D-merge can be properly load balanced.
          * */
-        //MPI_Barrier(B.getcommgrid3D()->GetWorld());
-        //if(myrank == 0) fprintf(stderr, "Starting phase %d\n", p);
 
         vector<LIT> lbDivisions3d; // load balance friendly division
         LIT totalLocalColumnInvolved = 0;
