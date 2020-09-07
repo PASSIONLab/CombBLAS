@@ -4,11 +4,11 @@
 
 Combinatorial BLAS, Copyright (c) 2020, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy) and University of California, Santa Barbara. All rights reserved.
 
-_If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office.
+If you have questions about your rights to use or distribute this software, please contact Berkeley Lab's Innovation & Partnerships Office.
 
-_NOTICE. This Software was developed under funding from the U.S. Department of Energy and the U.S. Government consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, prepare derivative works, and perform publicly and display publicly, and to permit other to do so._
+NOTICE. This Software was developed under funding from the U.S. Department of Energy and the U.S. Government consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 
-_This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231\. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under the following [license](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE)._
+This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC02-05CH11231\. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under the following [license](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/LICENSE).
 
 **Introduction**
 
@@ -23,16 +23,17 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
 
 **Download**
 
-*   Read [release notes](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html).
-*   The latest CMake'd tarball (version 1.6.2, April 2018) [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz). (NERSC users read [this](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html)). The previous version (version 1.6.1, Jan 2018) is also available [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz) for backwards compatibility and benchmarking.
+*   Just run git clone https://github.com/PASSIONLab/CombBLAS.git for the latest code
+*   NERSC users read [this](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html)
+*   The old CMake'd tarball (version 1.6.2, April 2018) [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_2.tgz). An even earlier version (version 1.6.1, Jan 2018) is also available [here](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_16_1.tgz) for backwards compatibility and benchmarking. Read [release notes](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/release-notes.html).
 *   Installation and testing can be done by executing these commands within the CombBLAS directory:
-    1.   _mkdir _build_
-    2.   _mkdir _install_
-    3.   _cd _build_
-    4.   _cmake .. -DCMAKE_INSTALL_PREFIX=../_install_
-    5.   _make_
-    6.   _make install_
-    7.   _ctest -V_ (you need the testinputs, see below)
+    1.   mkdir _build
+    2.   mkdir _install
+    3.   cd _build
+    4.   cmake .. -DCMAKE_INSTALL_PREFIX=../_install
+    5.   make
+    6.   make install
+    7.   ctest -V (you need the testinputs, see below)
 
 If running on a Mac, we recommend using gcc compilers instead of clang (which has issues with OpenMP). For that, all you need to do is to replace step (4) above with
 

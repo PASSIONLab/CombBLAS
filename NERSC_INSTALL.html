@@ -1,0 +1,58 @@
+<html >
+<head>
+<link rel=themeData href="NERSC_INSTALL.fld/themedata.thmx">
+<link rel=colorSchemeMapping href="NERSC_INSTALL.fld/colorschememapping.xml">
+</head>
+<body bgcolor=white>
+<div>
+<br />Combinatorial BLAS
+compilation instructions for <a href="http://www.nersc.gov/">NERSC</a>
+resources as of March 2020. 
+<br /> 
+<br />For version 1.6.2 and above.
+<br />1- First and
+foremost, make cmake active by running: <i>module
+load cmake</i><i> </i>
+<br />2-
+mkdir _build
+<br />3-
+mkdir _install
+<br />4-
+cd _build
+<br />5-
+cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DMPIEXEC_NUMPROC_FLAG=-n -DMPIEXEC_EXECUTABLE=`which srun` -DMPIEXEC_MAX_NUMPROCS=16
+<br />6- make -j 10
+<br />7- make install
+<br /> 
+<br />For versions prior to 1.6.2, the process is simpler. After
+performing steps 1 and 2 above, just do
+<br />3- In
+your CombBLAS_xx directory, rename
+CMakeLists_NERSC.txt to CMakeLists.txt, replacing the existing one. 
+<br />4- cmake .
+<br />5-
+make
+<br /> 
+<br />For tests, you might
+want to run them through the interactive batch system. But first download the testdata <a
+href="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz">here</a>
+and extract it inside the _build directory. Then execute:
+<br />> "salloc -N 4 -C haswell -q interactive -t 00:30:00" // reserve 4
+nodes of Cori Haswell partition
+<br />>
+"export OMP_PROC_BIND=true"
+<br />>
+"export OMP_PLACES=threads"
+<br />>
+"export OMP_NUM_THREADS=12"
+<br />> "ctest -V" 
+<br />> or just run a
+single test: "cd Applications; srun -n 16 -c 8
+./dobfs 23"  // run using
+4 MPI tasks for node, 8 threads per MPI task
+<br /> 
+<br />Contact
+abuluc@lbl.gov for questions/problems. 
+</div>
+</body>
+</html>
