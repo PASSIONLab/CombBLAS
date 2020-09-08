@@ -743,10 +743,10 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         cout << "Expansion: " << mcl3d_symbolictime + mcl3d_Abcasttime + mcl3d_Bbcasttime + mcl3d_localspgemmtime + mcl3d_SUMMAmergetime + mcl3d_reductiontime + mcl3d_3dmergetime << endl;
         cout << "       Symbolic=" << mcl3d_symbolictime << endl;
         cout << "       SUMMAtime= "<< mcl3d_SUMMAtime << endl;
-        //cout << "       Abcast= " << mcl3d_Abcasttime << endl;
-        //cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
-        //cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
-        //cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
+        cout << "       Abcast= " << mcl3d_Abcasttime << endl;
+        cout << "       Bbcast= " << mcl3d_Bbcasttime << endl;
+        cout << "       localspgemm= " << mcl3d_localspgemmtime << endl;
+        cout << "       SUMMAmergetime= "<< mcl3d_SUMMAmergetime << endl;
         cout << "       reductiontime= "<< mcl3d_reductiontime << endl;
         cout << "       3dmergetime= "<< mcl3d_3dmergetime << endl;
 	    cout << "Prune: " << mcl3d_kselecttime << endl;
