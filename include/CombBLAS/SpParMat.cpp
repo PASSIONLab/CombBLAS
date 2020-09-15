@@ -3774,49 +3774,27 @@ void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool o
             ss << '\n';
         }
     }
-
     std::string text = ss.str();
 
     int64_t * bytes = new int64_t[nprocs];
     bytes[myrank] = text.size();
     MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), bytes, 1, MPIType<int64_t>(), commGrid->GetWorld());
     int64_t bytesuntil = std::accumulate(bytes, bytes+myrank, static_cast<int64_t>(0));
-    int64_t bytestotal = std::accumulate(bytes, bytes+nprocs, static_cast<int64_t>(0));
 
-    if(myrank == 0)    // only leader rights the original file with no content
-    {
-        std::ofstream ofs(filename.c_str(), std::ios::binary | std::ios::out);
-#ifdef COMBBLAS_DEBUG
-        std::cout << "Creating file with " << bytestotal << " bytes" << std::endl;
-#endif
-        ofs.seekp(bytestotal - 1);
-        ofs.write("", 1);    // this will likely create a sparse file so the actual disks won't spin yet
-        ofs.close();
+    MPI_File thefile;
+    MPI_File_open(commGrid->GetWorld(), (char*) filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile) ;
+    int mpi_err = MPI_File_set_view(thefile, bytesuntil, MPI_CHAR, MPI_CHAR, (char*)"external32", MPI_INFO_NULL);
+    if (mpi_err == 51) {
+        // external32 datarep is not supported, use native instead
+        MPI_File_set_view(thefile, bytesuntil, MPI_CHAR, MPI_CHAR, (char*)"native", MPI_INFO_NULL);
     }
-    MPI_Barrier(commGrid->GetWorld());
-
-    struct stat st;     // get file size
-    if (stat(filename.c_str(), &st) == -1)
-    {
-        MPI_Abort(commGrid->GetWorld(), NOFILE);
-    }
-    if(myrank == nprocs-1)    // let some other processor do the testing
-    {
-#ifdef COMBBLAS_DEBUG
-    std::cout << "File is actually " << st.st_size << " bytes seen from process " << myrank << std::endl;
-#endif
-    }
-
-    FILE *ffinal;
-    if ((ffinal = fopen(filename.c_str(), "rb+")) == NULL)    // then everyone fills it
-    {
-        printf("COMBBLAS: Matrix output file %s failed to open at process %d\n", filename.c_str(), myrank);
-        MPI_Abort(commGrid->GetWorld(), NOFILE);
-    }
-    fseek (ffinal , bytesuntil , SEEK_SET );
-    fwrite(text.c_str(),1, bytes[myrank] ,ffinal);
-    fflush(ffinal);
-    fclose(ffinal);
+    MPI_Status status;
+    MPI_File_write_all(thefile, text.c_str(), bytes[myrank], MPI_CHAR, &status);
+    int count;
+    MPI_Get_count(&status, MPI_CHAR, &count);
+    assert( count == bytes[myrank] );
+    MPI_File_close(&thefile);
+    
     delete [] bytes;
 }
 
