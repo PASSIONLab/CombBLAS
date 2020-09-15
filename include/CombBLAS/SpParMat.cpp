@@ -3780,6 +3780,8 @@ void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool o
     bytes[myrank] = text.size();
     MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), bytes, 1, MPIType<int64_t>(), commGrid->GetWorld());
     int64_t bytesuntil = std::accumulate(bytes, bytes+myrank, static_cast<int64_t>(0));
+    int64_t bytestotal = std::accumulate(bytes, bytes+nprocs, static_cast<int64_t>(0));
+
 
     MPI_File thefile;
     MPI_File_open(commGrid->GetWorld(), (char*) filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile) ;
@@ -3788,11 +3790,28 @@ void SpParMat< IT,NT,DER >::ParallelWriteMM(const std::string & filename, bool o
         // external32 datarep is not supported, use native instead
         MPI_File_set_view(thefile, bytesuntil, MPI_CHAR, MPI_CHAR, (char*)"native", MPI_INFO_NULL);
     }
-    MPI_Status status;
-    MPI_File_write_all(thefile, text.c_str(), bytes[myrank], MPI_CHAR, &status);
-    int count;
-    MPI_Get_count(&status, MPI_CHAR, &count);
-    assert( count == bytes[myrank] );
+ 
+    int64_t batchSize = 256 * 1024 * 1024;
+    size_t localfileptr = 0;
+    int64_t remaining = bytes[myrank];
+    int64_t totalremaining = bytestotal;
+    
+    while(totalremaining > 0)
+    {
+    #ifdef COMBBLAS_DEBUG
+        if(myrank == 0)
+            std::cout << "Remaining " << totalremaining << " bytes to write in aggregate" << std::endl;
+    #endif
+        MPI_Status status;
+        int curBatch = std::min(batchSize, remaining);
+        MPI_File_write_all(thefile, text.c_str()+localfileptr, curBatch, MPI_CHAR, &status);
+        int count;
+        MPI_Get_count(&status, MPI_CHAR, &count); // known bug: https://github.com/pmodels/mpich/issues/2332
+        assert( (curBatch == 0) || (count == curBatch) ); // count can return the previous/wrong value when 0 elements are written
+        localfileptr += curBatch;
+        remaining -= curBatch;
+        MPI_Allreduce(&remaining, &totalremaining, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld());
+    }
     MPI_File_close(&thefile);
     
     delete [] bytes;
