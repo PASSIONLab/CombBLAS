@@ -3611,10 +3611,16 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
                             //(*ARecv, *BRecv, // parameters themselves
                             //i != Aself, 	// 'delete A' condition
                             //i != Bself);	// 'delete B' condition
-            SpTuples<IT,NT> * C_cont = LocalHybridSpGEMM<SR, NT>
-                            (*ARecv, *BRecv, // parameters themselves
-                            i != Aself, 	// 'delete A' condition
-                            i != Bself);	// 'delete B' condition
+//            SpTuples<IT,NT> * C_cont = LocalHybridSpGEMM<SR, NT>
+//                            (*ARecv, *BRecv, // parameters themselves
+//                            i != Aself, 	// 'delete A' condition
+//                            i != Bself);	// 'delete B' condition
+            
+            SpTuples<IT,NT> * C_cont = LocalSpGEMMHash<SR, NT>
+                                (*ARecv, *BRecv, // parameters themselves
+                                i != Aself,     // 'delete A' condition
+                                i != Bself, false);    // 'delete B' condition
+            
 #ifdef TIMING
             t3 = MPI_Wtime();
             mcl3d_localspgemmtime += (t3-t2);
@@ -3630,8 +3636,9 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        //SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
-        SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+        SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, false);
+        //SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+        
 #ifdef TIMING
         t3 = MPI_Wtime();
         mcl3d_SUMMAmergetime += (t3-t2);
@@ -3753,7 +3760,7 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
         vector<SpTuples<IT, NT>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
 #pragma omp parallel for
         for (int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++){
-            recvChunks[i] = new SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
+            recvChunks[i] = new SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], false, false);
         }
 
         // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
@@ -3776,8 +3783,8 @@ SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParM
         /*
          * 3d-merge starts 
          * */
-        //SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
-        SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+        SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
+        //SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
 #ifdef TIMING
         t3 = MPI_Wtime();
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tMultiway Merge: %lf\n", p, (t3-t2));

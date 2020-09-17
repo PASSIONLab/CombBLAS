@@ -108,13 +108,13 @@ namespace combblas
         std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
 
         /* 3D SUMMA*/
-        template <typename SR, typename IT, typename NT, typename DER>
-        friend SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B);
+        template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
+        friend SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B);
         
         /* Memory efficient 3D SUMMA*/
-        template <typename SR, typename IT, typename NT, typename DER>
-        friend SpParMat3D<IT, NT, DER> MemEfficientSpGEMM3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B,
-                int phases, NT hardThreshold, IT selectNum, IT recoverNum, NT recoverPct, int kselectVersion, int64_t perProcessMemory);
+        template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
+        friend SpParMat3D<IU,NUO,UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B,
+                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory);
 
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
