@@ -190,7 +190,7 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [14] Yongzhe Zhang, Ariful Azad, and Aydin Buluc. "Parallel algorithms for finding connected components using linear algebra." Journal of Parallel and Distributed Computing (2020). [PDF](https://escholarship.org/content/qt8ms106vm/qt8ms106vm_noSplash_bd6caa99d078099df438bfe7c3854e2b.pdf)
 *   [15] Ariful Azad and Aydin Buluc. LACC: a linear-algebraic algorithm for finding connected components in distributed memory. In Proceedings of the IPDPS, 2019\. [PDF](https://people.eecs.berkeley.edu/~aydin/LACC.pdf)
 *   [16] Yusuke Nagasaka, Satoshi Matsuoka, Ariful Azad, and Aydin Buluc. "Performance optimization, modeling and analysis of sparse matrix-matrix products on multi-core and many-core processors." Parallel Computing 90 (2019): 102545 \. [PDF](https://people.eecs.berkeley.edu/~aydin/spgemm_parco2019.pdf)
-*   [17] Oguz Selvitopi, Md Taufique Hussain, Ariful Azad, and Aydin Bulu√ß. Optimizing high performance Markov clustering for pre-exascale architectures. In Proceedings of the IPDPS, 2020 \. [PDF](https://people.eecs.berkeley.edu/~aydin/HipMCL_PreExascale-IPDPS20.pdf)
-*   [18] Md Taufique Hussain, Oguz Selvitopi, Aydin Buluc√, Ariful Azad. Communication-Avoiding and Memory-Constrained Sparse Matrix-Matrix Multiplication at Extreme Scale. \. [PDF](https://arxiv.org/pdf/2010.08526.pdf)
+*   [17] Oguz Selvitopi, Md Taufique Hussain, Ariful Azad, and Aydin Buluc. Optimizing high performance Markov clustering for pre-exascale architectures. In Proceedings of the IPDPS, 2020 \. [PDF](https://people.eecs.berkeley.edu/~aydin/HipMCL_PreExascale-IPDPS20.pdf)
+*   [18] Md Taufique Hussain, Oguz Selvitopi, Aydin Buluc, Ariful Azad. Communication-Avoiding and Memory-Constrained Sparse Matrix-Matrix Multiplication at Extreme Scale. \. [PDF](https://arxiv.org/pdf/2010.08526.pdf)
 
 
