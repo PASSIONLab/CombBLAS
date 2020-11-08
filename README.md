@@ -64,6 +64,7 @@ Sparse and dense vectors are distributed along all processors. This is very spac
 *   Connected components in distributed memory, found in Applications/CC.h [14,15], compile with "make cc" in that folder. Usage self explanatory (just try ./cc without any parameters to get usage)
 *   Incorporation of much faster shared-memory hash SpGEMM implementation [16] from [Yusuke Nagasaka](https://bitbucket.org/YusukeNagasaka/mtspgemmlib/src/master/)
 *   Initial CUDA support (for HipMCL initially [17]) for sparse matrix-matrix multiplication
+*   3D process grid support for reducing communication in sparse matrix-matrix multiplication [18]
 
 **New in version 1.6**:
 
@@ -138,6 +139,7 @@ Important Parallel classes:
 *   SpParMat : distributed memory MPI implementation  
     Each processor locally stores its submatrix (block) as a sequential SpDCCols object  
     Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BSP like Sparse SUMMA [3] algorithm.
+*   SpParMat3D : sparse matrix distributed in 3D process grid
 *   FullyDistVec : dense vector distributed to all processors
 *   FullyDistSpVec: : sparse vector distributed to all processors
 
@@ -152,6 +154,7 @@ Important Parallel classes:
 *   [BipartiteMatchings/BPMaximumMatching.cpp](_b_p_maximum_matching_8cpp.html): Maximum matching algorithm on bipartite graphs [11]
 *   [Ordering/RCM.cpp](_r_c_m_8cpp.html): Reverse Cuthill-McKee ordering on distributed memory [12]
 *   [CC.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/Applications/CC.cpp): Linear-algebraic connected components [14, 15]
+*   [MCL3D.cpp](https://github.com/PASSIONLab/CombBLAS/blob/master/Applications/MCL3D.cpp): HipMCL using 3D process grid
 
 **Performance** results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7]. Performance of the 3D SpGEMM algorithm can be found in [9]
 
@@ -167,6 +170,7 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [SpAsgnTiming.cpp](_sp_asgn_timing_8cpp.html): Sparse matrix assignment usage and timing.
 *   [FindSparse.cpp](_find_sparse_8cpp.html) : Parallel find/sparse routines akin to Matlab's.
 *   [GalerkinNew.cpp](_galerkin_new_8cpp.html) : Graph contraction or restriction operator (used in Algebraic Multigrid).
+*   [Application/SpGEMM3D.cpp](https://github.com/PASSIONLab/CombBLAS/blob/master/Applications/SpGEMM3D.cpp) : Using sparse matrix-matrix multiplication using 3D process grid.
 
 **Citation:** Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 
@@ -187,5 +191,6 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [15] Ariful Azad and Aydin Buluc. LACC: a linear-algebraic algorithm for finding connected components in distributed memory. In Proceedings of the IPDPS, 2019\. [PDF](https://people.eecs.berkeley.edu/~aydin/LACC.pdf)
 *   [16] Yusuke Nagasaka, Satoshi Matsuoka, Ariful Azad, and Aydin Buluc. "Performance optimization, modeling and analysis of sparse matrix-matrix products on multi-core and many-core processors." Parallel Computing 90 (2019): 102545 \. [PDF](https://people.eecs.berkeley.edu/~aydin/spgemm_parco2019.pdf)
 *   [17] Oguz Selvitopi, Md Taufique Hussain, Ariful Azad, and Aydin Bulu√ß. Optimizing high performance Markov clustering for pre-exascale architectures. In Proceedings of the IPDPS, 2020 \. [PDF](https://people.eecs.berkeley.edu/~aydin/HipMCL_PreExascale-IPDPS20.pdf)
+*   [18] Md Taufique Hussain, Oguz Selvitopi, Aydin Buluc√, Ariful Azad. Communication-Avoiding and Memory-Constrained Sparse Matrix-Matrix Multiplication at Extreme Scale. \. [PDF](https://arxiv.org/pdf/2010.08526.pdf)
 
 
