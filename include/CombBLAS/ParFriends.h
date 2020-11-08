@@ -3058,11 +3058,13 @@ EstPerProcessNnzSpMV(
 	
 }
 
-template <typename SR, typename IT, typename NT, typename DER>
-SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat3D<IT, NT, DER> & B){
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
+SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B){
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-    typedef typename DER::LocalIT LIT;
+    typedef typename UDERO::LocalIT LIC;
+    typedef typename UDER1::LocalIT LIA;
+    typedef typename UDER2::LocalIT LIB;
 
 #ifdef TIMING
     double t0, t1, t2, t3;
@@ -3082,7 +3084,7 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     /*
      * Calculate, accross fibers, which process should get how many columns after redistribution
      * */
-    vector<LIT> divisions3d;
+    vector<LIB> divisions3d;
     // Calcuclate split boundaries as if all contents of the layer is being re-distributed along fiber
     // These boundaries will be used later on
     B.CalculateColSplitDistributionOfLayer(divisions3d); 
@@ -3098,19 +3100,19 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     std::shared_ptr<CommGrid> GridC = ProductGrid((A.GetLayerMat()->getcommgrid()).get(), 
                                                   (B.GetLayerMat()->getcommgrid()).get(), 
                                                   stages, dummy, dummy);		
-    IT C_m = A.GetLayerMat()->seqptr()->getnrow();
-    IT C_n = B.GetLayerMat()->seqptr()->getncol();
+    IU C_m = A.GetLayerMat()->seqptr()->getnrow();
+    IU C_n = B.GetLayerMat()->seqptr()->getncol();
 
-    IT ** ARecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
-    IT ** BRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+    IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERO::esscount, stages);
+    IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERO::esscount, stages);
     
     SpParHelper::GetSetSizes( *(A.GetLayerMat()->seqptr()), ARecvSizes, (A.GetLayerMat()->getcommgrid())->GetRowWorld() );
     SpParHelper::GetSetSizes( *(B.GetLayerMat()->seqptr()), BRecvSizes, (B.GetLayerMat()->getcommgrid())->GetColWorld() );
 
     // Remotely fetched matrices are stored as pointers
-    DER * ARecv; 
-    DER * BRecv;
-    std::vector< SpTuples<IT,NT>  *> tomerge;
+    UDERO * ARecv; 
+    UDER2 * BRecv;
+    std::vector< SpTuples<IU,NUO>  *> tomerge;
 
     int Aself = (A.GetLayerMat()->getcommgrid())->GetRankInProcRow();
     int Bself = (B.GetLayerMat()->getcommgrid())->GetRankInProcCol();	
@@ -3120,17 +3122,17 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     double Local_multiplication_time = 0;
     
     for(int i = 0; i < stages; ++i) {
-        std::vector<IT> ess;
+        std::vector<IU> ess;
 
         if(i == Aself){
             ARecv = A.GetLayerMat()->seqptr();	// shallow-copy 
         }
         else{
-            ess.resize(DER::esscount);
-            for(int j=0; j<DER::esscount; ++j) {
+            ess.resize(UDER1::esscount);
+            for(int j=0; j<UDER1::esscount; ++j) {
                 ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
             }
-            ARecv = new DER();				// first, create the object
+            ARecv = new UDER1();				// first, create the object
         }
 #ifdef TIMING
         t2 = MPI_Wtime();
@@ -3139,14 +3141,14 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
             ARecv->Create(ess);
         }
 
-        Arr<IT,NT> Aarrinfo = ARecv->GetArrays();
+        Arr<IU,NU1> Aarrinfo = ARecv->GetArrays();
 
         for(unsigned int idx = 0; idx < Aarrinfo.indarrs.size(); ++idx) {
-            MPI_Bcast(Aarrinfo.indarrs[idx].addr, Aarrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetRowWorld());
+            MPI_Bcast(Aarrinfo.indarrs[idx].addr, Aarrinfo.indarrs[idx].count, MPIType<IU>(), i, GridC->GetRowWorld());
         }
 
         for(unsigned int idx = 0; idx < Aarrinfo.numarrs.size(); ++idx) {
-            MPI_Bcast(Aarrinfo.numarrs[idx].addr, Aarrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetRowWorld());
+            MPI_Bcast(Aarrinfo.numarrs[idx].addr, Aarrinfo.numarrs[idx].count, MPIType<NU1>(), i, GridC->GetRowWorld());
         }
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3158,11 +3160,11 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
             BRecv = B.GetLayerMat()->seqptr();	// shallow-copy
         }
         else{
-            ess.resize(DER::esscount);		
-            for(int j=0; j<DER::esscount; ++j)	{
+            ess.resize(UDER2::esscount);		
+            for(int j=0; j<UDER2::esscount; ++j)	{
                 ess[j] = BRecvSizes[j][i];	
             }	
-            BRecv = new DER();
+            BRecv = new UDER2();
         }
 
         MPI_Barrier(A.GetLayerMat()->getcommgrid()->GetWorld());
@@ -3172,13 +3174,13 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
         if (Bself != i) {
             BRecv->Create(ess);	
         }
-        Arr<IT,NT> Barrinfo = BRecv->GetArrays();
+        Arr<IU,NU2> Barrinfo = BRecv->GetArrays();
 
         for(unsigned int idx = 0; idx < Barrinfo.indarrs.size(); ++idx) {
-            MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IT>(), i, GridC->GetColWorld());
+            MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IU>(), i, GridC->GetColWorld());
         }
         for(unsigned int idx = 0; idx < Barrinfo.numarrs.size(); ++idx) {
-            MPI_Bcast(Barrinfo.numarrs[idx].addr, Barrinfo.numarrs[idx].count, MPIType<NT>(), i, GridC->GetColWorld());
+            MPI_Bcast(Barrinfo.numarrs[idx].addr, Barrinfo.numarrs[idx].count, MPIType<NU2>(), i, GridC->GetColWorld());
         }
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3189,14 +3191,11 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        //SpTuples<IT,NT> * C_cont = LocalSpGEMM<SR, NT>
-                        //(*ARecv, *BRecv, // parameters themselves
-                        //i != Aself, 	// 'delete A' condition
-                        //i != Bself);	// 'delete B' condition
-        SpTuples<IT,NT> * C_cont = LocalHybridSpGEMM<SR, NT>
-                        (*ARecv, *BRecv, // parameters themselves
-                        i != Aself, 	// 'delete A' condition
-                        i != Bself);	// 'delete B' condition
+        SpTuples<IU,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
+                            (*ARecv, *BRecv,    // parameters themselves
+                            i != Aself,         // 'delete A' condition
+                            i != Bself,         // 'delete B' condition
+                            false);             // not to sort each column
 #ifdef TIMING
         t3 = MPI_Wtime();
         mcl3d_localspgemmtime += (t3-t2);
@@ -3206,14 +3205,13 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
         if(!C_cont->isZero()) tomerge.push_back(C_cont);
     }
 
-    SpHelper::deallocate2D(ARecvSizes, DER::esscount);
-    SpHelper::deallocate2D(BRecvSizes, DER::esscount);
+    SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
+    SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
 
 #ifdef TIMING
     t2 = MPI_Wtime();
 #endif
-    //SpTuples<IT,NT> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true);
-    SpTuples<IT,NT> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true);
+    SpTuples<IU,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, false); // Delete input arrays and do not sort
 #ifdef TIMING
     t3 = MPI_Wtime();
     mcl3d_SUMMAmergetime += (t3-t2);
@@ -3243,7 +3241,7 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     t0 = MPI_Wtime();
 #endif
     MPI_Datatype MPI_tuple;
-    MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
+    MPI_Type_contiguous(sizeof(std::tuple<LIC,LIC,NUO>), MPI_CHAR, &MPI_tuple);
     MPI_Type_commit(&MPI_tuple);
     
     /*
@@ -3258,20 +3256,20 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     int * recvprfl   = new int[A.getcommgrid3D()->GetGridLayers()*3];
     int * rdispls    = new int[A.getcommgrid3D()->GetGridLayers()]();
 
-    vector<IT> divisions3dPrefixSum(divisions3d.size());
+    vector<IU> divisions3dPrefixSum(divisions3d.size());
     divisions3dPrefixSum[0] = 0;
     std::partial_sum(divisions3d.begin(), divisions3d.end()-1, divisions3dPrefixSum.begin()+1);
-    ColLexiCompare<IT,NT> comp;
-    IT totsend = C_tuples->getnnz();
+    ColLexiCompare<IU,NUO> comp;
+    IU totsend = C_tuples->getnnz();
     
 #pragma omp parallel for
     for(int i=0; i < A.getcommgrid3D()->GetGridLayers(); ++i){
-        IT start_col = divisions3dPrefixSum[i];
-        IT end_col = divisions3dPrefixSum[i] + divisions3d[i];
-        std::tuple<IT, IT, NT> search_tuple_start(0, start_col, NT());
-        std::tuple<IT, IT, NT> search_tuple_end(0, end_col, NT());
-        std::tuple<IT, IT, NT>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
-        std::tuple<IT, IT, NT>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
+        IU start_col = divisions3dPrefixSum[i];
+        IU end_col = divisions3dPrefixSum[i] + divisions3d[i];
+        std::tuple<IU, IU, NUO> search_tuple_start(0, start_col, NUO());
+        std::tuple<IU, IU, NUO> search_tuple_end(0, end_col, NUO());
+        std::tuple<IU, IU, NUO>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
+        std::tuple<IU, IU, NUO>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
         // This type casting is important from semantic point of view
         sendcnt[i] = (int)(end_it - start_it);
         sendprfl[i*3+0] = (int)(sendcnt[i]); // Number of nonzeros in ith chunk
@@ -3292,9 +3290,8 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
 
     for(int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++) recvcnt[i] = recvprfl[i*3];
     std::partial_sum(recvcnt, recvcnt+A.getcommgrid3D()->GetGridLayers()-1, rdispls+1);
-    IT totrecv = std::accumulate(recvcnt,recvcnt+A.getcommgrid3D()->GetGridLayers(), static_cast<IT>(0));
-    //std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
-    std::tuple<LIT,LIT,NT>* recvTuples = static_cast<std::tuple<LIT,LIT,NT>*> (::operator new (sizeof(std::tuple<LIT,LIT,NT>[totrecv])));
+    IU totrecv = std::accumulate(recvcnt,recvcnt+A.getcommgrid3D()->GetGridLayers(), static_cast<IU>(0));
+    std::tuple<LIC,LIC,NUO>* recvTuples = static_cast<std::tuple<LIC,LIC,NUO>*> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[totrecv])));
 
 #ifdef TIMING
     t2 = MPI_Wtime();
@@ -3305,10 +3302,10 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     t3 = MPI_Wtime();
     if(myrank == 0) fprintf(stderr, "[SUMMA3D]\tAlltoallv: %lf\n", (t3-t2));
 #endif
-    vector<SpTuples<IT, NT>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
+    vector<SpTuples<IU, NUO>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
 #pragma omp parallel for
     for (int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++){
-        recvChunks[i] = new SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
+        recvChunks[i] = new SpTuples<LIC, NUO>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
     }
 
     // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
@@ -3331,15 +3328,14 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
     /*
      * 3d-merge starts 
      * */
-    //SpTuples<IT, NT> * merged_tuples = MultiwayMergeHash<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
-    SpTuples<IT, NT> * merged_tuples = MultiwayMerge<SR, IT, NT>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
+    SpTuples<IU, NUO> * merged_tuples = MultiwayMergeHash<SR, IU, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
 #ifdef TIMING
     t3 = MPI_Wtime();
     if(myrank == 0) fprintf(stderr, "[SUMMA3D]\tMultiway Merge: %lf\n", (t3-t2));
     mcl3d_layer_nnzc += merged_tuples->getnnz();
 #endif
     //Create SpDCCol and delete merged_tuples;
-    DER * localResultant = new DER(*merged_tuples, false);
+    UDERO * localResultant = new UDERO(*merged_tuples, false);
 
     // Do not delete elements of recvChunks, because that would give segmentation fault due to double free
     //delete [] recvTuples;
@@ -3348,7 +3344,7 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
         recvChunks[i]->tuples_deleted = true; // Temporary patch to avoid memory leak and segfault
         delete recvChunks[i];
     }
-    vector<SpTuples<IT,NT>*>().swap(recvChunks);
+    vector<SpTuples<IU,NUO>*>().swap(recvChunks);
     /*
      * 3d-merge ends
      * */
@@ -3360,7 +3356,7 @@ SpParMat3D<IT, NT, DER> Mult_AnXBn_SUMMA3D(SpParMat3D<IT, NT, DER> & A, SpParMat
 
     std::shared_ptr<CommGrid3D> grid3d;
     grid3d.reset(new CommGrid3D(A.getcommgrid3D()->GetWorld(), A.getcommgrid3D()->GetGridLayers(), A.getcommgrid3D()->GetGridRows(), A.getcommgrid3D()->GetGridCols(), A.isSpecial()));
-    SpParMat3D<IT, NT, DER> C(localResultant, grid3d, A.isColSplit(), A.isSpecial());
+    SpParMat3D<IU, NUO, UDERO> C(localResultant, grid3d, A.isColSplit(), A.isSpecial());
     return C;
 }
 

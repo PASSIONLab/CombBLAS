@@ -212,8 +212,15 @@ int main(int argc, char* argv[])
         //MCLPruneRecoverySelect<int64_t, double, SpDCCols < int64_t, double >>(M, 2.0, 52, 55, 0.9, 1);
 
         typedef PlusTimesSRing<double, double> PTFF;
+    
+        // Run 2D multiplication to compare against
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2D(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> B2D(M);
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D = 
+            Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
+            (A2D, B2D);
         
-        int effectivePhases = 1;
+        // Increase number of layers 1 -> 4 -> 16
         for(int layers = 1; layers <= 16; layers = layers * 4){
             // Create two copies of input matrix which would be used in multiplication
             SpParMat<int64_t, double, SpDCCols < int64_t, double >> A2(M);
@@ -259,13 +266,21 @@ int main(int argc, char* argv[])
                     t0 = MPI_Wtime();
 #endif
                     SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = 
-                        MemEfficientSpGEMM3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
-                        (A3D, B3D, 1, 2.0, 1100, 1400, 0.9, 1, 27);
+                        Mult_AnXBn_SUMMA3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
+                        (A3D, B3D);
 #ifdef TIMING
                     MPI_Barrier(MPI_COMM_WORLD);
                     t1 = MPI_Wtime();
                     mcl3d_totaltime += (t1-t0);
 #endif
+
+                    SpParMat<int64_t, double, SpDCCols < int64_t, double >> C3D2D = C3D.Convert2D();
+                    if(C2D == C3D2D){
+                        if(myrank == 0) fprintf(stderr, "Correct!\n");
+                    }
+                    else{
+                        if(myrank == 0) fprintf(stderr, "Not correct!\n");
+                    }
 #ifdef TIMING
                     if(myrank == 0){
                         fprintf(stderr, "[3D: Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
@@ -281,13 +296,11 @@ int main(int argc, char* argv[])
                     }
 #endif
                 }
-                //if(myrank == 0) fprintf(stderr, "\n\n++++++++++++++++++++++++++++++++++++++++++++\n\n\n\n");
-
                 int ii = 1;
                 while(ii <= phases) ii = ii * 2;
                 phases = ii;
             }
-            if(myrank == 0) fprintf(stderr, "\n\n\n\n********************************************\n\n\n\n\n\n\n");
+            if(myrank == 0) fprintf(stderr, "\n\n********************************************\n\n");
             /**/
         }
         
