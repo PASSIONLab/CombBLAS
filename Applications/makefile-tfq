@@ -1,0 +1,75 @@
+COMBBLAS = ..
+COMBBLAS_INC = $(COMBBLAS)/include/CombBLAS
+COMBBLAS_SRC = $(COMBBLAS)/src
+INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
+
+OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
+PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
+#COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
+COMPILER = CC -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
+FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DGNU_PARALLEL -DTIMING #-DCOMBBLAS_DEBUG 
+
+hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o hash.o $(COMBBLAS_SRC)/hash.cpp
+
+mmio.o: $(COMBBLAS_SRC)/mmio.c
+	cc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
+
+MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
+
+CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
+
+MemoryPool.o:	$(COMBBLAS_SRC)/MemoryPool.cpp $(COMBBLAS_INC)/SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS_SRC)/MemoryPool.cpp 
+
+SpGEMM3D.o:  SpGEMM3D.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpGEMM3D.o SpGEMM3D.cpp
+
+SpGEMM3D:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+SpGEMM3D1:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D1 SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+SpGEMM3D2:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D2 SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+SpGEMM3D3:	SpGEMM3D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM3D3 SpGEMM3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+SpGEMM2D.o:  SpGEMM2D.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpGEMM2D.o SpGEMM2D.cpp
+
+SpGEMM2D:	SpGEMM2D.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o SpGEMM2D SpGEMM2D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+MCL.o:  MCL.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp 
+
+mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o mmio.o hash.o
+	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl MCL.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+MCL3D.o:  MCL3D.cpp CC.h WriteMCLClusters.h $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL3D.o MCL3D.cpp 
+
+mcl3d:	MemoryPool.o CommGrid.o MPIType.o MCL3D.o mmio.o hash.o
+	$(COMPILER) $(INCADD) $(FLAGS)  -o mcl3d MCL3D.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+BcastTest.o: BcastTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BcastTest.o BcastTest.cpp
+
+BcastTest:	BcastTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o BcastTest BcastTest.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+CFEstimate.o:  CFEstimate.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParMat.h $(COMBBLAS_INC)/ParFriends.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/SpDefs.h $(COMBBLAS_INC)/SpTuples.cpp $(COMBBLAS_INC)/CommGrid3D.h $(COMBBLAS_INC)/SpParMat3D.h $(COMBBLAS_INC)/SpParMat3D.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CFEstimate.o CFEstimate.cpp
+
+CFEstimate:	CFEstimate.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o 
+	$(COMPILER) $(INCADD) $(FLAGS) -o CFEstimate CFEstimate.o MemoryPool.o mmio.o CommGrid.o MPIType.o hash.o
+
+clean:
+	rm -f *.o
+	rm MCL3D.o mcl3d

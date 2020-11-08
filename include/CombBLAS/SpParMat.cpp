@@ -1098,7 +1098,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistVec<GIT,VT> & rvec, IT k, _UnaryOper
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
         MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
     }
-    
+   
+    std::cerr << "Dense kslect is called!! " << std::endl;
     FullyDistVec<IT, IT> nnzPerColumn (getcommgrid());
     Reduce(nnzPerColumn, Column, std::plus<IT>(), (IT)0, [](NT val){return (IT)1;});
     IT maxnnzPerColumn = nnzPerColumn.Reduce(maximum<IT>(), (IT)0);
@@ -1314,6 +1315,9 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _UnaryOperation>	// GIT: global index type of vector
 bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOperation __unary_op) const
 {
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
     if(*rvec.commGrid != *commGrid)
     {
         SpParHelper::Print("Grids are not comparable, SpParMat::Kselect() fails!", commGrid->GetWorld());
@@ -1331,7 +1335,9 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
      return false;
      }
      */
-    
+   
+ 
+
     IT n_thiscol = getlocalcols();   // length (number of columns) assigned to this processor (and processor column)
     MPI_Comm World = rvec.commGrid->GetWorld();
     MPI_Comm ColWorld = rvec.commGrid->GetColWorld();
@@ -1339,8 +1345,17 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     int colneighs = commGrid->GetGridRows();
     int colrank = commGrid->GetRankInProcCol();
     int coldiagrank = commGrid->GetDiagOfProcCol();
-    
-    
+
+    //double memk = 3 * (double)n_thiscol*k*sizeof(VT)/1000000000;
+    //double maxmemk =0.0; // nnz in a process column
+    //MPI_Allreduce(&memk, &maxmemk , 1, MPIType<double>(), MPI_MAX, MPI_COMM_WORLD);
+
+    //int myrank;
+    //MPI_Comm_rank( MPI_COMM_WORLD, &myrank ) ;
+    //if(myrank==0)
+//	    std::cerr << "Actual kselect memory: " << maxmemk << "GB " << " columns " << n_thiscol << " activecol: " << nActiveCols << " \n";
+  //  MPI_Barrier(MPI_COMM_WORLD);
+
     //replicate sparse indices along processor column
     int accnz;
     int32_t trxlocnz;
@@ -1361,24 +1376,28 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         // since indexisvalue is set true in TransposeVector(), trxnums is never allocated
         //numacc = trxnums;     //aliasing ptr
     }
-    
-    
+
     std::vector<bool> isactive(n_thiscol,false);
     for(int i=0; i<accnz ; i++)
     {
         isactive[activeCols[i]] = true;
     }
     IT nActiveCols = accnz;//count_if(isactive.begin(), isactive.end(), [](bool ac){return ac;});
-    // check, memory should be min(n_thiscol*k, local nnz)
+
+	
+    int64_t lannz = getlocalnnz();
+    int64_t nnzColWorld=0; // nnz in a process column
+    MPI_Allreduce(&lannz, &nnzColWorld, 1, MPIType<int64_t>(), MPI_SUM, ColWorld);
+    int64_t maxPerProcMemory = std::min(nnzColWorld, (int64_t)nActiveCols*k) * sizeof(VT);
+
     // hence we will not overflow for very large k
-   
-    
     std::vector<IT> send_coldisp(n_thiscol+1,0);
     std::vector<IT> local_coldisp(n_thiscol+1,0);
     //vector<VT> sendbuf(nActiveCols*k);
-    VT * sendbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
-    
-    
+    //VT * sendbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * sendbuf = static_cast<VT *> (::operator new (nActiveCols*k*sizeof(VT)));
+    VT * sendbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
+
     //displacement of local columns
     //local_coldisp is the displacement of all nonzeros per column
     //send_coldisp is the displacement of k nonzeros per column
@@ -1390,7 +1409,7 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         {
             local_coldisp[i+1] = local_coldisp[i];
             send_coldisp[i+1] = send_coldisp[i];
-            if((colit != spSeq->endcol()) && (i==colit.colid()))
+            if( (colit != spSeq->endcol()) && (i==colit.colid()) )
             {
                 if(isactive[i])
                 {
@@ -1441,19 +1460,26 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         }
     }
     
-    
     //vector<VT>().swap(localmat);
     ::operator delete(localmat);
     std::vector<IT>().swap(local_coldisp);
     
-    VT * recvbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
-    VT * tempbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * recvbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+    //VT * tempbuf = static_cast<VT *> (::operator new (n_thiscol*k*sizeof(VT)));
+
+    //VT * recvbuf = static_cast<VT *> (::operator new ( nActiveCols*k*sizeof(VT)));
+    //VT * tempbuf = static_cast<VT *> (::operator new ( nActiveCols*k*sizeof(VT)));
+    
+
+    VT * recvbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
+    VT * tempbuf = static_cast<VT *> (::operator new (maxPerProcMemory));
     //vector<VT> recvbuf(n_thiscol*k);
     //vector<VT> tempbuf(n_thiscol*k);
     std::vector<IT> recv_coldisp(n_thiscol+1);
-    std::vector<IT> templen(n_thiscol);
+    std::vector<IT> temp_coldisp(n_thiscol+1);
+    //std::vector<IT> templen(n_thiscol);
     
-    
+   // Put a barrier and then print sth 
     
     for(int p=2; p <= colneighs; p*=2)
     {
@@ -1474,6 +1500,14 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                 MPI_Recv(recv_coldisp.data(), n_thiscol+1, MPIType<IT>(), sender, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 MPI_Recv(recvbuf, recv_coldisp[n_thiscol], MPIType<VT>(), sender, 1, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
                 
+		temp_coldisp[0] = 0;
+                for(IT i=0; i<n_thiscol; ++i)
+                {
+		    IT sendlen = send_coldisp[i+1] - send_coldisp[i];
+		    IT recvlen = recv_coldisp[i+1] - recv_coldisp[i];
+                    IT templen = std::min((sendlen+recvlen), k);
+		    temp_coldisp[i+1] = temp_coldisp[i] + templen;
+                }
                 
                 
 #ifdef THREADED
@@ -1484,7 +1518,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                     // partial merge until first k elements
                     IT j=send_coldisp[i], l=recv_coldisp[i];
                     //IT templen[i] = k*i;
-                    IT offset = k*i;
+                    //IT offset = k*i;
+		    IT offset = temp_coldisp[i];
                     IT lid = 0;
                     for(; j<send_coldisp[i+1] && l<recv_coldisp[i+1] && lid<k;)
                     {
@@ -1495,13 +1530,18 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
                     }
                     while(j<send_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = sendbuf[j++];
                     while(l<recv_coldisp[i+1] && lid<k) tempbuf[offset+lid++] = recvbuf[l++];
-                    templen[i] = lid;
+                    //templen[i] = lid;
                 }
                 
+		std::copy(temp_coldisp.begin(), temp_coldisp.end(), send_coldisp.begin());
+		std::copy(tempbuf, tempbuf+temp_coldisp[n_thiscol], sendbuf);
+		
+		/*
                 send_coldisp[0] = 0;
                 for(IT i=0; i<n_thiscol; i++)
                 {
                     send_coldisp[i+1] = send_coldisp[i] + templen[i];
+		    assert(send_coldisp[i+1] == temp_coldisp[i+1]);
                 }
                 
                 
@@ -1510,16 +1550,17 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
 #endif
                 for(IT i=0; i<n_thiscol; i++) // direct copy
                 {
-                    IT offset = k*i;
+                    //IT offset = k*i;
+		    IT offset = temp_coldisp[i];
                     std::copy(tempbuf+offset, tempbuf+offset+templen[i], sendbuf + send_coldisp[i]);
                 }
+
+		*/
             }
         }
     }
     MPI_Barrier(commGrid->GetWorld());
-    
-    
-    
+    // Print sth here as well
     
     /*--------------------------------------------------------
      At this point, top k elements in every active column
@@ -1567,6 +1608,8 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
         MPI_Recv(kthItem.data(), nActiveCols, MPIType<VT>(), 0, 0, commGrid->GetColWorld(), MPI_STATUS_IGNORE);
     }
     
+    // Put a barrier and print sth
+
     /*--------------------------------------------------------
      At this point, kth largest elements in every active column
      are gathered on the diagonal processors P(i,i).
@@ -1585,11 +1628,14 @@ bool SpParMat<IT,NT,DER>::Kselect1(FullyDistSpVec<GIT,VT> & rvec, IT k, _UnaryOp
     MPI_Gather(&lsize,1, MPI_INT, sendcnts.data(), 1, MPI_INT, rowroot, RowWorld);
     std::partial_sum(sendcnts.data(), sendcnts.data()+proccols-1, dpls.data()+1);
     MPI_Scatterv(kthItem.data(),sendcnts.data(), dpls.data(), MPIType<VT>(), rvec.num.data(), rvec.num.size(), MPIType<VT>(),rowroot, RowWorld);
+
+    delete [] activeCols;
+    delete [] numacc;
     
     ::operator delete(sendbuf);
     ::operator delete(recvbuf);
     ::operator delete(tempbuf);
-    delete [] activeCols;
+    //delete [] activeCols;
     //delete [] numacc;
     
     return true;
@@ -2362,7 +2408,11 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
-    MPI_Barrier(MPI_COMM_WORLD);
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Barrier(World);
     if(getncol() != pvals.TotalLength())
     {
         std::ostringstream outs;
@@ -2377,7 +2427,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
-    MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
     
     int xsize = (int) pvals.LocArrSize();
@@ -2422,6 +2471,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     delete [] dpls;
 
     //sanity check
+    if(accsize != getlocalcols()){
+        fprintf(stderr, "[PruneColumn]\tmyrank:%d\taccsize:%d\tgetlocalcols():%d\n", myrank, accsize, getlocalcols());
+    }
     assert(accsize == getlocalcols());
     if (inPlace)
     {
@@ -2441,7 +2493,9 @@ template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace)
 {
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Comm World = pvals.commGrid->GetWorld();
+    MPI_Barrier(World);
     if(getncol() != pvals.TotalLength())
     {
         std::ostringstream outs;
@@ -2456,7 +2510,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
         MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
     }
     
-    MPI_Comm World = pvals.commGrid->GetWorld();
     MPI_Comm ColWorld = pvals.commGrid->GetColWorld();
     int diagneigh = pvals.commGrid->GetComplementRank();
     
@@ -2474,7 +2527,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
     MPI_Sendrecv(pvals.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, &status);
     MPI_Sendrecv(pvals.num.data(), xlocnz, MPIType<NT>(), diagneigh, TRX, trxnums.data(), trxlocnz, MPIType<NT>(), diagneigh, TRX, World, &status);
     std::transform(trxinds.data(), trxinds.data()+trxlocnz, trxinds.data(), std::bind2nd(std::plus<IT>(), roffset));
-
     
     int colneighs, colrank;
     MPI_Comm_size(ColWorld, &colneighs);
@@ -2602,7 +2654,9 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation, typename LIT>
 void SpParMat< IT,NT,DER >::SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
+//void SpParMat< IT,NT,DER >::SparseCommon(std::vector< std::vector < std::tuple<typename DER::LocalIT,typename DER::LocalIT,NT> > > & data, typename DER::LocalIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp)
 {
+    //typedef typename DER::LocalIT LIT;
 	int nprocs = commGrid->GetSize();
 	int * sendcnt = new int[nprocs];
 	int * recvcnt = new int[nprocs];

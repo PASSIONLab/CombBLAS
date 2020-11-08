@@ -276,6 +276,7 @@ public:
 
 	void PrintInfo();
     std::tuple<IT, IT, NT> * tuples; 	
+    bool tuples_deleted = false; // This is a temporary patch to avoid memory leak in 3d-memory multiplication
 
 private:
 

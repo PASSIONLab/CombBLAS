@@ -79,6 +79,9 @@ public:
 
 	template<typename IT, typename NT, typename DER>	
 	static void BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root);
+
+	template<typename IT, typename NT, typename DER>	
+	static void IBCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root, std::vector<MPI_Request> & indarrayReq , std::vector<MPI_Request> & numarrayReq);
     
     	template<typename IT, typename NT, typename DER>
     	static void GatherMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, int root);

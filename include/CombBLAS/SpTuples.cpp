@@ -150,8 +150,9 @@ SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, std::p
 template <class IT,class NT>
 SpTuples<IT,NT>::~SpTuples()
 {
-	if(nnz > 0)
-	{
+    // This tuples_deleted member is a temporary patch to avoid memory leak from MemEfficietnSpGEMM3D
+	if((nnz > 0) && (tuples_deleted != true))
+	{   
         if(isOperatorNew)
             ::operator delete(tuples);
         else

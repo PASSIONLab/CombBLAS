@@ -600,6 +600,31 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
 	}			
 }
 
+/**
+  * @param[in] Matrix {For the root processor, the local object to be sent to all others.
+  * 		For all others, it is a (yet) empty object to be filled by the received data}
+  * @param[in] essentials {irrelevant for the root}
+ **/
+template<typename IT, typename NT, typename DER>	
+void SpParHelper::IBCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root, std::vector<MPI_Request> & indarrayReq , std::vector<MPI_Request> & numarrayReq)
+{
+	int myrank;
+	MPI_Comm_rank(comm1d, &myrank);
+	if(myrank != root)
+	{
+		Matrix.Create(essentials);		// allocate memory for arrays		
+	}
+
+	Arr<IT,NT> arrinfo = Matrix.GetArrays();
+	for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+	{
+		MPI_Ibcast(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), root, comm1d, &indarrayReq[i]);
+	}
+	for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+	{
+		MPI_Ibcast(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), root, comm1d, &numarrayReq[i]);
+	}			
+}
 
 /**
  * Just a test function to see the time to gather a matrix on an MPI process
