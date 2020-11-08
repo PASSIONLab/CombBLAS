@@ -54,6 +54,12 @@ using namespace combblas;
 
 #define EPS 0.0001
 
+double sym_Abcasttime = 0;
+double sym_Bbcasttime = 0;
+double sym_estimatefloptime = 0;
+double sym_estimatennztime = 0;
+double sym_SUMMAnnzreductiontime = 0;
+///////////////////////////
 double mcl_Abcasttime;
 double mcl_Bbcasttime;
 double mcl_localspgemmtime;
@@ -71,11 +77,17 @@ double mcl3d_SUMMAmergetime;
 double mcl3d_reductiontime;
 double mcl3d_3dmergetime;
 double mcl3d_kselecttime;
-int64_t mcl3d_layer_flop;
-int64_t mcl3d_layer_nnzc;
-int64_t mcl3d_nnzc;
+int64_t mcl3d_layer_nnza;
 int64_t mcl3d_nnza;
+int64_t mcl3d_proc_flop;
+int64_t mcl3d_layer_flop;
 int64_t mcl3d_flop;
+int64_t mcl3d_proc_nnzc_pre_red;
+int64_t mcl3d_layer_nnzc_pre_red;
+int64_t mcl3d_nnzc_pre_red;
+int64_t mcl3d_proc_nnzc_post_red;
+int64_t mcl3d_layer_nnzc_post_red;
+int64_t mcl3d_nnzc_post_red;
 ///////////////////////////
 double mcl3d_conversiontime_prev;
 double mcl3d_symbolictime_prev;
@@ -87,11 +99,6 @@ double mcl3d_SUMMAmergetime_prev;
 double mcl3d_reductiontime_prev;
 double mcl3d_3dmergetime_prev;
 double mcl3d_kselecttime_prev;
-int64_t mcl3d_layer_flop_prev;
-int64_t mcl3d_layer_nnzc_prev;
-int64_t mcl3d_nnzc_prev;
-int64_t mcl3d_nnza_prev;
-int64_t mcl3d_flop_prev;
 // for compilation (TODO: fix this dependency)
 int cblas_splits;
 double cblas_alltoalltime;
@@ -580,57 +587,49 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         mcl3d_reductiontime_prev = mcl3d_reductiontime;
         mcl3d_3dmergetime_prev = mcl3d_3dmergetime;
         mcl3d_kselecttime_prev = mcl3d_kselecttime;
-        mcl3d_layer_flop_prev = mcl3d_layer_flop;
-        mcl3d_layer_nnzc_prev = mcl3d_layer_nnzc;
-        mcl3d_nnzc_prev = mcl3d_nnzc;
-        mcl3d_nnza_prev = mcl3d_nnza;
-        mcl3d_flop_prev = mcl3d_flop;
+
+        mcl3d_layer_nnza = 0;
+        mcl3d_nnza = 0;
+        mcl3d_proc_flop = 0;
+        mcl3d_layer_flop = 0;
+        mcl3d_flop = 0;
+        mcl3d_proc_nnzc_pre_red = 0;
+        mcl3d_layer_nnzc_pre_red = 0;
+        mcl3d_nnzc_pre_red = 0;
+        mcl3d_proc_nnzc_post_red = 0;
+        mcl3d_layer_nnzc_post_red = 0;
+        mcl3d_nnzc_post_red = 0;
 #endif
 
         double t2 = MPI_Wtime();
         SpParMat3D<IT,NT,DER> A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false);    // Create new rowsplit copy of matrix from colsplit copy
-        //IT Ancol = A3D_cs.getncol();
-        //IT Bnrow = A3D_rs.getnrow();
-        //if(myrank == 0) fprintf(stderr, "%lld - %lld\n", Ancol, Bnrow);
         double t3 = MPI_Wtime();
 #ifdef TIMING
         mcl3d_conversiontime += (t3-t2);
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\t3D colsplit -> rowsplit conversion time: %lf\n", (t3-t2));
         }
-        mcl3d_nnza = A3D_cs.getnnz();
-        mcl3d_layer_flop = EstimateFLOP<PTFF, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >(
-                *(A3D_cs.GetLayerMat()), 
-                *(A3D_rs.GetLayerMat()), 
-                false, false);
+        //mcl3d_nnza = A3D_cs.getnnz();
+        //mcl3d_layer_flop = EstimateFLOP<PTFF, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >(
+                //*(A3D_cs.GetLayerMat()), 
+                //*(A3D_rs.GetLayerMat()), 
+                //false, false);
 #endif
 
         double t4 = MPI_Wtime();
-        //A3D_cs = A3D_cs.template MemEfficientSpGEMM3D<PTFF>(A3D_rs, 
-                                                            //param.phases, 
-                                                            //param.prunelimit, 
-                                                            //(IT)param.select, 
-                                                            //(IT)param.recover_num, 
-                                                            //param.recover_pct, 
-                                                            //param.kselectVersion, 
-                                                            //param.perProcessMem);
-        A3D_cs = MemEfficientSpGEMM3D<PTFF, int64_t, double, SpDCCols<int64_t, double> >(A3D_cs, A3D_rs, 
-                                                            param.phases, 
-                                                            param.prunelimit, 
-                                                            (IT)param.select, 
-                                                            (IT)param.recover_num, 
-                                                            param.recover_pct, 
-                                                            param.kselectVersion, 
-                                                            param.perProcessMem);
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) fprintf(stderr, "[MCL3D]:\tBack in MCL iteration\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
+        A3D_cs = MemEfficientSpGEMM3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >(
+                A3D_cs, A3D_rs, 
+                param.phases, 
+                param.prunelimit, 
+                (IT)param.select, 
+                (IT)param.recover_num, 
+                param.recover_pct, 
+                param.kselectVersion, 
+                param.perProcessMem
+         );
         double t15 = MPI_Wtime();
         MakeColStochastic3D(A3D_cs);
         double t5 = MPI_Wtime();
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) fprintf(stderr, "[MCL3D]:\tColStochastic done\n");
-        //MPI_Barrier(MPI_COMM_WORLD);
 #ifdef TIMING
         if(myrank == 0){
             fprintf(stderr, "[MCL3D]\tColStochastic time: %lf\n", (t5-t15));
@@ -690,11 +689,21 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 
 
 #ifdef TIMING
-        MPI_Allreduce(&mcl3d_layer_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetFiberWorld());
-        MPI_Allreduce(&mcl3d_layer_nnzc, &mcl3d_nnzc, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetWorld());
-        if(myrank == 0) printf("[Iteration: %d] flop(C) %lld\n", it, mcl3d_flop);
-        if(myrank == 0) printf("[Iteration: %d] nnz(C) %lld\n", it, mcl3d_nnzc);
-        if(myrank == 0) printf("[Iteration: %d] nnz(A) %lld\n", it, mcl3d_nnza);
+        MPI_Allreduce(&mcl3d_proc_flop, &mcl3d_layer_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetLayerWorld());
+        MPI_Allreduce(&mcl3d_proc_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetWorld());
+        MPI_Allreduce(&mcl3d_proc_nnzc_pre_red, &mcl3d_layer_nnzc_pre_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetLayerWorld());
+        MPI_Allreduce(&mcl3d_proc_nnzc_pre_red, &mcl3d_nnzc_pre_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetWorld());
+        MPI_Allreduce(&mcl3d_proc_nnzc_post_red, &mcl3d_layer_nnzc_post_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetLayerWorld());
+        MPI_Allreduce(&mcl3d_proc_nnzc_post_red, &mcl3d_nnzc_post_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D_cs.getcommgrid3D()->GetWorld());
+        mcl3d_layer_nnza = A3D_cs.GetLayerMat()->getnnz();
+        mcl3d_nnza = A3D_cs.getnnz();
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] layer nnza: %lld\n", it, mcl3d_layer_nnza);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] layer flop: %lld\n", it, mcl3d_layer_flop);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] layer nnzc pre reduction: %lld\n", it, mcl3d_layer_nnzc_pre_red);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] layer nnzc post reduction: %lld\n", it, mcl3d_layer_nnzc_post_red);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] flop: %lld\n", it, mcl3d_flop);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] nnzc pre reduction: %lld\n", it, mcl3d_nnzc_pre_red);
+        if(myrank == 0) fprintf(stderr, "[Iteration: %d] nnzc post reduction: %lld\n", it, mcl3d_nnzc_post_red);
 #endif
         
 
