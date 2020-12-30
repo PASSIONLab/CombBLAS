@@ -54,14 +54,14 @@ namespace combblas
     }
 
     template <class IT, class NT, class DER>
-    SpParMat3D< IT,NT,DER >::SpParMat3D (DER * localMatrix, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special = false): commGrid3D(grid3d), colsplit(colsplit), special(special){
+    SpParMat3D< IT,NT,DER >::SpParMat3D (DER * localMatrix, std::shared_ptr<CommGrid3D> grid3d, bool colsplit, bool special): commGrid3D(grid3d), colsplit(colsplit), special(special){
         assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
         MPI_Comm_size(commGrid3D->fiberWorld, &nlayers);
         layermat.reset(new SpParMat<IT, NT, DER>(localMatrix, commGrid3D->layerWorld));
     }
 
     template <class IT, class NT, class DER>
-    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special = false): nlayers(nlayers), colsplit(colsplit), special(special){
+    SpParMat3D< IT,NT,DER >::SpParMat3D (const SpParMat< IT,NT,DER > & A2D, int nlayers, bool colsplit, bool special): nlayers(nlayers), colsplit(colsplit), special(special){
         typedef typename DER::LocalIT LIT;
         auto commGrid2D = A2D.getcommgrid();
         int nprocs = commGrid2D->GetSize();
