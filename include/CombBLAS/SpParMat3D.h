@@ -53,6 +53,8 @@
 #include "Friends.h"
 #include "Operations.h"
 #include "DistEdgeList.h"
+#include "mtSpGEMM.h"
+#include "MultiwayMerge.h"
 #include "CombBLAS.h"
 
 namespace combblas

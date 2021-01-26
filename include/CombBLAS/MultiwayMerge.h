@@ -1,3 +1,6 @@
+#ifndef _MULTIWAY_MERGE_H_
+#define _MULTIWAY_MERGE_H_
+
 #include "CombBLAS.h"
 
 namespace combblas {
@@ -605,3 +608,5 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
     }
 
 }
+
+#endif
