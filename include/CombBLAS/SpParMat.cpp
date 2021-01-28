@@ -2731,6 +2731,99 @@ void SpParMat< IT,NT,DER >::SparseCommon(std::vector< std::vector < std::tuple<L
 }
 
 
+
+template <class IT, class NT, class DER>
+std::vector<std::vector<SpParMat<IT, NT, DER>>>
+SpParMat<IT, NT, DER>::BlockSplit (int br, int bc)
+{
+	IT	g_nr   = this->getnrow();
+	IT	g_nc   = this->getncol();
+	
+	if (br == 1 && bc == 1 || (br > g_nr || bc > g_nc))
+		return std::vector<std::vector<SpParMat<IT, NT, DER>>>
+			(1, std::vector<SpParMat<IT, NT, DER>>(1, *this));
+	
+	int np	 = commGrid->GetSize();
+	int rank = commGrid->GetRank();
+	
+	std::vector<std::vector<SpParMat<IT, NT, DER>>>
+		bmats(br,
+			  std::vector<SpParMat<IT, NT, DER>>
+			  (bc, SpParMat<IT, NT, DER>(commGrid)));
+	std::vector<std::vector<std::vector<std::vector<std::tuple<IT, IT, NT>>>>>
+		btuples(br,
+				std::vector<std::vector<std::vector<std::tuple<IT, IT, NT>>>>
+				(bc, std::vector<std::vector<std::tuple<IT, IT, NT>>>
+				 (np, std::vector<std::tuple<IT, IT, NT>>())));
+
+	assert(spSeq != NULL);
+	
+	SpTuples<IT, NT> tuples(*spSeq);	
+	IT	g_rbeg = (g_nr/commGrid->GetGridRows()) * commGrid->GetRankInProcCol();
+	IT	g_cbeg = (g_nc/commGrid->GetGridCols()) * commGrid->GetRankInProcRow();
+	IT	br_sz  = g_nr / br;
+	IT	br_r   = g_nr % br;
+	IT	bc_sz  = g_nc / bc;
+	IT	bc_r   = g_nc % bc;
+
+	std::vector<IT> br_sizes(br, br_sz);
+	std::vector<IT> bc_sizes(bc, bc_sz);
+	for (IT i = 0; i < br_r; ++i)
+		++br_sizes[i];
+	for (IT i = 0; i < bc_r; ++i)
+		++bc_sizes[i];
+
+	auto get_block = [](IT x, IT sz, IT r, IT &bid, IT &idx)
+		{
+			if (x < (r*(sz+1)))
+			{
+				bid = x / (sz+1);
+				idx = x % (sz+1);
+			}
+			else
+			{
+				bid = (x-r) / sz;
+				idx = (x-r) % sz;
+			}
+		};
+	
+
+	// gather tuples
+	for (int64_t i = 0; i < tuples.getnnz(); ++i)
+	{
+		IT g_ridx = g_rbeg + tuples.rowindex(i);
+		IT g_cidx = g_cbeg + tuples.colindex(i);
+
+		IT rbid, ridx, ridx_l, cbid, cidx, cidx_l;
+		get_block(g_ridx, br_sz, br_r, rbid, ridx);
+		get_block(g_cidx, bc_sz, bc_r, cbid, cidx);
+		int owner = Owner(br_sizes[rbid], bc_sizes[cbid], ridx, cidx,
+						  ridx_l, cidx_l);
+
+		btuples[rbid][cbid][owner].push_back({ridx_l, cidx_l, tuples.numvalue(i)});		
+	}
+
+	
+	// form matrices
+	for (int i = 0; i < br; ++i)
+	{
+		for (int j = 0; j < bc; ++j)
+		{
+			IT locsize = 0;
+			for (auto &el : btuples[i][j])
+				locsize += el.size();
+
+			auto &M = bmats[i][j];
+			M.SparseCommon(btuples[i][j], locsize, br_sizes[i], bc_sizes[j],
+						   maximum<NT>()); // there are no duplicates
+		}
+	}
+
+	return bmats;
+}
+
+
+
 //! All vectors are zero-based indexed (as usual)
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & distrows, 

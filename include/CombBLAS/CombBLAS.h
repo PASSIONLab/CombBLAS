@@ -128,6 +128,7 @@ class EWiseExtToPlainAdapter
 #include "VecIterator.h"
 #include "PreAllocatedSPA.h"
 #include "ParFriends.h"
+#include "BlockSpGEMM.h"
 #include "BFSFriends.h"
 #include "DistEdgeList.h"
 #include "Semirings.h"

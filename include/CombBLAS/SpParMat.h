@@ -301,6 +301,11 @@ public:
     void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
     //void SparseCommon(std::vector< std::vector < std::tuple<typename DER::LocalIT,typename DER::LocalIT,NT> > > & data, typename DER::LocalIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
 
+	// @TODO-OGUZ allow different index type for blocked matrices
+	std::vector<std::vector<SpParMat<IT, NT, DER>>>
+	BlockSplit (int br, int bc);
+	
+
 	//! Friend declarations
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend IU
