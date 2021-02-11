@@ -1002,6 +1002,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 }
 
 
+static
 void process_mem_usage(double& vm_usage, double& resident_set)
 {
    using std::ios_base;
