@@ -19,14 +19,14 @@ int main(int argc, char* argv[])
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
-    if(argc < 3)
+    if(argc < 4)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./ReadWriteMtx <InputMTX> <OutputMTX> <permute>" << endl;
+            cout << "Usage: ./ReadWriteMtx <InputMTX> <OutputMTX> <0|1> <permute>" << endl;
             cout << "<InputMTX> can have reverse edges missing or with different values, but the reader will choose the edge with maximum value when that happens (common in dna/protein sequence search)" << endl;
             cout << "<OutputMTX> is just the name of the output after such incompatibilities in MTX file are removed and all bidirectional edges now have the same value" << endl;
-            
+            cout << "<0|1>: zero or one indexed (for inputs)" << endl;
             cout << "<permute> randomly permute the matrix (default: 0 - meaning false)" << endl;
             
         }
@@ -37,9 +37,15 @@ int main(int argc, char* argv[])
         string Aname(argv[1]);
         string Bname(argv[2]);
         bool permute = 0;
-        if(argc == 3)
+	bool index = static_cast<bool>(atoi(argv[3]));
+
+	if(myrank ==0)
+	{
+		cout << "Reading file " << Aname << " that is " << index << " indexed" << endl;  
+	}
+        if(argc == 4)
         {
-            permute = static_cast<bool>(atoi(argv[3]));
+            permute = static_cast<bool>(atoi(argv[4]));
             if(myrank == 0)
             {
                 if(permute)
@@ -50,7 +56,7 @@ int main(int argc, char* argv[])
     
         SpParMat<int64_t, double, SpDCCols<int64_t,double>> A;
         
-        A.ParallelReadMM(Aname, true, maximum<double>());
+        A.ParallelReadMM(Aname, index, maximum<double>());
         if(permute)
         {
             FullyDistVec<int64_t,int64_t> perm;    // get a different permutation
