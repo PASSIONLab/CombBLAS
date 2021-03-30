@@ -6,8 +6,8 @@ INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/u
 OPT = -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG 
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-#COMPILER = mpicxx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
 COMPILER = CC -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
+#COMPILER = CC -g -O0 -mavx -std=c++11 -std=c++14 -DTHREADED -fopenmp  -fpermissive  
 FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized -DGNU_PARALLEL -DTIMING #-DCOMBBLAS_DEBUG 
 
 hash.o:	$(COMBBLAS_SRC)/hash.cpp $(COMBBLAS_INC)/hash.hpp

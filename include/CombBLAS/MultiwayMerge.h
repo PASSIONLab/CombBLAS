@@ -591,10 +591,19 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
             if(i == (nsplits-1)) endCol = ndim;
             SerialMergeHash<SR>(listSplitTups[i], mergeBuf + mdisp[i], nnzPerColSplit[i], maxNnzPerColumnSplit[i], startCol, endCol, sorted);
             // last parameter is for sorted
-	    //
         }
         
-       
+        // Delete and free a lot of dynamic allocations
+        for(int i=0; i< nsplits; ++i) // for each part
+        {
+            delete nnzPerColSplit[i];
+            for(int j=0; j< nlists; ++j)
+            {
+                listSplitTups[i][j]->tuples_deleted = true;
+                delete listSplitTups[i][j];
+            }
+
+        }
         for(int i=0; i< nlists; i++)
         {
             if(delarrs)

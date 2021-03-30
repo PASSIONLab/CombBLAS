@@ -68,6 +68,7 @@ double mcl_kselecttime;
 double mcl_prunecolumntime;
 
 int64_t mcl3d_layer_nnza;
+int64_t mcl3d_layer_nnzc;
 int64_t mcl3d_nnza;
 int64_t mcl3d_proc_flop;
 int64_t mcl3d_layer_flop;
@@ -268,6 +269,8 @@ int main(int argc, char* argv[])
                     SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = 
                         Mult_AnXBn_SUMMA3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
                         (A3D, B3D);
+                        //MemEfficientSpGEMM3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
+                        //(A3D, B3D, 1, 0.9, 1400, 1100, 0.9, 1, 27);
 #ifdef TIMING
                     MPI_Barrier(MPI_COMM_WORLD);
                     t1 = MPI_Wtime();
@@ -282,6 +285,14 @@ int main(int argc, char* argv[])
                         if(myrank == 0) fprintf(stderr, "Not correct!\n");
                     }
 #ifdef TIMING
+                    MPI_Allreduce(&mcl3d_proc_flop, &mcl3d_layer_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
+                    MPI_Allreduce(&mcl3d_proc_flop, &mcl3d_flop, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+                    MPI_Allreduce(&mcl3d_proc_nnzc_pre_red, &mcl3d_layer_nnzc_pre_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
+                    MPI_Allreduce(&mcl3d_proc_nnzc_pre_red, &mcl3d_nnzc_pre_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+                    MPI_Allreduce(&mcl3d_proc_nnzc_post_red, &mcl3d_layer_nnzc_post_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetLayerWorld());
+                    MPI_Allreduce(&mcl3d_proc_nnzc_post_red, &mcl3d_nnzc_post_red, 1, MPI_LONG_LONG_INT, MPI_SUM, A3D.getcommgrid3D()->GetWorld());
+                    mcl3d_layer_nnza = A3D.GetLayerMat()->getnnz();
+                    mcl3d_nnza = A3D.getnnz();
                     if(myrank == 0){
                         fprintf(stderr, "[3D: Iteration: %d] Symbolictime: %lf\n", it, (mcl3d_symbolictime - mcl3d_symbolictime_prev));
                         fprintf(stderr, "[3D: Iteration: %d] Abcasttime: %lf\n", it, (mcl3d_Abcasttime - mcl3d_Abcasttime_prev));
@@ -292,6 +303,13 @@ int main(int argc, char* argv[])
                         fprintf(stderr, "[3D: Iteration: %d] 3D Merge: %lf\n", it, (mcl3d_3dmergetime - mcl3d_3dmergetime_prev));
                         fprintf(stderr, "[3D: Iteration: %d] SelectionRecovery: %lf\n", it, (mcl3d_kselecttime - mcl3d_kselecttime_prev));
                         fprintf(stderr, "[3D: Iteration: %d] Total time: %lf\n", it, (mcl3d_totaltime - mcl3d_totaltime_prev));
+                        fprintf(stderr, "[Iteration: %d] layer nnza: %lld\n", it, mcl3d_layer_nnza);
+                        fprintf(stderr, "[Iteration: %d] layer flop: %lld\n", it, mcl3d_layer_flop);
+                        fprintf(stderr, "[Iteration: %d] layer nnzc pre reduction: %lld\n", it, mcl3d_layer_nnzc_pre_red);
+                        fprintf(stderr, "[Iteration: %d] layer nnzc post reduction: %lld\n", it, mcl3d_layer_nnzc_post_red);
+                        fprintf(stderr, "[Iteration: %d] flop: %lld\n", it, mcl3d_flop);
+                        fprintf(stderr, "[Iteration: %d] nnzc pre reduction: %lld\n", it, mcl3d_nnzc_pre_red);
+                        fprintf(stderr, "[Iteration: %d] nnzc post reduction: %lld\n", it, mcl3d_nnzc_post_red);
                         fprintf(stderr, "-----------------------------------------------------\n");
                     }
 #endif
