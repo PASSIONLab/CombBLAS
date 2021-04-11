@@ -93,6 +93,12 @@ double Fscore(string mclFile, string hipmclFile, int base)
         return -1;
     }
     
+    // this will account for isolated vertices. These vertices are assigned to their own clusters 
+    for(int i=0; i<nproteins; i++)
+    {
+        if(clust2[i]==-1)
+		clust2[i]=numHipMCLClusters++;
+    }
     cout << "Number of clusters from HipMCL: " << numHipMCLClusters << endl;
     
     vector<int64_t> clusterSizes2(numHipMCLClusters,0);
