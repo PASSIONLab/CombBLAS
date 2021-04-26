@@ -87,9 +87,9 @@ namespace combblas
         IT getnnz() const;
         
         std::shared_ptr< SpParMat<IT, NT, DER> > GetLayerMat() {return layermat;}
-        DER * seqptr() {return layermat->seqptr();}
-        bool isSpecial() {return special;}
-        bool isColSplit() {return colsplit;}
+        DER * seqptr() const {return layermat->seqptr();}
+        bool isSpecial() const {return special;}
+        bool isColSplit() const {return colsplit;}
 
         template <typename LIT>
         int Owner(IT total_m, IT total_n, IT grow, IT gcol, LIT & lrow, LIT & lcol) const;

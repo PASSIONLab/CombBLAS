@@ -3337,6 +3337,7 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
 #endif
     //Create SpDCCol and delete merged_tuples;
     UDERO * localResultant = new UDERO(*merged_tuples, false);
+    delete merged_tuples;
 
     // Do not delete elements of recvChunks, because that would give segmentation fault due to double free
     //delete [] recvTuples;
@@ -3822,6 +3823,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         // This operation is not needed if result can be used and discareded right away
         // This operation is being done because it is needed by MCLPruneRecoverySelect
         UDERO * phaseResultant = new UDERO(*merged_tuples, false);
+        delete merged_tuples;
         SpParMat<IU, NUO, UDERO> phaseResultantLayer(phaseResultant, A.getcommgrid3D()->layerWorld);
         MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
 #ifdef TIMING
