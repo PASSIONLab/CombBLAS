@@ -616,6 +616,489 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         return new SpTuples<IT, NT> (mergedNnzAll, mdim, ndim, mergeBuf, true, true);
     }
 
+    // --------------------------------------------------------
+    // Hash-based multiway merge
+    // Columns of the input matrices may or may not be sorted
+    //  the hash merging algorithm does not need sorted inputs
+    // If sorted=true, columns of the output matrix are sorted
+    // --------------------------------------------------------
+    template<class SR, class IT, class NT>
+    SpTuples<IT, NT>* MultiwayMergeHashSliding( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true )
+    {
+        
+        int nlists =  ArrSpTups.size();
+        if(nlists == 0)
+        {
+            return new SpTuples<IT,NT>(0, mdim, ndim); //empty mxn SpTuples
+        }
+        if(nlists == 1)
+        {
+            if(delarrs) // steal data from input, and don't delete input
+            {
+                return ArrSpTups[0];
+            }
+            else // copy input to output
+            {
+                std::tuple<IT, IT, NT>* mergeTups = static_cast<std::tuple<IT, IT, NT>*>
+                (::operator new (sizeof(std::tuple<IT, IT, NT>[ArrSpTups[0]->getnnz()])));
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+                for(int i=0; i<ArrSpTups[0]->getnnz(); i++)
+                    mergeTups[i] = ArrSpTups[0]->tuples[i];
+                
+                // Caution: ArrSpTups[0] can be either sorted or unsorted
+                // By setting sorted=true, we prevented sorting in the SpTuples constructor
+                // TODO: we better keep a isSorted flag in SpTuples (also in DCSC/CSC)
+                return new SpTuples<IT,NT> (ArrSpTups[0]->getnnz(), mdim, ndim, mergeTups, true, true);
+            }
+        }
+        
+        // ---- check correctness of input dimensions ------
+        for(int i=0; i< nlists; ++i)
+        {
+            if((mdim != ArrSpTups[i]->getnrow()) || ndim != ArrSpTups[i]->getncol())
+            {
+                std::cerr << "Dimensions of SpTuples do not match on multiwayMerge()" << std::endl;
+                return new SpTuples<IT,NT>(0,0,0);
+            }
+        }
+        
+        int nthreads = 1;
+#ifdef THREADED
+#pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+        }
+#endif
+        int nsplits = 4*nthreads; // oversplit for load balance
+        nsplits = std::min(nsplits, (int)ndim); // we cannot split a column
+
+        const IT minHashTableSize = 16;
+        const IT maxHashTableSize = 8 * 1024;
+        const IT hashScale = 107;
+        
+        /*
+         * To store column pointers of CSC like data structures
+         * */
+        IT** colPtrs = static_cast<IT**> (::operator new (sizeof(IT*[nlists]))); 
+        for(int l = 0; l < nlists; l++){
+            colPtrs[l] = static_cast<IT*> (::operator new (sizeof(IT[ndim+1]))); 
+        }
+        ColLexiCompare<IT,NT> colCmp;
+        RowLexiCompare<IT,NT> rowCmp;
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(int s = 0; s < nsplits; s++){
+            IT startColSplit = s * (ndim/nsplits);
+            IT endColSplit = (s+1)* (ndim/nsplits);
+            for(int l = 0; l < nlists; l++){
+                std::tuple<IT, IT, NT> searchTuple(0, startColSplit, NT());
+                std::tuple<IT, IT, NT>* first = std::lower_bound(ArrSpTups[l]->tuples, ArrSpTups[l]->tuples+ArrSpTups[l]->getnnz(), searchTuple, colCmp);
+                std::tuple<IT, IT, NT> searchTuple(0, endColSplit, NT());
+                std::tuple<IT, IT, NT>* last = std::lower_bound(ArrSpTups[l]->tuples, ArrSpTups[l]->tuples+ArrSpTups[l]->getnnz(), searchTuple, colCmp);
+                for(c = startColSplit; c < endColSplit; c++){
+                    if(c == 0) colPtrs[c] = 0;
+                    else{
+                        std::tuple<IT, IT, NT> searchTuple(0, c, NT());
+                        std::tuple<IT, IT, NT>* pos = std::lower_bound(first, last, searchTuple, colCmp);
+                        colPtrs[l][c] = pos - ArrSpTups[l]->tuples;
+                    }
+                }
+                colPtrs[l][ndim] = ArrSpTups[l]->getnnz();
+            }
+        }
+
+        size_t* flopsPerCol = static_cast<size_t*> (::operator new (sizeof(size_t[ndim]))); 
+        IT* nWindowPerColSymbolic = static_cast<IT*> (::operator new (sizeof(IT[ndim])));
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(IT c = 0; c < ndim; c++){
+            flopsPerCol[c] = 0;
+            for(int l = 0; l < nlists; l++){
+                flopsPerCol[c] += colPtrs[l][c+1] - colPtrs[l][c];
+            }
+            nWindowPerColSymbolic[c] = flopsPerCol[c] / maxHashTableSize + 1;
+        }
+        
+        size_t* prefixSumFlopsPerCol = prefixSum<size_t>(flopsPerCol, ndim, nthreads);
+        size_t totalFlops = prefixSumFlopsPerCol[ndim];
+        size_t flopsPerSplit = totalFlops / nsplits;
+        IT* colSplitters = static_cast<size_t*> (::operator new (sizeof(size_t[nsplits+1]))); 
+        
+        /*
+         * For symbolic, split column between threads in such a way so that total flops is
+         * balanced between threads
+         * */
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+        for(int s = 0; s < nsplits; s++){
+            size_t searchItem = s * flopsPerSplit;
+            size_t* searchResult = std::lower_bound(prefixSumFlopsPerCol, prefixSumFlopsPerCol + ndim + 1, searchItem);
+            colSplitters[s] = searchResult - prefixSumFlopPerCol;
+        }
+        colSplitters[nsplits] = ndim;
+        
+        /*
+         * Calculate prefix sum of number of windows needed per column.
+         * This information will be used to determine the index in the windowsSymbolic array
+         * */
+        IT* prefixSumWindowSymbolic = prefixSum<IT>(nWindowPerColSymbolic, ndim, nthreads);
+        std::pair<IT, IT>* windowsSymbolic = static_cast<IT*> (::operator new (sizeof(std::pair<IT, IT>[prefixSumWindowSymbolic[ndim]])));
+
+        IT* nnzPerCol = static_cast<IT*> (::operator new (sizeof(IT[ndim])));
+        IT* nWindowPerCol = static_cast<IT*> (::operator new (sizeof(IT[ndim])));
+
+        /*
+         * To keep track of rows being processed in each matrix over sliding window
+         * */
+        std::pair<IT, IT>** rowIdsRange = static_cast<IT**> (::operator new (sizeof(std::pair<IT, IT>*[nsplits])));
+        for(int s = 0; s < nsplits; s++){
+            rowIdsRange[s] = static_cast<IT*> (::operator new (sizeof(std::pair<IT, IT>[nlists])));
+        }
+
+#ifdef THREADED
+#pragma omp parallel
+#endif
+        {
+            std::vector<NT> globalHashVec(minHashTableSize);
+            size_t tid = omp_get_thread_num();
+#ifdef THREADED
+#pragma omp for schedule(dynamic)
+#endif
+            for(int s = 0; s < nsplits; s++){
+                IT startCol = colSplitters[s];
+                IT endCol = colSplitters[s+1];
+
+                for(IT c = startCol; c < endCol; c++){
+                    nnzPerCol[c] = 0;
+                    nWindowPerCol[c] = 1;
+                    if(nWindowPerColSymbolic[c] == 1){
+                        IT startRow = 0;
+                        IT endRow = mdim;
+                        size_t wsIdx = prefixSumWindowSymbolic[c];
+
+                        windowsSymbolic[wsIdx].first = 0; // Stores start row id of the window
+                        windowsSymbolic[wsIdx].second = 0; // Stores number of merged nonzero in the window
+
+                        size_t htSize = minHashTableSize;
+                        while(htSize < flopsPerCol[c]) {
+                            //ht_size is set as 2^n
+                            htSize <<= 1;
+                        }
+                        if(globalHashVec.size() < htSize) globalHashVec.resize(htSize);
+                        for(size_t j=0; j < htSize; ++j) {
+                            globalHashVec[j] = -1;
+                        }
+
+                        for(int l = 0; l < nlists; l++){
+                            for(IT i = colPtrs[l][c]; i < colPtrs[l][c+1]; i++){
+                                IT key = ArrSpTups[l]->rowindex(i);
+                                IT hash = (key*hashScale) & (ht_size-1);
+                                
+                                while (1) {
+                                    //hash probing
+                                    if (globalHashVec[hash] == key) {
+                                        //key is found in hash table
+                                        break;
+                                    }
+                                    else if (globalHashVec[hash] == -1) {
+                                        //key is not registered yet
+                                        globalHashVec[hash] = key;
+                                        nnzPerCol[c]++;
+                                        windowsSymbolic[wsIdx].second++;
+                                        break;
+                                    }
+                                    else {
+                                        //key is not found
+                                        hash = (hash+1) & (htSize-1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        IT nrowsPerWindow = nrows / nWindowPerColSymbolic[c];
+                        IT runningSum = 0;
+                        for(size_t w = 0; w < nWindowPerColSymbolic[c]; w++){
+                            IT rowStart = w * nrowsPerWindow;
+                            IT rowEnd = (w == nWindowPerColSymbolic[c]-1) ? mdim : (w+1) * nrowsPerWindow;
+                            size_t wsIdx = prefixSumWindowSymbolic[i] + w;
+
+                            windowsSymbolic[wsIdx].first = rowStart;
+                            windowsSymbolic[wsIdx].second = 0;
+                            
+                            size_t flopsWindow = 0;
+                            for(int l = 0; l < nlists; l++){
+                                std::tuple<IT, IT, NT>* first = ArrSpTups[l]->tuples + colPtrs[l][colSplitters[s]];
+                                std::tuple<IT, IT, NT>* last = ArrSpTups[l]->tuples + colPtrs[l][colSplitters[s+1]];
+                                if(rowStart > 0){
+                                    std::tuple<IT, IT, NT> searchTuple(rowStart, c, NT());
+                                    first = std::lower_bound(first, last, searchTuple, rowCmp);
+                                }
+                                if(rowEnd < mdim){
+                                    std::tuple<IT, IT, NT> searchTuple(rowEnd, c, NT());
+                                    last = std::lower_bound(first, last, searchTuple, rowCmp);
+                                }
+                                rowIdsRange[s][l].first = first - (ArrSpTups[l]->tuples + colPtrs[l][colSplitters[s]]);
+                                rowIdsRange[s][l].second = last - (ArrSpTups[l]->tuples + colPtrs[l][colSplitters[s]]);
+
+                                flopsWindow += last - first;
+                            }
+                            size_t htSize = minHashTableSize;
+                            while(htSize < flopsWindow) {
+                                //ht_size is set as 2^n
+                                htSize <<= 1;
+                            }
+                            if(globalHashVec.size() < htSize) globalHashVec.resize(htSize);
+                            for(size_t j=0; j < htSize; ++j) {
+                                globalHashVec[j] = -1;
+                            }
+                            for(int l = 0; l < nlists; l++){
+                                for(IT i = rowIdsRange[s][l].first; i < rowIdsRange[s][l].second; i++){
+                                    IT key = ArrSpTups[l]->rowindex(i);
+                                    IT hash = (key * hashScale) & (htSize-1);
+                                    while (1) {
+                                        //hash probing
+                                        if (globalHashVec[hash] == key) {
+                                            //key is found in hash table
+                                            break;
+                                        }
+                                        else if (globalHashVec[hash] == -1) {
+                                            //key is not registered yet
+                                            globalHashVec[hash] = key;
+                                            nnzPerCol[c]++;
+                                            windowsSymbolic[wsIdx].second++;
+                                            break;
+                                        }
+                                        else {
+                                            //key is not found
+                                            hash = (hash+1) & (htSize-1);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if(w == 0){
+                                runningSum = windowsSymbolic[wsIdx].second;
+                            }
+                            else{
+                                if(runningSum + windowsSymbolic[wsIdx].second > maxHashTableSize) {
+                                    nWindowPerCol[c]++;
+                                    runningSum = windowsSymbolic[wsIdx].second;
+                                }
+                                else{
+                                    runningsum += windowsSymbolic[wsIdx].second;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        /*
+         * Now collapse symbolic windows to get windows of actual computation
+         * */
+        IT* prefixSumWindow = prefixSum<IT>(nWindowPerCol, ndim, nthreads);
+        std::pair<IT, IT>* windows = static_cast<IT*> (::operator new (sizeof(std::pair<IT, IT>[prefixSumWindow[ndim]])));
+
+#ifdef THREADED
+#pragma omp parallel for schedule(dynamic)
+#endif
+        for(int s = 0; s < nsplits; s++){
+            IT colStart = colSplitters[s];
+            IT colEnd = colSplitters[s+1];
+            for(IT c = colStart; c < colEnd; c++){
+                IT nWindowSymbolic = nWindowPerColSymbolic[c];
+                IT wsIdx = prefixSumWindowSymbolic[c];
+                IT wcIdx = prefixSumWindow[c];
+                windows[wcIdx].first = windowsSymbolic[wsIdx].first;
+                windows[wcIdx].second = windowsSymbolic[wsIdx].second;
+                for(IT w = 0; w < nWindowsSymbolic; w++){
+                    wsIdx = prefixSumWindowsSymbolic[wsIdx] + w;
+                    if(windows[wcIdx].second + windowsSymbolic[wsIdx].second > maxHashTableSize){
+                        wcIdx++;
+                        windows[wcIdx].first = windowsSymbolic[wsIdx].first;
+                        windows[wcIdx].second = windowsSymbolic[wsIdx].second;
+                    }
+                    else{
+                        windows[wcIdx].second = windows[wcIdx].second + windowsSymbolic[wsIdx].second;
+                    }
+                }
+            }
+        }
+
+        IT* prefixSumNnzPerCol = prefixSum<IT>(nnzPerCol, ndim, nthreads);
+        IT totalNnz = prefixSumNnzPerCol[ndim];
+        std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[totalNnz])));
+
+#ifdef THREADED
+#pragma omp parallel
+#endif
+        {
+            //std::vector<NT> globalHashVec(minHashTableSize);
+            std::vector< std::pair<IT,NT> > globalHashVec(minHashTableSize);
+            size_t tid = omp_get_thread_num();
+#ifdef THREADED
+#pragma omp for schedule(dynamic)
+#endif
+            for(int s = 0; s < nsplits; s++){
+                IT startCol = colSplitters[s];
+                IT endCol = colSplitters[s+1];
+                for(IT c = startCol; c < endCol; c++){
+                    IT nWindow = nWindowPerCol[c];
+                    if(nWindow == 1){
+                        IT wcIdx = prefixSumWindow[i];   
+                        IT nnzWindow = windows[wcIdx].second;
+
+                        size_t htSize = minHashTableSize;
+                        while(htSize < nnzWindow) 
+                        {
+                            //htSize is set as 2^n
+                            htSize <<= 1;
+                        }
+                        if(globalHashVec.size() < htSize) globalHashVec.resize(htSize);
+                        for(size_t j=0; j < htSize; ++j)
+                        {
+                            globalHashVec[j].first = -1;
+                        }
+
+                        for(int l = 0; l < nlists; l++){
+                            for(IT i = colPtrs[l][c]; i < colPtrs[l][c+1]; i++){
+                                IT key = ArrSpTups[l]->rowindex(i);
+                                IT hash = (key * hashScale) & (htSize-1);
+                                while (1) {
+                                    //hash probing
+                                    if (globalHashVec[hash].first == key) {
+                                        //key is found in hash table
+                                        // Add to the previos value stored in the position
+                                        globalHashVec[hash].second += ArrSpTups[l]->numvalue(i);
+                                        break;
+                                    }
+                                    else if (globalHashVec[hash].first == -1) {
+                                        //key is not registered yet
+                                        // Register the key and store the value
+                                        globalHashVec[hash].first = key;
+                                        globalHashVec[hash].second = ArrSpTups[l]->numvalue(i);
+                                        break;
+                                    }
+                                    else {
+                                        //key is not found
+                                        hash = (hash+1) & (htSize-1);
+                                    }
+                                }
+                            }
+                        }
+                        if(sorted){
+                            size_t index = 0;
+                            for (size_t j=0; j < htSize; j++){
+                                if (globalHashVec[j].first != -1){
+                                    globalHashVec[index++] = globalHashVec[j];
+                                }
+                            }
+                            integerSort<NT>(globalHashVec.data(), index);
+                            for(size_t j = 0; j < index; j++){
+                                mergeBuf[nnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                nnzPerCol[c]++;
+                            }
+                        }
+                        else{
+                            for (size_t j=0; j < htSize; j++){
+                                if (globalHashVec[j].first != -1){
+                                    mergeBuf[nnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                    nnzPerCol[c]++;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        for (int l = 0; l < nlists; l++){
+                            rowIdsRange[s][l].first = colPtrs[l][c];
+                            rowIdsRange[s][l].first = colPtrs[l][c];
+                        }
+
+                        for (size_t w = 0; w < nWindow; w++){
+                            IT wcIdx = prefixSumWindow[c] + w;
+                            IT startRow = windows[wcIdx].first;
+                            IT endRow = (w == nWindow-1) ? mdim : window[wcIdx+1].first;
+                            IT nnzWindow = windows[wcIdx].second;
+
+                            size_t htSize = minHashTableSize;
+                            while(htSize < nnzWindow) htsize <<= 1;
+                            if(globalHashVec.size() < htSize) globalHashVec.resize(htSize);
+                            for(size_t j = 0; j < htSize; j++) globalHashVec[j].first = -1;
+
+                            for(int l = 0; l < nlists; l++){
+                                while( (rowIdsRange[s][l].first < rowIdsRange[s][l].second) && (rowIdsRange[s][l].first < endRow) ){
+                                    IT i = rowIdsRange[s][l].first;
+                                    IT key = ArrSpTups[l]->rowindex(i);
+                                    IT hash = (key * hashScale) & (htSize-1);
+                                    while (1) {
+                                        //hash probing
+                                        if (globalHashVec[hash].first == key) {
+                                            //key is found in hash table
+                                            // Add to the previos value stored in the position
+                                            globalHashVec[hash].second += ArrSpTups[l]->numvalue(i);
+                                            break;
+                                        }
+                                        else if (globalHashVec[hash].first == -1) {
+                                            //key is not registered yet
+                                            // Register the key and store the value
+                                            globalHashVec[hash].first = key;
+                                            globalHashVec[hash].second = ArrSpTups[l]->numvalue(i);
+                                            break;
+                                        }
+                                        else {
+                                            //key is not found
+                                            hash = (hash+1) & (htSize-1);
+                                        }
+                                    }
+                                    rowIdsRange[s][l].first++;
+                                }
+                            }
+                            if(sorted){
+                                size_t index = 0;
+                                for (size_t j=0; j < htSize; j++){
+                                    if (globalHashVec[j].first != -1){
+                                        globalHashVec[index++] = globalHashVec[j];
+                                    }
+                                }
+                                integerSort<NT>(globalHashVec.data(), index);
+                                for(size_t j = 0; j < index; j++){
+                                    mergeBuf[nnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                    nnzPerCol[c]++;
+                                }
+                            }
+                            else{
+                                for (size_t j=0; j < htSize; j++){
+                                    if (globalHashVec[j].first != -1){
+                                        mergeBuf[nnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                        nnzPerCol[c]++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i=0; i< nlists; i++)
+        {
+            if(delarrs)
+                delete ArrSpTups[i]; // May be expensive for large local matrices
+        }
+        
+        // Caution: We allow both sorted and unsorted tuples in SpTuples
+        // By setting sorted=true, we prevented sorting in the SpTuples constructor
+        // TODO: we better keep a isSorted flag in SpTuples (also in DCSC/CSC)
+        return new SpTuples<IT, NT> (totalNnz, mdim, ndim, mergeBuf, true, true);
+    }
+
 }
 
 #endif
