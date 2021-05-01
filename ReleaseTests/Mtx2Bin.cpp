@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	{
 		cout << "Reading file " << Aname << " that is " << index << " indexed" << endl;  
 	}
-        if(argc == 4)
+        if(argc == 5)
         {
             permute = static_cast<bool>(atoi(argv[4]));
             if(myrank == 0)
