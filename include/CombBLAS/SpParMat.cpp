@@ -595,7 +595,7 @@ void SpParMat< IT,NT,DER >::Dump(std::string filename) const
 	// (absolute offset in bytes from the beginning of the file) 
 	MPI_Offset disp = lengthuntil * sizeof(uint32_t);
 	char native[] = "native";
-	MPI_File_set_view(thefile, disp, MPI_UNSIGNED, MPI_UNSIGNED, native, MPI_INFO_NULL); // AL: the second-to-last argument is a non-const char* (looks like poor MPI standardization, the C++ bindings list it as const), C++ string literals MUST be const (especially in c++11).
+	MPI_File_set_view(thefile, disp, MPI_UNSIGNED, MPI_UNSIGNED, native, MPI_INFO_NULL);
 	uint32_t * gen_edges = new uint32_t[prelens[rank]];
 	
 	IT k = 0;
@@ -613,6 +613,100 @@ void SpParMat< IT,NT,DER >::Dump(std::string filename) const
 
 	delete [] prelens;
 	delete [] gen_edges;
+}
+
+
+template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
+{
+    int myrank = commGrid->GetRank();
+    int nprocs = commGrid->GetSize();
+    IT totalm = getnrow();
+    IT totaln = getncol();
+    IT totnnz = getnnz();
+        
+    
+    const int64_t headersize = 68; // 68 is the size of the header, 4 characters + 8*8 integer space
+    int64_t elementsize = 2*sizeof(IT)+sizeof(NT);
+    int64_t localentries =  getlocalnnz();
+    int64_t localbytes = localentries*elementsize ;   // localsize in bytes
+    if(myrank == 0)
+        localbytes += headersize;
+    
+    int64_t bytesuntil = 0;
+    MPI_Exscan( &localbytes, &bytesuntil, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld() );
+    if(myrank == 0) bytesuntil = 0;    // because MPI_Exscan says the recvbuf in process 0 is undefined
+    int64_t bytestotal;
+    MPI_Allreduce(&localbytes, &bytestotal, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld());
+    
+    size_t writtensofar = 0;
+    char * localdata = new char[localbytes];
+    if(myrank ==0)
+    {
+        char start[5] = "HKDT";
+        uint64_t hdr[6];
+        hdr[0] = 2;    // version: 2.0
+        hdr[1] = sizeof(NT);   // object size
+        hdr[2] = 0;    // format: binary
+        hdr[3] = totalm;    // number of rows
+        hdr[4] = totaln;    // number of columns
+        hdr[5] = totnnz;    // number of nonzeros
+        
+        std::memmove(localdata, start, 4);
+        std::memmove(localdata+4, hdr, 64);
+        writtensofar = headersize;
+    }
+       
+    IT roffset = 0;
+    IT coffset = 0;
+    GetPlaceInGlobalGrid(roffset, coffset);
+    roffset += 1;    // increment by 1 (binary format is 1-based)
+    coffset += 1;
+       
+    for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)    // iterate over nonempty subcolumns
+    {
+        for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+        {
+            IT glrowid = nzit.rowid() + roffset;
+            IT glcolid = colit.colid() + coffset;
+            IT glvalue = nzit.value();
+            std::memmove(localdata+writtensofar, &glrowid, sizeof(IT));
+            std::memmove(localdata+writtensofar+sizeof(IT), &glcolid, sizeof(IT));
+            std::memmove(localdata+writtensofar+2*sizeof(IT), &glvalue, sizeof(NT));
+            writtensofar += (2*sizeof(IT) + sizeof(NT));
+        }
+    }
+    if(myrank == 0)
+	    cout << "local move happened..., writing to file\n";
+
+    MPI_File thefile;
+    MPI_File_open(commGrid->GetWorld(), (char*) filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile) ;
+    MPI_File_set_view(thefile, bytesuntil, MPI_CHAR, MPI_CHAR, (char*)"native", MPI_INFO_NULL);
+    
+    int64_t batchSize = 256 * 1024 * 1024;   // 256 MB (per processor)
+    size_t localfileptr = 0;
+    int64_t remaining = localbytes;
+    int64_t totalremaining = bytestotal;
+       
+    while(totalremaining > 0)
+       {
+       #ifdef COMBBLAS_DEBUG
+           if(myrank == 0)
+               std::cout << "Remaining " << totalremaining << " bytes to write in aggregate" << std::endl;
+       #endif
+           MPI_Status status;
+           int curBatch = std::min(batchSize, remaining);
+           MPI_File_write_all(thefile, localdata+localfileptr, curBatch, MPI_CHAR, &status);
+           int count;
+           MPI_Get_count(&status, MPI_CHAR, &count); // known bug: https://github.com/pmodels/mpich/issues/2332
+           assert( (curBatch == 0) || (count == curBatch) ); // count can return the previous/wrong value when 0 elements are written
+           localfileptr += curBatch;
+           remaining -= curBatch;
+           MPI_Allreduce(&remaining, &totalremaining, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld());
+       }
+       MPI_File_close(&thefile);
+       
+       delete [] localdata;
 }
 
 template <class IT, class NT, class DER>

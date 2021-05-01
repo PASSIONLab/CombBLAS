@@ -23,9 +23,9 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./ReadWriteMtx <InputMTX> <OutputMTX> <0|1> <permute>" << endl;
+            cout << "Usage: ./ReadWriteMtx <InputMTX> <OutputBinary> <0|1> <permute>" << endl;
             cout << "<InputMTX> can have reverse edges missing or with different values, but the reader will choose the edge with maximum value when that happens (common in dna/protein sequence search)" << endl;
-            cout << "<OutputMTX> is just the name of the output after such incompatibilities in MTX file are removed and all bidirectional edges now have the same value" << endl;
+            cout << "<OutputBinary> is just the name of the output after such incompatibilities in MTX file are removed and all bidirectional edges now have the same value" << endl;
             cout << "<0|1>: zero or one indexed (for inputs)" << endl;
             cout << "<permute> randomly permute the matrix (default: 0 - meaning false)" << endl;
             
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	{
 		cout << "Reading file " << Aname << " that is " << index << " indexed" << endl;  
 	}
-        if(argc == 5)
+        if(argc == 4)
         {
             permute = static_cast<bool>(atoi(argv[4]));
             if(myrank == 0)
@@ -64,8 +64,9 @@ int main(int argc, char* argv[])
             perm.RandPerm();
             A(perm, perm, true);    // in-place permute to save memory
         }
+	A.PrintInfo();
             
-        A.ParallelWriteMM(Bname,true);
+        A.ParallelBinaryWrite(Bname);
     }
     MPI_Finalize();
     return 0;
