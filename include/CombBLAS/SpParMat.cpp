@@ -4177,7 +4177,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const std::string & filename, int ma
 		{
 			IT entriestoread =  total_nnz / colneighs;
 			#ifdef IODEBUG
-      std::ofstream oput;
+      			std::ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << std::endl;
 			oput.close();

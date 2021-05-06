@@ -67,6 +67,14 @@ int main(int argc, char* argv[])
 	A.PrintInfo();
             
         A.ParallelBinaryWrite(Bname);
+
+	if(myrank == 0)
+	{
+		cout << "Now, reading the file back again in binary format..." << endl;
+	}
+	SpParMat<int64_t, double, SpDCCols<int64_t,double>> B;
+	B.ReadDistribute (Bname, 0, false, true);
+	B.PrintInfo();
     }
     MPI_Finalize();
     return 0;
