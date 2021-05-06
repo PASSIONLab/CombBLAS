@@ -653,7 +653,7 @@ void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
         hdr[5] = totnnz;    // number of nonzeros
         
         std::memmove(localdata, start, 4);
-        std::memmove(localdata+4, hdr, 64);
+        std::memmove(localdata+4, hdr, sizeof(hdr));
         writtensofar = headersize;
     }
        

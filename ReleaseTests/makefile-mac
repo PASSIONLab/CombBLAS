@@ -5,7 +5,7 @@ INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/u
 
 OPT = -O3 -DMPICH_IGNORE_CXX_SEEK #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DCOMBBLAS_DEBUG
-COMPILER = mpicxx -cxx=g++ -std=c++14 -DTHREADED -fopenmp
+COMPILER = mpicxx -cxx=g++-9 -std=c++14 -DTHREADED -fopenmp
 FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized 
 
 #
@@ -63,6 +63,9 @@ GenWriteMat.o: ParIOTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.c
 ReadWriteMtx.o: ReadWriteMtx.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h  $(COMBBLAS_INC)/SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReadWriteMtx.o ReadWriteMtx.cpp
 
+Mtx2Bin.o: Mtx2Bin.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h  $(COMBBLAS_INC)/SpParHelper.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Mtx2Bin.o Mtx2Bin.cpp
+
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o mmio.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o
 
@@ -90,6 +93,9 @@ VectorIO: MemoryPool.o CommGrid.o MPIType.o VectorIO.o mmio.o
 ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ParIOMM ParIOTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
+Mtx2Bin: MemoryPool.o CommGrid.o MPIType.o Mtx2Bin.o mmio.o hash.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o Mtx2Bin Mtx2Bin.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
+
 GenWrMat: MemoryPool.o CommGrid.o MPIType.o GenWriteMat.o mmio.o hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) $(INCADD) -o GenWrMat GenWriteMat.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
@@ -107,6 +113,7 @@ clean:
 	rm -f IteratorTest
 	rm -f ParIOMM
 	rm -f ReadWriteMtx
+	rm -f Mtx2Bin
 	rm -f MultTime
 	rm -f GenWrMat
 	rm -f *.o
