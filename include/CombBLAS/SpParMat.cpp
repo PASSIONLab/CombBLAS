@@ -626,7 +626,7 @@ void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
     IT totnnz = getnnz();
         
     
-    const int64_t headersize = 68; // 68 is the size of the header, 4 characters + 8*8 integer space
+    const int64_t headersize = 52; // 52 is the size of the header, 4 characters + 6*8 integer space
     int64_t elementsize = 2*sizeof(IT)+sizeof(NT);
     int64_t localentries =  getlocalnnz();
     int64_t localbytes = localentries*elementsize ;   // localsize in bytes
@@ -634,7 +634,7 @@ void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
         localbytes += headersize;
     
     int64_t bytesuntil = 0;
-    MPI_Exscan( &localbytes, &bytesuntil, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld() );
+    MPI_Exscan( &localbytes, &bytesuntil, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld());
     if(myrank == 0) bytesuntil = 0;    // because MPI_Exscan says the recvbuf in process 0 is undefined
     int64_t bytestotal;
     MPI_Allreduce(&localbytes, &bytestotal, 1, MPIType<int64_t>(), MPI_SUM, commGrid->GetWorld());
@@ -669,15 +669,18 @@ void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
         {
             IT glrowid = nzit.rowid() + roffset;
             IT glcolid = colit.colid() + coffset;
-            IT glvalue = nzit.value();
+            NT glvalue = nzit.value();
             std::memmove(localdata+writtensofar, &glrowid, sizeof(IT));
             std::memmove(localdata+writtensofar+sizeof(IT), &glcolid, sizeof(IT));
             std::memmove(localdata+writtensofar+2*sizeof(IT), &glvalue, sizeof(NT));
             writtensofar += (2*sizeof(IT) + sizeof(NT));
         }
     }
+#ifdef IODEBUG
     if(myrank == 0)
 	    cout << "local move happened..., writing to file\n";
+#endif
+
 
     MPI_File thefile;
     MPI_File_open(commGrid->GetWorld(), (char*) filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile) ;
@@ -690,7 +693,7 @@ void SpParMat< IT,NT,DER >::ParallelBinaryWrite(std::string filename) const
        
     while(totalremaining > 0)
        {
-       #ifdef COMBBLAS_DEBUG
+       #ifdef IODEBUG
            if(myrank == 0)
                std::cout << "Remaining " << totalremaining << " bytes to write in aggregate" << std::endl;
        #endif
@@ -4177,7 +4180,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const std::string & filename, int ma
 		{
 			IT entriestoread =  total_nnz / colneighs;
 			#ifdef IODEBUG
-      			std::ofstream oput;
+            std::ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << std::endl;
 			oput.close();
@@ -4298,7 +4301,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const std::string & filename, int ma
 			fseek(binfile, read_offset, SEEK_SET);
 
 			#ifdef IODEBUG
-      std::ofstream oput;
+            std::ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "Total nnz: " << total_nnz << " OFFSET : " << read_offset << " entries to read: " << entriestoread << std::endl;
 			oput.close();
@@ -4351,6 +4354,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const std::string & filename, int ma
 	else		// r * (s-1) processors that only participate in the horizontal communication step
 	{
 		BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
+        
 		m_perproc = total_m / colneighs;
 		n_perproc = total_n / rowneighs;
 		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
@@ -4360,6 +4364,13 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const std::string & filename, int ma
 			if( recvcount == std::numeric_limits<int>::max())
 				break;
 
+            #ifdef IODEBUG
+            std::ofstream oput;
+            commGrid->OpenDebugFile("Read", oput);
+            oput << "Total nnz: " << total_nnz << " total_m : " << total_m << " recvcount: " << recvcount << std::endl;
+            oput.close();
+            #endif
+            
 			// create space for incoming data ... 
 			IT * temprows = new IT[recvcount];
 			IT * tempcols = new IT[recvcount];
@@ -4477,6 +4488,7 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 	while(cnz < entriestoread && !feof(binfile))	// this loop will execute at least once
 	{
 		handler.binaryfill(binfile, temprow , tempcol, tempval);
+        
 		if (transpose)
 		{
 			IT swap = temprow;
@@ -4492,10 +4504,10 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 		if(ccurptrs[colrec] == buffpercolneigh || (cnz == (entriestoread-1)) )		// one buffer is full, or this processor's share is done !
 		{			
 			#ifdef IODEBUG
-      std::ofstream oput;
+            std::ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "To column neighbors: ";
-      std::copy(ccurptrs, ccurptrs+colneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
+            std::copy(ccurptrs, ccurptrs+colneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
 			oput.close();
 			#endif
 
@@ -4508,11 +4520,11 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 				MPI_Allreduce( &finishedlocal, &finishedglobal, 1, MPI_INT, MPI_BAND, commGrid->colWorld);
 				while(!finishedglobal)
 				{
-					#ifdef DEBUG
-          std::ofstream oput;
+					#ifdef IODEBUG
+                    std::ofstream oput;
 					commGrid->OpenDebugFile("Read", oput);
 					oput << "To column neighbors: ";
-          std::copy(ccurptrs, ccurptrs+colneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
+                    std::copy(ccurptrs, ccurptrs+colneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
 					oput.close();
 					#endif
 
@@ -4565,12 +4577,12 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 	}
 
 	#ifdef IODEBUG
-  std::ofstream oput;
+    std::ofstream oput;
 	commGrid->OpenDebugFile("Read", oput);
 	oput << "To row neighbors: ";
-  std::copy(rcurptrs, rcurptrs+rowneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
+    std::copy(rcurptrs, rcurptrs+rowneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
 	oput << "Row displacements were: ";
-  std::copy(rdispls, rdispls+rowneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
+    std::copy(rdispls, rdispls+rowneighs, std::ostream_iterator<int>(oput, " ")); oput << std::endl;
 	oput.close();
 	#endif
 
