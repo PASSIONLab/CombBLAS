@@ -122,12 +122,12 @@ The binary formatted file starts with a binary header (of size 52 bytes exact) t
 
 ‘HKDT’: four 8-bit characters describing the beginning of header
 Followed by six unsigned 64-bit integers:
-**	version number
-**	object size (including the row and column ids)
-**	format (0: binary, 1: ascii)
-**	number of rows
-**	number of columns
-**	number of nonzeros (nnz)
+* version number
+* object size (including the row and column ids)
+* format (0: binary, 1: ascii)
+* number of rows
+* number of columns
+* number of nonzeros (nnz)
 
 This is followed by nnz entries, each of which are of size “object size” and parsed by the HANDLER.binaryfill() function supplied by the user. The general signature of the function is:
 
