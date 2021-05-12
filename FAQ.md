@@ -4,6 +4,7 @@
 - [Does Combinatorial BLAS support in-node multithreading?](#does-combinatorial-blas-support-in-node-multithreading)
 - [What input formats do you support](#what-input-formats-do-you-support)
 - [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
+- [Is there a preferred way to prune elements from a SpParMat according to a predicate?](#is-there-a-preferred-way-to-prune-elements-from-a-spparmat-according-to-a-predicate)
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -179,25 +180,18 @@ Otherwise, you can create your own converter in just a few lines using the examp
   Yes it does. Check out the ReleaseTests/IndexingTiming.cpp for an example.
  
 
-## Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix A. I mean should it be a multiple of sqrt(p) where p is total number of processors. 
- No, the matrix dimension does not have to be a multiple of sqrt(p) but it should be bigger than sqrt(p). In other words you can have a 5x5 matrix on 4 processors but not on 36 processors. We don't really see the point of using more than |V|^2 processors.
- 
+## Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix A?
+ The matrix dimension does not need to be a multiple of sqrt(p) but it should be bigger than sqrt(p). In other words you can have a 5x5 matrix on 4 processors but not on 36 processors. We don't really see the point of using more than |V|^2 processors.
 
  
-##  I'm wondering for breadth-first-search, under the hood does the matrix-vector multiplication method change based on the sparsity of the frontier vector, or does the underlying matrix-vector multiplication assume the frontier is always sparse?
+## Could you briefly explain the difference in your implementations of matrix-sparse vector and matrix-dense vector multiply? 
  
-Depending on your definition of sparseness, the frontier is almost always sparse. We use the pragmatic definition of "sparse" in the sense that a vector is sparse if it is worth taking advantage of the sparsity in there. I'd guess, for a dense vector assumption to be competitive, it would have to have at least 1/3 of its potential locations nonzero. However, I might be wrong (and you're welcome to prove me wrong). To answer your question more directly, CombBLAS supports both dense and sparse right hand side vectors, but the specific BFS implementation does not adapt. 
- 
-
- 
-## Could you briefly explain the difference in your implementations of matrix-sparse vector and matrix-dense vector multiply? For example, is the sparse vector case a write-based approach: Every element updates all of its neighbors (from a graph-theoretic standpoint) locations in the output vector; and the dense vector case a read-based approach: Every element reads some value from each of its neighbors and updates its own entry in the resulting vector?
- 
-Sparse matrix-sparse vector is "right hand side vector structure" driven. In y = Ax, for each nonzero x_i, we scale the column A(:,i) with that and merge the scaled sparse columns results into y. The computation boils down into merging sparse columns into one. Combinatorial BLAS is a matrix-vector based library, so thinking in terms of updates on single entries is probably not the right abstraction.
+Sparse matrix-sparse vector is "right hand side vector structure" driven. In y = Ax, for each nonzero x_i, we scale the column A(:,i) with that and merge the scaled sparse columns results into y. The computation boils down into merging sparse columns into one. 
  
 Sparse matrix-dense vector is slightly different in the sense that it is driven by the matrix structure; you basically stream the matrix. The correctness of both operations are handled by a SPA-like or heap-like data structure that merges multiple intermediate values contributing to the same output location; no atomics are used.
  
  
-## I would like to get your opinion on how sparse-matrix based implementations compare with more native implementations
+## How do sparse-matrix based implementations compare with more native implementations
  
 Sparse matrix abstraction, like any abstraction, will leave some performance on the table. In particular it is prone to performing extra passes over data or creating extra temporaries (if you've ever programmed in Matlab; this is similar). On the other hand, sparse matrix abstraction gives you "primitives" to implement graph "algorithms" as opposed to the algorithms themselves. For instance, CombBLAS has sparse matrix x sparse vector over a semiring as opposed to BFS, because now using the same primitive one can implement MIS (maximal independent set) too, only by changing the semiring. Or one can perform run time filtering on edges based on the attributes, similarly by changing the semiring functions (therefore extending functionality to semantic graphs). Indeed this is what we've done in our IPDPS'13 paper.
  
@@ -214,7 +208,7 @@ The duplicate edges problem is inherent to the R-MAT generator on large scale, u
  
 ---
  
-## How are you counting the number of edges traversed in Graph500? Is this still using the original verify.c file provided with the reference version of the Graph500 benchmark and passing in the parent tree?
+## How are you counting the number of edges traversed in Graph500? 
  
 It is calculated by summing the degrees of the discovered vertices using EWiseMult(…) followed by a Reduce(…). Degrees are pre-symmetrization (original edges), so we're not over-counting. However, we count self-loops and duplicates as mentioned in the benchmark specs.
  
