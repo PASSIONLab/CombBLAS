@@ -17,9 +17,9 @@ Almost all expensive primitives (SpGEMM, SpMV with sparse vectors, SpMV with den
 ## What input formats do you support?
 
 We support three input formats
-### 1. [Matrix market coordinate format](http://math.nist.gov/MatrixMarket/formats.html) (human readable):
+### 1. [Matrix market exhange format (coordinate)](http://math.nist.gov/MatrixMarket/formats.html) (not to be confused with Coordinate Text File Format, human readable):
 
-A [matrix market](http://math.nist.gov/MatrixMarket/formats.html) file starts with a mandatory header that specifies the type of the matrix. 
+A [matrix market exchange file in coordinate format](http://math.nist.gov/MatrixMarket/formats.html) starts with a mandatory header that specifies the type of the matrix. 
 The header is followed by several lines of *optional* comments .
 A comment begins with "*%*".
 After the optional comments, there is another mandatory data header containing three integers denoting the number of rows, columns and nonzero entries in the matrix. 
