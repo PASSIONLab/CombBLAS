@@ -2,7 +2,7 @@
 
 - [How can I write the output sparse matrices into a human readable file?](#how-can-I-write-the-output-sparse-matrices-into-a-human-readable-file)
 - [Does Combinatorial BLAS support in-node multithreading?](#does-combinatorial-blas-support-in-node-multithreading)
-- [What input formats do you support](#what-input-formats-do-you-support)
+- [What input formats do you support?](#what-input-formats-do-you-support)
 - [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
 - [Is there a preferred way to prune elements from a SpParMat according to a predicate?](#is-there-a-preferred-way-to-prune-elements-from-a-spparmat-according-to-a-predicate)
 - [Does CombBLAS include the API to perform a symmetric permutation on a matrix?](#does-combblas-include-the-api-to-perform-a-symmetric-permutation-on-a-matrix)
@@ -22,7 +22,7 @@ There is a similar function for vectors, namely `FullyDistVec::ParallelWrite (â€
  
 ## Does Combinatorial BLAS support in-node multithreading? 
  
-Almost all expensive primitives (SpGEMM, SpMV with sparse vectors, SpMV with dense vectors, EWiseMult, Apply, Set) are hybrid multithreaded within a socket. Read this example.
+Almost all expensive primitives (SpGEMM, SpMV with sparse vectors, SpMV with dense vectors, EWiseMult, Apply, Set) are hybrid multithreaded within a socket. 
  
 ## What input formats do you support?
 
@@ -177,7 +177,7 @@ B.ReadDistribute(Bname, 0, false, true); // nonum=false: the file has numerical 
 ```
 
 ## How can I convert a text file into binary so I read it faster later?
-You can use the Mtx2Bin example if you have a matrix market text input.
+You can use the ReleaseTests/Mtx2Bin.cpp example if you have a matrix market text input.
 Otherwise, you can create your own converter in just a few lines using the examples in the previous questions. 
 
 ## Is there a preferred way to prune elements from a SpParMat according to a predicate?
