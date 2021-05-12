@@ -1,6 +1,7 @@
 # Frequently Asked Questions about Combinatorial BLAS
 
 - [How can I write the output sparse matrices into a file?](#how-can-I-write-the-output-sparse-matrices-into-a-human-readable-file)
+- [Does Combinatorial BLAS support in-node multithreading?](#does-combinatorial-blas-support-in-node-multithreading)
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -62,16 +63,14 @@ A.ParallelWriteMM("A_Output.mtx", true);
 ```
 
 
-1. Labeled triples format (human readable)
+2. Labeled triples format (human readable)
 
 In this format, each line encodes an edge of the graph.
 An edge is represented by a triple (source_vertex, destination_vertex, edge_weight). Source and destination vertices are presented by string labels and edge weights are represented by floating point numbers. 
 Three fields in a triple is separated by white space.
 We show an example for for a graph with seven vertices and 12 edges.  
 
-
 ```
-#!c++
 vertex_1	vertex_2	0.34
 vertex_1	vertex_4	1.50
 vertex_2	vertex_5	0.67
@@ -87,8 +86,12 @@ vertex_7	vertex_5	1
 ```
 
 This file can be read by CombBLAS as follows:
+```cpp
+SpParMat <int64_t, double, SpDCCols<int64_t,double> > B;
+FullyDistVec<int64_t, array<char, MAXVERTNAME> > perm = B.ReadGeneralizedTuples(Bname, maximum<double>());
+```
 
-A work can be found here. 
+A working example can be found here:
 https://github.com/PASSIONLab/CombBLAS/blob/master/ReleaseTests/ParIOTest.cpp
 
 Upon completion, `ReadGeneralizedTuples` returns two objects: 
@@ -102,25 +105,28 @@ if the input is known to be severely load imbalanced. In such cases, reading the
 and subsequently permuting it within CombBLAS for load balance might not be feasible, because the load imbalance can be high enough 
 for some process to run out of local memory before `ParallelReadMM` finishes. 
 
-- Proprietary binary format
+3. Proprietary binary format:
 
 The binary formatted file starts with a binary header (of size 52 bytes exact) that has the following fields and lengths. 
 
 ‘HKDT’: four 8-bit characters describing the beginning of header
 Followed by six unsigned 64-bit integers:
-*	version number
-*	object size (including the row and column ids)
-*	format (0: binary, 1: ascii)
-*	number of rows
-*	number of columns
-*	number of nonzeros (nnz)
+**	version number
+**	object size (including the row and column ids)
+**	format (0: binary, 1: ascii)
+**	number of rows
+**	number of columns
+**	number of nonzeros (nnz)
 
-If format is ‘binary’, this is followed by nnz entries, each of which are of size “object size” and parsed by the HANDLER.binaryfill() function supplied by the user. The general signature of the function is:
+This is followed by nnz entries, each of which are of size “object size” and parsed by the HANDLER.binaryfill() function supplied by the user. The general signature of the function is:
 
+```cpp
 void binaryfill(FILE * rFile, IT & row, IT & col, NT & val)
+```
 
-IT is the index template parameter, and NT is the object template parameter. Below is an example:
+IT is the index template parameter, and NT is the object template parameter. An example is as follows. 
 
+```cpp
 template <class IT>
 class TwitterReadSaveHandler
 {
@@ -133,17 +139,36 @@ class TwitterReadSaveHandler
 			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
 	}
 }
+```
 
 As seen, binaryfill reads indices as well. Please note that the file uses 1-based indices while C/C++ indices are zero based (hence the -1). In general, the number of bits used in the indices by the file should match the number of bits used by the program. If the program’s bits should be larger/smaller; then a cast after the original object creation can be employed. Here is an example to read a file with 64-bit integer indices into 32-bit local -per processor- indices (given that they fit):
 
+```cpp
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32;
 PSpMat A;
 A.ReadDistribute(string(argv[2]), 0);
 PSpMat_s32 Aeff = PSpMat_s32(A);
-![image](https://user-images.githubusercontent.com/1613743/118048907-d7c95f00-b331-11eb-830c-136bfb73555d.png)
-
+```
  
+CombBLAS provides default `binaryfill` functions for POD types, as shown here: https://github.com/PASSIONLab/CombBLAS/blob/master/ReleaseTests/Mtx2Bin.cpp
+
+
+Writing a binary file in parallel is as easy as:
+```cpp
+A.ParallelBinaryWrite(Bname);
+```
+
+This file can then be read in parallel using
+```cpp
+SpParMat<int64_t, double, SpDCCols<int64_t,double>> B;
+B.ReadDistribute(Bname, 0, false, true); // nonum=false: the file has numerical values (i.e., not a pattern only matrix), pario=true: file to be read in parallel
+```
+
+## How can I convert a text file into binary so I read it faster?
+You can use the Mtx2Bin example if you have a matrix market text input.
+Otherwise, you can create your own converter in just a few lines using the examples in the previous questions. 
+
 ## Is there a preferred way to prune elements from a SpParMat according to a predicate?
  
 A4: Yes, SpParMat::Prune(…) will do it according to a predicate. An overloaded version of the same function, SpParMat::Prune(ri,ci) will prune all entries whose row indices are in ri and column indices are in ci
