@@ -1,8 +1,9 @@
 # Frequently Asked Questions about Combinatorial BLAS
 
-- [How can I write the output sparse matrices into a file?](#how-can-I-write-the-output-sparse-matrices-into-a-human-readable-file)
+- [How can I write the output sparse matrices into a human readable file?](#how-can-I-write-the-output-sparse-matrices-into-a-human-readable-file)
 - [Does Combinatorial BLAS support in-node multithreading?](#does-combinatorial-blas-support-in-node-multithreading)
 - [What input formats do you support](#what-input-formats-do-you-support)
+- [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -17,9 +18,9 @@ Almost all expensive primitives (SpGEMM, SpMV with sparse vectors, SpMV with den
 ## What input formats do you support?
 
 We support three input formats
-### 1. [Matrix market exhange format (coordinate)](http://math.nist.gov/MatrixMarket/formats.html) (not to be confused with Coordinate Text File Format, human readable):
+### 1. [Matrix market exhange format (coordinate)](http://math.nist.gov/MatrixMarket/formats.html) (human readable):
 
-A [matrix market exchange file in coordinate format](http://math.nist.gov/MatrixMarket/formats.html) starts with a mandatory header that specifies the type of the matrix. 
+A [matrix market exchange file in coordinate format](http://math.nist.gov/MatrixMarket/formats.html) starts with a mandatory header that specifies the type of the matrix. This is *not to be confused with Coordinate Text File Format* listed under the same link.
 The header is followed by several lines of *optional* comments .
 A comment begins with "*%*".
 After the optional comments, there is another mandatory data header containing three integers denoting the number of rows, columns and nonzero entries in the matrix. 
@@ -166,7 +167,7 @@ SpParMat<int64_t, double, SpDCCols<int64_t,double>> B;
 B.ReadDistribute(Bname, 0, false, true); // nonum=false: the file has numerical values (i.e., not a pattern only matrix), pario=true: file to be read in parallel
 ```
 
-## How can I convert a text file into binary so I read it faster?
+## How can I convert a text file into binary so I read it faster later?
 You can use the Mtx2Bin example if you have a matrix market text input.
 Otherwise, you can create your own converter in just a few lines using the examples in the previous questions. 
 
