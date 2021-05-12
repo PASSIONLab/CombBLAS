@@ -107,7 +107,7 @@ https://github.com/PASSIONLab/CombBLAS/blob/master/ReleaseTests/ParIOTest.cpp
 
 Upon completion, `ReadGeneralizedTuples` returns two objects: 
 (1) a CombBLAS compliant distributed sparse matrix object, and 
-(2) a CombBLAS compliant distributed vector that maps the newly created integer labels {0,...,M-1} and {0,...,N-1}$ 
+(2) a CombBLAS compliant distributed vector that maps the newly created integer labels {0,...,M-1} and {0,...,N-1} 
 into their original string labels so that the program can convert the internal labels back into their original labels for subsequent 
 processing or while writing the output. A crucial positive side effect of the `ReadGeneralizedTuples` function is that it automatically 
 permutes row and column ids randomly during the relabeling, ensuring load balance of CombBLAS operations that use the resulting distributed 
