@@ -5,9 +5,9 @@
 - [What input formats do you support](#what-input-formats-do-you-support)
 - [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
 - [Is there a preferred way to prune elements from a SpParMat according to a predicate?](#is-there-a-preferred-way-to-prune-elements-from-a-spparmat-according-to-a-predicate)
-- [Does CombBLAS include the API to perform a symmetric permutation on a matrix, as explained in your SISC'12 paper? ](does-combblas-include-the-api-to-perform-a-symmetric-permutation-on-a-matrix-as-explained-in-your-sisc-paper)
-- []
-- []
+- [Does CombBLAS include the API to perform a symmetric permutation on a matrix?](#does-combblas-include-the-api-to-perform-a-symmetric-permutation-on-a-matrix)
+- [Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix A?](#does-combblas-code-run-on-any-graph-size-or-there-is-some-limitation-on-the-dimension-of-the-matrix)
+- [What is the difference in implementations of matrix-sparse vector and matrix-dense vector multiply?](#what-is-the-difference-in-implementations-of-matrix-sparse-vector-and-matrix-dense-vector-multiply)
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -183,11 +183,11 @@ Otherwise, you can create your own converter in just a few lines using the examp
   Yes it does. Check out the ReleaseTests/IndexingTiming.cpp for an example.
  
 
-## Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix A?
+## Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix?
  The matrix dimension does not need to be a multiple of sqrt(p) but it should be bigger than sqrt(p). In other words you can have a 5x5 matrix on 4 processors but not on 36 processors. We don't really see the point of using more than |V|^2 processors.
 
  
-## Could you briefly explain the difference in your implementations of matrix-sparse vector and matrix-dense vector multiply? 
+## What is the difference in implementations of matrix-sparse vector and matrix-dense vector multiply? 
  
 Sparse matrix-sparse vector is "right hand side vector structure" driven. In y = Ax, for each nonzero x_i, we scale the column A(:,i) with that and merge the scaled sparse columns results into y. The computation boils down into merging sparse columns into one. 
  
