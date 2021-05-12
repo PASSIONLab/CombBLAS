@@ -5,6 +5,9 @@
 - [What input formats do you support](#what-input-formats-do-you-support)
 - [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
 - [Is there a preferred way to prune elements from a SpParMat according to a predicate?](#is-there-a-preferred-way-to-prune-elements-from-a-spparmat-according-to-a-predicate)
+- [Does CombBLAS include the API to perform a symmetric permutation on a matrix, as explained in your SISC'12 paper? ](does-combblas-include-the-api-to-perform-a-symmetric-permutation-on-a-matrix-as-explained-in-your-sisc-paper)
+- []
+- []
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -176,7 +179,7 @@ Otherwise, you can create your own converter in just a few lines using the examp
   Yes, SpParMat::Prune(…) will do it according to a predicate. An overloaded version of the same function, SpParMat::Prune(ri,ci) will prune all entries whose row indices are in ri and column indices are in ci
  
  
-## Does CombBLAS include the API to perform a symmetric permutation on a matrix, as explained in your SISC paper? 
+## Does CombBLAS include the API to perform a symmetric permutation on a matrix?
   Yes it does. Check out the ReleaseTests/IndexingTiming.cpp for an example.
  
 
