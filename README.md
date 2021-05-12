@@ -19,7 +19,7 @@ The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel g
 *   For an illustrative overview, check out [these slides](http://eecs.berkeley.edu/~aydin/talks/CombBLAS_Nov11.pdf).
 *   CombBLAS powers [HipMCL](https://bitbucket.org/azadcse/hipmcl), a highly-scalable parallel implementation of the Markov Cluster Algorithm (MCL).
 *   Operations among sparse matrices and vectors use arbitrary user defined semirings. Here is a semiring [primer](http://kdt.sourceforge.net/wiki/index.php/Using_Semirings)
-*   Check out the [Frequently asked questions about CombBLAS](http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/FAQ-combblas.html).
+*   Check out the [Frequently asked questions about CombBLAS](FAQ.md).
 
 **Download**
 
