@@ -6,8 +6,13 @@
 - [How can I convert a text file into binary so I read it faster later](#how-can-i-convert-a-text-file-into-binary-so-i-read-it-faster-later)
 - [Is there a preferred way to prune elements from a SpParMat according to a predicate?](#is-there-a-preferred-way-to-prune-elements-from-a-spparmat-according-to-a-predicate)
 - [Does CombBLAS include the API to perform a symmetric permutation on a matrix?](#does-combblas-include-the-api-to-perform-a-symmetric-permutation-on-a-matrix)
-- [Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix A?](#does-combblas-code-run-on-any-graph-size-or-there-is-some-limitation-on-the-dimension-of-the-matrix)
+- [Does CombBLAS code run on any graph size or there is some limitation on the dimension of the matrix?](#does-combblas-code-run-on-any-graph-size-or-there-is-some-limitation-on-the-dimension-of-the-matrix)
 - [What is the difference in implementations of matrix-sparse vector and matrix-dense vector multiply?](#what-is-the-difference-in-implementations-of-matrix-sparse-vector-and-matrix-dense-vector-multiply)
+- [How do sparse-matrix based implementations compare with more native implementations?](#how-do-sparse-matrix-based-implementations-compare-with-more-native-implementations)
+- [Is there an effort to incorporate the bottom-up BFS of Scott Beamer into CombBLAS?](#is-there-an-effort-to-incorporate-the-bottom-up-bfs-of-scott-beamer-into-combblas)
+- [Looking at the output of your Graph500 application, I noticed a large number of self-edges removed. That’s very interesting.](#looking-at-the-output-of-your-graph500-application-i-noticed-a-large-number-of-self-edges-removed-thats-very-interesting)
+- [How are you counting the number of edges traversed in Graph500?](#how-are-you-counting-the-number-of-edges-traversed-in-graph500)
+- [My computations finish fine but I get an “Attempting to use an MPI routine after finalizing MPICH” afterwards.](#my-computations-finish-fine-but-i-get-an-attempting-to-use-an-mpi-routine-after-finalizing-mpich-afterwards)
 
 ## How can I write the output sparse matrices into a human readable file?
 
@@ -217,7 +222,7 @@ It is calculated by summing the degrees of the discovered vertices using EWiseMu
  
 
  
-## My computations finishes fine but I get an “Attempting to use an MPI routine after finalizing MPICH” afterwards.
+## My computations finish fine but I get an “Attempting to use an MPI routine after finalizing MPICH” afterwards.
  
 To avoid the finalization error, please imitate an example such as ReleaseTests/MultTest.cpp
 The curly brackets around the code are intentional. Since distributed objects have MPI related pointers in them, those pointers are released once the destructors are called. In C++, there isn’t a good way to call the destructor manually, so the destructor is called immediately before the program exists, which is after the MPI_Finalize. Since the MPI related objects are destructed after MPI_Finalize, you see this error. Try the curly brackets approach.
