@@ -1,0 +1,15 @@
+load the relevant modules (note the 64-bit PETSc version):
+  module swap PrgEnv-intel PrgEnv-gnu
+  module load cray-petsc-64/3.11.2.0
+
+to convert a matrix market file to PETSc format use:
+  python ConvertMtxToPetsc.py <matrix-market-file>
+
+compile the spgemm code:
+  cc spgemm-petsc.c -o spgemm-petsc
+
+run (64 nodes with 4 MPI tasks per node):
+  srun -N 64 --ntasks-per-node 4 ./spgemm-petsc <A-mat> <B-mat> <C-mat> <niters>
+  The first three parameters are the paths to matrices C=AB
+  <C-mat> is not used (commented out in the code)
+  <niters> is the number of times to repeat the multiplication
