@@ -1,0 +1,23 @@
+Get the repo:
+  git clone https://github.com/cyclops-community/ctf.git
+
+Installation on cori:
+  copy "matmul-benchmark.cxx" under "examples" directory
+  copy the updated Makefile to base ctf directory to replace the original Makefile
+  module swap PrgEnv-intel PrgEnv-gnu  
+  ./configure --install-dir=/global/homes/r/roguzsel/cb2/code/lib/ctf/install --build-dir=/global/homes/r/roguzsel/cb2/code/lib/ctf/build CXX=CC
+  mkdir build install && cd build
+  make
+  make install
+  make examples
+    builds the benchmark code
+    fails for some files (they are excluded in the updated makefile)
+
+Run the multiplication code by (32 nodes and 4 task per node)
+  srun -N 32 --ntasks-per-node 4 ./bin/matmul-benchmark <row-dim-size> <col-dim-size> <inner-dim-size> <A-path> <B-path> <C-path> <niters>
+  The path to output file (<C-path>) is not used (commented out)
+  <niters> is the number of times to repeat the multiplication
+
+To convert the matrices in matrix market file format to the format required by
+ctf use the provided python file:
+  python ConvertMtxToCtf.py <matrix-market-file>
