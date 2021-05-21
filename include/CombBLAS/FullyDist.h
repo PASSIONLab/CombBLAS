@@ -92,7 +92,7 @@ public:
 	IT LengthUntil() const;
 	IT RowLenUntil() const;
 	IT RowLenUntil(int k) const;
-	IT MyLocLength() const;
+	virtual IT MyLocLength() const;
 	IT MyRowLength() const;
 	IT TotalLength() const { return glen; }
 	int Owner(IT gind, IT & lind) const;

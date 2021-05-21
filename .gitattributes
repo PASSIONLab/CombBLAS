@@ -1,4 +1,4 @@
-* text=auto !eol
+# * text=auto !eol
 BottomUpBFS/Applications/APowers.cpp -text
 BottomUpBFS/Applications/BetwCent.cpp -text
 BottomUpBFS/Applications/CMakeLists.txt -text

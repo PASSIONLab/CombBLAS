@@ -31,6 +31,7 @@
 #define _FRIENDS_H_
 
 #include <iostream>
+#include <chrono>
 #include "SpMat.h"	// Best to include the base class first
 #include "SpHelper.h"
 #include "StackEntry.h"
@@ -42,6 +43,13 @@
 #include "CombBLAS.h"
 #include "PreAllocatedSPA.h"
 
+// #include "mkl.h"
+#include "cuda.h"
+#include "cusparse.h"
+#include <string>
+using std::string;
+
+
 namespace combblas {
 
 template <class IU, class NU>	
@@ -51,7 +59,13 @@ template <class IU, class NU>
 class SpDCCols;
 
 template <class IU, class NU>	
+class SpCCols;
+
+template <class IU, class NU>	
 class Dcsc;
+
+template <class IU, class NU>	
+class Csc;
 
 /*************************************************************************************************/
 /**************************** SHARED ADDRESS SPACE FRIEND FUNCTIONS ******************************/
@@ -133,45 +147,45 @@ void dcsc_gespmv_threaded_nosplit (const SpDCCols<IU, NU> & A, const RHS * x, LH
     
     
     
-    /**
-     * Multithreaded SpMV with dense vector
-     */
-    template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
-    void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
-    {
-        if(A.nnz > 0)
-        {
-            int splits = A.getnsplit();
-            if(splits > 0)
-            {
-                IU nlocrows = A.getnrow();
-                IU perpiece = nlocrows / splits;
-                std::vector<int> disp(splits, 0);
-                for(int i=1; i<splits; ++i)
-                    disp[i] = disp[i-1] + perpiece;
+/**
+ * Multithreaded SpMV with dense vector
+ */
+template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+void dcsc_gespmv_threaded (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
+{
+	if(A.nnz > 0)
+	{
+		int splits = A.getnsplit();
+		if(splits > 0)
+		{
+			IU nlocrows = A.getnrow();
+			IU perpiece = nlocrows / splits;
+			std::vector<int> disp(splits, 0);
+			for(int i=1; i<splits; ++i)
+				disp[i] = disp[i-1] + perpiece;
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-                for(int s=0; s<splits; ++s)
-                {
-                    Dcsc<IU, NU> * dcsc = A.GetInternal(s);
-                    for(IU j =0; j<dcsc->nzc; ++j)    // for all nonzero columns
-                    {
-                        IU colid = dcsc->jc[j];
-                        for(IU i = dcsc->cp[j]; i< dcsc->cp[j+1]; ++i)
-                        {
-                            IU rowid = dcsc->ir[i] + disp[s];
-                            SR::axpy(dcsc->numx[i], x[colid], y[rowid]);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                dcsc_gespmv_threaded_nosplit<SR>(A,x,y);
-            }
-        }
-    }
+			for(int s=0; s<splits; ++s)
+			{
+				Dcsc<IU, NU> * dcsc = A.GetInternal(s);
+				for(IU j =0; j<dcsc->nzc; ++j)    // for all nonzero columns
+				{
+					IU colid = dcsc->jc[j];
+					for(IU i = dcsc->cp[j]; i< dcsc->cp[j+1]; ++i)
+					{
+						IU rowid = dcsc->ir[i] + disp[s];
+						SR::axpy(dcsc->numx[i], x[colid], y[rowid]);
+					}
+				}
+			}
+		}
+		else
+		{
+			dcsc_gespmv_threaded_nosplit<SR>(A,x,y);
+		}
+	}
+}
 
 
 /** 
@@ -1285,6 +1299,531 @@ SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2>
 	return 	SpDCCols<IU, RETT> (A.m , A.n, tdcsc);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// SpMM /////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+struct
+spmm_stats
+{
+	float t_g_h2d_memcpy;
+	float t_g_spmm_buf;
+	float t_g_spmm;
+	float t_g_d2h_memcpy;
+	float t_g_mtx_create;
+
+	double t_comp;
+	double t_tot;
+
+	double t_sA_comm_pre;
+	double t_sA_comm_post;
+	
+	double t_sC_comm_bcastA;
+	double t_sC_comm_bcastX;
+
+	double t_sA_2D_comm_bcastX;
+	double t_sA_2D_comm_reduceY;	
+};
+
+	
+// no split version
+template <typename SR,
+		  typename IU,
+		  typename NU,
+		  typename RHS,
+		  typename LHS>
+void
+csc_gespmm_threaded
+(
+    const SpCCols<IU, NU>	&A,
+	const RHS				*X,
+	LHS						*Y,
+	int						 d,	// dense mat dimension
+	std::ofstream			&ofs
+)
+{
+	assert(A.getnsplit() == 0);
+
+	if (A.nnz == 0)
+		return;
+		
+	int splits = A.getnsplit();
+	// ofs << "splits " << splits << std::endl;
+
+	int nthreads = 1;
+	#ifdef _OPENMP
+	#pragma omp parallel
+	{
+		nthreads = omp_get_num_threads();
+	}
+	#endif
+
+	IU		  nr	  = A.getnrow();
+	LHS		**tomerge = SpHelper::allocate2D<LHS>(nthreads, nr * d);
+	auto	  id	  = SR::id();
+
+	for (int i = 0; i < nthreads; ++i)
+		std::fill_n(tomerge[i], nr * d, id);
+
+	#pragma omp parallel for
+	for (IU j = 0; j < A.csc->n; ++j)
+	{
+		int thd_idx = 1;	// should be 0 ?
+		#ifdef _OPENMP
+		thd_idx = omp_get_thread_num();
+		#endif
+
+		LHS *tmp = tomerge[thd_idx];
+		for (IU i = A.csc->jc[j]; i < A.csc->jc[j+1]; ++i)
+		{
+			IU r = A.csc->ir[i];
+			for (IU k = 0; k < d; ++k)
+				SR::axpy(A.csc->num[i], X[j*d + k], tmp[r*d + k]);
+		}
+	}
+
+	#pragma omp parallel for
+	for (IU j = 0; j < nr * d; ++j)
+	{
+		for (int i = 0; i < nthreads; ++i)
+			Y[j] = SR::add(Y[j], tomerge[i][j]);
+	} 
+
+	SpHelper::deallocate2D(tomerge, nthreads);
+
+}
+
+
+
+// no split version
+template <typename SR,
+		  typename IU,
+		  typename NU,
+		  typename RHS,
+		  typename LHS>
+void
+csc_gespmm_mkl
+(
+    const SpCCols<IU, NU>	&A,
+	const RHS				*X,
+	LHS						*Y,
+	int						 d,	// dense mat dimension
+	std::ofstream			&ofs
+)
+{
+
+	// int max_threads = mkl_get_max_threads();
+	// // ofs << "MKL max threads " << max_threads << std::endl;
+
+	// sparse_matrix_t A_mkl = NULL;
+	// mkl_sparse_d_create_csc(&A_mkl,
+	// 						SPARSE_INDEX_BASE_ZERO,
+	// 						A.getnrow(),
+	// 						A.getncol(),
+	// 						A.csc->jc,
+	// 						A.csc->jc + 1,
+	// 						A.csc->ir,
+	// 						A.csc->num);
+
+	
+	// struct matrix_descr descr_type_gen;
+	// descr_type_gen.type = SPARSE_MATRIX_TYPE_GENERAL;
+	// double alpha = 1.0, beta = 0.0;
+	// int res = mkl_sparse_d_mm(SPARSE_OPERATION_NON_TRANSPOSE,
+	// 						  alpha,
+	// 						  A_mkl,
+	// 						  descr_type_gen,
+	// 						  SPARSE_LAYOUT_ROW_MAJOR,
+	// 						  X,
+	// 						  d,
+	// 						  d,
+	// 						  beta,
+	// 						  Y,
+	// 						  d);
+}
+
+
+
+template <typename SR,
+		  typename IU,
+		  typename NU,
+		  typename RHS,
+		  typename LHS>
+void
+csc_gespmm_cusparse
+(
+    const SpCCols<IU, NU>	&A,
+	const RHS				*X,
+	LHS						*Y,
+	int						 d,	// dense mat dimension
+	NU                       beta,
+	spmm_stats              &stats
+)
+{
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	
+	assert(sizeof(RHS) == sizeof(LHS));
+	assert(sizeof(RHS) == sizeof(NU));
+
+	if (A.nnz == 0)
+		return;
+	
+	IU		*d_jc	   = NULL, *d_ir = NULL;
+	NU		*d_num	   = NULL;
+	RHS		*d_Xvals   = NULL;
+	LHS		*d_Yvals   = NULL;
+	NU		 alpha;
+	IU		 nr		   = A.getnrow();
+	IU		 nc		   = A.getncol();
+	IU		 nnz	   = A.getnnz();
+	float	 t_elapsed = 0.0;
+
+	if (nnz == 0 || d == 0)
+		return;
+	
+	cudaEvent_t t_beg, t_end;
+	cudaEventCreate(&t_beg); cudaEventCreate(&t_end);
+	
+	cudaMalloc((void **)&d_jc, (nc+1)*sizeof(*d_jc));
+    cudaMalloc((void **)&d_ir, nnz*sizeof(*d_ir));
+    cudaMalloc((void **)&d_num, nnz*sizeof(*d_num));
+	cudaMalloc((void **)&d_Xvals, (nc*d)*sizeof(*d_Xvals));
+	cudaMalloc((void **)&d_Yvals, (nr*d)*sizeof(*d_Yvals));
+	
+	assert(d_Xvals != NULL && d_Yvals != NULL);
+
+	cusparseIndexType_t cusparse_idx = CUSPARSE_INDEX_32I;
+	if (sizeof(IU) == 8)
+		cusparse_idx = CUSPARSE_INDEX_64I;
+	cudaDataType cusparse_val = CUDA_R_32F;
+	if (sizeof(NU) == 8)
+		cusparse_val = CUDA_R_64F;
+
+	
+	cudaEventRecord(t_beg);
+	
+	cudaMemcpy(d_jc, A.csc->jc, (nc+1)*sizeof(*d_jc), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_ir, A.csc->ir, nnz*sizeof(*d_ir), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_num, A.csc->num, nnz*sizeof(*d_num), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_Xvals, X, (nc*d)*sizeof(*X), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_Yvals, Y, (nr*d)*sizeof(*Y), cudaMemcpyHostToDevice);
+	
+	cudaEventRecord(t_end);
+	cudaEventSynchronize(t_end);
+	cudaEventElapsedTime(&t_elapsed, t_beg, t_end);
+	stats.t_g_h2d_memcpy += t_elapsed;
+
+	cudaEventRecord(t_beg);
+	
+	cusparseHandle_t cusparseHandle = 0;
+    cusparseCreate(&cusparseHandle);
+	cusparseSpMatDescr_t d_A = NULL;
+	cusparseCreateCsr(&d_A, nc, nr, nnz, d_jc, d_ir, d_num,
+					  cusparse_idx, cusparse_idx,
+					  CUSPARSE_INDEX_BASE_ZERO,
+					  cusparse_val);	
+	cusparseDnMatDescr_t d_X = NULL;
+	cusparseCreateDnMat(&d_X, nc, d, d, d_Xvals,
+						cusparse_val, CUSPARSE_ORDER_ROW);
+	cusparseDnMatDescr_t d_Y = NULL;
+	cusparseCreateDnMat(&d_Y, nr, d, d, d_Yvals,
+						cusparse_val, CUSPARSE_ORDER_ROW);
+
+	cudaEventRecord(t_end);
+	cudaEventSynchronize(t_end);
+	cudaEventElapsedTime(&t_elapsed, t_beg, t_end);
+	stats.t_g_mtx_create += t_elapsed;
+	
+	cudaEventRecord(t_beg);
+	
+	size_t	bufsize = 0;
+	alpha			= 1.0;
+	// beta			= 0.0;
+	cusparseSpMM_bufferSize(cusparseHandle,
+							CUSPARSE_OPERATION_TRANSPOSE,
+							CUSPARSE_OPERATION_NON_TRANSPOSE,
+							&alpha,
+							d_A,
+							d_X,
+							&beta,
+							d_Y,
+							cusparse_val,
+							CUSPARSE_SPMM_CSR_ALG2,
+							&bufsize);
+
+	cudaEventRecord(t_end);
+	cudaEventSynchronize(t_end);
+	cudaEventElapsedTime(&t_elapsed, t_beg, t_end);
+	stats.t_g_spmm_buf += t_elapsed;
+	
+	void *buf_spmm = NULL;
+	cudaMalloc(&buf_spmm, bufsize);
+
+	cudaEventRecord(t_beg);
+	
+	cusparseSpMM(cusparseHandle,
+				 CUSPARSE_OPERATION_TRANSPOSE,
+				 CUSPARSE_OPERATION_NON_TRANSPOSE,
+				 &alpha,
+				 d_A,
+				 d_X,
+				 &beta,
+				 d_Y,
+				 cusparse_val,
+				 CUSPARSE_SPMM_CSR_ALG2,
+				 buf_spmm);
+
+	cudaEventRecord(t_end);
+	cudaEventSynchronize(t_end);
+	cudaEventElapsedTime(&t_elapsed, t_beg, t_end);
+	stats.t_g_spmm += t_elapsed;
+
+	cudaEventRecord(t_beg);
+	cudaMemcpy(Y, d_Yvals, (nr*d)*sizeof(*Y), cudaMemcpyDeviceToHost);
+	cudaEventRecord(t_end);
+	cudaEventSynchronize(t_end);
+	cudaEventElapsedTime(&t_elapsed, t_beg, t_end);
+	stats.t_g_d2h_memcpy += t_elapsed;
+
+	cudaFree(d_jc);
+	cudaFree(d_ir);
+	cudaFree(d_num);
+	cudaFree(d_Xvals);
+	cudaFree(d_Yvals);
+	cudaFree(buf_spmm);
+
+	return;
+}
+
+
+
+// multi-gpu
+// @DONT-USE
+template <typename SR,
+		  typename IU,
+		  typename NU,
+		  typename RHS,
+		  typename LHS>
+void
+csc_gespmm_cusparse_v2
+(
+    const SpCCols<IU, NU>	&A,
+	const RHS				*X,
+	LHS						*Y,
+	int						 d,	// dense mat dimension
+	std::ofstream			&ofs,
+	spmm_stats              &stats
+)
+{
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	if (A.nnz == 0)
+		return;
+	
+	assert(sizeof(RHS) == sizeof(LHS));
+	assert(sizeof(RHS) == sizeof(NU));
+
+	IU	 nr	 = A.getnrow();
+	IU	 nc	 = A.getncol();
+	IU	 nnz = A.getnnz();
+	IU	*jc	 = A.csc->jc;
+	IU	*ir	 = A.csc->ir;
+	NU	*num = A.csc->num;
+
+	cusparseIndexType_t cusparse_idx = CUSPARSE_INDEX_32I;
+	if (sizeof(IU) == 8)
+		cusparse_idx = CUSPARSE_INDEX_64I;
+	cudaDataType cusparse_val = CUDA_R_32F;
+	if (sizeof(NU) == 8)
+		cusparse_val = CUDA_R_64F;
+
+	int nthreads = 1;
+	#ifdef _OPENMP
+	#pragma omp parallel
+	{
+		nthreads = omp_get_num_threads();
+	}
+	#endif
+	int ndevices;
+	cudaGetDeviceCount(&ndevices);
+
+	ofs << "nthreads " << nthreads << " ndevices " << ndevices << "\n";
+	assert(nthreads >= ndevices);
+
+	IU	  nelems  = nc / ndevices;
+	LHS	**tomerge = SpHelper::allocate2D<LHS>(ndevices, nr * d);
+	omp_set_num_threads(ndevices);
+
+	string		thd_logs[ndevices];
+	spmm_stats	thd_stats[ndevices];
+
+	#pragma omp parallel
+	{
+		cudaEvent_t t_beg, t_end;
+		cudaEventCreate(&t_beg); cudaEventCreate(&t_end);
+		
+		int tid = omp_get_thread_num();
+		cudaSetDevice(tid);
+
+		int gpu_id = -1;
+		int num_cpu_threads = omp_get_num_threads();
+		cudaGetDevice(&gpu_id);
+
+		IU beg = tid * nelems;
+		IU end = -1;
+		if (tid == ndevices - 1)
+			end = nc;
+		else
+			end = (tid + 1) * nelems;
+		IU ncols = end - beg;
+		IU *jc_tmp = (IU *)malloc(sizeof(*jc_tmp) * (ncols + 1));
+		for (IU i = 0; i <= ncols; ++i)
+			jc_tmp[i] = jc[beg + i] - jc[beg];
+		IU nnzs = jc[end] - jc[beg];
+
+		thd_logs[tid] += "beg " + std::to_string(beg) +
+			" end " + std::to_string(end) + " nnzs " +
+			std::to_string(nnzs) + " jc[beg] " +
+			std::to_string(jc[beg]) + "\n";
+
+		// device variables
+		IU		*d_jc	 = NULL, *d_ir = NULL;
+		NU		*d_num	 = NULL;
+		RHS		*d_Xvals = NULL;
+		LHS		*d_Yvals = NULL;
+		double	 alpha, beta;
+
+		cudaMalloc((void **)&d_jc, (ncols+1)*sizeof(*d_jc));
+		cudaMalloc((void **)&d_ir, nnzs*sizeof(*d_ir));
+		cudaMalloc((void **)&d_num, nnzs*sizeof(*d_num));
+		cudaMalloc((void **)&d_Xvals, (ncols*d)*sizeof(*d_Xvals));
+		cudaMalloc((void **)&d_Yvals, (nr*d)*sizeof(*d_Yvals));
+
+		cudaEventRecord(t_beg);
+		cusparseHandle_t cusparseHandle = 0;
+    	cusparseCreate(&cusparseHandle);
+		cusparseSpMatDescr_t d_A = NULL;
+		cusparseCreateCsr(&d_A, ncols, nr, nnzs, d_jc, d_ir, d_num,
+						  cusparse_idx, cusparse_idx,
+						  CUSPARSE_INDEX_BASE_ZERO,
+						  cusparse_val);
+		cusparseDnMatDescr_t d_X = NULL;
+		cusparseCreateDnMat(&d_X, ncols, d, d, d_Xvals,
+							cusparse_val, CUSPARSE_ORDER_ROW);	
+		cusparseDnMatDescr_t d_Y = NULL;
+		cusparseCreateDnMat(&d_Y, nr, d, d, d_Yvals,
+							cusparse_val, CUSPARSE_ORDER_ROW);
+		cudaEventRecord(t_end);
+		cudaEventSynchronize(t_end);
+		cudaEventElapsedTime(&thd_stats[tid].t_g_mtx_create, t_beg, t_end);
+		// float tmp = -1;
+		// cudaEventElapsedTime(&tmp, t_beg, t_end);
+		// ofs << tmp << std::endl;
+
+		cudaEventRecord(t_beg);
+		cudaMemcpy(d_jc, jc_tmp, (ncols+1)*sizeof(*d_jc),
+				   cudaMemcpyHostToDevice);
+    	cudaMemcpy(d_ir, &ir[jc[beg]], nnzs*sizeof(*d_ir),
+				   cudaMemcpyHostToDevice);
+    	cudaMemcpy(d_num, &num[jc[beg]], nnzs*sizeof(*d_num),
+				   cudaMemcpyHostToDevice);
+		cudaMemcpy(d_Xvals, &X[beg*d], (ncols*d)*sizeof(*X),
+				   cudaMemcpyHostToDevice);
+		cudaEventRecord(t_end);
+		cudaEventSynchronize(t_end);
+		cudaEventElapsedTime(&thd_stats[tid].t_g_h2d_memcpy, t_beg, t_end);	
+
+		free(jc_tmp);
+
+		cudaEventRecord(t_beg);
+		size_t	bufsize = 0;
+		alpha			= 1.0;
+		beta			= 0.0;
+		cusparseSpMM_bufferSize(cusparseHandle,
+							CUSPARSE_OPERATION_TRANSPOSE,
+							CUSPARSE_OPERATION_NON_TRANSPOSE,
+							&alpha,
+							d_A,
+							d_X,
+							&beta,
+							d_Y,
+							cusparse_val,
+							CUSPARSE_SPMM_CSR_ALG2,
+							&bufsize);
+		cudaEventRecord(t_end);
+		cudaEventSynchronize(t_end);
+		cudaEventElapsedTime(&thd_stats[tid].t_g_spmm_buf, t_beg, t_end);
+		void *buf_spmm = NULL;
+		cudaMalloc(&buf_spmm, bufsize);
+
+		cudaEventRecord(t_beg);
+		cusparseSpMM(cusparseHandle,
+				 CUSPARSE_OPERATION_TRANSPOSE,
+				 CUSPARSE_OPERATION_NON_TRANSPOSE,
+				 &alpha,
+				 d_A,
+				 d_X,
+				 &beta,
+				 d_Y,
+				 cusparse_val,
+				 CUSPARSE_SPMM_CSR_ALG2,
+				 buf_spmm);
+		cudaEventRecord(t_end);
+		cudaEventSynchronize(t_end);
+		cudaEventElapsedTime(&thd_stats[tid].t_g_spmm, t_beg, t_end);
+
+		cudaEventRecord(t_beg);
+		cudaMemcpy(tomerge[tid], d_Yvals, (nr*d)*sizeof(*Y),
+				   cudaMemcpyDeviceToHost);
+		cudaEventRecord(t_end);
+		cudaEventSynchronize(t_end);
+		cudaEventElapsedTime(&thd_stats[tid].t_g_d2h_memcpy, t_beg, t_end);
+
+		cudaFree(d_jc);
+		cudaFree(d_ir);
+		cudaFree(d_num);
+		cudaFree(d_Xvals);
+		cudaFree(d_Yvals);
+		cudaFree(buf_spmm);		
+	}
+
+
+	for (int i = 0; i < ndevices; ++i)
+	{
+		ofs << "thread " << i << " log \n";
+		ofs << thd_logs[i];
+
+		// stats.t_g_h2d_memcpy += thd_stats[i].t_g_h2d_memcpy;
+		// stats.t_g_spmm_buf	 += thd_stats[i].t_g_spmm_buf;
+		// stats.t_g_spmm		 += thd_stats[i].t_g_spmm;
+		// stats.t_g_d2h_memcpy += thd_stats[i].t_g_d2h_memcpy;
+		// stats.t_g_mtx_create += thd_stats[i].t_g_mtx_create;
+	}
+
+	// stats.t_g_h2d_memcpy /= ndevices;
+	// stats.t_g_spmm_buf /= ndevices;
+	// stats.t_g_spmm /= ndevices;
+	// stats.t_g_d2h_memcpy /= ndevices;
+	// stats.t_g_mtx_create /= ndevices;	
+
+	omp_set_num_threads(nthreads);
+
+	#pragma omp parallel for
+	for (IU j = 0; j < nr * d; ++j)
+	{
+		for (int i = 0; i < ndevices; ++i)
+			Y[j] += tomerge[i][j];
+	} 
+
+	SpHelper::deallocate2D(tomerge, ndevices);	
+	
+	
+	return;
+}
+	
+	
 
 }
 

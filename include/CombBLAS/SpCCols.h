@@ -287,6 +287,27 @@ private:
     template <typename SR, typename IU, typename NUM, typename DER, typename IVT, typename OVT>
     friend int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, const IVT * numx, int32_t nnzx,
                                         int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c, PreAllocatedSPA<OVT> & SPA);
+
+	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+	friend
+	void
+	csc_gespmm_threaded (const SpCCols<IU, NU> &A, const RHS *x, LHS *y, int d, std::ofstream &ofs);
+
+	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+	friend
+	void
+	csc_gespmm_mkl (const SpCCols<IU, NU> &A, const RHS *x, LHS *y, int d, std::ofstream &ofs);
+
+	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+	friend
+	void
+	csc_gespmm_cusparse (const SpCCols<IU, NU> &A, const RHS *x, LHS *y, int d, NU beta,
+						 spmm_stats &stats);
+
+	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
+	friend
+	void
+	csc_gespmm_cusparse_v2 (const SpCCols<IU, NU> &A, const RHS *x, LHS *y, int d, std::ofstream &ofs, spmm_stats &stats);
 };
 
 

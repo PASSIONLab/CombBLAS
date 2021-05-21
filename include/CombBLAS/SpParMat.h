@@ -49,6 +49,8 @@
 #include "SpParHelper.h"
 #include "DenseParMat.h"
 #include "FullyDistVec.h"
+#include "FullyDistDMat.h"
+#include "DnParMat.h"
 #include "Friends.h"
 #include "Operations.h"
 #include "DistEdgeList.h"
@@ -274,10 +276,8 @@ public:
     void ParallelWriteMM(const std::string & filename, bool onebased, HANDLER handler);
     void ParallelWriteMM(const std::string & filename, bool onebased) { ParallelWriteMM(filename, onebased, ScalarReadSaveHandler()); };
 
-    void ParallelBinaryWrite(std::string filename) const;
-    
-    template <typename _BinaryOperation>
-    FullyDistVec<IT,std::array<char, MAXVERTNAME>> ReadGeneralizedTuples(const std::string&, _BinaryOperation);
+    	template <typename _BinaryOperation>
+    	FullyDistVec<IT,std::array<char, MAXVERTNAME>> ReadGeneralizedTuples(const std::string&, _BinaryOperation);
     
 	template <class HANDLER>
 	void ReadDistribute (const std::string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
@@ -301,18 +301,8 @@ public:
     
     template <typename _BinaryOperation, typename LIT>
     void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
-    //void SparseCommon(std::vector< std::vector < std::tuple<typename DER::LocalIT,typename DER::LocalIT,NT> > > & data, typename DER::LocalIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);
-
-	// @TODO-OGUZ allow different index type for blocked matrices
-	std::vector<std::vector<SpParMat<IT, NT, DER>>>
-	BlockSplit (int br, int bc);
-	
 
 	//! Friend declarations
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend IU
-	EstimateFLOP (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
-
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU, NUO, UDERO> 
 	Mult_AnXBn_DoubleBuff (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
@@ -320,13 +310,9 @@ public:
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,NUO,UDERO> 
 	Mult_AnXBn_Synch (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
-
-	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,NUO,UDERO> 
-	Mult_AnXBn_Overlap (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
     
     template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-    friend int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool hashEstimate);
+    friend int64_t EstPerProcessNnzSUMMA(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B);
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
@@ -340,17 +326,9 @@ public:
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	Mult_AnXBn_Fence (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
     
-	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU, NUO, UDERO> 
-	Mult_AnXBn_SUMMA (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
-
     template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
     friend SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMem);
-
-    template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
-    friend int CalculateNumberOfPhases (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                               NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMem);
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
@@ -389,6 +367,41 @@ public:
 
 	template<typename VT, typename IU, typename UDER>
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
+
+
+	// SpMM
+	template <typename SR,
+			  typename IU,
+			  typename NUM,
+			  typename NUV,
+			  typename UDER> 
+	friend
+	FullyDistDMat<IU, typename promote_trait<NUM, NUV>::T_promote> 
+	SpMM_sA (const SpParMat<IU, NUM, UDER> &A,
+			 const FullyDistDMat<IU, NUV> &X,
+			 spmm_stats &stats);
+
+	template <typename SR,
+			  typename IU,
+			  typename NUM,
+			  typename NUV,
+			  typename UDER> 
+	friend
+	DnParMat<IU, typename promote_trait<NUM, NUV>::T_promote> 
+	SpMM_sA_2D (const SpParMat<IU, NUM, UDER> &A,
+				const DnParMat<IU, NUV> &X,
+				spmm_stats &stats);
+
+	template <typename SR,
+			  typename IU,
+			  typename NUM,
+			  typename NUV,
+			  typename UDER>
+	friend
+	DnParMat<IU, typename promote_trait<NUM, NUV>::T_promote> 
+	SpMM_sC (const SpParMat<IU, NUM, UDER>	&A,
+			 const DnParMat<IU, NUV> &X,
+			 spmm_stats &stats);
 
 private:
 	typedef std::array<char, MAXVERTNAME> STRASARRAY;
