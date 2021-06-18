@@ -78,8 +78,8 @@ void CommGrid::CreateDiagWorld()
 {
 	if(grrows != grcols)	
 	{
-		cout << "The grid is not square... !" << endl;
-		cout << "Returning diagworld to everyone instead of the diagonal" << endl;
+		//cout << "The grid is not square... !" << endl;
+		//cout << "Returning diagworld to everyone instead of the diagonal" << endl;
 		diagWorld = commWorld;
 		return;
 	}
