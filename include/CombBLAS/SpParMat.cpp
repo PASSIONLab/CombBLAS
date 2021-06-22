@@ -2492,10 +2492,10 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 		throw outofrangeexception();
 	}
 
-	SpParMat<IT,NT,DER> S(total_m, total_m, ri, ri, 1);
+	SpParMat<IT,NT,DER> S(total_m, total_m, ri, ri, NT());
 	SpParMat<IT,NT,DER> SA = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(S, *this, true, false); // clear memory of S but not *this
 
-	SpParMat<IT,NT,DER> T(total_n, total_n, ci, ci, 1);
+	SpParMat<IT,NT,DER> T(total_n, total_n, ci, ci, NT());
 	SpParMat<IT,NT,DER> SAT = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(SA, T, true, true); // clear memory of SA and T
 	EWiseMult(SAT, true);	// In-place EWiseMult with not(SAT)
 }

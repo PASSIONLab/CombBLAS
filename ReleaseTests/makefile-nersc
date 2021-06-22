@@ -42,6 +42,9 @@ MultTest.o: MultTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $
 MultTiming.o: MultTiming.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTiming.o MultTiming.cpp
 
+SpAsgnTest.o: SpAsgnTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpAsgnTest.o SpAsgnTest.cpp
+
 ReduceTest.o: ReduceTest.cpp $(COMBBLAS_INC)/SpDCCols.cpp $(COMBBLAS_INC)/dcsc.cpp $(COMBBLAS_INC)/SpHelper.h $(COMBBLAS_INC)/SpParHelper.h $(COMBBLAS_INC)/SpParMat.cpp $(COMBBLAS_INC)/Friends.h $(COMBBLAS_INC)/ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
@@ -97,6 +100,9 @@ ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
 ReadWriteMtx: MemoryPool.o CommGrid.o MPIType.o ReadWriteMtx.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReadWriteMtx ReadWriteMtx.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
+SpAsgnTest: MemoryPool.o CommGrid.o MPIType.o SpAsgnTest.o mmio.o hash.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o SpAsgnTest SpAsgnTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
+
 Mtx2Bin: MemoryPool.o CommGrid.o MPIType.o Mtx2Bin.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o Mtx2Bin Mtx2Bin.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
@@ -117,6 +123,7 @@ clean:
 	rm -f MultTime
 	rm -f Mtx2Bin
 	rm -f GenWrMat
+	rm -f SpAsgnTest
 	rm -f *.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/*.o
 	rm -f $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a

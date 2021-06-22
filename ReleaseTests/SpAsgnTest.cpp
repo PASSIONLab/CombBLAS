@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 			}
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
-		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
+		typedef SpParMat <int64_t, double , SpDCCols<int64_t,double> > PARDBMAT;
 		shared_ptr<CommGrid> fullWorld;
 		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
@@ -111,8 +111,8 @@ int main(int argc, char* argv[])
         	PARDBMAT Apr(fullWorld);
         	PARDBMAT B(fullWorld);
         	PARDBMAT C(fullWorld);
-        	FullyDistVec<int,int> vec1(fullWorld);
-        	FullyDistVec<int,int> vec2(fullWorld);
+        	FullyDistVec<int64_t,int64_t> vec1(fullWorld);
+        	FullyDistVec<int64_t,int64_t> vec2(fullWorld);
 
 		A.ReadDistribute(normalname, 0);	
 		Apr.ReadDistribute(prunedname, 0);	
@@ -121,8 +121,8 @@ int main(int argc, char* argv[])
 		vec1.ReadDistribute(inputvec1, 0);
 		vec2.ReadDistribute(inputvec2, 0);
 
-		vec1.Apply(bind2nd(minus<int>(), 1));	// For 0-based indexing
-		vec2.Apply(bind2nd(minus<int>(), 1));	
+		vec1.Apply(bind2nd(minus<int64_t>(), 1));	// For 0-based indexing
+		vec2.Apply(bind2nd(minus<int64_t>(), 1));	
 
 		PARDBMAT Atemp = A;
 		Atemp.Prune(vec1, vec2);
@@ -148,15 +148,15 @@ int main(int argc, char* argv[])
 			A.SaveGathered("Erroneous_SpAsgnd.txt");
 		}
 
-        	FullyDistVec<int,int> crow(fullWorld);
-        	FullyDistVec<int,int> ccol(fullWorld);
-		FullyDistVec<int,double> cval(fullWorld);
+        	FullyDistVec<int64_t,int64_t> crow(fullWorld);
+        	FullyDistVec<int64_t,int64_t> ccol(fullWorld);
+		FullyDistVec<int64_t,double> cval(fullWorld);
 		A.Find(crow, ccol, cval);
-		FullyDistSpVec<int, double> sval = cval;	
+		FullyDistSpVec<int64_t, double> sval = cval;	
 		// sval.DebugPrint();
 
-		pair< FullyDistVec<int,int> , FullyDistVec<int,double> > ptopk; 
-		ptopk = TopK(sval, 3);
+		pair< FullyDistVec<int64_t,int64_t> , FullyDistVec<int64_t,double> > ptopk; 
+		ptopk = TopK(sval, (int64_t) 3);
 		//ptopk.first.DebugPrint();
 		//ptopk.second.DebugPrint();
 
