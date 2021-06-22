@@ -3,3 +3,5 @@
 - Name BFSFriends versions to SpMV_NoSR(...) and SpMSpV_NoSR(...)
 - Implement SpMM and SpMV using CSB
 - Provide conversion to/from CSB and DCSC
+- Update this document, it is 2021
+
