@@ -48,6 +48,11 @@ template <class NT> struct promote_trait< bool , NT, typename combblas::disable_
 	typedef NT T_promote;                    
 };
 
+template<class NT> struct promote_trait<NT,NT>	// always allow self promotion
+{
+	typedef NT T_promote;
+};
+
 #define DECLARE_PROMOTE(A,B,C)                  \
     template <> struct promote_trait<A,B>       \
     {                                           \

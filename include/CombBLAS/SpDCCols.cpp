@@ -618,7 +618,37 @@ SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneColumn(IT* pinds, NT* pvals, _BinaryOpera
 }
 
 
+template <class IT, class NT>
+void SpDCCols<IT,NT>::SetDifference (const SpDCCols<IT,NT> & rhs)
+{
+	if(this != &rhs)		
+	{
+		if(m == rhs.m && n == rhs.n)
+		{
+			if(rhs.nnz == 0)
+			{
+				return;
+			}
+			else if (rhs.nnz != 0 && nnz != 0)
+			{
+				dcsc->SetDifference (*(rhs.dcsc));
+				nnz = dcsc->nz;
+				if(nnz == 0 )
+					dcsc = NULL;
+			}		
+		}
+		else
+		{
+			std::cout<< "Matrices do not conform for A \ B !"<<std::endl;		
+		}
+	}
+	else
+	{
+		std::cout<< "Missing feature (A .* A): Use Square_EWise() instead !"<<std::endl;	
+	}
+}
 
+// Aydin (June 2021): Make the exclude case of this call SetDifference above instead
 template <class IT, class NT>
 void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 {

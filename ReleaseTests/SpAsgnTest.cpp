@@ -56,6 +56,19 @@ pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v,
 	return make_pair(topkind, topkele);
 } 
 
+struct mypair
+{
+	mypair(double rhs)
+	{
+		val = make_pair(rhs, -rhs);
+	}
+	mypair()
+	{
+		val = make_pair(1,-1);
+	}
+	pair<double, double> val;
+};
+
 
 int main(int argc, char* argv[])
 {
@@ -104,6 +117,7 @@ int main(int argc, char* argv[])
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef SpParMat <int64_t, double , SpDCCols<int64_t,double> > PARDBMAT;
+		typedef SpParMat <int64_t, mypair , SpDCCols<int64_t, mypair > > PARPAIRMAT;
 		shared_ptr<CommGrid> fullWorld;
 		fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
@@ -126,6 +140,9 @@ int main(int argc, char* argv[])
 
 		PARDBMAT Atemp = A;
 		Atemp.Prune(vec1, vec2);
+
+		PARPAIRMAT Apair = A;
+		Apair.Prune(vec1, vec2);
 			
 		// We should get the original A back.
 		if( Atemp  == Apr)

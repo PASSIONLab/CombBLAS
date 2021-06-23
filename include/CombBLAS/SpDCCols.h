@@ -270,6 +270,7 @@ public:
 
 	void EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);
 	void EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
+	void SetDifference (const SpDCCols<IT,NT> & rhs);
 	
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object

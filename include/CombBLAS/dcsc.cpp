@@ -519,6 +519,18 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 }
 
 
+/**
+ * operation is A = A .* not(B) 
+ **/
+template <class IT, class NT>
+void Dcsc<IT,NT>::SetDifference(const Dcsc<IT,NT> & rhs)	
+{
+	// We have a class with a friend function and a member function with the same name. Calling the friend function from the member function 
+	// might (if the signature is the same) give compilation errors if not preceded by :: that denotes the global scope.
+	*this = combblas::SetDifference((*this), &rhs);	// call the binary version
+}
+
+
 template <class IT, class NT>
 template <typename _UnaryOperation, typename GlobalIT>
 Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset)

@@ -65,10 +65,14 @@ public:
 	template <typename NIT, typename NNT> operator Dcsc<NIT,NNT>() const;	//<! index+numeric type conversion
 	
 	void EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
+	void SetDifference(const Dcsc<IT,NT> & rhs);		//<! Aydin (June 2021): generalize this to any rhs NT type; as it isn't used anyway 
 	void EWiseScale(NT ** scaler);				//<! scale elements of "this" with the elements dense rhs matrix
 	
 	template <typename IU, typename NU1, typename NU2>
 	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, bool exclude);	// Note that the second parameter is a POINTER
+
+	template <typename IU, typename NU1, typename NU2>
+	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> SetDifference(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B);	// Note that the second parameter is a POINTER
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)

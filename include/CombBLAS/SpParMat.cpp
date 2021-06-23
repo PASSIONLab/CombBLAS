@@ -2469,8 +2469,6 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
 {
-	typedef PlusTimesSRing<NT, NT> PTRing;
-
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
 		SpParHelper::Print("Grids are not comparable, Prune fails!\n", commGrid->GetWorld());
@@ -2492,12 +2490,22 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 		throw outofrangeexception();
 	}
 
-	SpParMat<IT,NT,DER> S(total_m, total_m, ri, ri, NT());
-	SpParMat<IT,NT,DER> SA = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(S, *this, true, false); // clear memory of S but not *this
+        // infer the concrete types to replace the value with bool
+	typedef typename DER::LocalIT LIT;
+        typedef typename create_trait<DER, LIT, bool>::T_inferred DER_BOOL;
+        typedef typename create_trait<DER, LIT, IT>::T_inferred DER_IT;
 
-	SpParMat<IT,NT,DER> T(total_n, total_n, ci, ci, NT());
-	SpParMat<IT,NT,DER> SAT = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(SA, T, true, true); // clear memory of SA and T
-	EWiseMult(SAT, true);	// In-place EWiseMult with not(SAT)
+	// create and downcast to boolean because this type of constructor can not be booleand as FullyDist can not be boolean
+	SpParMat<IT,bool,DER_BOOL> S = SpParMat<IT, IT, DER_IT> (total_m, total_m, ri, ri, 1);
+	SpParMat<IT,NT,DER> SA = Mult_AnXBn_DoubleBuff< BoolCopy2ndSRing<NT> , NT, DER>(S, *this, true, false); // clear memory of S but not *this
+
+	SpParMat<IT,bool,DER_BOOL> T = SpParMat<IT, IT, DER_IT> (total_n, total_n, ci, ci, 1);
+	SpParMat<IT,NT,DER> SAT = Mult_AnXBn_DoubleBuff< BoolCopy1stSRing<NT> , NT, DER>(SA, T, true, true); // clear memory of SA and T
+
+
+	// the type of the SAT matrix does not matter when calling set difference
+	// because it just copies the non-excluded values from (*this) matrix, without touching values in SAT  
+	SetDifference(SAT);	
 }
 
 //! Prune every column of a sparse matrix based on pvals
@@ -2668,6 +2676,27 @@ void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool ex
 	else
 	{
 		std::cout << "Grids are not comparable, EWiseMult() fails !" << std::endl; 
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}	
+}
+
+
+// Aydin (June 2021):
+// This currently duplicates the work of EWiseMult with exclude = true
+// However, this is the right way of implementing it because it allows set difference when 
+// the types of two matrices do not have a valid multiplication operator defined
+// set difference should not require such an operator so we will move all code 
+// bases that use EWiseMult(..., exclude=true) to this one
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::SetDifference(const SpParMat<IT,NT,DER> & rhs)
+{
+	if(*commGrid == *rhs.commGrid)	
+	{
+		spSeq->SetDifference(*(rhs.spSeq));		// Dimension compatibility check performed by sequential function
+	}
+	else
+	{
+		std::cout << "Grids are not comparable, SetDifference() fails !" << std::endl; 
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}	
 }

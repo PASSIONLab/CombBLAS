@@ -75,7 +75,7 @@ public:
 	
 	// Constructors
 	SpParMat ();
-    SpParMat (MPI_Comm world); 	// ABAB: there is risk that any integer would call this constructor due to MPICH representation
+    	SpParMat (MPI_Comm world); 	// ABAB: there is risk that any integer would call this constructor due to MPICH representation
 	SpParMat (std::shared_ptr<CommGrid> grid);
 	SpParMat (DER * myseq, std::shared_ptr<CommGrid> grid);
 		
@@ -100,6 +100,7 @@ public:
 	void Transpose();
 	void FreeMemory();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
+	void SetDifference (const SpParMat< IT,NT,DER >  & rhs);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & ) const;

@@ -2312,7 +2312,29 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	delete [] localy;
 	return y;
 }
-	
+
+// Aydin (June 2021):
+// This currently duplicates the work of EWiseMult with exclude = true
+// However, this is the right way of implementing it because it allows set difference when 
+// the types of two matrices do not have a valid multiplication operator defined
+// set difference should not require such an operator so we will move all code 
+// bases that use EWiseMult(..., exclude=true) to this one
+template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+SpParMat<IU,NU1,UDERA> SetDifference(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B)
+{
+	if(*(A.commGrid) == *(B.commGrid))
+        {
+                UDERA * result = new UDERA( SetDifference(*(A.spSeq),*(B.spSeq));
+                return SpParMat<IU, NU1, UDERA> (result, A.commGrid);
+        }
+        else
+        {
+                std::cout << "Grids are not comparable for set difference" << std::endl;
+                MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+                return SpParMat< IU,NU1,UDERA >();
+        }
+
+}
 
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 

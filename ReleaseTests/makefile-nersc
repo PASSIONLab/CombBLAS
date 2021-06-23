@@ -15,6 +15,11 @@ LINK = -lm
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
+$(COMBBLAS)/usort/%.o : $(COMBBLAS)/usort/src/%.cpp
+	$(COMPILER) -I$(COMBBLAS)/usort/include/usort $(FLAGS) -o $@ -c $<
+
+USORT = $(COMBBLAS)/usort/binUtils.o $(COMBBLAS)/usort/parUtils.o
+
 CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
 
@@ -100,8 +105,8 @@ ParIOMM: MemoryPool.o CommGrid.o MPIType.o ParIOTest.o mmio.o hash.o
 ReadWriteMtx: MemoryPool.o CommGrid.o MPIType.o ReadWriteMtx.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReadWriteMtx ReadWriteMtx.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
 
-SpAsgnTest: MemoryPool.o CommGrid.o MPIType.o SpAsgnTest.o mmio.o hash.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o SpAsgnTest SpAsgnTest.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
+SpAsgnTest: MemoryPool.o CommGrid.o MPIType.o SpAsgnTest.o mmio.o hash.o $(USORT)
+	$(COMPILER) $(FLAGS) $(INCADD) -o SpAsgnTest $^
 
 Mtx2Bin: MemoryPool.o CommGrid.o MPIType.o Mtx2Bin.o mmio.o hash.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o Mtx2Bin Mtx2Bin.o MemoryPool.o CommGrid.o MPIType.o mmio.o hash.o
