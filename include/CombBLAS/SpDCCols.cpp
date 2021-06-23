@@ -639,7 +639,7 @@ void SpDCCols<IT,NT>::SetDifference (const SpDCCols<IT,NT> & rhs)
 		}
 		else
 		{
-			std::cout<< "Matrices do not conform for A \ B !"<<std::endl;		
+			std::cout<< "Matrices do not conform for A - B !"<<std::endl;		
 		}
 	}
 	else

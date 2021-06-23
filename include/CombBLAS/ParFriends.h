@@ -2324,7 +2324,7 @@ SpParMat<IU,NU1,UDERA> SetDifference(const SpParMat<IU,NU1,UDERA> & A, const SpP
 {
 	if(*(A.commGrid) == *(B.commGrid))
         {
-                UDERA * result = new UDERA( SetDifference(*(A.spSeq),*(B.spSeq));
+                UDERA * result = new UDERA( SetDifference(*(A.spSeq),*(B.spSeq)));
                 return SpParMat<IU, NU1, UDERA> (result, A.commGrid);
         }
         else

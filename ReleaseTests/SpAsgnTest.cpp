@@ -82,8 +82,8 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 		{
 			cout << "Usage: ./SpAsgnTest <BASEADDRESS> <Matrix> <PrunedMatrix> <RHSMatrix> <AssignedMatrix> <VectorRowIndices> <VectorColIndices>" << endl;
-			cout << "Example: ./SpAsgnTest ../mfiles A_100x100.txt A_with20x30hole.txt dense_20x30matrix.txt A_wdenseblocks.txt 20outta100.txt 30outta100.txt" << endl;
-			cout << "Input files should be under <BASEADDRESS> in tuples format" << endl;
+			cout << "Example: ./SpAsgnTest TESTDATA/ A_100x100.txt A_with20x30hole.txt dense_20x30matrix.txt A_wdenseblocks.txt 20outta100.txt 30outta100.txt" << endl;
+			cout << "Input files should be under <BASEADDRESS> in triples format" << endl;
 		}
 		MPI_Finalize(); 
 		return -1;
