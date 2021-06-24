@@ -143,6 +143,10 @@ int main(int argc, char* argv[])
 
 		PARPAIRMAT Apair = A;
 		Apair.Prune(vec1, vec2);
+
+		PARDBMAT Apruned = A;
+		Apruned.PruneFull(vec1, vec2);
+		Apruned.ParallelWriteMM("ArowscolsPruned.mtx", true);
 			
 		// We should get the original A back.
 		if( Atemp  == Apr)

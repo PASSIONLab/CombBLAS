@@ -232,7 +232,8 @@ public:
 						  BoolCopy2ndSRing<NT>>(v, dim, inplace);
 	}
 	
-	void Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);	//!< prune all entries whose row indices are in ri and column indices are in ci
+	void Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);	//!< prune all entries whose row indices are in ri AND column indices are in ci
+	void PruneFull(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);	//!< prune all entries whose row indices are in ri OR column indices are in ci
 	void SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, SpParMat<IT,NT,DER> & B);
 	
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;

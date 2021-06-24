@@ -2466,6 +2466,11 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	*this += RBQ;	// extend-add
 }
 
+// this only prunes the submatrix A[ri,ci] in matlab notation
+// or if the input is an adjacency matrix and ri=ci, it removes the connections
+// between the subgraph induced by ri
+// if you need to remove all contents of rows in ri and columns in ci:
+// then call PruneFull
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
 {
@@ -2506,6 +2511,54 @@ void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistV
 	// the type of the SAT matrix does not matter when calling set difference
 	// because it just copies the non-excluded values from (*this) matrix, without touching values in SAT  
 	SetDifference(SAT);	
+}
+
+
+// removes all nonzeros of rows in ri and columns in ci
+// if A is an adjacency matrix and ri=ci,
+// this prunes *all* (and not just the induced) connections of vertices in ri
+// effectively rendering the vertices in ri *disconnected*
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::PruneFull(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
+{
+	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
+	{
+		SpParHelper::Print("Grids are not comparable, Prune fails!\n", commGrid->GetWorld());
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}
+
+	// Safety check
+	IT locmax_ri = 0;
+	IT locmax_ci = 0;
+	if(!ri.arr.empty())
+		locmax_ri = *std::max_element(ri.arr.begin(), ri.arr.end());
+	if(!ci.arr.empty())
+		locmax_ci = *std::max_element(ci.arr.begin(), ci.arr.end());
+
+	IT total_m = getnrow();
+	IT total_n = getncol();
+	if(locmax_ri > total_m || locmax_ci > total_n)	
+	{
+		throw outofrangeexception();
+	}
+
+        // infer the concrete types to replace the value with bool
+	typedef typename DER::LocalIT LIT;
+        typedef typename create_trait<DER, LIT, bool>::T_inferred DER_BOOL;
+        typedef typename create_trait<DER, LIT, IT>::T_inferred DER_IT;
+
+	// create and downcast to boolean because this type of constructor can not be booleand as FullyDist can not be boolean
+	SpParMat<IT,bool,DER_BOOL> S = SpParMat<IT, IT, DER_IT> (total_m, total_m, ri, ri, 1);
+	SpParMat<IT,NT,DER> SA = Mult_AnXBn_DoubleBuff< BoolCopy2ndSRing<NT> , NT, DER>(S, *this, true, false); // clear memory of S, but not *this
+
+	SpParMat<IT,bool,DER_BOOL> T = SpParMat<IT, IT, DER_IT> (total_n, total_n, ci, ci, 1);
+	SpParMat<IT,NT,DER> AT = Mult_AnXBn_DoubleBuff< BoolCopy1stSRing<NT> , NT, DER>(*this, T, false, true); // clear memory of T, but not *this
+
+	// SA extracted rows of A in ri
+	// AT extracted columns of A in ci
+
+	SetDifference(SA);
+	SetDifference(AT);	
 }
 
 //! Prune every column of a sparse matrix based on pvals
