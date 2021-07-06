@@ -837,7 +837,7 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	IU estnzc, estnz;
 	if(exclude)
 	{
-        return combblas::SetDifference((*this), &rhs);    // call set difference for this version
+        return combblas::SetDifference(A, B);    // call set difference for this version
 	} 
 	else // A = A .* B
 	{
