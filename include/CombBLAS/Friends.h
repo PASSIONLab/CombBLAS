@@ -837,20 +837,20 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	IU estnzc, estnz;
 	if(exclude)
 	{
-        return combblas::SetDifference(A, B);    // call set difference for this version
+        	return combblas::SetDifference(A, B);    // call set difference for this version
 	} 
 	else // A = A .* B
 	{
 		estnzc = std::min(A.nzc, B->nzc);
 		estnz  = std::min(A.nz, B->nz);
 
-        Dcsc<IU,N_promote> temp(estnz, estnzc);
+        	Dcsc<IU,N_promote> temp(estnz, estnzc);
 
-        IU curnzc = 0;
-        IU curnz = 0;
-        IU i = 0;
-        IU j = 0;
-        temp.cp[0] = 0;
+        	IU curnzc = 0;
+        	IU curnz = 0;
+        	IU i = 0;
+        	IU j = 0;
+        	temp.cp[0] = 0;
 
 		while(i< A.nzc && B != NULL && j<B->nzc)
 		{
@@ -880,10 +880,10 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 				++j;
 			}
 		}
-	}
 
-	temp.Resize(curnzc, curnz);
-	return temp;
+		temp.Resize(curnzc, curnz);
+		return temp;
+	}
 }	
 
 template <typename N_promote, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
