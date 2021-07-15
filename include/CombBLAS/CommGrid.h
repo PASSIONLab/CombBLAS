@@ -51,7 +51,9 @@ public:
 		MPI_Comm_free(&commWorld);
 		MPI_Comm_free(&rowWorld);
 		MPI_Comm_free(&colWorld);
-		if(diagWorld != MPI_COMM_NULL) MPI_Comm_free(&diagWorld);
+		if(grrows == grcols) {
+			if(diagWorld != MPI_COMM_NULL) MPI_Comm_free(&diagWorld);
+		}
 	}
 	CommGrid (const CommGrid & rhs): grrows(rhs.grrows), grcols(rhs.grcols),
 			myprocrow(rhs.myprocrow), myproccol(rhs.myproccol), myrank(rhs.myrank) // copy constructor
