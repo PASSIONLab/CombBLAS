@@ -12,7 +12,7 @@ This material is based upon work supported by the National Science Foundation un
 
 **Introduction**
 
-The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel graph library offering a small but powerful set of linear algebra primitives specifically targeting graph analytics.
+The Combinatorial BLAS (CombBLAS) is an extensible distributed-memory parallel graph library offering a small but powerful set of linear algebra primitives specifically targeting graph analytics. This repo has the code that represents version 2.0 of the software.
 
 *   The Combinatorial BLAS development influences the [Graph BLAS](http://graphblas.org) standardization process.
 *   It achieves scalability via its two dimensional distribution and coarse-grained parallelism.
@@ -61,20 +61,20 @@ Sparse and dense vectors are distributed along all processors. This is very spac
 
 **New since version 1.6**:
 
-*   Connected components in distributed memory, found in Applications/CC.h [14,15], compile with "make cc" in that folder. Usage self explanatory (just try ./cc without any parameters to get usage)
-*   Incorporation of much faster shared-memory hash SpGEMM implementation [16] from [Yusuke Nagasaka](https://bitbucket.org/YusukeNagasaka/mtspgemmlib/src/master/)
-*   Initial CUDA support (for HipMCL initially [17]) for sparse matrix-matrix multiplication
-*   3D process grid support for reducing communication in sparse matrix-matrix multiplication [18]
+*   Connected components in distributed memory, found in Applications/CC.h [15,16], compile with "make cc" in that folder. Usage self explanatory (just try ./cc without any parameters to get usage)
+*   Incorporation of much faster shared-memory hash SpGEMM implementation [17] from [Yusuke Nagasaka](https://bitbucket.org/YusukeNagasaka/mtspgemmlib/src/master/)
+*   Initial CUDA support (for HipMCL initially [18]) for sparse matrix-matrix multiplication
+*   3D process grid support for reducing communication in sparse matrix-matrix multiplication [19]
 
 **New in version 1.6**:
 
 *   In-node multithreading enabled for many expensive operations.
 *   Fully parallel text-file reader for vectors (FullyDistSpVec::ParallelReadMM() and FullyDistVec::ParallelReadMM())
 *   Fully parallel text-file writer for vectors (FullyDistSpVec::ParallelWrite () and FullyDistVec::ParallelWrite())
-*   Reverse Cuthill-McKee (RCM) ordering implementation. Please cite [12] if you use this implementation
+*   Reverse Cuthill-McKee (RCM) ordering implementation. Please cite [13] if you use this implementation
 *   Novel multithreaded SpGEMM and SpMV (with sparse vectors) algorithms are integrated with the rest of CombBLAS.
     *   For benchmarking multithreaded SpMV with sparse vectors, go to Applications/SpMSpV-IPDPS2017 directory and use the code there.
-    *   Please cite [13] if you use the new multithreaded SpMV with sparse vectors.
+    *   Please cite [14] if you use the new multithreaded SpMV with sparse vectors.
 *   Extended CSC support
 *   Previously deprecated SpParVec and DenseParVec (that were distributed to diagonal processors only) classes are removed.
 *   Lots of more bug fixes
@@ -84,10 +84,10 @@ Sparse and dense vectors are distributed along all processors. This is very spac
 *   Fully parallel matrix market format reader (SpParMat::ParallelReadMM())
 *   Complete multithreading support, including SpGEMM (previously it was solely SpMV), enabled by -DTHREADED during compilation
 *   Experimental 3D SpGEMM (the ability to switch processor grids from 2D to 3D will have to wait for version 1.6)
-    *   Cite [9] if you use this implementation
+    *   Cite [10] if you use this implementation
     *   cd 3DSpGEMM/, make test_mpipspgemm, and call the executable with correct parameters
 *   Maximal and Maximum cardinality matching algorithms on bipartite graphs
-    *   Cite [10] for maximal cardinality and [11] for maximum cardinality matching
+    *   Cite [11] for maximal cardinality and [12] for maximum cardinality matching
     *   cd MaximumMatching, make bpmm, and call the executable with correct parameters
 *   Automated MPI_Op creation from simple C++ function objects (simplifies semiring descriptions and Reduce() functions)
 *   FullyDistSpVec::Invert() to map from/to (integer) values to/from indices
@@ -131,14 +131,14 @@ Some features it uses:
 Important Sequential classes:
 
 *   SpTuples : uses triples format to store matrices, mostly used for input/output and intermediate tasks (such as sorting)
-*   SpDCCols : implements Alg 1B and Alg 2 [2], holds DCSC.
+*   SpDCCols : implements Alg 1B and Alg 2 [3], holds DCSC.
 *   SpCCols : implements CSC
 
 Important Parallel classes:
 
 *   SpParMat : distributed memory MPI implementation  
     Each processor locally stores its submatrix (block) as a sequential SpDCCols object  
-    Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BSP like Sparse SUMMA [3] algorithm.
+    Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BSP like Sparse SUMMA [4] algorithm.
 *   SpParMat3D : sparse matrix distributed in 3D process grid
 *   FullyDistVec : dense vector distributed to all processors
 *   FullyDistSpVec: : sparse vector distributed to all processors
@@ -150,13 +150,13 @@ Important Parallel classes:
 *   [DirOptBFS.cpp](_dir_opt_b_f_s_8cpp.html): A conformant implementation of the [Graph 500 benchmark](http://graph500.org) using the faster direction-optimizing BFS.
 *   [FilteredMIS.cpp](_filtered_m_i_s_8cpp.html): Filtered maximal independent set calculation on ER graphs using Luby's algorithm.
 *   [FilteredBFS.cpp](_filtered_b_f_s_8cpp.html): Filtered breadth-first search on a twitter-like data set.
-*   [BipartiteMatchings/BPMaximalMatching.cpp](_b_p_maximal_matching_8cpp.html): Maximal matching algorithms on bipartite graphs [10]
-*   [BipartiteMatchings/BPMaximumMatching.cpp](_b_p_maximum_matching_8cpp.html): Maximum matching algorithm on bipartite graphs [11]
-*   [Ordering/RCM.cpp](_r_c_m_8cpp.html): Reverse Cuthill-McKee ordering on distributed memory [12]
-*   [CC.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/Applications/CC.cpp): Linear-algebraic connected components [14, 15]
+*   [BipartiteMatchings/BPMaximalMatching.cpp](_b_p_maximal_matching_8cpp.html): Maximal matching algorithms on bipartite graphs [11]
+*   [BipartiteMatchings/BPMaximumMatching.cpp](_b_p_maximum_matching_8cpp.html): Maximum matching algorithm on bipartite graphs [12]
+*   [Ordering/RCM.cpp](_r_c_m_8cpp.html): Reverse Cuthill-McKee ordering on distributed memory [13]
+*   [CC.cpp](https://bitbucket.org/berkeleylab/combinatorial-blas-2.0/src/master/CombBLAS/Applications/CC.cpp): Linear-algebraic connected components [15, 16]
 *   [MCL3D.cpp](https://github.com/PASSIONLab/CombBLAS/blob/master/Applications/MCL3D.cpp): HipMCL using 3D process grid
 
-**Performance** results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most recent sparse matrix indexing, assignment, and multiplication results can be found in [5]. Performance of filtered graph algorithms (BFS and MIS) are reported in [7]. Performance of the 3D SpGEMM algorithm can be found in [9]
+**Performance** results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [5]. The sparse matrix indexing, assignment, and multiplication results using 2D algorithms can be found in [6]. Performance of filtered graph algorithms (BFS and MIS) are reported in [8]. Performance of the 3D SpGEMM algorithm can be found in [10]
 
 A subset of test programs demonstrating how to use the library (under ReleaseTests):
 
@@ -172,25 +172,26 @@ A subset of test programs demonstrating how to use the library (under ReleaseTes
 *   [GalerkinNew.cpp](_galerkin_new_8cpp.html) : Graph contraction or restriction operator (used in Algebraic Multigrid).
 *   [Application/SpGEMM3D.cpp](https://github.com/PASSIONLab/CombBLAS/blob/master/Applications/SpGEMM3D.cpp) : Using sparse matrix-matrix multiplication using 3D process grid.
 
-**Citation:** Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
+**Citation:** Please cite the current CombBLAS 2.0 paper [2] if you end up using the Combinatorial BLAS in your research in 2021 or later. If you are simply referencing the design principles and the concepts behind CombBLAS, then you can either cite [1] or [2], depending on the concept. 
 
-*   [1] Aydin Buluc and John R. Gilbert, _The Combinatorial BLAS: Design, implementation, and applications_ . International Journal of High Performance Computing Applications (IJHPCA), 2011\. [Preprint](http://gauss.cs.ucsb.edu/~aydin/combblas-r2.pdf) , [Link](http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract)
-*   [2] Aydin Buluc and John R. Gilbert, _On the Representation and Multiplication of Hypersparse Matrices_ . The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
-*   [3] Aydin Buluc and John R. Gilbert, _Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication_ . The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
-*   [4] Aydin Buluc and Kamesh Madduri, _Parallel Breadth-First Search on Distributed-Memory Systems_ . Supercomputing (SC'11), Seattle, USA. [Extended preprint](http://arxiv.org/abs/1104.4518) [PDF](http://gauss.cs.ucsb.edu/~aydin/sc11_bfs.pdf)
-*   [5] Aydin Buluc and John R. Gilbert. _Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments_ . SIAM Journal of Scientific Computing, 2012\. [Preprint](http://arxiv.org/abs/1109.3739) [PDF](http://gauss.cs.ucsb.edu/~aydin/spgemm_sisc12.pdf)
-*   [6] Aydin Buluc. _Linear Algebraic Primitives for Computation on Large Graphs_ . PhD thesis, University of California, Santa Barbara, 2010\. [PDF](http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf)
-*   [7] Aydin Buluc, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. _High-Productivity and High-Performance Analysis of Filtered Semantic Graphs_ , International Parallel and Distributed Processing Symposium (IPDPS), 2013\. [PDF](http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf)
-*   [8] Scott Beamer, Aydin Buluc, Krste Asanovic, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013\. [PDF](http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf)
-*   [9] Ariful Azad, Grey Ballard, Aydin Buluc, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624-C651, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/M104253.pdf)
-*   [10] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015\. [PDF](http://gauss.cs.ucsb.edu/~aydin/maximalMatching.pdf)
-*   [11] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016\. [PDF](http://gauss.cs.ucsb.edu/~aydin/MCM_IPDPS16_Azad.pdf)
-*   [12] Ariful Azad, Mathias Jacquelin, Aydin Buluc, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/RCM-ipdps17.pdf)
-*   [13] Ariful Azad and Aydin Buluc. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In Proceedings of the IPDPS, 2017\. [PDF](http://gauss.cs.ucsb.edu/~aydin/SpMSpV-ipdps17.pdf)
-*   [14] Yongzhe Zhang, Ariful Azad, and Aydin Buluc. "Parallel algorithms for finding connected components using linear algebra." Journal of Parallel and Distributed Computing (2020). [PDF](https://escholarship.org/content/qt8ms106vm/qt8ms106vm_noSplash_bd6caa99d078099df438bfe7c3854e2b.pdf)
-*   [15] Ariful Azad and Aydin Buluc. LACC: a linear-algebraic algorithm for finding connected components in distributed memory. In Proceedings of the IPDPS, 2019\. [PDF](https://people.eecs.berkeley.edu/~aydin/LACC.pdf)
-*   [16] Yusuke Nagasaka, Satoshi Matsuoka, Ariful Azad, and Aydin Buluc. "Performance optimization, modeling and analysis of sparse matrix-matrix products on multi-core and many-core processors." Parallel Computing 90 (2019): 102545 \. [PDF](https://people.eecs.berkeley.edu/~aydin/spgemm_parco2019.pdf)
-*   [17] Oguz Selvitopi, Md Taufique Hussain, Ariful Azad, and Aydin Buluc. Optimizing high performance Markov clustering for pre-exascale architectures. In Proceedings of the IPDPS, 2020 \. [PDF](https://people.eecs.berkeley.edu/~aydin/HipMCL_PreExascale-IPDPS20.pdf)
-*   [18] Md Taufique Hussain, Oguz Selvitopi, Aydin Buluc, Ariful Azad. Communication-Avoiding and Memory-Constrained Sparse Matrix-Matrix Multiplication at Extreme Scale. \. [PDF](https://arxiv.org/pdf/2010.08526.pdf)
+*   [1] Aydin Buluc and John R. Gilbert, _The Combinatorial BLAS: Design, implementation, and applications_ . International Journal of High Performance Computing Applications (IJHPCA), 2011\. [Preprint](https://people.eecs.berkeley.edu/~aydin/combblas-r2.pdf) , [Link](http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract)
+*   [2] Ariful Azad, Oguz Selvitopi, Md Taufique Hussain, John R. Gilbert, Aydin Buluç. _Combinatorial BLAS 2.0: Scaling combinatorial algorithms on distributed-memory systems_. IEEE Transactions on Parallel and Distributed Systems (TPDS), Early accesss, 2021. [Preprint](https://arxiv.org/pdf/2106.14402.pdf) , [Link](https://ieeexplore.ieee.org/abstract/document/9470983)
+*   [3] Aydin Buluc and John R. Gilbert, _On the Representation and Multiplication of Hypersparse Matrices_ . The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+*   [4] Aydin Buluc and John R. Gilbert, _Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication_ . The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
+*   [5] Aydin Buluc and Kamesh Madduri, _Parallel Breadth-First Search on Distributed-Memory Systems_ . Supercomputing (SC'11), Seattle, USA. [Extended preprint](http://arxiv.org/abs/1104.4518) [PDF](https://people.eecs.berkeley.edu/~aydin/sc11_bfs.pdf)
+*   [6] Aydin Buluc and John R. Gilbert. _Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments_ . SIAM Journal of Scientific Computing, 2012\. [Preprint](http://arxiv.org/abs/1109.3739) [PDF](https://people.eecs.berkeley.edu/~aydin/spgemm_sisc12.pdf)
+*   [7] Aydin Buluc. _Linear Algebraic Primitives for Computation on Large Graphs_ . PhD thesis, University of California, Santa Barbara, 2010\. [PDF](https://people.eecs.berkeley.edu/~aydin/Buluc_Dissertation.pdf)
+*   [8] Aydin Buluc, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. _High-Productivity and High-Performance Analysis of Filtered Semantic Graphs_ , International Parallel and Distributed Processing Symposium (IPDPS), 2013\. [PDF](https://people.eecs.berkeley.edu/~aydin/ipdps13-kdtsejits.pdf)
+*   [9] Scott Beamer, Aydin Buluc, Krste Asanovic, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013\. [PDF](http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf)
+*   [10] Ariful Azad, Grey Ballard, Aydin Buluc, James Demmel, Laura Grigori, Oded Schwartz, Sivan Toledo, and Samuel Williams. Exploiting multiple levels of parallelism in sparse matrix-matrix multiplication. SIAM Journal on Scientific Computing (SISC), 38(6):C624-C651, 2016\. [PDF](https://people.eecs.berkeley.edu/~aydin/M104253.pdf)
+*   [11] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximal cardinality matching using matrix algebra. In IEEE International Conference on Cluster Computing (CLUSTER), 2015\. [PDF](https://people.eecs.berkeley.edu/~aydin/maximalMatching.pdf)
+*   [12] Ariful Azad and Aydin Buluc. Distributed-memory algorithms for maximum cardinality matching in bipartite graphs. In Proceedings of the IPDPS, 2016\. [PDF](https://people.eecs.berkeley.edu/~aydin/MCM_IPDPS16_Azad.pdf)
+*   [13] Ariful Azad, Mathias Jacquelin, Aydin Buluc, and Esmond G. Ng. The reverse Cuthill-McKee algorithm in distributed-memory. In Proceedings of the IPDPS, 2017\. [PDF](https://people.eecs.berkeley.edu/~aydin/RCM-ipdps17.pdf)
+*   [14] Ariful Azad and Aydin Buluc. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In Proceedings of the IPDPS, 2017\. [PDF](https://people.eecs.berkeley.edu/~aydin/SpMSpV-ipdps17.pdf)
+*   [15] Yongzhe Zhang, Ariful Azad, and Aydin Buluc. "Parallel algorithms for finding connected components using linear algebra." Journal of Parallel and Distributed Computing (2020). [PDF](https://escholarship.org/content/qt8ms106vm/qt8ms106vm_noSplash_bd6caa99d078099df438bfe7c3854e2b.pdf)
+*   [16] Ariful Azad and Aydin Buluc. LACC: a linear-algebraic algorithm for finding connected components in distributed memory. In Proceedings of the IPDPS, 2019\. [PDF](https://people.eecs.berkeley.edu/~aydin/LACC.pdf)
+*   [17] Yusuke Nagasaka, Satoshi Matsuoka, Ariful Azad, and Aydin Buluc. "Performance optimization, modeling and analysis of sparse matrix-matrix products on multi-core and many-core processors." Parallel Computing 90 (2019): 102545 \. [PDF](https://people.eecs.berkeley.edu/~aydin/spgemm_parco2019.pdf)
+*   [18] Oguz Selvitopi, Md Taufique Hussain, Ariful Azad, and Aydin Buluc. Optimizing high performance Markov clustering for pre-exascale architectures. In Proceedings of the IPDPS, 2020 \. [PDF](https://people.eecs.berkeley.edu/~aydin/HipMCL_PreExascale-IPDPS20.pdf)
+*   [19] Md Taufique Hussain, Oguz Selvitopi, Aydin Buluc, Ariful Azad. Communication-Avoiding and Memory-Constrained Sparse Matrix-Matrix Multiplication at Extreme Scale. \. [PDF](https://arxiv.org/pdf/2010.08526.pdf)
 
 
