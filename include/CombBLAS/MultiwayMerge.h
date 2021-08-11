@@ -688,7 +688,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
     // If sorted=true, columns of the output matrix are sorted
     // --------------------------------------------------------
     template<class SR, class IT, class NT>
-    SpTuples<IT, NT>* MultiwayMergeHashSliding( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true,  const IT maxHashTableSize = 512)
+    SpTuples<IT, NT>* MultiwayMergeHashSliding( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true,  IT maxHashTableSize = 512)
     {
         int nprocs, myrank;
         MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -727,7 +727,8 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         {   
             if((mdim != ArrSpTups[i]->getnrow()) || ndim != ArrSpTups[i]->getncol())
             {
-                std::cerr << "Dimensions of SpTuples do not match on multiwayMerge()" << std::endl;
+                std::cerr << "Dimensions of SpTuples do not match on MultiwayMergeHashSliding()" << std::endl;
+                //std::cerr << mdim << " vs " << ArrSpTups[i]->getnrow() << " | " << ndim << " vs " << ArrSpTups[i]->getncol() << std::endl;
                 return new SpTuples<IT,NT>(0,0,0);
             }
         }
@@ -745,6 +746,9 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         const IT minHashTableSize = 16;
         //const IT maxHashTableSize = 8 * 1024; // Moved to parameter
         const IT hashScale = 107;
+
+        double t_start, t_end;
+        t_start = MPI_Wtime();
         
         /*
          * To store column pointers of CSC like data structures
@@ -778,6 +782,9 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 if(s == nsplits-1) colPtrs[l][ndim] = ArrSpTups[l]->getnnz();
             }
         }
+
+        t_end = MPI_Wtime();
+        if(myrank == 0) printf("[MultiwayMergeHashSliding]\t CSC Creation Time: %lf\n", t_end - t_start);
 
         size_t* flopsPerCol = static_cast<size_t*> (::operator new (sizeof(size_t[ndim]))); 
         IT* nWindowPerColSymbolic = static_cast<IT*> (::operator new (sizeof(IT[ndim])));
@@ -829,7 +836,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
             rowIdsRange[s] = static_cast<std::pair<IT, IT>*> (::operator new (sizeof(std::pair<IT, IT>[nlists])));
         }
 
-        double t_start = MPI_Wtime();
+        t_start = MPI_Wtime();
 
 #ifdef THREADED
 #pragma omp parallel
@@ -847,9 +854,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 for(IT c = startCol; c < endCol; c++){
                     nnzPerCol[c] = 0;
                     nWindowPerCol[c] = 1;
-                    //if(myrank == 0 && c == 80){
-                        //printf("Symbolic of %d with %d flops of %d windows\n", c, flopsPerCol[c], nWindowPerColSymbolic[c]);
-                    //}
                     if(nWindowPerColSymbolic[c] == 1){
                         IT startRow = 0;
                         IT endRow = mdim;
@@ -959,10 +963,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                                 }
                             }
 
-                            //if(myrank == 0 && c == 80){
-                                //printf("column %d: window %d nnz %d\n", c, w, windowsSymbolic[wsIdx].second);
-                            //}
-                            
                             if(w == 0){
                                 runningSum = windowsSymbolic[wsIdx].second;
                             }
@@ -980,30 +980,13 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 }
             }
         }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0){
-            printf("Symbolic done\n");
-        }
-        std::fflush(stdout);
-
     
         /*
          * Now collapse symbolic windows to get windows of actual computation
          * */
         IT* prefixSumWindow = prefixSum<IT>(nWindowPerCol, ndim, nthreads);
 
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0) printf("%d: for %d columns, %d windows will be collapsed into %d windows\n", myrank, ndim, prefixSumWindowSymbolic[ndim], prefixSumWindow[ndim]);
-        //std::fflush(stdout);
-
         std::pair<IT, IT>* windows = static_cast<std::pair<IT, IT>*> (::operator new (sizeof(std::pair<IT, IT>[prefixSumWindow[ndim]])));
-
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //if(myrank == 0){
-            //printf("Windows allocated\n");
-        //}
-        //std::fflush(stdout);
 
 #ifdef THREADED
 #pragma omp parallel for schedule(dynamic)
@@ -1032,13 +1015,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
             }
         }
 
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0){
-            printf("Windows collapsed\n");
-        }
-        std::fflush(stdout);
-
-
         IT* prefixSumNnzPerCol = prefixSum<IT>(nnzPerCol, ndim, nthreads);
         IT totalNnz = prefixSumNnzPerCol[ndim];
         std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[totalNnz])));
@@ -1057,9 +1033,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 IT endCol = colSplitters[s+1];
                 for(IT c = startCol; c < endCol; c++){
                     IT nWindow = nWindowPerCol[c];
-                    if(myrank == 0 && s == 0){
-                        printf("column %d/[%d-%d] %d nnz are going to be processed with %d windows\n", c, startCol, endCol, nnzPerCol[c], nWindow);
-                    }
                     if(nWindow == 1){
                         IT wcIdx = prefixSumWindow[c];
                         IT nnzWindow = windows[wcIdx].second;
@@ -1077,37 +1050,15 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                         }
 
                         for(int l = 0; l < nlists; l++){
-                            //if(myrank == 0 && s == 0){
-                                //printf("processing list %d: ", l);
-                                //IT i = colPtrs[l][c];
-                                //if(i > startCol) printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i-1), ArrSpTups[l]->colindex(i-1), ArrSpTups[l]->numvalue(i-1));
-                                //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i));
-                                //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i+1), ArrSpTups[l]->colindex(i+1), ArrSpTups[l]->numvalue(i+1));
-                                //printf("...");
-                                //i = colPtrs[l][c+1];
-                                //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i-1), ArrSpTups[l]->colindex(i-1), ArrSpTups[l]->numvalue(i-1));
-                                //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i));
-                                //if(i < endCol-1) printf("(%d, %d, %lf)\n", ArrSpTups[l]->rowindex(i+1), ArrSpTups[l]->colindex(i+1), ArrSpTups[l]->numvalue(i+1));
-                                
-                            //}
                             for(IT i = colPtrs[l][c]; i < colPtrs[l][c+1]; i++){
-                                //if(myrank == 0 && s == 0){
-                                    //printf("position %d of list %d is being processed: (%d, %d, %lf)\n", i, l, ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i) );
-                                //}
                                 IT key = ArrSpTups[l]->rowindex(i);
                                 IT hash = (key * hashScale) & (htSize-1);
                                 while (1) {
                                     //hash probing
-                                    //if(myrank == 0 && s == 0){
-                                        //printf("probing entry %d : (%d, %lf): ", hash, globalHashVec[hash].first, globalHashVec[hash].second);
-                                    //}
                                     if (globalHashVec[hash].first == key) {
                                         //key is found in hash table
                                         // Add to the previos value stored in the position
                                         globalHashVec[hash].second += ArrSpTups[l]->numvalue(i);
-                                        //if(myrank == 0 && s == 0){
-                                            //printf("reduced (%d, %lf)\n", globalHashVec[hash].first, globalHashVec[hash].second);
-                                        //}
                                         break;
                                     }
                                     else if (globalHashVec[hash].first == -1) {
@@ -1115,17 +1066,11 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                                         // Register the key and store the value
                                         globalHashVec[hash].first = key;
                                         globalHashVec[hash].second = ArrSpTups[l]->numvalue(i);
-                                        //if(myrank == 0 && s == 0){
-                                            //printf("registered (%d, %lf)\n", globalHashVec[hash].first, globalHashVec[hash].second);
-                                        //}
                                         break;
                                     }
                                     else {
                                         //key is not found
                                         hash = (hash+1) & (htSize-1);
-                                        //if(myrank == 0 && s == 0){
-                                            //printf("place taken\n");
-                                        //}
                                     }
                                 }
                             }
@@ -1155,9 +1100,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                         }
                     }
                     else{
-                        if(myrank == 0 && s == 0){
-                            printf("column %d/[%d-%d] %d nnz are going to be processed with %d windows\n", c, startCol, endCol, nnzPerCol[c], nWindow);
-                        }
                         for (int l = 0; l < nlists; l++){
                             rowIdsRange[s][l].first = colPtrs[l][c];
                             rowIdsRange[s][l].second = colPtrs[l][c+1];
@@ -1167,9 +1109,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                             IT wcIdx = prefixSumWindow[c] + w;
                             IT startRow = windows[wcIdx].first;
                             IT endRow = (w == nWindow-1) ? mdim : windows[wcIdx+1].first;
-                            if(myrank == 0 && s == 0){
-                                printf("window %d: [%d, %d)\n", w, startRow, endRow);
-                            }
                             IT nnzWindow = windows[wcIdx].second;
 
                             size_t htSize = minHashTableSize;
@@ -1178,37 +1117,16 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                             for(size_t j = 0; j < htSize; j++) globalHashVec[j].first = -1;
 
                             for(int l = 0; l < nlists; l++){
-                                if(myrank == 0 && s == 0){
-                                    printf("processing list %d of window %d:\n", l, w);
-                                    //IT i = colPtrs[l][c];
-                                    //if(i > startCol) printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i-1), ArrSpTups[l]->colindex(i-1), ArrSpTups[l]->numvalue(i-1));
-                                    //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i));
-                                    //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i+1), ArrSpTups[l]->colindex(i+1), ArrSpTups[l]->numvalue(i+1));
-                                    //printf("...");
-                                    //i = colPtrs[l][c+1];
-                                    //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i-1), ArrSpTups[l]->colindex(i-1), ArrSpTups[l]->numvalue(i-1));
-                                    //printf("(%d, %d, %lf), ", ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i));
-                                    //if(i < endCol-1) printf("(%d, %d, %lf)\n", ArrSpTups[l]->rowindex(i+1), ArrSpTups[l]->colindex(i+1), ArrSpTups[l]->numvalue(i+1));
-                                }
-                                while( (rowIdsRange[s][l].first < rowIdsRange[s][l].second) && (rowIdsRange[s][l].first < endRow) ){
+                                while( rowIdsRange[s][l].first < rowIdsRange[s][l].second ){
                                     IT i = rowIdsRange[s][l].first;
                                     IT key = ArrSpTups[l]->rowindex(i);
+                                    if(key >= endRow) break;
                                     IT hash = (key * hashScale) & (htSize-1);
-                                    if(myrank == 0 && s == 0){
-                                        printf("[first %d, second %d, endRow %d]: position %d of list %d is being processed: (%d, %d, %lf)\n", rowIdsRange[s][l].first, rowIdsRange[s][l].second, endRow, i, l, ArrSpTups[l]->rowindex(i), ArrSpTups[l]->colindex(i), ArrSpTups[l]->numvalue(i) );
-                                    }
                                     while (1) {
-                                        //hash probing
-                                        if(myrank == 0 && s == 0){
-                                            printf("probing entry %d : (%d, %lf): ", hash, globalHashVec[hash].first, globalHashVec[hash].second);
-                                        }
                                         if (globalHashVec[hash].first == key) {
                                             //key is found in hash table
                                             // Add to the previos value stored in the position
                                             globalHashVec[hash].second += ArrSpTups[l]->numvalue(i);
-                                            if(myrank == 0 && s == 0){
-                                                printf("reduced (%d, %lf)\n", globalHashVec[hash].first, globalHashVec[hash].second);
-                                            }
                                             break;
                                         }
                                         else if (globalHashVec[hash].first == -1) {
@@ -1216,17 +1134,11 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                                             // Register the key and store the value
                                             globalHashVec[hash].first = key;
                                             globalHashVec[hash].second = ArrSpTups[l]->numvalue(i);
-                                            if(myrank == 0 && s == 0){
-                                                printf("registered (%d, %lf)\n", globalHashVec[hash].first, globalHashVec[hash].second);
-                                            }
                                             break;
                                         }
                                         else {
                                             //key is not found
                                             hash = (hash+1) & (htSize-1);
-                                            if(myrank == 0 && s == 0){
-                                                printf("place taken\n");
-                                            }
                                         }
                                     }
                                     rowIdsRange[s][l].first++;
@@ -1260,7 +1172,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
             }
         }
 
-        double t_end = MPI_Wtime();
+        t_end = MPI_Wtime();
         if(myrank == 0) printf("[MultiwayMergeHashSliding]\tTime: %lf\n", t_end - t_start);
         
         // Delete all allocated memories by prefixSum function
