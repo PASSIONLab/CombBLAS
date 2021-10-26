@@ -81,7 +81,6 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 
 /**
   * Initialize a FullyDistVec with a separate vector from each processor
-  * Optimizes for the common case where all fillarr's in separate processors are of the same size
   * \pre{fillarr sizes does not have to exactly follow how CombBLAS would distribute a FullyDistVec}
   * \warning{However, they should be consecutive across processors. I.e., fillarr.front() at proc i+1 immediately follows fillarr.back() at proc i.}
   */
@@ -99,53 +98,37 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), sizes, 1, MPIType<IT>(), World);
 	glen = std::accumulate(sizes, sizes+nprocs, static_cast<IT>(0));
 
-	bool unique = true;
+	IT lengthuntil = std::accumulate(sizes, sizes+rank, static_cast<IT>(0));
+		
+	// Although the found vector is not reshuffled yet, its glen and commGrid are set
+	// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
+		
+	// rebalance/redistribute
+	int * sendcnt = new int[nprocs](); // no need to std::fill as this type of new[] with () will initialize PODs correctly
+	for(IT i=0; i<nsize; ++i)
+	{
+		IT locind;
+		int owner = Owner(i+lengthuntil, locind);	
+		++sendcnt[owner];
+	}
+	int * recvcnt = new int[nprocs];
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
+		
+	int * sdispls = new int[nprocs];
+	int * rdispls = new int[nprocs];
+	sdispls[0] = 0;
+	rdispls[0] = 0;
 	for(int i=0; i<nprocs-1; ++i)
 	{
-		if(sizes[i] != sizes[i+1])
-		{
-			unique = false;
-			break;
-		}
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	if(unique)
-	{
-		arr = fillarr;
-	}
-	else 
-	{
-		IT lengthuntil = std::accumulate(sizes, sizes+rank, static_cast<IT>(0));
+	IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	arr.resize(totrecv);
 		
-		// Although the found vector is not reshuffled yet, its glen and commGrid are set
-		// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
-		
-		// rebalance/redistribute
-		int * sendcnt = new int[nprocs](); // no need to std::fill as this type of new[] with () will initialize PODs correctly
-		for(IT i=0; i<nsize; ++i)
-		{
-			IT locind;
-			int owner = Owner(i+lengthuntil, locind);	
-			++sendcnt[owner];
-		}
-		int * recvcnt = new int[nprocs];
-		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
-		
-		int * sdispls = new int[nprocs];
-		int * rdispls = new int[nprocs];
-		sdispls[0] = 0;
-		rdispls[0] = 0;
-		for(int i=0; i<nprocs-1; ++i)
-		{
-			sdispls[i+1] = sdispls[i] + sendcnt[i];
-			rdispls[i+1] = rdispls[i] + recvcnt[i];
-		}
-		IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-		arr.resize(totrecv);
-		
-		// data is already in the right order in found.arr
-		MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<NT>(), arr.data(), recvcnt, rdispls, MPIType<NT>(), World);
-		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
-	}
+	// data is already in the right order in found.arr
+	MPI_Alltoallv(fillarr.data(), sendcnt, sdispls, MPIType<NT>(), arr.data(), recvcnt, rdispls, MPIType<NT>(), World);
+	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	delete [] sizes;	
 }
 
