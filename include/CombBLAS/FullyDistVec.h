@@ -66,8 +66,8 @@ public:
 	FullyDistVec ( std::shared_ptr<CommGrid> grid);
 	FullyDistVec ( std::shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector from each processor
-	
+    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector of length n/p from each processor 
+
 
 	template <class ITRHS, class NTRHS>
 	FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs ); // type converter constructor

@@ -82,8 +82,8 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 /**
   * Initialize a FullyDistVec with a separate vector from each processor
   * Optimizes for the common case where all fillarr's in separate processors are of the same size
-  * \pre{fillarr sizes exactly follow how CombBLAS would distribute a FullyDistVec}
-  * \warning{This should only be used by an expert user who fully understands CombBLAS's FullyDistVec distribution}
+  * \pre{fillarr sizes does not have to exactly follow how CombBLAS would distribute a FullyDistVec}
+  * \warning{However, they should be consecutive across processors. I.e., fillarr.front() at proc i+1 immediately follows fillarr.back() at proc i.}
   */
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ) 
@@ -150,11 +150,10 @@ FullyDistVec<IT, NT>::FullyDistVec ( const std::vector<NT> & fillarr, std::share
 }
 
 
+
 template <class IT, class NT>
 std::pair<IT, NT> FullyDistVec<IT,NT>::MinElement() const
 {
-   
-    
     auto it = min_element(arr.begin(), arr.end());
     NT localMin = *it;
     NT globalMin;
