@@ -6,17 +6,17 @@
 /****************************************************************/
 /*
  Copyright (c) 2010-2017, The Regents of the University of California
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -66,7 +66,7 @@ public:
 	FullyDistVec ( std::shared_ptr<CommGrid> grid);
 	FullyDistVec ( std::shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector of length n/p from each processor 
+    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector of length n/p from each processor
 
 
 	template <class ITRHS, class NTRHS>
@@ -84,7 +84,7 @@ public:
 			is >> v;
 			return v;
 		}
-	
+
 		template <typename c, typename t>
 		void save(std::basic_ostream<c,t>& os, const NT& v, IT index)
 		{
@@ -97,9 +97,9 @@ public:
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
         	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices);
-	}  
+	}
 	void ParallelWrite(const std::string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
-	
+
 
 	template <typename _BinaryOperation>
    	void ParallelRead (const std::string & filename, bool onebased, _BinaryOperation BinOp)
@@ -107,12 +107,12 @@ public:
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
         	tmpSpVec.ParallelRead(filename, onebased, BinOp);
 		*this = tmpSpVec;	// sparse -> dense conversion
-	}  
+	}
 
 	template <class HANDLER>
-	std::ifstream& ReadDistribute (std::ifstream& infile, int master, HANDLER handler);	
+	std::ifstream& ReadDistribute (std::ifstream& infile, int master, HANDLER handler);
 	std::ifstream& ReadDistribute (std::ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
-	
+
 	template <class HANDLER>
 	void SaveGathered(std::ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
 	void SaveGathered(std::ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler(), false); }
@@ -122,7 +122,7 @@ public:
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
-    
+
     FullyDistVec<IT,NT> &  operator=(NT fixedval) // assign fixed value
     {
 #ifdef _OPENMP
@@ -133,10 +133,10 @@ public:
         return *this;
     }
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
-	
-	FullyDistVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);		
+
+	FullyDistVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);
 	FullyDistVec<IT,NT> & operator+=(const FullyDistVec<IT,NT> & rhs);
-	FullyDistVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);		
+	FullyDistVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);
 	FullyDistVec<IT,NT> & operator-=(const FullyDistVec<IT,NT> & rhs);
 	bool operator==(const FullyDistVec<IT,NT> & rhs) const;
 
@@ -166,12 +166,13 @@ public:
     //TODO: we should change this function and return the vector directly
     const NT * GetLocArr() const { return arr.data(); }	// = MyLocLength() once arr is resized
 
-	
+    const std::vector<NT>& GetLocVec() const { return arr; }
+
 	template <typename _Predicate>
 	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
     FullyDistSpVec<IT,NT> Find(NT val) const;	//!< Return the elements val is found
-    
+
 	template <typename _Predicate>
 	FullyDistVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
 
@@ -180,10 +181,10 @@ public:
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
-	{	
+	{
     std::transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
 	}
-	
+
 	template <typename _BinaryOperation>
 	void ApplyInd(_BinaryOperation __binary_op)
 	{
@@ -242,7 +243,7 @@ public:
 	{
 		this->EWiseApply(other, __binary_op, retTrue<NT, NT2>(), applyNulls, nullValue);
 	}
-	
+
 	void PrintToFile(std::string prefix)
 	{
 		std::ofstream output;
@@ -255,10 +256,10 @@ public:
 	void PrintInfo(std::string vectorname) const;
 	void DebugPrint();
 	std::shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
-	
+
     std::pair<IT, NT> MinElement() const; // returns <index, value> pair of global minimum
-    
-    
+
+
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity) const;	//! Reduce can be used to implement max_element, for instance
 
@@ -266,17 +267,17 @@ public:
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const;
 
 	void SelectCandidates(double nver);
-    
+
     template <typename _BinaryOperation, typename OUT = typename std::result_of<_BinaryOperation&(NT,NT)>::type>
     void EWiseOut(const FullyDistVec<IT,NT> & rhs, _BinaryOperation __binary_op, FullyDistVec<IT,OUT> & result);
 
-	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::glen; 
-	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::commGrid; 
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::glen;
+	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::commGrid;
 
 private:
 	std::vector< NT > arr;
 
-	template <typename _BinaryOperation>	
+	template <typename _BinaryOperation>
 	void EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op);
 
 	template <class IU, class NU>
@@ -290,43 +291,43 @@ private:
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;
-	
+
 	template <class IU, class NU>
 	friend class DenseVectorLocalIterator;
 
-	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
-	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER>
+	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x );
 
 	template <typename IU, typename NU1, typename NU2>
-	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
+	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote>
 	EWiseMult (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero);
 
 	template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
+	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote>
 	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, typename promote_trait<NU1,NU2>::T_promote zero);
 
 	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-	friend FullyDistSpVec<IU,RET> 
+	friend FullyDistSpVec<IU,RET>
 	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp);
-    
+
     template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
     friend FullyDistSpVec<IU,RET>
     EWiseApply_threaded (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp);
-    
+
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
-	
+
 	template <typename IU, typename NU>
 	friend FullyDistVec<IU,NU> Concatenate ( std::vector< FullyDistVec<IU,NU> > & vecs);
-    
+
     template <typename IU, typename NU>
     friend void Augment (FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
                          FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves);
     template <class IU, class DER>
     friend SpParMat<IU, bool, DER> PermMat (const FullyDistVec<IU,IU> & ri, const IU ncol);
-    
-    
+
+
     friend void maximumMatching(SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,FullyDistVec<int64_t, int64_t>& mateCol2Row);
 };
 
