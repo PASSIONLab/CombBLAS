@@ -59,12 +59,14 @@ public:
 		IT	bs = nr_ / br_;
 		IT	r  = nr_ % br_;
 		roffset = (std::min(static_cast<IT>(rbid), r)*(bs+1)) +
-			(std::max(static_cast<IT>(0), rbid-r)*bs);
+			((rbid < r ? 0 : rbid-r)*bs);
+			// (std::max(static_cast<IT>(0), rbid-r)*bs);
 
 		bs = nc_ / bc_;
 		r  = nc_ % bc_;
 		coffset = (std::min(static_cast<IT>(cbid), r)*(bs+1)) +
-			(std::max(static_cast<IT>(0), cbid-r)*bs);
+			((cbid < r ? 0 : cbid-r)*bs);
+			// (std::max(static_cast<IT>(0), cbid-r)*bs);
 
 		return Mult_AnXBn_DoubleBuff<SR, NTC, DERC>
 			(A_blocks_[rbid][0], B_blocks_[0][cbid], false, false);
@@ -91,15 +93,40 @@ public:
 		IT	bs = nr_ / br_;
 		IT	r  = nr_ % br_;
 		roffset = (std::min(static_cast<IT>(rbid), r)*(bs+1)) +
-			(std::max(static_cast<IT>(0), rbid-r)*bs);
+			((rbid < r ? 0 : rbid-r)*bs);
+			// (std::max(static_cast<IT>(0), rbid-r)*bs);
 
 		bs = nc_ / bc_;
 		r  = nc_ % bc_;
 		coffset = (std::min(static_cast<IT>(cbid), r)*(bs+1)) +
-			(std::max(static_cast<IT>(0), cbid-r)*bs);
+			((cbid < r ? 0 : cbid-r)*bs);
+			// (std::max(static_cast<IT>(0), cbid-r)*bs);
 
 		return Mult_AnXBn_DoubleBuff<SR, NTC, DERC>
 			(A_blocks_[rbid][0], B_blocks_[0][cbid], false, false);
+	}
+
+
+
+	std::vector<IT>
+	getBlockOffsets (bool is_row)
+	{
+		IT	bs = nr_ / br_;
+		IT	r  = nr_ % br_;
+		if (!is_row)
+		{
+			bs = nc_ / bc_;
+			r  = nc_ % bc_;
+		}
+
+		int nblocks = (is_row ? br_ : bc_);
+		std::vector<IT> offsets(nblocks+1);
+		for (int b = 0; b < nblocks; ++b)
+			offsets[b] = (std::min(static_cast<IT>(b), r)*(bs+1)) +
+				((b < r ? 0 : b-r)*bs);
+		offsets[nblocks] = (is_row ? nr_ : nc_);
+
+		return offsets;
 	}
 };
 
