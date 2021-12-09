@@ -327,7 +327,8 @@ void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<I
         
         const IT minHashTableSize = 16;
         const IT hashScale = 107;
-        std::vector< std::pair<IT,NT>> globalHashVec(std::max(minHashTableSize, maxcolnnz*2));
+        //std::vector< std::pair<IT,NT>> globalHashVec(std::max(minHashTableSize, maxcolnnz*2));
+        std::vector< std::pair<uint32_t,NT>> globalHashVec(std::max(minHashTableSize, maxcolnnz*2));
         
         for(IT col = 0; col<ncols; col++)
         {
@@ -381,7 +382,8 @@ void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<I
                         globalHashVec[index++] = globalHashVec[j];
                     }
                 }
-                std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
+                integerSort<NT>(globalHashVec.data(), index);
+                //std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
                 
                 
                 for (size_t j=0; j < index; ++j)
@@ -534,7 +536,10 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
     template<class SR, class IT, class NT>
     SpTuples<IT, NT>* MultiwayMergeHash( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true )
     {
-        
+        int nprocs, myrank;
+        MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
         int nlists =  ArrSpTups.size();
         if(nlists == 0)
         {
@@ -629,14 +634,11 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
             
             nnzPerColSplit[i] = SerialMergeNNZHash(listSplitTups[i], mergedNnzPerSplit[i], maxNnzPerColumnSplit[i], startCol, endCol);
         }
-        
        
         std::vector<IT> mdisp(nsplits+1,0);
         for(int i=0; i<nsplits; ++i)
             mdisp[i+1] = mdisp[i] + mergedNnzPerSplit[i];
         IT mergedNnzAll = mdisp[nsplits];
-        
-   
 
         // ------ allocate memory outside of the parallel region ------
         std::tuple<IT, IT, NT> * mergeBuf = static_cast<std::tuple<IT, IT, NT>*> (::operator new (sizeof(std::tuple<IT, IT, NT>[mergedNnzAll])));
@@ -688,7 +690,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
     // If sorted=true, columns of the output matrix are sorted
     // --------------------------------------------------------
     template<class SR, class IT, class NT>
-    SpTuples<IT, NT>* MultiwayMergeHashSliding( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true,  IT maxHashTableSize = 512)
+    SpTuples<IT, NT>* MultiwayMergeHashSliding( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT mdim = 0, IT ndim = 0, bool delarrs = false, bool sorted=true,  IT maxHashTableSize = 16384)
     {
         int nprocs, myrank;
         MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -746,9 +748,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         const IT minHashTableSize = 16;
         //const IT maxHashTableSize = 8 * 1024; // Moved to parameter
         const IT hashScale = 107;
-
-        double t_start, t_end;
-        t_start = MPI_Wtime();
         
         /*
          * To store column pointers of CSC like data structures
@@ -782,9 +781,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 if(s == nsplits-1) colPtrs[l][ndim] = ArrSpTups[l]->getnnz();
             }
         }
-
-        t_end = MPI_Wtime();
-        if(myrank == 0) printf("[MultiwayMergeHashSliding]\t CSC Creation Time: %lf\n", t_end - t_start);
 
         size_t* flopsPerCol = static_cast<size_t*> (::operator new (sizeof(size_t[ndim]))); 
         IT* nWindowPerColSymbolic = static_cast<IT*> (::operator new (sizeof(IT[ndim])));
@@ -835,8 +831,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
         for(int s = 0; s < nsplits; s++){
             rowIdsRange[s] = static_cast<std::pair<IT, IT>*> (::operator new (sizeof(std::pair<IT, IT>[nlists])));
         }
-
-        t_start = MPI_Wtime();
 
 #ifdef THREADED
 #pragma omp parallel
@@ -980,12 +974,11 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 }
             }
         }
-    
+
         /*
          * Now collapse symbolic windows to get windows of actual computation
          * */
         IT* prefixSumWindow = prefixSum<IT>(nWindowPerCol, ndim, nthreads);
-
         std::pair<IT, IT>* windows = static_cast<std::pair<IT, IT>*> (::operator new (sizeof(std::pair<IT, IT>[prefixSumWindow[ndim]])));
 
 #ifdef THREADED
@@ -1033,6 +1026,7 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 IT endCol = colSplitters[s+1];
                 for(IT c = startCol; c < endCol; c++){
                     IT nWindow = nWindowPerCol[c];
+                    IT outptr = prefixSumNnzPerCol[c];
                     if(nWindow == 1){
                         IT wcIdx = prefixSumWindow[c];
                         IT nnzWindow = windows[wcIdx].second;
@@ -1083,18 +1077,18 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                                     index++;
                                 }
                             }
-                            //integerSort<NT>(globalHashVec.data(), index);
-                            std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
+                            integerSort<NT>(globalHashVec.data(), index);
+                            //std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
                             for(size_t j = 0; j < index; j++){
-                                mergeBuf[prefixSumNnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
-                                prefixSumNnzPerCol[c]++;
+                                mergeBuf[outptr] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                outptr++;
                             }
                         }
                         else{
                             for (size_t j=0; j < htSize; j++){
                                 if (globalHashVec[j].first != -1){
-                                    mergeBuf[prefixSumNnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
-                                    prefixSumNnzPerCol[c]++;
+                                    mergeBuf[outptr] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                    outptr++;
                                 }
                             }
                         }
@@ -1151,18 +1145,18 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                                         globalHashVec[index++] = globalHashVec[j];
                                     }
                                 }
-                                //integerSort<NT>(globalHashVec.data(), index);
-                                std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
+                                integerSort<NT>(globalHashVec.data(), index);
+                                //std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NT>);
                                 for(size_t j = 0; j < index; j++){
-                                    mergeBuf[prefixSumNnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
-                                    prefixSumNnzPerCol[c]++;
+                                    mergeBuf[outptr] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                    outptr++;
                                 }
                             }
                             else{
                                 for (size_t j=0; j < htSize; j++){
                                     if (globalHashVec[j].first != -1){
-                                        mergeBuf[prefixSumNnzPerCol[c]] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
-                                        prefixSumNnzPerCol[c]++;
+                                        mergeBuf[outptr] = std::tuple<IT, IT, NT>(globalHashVec[j].first, c, globalHashVec[j].second);
+                                        outptr++;
                                     }
                                 }
                             }
@@ -1171,9 +1165,6 @@ SpTuples<IT, NT>* MultiwayMerge( std::vector<SpTuples<IT,NT> *> & ArrSpTups, IT 
                 }
             }
         }
-
-        t_end = MPI_Wtime();
-        if(myrank == 0) printf("[MultiwayMergeHashSliding]\tTime: %lf\n", t_end - t_start);
         
         // Delete all allocated memories by prefixSum function
         delete [] prefixSumFlopsPerCol;
