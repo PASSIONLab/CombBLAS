@@ -3140,7 +3140,7 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
         }
     }
 
-    MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, A.getcommgrid3D()->fiberWorld);
+    MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, A.getcommgrid3D()->GetFiberWorld());
 
     for(int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++) recvcnt[i] = recvprfl[i*3];
     std::partial_sum(recvcnt, recvcnt+A.getcommgrid3D()->GetGridLayers()-1, rdispls+1);
@@ -3150,7 +3150,7 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
 #ifdef TIMING
     t2 = MPI_Wtime();
 #endif
-    MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, A.getcommgrid3D()->fiberWorld);
+    MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, A.getcommgrid3D()->GetFiberWorld());
     delete C_tuples;
 #ifdef TIMING
     t3 = MPI_Wtime();
@@ -3352,7 +3352,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
          * Create a new layer-wise distributed matrix with the newly created local matrix for this phase
          * This matrix is used in SUMMA multiplication of respective layer
          * */
-        SpParMat<IU, NU2, UDERB> OnePieceOfBLayer(OnePieceOfB, A.getcommgrid3D()->layerWorld);
+        SpParMat<IU, NU2, UDERB> OnePieceOfBLayer(OnePieceOfB, A.getcommgrid3D()->GetLayerWorld());
 #ifdef TIMING
         t0 = MPI_Wtime();
 #endif
@@ -3577,7 +3577,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, A.getcommgrid3D()->fiberWorld);
+        MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, A.getcommgrid3D()->GetFiberWorld());
 #ifdef TIMING
         t3 = MPI_Wtime();
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAlltoall: %lf\n", p, (t3-t2));
@@ -3597,7 +3597,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, A.getcommgrid3D()->fiberWorld);
+        MPI_Alltoallv(C_tuples->tuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, A.getcommgrid3D()->GetFiberWorld());
         delete C_tuples;
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3667,7 +3667,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         // This operation is being done because it is needed by MCLPruneRecoverySelect
         UDERO * phaseResultant = new UDERO(*merged_tuples, false);
         delete merged_tuples;
-        SpParMat<IU, NUO, UDERO> phaseResultantLayer(phaseResultant, A.getcommgrid3D()->layerWorld);
+        SpParMat<IU, NUO, UDERO> phaseResultantLayer(phaseResultant, A.getcommgrid3D()->GetLayerWorld());
         MCLPruneRecoverySelect(phaseResultantLayer, hardThreshold, selectNum, recoverNum, recoverPct, kselectVersion);
 #ifdef TIMING
         t1 = MPI_Wtime();

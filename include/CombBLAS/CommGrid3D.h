@@ -98,20 +98,21 @@ public:
     int GetGridCols() {return gridCols;}
     int GetSize() { return gridLayers * gridRows * gridCols; }
     bool isSpecial() { return special; }
-    MPI_Comm GetWorld(){return world3D;}
-    MPI_Comm GetFiberWorld(){return fiberWorld;}
-    MPI_Comm GetLayerWorld(){return layerWorld;}
+    MPI_Comm & GetWorld(){return world3D;}
+    MPI_Comm & GetFiberWorld(){return fiberWorld;}
+    MPI_Comm & GetLayerWorld(){return layerWorld;}
     std::shared_ptr<CommGrid> GetCommGridLayer(){return commGridLayer;}
+    int GetRankInWorld(){return myrank;}
+    int GetRankInFiber(){return rankInFiber;}
+    int GetRankInLayer(){return rankInLayer;}
+private:
     bool special;
-	int gridRows; // Number of processors along row of each layer in this 3D CommGrid
-	int gridCols; // Number of processors along column of each layer in this 3D CommGrid
+    int gridRows; // Number of processors along row of each layer in this 3D CommGrid
+    int gridCols; // Number of processors along column of each layer in this 3D CommGrid
     int gridLayers; // Number of layers in this 3D CommGrid
     int myrank; // ID of the running processor in the communication world
-    int GetRankInWorld(){return myrank;}
     int rankInFiber;
-    int GetRankInFiber(){return rankInFiber;}
     int rankInLayer;
-    int GetRankInLayer(){return rankInLayer;}
     MPI_Comm world3D;
     MPI_Comm layerWorld;
     MPI_Comm fiberWorld;
