@@ -298,8 +298,8 @@ public:
 	typename DER::LocalIT getlocalrows() const { return spSeq->getnrow(); }
 	typename DER::LocalIT getlocalcols() const { return spSeq->getncol();} 
 	typename DER::LocalIT getlocalnnz() const { return spSeq->getnnz(); }
-	DER & seq() { return (*spSeq); }
-	DER * seqptr() { return spSeq; }
+	DER & seq() const { return (*spSeq); }
+	DER * seqptr() const { return spSeq; }
     
     template <typename _BinaryOperation, typename LIT>
     void SparseCommon(std::vector< std::vector < std::tuple<LIT,LIT,NT> > > & data, LIT locsize, IT total_m, IT total_n, _BinaryOperation BinOp);

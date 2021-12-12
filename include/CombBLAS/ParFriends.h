@@ -3683,7 +3683,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 
     std::shared_ptr<CommGrid3D> grid3d;
     grid3d.reset(new CommGrid3D(A.getcommgrid3D()->GetWorld(), A.getcommgrid3D()->GetGridLayers(), A.getcommgrid3D()->GetGridRows(), A.getcommgrid3D()->GetGridCols(), A.isSpecial()));
-    UDERO * localResultant = new UDERO(0, A.GetLayerMat()->seqptr()->getnrow(), divisions3d[A.getcommgrid3D()->rankInFiber], 0);
+    UDERO * localResultant = new UDERO(0, A.GetLayerMat()->seqptr()->getnrow(), divisions3d[A.getcommgrid3D()->GetRankInFiber()], 0);
     localResultant->ColConcatenate(toconcatenate);
     SpParMat3D<IU, NUO, UDERO> C3D(localResultant, grid3d, A.isColSplit(), A.isSpecial());
     return C3D;

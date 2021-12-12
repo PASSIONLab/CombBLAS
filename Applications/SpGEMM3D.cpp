@@ -119,6 +119,8 @@ int main(int argc, char* argv[])
         SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D = 
             Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
             (A2D, B2D);
+
+        if(myrank == 0) fprintf(stderr, "2D Multiplication done \n");
         
         // Increase number of layers 1 -> 4 -> 16
         for(int layers = 1; layers <= 16; layers = layers * 4){
