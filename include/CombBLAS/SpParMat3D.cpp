@@ -47,6 +47,121 @@ extern "C" {
 
 namespace combblas
 {
+    template <class IT, class NT>
+    std::tuple<IT,IT,NT>* ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
+    {
+        /* Create/allocate variables for vector assignment */
+        MPI_Datatype MPI_tuple;
+        MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
+        MPI_Type_commit(&MPI_tuple);
+
+        int nprocs;
+        MPI_Comm_size(World, &nprocs);
+
+        int * sendcnt = new int[nprocs];
+        int * recvcnt = new int[nprocs];
+        int * sdispls = new int[nprocs]();
+        int * rdispls = new int[nprocs]();
+
+        // Set the newly found vector entries
+        IT totsend = 0;
+        for(IT i=0; i<nprocs; ++i)
+        {
+            sendcnt[i] = tempTuples[i].size();
+            totsend += tempTuples[i].size();
+        }
+
+        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+
+        std::partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+        std::partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+        IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+
+        std::vector< std::tuple<IT,IT,NT> > sendTuples(totsend);
+        for(int i=0; i<nprocs; ++i)
+        {
+            copy(tempTuples[i].begin(), tempTuples[i].end(), sendTuples.data()+sdispls[i]);
+            std::vector< std::tuple<IT,IT,NT> >().swap(tempTuples[i]);    // clear memory
+        }
+
+        std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
+        //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
+        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+        DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
+        MPI_Type_free(&MPI_tuple);
+        datasize = totrecv;
+        return recvTuples;
+    }
+
+    template <class IT, class NT, class DER>
+    void SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, vector<DER> & recvChunks){
+        int myrank;
+        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+        double vm_usage, resident_set;
+        typedef typename DER::LocalIT LIT;
+        int numChunks = sendChunks.size();
+
+        MPI_Datatype MPI_tuple;
+        MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
+        MPI_Type_commit(&MPI_tuple);
+
+        int * sendcnt = new int[numChunks];
+        int * sendprfl = new int[numChunks*3];
+        int * sdispls = new int[numChunks]();
+        int * recvcnt = new int[numChunks];
+        int * recvprfl = new int[numChunks*3];
+        int * rdispls = new int[numChunks]();
+
+        IT totsend = 0;
+        for(IT i=0; i<numChunks; ++i){
+            sendprfl[i*3] = sendChunks[i].getnnz();
+            sendprfl[i*3+1] = sendChunks[i].getnrow();
+            sendprfl[i*3+2] = sendChunks[i].getncol();
+            sendcnt[i] = sendprfl[i*3];
+            totsend += sendcnt[i];
+        }
+
+        MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
+        for(int i = 0; i < numChunks; i++) recvcnt[i] = recvprfl[i*3];
+
+        std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
+        std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
+        IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
+
+        std::tuple<LIT,LIT,NT>* sendTuples = new std::tuple<LIT,LIT,NT>[totsend];
+	    std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
+
+        int kk=0;
+        for(int i = 0; i < numChunks; i++){
+            for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
+                for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
+                    NT val = nzit.value();
+                    sendTuples[kk++] = std::make_tuple(nzit.rowid(), colit.colid(), nzit.value());
+                }
+            }
+        }
+
+        MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
+	    DeleteAll(sendcnt, sendprfl, sdispls, sendTuples);
+
+        //tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
+        tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
+        for (int i = 0; i < numChunks; i++){
+            tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
+            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
+        }
+
+        for (int i = 0; i < numChunks; i++){
+            recvChunks.push_back(DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
+        }
+
+        // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
+        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); 
+        MPI_Type_free(&MPI_tuple);
+
+	    return;
+    }
+
     template <class IT, class NT, class DER>
     SpParMat3D<IT, NT, DER>::~SpParMat3D(){
         // No need to delete layermat because it is a smart pointer
@@ -544,121 +659,6 @@ namespace combblas
         return totalnz;
     }
 
-    template <class IT, class NT>
-    std::tuple<IT,IT,NT>* ExchangeData(std::vector<std::vector<std::tuple<IT,IT,NT>>> & tempTuples, MPI_Comm World, IT& datasize)
-    {
-
-        /* Create/allocate variables for vector assignment */
-        MPI_Datatype MPI_tuple;
-        MPI_Type_contiguous(sizeof(std::tuple<IT,IT,NT>), MPI_CHAR, &MPI_tuple);
-        MPI_Type_commit(&MPI_tuple);
-
-        int nprocs;
-        MPI_Comm_size(World, &nprocs);
-
-        int * sendcnt = new int[nprocs];
-        int * recvcnt = new int[nprocs];
-        int * sdispls = new int[nprocs]();
-        int * rdispls = new int[nprocs]();
-
-        // Set the newly found vector entries
-        IT totsend = 0;
-        for(IT i=0; i<nprocs; ++i)
-        {
-            sendcnt[i] = tempTuples[i].size();
-            totsend += tempTuples[i].size();
-        }
-
-        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
-
-        std::partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
-        std::partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
-        IT totrecv = std::accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-
-        std::vector< std::tuple<IT,IT,NT> > sendTuples(totsend);
-        for(int i=0; i<nprocs; ++i)
-        {
-            copy(tempTuples[i].begin(), tempTuples[i].end(), sendTuples.data()+sdispls[i]);
-            std::vector< std::tuple<IT,IT,NT> >().swap(tempTuples[i]);    // clear memory
-        }
-
-        std::tuple<IT,IT,NT>* recvTuples = new std::tuple<IT,IT,NT>[totrecv];
-        //std::vector< std::tuple<IT,IT,NT> > recvTuples(totrecv);
-        MPI_Alltoallv(sendTuples.data(), sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
-        DeleteAll(sendcnt, recvcnt, sdispls, rdispls); // free all memory
-        MPI_Type_free(&MPI_tuple);
-        datasize = totrecv;
-        return recvTuples;
-    }
-
-    template <class IT, class NT, class DER>
-    void SpecialExchangeData( std::vector<DER> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, vector<DER> & recvChunks){
-        int myrank;
-        MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-        double vm_usage, resident_set;
-        typedef typename DER::LocalIT LIT;
-        int numChunks = sendChunks.size();
-
-        MPI_Datatype MPI_tuple;
-        MPI_Type_contiguous(sizeof(std::tuple<LIT,LIT,NT>), MPI_CHAR, &MPI_tuple);
-        MPI_Type_commit(&MPI_tuple);
-
-        int * sendcnt = new int[numChunks];
-        int * sendprfl = new int[numChunks*3];
-        int * sdispls = new int[numChunks]();
-        int * recvcnt = new int[numChunks];
-        int * recvprfl = new int[numChunks*3];
-        int * rdispls = new int[numChunks]();
-
-        IT totsend = 0;
-        for(IT i=0; i<numChunks; ++i){
-            sendprfl[i*3] = sendChunks[i].getnnz();
-            sendprfl[i*3+1] = sendChunks[i].getnrow();
-            sendprfl[i*3+2] = sendChunks[i].getncol();
-            sendcnt[i] = sendprfl[i*3];
-            totsend += sendcnt[i];
-        }
-
-        MPI_Alltoall(sendprfl, 3, MPI_INT, recvprfl, 3, MPI_INT, World);
-        for(int i = 0; i < numChunks; i++) recvcnt[i] = recvprfl[i*3];
-
-        std::partial_sum(sendcnt, sendcnt+numChunks-1, sdispls+1);
-        std::partial_sum(recvcnt, recvcnt+numChunks-1, rdispls+1);
-        IT totrecv = std::accumulate(recvcnt,recvcnt+numChunks, static_cast<IT>(0));
-
-        std::tuple<LIT,LIT,NT>* sendTuples = new std::tuple<LIT,LIT,NT>[totsend];
-	    std::tuple<LIT,LIT,NT>* recvTuples = new std::tuple<LIT,LIT,NT>[totrecv];
-
-        int kk=0;
-        for(int i = 0; i < numChunks; i++){
-            for(typename DER::SpColIter colit = sendChunks[i].begcol(); colit != sendChunks[i].endcol(); ++colit){
-                for(typename DER::SpColIter::NzIter nzit = sendChunks[i].begnz(colit); nzit != sendChunks[i].endnz(colit); ++nzit){
-                    NT val = nzit.value();
-                    sendTuples[kk++] = std::make_tuple(nzit.rowid(), colit.colid(), nzit.value());
-                }
-            }
-        }
-
-        MPI_Alltoallv(sendTuples, sendcnt, sdispls, MPI_tuple, recvTuples, recvcnt, rdispls, MPI_tuple, World);
-	    DeleteAll(sendcnt, sendprfl, sdispls, sendTuples);
-
-        //tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
-        tuple<LIT, LIT, NT> ** tempTuples = new tuple<LIT, LIT, NT>*[numChunks];
-        for (int i = 0; i < numChunks; i++){
-            tempTuples[i] = new tuple<LIT, LIT, NT>[recvcnt[i]];
-            memcpy(tempTuples[i], recvTuples+rdispls[i], recvcnt[i]*sizeof(tuple<LIT, LIT, NT>));
-        }
-
-        for (int i = 0; i < numChunks; i++){
-            recvChunks.push_back(DER(SpTuples<LIT, NT>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], tempTuples[i]), false));
-        }
-
-        // Free all memory except tempTuples; Because that memory is holding data of newly created local matrices after receiving.
-        DeleteAll(recvcnt, recvprfl, rdispls, recvTuples); 
-        MPI_Type_free(&MPI_tuple);
-
-	    return;
-    }
 
     template <class IT, class NT, class DER>
     void SpecialExchangeData_2( std::vector<DER*> & sendChunks, MPI_Comm World, IT& datasize, NT dummy, vector<SpTuples<IT,NT>*> & recvChunks){
