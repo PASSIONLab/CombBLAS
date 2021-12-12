@@ -3292,7 +3292,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
     MPI_Barrier(B.getcommgrid3D()->GetWorld());
     t1 = MPI_Wtime();
     mcl3d_symbolictime+=(t1-t0);
-    if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
+    //if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tSymbolic stage time: %lf\n", (t1-t0));
 #endif
         
         
@@ -3364,11 +3364,11 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         std::shared_ptr<CommGrid> GridC = ProductGrid((A.GetLayerMat()->getcommgrid()).get(), 
                                                       (OnePieceOfBLayer.getcommgrid()).get(), 
                                                       stages, dummy, dummy);		
-        IU C_m = A.GetLayerMat()->seqptr()->getnrow();
-        IU C_n = OnePieceOfBLayer.seqptr()->getncol();
+        LIA C_m = A.GetLayerMat()->seqptr()->getnrow();
+        LIB C_n = OnePieceOfBLayer.seqptr()->getncol();
 
-        IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
-        IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+        LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
+        LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
         
         SpParHelper::GetSetSizes( *(A.GetLayerMat()->seqptr()), ARecvSizes, (A.GetLayerMat()->getcommgrid())->GetRowWorld() );
         SpParHelper::GetSetSizes( *(OnePieceOfBLayer.seqptr()), BRecvSizes, (OnePieceOfBLayer.getcommgrid())->GetColWorld() );
@@ -3376,7 +3376,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         // Remotely fetched matrices are stored as pointers
         UDERA * ARecv; 
         UDERB * BRecv;
-        std::vector< SpTuples<IU,NUO>  *> tomerge;
+        std::vector< SpTuples<LIC,NUO>  *> tomerge;
 
         int Aself = (A.GetLayerMat()->getcommgrid())->GetRankInProcRow();
         int Bself = (OnePieceOfBLayer.getcommgrid())->GetRankInProcCol();	
@@ -3386,7 +3386,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         double Local_multiplication_time = 0;
         
         for(int i = 0; i < stages; ++i) {
-            std::vector<IU> ess;	
+            std::vector<LIA> ess;	
 
             if(i == Aself){
                 ARecv = A.GetLayerMat()->seqptr();	// shallow-copy 
@@ -3405,7 +3405,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
                 ARecv->Create(ess);
             }
 
-            Arr<IU,NU1> Aarrinfo = ARecv->GetArrays();
+            Arr<LIA,NU1> Aarrinfo = ARecv->GetArrays();
 
             for(unsigned int idx = 0; idx < Aarrinfo.indarrs.size(); ++idx) {
                 MPI_Bcast(Aarrinfo.indarrs[idx].addr, Aarrinfo.indarrs[idx].count, MPIType<IU>(), i, GridC->GetRowWorld());
@@ -3438,7 +3438,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
             if (Bself != i) {
                 BRecv->Create(ess);	
             }
-            Arr<IU,NU2> Barrinfo = BRecv->GetArrays();
+            Arr<LIB,NU2> Barrinfo = BRecv->GetArrays();
 
             for(unsigned int idx = 0; idx < Barrinfo.indarrs.size(); ++idx) {
                 MPI_Bcast(Barrinfo.indarrs[idx].addr, Barrinfo.indarrs[idx].count, MPIType<IU>(), i, GridC->GetColWorld());
@@ -3455,7 +3455,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
             t2 = MPI_Wtime();
 #endif
-            SpTuples<IU,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
+            SpTuples<LIC,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
                                 (*ARecv, *BRecv,    // parameters themselves
                                 i != Aself,         // 'delete A' condition
                                 i != Bself,         // 'delete B' condition
@@ -3476,7 +3476,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        SpTuples<IU,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, true); // Delete input arrays and sort
+        SpTuples<LIC,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, true); // Delete input arrays and sort
         
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3526,11 +3526,11 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         int * recvprfl   = new int[A.getcommgrid3D()->GetGridLayers()*3];
         int * rdispls    = new int[A.getcommgrid3D()->GetGridLayers()]();
 
-        vector<IU> lbDivisions3dPrefixSum(lbDivisions3d.size());
+        vector<LIC> lbDivisions3dPrefixSum(lbDivisions3d.size());
         lbDivisions3dPrefixSum[0] = 0;
         std::partial_sum(lbDivisions3d.begin(), lbDivisions3d.end()-1, lbDivisions3dPrefixSum.begin()+1);
-        ColLexiCompare<IU,NUO> comp;
-        IU totsend = C_tuples->getnnz();
+        ColLexiCompare<LIC,NUO> comp;
+        LIC totsend = C_tuples->getnnz();
 #ifdef TIMING
         t3 = MPI_Wtime();
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tAllocation of alltoall information: %lf\n", p, (t3-t2));
@@ -3541,12 +3541,12 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #endif
 #pragma omp parallel for
         for(int i=0; i < A.getcommgrid3D()->GetGridLayers(); ++i){
-            IU start_col = lbDivisions3dPrefixSum[i];
-            IU end_col = lbDivisions3dPrefixSum[i] + lbDivisions3d[i];
-            std::tuple<IU, IU, NUO> search_tuple_start(0, start_col, NUO());
-            std::tuple<IU, IU, NUO> search_tuple_end(0, end_col, NUO());
-            std::tuple<IU, IU, NUO>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
-            std::tuple<IU, IU, NUO>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
+            LIC start_col = lbDivisions3dPrefixSum[i];
+            LIC end_col = lbDivisions3dPrefixSum[i] + lbDivisions3d[i];
+            std::tuple<LIC, LIC, NUO> search_tuple_start(0, start_col, NUO());
+            std::tuple<LIC, LIC, NUO> search_tuple_end(0, end_col, NUO());
+            std::tuple<LIC, LIC, NUO>* start_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_start, comp);
+            std::tuple<LIC, LIC, NUO>* end_it = std::lower_bound(C_tuples->tuples, C_tuples->tuples + C_tuples->getnnz(), search_tuple_end, comp);
             // This type casting is important from semantic point of view
             sendcnt[i] = (int)(end_it - start_it);
             sendprfl[i*3+0] = (int)(sendcnt[i]); // Number of nonzeros in ith chunk
@@ -3587,7 +3587,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #endif
         for(int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++) recvcnt[i] = recvprfl[i*3];
         std::partial_sum(recvcnt, recvcnt+A.getcommgrid3D()->GetGridLayers()-1, rdispls+1);
-        IU totrecv = std::accumulate(recvcnt,recvcnt+A.getcommgrid3D()->GetGridLayers(), static_cast<IU>(0));
+        LIC totrecv = std::accumulate(recvcnt,recvcnt+A.getcommgrid3D()->GetGridLayers(), static_cast<IU>(0));
         std::tuple<LIC,LIC,NUO>* recvTuples = static_cast<std::tuple<LIC,LIC,NUO>*> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[totrecv])));
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3606,7 +3606,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        vector<SpTuples<IU, NUO>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
+        vector<SpTuples<LIC, NUO>*> recvChunks(A.getcommgrid3D()->GetGridLayers());
 #pragma omp parallel for
         for (int i = 0; i < A.getcommgrid3D()->GetGridLayers(); i++){
             recvChunks[i] = new SpTuples<LIC, NUO>(recvcnt[i], recvprfl[i*3+1], recvprfl[i*3+2], recvTuples + rdispls[i], true, false);
@@ -3642,7 +3642,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         /*
          * 3d-merge starts 
          * */
-        SpTuples<IU, NUO> * merged_tuples = MultiwayMergeHash<SR, IU, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
+        SpTuples<LIC, NUO> * merged_tuples = MultiwayMergeHash<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
 #ifdef TIMING
         t1 = MPI_Wtime();
         mcl3d_3dmergetime += (t1-t0);
@@ -3661,7 +3661,7 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
             recvChunks[i]->tuples_deleted = true; // Temporary patch to avoid memory leak and segfault
             delete recvChunks[i]; // As the patch is used, now delete each element of recvChunks
         }
-        vector<SpTuples<IU,NUO>*>().swap(recvChunks); // As the patch is used, now delete recvChunks
+        vector<SpTuples<LIC,NUO>*>().swap(recvChunks); // As the patch is used, now delete recvChunks
 
         // This operation is not needed if result can be used and discareded right away
         // This operation is being done because it is needed by MCLPruneRecoverySelect
