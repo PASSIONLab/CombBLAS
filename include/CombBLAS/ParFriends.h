@@ -1067,7 +1067,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
-		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+		SpTuples<IU,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
