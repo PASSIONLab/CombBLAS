@@ -443,10 +443,12 @@ IU EstimateFLOP
 /**
  * Broadcasts A multiple times (#phases) in order to save storage in the output
  * Only uses 1/phases of C memory if the threshold/max limits are proper
+ * Parameters:
+ *  - computationKernel: 1 means hash-based, 2 means heap-based
  */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
-                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory)
+                                           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int computationKernel, int64_t perProcessMemory)
 {
     typedef typename UDERA::LocalIT LIA;
     typedef typename UDERB::LocalIT LIB;
@@ -532,9 +534,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         }
     }
 
-    if(myrank == 0){
-        fprintf(stderr, "[MemEfficientSpGEMM] Running with phase: %d\n", phases);
-    }
+    //if(myrank == 0){
+        //fprintf(stderr, "[MemEfficientSpGEMM] Running with phase: %d\n", phases);
+    //}
 
 #ifdef TIMING
     MPI_Barrier(A.getcommgrid()->GetWorld());
@@ -621,12 +623,9 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             double t4=MPI_Wtime();
 #endif
-            //// Hybrid SpGEMM with per-column sorting
-            //SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
-            //// Hash SpGEMM with per-column sorting
-            //SpTuples<LIC,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself, true);
-            // Hash SpGEMM without per-column sorting
-            SpTuples<LIC,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself, false); 
+            SpTuples<LIC,NUO> * C_cont;
+            if(computationKernel == 1) C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself, false); // Hash SpGEMM without per-column sorting
+            else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
 
 #ifdef TIMING
             MPI_Barrier(A.getcommgrid()->GetWorld());
@@ -666,7 +665,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
 #endif
         // TODO: MultiwayMerge can directly return UDERO inorder to avoid the extra copy
         SpTuples<LIC,NUO> * OnePieceOfC_tuples;
-        OnePieceOfC_tuples = MultiwayMergeHash<SR>(tomerge, C_m, PiecesOfB[p].getncol(), true, false);
+        if(computationKernel == 1) OnePieceOfC_tuples = MultiwayMergeHash<SR>(tomerge, C_m, PiecesOfB[p].getncol(), true, false);
+        else if(computationKernel == 2) OnePieceOfC_tuples = MultiwayMerge<SR>(tomerge, C_m, PiecesOfB[p].getncol(), true);
         
 #ifdef SHOW_MEMORY_USAGE
         int64_t gcnnz_merged, lcnnz_merged ;
@@ -3207,9 +3207,13 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
     return C;
 }
 
+/*
+ * Parameters:
+ *  - computationKernel: 1 for hash-based, 2 for heap-based
+ * */
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
 SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, SpParMat3D<IU, NU2, UDERB> & B,
-           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory){
+           int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int computationKernel, int64_t perProcessMemory){
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     typedef typename UDERA::LocalIT LIA;
@@ -3321,9 +3325,9 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
     }
 
     vector<UDERO> toconcatenate;
-    if(myrank == 0){
-        fprintf(stderr, "[MemEfficientSpGEMM3D]\tRunning with phase: %d\n", phases);
-    }
+    //if(myrank == 0){
+        //fprintf(stderr, "[MemEfficientSpGEMM3D]\tRunning with phase: %d\n", phases);
+    //}
 
     for(int p = 0; p < phases; p++){
         /*
@@ -3455,11 +3459,21 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
             t2 = MPI_Wtime();
 #endif
-            SpTuples<LIC,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
-                                (*ARecv, *BRecv,    // parameters themselves
-                                i != Aself,         // 'delete A' condition
-                                i != Bself,         // 'delete B' condition
-                                false);             // not to sort each column
+            SpTuples<LIC,NUO> * C_cont;
+            if(computationKernel == 1){
+                C_cont = LocalSpGEMMHash<SR, NUO>
+                                    (*ARecv, *BRecv,    // parameters themselves
+                                    i != Aself,         // 'delete A' condition
+                                    i != Bself,         // 'delete B' condition
+                                    false);             // not to sort each column
+            }
+            else if(computationKernel == 2){
+                C_cont = LocalSpGEMM<SR, NUO>
+                                    (*ARecv, *BRecv,    // parameters themselves
+                                    i != Aself,         // 'delete A' condition
+                                    i != Bself);        // 'delete B' condition
+            
+            }
             
 #ifdef TIMING
             t3 = MPI_Wtime();
@@ -3476,7 +3490,9 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
 #ifdef TIMING
         t2 = MPI_Wtime();
 #endif
-        SpTuples<LIC,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, true); // Delete input arrays and sort
+        SpTuples<LIC,NUO> * C_tuples;
+        if(computationKernel == 1) C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, true); // Delete input arrays and sort
+        else if(computationKernel == 2) C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n, true); // Delete input arrays and sort
         
 #ifdef TIMING
         t3 = MPI_Wtime();
@@ -3642,7 +3658,10 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         /*
          * 3d-merge starts 
          * */
-        SpTuples<LIC, NUO> * merged_tuples = MultiwayMergeHash<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
+        SpTuples<LIC, NUO> * merged_tuples;
+
+        if(computationKernel == 1) merged_tuples = MultiwayMergeHash<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
+        else if(computationKernel == 2) merged_tuples = MultiwayMerge<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false); // Do not delete
 #ifdef TIMING
         t1 = MPI_Wtime();
         mcl3d_3dmergetime += (t1-t0);

@@ -79,7 +79,7 @@ namespace combblas
         /* Memory efficient 3D SUMMA*/
         template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
         friend SpParMat3D<IU,NUO,UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B,
-                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMemory);
+                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int computationKernel, int64_t perProcessMemory);
 
     private:
         std::shared_ptr<CommGrid3D> commGrid3D;
