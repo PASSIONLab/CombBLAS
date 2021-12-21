@@ -3516,9 +3516,6 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\tSUMMA time: %lf\n", p, (t1-t0));
 #endif
 
-#ifdef TIMING
-        mcl3d_proc_nnzc_pre_red += C_tuples->getnnz();
-#endif
         /*
          * 3d-reduction starts
          * */
@@ -3666,7 +3663,6 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
         t1 = MPI_Wtime();
         mcl3d_3dmergetime += (t1-t0);
         if(myrank == 0) fprintf(stderr, "[MemEfficientSpGEMM3D]\tPhase: %d\t3D Merge time: %lf\n", p, (t1-t0));
-        mcl3d_proc_nnzc_post_red += merged_tuples->getnnz();
 #endif
         /*
          * 3d-merge ends

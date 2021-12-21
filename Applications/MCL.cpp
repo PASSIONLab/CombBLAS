@@ -54,6 +54,7 @@ using namespace combblas;
 
 #define EPS 0.0001
 
+double mcl_symbolictime;
 double mcl_Abcasttime;
 double mcl_Bbcasttime;
 double mcl_localspgemmtime;
