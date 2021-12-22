@@ -75,6 +75,7 @@ namespace combblas {
 #define NOFILE 3004
 #define MATRIXALIAS 3005
 #define UNKNOWNMPITYPE 3006
+#define INVALIDPARAMS 3007
 
 // Enable bebug prints
 //#define SPREFDEBUG

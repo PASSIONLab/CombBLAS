@@ -105,6 +105,8 @@ public:
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & ) const;
 
+	DER InducedSubgraphs2Procs(const FullyDistVec<IT,IT>& Assignments, std::vector<IT>& LocalIdxs) const;
+
 	template <typename _BinaryOperation>
 	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
 
