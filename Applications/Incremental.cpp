@@ -5,11 +5,13 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
+#include <cstdlib>
 #include "CC.h"
 #include "CombBLAS/CombBLAS.h"
 #include "CombBLAS/CommGrid3D.h"
 #include "CombBLAS/SpParMat3D.h"
 #include "CombBLAS/ParFriends.h"
+#include "WriteMCLClusters.h"
 
 using namespace std;
 using namespace combblas;
@@ -27,7 +29,7 @@ typedef struct
     //Input/Output file
     string ifilename;
     bool isInputMM;
-    int base; // only usefule for matrix market files
+    int base; // only useful for matrix market files
     
     string ofilename;
     
@@ -65,7 +67,7 @@ void InitParam(HipMCLParam & param)
     //Input/Output file
     param.ifilename = "";
     param.isInputMM = false;
-    param.ofilename = "";
+    param.ofilename = "mclinc";
     param.base = 1;
     
     //Preprocessing
@@ -352,11 +354,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         
         
         
-        //double newbalance = A.LoadImbalance();
-        //double t3=MPI_Wtime();
-        //stringstream s;
-        //s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
-        //SpParHelper::Print(s.str());
+        double newbalance = A.LoadImbalance();
+        double t3=MPI_Wtime();
+        stringstream s;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        SpParHelper::Print(s.str());
         it++;
         
         
@@ -380,6 +382,16 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     return cclabels;
 }
 
+// Given an adjacency matrix, and cluster assignment vector, removes inter cluster edges
+template <class IT, class NT, class DER>
+void RemoveInterClusterEdges(SpParMat<IT, NT, DER>& M, FullyDistVec<IT, NT>& C){
+    SpParMat<IT, NT, DER> Mask(M);
+    Mask.DimApply(Row, C, [](NT mv, NT vv){return vv;});
+    Mask.PruneColumn(C, [](NT mv, NT vv){return static_cast<NT>(vv == mv);}, true);
+
+    //Mask.PrintInfo();
+    M.SetDifference(Mask);
+}
 
 // Simple helper class for declarations: Just the numerical type is templated
 // The index type and the sequential matrix type stays the same for the whole code
@@ -402,84 +414,105 @@ int main(int argc, char* argv[])
     if(argc < 2){
         if(myrank == 0)
         {
-            cout << "Usage: ./<Binary> <MatrixM> <VectorA> <VectorB>" << endl;
+            cout << "Usage: ./<Binary> <MatrixM> <MatrixC>" << endl;
         }
         MPI_Finalize();
         return -1;
     }
     else {
         double vm_usage, resident_set;
-        string Aname(argv[1]);
-        string SAname(argv[2]);
-        string SBname(argv[3]);
-        ifstream vecinpSA(SAname.c_str());
-        ifstream vecinpSB(SBname.c_str());
+        string Mname(argv[1]);
+        //string Cname(argv[2]);
         if(myrank == 0){
-            fprintf(stderr, "Data: %s\n", argv[1]);
+            fprintf(stderr, "Graph: %s\n", argv[1]);
+            //fprintf(stderr, "Cluster assignment: %s\n", argv[2]);
         }
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-        
-        double t0, t1;
 
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> M(fullWorld);
-        FullyDistVec<int64_t, int64_t> SA(fullWorld);
-        FullyDistVec<int64_t, int64_t> SB(fullWorld);
-
-        //// Read matrix market files
-        //t0 = MPI_Wtime();
-        //M.ParallelReadMM(Aname, true, maximum<double>());
-        //t1 = MPI_Wtime();
-        //if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
-        //t0 = MPI_Wtime();
-        //FullyDistVec<int64_t, int64_t> p( M.getcommgrid() );
-        //FullyDistVec<int64_t, int64_t> q( M.getcommgrid() );
-        //p.iota(M.getnrow(), 0);
-        //q.iota(M.getncol(), 0);
-        //p.RandPerm();
-        //q.RandPerm();
-        //(M)(p,q,true);// in-place permute to save memory
-        //t1 = MPI_Wtime();
-        //if(myrank == 0) fprintf(stderr, "Time taken to permuatate input: %lf\n", t1-t0);
-        
-        // Read labelled triple files
-        t0 = MPI_Wtime();
-        //M.ReadGeneralizedTuples(Aname, maximum<double>());
-        M.ParallelReadMM(Aname, true, maximum<double>());
-        //M.ReadDistribute(Aname, 0);
-        t1 = MPI_Wtime();
-        if(myrank == 0) fprintf(stderr, "Time taken to read file: %lf\n", t1-t0);
-        
         typedef PlusTimesSRing<double, double> PTFF;
         typedef PlusTimesSRing<bool, double> PTBOOLNT;
         typedef PlusTimesSRing<double, bool> PTNTBOOL;
+        typedef int64_t IT;
+        typedef double NT;
+        typedef SpDCCols < int64_t, double > DER;
         
-        M.PrintInfo();
-        
-        // Read vectors
-        SA.ReadDistribute(vecinpSA, 0);
-        SB.ReadDistribute(vecinpSB, 0);
-        
-        //// Print information of newly read vectors
-        //SA.PrintInfo(std::string("SA"));
-        //SB.PrintInfo(std::string("SB"));
+        double t0, t1;
 
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> SubGAA = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(SA, SA, false);
-        SubGAA.PrintInfo();
-        SpParMat<int64_t, double, SpDCCols < int64_t, double >> SubGBB = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(SB, SB, false);
-        SubGBB.PrintInfo();
-        //SpParMat<int64_t, double, SpDCCols < int64_t, double >> SubGAB = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(SA, SB, false);
-        ////SubGAB.PrintInfo();
-        //SpParMat<int64_t, double, SpDCCols < int64_t, double >> SubGBA = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(SB, SA, false);
-        ////SubGBA.PrintInfo();
+        SpParMat<IT, NT, DER> M(fullWorld);
+        //FullyDistVec<IT, NT> C(fullWorld);
+		//ifstream vecinpC(argv[2]);
+
+        t0 = MPI_Wtime();
+        M.ParallelReadMM(Mname, true, maximum<double>());
+		//C.ReadDistribute(vecinpC, 0);
+        t1 = MPI_Wtime();
+        if(myrank == 0) fprintf(stderr, "Time taken to read files: %lf\n", t1-t0);
+
+        int pct = 95;
+
+        SpParMat<IT, NT, DER> M11(fullWorld);
+        SpParMat<IT, NT, DER> M12(fullWorld);
+        SpParMat<IT, NT, DER> M21(fullWorld);
+        SpParMat<IT, NT, DER> M22(fullWorld);
+
+        std::mt19937 rng;
+        rng.seed(myrank);
+        std::uniform_int_distribution<int64_t> udist(0, 99);
+
+        IT gnRow = M.getnrow();
+        IT nRowPerProc = gnRow / nprocs;
+        IT lRowStart = myrank * nRowPerProc;
+        IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
         
+        std::vector<IT> lOldVertices;
+        std::vector<IT> lNewVertices;
+        for (IT r = lRowStart; r < lRowEnd; r++){
+            if(udist(rng) < pct){
+                lOldVertices.push_back(r);
+            }
+            else{
+                lNewVertices.push_back(r);
+            }
+        }
+
+        FullyDistVec<IT, IT> gOldVertices(lOldVertices, fullWorld);
+        FullyDistVec<IT, IT> gNewVertices(lNewVertices, fullWorld);
+        M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (gOldVertices, gOldVertices, false);
+        M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (gOldVertices, gNewVertices, false);
+        M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (gNewVertices, gOldVertices, false);
+        M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (gNewVertices, gNewVertices, false);
+
         HipMCLParam param;
-        // initialize parameters to default values
         InitParam(param);
-        
-        HipMCL(SubGAA, param);
-        HipMCL(SubGBB, param);
+        param.ofilename = Mname + std::string(".") + std::to_string(pct);
 
+        FullyDistVec<IT, IT> M11C = HipMCL(M11, param);
+        WriteMCLClusters(param.ofilename+std::string(".") + std::string("M11"), M11C, param.base);
+        FullyDistVec<IT, NT> M11CTemp(M11C);
+        RemoveInterClusterEdges(M11, M11CTemp);
+
+        FullyDistVec<IT, IT> M22C = HipMCL(M22, param);
+        WriteMCLClusters(param.ofilename+std::string(".") + std::string("M22"), M22C, param.base);
+        FullyDistVec<IT, NT> M22CTemp(M22C);
+        RemoveInterClusterEdges(M22, M22CTemp);
+
+        M.SpAsgn(gOldVertices, gOldVertices, M11);
+        M.SpAsgn(gOldVertices, gNewVertices, M12);
+        M.SpAsgn(gNewVertices, gOldVertices, M21);
+        M.SpAsgn(gNewVertices, gNewVertices, M22);
+        
+        t0 = MPI_Wtime();
+        FullyDistVec<IT, IT> MC = HipMCL(M, param);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Last MCL: %lf seconds\n", t1-t0);
+        WriteMCLClusters(param.ofilename+std::string(".") + std::string("M'"), MC, param.base);
+
+        //M11.PrintInfo();
+        //M12.PrintInfo();
+        //M21.PrintInfo();
+        //M22.PrintInfo();
+        
     }
     MPI_Finalize();
     return 0;
