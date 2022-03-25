@@ -4927,13 +4927,14 @@ DER SpParMat<IT,NT,DER>::InducedSubgraphs2Procs(const FullyDistVec<IT,IT>& Assig
 
     for (auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) {
         IT destproc = complement_rowvecs[colit.colid()];
-        for (auto nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit) {
-            if (destproc == rowvecs[nzit.rowid()]) {
-                svec[destproc].push_back(std::make_tuple(row_offset + nzit.rowid(), col_offset + colit.colid(), nzit.value()));
-                sendcounts[destproc]++;
-                sbuflen++;
+        if (destproc != -1)
+            for (auto nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit) {
+                if (destproc == rowvecs[nzit.rowid()]) {
+                    svec[destproc].push_back(std::make_tuple(row_offset + nzit.rowid(), col_offset + colit.colid(), nzit.value()));
+                    sendcounts[destproc]++;
+                    sbuflen++;
+                }
             }
-        }
     }
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, recvcounts.data(), 1, MPI_INT, World);
