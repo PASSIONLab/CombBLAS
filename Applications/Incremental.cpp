@@ -28,6 +28,7 @@ typedef struct
 {
     //Input/Output file
     string ifilename;
+    string dirname; // Patch to dump per iteration matrix into the directory
     bool isInputMM;
     int base; // only useful for matrix market files
     
@@ -66,6 +67,7 @@ void InitParam(HipMCLParam & param)
 {
     //Input/Output file
     param.ifilename = "";
+    param.dirname = "";
     param.isInputMM = false;
     param.ofilename = "mclinc";
     param.base = 1;
@@ -260,6 +262,11 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     // Make stochastic
     MakeColStochastic(A);
     SpParHelper::Print("Made stochastic\n");
+
+    //if(!param.dirname.empty()) {
+        //std::string fname = param.dirname + "\/" + std::to_string(0);
+        //A.ParallelWriteMM(fname, true);
+    //}
     
     
     IT nnz = A.getnnz();
@@ -352,7 +359,10 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             //A.PrintInfo();
         //}
         
-        
+        //if(!param.dirname.empty()) {
+            //std::string fname = param.dirname + "\/" + std::to_string(it);
+            //A.ParallelWriteMM(fname, true);
+        //}
         
         double newbalance = A.LoadImbalance();
         double t3=MPI_Wtime();
@@ -505,8 +515,44 @@ int main(int argc, char* argv[])
 		//C.ReadDistribute(vecinpC, 0);
         t1 = MPI_Wtime();
         if(myrank == 0) fprintf(stderr, "Time taken to read files: %lf\n", t1-t0);
+        
+        /* 
+         * Dump a submatrix corresponding to the largest connected component to a file 
+         * */
+        //SpParMat<IT, NT, DER> A(M); // Create a copy of given matrix
 
-        int nSplit = 100;
+        //// A is a directed graph
+        //// symmetricize A
+        //SpParMat<IT,NT,DER> AT = A;
+        //AT.Transpose();
+        //A += AT;
+
+        //IT nCC;
+        //FullyDistVec<IT, IT> cclabels = CC(A, nCC);
+        //if(myrank == 0) printf("Number of connected component %d\n", nCC);
+        
+        //IT largestCC = 0;
+        //IT largestCCSize = cclabels.Count( bind2nd(equal_to<IT>(), largestCC) );
+        //for(IT i = 1; i < nCC; i++){
+            //IT ccSize = cclabels.Count( bind2nd(equal_to<IT>(), i) );
+            //if (ccSize > largestCCSize){
+                //largestCC = i;
+                //largestCCSize = ccSize;
+            //}
+        //}
+
+        //if(myrank == 0) printf("Largest CC size: %d\n", largestCCSize);
+        //FullyDistVec<IT,IT> isov = cclabels.FindInds(bind2nd(equal_to<IT>(), largestCC));
+        //SpParMat<IT, NT, DER> MCC = A.SubsRef_SR<PTNTBOOL,PTBOOLNT>(isov, isov, false);
+        //MCC.PrintInfo();
+        ////MCC.ParallelWriteMM(Mname+std::string(".cc"), true);
+        
+        //M = MCC;
+        
+        //MPI_Barrier(MPI_COMM_WORLD);
+        //if(myrank == 0) printf("Ekhane\n");
+
+        int nSplit = 20;
 
         SpParMat<IT, NT, DER> M11(fullWorld);
         SpParMat<IT, NT, DER> M12(fullWorld);
@@ -524,28 +570,48 @@ int main(int argc, char* argv[])
         IT lRowStart = myrank * nRowPerProc;
         IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
 
-        std::vector < std::vector <IT> > lvList(nSplit);
+        std::vector < std::vector < IT > > lvList(nSplit);
+        std::vector < std::vector < std::array<char, MAXVERTNAME> > > lvListLabels(nSplit);
         
-        for (IT r = lRowStart; r < lRowEnd; r++){
+        for (IT r = lRowStart; r < lRowEnd; r++) {
             IT randomNum = udist(rng);
             IT s = randomNum % nSplit;
             lvList[s].push_back(r);
+            
+            // Convert the integer vertex id to label as string
+            std::string labelStr = std::to_string(r); 
+            // Make a std::array of char with the label
+            std::array<char, MAXVERTNAME> labelArr = {};
+            for ( IT i = 0; i < labelStr.length(); i++){
+                labelArr[i] = labelStr[i]; 
+            }
+            lvListLabels[s].push_back( labelArr ); // Push back an empty array
         }
-
+        
         std::vector < FullyDistVec<IT,IT>* > dvList;
+        std::vector < FullyDistVec<IT, std::array<char, MAXVERTNAME> >* > dvListLabels;
         for (int s = 0; s < nSplit; s++){
             dvList.push_back(new FullyDistVec<IT, IT>(lvList[s], fullWorld));
+            dvListLabels.push_back(new FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lvListLabels[s], fullWorld));
         }
+
+        //MPI_Barrier(MPI_COMM_WORLD);
+        //if(myrank == 0) printf("Sekhane\n");
 
         HipMCLParam param;
         InitParam(param);
         std::string incFileName = Mname + std::string(".inc");
         std::string fullFileName = Mname + std::string(".full");
 
-        FullyDistVec<IT, IT> prevVertices(*(dvList[0]));
+        FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
+        FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
         M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
         FullyDistVec<IT, IT> prevClusters = HipMCL(M11, param);
-        WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) printf("Sekhane 1\n");
+
+        WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
         WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
 
         for (int s = 1; s < nSplit; s++){
@@ -565,11 +631,14 @@ int main(int argc, char* argv[])
             // Get block diagonal version of M11
             FullyDistVec<IT, NT> prevClustersTemp(prevClusters);
             RemoveInterClusterEdges(M11, prevClustersTemp);
+            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".prev"), prevClusters, prevVerticesLabels);
 
             // Get block diagonal version of M22
+            InitParam(param);
             FullyDistVec<IT, IT> clusters22 = HipMCL(M22, param);
             FullyDistVec<IT, NT> clusters22temp(clusters22);
             RemoveInterClusterEdges(M22, clusters22temp);
+            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".new"), clusters22, *(dvListLabels[s]));
 
             Minc = SpParMat<IT,NT,DER>(M); // Make a copy of original matrix
             Minc.SetDifference(M); // Make it empty
@@ -585,59 +654,32 @@ int main(int argc, char* argv[])
             std::merge(lPrevVertices.begin(), lPrevVertices.end(), lNewVertices.begin(), lNewVertices.end(), std::back_inserter(lCombinedVertices) );
             prevVertices = FullyDistVec<IT, IT>(lCombinedVertices, fullWorld);
 
+            // Concat previous vertex labels
+            std::vector < std::array<char, MAXVERTNAME> > lPrevVerticesLabels = prevVerticesLabels.GetLocVec();
+            std::vector < std::array<char, MAXVERTNAME> > lNewVerticesLabels = (dvListLabels[s])->GetLocVec();
+            std::vector < std::array<char, MAXVERTNAME> > lCombinedVerticesLabels;
+            std::merge(lPrevVerticesLabels.begin(), lPrevVerticesLabels.end(), lNewVerticesLabels.begin(), lNewVerticesLabels.end(), std::back_inserter(lCombinedVerticesLabels) );
+            prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lCombinedVerticesLabels, fullWorld);
+
             Minc = Minc.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false); // Extract subgraph induced by new list from newly updated matrix
             Mfull = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false); // Extract subgraph induced by new list from original matrix
             printf("%d - %d\n", Minc.getnnz(), Mfull.getnnz());
 
+            InitParam(param);
+            param.dirname = incFileName + std::string(".") + std::to_string(s) + std::string(".dir");
             prevClusters = HipMCL(Minc, param);
+
+            InitParam(param);
+            param.dirname = fullFileName + std::string(".") + std::to_string(s) + std::string(".dir");
             FullyDistVec<IT, IT> fullClusters = HipMCL(Mfull, param);
 
-            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), prevClusters, param.base);
-            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), fullClusters, param.base);
+            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), prevClusters, prevVerticesLabels);
+            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), fullClusters, prevVerticesLabels);
             
             printf("myrank %d: LocArrSize %d\n", myrank, prevVertices.LocArrSize());
         }
 
 
-        //rdering/                 |564             FullyDistVec<IT, NT> prevClustersTemp(pre
-        //Minc.SpAsgn(gOldVertices, gOldVertices, M11);
-        //Minc.SpAsgn(gOldVertices, gNewVertices, M12);
-        //Minc.SpAsgn(gNewVertices, gOldVertices, M21);
-        //Minc.SpAsgn(gNewVertices, gNewVertices, M22);
-        
-        //t0 = MPI_Wtime();
-        //FullyDistVec<IT, IT> MC = HipMCL(Minc, param);
-        //t1 = MPI_Wtime();
-        //if(myrank == 0) printf("Last MCL: %lf seconds\n", t1-t0);
-        //WriteMCLClusters(param.ofilename+std::string(".") + std::string("M'"), MC, param.base);
-        
-        //IT it = 1;
-        //while(it < 50){
-
-            //SpParMat<IT, NT, DER> Mdiff(M);
-            ////Mask.PrintInfo();
-            //Mdiff.SetDifference(Minc);
-
-            //stringstream s;
-            //s << "Iteration# "  << setw(3) << it << " : " << "M.getnnz() = " << M.getnnz() << ", Minc.getnnz() = " << Minc.getnnz() << ", Mdiff: " << Mdiff.getnnz() << endl;
-            //SpParHelper::Print(s.str());
-
-            //M = MemEfficientSpGEMM<PTFF, NT, DER>(M, M, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
-            //Minc = MemEfficientSpGEMM<PTFF, NT, DER>(Minc, Minc, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
-        
-            //MakeColStochastic(M);
-            //MakeColStochastic(Minc);
-            
-            //Inflate(M, param.inflation);
-            //Inflate(Minc, param.inflation);
-
-            //MakeColStochastic(M);
-            //MakeColStochastic(Minc);
-            
-
-            //it++;
-
-        //}
         for(IT s = 0; s < dvList.size(); s++){
             delete dvList[s];
         }
