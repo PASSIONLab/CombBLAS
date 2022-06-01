@@ -26,24 +26,12 @@ int main(int argc, char *argv[])
         A.ParallelWriteMM("A.mm", false);
 
         FullyDistSpVec<int, int> ciprune(A.getcommgrid(), 5);
-        ciprune.SetElement(2, 0);// ciprune.SetElement(2, 2); ciprune.SetElement(3, 0); ciprune.SetElement(4, 2);
+        ciprune.SetElement(2, 2); ciprune.SetElement(3, 0); ciprune.SetElement(4, 2);
         ciprune.DebugPrint();
 
         A.PruneColumnByIndex(ciprune);
 
         A.ParallelWriteMM("B.mm", false);
-
-        /* SpParMat<int, int, SpDCCols<int, int>> A(fullWorld); */
-        /* A.ParallelReadMM("A.mtx", false, maximum<int>()); */
-
-        /* FullyDistSpVec<int, int> ci(A.getcommgrid(), A.getncol()); */
-        /* for (int i = 1; i < A.getncol(); i += 2) */
-            /* ci.SetElement(i, 1); */
-        /* ci.DebugPrint(); */
-
-        /* A.PruneColumnByIndex(ci); */
-        /* A.ParallelWriteMM("A.mm", false); */
-
     }
 
 

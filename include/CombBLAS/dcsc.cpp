@@ -779,7 +779,8 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneColumn(NT* pvals, _BinaryOperation __binary_op, b
 template <class IT, class NT>
 void Dcsc<IT,NT>::PruneColumnByIndex(const std::vector<IT>& ci)
 {
-    if (ci.size() == 0) return;
+    if (ci.size() == 0)
+        return;
 
     /* ci is assumed to be pre-sorted */
 
@@ -791,7 +792,7 @@ void Dcsc<IT,NT>::PruneColumnByIndex(const std::vector<IT>& ci)
 
     while (j < nzc)
     {
-        if (c >= ci.size() || ci[c] > jc[j]) /* this means column j shouldn't be pruned, and instead should be copied */
+        if (c >= ci.size() || ci[c] > jc[j]) /* this means column jc[j] shouldn't be pruned, and instead should be copied */
         {
             vjc.push_back(jc[j]);
             nzpercol.push_back(cp[j+1] - cp[j]);
@@ -830,13 +831,6 @@ void Dcsc<IT,NT>::PruneColumnByIndex(const std::vector<IT>& ci)
     std::copy(vjc.begin(), vjc.end(), jc);
     std::copy(vir.begin(), vir.end(), ir);
     std::copy(vnumx.begin(), vnumx.end(), numx);
-
-    // std::copy(jc, jc + nzc, std::ostream_iterator<IT>(std::cout, " "));
-    // std::cout << std::endl;
-    // std::copy(cp, cp + nzc + 1, std::ostream_iterator<IT>(std::cout, " "));
-    // std::cout << std::endl;
-    // std::copy(ir, ir + nz, std::ostream_iterator<IT>(std::cout, " "));
-    // std::cout << std::endl;
 }
 
 
