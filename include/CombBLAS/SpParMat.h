@@ -187,13 +187,16 @@ public:
 			return SpParMat<IT,NT,DER>(spSeq->Prune(__unary_op, inPlace), commGrid);
 		}
 	}
-    
+
     template <typename _BinaryOperation>
     SpParMat<IT,NT,DER> PruneColumn(const FullyDistVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace=true);
-    
+
     template <typename _BinaryOperation>
     SpParMat<IT,NT,DER> PruneColumn(const FullyDistSpVec<IT,NT> & pvals, _BinaryOperation __binary_op, bool inPlace=true);
-    
+
+    template <typename IRRELEVANT_NT>
+    void PruneColumnByIndex(const FullyDistSpVec<IT,IRRELEVANT_NT>& ci);
+
 	template <typename _BinaryOperation>
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 

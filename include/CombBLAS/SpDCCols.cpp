@@ -569,6 +569,15 @@ SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneColumn(NT* pvals, _BinaryOperation __bina
     }
 }
 
+template <class IT, class NT>
+void SpDCCols<IT,NT>::PruneColumnByIndex(const std::vector<IT>& ci)
+{
+    if (nnz > 0)
+    {
+        dcsc->PruneColumnByIndex(ci);
+        nnz = dcsc->nz;
+    }
+}
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
@@ -580,7 +589,7 @@ SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneColumn(IT* pinds, NT* pvals, _BinaryOpera
         if (inPlace)
         {
             nnz = dcsc->nz;
-            
+
             if(nnz == 0)
             {
                 delete dcsc;
