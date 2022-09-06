@@ -96,7 +96,7 @@ public:
 	void ParallelWrite(const std::string & filename, bool onebased, HANDLER handler, bool includeindices = true)
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
-        	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices);
+        	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices, true); //Last parameter(true) specifies that header would be written.
 	}
 	void ParallelWrite(const std::string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
 

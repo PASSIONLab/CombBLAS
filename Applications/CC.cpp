@@ -196,8 +196,8 @@ int main(int argc, char* argv[])
         FullyDistVec<int64_t, int64_t> cclabels = CC(A, nCC);
         
         double t2 = MPI_Wtime();
-	string outname = ifilename + ".components";
-	cclabels.ParallelWrite(outname, 1);
+        string outname = ifilename + ".components";
+        cclabels.ParallelWrite(outname, base);
         //outs.str("");
         //outs.clear();
         //outs << "Total time: " << t2 - t1 << endl;

@@ -6,12 +6,11 @@
 #include <vector>
 #include <sstream>
 #include <cstdlib>
-#include "CC.h"
 #include "CombBLAS/CombBLAS.h"
 #include "CombBLAS/CommGrid3D.h"
-#include "CombBLAS/SpParMat3D.h"
 #include "CombBLAS/ParFriends.h"
-#include "WriteMCLClusters.h"
+#include "../CC.h"
+#include "../WriteMCLClusters.h"
 
 using namespace std;
 using namespace combblas;
@@ -404,217 +403,233 @@ void RemoveInterClusterEdges(SpParMat<IT, NT, DER>& M, FullyDistVec<IT, NT>& C){
 }
 
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> PrepareIncrementalMatrix(SpParMat<IT,NT,DER>& M11, 
-                                             SpParMat<IT,NT,DER>& M12, 
-                                             SpParMat<IT,NT,DER>& M21, 
-                                             SpParMat<IT,NT,DER>& M22){
-    // Need to add following sanity check
-    // Number of rows in M11 and M12 would be same
-    // Number of rows in M21 and M22 would be same
-    // Number of columns in M11 and M21 would be same
-    // Number of columns in M12 and M22 would be same
-    
-    int nprocs, myrank;
+void IncrementalClustering(SpParMat<IT,NT,DER>& M, IT nSplit){
+    int nprocs, myrank, nthreads = 1;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    typedef PlusTimesSRing<NT, NT> PTFF;
+    typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+    typedef PlusTimesSRing<NT, bool> PTNTBOOL;
+
     shared_ptr<CommGrid> fullWorld;
     fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-    
-    IT nRowMinc = M11.getnrow() + M21.getnrow(); // Total number of rows in the incremental matrix
-    IT nColMinc = M11.getncol() + M12.getncol(); // Total number of columns in the incremental matrix
 
-    // Create an empty SpParMat with nRowMinc rows and nColMinc columns
-    FullyDistVec<IT, IT> empty(0, 0);
-    SpParMat<IT, NT, DER> M(nRowMinc, nColMinc, empty, empty, empty, false);
+    SpParMat<IT, NT, DER> M11(fullWorld);
+    SpParMat<IT, NT, DER> M12(fullWorld);
+    SpParMat<IT, NT, DER> M21(fullWorld);
+    SpParMat<IT, NT, DER> M22(fullWorld);
+    SpParMat<IT, NT, DER> Minc(fullWorld);
+
+    HipMCLParam param;
+    InitParam(param);
+    //std::string incFileName = Mname + std::string(".inc");
+    //std::string fullFileName = Mname + std::string(".full");
+
+    FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
+    FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
+    M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+    FullyDistVec<IT, IT> C11 = HipMCL(M11, param);
+
+    //////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
+    //////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
     
-    IT gnRow, nRowPerProc, lRowStart, lRowEnd;
-    
-    // Prepare the ri and ci for SpAsgn operation
-    gnRow = M11.getnrow();
-    nRowPerProc = gnRow / nprocs;
-    lRowStart = myrank * nRowPerProc;
-    lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
-    std::vector<IT> locRiM11;
-    for (IT r = lRowStart; r < lRowEnd; r++){
-        locRiM11.push_back(r);
+    for(int s = 1; s < nSplit; s++){
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(myrank == 0) printf("Processing %dth split\n", s);
+        std::vector< FullyDistVec<IT, IT> > toConcatenate(2);
+        toConcatenate[0] = prevVertices;
+        toConcatenate[1] = *(dvList[s]);
+        prevVertices = Concatenate(toConcatenate);
+        //// Get subgraph induced by previously processed vertices
+        //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+        //// Get bipartite graph where edges are from previously processed vertices to newly added vertices
+        //M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, *(dvList[s]), false);
+        //// Get bipartite graph where edges are from newly added vertices to previously processed vertices
+        //M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), prevVertices, false);
+        //// Get subgraph induced by newly added vertices
+        //M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), *(dvList[s]), false);
+
+
+        //// Get block diagonal version of M11
+        //FullyDistVec<IT, NT> prevClustersTemp(prevClusters);
+        //RemoveInterClusterEdges(M11, prevClustersTemp);
+        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".prev"), prevClusters, prevVerticesLabels);
+
+        //// Get block diagonal version of M22
+        //InitParam(param);
+        //FullyDistVec<IT, IT> clusters22 = HipMCL(M22, param);
+        //FullyDistVec<IT, NT> clusters22temp(clusters22);
+        //RemoveInterClusterEdges(M22, clusters22temp);
+        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".new"), clusters22, *(dvListLabels[s]));
+
+        //////IncrementalClusteringKernel(M11, M12, M21, M22, prevClustersTemp, clusters22temp);
+
+        ////FullyDistVec<IT, IT> ridMincM11 = genFillRangeVec<IT>(0, M11.getnrow());
+        ////FullyDistVec<IT, IT> ridMincM22 = genFillRangeVec<IT>(M11.getnrow(), M11.getnrow() + M22.getnrow());
+        ////Minc = SpParMat<IT,NT,DER>(fullWorld); 
+        ////Minc.SpAsgn(ridMincM11, ridMincM11, M11); // Assign blocked M11 as submatrix
+        ////Minc.SpAsgn(ridMincM11, ridMincM22, M12); // Assign blocked M11 as submatrix
+        ////Minc.SpAsgn(ridMincM22, ridMincM11, M21); // Assign blocked M11 as submatrix
+        ////Minc.SpAsgn(ridMincM22, ridMincM22, M22); // Assign blocked M11 as submatrix
+        ////Minc.PrintInfo();
+        ///
     }
 
-    gnRow = M22.getnrow();
-    nRowPerProc = gnRow / nprocs;
-    lRowStart = myrank * nRowPerProc;
-    lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
-    IT padding = M11.getnrow();
-    std::vector<IT> locRiM22;
-    for (IT r = lRowStart; r < lRowEnd; r++){
-        locRiM22.push_back( r + padding );
-    }
-
-    FullyDistVec<IT, IT> distRiM11(locRiM11, fullWorld);
-    FullyDistVec<IT, IT> distRiM22(locRiM22, fullWorld);
-    
-    M.SpAsgn(distRiM11, distRiM11, M11);
-    M.SpAsgn(distRiM11, distRiM22, M12);
-    M.SpAsgn(distRiM22, distRiM11, M21);
-    M.SpAsgn(distRiM22, distRiM22, M22);
-    
-    return M;
+                                                                                            
+    return;
 }
 
 int main(int argc, char* argv[])
 {
-    int nprocs, myrank;
+    int nprocs, myrank, nthreads = 1;
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-
-    if(argc < 2){
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
+    if(myrank == 0)
+    {
+        cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
+    }
+    if(argc < 7)
+    {
         if(myrank == 0)
         {
-            cout << "Usage: ./<Binary> <MatrixM> <MatrixC>" << endl;
+            cout << "Usage: ./lcc -I <mm|triples> -M <MATRIX_FILENAME> -N <NUMBER OF SPLITS>\n";
+            cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
+            cout << "-M <MATRIX FILE NAME>\n";
+            cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
+            cout << "-N <NUMBER OF SPLITS>\n";
         }
         MPI_Finalize();
         return -1;
     }
-    else {
-        double vm_usage, resident_set;
-        string Mname(argv[1]);
-        //string Cname(argv[2]);
-        if(myrank == 0){
-            fprintf(stderr, "Graph: %s\n", argv[1]);
-            //fprintf(stderr, "Cluster assignment: %s\n", argv[2]);
+    else{
+        string Mname = "";
+        int nSplit = 2;
+        int base = 1;
+        bool isMatrixMarket = true;
+        
+        for (int i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i],"-I")==0)
+            {
+                string mfiletype = string(argv[i+1]);
+                if(mfiletype == "triples") isMatrixMarket = false;
+            }
+            else if (strcmp(argv[i],"-M")==0)
+            {
+                Mname = string(argv[i+1]);
+                if(myrank == 0) printf("Matrix filename: %s\n",Mname.c_str());
+            }
+            else if (strcmp(argv[i],"-base")==0)
+            {
+                base = atoi(argv[i + 1]);
+                if(myrank == 0) printf("Base of MM (1 or 0):%d\n",base);
+            }
+            else if (strcmp(argv[i],"-N")==0)
+            {
+                nSplit = atoi(argv[i+1]);
+                if(myrank == 0) printf("Number of splits: %d\n", nSplit);
+            }
         }
+
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        typedef PlusTimesSRing<double, double> PTFF;
-        typedef PlusTimesSRing<bool, double> PTBOOLNT;
-        typedef PlusTimesSRing<double, bool> PTNTBOOL;
         typedef int64_t IT;
         typedef double NT;
         typedef SpDCCols < int64_t, double > DER;
+        typedef PlusTimesSRing<double, double> PTFF;
+        typedef PlusTimesSRing<bool, double> PTBOOLNT;
+        typedef PlusTimesSRing<double, bool> PTNTBOOL;
         
         double t0, t1;
 
         SpParMat<IT, NT, DER> M(fullWorld);
-        FullyDistVec<IT, NT> vtxLabels(fullWorld);
-		//ifstream vecinpC(argv[2]);
 
-        t0 = MPI_Wtime();
-        M.ParallelReadMM(Mname, true, maximum<double>());
-        //vtxLabels = M.ReadGeneralizedTuples(Mname,  maximum<NT>());
-
-		//C.ReadDistribute(vecinpC, 0);
-        t1 = MPI_Wtime();
-        if(myrank == 0) fprintf(stderr, "Time taken to read files: %lf\n", t1-t0);
+        if(isMatrixMarket)
+            M.ParallelReadMM(Mname, base, maximum<double>());
+        else
+            M.ReadGeneralizedTuples(Mname,  maximum<double>());
+        M.PrintInfo();
         
-        /* 
-         * Dump a submatrix corresponding to the largest connected component to a file 
-         * */
-        SpParMat<IT, NT, DER> A(M); // Create a copy of given matrix
-
-        // A is a directed graph
-        // symmetricize A
-        SpParMat<IT,NT,DER> AT = A;
-        AT.Transpose();
-        A += AT;
-
-        IT nCC;
-        FullyDistVec<IT, IT> ccLabels = CC(A, nCC);
-        if(myrank == 0) printf("Number of connected component %d\n", nCC);
-
-        std::vector<IT> ccLabelsLocal = ccLabels.GetLocVec();
-        IT* ccSizesLocal = new IT[nCC];
-        IT* ccSizesGlobal = new IT[nCC];
-        memset(ccSizesLocal, 0, sizeof(IT) * nCC);
-        memset(ccSizesGlobal, 0, sizeof(IT) * nCC);
-#pragma omp for
-        for(IT i = 0; i < nCC; i++){
-            ccSizesLocal[i] = std::count_if( ccLabelsLocal.begin(), ccLabelsLocal.end(), bind2nd(equal_to<IT>(), i));
-        }
-        MPI_Allreduce(ccSizesLocal, ccSizesGlobal, (int)nCC, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
-
-        IT largestCC = 0;
-        IT largestCCSize = ccSizesGlobal[largestCC];
-        for(IT i = 1; i < nCC; i++){
-            if (ccSizesGlobal[i] > largestCCSize){
-                largestCC = i;
-                largestCCSize = ccSizesGlobal[i];
-            }
-        }
-
-        if(myrank == 0) printf("Largest connected component is %dth component, size %d\n",largestCC, largestCCSize);
-        FullyDistVec<IT,IT> isov = ccLabels.FindInds(bind2nd(equal_to<IT>(), largestCC));
-        //SpParMat<IT, NT, DER> MCC = A.SubsRef_SR<PTNTBOOL,PTBOOLNT>(isov, isov, false);
-        //MCC.PrintInfo();
-        ////MCC.ParallelWriteMM(Mname+std::string(".cc"), true);
-        
-        //M = MCC;
-    
         /*
-         * Necessary variable declaration
+         * Prepare split:
+         * Prepare a vector of FullyDistVec where each element would represent list of vertices in a particular incremental batch
          * */
-        //int nSplit = 5;
+        std::mt19937 rng;
+        rng.seed(myrank);
+        std::uniform_int_distribution<int64_t> udist(0, 9999);
 
-        //SpParMat<IT, NT, DER> M11(fullWorld);
-        //SpParMat<IT, NT, DER> M12(fullWorld);
-        //SpParMat<IT, NT, DER> M21(fullWorld);
-        //SpParMat<IT, NT, DER> M22(fullWorld);
-        //SpParMat<IT, NT, DER> Mfull(M);
-        //SpParMat<IT, NT, DER> Minc(M);
+        IT gnRow = M.getnrow();
+        IT nRowPerProc = gnRow / nprocs;
+        IT lRowStart = myrank * nRowPerProc;
+        IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
 
-        //std::mt19937 rng;
-        //rng.seed(myrank);
-        //std::uniform_int_distribution<int64_t> udist(0, 9999);
-
-        //IT gnRow = M.getnrow();
-        //IT nRowPerProc = gnRow / nprocs;
-        //IT lRowStart = myrank * nRowPerProc;
-        //IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
-
-        //std::vector < std::vector < IT > > lvList(nSplit);
-        //std::vector < std::vector < std::array<char, MAXVERTNAME> > > lvListLabels(nSplit);
-        
-        //for (IT r = lRowStart; r < lRowEnd; r++) {
-            //IT randomNum = udist(rng);
-            //IT s = randomNum % nSplit;
-            //lvList[s].push_back(r);
+        std::vector < std::vector < IT > > lvList(nSplit);
+        std::vector < std::vector < std::array<char, MAXVERTNAME> > > lvListLabels(nSplit); // MAXVERTNAME is 64, defined in SpDefs
+                                                                                            
+        for (IT r = lRowStart; r < lRowEnd; r++) {
+            IT randomNum = udist(rng);
+            IT s = randomNum % nSplit;
+            lvList[s].push_back(r);
             
-            //// Convert the integer vertex id to label as string
-            //std::string labelStr = std::to_string(r); 
-            //// Make a std::array of char with the label
-            //std::array<char, MAXVERTNAME> labelArr = {};
-            //for ( IT i = 0; i < labelStr.length(); i++){
-                //labelArr[i] = labelStr[i]; 
-            //}
-            //lvListLabels[s].push_back( labelArr ); // Push back an empty array
-        //}
-        
-        //std::vector < FullyDistVec<IT,IT>* > dvList;
-        //std::vector < FullyDistVec<IT, std::array<char, MAXVERTNAME> >* > dvListLabels;
-        //for (int s = 0; s < nSplit; s++){
-            //dvList.push_back(new FullyDistVec<IT, IT>(lvList[s], fullWorld));
-            //dvListLabels.push_back(new FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lvListLabels[s], fullWorld));
-        //}
+            // Convert the integer vertex id to label as string
+            std::string labelStr = std::to_string(r); 
+            // Make a std::array of char with the label
+            std::array<char, MAXVERTNAME> labelArr = {};
+            for ( IT i = 0; (i < labelStr.length()) && (i < MAXVERTNAME); i++){
+                labelArr[i] = labelStr[i]; 
+            }
+            lvListLabels[s].push_back( labelArr );
+        }
 
-        ////MPI_Barrier(MPI_COMM_WORLD);
-        ////if(myrank == 0) printf("Sekhane\n");
+        std::vector < FullyDistVec<IT,IT>* > dvList;
+        std::vector < FullyDistVec<IT, std::array<char, MAXVERTNAME> >* > dvListLabels;
+        for (int s = 0; s < nSplit; s++){
+            dvList.push_back(new FullyDistVec<IT, IT>(lvList[s], fullWorld));
+            dvListLabels.push_back(new FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lvListLabels[s], fullWorld));
+            //std::string splitFileName = Mname + std::string("-") + std::to_string(nSplit) + std::string("_") + std::to_string(s);
+            //dvList[s]->ParallelWrite(splitFileName, base);
+        }
 
-        //HipMCLParam param;
-        //InitParam(param);
+        SpParMat<IT, NT, DER> M11(fullWorld);
+        SpParMat<IT, NT, DER> M12(fullWorld);
+        SpParMat<IT, NT, DER> M21(fullWorld);
+        SpParMat<IT, NT, DER> M22(fullWorld);
+        SpParMat<IT, NT, DER> Minc(fullWorld);
+
+        HipMCLParam param;
+        InitParam(param);
         //std::string incFileName = Mname + std::string(".inc");
         //std::string fullFileName = Mname + std::string(".full");
 
-        //FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
-        //FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
-        //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
-        //FullyDistVec<IT, IT> prevClusters = HipMCL(M11, param);
+        FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
+        FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
+        M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+        FullyDistVec<IT, IT> C11 = HipMCL(M11, param);
 
-        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
-        ////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
-
-        //for (int s = 1; s < nSplit; s++){
-            //MPI_Barrier(MPI_COMM_WORLD);
-            //if(myrank == 0) printf("Processing %dth split\n", s);
+        //////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
+        //////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
+        
+        for(int s = 1; s < nSplit; s++){
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Processing %dth split\n", s);
+            std::vector< FullyDistVec<IT, IT> > toConcatenate(2);
+            toConcatenate[0] = prevVertices;
+            toConcatenate[1] = *(dvList[s]);
+            prevVertices = Concatenate(toConcatenate);
             //// Get subgraph induced by previously processed vertices
             //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
             //// Get bipartite graph where edges are from previously processed vertices to newly added vertices
@@ -637,48 +652,25 @@ int main(int argc, char* argv[])
             //RemoveInterClusterEdges(M22, clusters22temp);
             ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".new"), clusters22, *(dvListLabels[s]));
 
-            //Minc = SpParMat<IT,NT,DER>(M); // Make a copy of original matrix
-            //Minc.SetDifference(M); // Make it empty
-            //Minc.SpAsgn(prevVertices, prevVertices, M11); // Assign blocked M11 as submatrix
-            //Minc.SpAsgn(prevVertices, *(dvList[s]), M12); // Assign M12 as submatrix
-            //Minc.SpAsgn(*(dvList[s]), prevVertices, M21); // Assign M21 as submatrix
-            //Minc.SpAsgn(*(dvList[s]), *(dvList[s]), M22); // Assign blocked M22 as submatrix
+            //////IncrementalClusteringKernel(M11, M12, M21, M22, prevClustersTemp, clusters22temp);
 
-            //// Concat previous vertices list and new vertices list together
-            //std::vector<IT> lPrevVertices = prevVertices.GetLocVec();
-            //std::vector<IT> lNewVertices = (dvList[s])->GetLocVec();
-            //std::vector<IT> lCombinedVertices;
-            //std::merge(lPrevVertices.begin(), lPrevVertices.end(), lNewVertices.begin(), lNewVertices.end(), std::back_inserter(lCombinedVertices) );
-            //prevVertices = FullyDistVec<IT, IT>(lCombinedVertices, fullWorld);
+            ////FullyDistVec<IT, IT> ridMincM11 = genFillRangeVec<IT>(0, M11.getnrow());
+            ////FullyDistVec<IT, IT> ridMincM22 = genFillRangeVec<IT>(M11.getnrow(), M11.getnrow() + M22.getnrow());
+            ////Minc = SpParMat<IT,NT,DER>(fullWorld); 
+            ////Minc.SpAsgn(ridMincM11, ridMincM11, M11); // Assign blocked M11 as submatrix
+            ////Minc.SpAsgn(ridMincM11, ridMincM22, M12); // Assign blocked M11 as submatrix
+            ////Minc.SpAsgn(ridMincM22, ridMincM11, M21); // Assign blocked M11 as submatrix
+            ////Minc.SpAsgn(ridMincM22, ridMincM22, M22); // Assign blocked M11 as submatrix
+            ////Minc.PrintInfo();
+            ///
+        }
 
-            //// Concat previous vertex labels
-            //std::vector < std::array<char, MAXVERTNAME> > lPrevVerticesLabels = prevVerticesLabels.GetLocVec();
-            //std::vector < std::array<char, MAXVERTNAME> > lNewVerticesLabels = (dvListLabels[s])->GetLocVec();
-            //std::vector < std::array<char, MAXVERTNAME> > lCombinedVerticesLabels;
-            //std::merge(lPrevVerticesLabels.begin(), lPrevVerticesLabels.end(), lNewVerticesLabels.begin(), lNewVerticesLabels.end(), std::back_inserter(lCombinedVerticesLabels) );
-            //prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lCombinedVerticesLabels, fullWorld);
+        for(IT s = 0; s < dvList.size(); s++){
+            delete dvList[s];
+            delete dvListLabels[s];
+        }
 
-            //Minc = Minc.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false); // Extract subgraph induced by new list from newly updated matrix
-            //Mfull = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false); // Extract subgraph induced by new list from original matrix
-            //SpParMat<IT, NT, DER> T = PrepareIncrementalMatrix(M11, M12, M21, M22);
-            //printf("Minc: %d - T: %d\n", Minc.getnnz(), T.getnnz());
-
-            //InitParam(param);
-            //param.dirname = incFileName + std::string(".") + std::to_string(s) + std::string(".dir");
-            //prevClusters = HipMCL(Minc, param);
-
-            //InitParam(param);
-            //param.dirname = fullFileName + std::string(".") + std::to_string(s) + std::string(".dir");
-            //FullyDistVec<IT, IT> fullClusters = HipMCL(Mfull, param);
-
-            ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), prevClusters, prevVerticesLabels);
-            ////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), fullClusters, prevVerticesLabels);
-        //}
-
-
-        //for(IT s = 0; s < dvList.size(); s++){
-            //delete dvList[s];
-        //}
+        //IncrementalClustering(M, int64_t(nSplit));
     }
     MPI_Finalize();
     return 0;
