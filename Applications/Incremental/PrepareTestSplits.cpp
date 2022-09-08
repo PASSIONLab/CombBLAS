@@ -420,68 +420,6 @@ void IncrementalClustering(SpParMat<IT,NT,DER>& M, IT nSplit){
     shared_ptr<CommGrid> fullWorld;
     fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-    SpParMat<IT, NT, DER> M11(fullWorld);
-    SpParMat<IT, NT, DER> M12(fullWorld);
-    SpParMat<IT, NT, DER> M21(fullWorld);
-    SpParMat<IT, NT, DER> M22(fullWorld);
-    SpParMat<IT, NT, DER> Minc(fullWorld);
-
-    HipMCLParam param;
-    InitParam(param);
-    //std::string incFileName = Mname + std::string(".inc");
-    //std::string fullFileName = Mname + std::string(".full");
-
-    FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
-    FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
-    M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
-    FullyDistVec<IT, IT> C11 = HipMCL(M11, param);
-
-    //////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
-    //////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
-    
-    for(int s = 1; s < nSplit; s++){
-        MPI_Barrier(MPI_COMM_WORLD);
-        if(myrank == 0) printf("Processing %dth split\n", s);
-        std::vector< FullyDistVec<IT, IT> > toConcatenate(2);
-        toConcatenate[0] = prevVertices;
-        toConcatenate[1] = *(dvList[s]);
-        prevVertices = Concatenate(toConcatenate);
-        //// Get subgraph induced by previously processed vertices
-        //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
-        //// Get bipartite graph where edges are from previously processed vertices to newly added vertices
-        //M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, *(dvList[s]), false);
-        //// Get bipartite graph where edges are from newly added vertices to previously processed vertices
-        //M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), prevVertices, false);
-        //// Get subgraph induced by newly added vertices
-        //M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), *(dvList[s]), false);
-
-
-        //// Get block diagonal version of M11
-        //FullyDistVec<IT, NT> prevClustersTemp(prevClusters);
-        //RemoveInterClusterEdges(M11, prevClustersTemp);
-        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".prev"), prevClusters, prevVerticesLabels);
-
-        //// Get block diagonal version of M22
-        //InitParam(param);
-        //FullyDistVec<IT, IT> clusters22 = HipMCL(M22, param);
-        //FullyDistVec<IT, NT> clusters22temp(clusters22);
-        //RemoveInterClusterEdges(M22, clusters22temp);
-        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".new"), clusters22, *(dvListLabels[s]));
-
-        //////IncrementalClusteringKernel(M11, M12, M21, M22, prevClustersTemp, clusters22temp);
-
-        ////FullyDistVec<IT, IT> ridMincM11 = genFillRangeVec<IT>(0, M11.getnrow());
-        ////FullyDistVec<IT, IT> ridMincM22 = genFillRangeVec<IT>(M11.getnrow(), M11.getnrow() + M22.getnrow());
-        ////Minc = SpParMat<IT,NT,DER>(fullWorld); 
-        ////Minc.SpAsgn(ridMincM11, ridMincM11, M11); // Assign blocked M11 as submatrix
-        ////Minc.SpAsgn(ridMincM11, ridMincM22, M12); // Assign blocked M11 as submatrix
-        ////Minc.SpAsgn(ridMincM22, ridMincM11, M21); // Assign blocked M11 as submatrix
-        ////Minc.SpAsgn(ridMincM22, ridMincM22, M22); // Assign blocked M11 as submatrix
-        ////Minc.PrintInfo();
-        ///
-    }
-
-                                                                                            
     return;
 }
 
@@ -609,60 +547,132 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M21(fullWorld);
         SpParMat<IT, NT, DER> M22(fullWorld);
         SpParMat<IT, NT, DER> Minc(fullWorld);
+        SpParMat<IT, NT, DER> MincFake(fullWorld);
+        SpParMat<IT, NT, DER> Mall(fullWorld);
 
         HipMCLParam param;
         InitParam(param);
-        //std::string incFileName = Mname + std::string(".inc");
-        //std::string fullFileName = Mname + std::string(".full");
+        std::string incFileName = Mname + std::string(".inc");
+        std::string incFakeFileName = Mname + std::string(".incfake");
+        std::string fullFileName = Mname + std::string(".full");
 
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
         FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
         M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
         FullyDistVec<IT, IT> C11 = HipMCL(M11, param);
+        FullyDistVec<IT, IT> C11Fake(fullWorld);
+        FullyDistVec<IT, NT> C11temp(C11); // Changing vector value type, to use for inter-cluster edge removal
+        RemoveInterClusterEdges(M11, C11temp);
+        Mall = M11;
 
-        //////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), prevClusters, prevVerticesLabels);
-        //////WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), prevClusters, param.base);
+        WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), C11, prevVerticesLabels);
+        WriteMCLClusters(incFakeFileName + std::string(".") + std::to_string(0), C11, prevVerticesLabels);
+        WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), C11, prevVerticesLabels);
+        ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(0) + std::string(".prev"), prevClusters, prevVerticesLabels);
         
+        std::vector< FullyDistVec<IT, IT> > toConcatenate(2, FullyDistVec<IT, IT>(fullWorld));
+        std::vector< FullyDistVec<IT, std::array<char, MAXVERTNAME> > > toConcatenateLabels(2, FullyDistVec<IT, std::array<char, MAXVERTNAME> >(fullWorld));
         for(int s = 1; s < nSplit; s++){
             MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("***\n", s);
             if(myrank == 0) printf("Processing %dth split\n", s);
-            std::vector< FullyDistVec<IT, IT> > toConcatenate(2);
+            if(myrank == 0) printf("***\n", s);
+            FullyDistVec<IT, IT> newVertices(*(dvList[s]));
+            FullyDistVec<IT, std::array<char, MAXVERTNAME> > newVerticesLabels(*(dvListLabels[s]));
+
             toConcatenate[0] = prevVertices;
-            toConcatenate[1] = *(dvList[s]);
-            prevVertices = Concatenate(toConcatenate);
-            //// Get subgraph induced by previously processed vertices
-            //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
-            //// Get bipartite graph where edges are from previously processed vertices to newly added vertices
-            //M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, *(dvList[s]), false);
-            //// Get bipartite graph where edges are from newly added vertices to previously processed vertices
-            //M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), prevVertices, false);
-            //// Get subgraph induced by newly added vertices
-            //M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (*(dvList[s]), *(dvList[s]), false);
+            toConcatenate[1] = newVertices;
+            FullyDistVec<IT, IT> allVertices = Concatenate(toConcatenate);
 
+            toConcatenateLabels[0] = prevVerticesLabels;
+            toConcatenateLabels[1] = newVerticesLabels;
+            FullyDistVec<IT, std::array<char, MAXVERTNAME> > allVerticesLabels = Concatenate(toConcatenateLabels);
 
-            //// Get block diagonal version of M11
-            //FullyDistVec<IT, NT> prevClustersTemp(prevClusters);
-            //RemoveInterClusterEdges(M11, prevClustersTemp);
-            ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".prev"), prevClusters, prevVerticesLabels);
-
-            //// Get block diagonal version of M22
-            //InitParam(param);
-            //FullyDistVec<IT, IT> clusters22 = HipMCL(M22, param);
-            //FullyDistVec<IT, NT> clusters22temp(clusters22);
-            //RemoveInterClusterEdges(M22, clusters22temp);
+            M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
+            M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
+            // Get subgraph induced by newly added vertices
+            M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false);
+            InitParam(param);
+            FullyDistVec<IT, IT> C22 = HipMCL(M22, param);
+            FullyDistVec<IT, NT> C22temp(C22); // Changing vector value type, to use for inter-cluster edge removal
+            RemoveInterClusterEdges(M22, C22temp);
             ////WriteMCLClusters(incFileName + std::string(".") + std::to_string(s) + std::string(".new"), clusters22, *(dvListLabels[s]));
 
-            //////IncrementalClusteringKernel(M11, M12, M21, M22, prevClustersTemp, clusters22temp);
+            FullyDistVec<IT, IT> prevVerticesRemapped( fullWorld );
+            FullyDistVec<IT, IT> newVerticesRemapped( fullWorld );
+            prevVerticesRemapped.iota(M11.getnrow(), 0);
+            newVerticesRemapped.iota(M22.getnrow(), M11.getnrow());
+            Minc = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getnrow() + M22.getnrow(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            Minc.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
+            Minc.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
+            Minc.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
+            Minc.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Minc prepared\n");
+            Minc.PrintInfo();
+            M11.PrintInfo();
+            M12.PrintInfo();
+            M21.PrintInfo();
+            M22.PrintInfo();
+            
+            InitParam(param);
+            FullyDistVec<IT, IT> Cinc = HipMCL(Minc, param);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Ran HipMCL on Minc\n");
 
-            ////FullyDistVec<IT, IT> ridMincM11 = genFillRangeVec<IT>(0, M11.getnrow());
-            ////FullyDistVec<IT, IT> ridMincM22 = genFillRangeVec<IT>(M11.getnrow(), M11.getnrow() + M22.getnrow());
-            ////Minc = SpParMat<IT,NT,DER>(fullWorld); 
-            ////Minc.SpAsgn(ridMincM11, ridMincM11, M11); // Assign blocked M11 as submatrix
-            ////Minc.SpAsgn(ridMincM11, ridMincM22, M12); // Assign blocked M11 as submatrix
-            ////Minc.SpAsgn(ridMincM22, ridMincM11, M21); // Assign blocked M11 as submatrix
-            ////Minc.SpAsgn(ridMincM22, ridMincM22, M22); // Assign blocked M11 as submatrix
-            ////Minc.PrintInfo();
-            ///
+            //MincFake = SpParMat<IT, NT, DER>(Minc);
+            MincFake = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getnrow() + M22.getnrow(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincFake.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, Mall);
+            //Minc.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
+            MincFake.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
+            MincFake.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
+            MincFake.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("MincFake prepared\n");
+            MincFake.PrintInfo();
+
+            InitParam(param);
+            FullyDistVec<IT, IT> CincFake = HipMCL(MincFake, param);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Ran HipMCL on MincFake\n");
+
+            Mall = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (allVertices, allVertices, false);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Mall prepared\n");
+            Mall.PrintInfo();
+
+            InitParam(param);
+            FullyDistVec<IT, IT> Call = HipMCL(Mall, param);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Ran HipMCL on Mall\n");
+
+            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, allVerticesLabels);
+            WriteMCLClusters(incFakeFileName + std::string(".") + std::to_string(s), CincFake, allVerticesLabels);
+            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), Call, allVerticesLabels);
+
+            FullyDistVec<IT, NT> Cinctemp(Cinc);
+            RemoveInterClusterEdges(Minc, Cinctemp);
+            M11 = SpParMat<IT, NT, DER>(Minc);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Prepared M11 for next step\n");
+            M11.PrintInfo();
+
+            FullyDistVec<IT, NT> Calltemp(Call);
+            RemoveInterClusterEdges(Mall, Calltemp);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("Prepared M11Fake for next step\n");
+            Mall.PrintInfo();
+
+            prevVertices = allVertices;
+            prevVerticesLabels = allVerticesLabels;
         }
 
         for(IT s = 0; s < dvList.size(); s++){
