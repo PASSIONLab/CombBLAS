@@ -2,152 +2,198 @@
  * Dumps the largest connected component of a given graph to a file with the 
  * given filename as prefix and .cc as suffix
  * */
-
 #include <mpi.h>
+
+// These macros should be defined before stdint.h is included
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#include <stdint.h>
+
 #include <sys/time.h>
 #include <iostream>
-#include <functional>
-#include <algorithm>
-#include <vector>
+#include <fstream>
+#include <string>
 #include <sstream>
-#include <cstdlib>
-#include "../CC.h"
+#include <ctime>
+#include <cmath>
 #include "CombBLAS/CombBLAS.h"
-#include "CombBLAS/CommGrid3D.h"
-#include "CombBLAS/SpParMat3D.h"
-#include "CombBLAS/ParFriends.h"
-#include "../WriteMCLClusters.h"
+#include "../CC.h"
 
 using namespace std;
 using namespace combblas;
 
-#ifdef _OPENMP
-int cblas_splits = omp_get_max_threads();
-#else
-int cblas_splits = 1;
-#endif
+/**
+ ** Connected components based on Awerbuch-Shiloach algorithm
+ **/
+
+
+class Dist
+{
+public:
+    typedef SpDCCols < int64_t, double > DCCols;
+    typedef SpParMat < int64_t, double, DCCols > MPI_DCCols;
+};
+
+
 
 int main(int argc, char* argv[])
 {
-    int nprocs, myrank, nthreads = 1;
-    MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    int provided;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+    if (provided < MPI_THREAD_SERIALIZED)
+    {
+        printf("ERROR: The MPI library does not have MPI_THREAD_SERIALIZED support\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    
+    int nthreads = 1;
 #ifdef THREADED
 #pragma omp parallel
     {
         nthreads = omp_get_num_threads();
     }
 #endif
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     if(myrank == 0)
     {
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
-    if(argc < 7)
+    
+    if(argc < 3)
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./lcc -I <mm|triples> -M <MATRIX_FILENAME> -C <CC_FILENAME>\n";
-            cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
-            cout << "-M <MATRIX FILE NAME>\n";
-            cout << "-C <CONNECTED COMPONENT FILE NAME>\n";
+            cout << "Usage: ./cc -I <mm|triples> -M <FILENAME_MATRIX_MARKET> (required)\n";
+            cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples. default:mm)\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
+            cout << "-rand <RANDOMLY PERMUTE VERTICES> (default:0)\n";
+            cout << "Example (0-indexed mtx with random permutation): ./cc -M input.mtx -base 0 -rand 1" << endl;
+            cout << "Example (triples format): ./cc -I triples -M input.txt" << endl;
         }
         MPI_Finalize();
         return -1;
     }
-    else{
-        string Mname = "";
-        string Cname = "";
+    {
+        string ifilename = "";
         int base = 1;
+        int randpermute = 1;
         bool isMatrixMarket = true;
         
         for (int i = 1; i < argc; i++)
         {
             if (strcmp(argv[i],"-I")==0)
             {
-                string mfiletype = string(argv[i+1]);
-                if(mfiletype == "triples") isMatrixMarket = false;
+                string ifiletype = string(argv[i+1]);
+                if(ifiletype == "triples") isMatrixMarket = false;
             }
-            else if (strcmp(argv[i],"-M")==0)
+            if (strcmp(argv[i],"-M")==0)
             {
-                Mname = string(argv[i+1]);
-                if(myrank == 0) printf("Matrix filename: %s\n",Mname.c_str());
-            }
-            else if (strcmp(argv[i],"-C")==0)
-            {
-                Cname = string(argv[i+1]);
-                if(myrank == 0) printf("Connected component filename: %s\n", Cname.c_str());
+                ifilename = string(argv[i+1]);
+                if(myrank == 0) printf("filename: %s\n",ifilename.c_str());
             }
             else if (strcmp(argv[i],"-base")==0)
             {
                 base = atoi(argv[i + 1]);
                 if(myrank == 0) printf("\nBase of MM (1 or 0):%d",base);
             }
+            else if (strcmp(argv[i],"-rand")==0)
+            {
+                randpermute = atoi(argv[i + 1]);
+                if(myrank == 0) printf("\nRandomly permute the matrix? (1 or 0):%d",randpermute);
+            }
         }
 
-        shared_ptr<CommGrid> fullWorld;
-        fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-
-        typedef PlusTimesSRing<double, double> PTFF;
+		typedef PlusTimesSRing<double, double> PTFF;
         typedef PlusTimesSRing<bool, double> PTBOOLNT;
         typedef PlusTimesSRing<double, bool> PTNTBOOL;
-        typedef int64_t IT;
-        typedef double NT;
-        typedef SpDCCols < int64_t, double > DER;
         
-        double t0, t1;
-
-        SpParMat<IT, NT, DER> M(fullWorld);
-        FullyDistVec<IT, IT> ccLabels(fullWorld);
-        FullyDistVec<IT, IT> ccLabelsVusVus(fullWorld);
-
+        double tIO = MPI_Wtime();
+        Dist::MPI_DCCols A(MPI_COMM_WORLD);	// construct object
+        Dist::MPI_DCCols M(MPI_COMM_WORLD);	// construct object
+        
         if(isMatrixMarket)
-            M.ParallelReadMM(Mname, base, maximum<double>());
+            A.ParallelReadMM(ifilename, base, maximum<double>());
         else
-            M.ReadGeneralizedTuples(Mname,  maximum<double>());
-        M.PrintInfo();
-        ccLabels.ParallelRead(Cname, base, maximum<IT>());
-        IT nCC = ccLabels.Reduce(maximum<IT>(), (IT) 0 ) ;
-
-        SpParMat<IT, NT, DER> A(M); // Create a copy of given matrix
-
-        // A is a directed graph
-        // symmetricize A
-        SpParMat<IT,NT,DER> AT = A;
+            A.ReadGeneralizedTuples(ifilename,  maximum<double>());
+        A.PrintInfo();
+		M = Dist::MPI_DCCols(A);
+        
+        Dist::MPI_DCCols AT = A;
         AT.Transpose();
-        A += AT;
-
-        ccLabelsVusVus = CC(A, nCC);
-        //ccLabels = CC(A, nCC);
-
-        if(ccLabelsVusVus == ccLabels){
-            if(myrank == 0) fprintf(stderr, "Both vectors equal\n");
+        if(!(AT == A))
+        {
+            SpParHelper::Print("Symmatricizing an unsymmetric input matrix.\n");
+            A += AT;
         }
-        else{
-            if(myrank == 0) fprintf(stderr, "Both vectors not equal\n");
+        A.PrintInfo();
+        
+        
+        ostringstream outs;
+        outs << "File Read time: " << MPI_Wtime() - tIO << endl;
+        SpParHelper::Print(outs.str());
+        
+        if(randpermute && isMatrixMarket) // no need for GeneralizedTuples
+        {
+            // randomly permute for load balance
+            if(A.getnrow() == A.getncol())
+            {
+                FullyDistVec<int64_t, int64_t> p( A.getcommgrid());
+                p.iota(A.getnrow(), 0);
+                //p.RandPerm();
+                (A)(p,p,true);// in-place permute to save memory
+                SpParHelper::Print("Applied symmetric permutation.\n");
+            }
+            else
+            {
+                SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
+            }
         }
+        
+        double t1 = MPI_Wtime();
+        int64_t nCC = 0;
+        FullyDistVec<int64_t, int64_t> ccLabels = CC(A, nCC);
+        
+        double t2 = MPI_Wtime();
+        string outname = ifilename + ".components";
+        ccLabels.ParallelWrite(outname, base);
+        int64_t nclusters = ccLabels.Reduce(maximum<int64_t>(), (int64_t) 0 ) ;
+        nclusters ++; // because of zero based indexing for clusters
 
-        if(myrank == 0) fprintf(stderr, "Number of connected components: %lld\n", nCC);
-        std::vector<IT> ccLabelsLocal = ccLabels.GetLocVec();
-        IT* ccSizesLocal = new IT[nCC];
-        IT* ccSizesGlobal = new IT[nCC];
-        memset(ccSizesLocal, 0, sizeof(IT) * nCC);
-        memset(ccSizesGlobal, 0, sizeof(IT) * nCC);
+        stringstream s2;
+        s2 << "Number of clusters: " << nclusters << endl;
+        s2 << "Total time: " << (t2-t1) << endl;
+        s2 <<  "=================================================\n" << endl ;
+        SpParHelper::Print(s2.str());
+        
+        /* Find the largest connected component */
+        std::vector<int64_t> ccLabelsLocal = ccLabels.GetLocVec();
+        int64_t* ccSizesLocal = new int64_t[nclusters];
+        int64_t* ccSizesGlobal = new int64_t[nclusters];
+        memset(ccSizesLocal, 0, sizeof(int64_t) * nclusters);
+        memset(ccSizesGlobal, 0, sizeof(int64_t) * nclusters);
+
 #ifdef THREADED
 #pragma omp parallel for
 #endif
-        for(IT i = 0; i < nCC; i++){
-            ccSizesLocal[i] = std::count_if( ccLabelsLocal.begin(), ccLabelsLocal.end(), bind2nd(equal_to<IT>(), i));
+        for(int64_t i = 0; i < nclusters; i++){
+            ccSizesLocal[i] = std::count_if( ccLabelsLocal.begin(), ccLabelsLocal.end(), bind2nd(equal_to<int64_t>(), i));
         }
-        MPI_Allreduce(ccSizesLocal, ccSizesGlobal, (int)nCC, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce(ccSizesLocal, ccSizesGlobal, (int)nclusters, MPI_LONG, MPI_SUM, MPI_COMM_WORLD); // Type casting because MPI does not take count as something other than integer
 
-        IT largestCC = 0;
-        IT largestCCSize = ccSizesGlobal[largestCC];
+		int64_t largestCC = 0;
+        int64_t largestCCSize = ccSizesGlobal[largestCC];
         if(myrank == 0){
             fprintf(stderr, "LargestCC: %lld, LargestCCSize: %lld\n", largestCC, largestCCSize);
         }
-        for(IT i = 1; i < nCC; i++){
+
+		for(int64_t i = 1; i < nclusters; i++){
             if (ccSizesGlobal[i] > largestCCSize){
                 largestCC = i;
                 largestCCSize = ccSizesGlobal[i];
@@ -156,18 +202,18 @@ int main(int argc, char* argv[])
                 }
             }
         }
+		
+		//delete ccSizesLocal;
+        //delete ccSizesGlobal;
 
-        delete ccSizesLocal;
-        delete ccSizesGlobal;
-
-        if(myrank == 0) printf("Largest connected component is %dth component, size %d\n",largestCC, largestCCSize);
-        FullyDistVec<IT,IT> isov = ccLabels.FindInds(bind2nd(equal_to<IT>(), largestCC));
-        isov.ParallelWrite(Mname+std::string(".isov2"), 0);
-        SpParMat<IT, NT, DER> MCC = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(isov, isov, false);
+		if(myrank == 0) printf("Largest connected component is %dth component, size %d\n",largestCC, largestCCSize);
+		
+		FullyDistVec<int64_t,int64_t> isov = ccLabels.FindInds(bind2nd(equal_to<int64_t>(), largestCC));
+		Dist::MPI_DCCols MCC = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(isov, isov, false);
         MCC.PrintInfo();
-        MCC.ParallelWriteMM(Mname+std::string(".lcc"), true);
+        MCC.ParallelWriteMM(ifilename+std::string(".lcc"), true);
     }
-
+    
     MPI_Finalize();
     return 0;
 }
