@@ -249,151 +249,6 @@ void RandPermute(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 }
 
 template <typename IT, typename NT, typename DER>
-FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
-{
-    if(param.remove_isolated)
-        RemoveIsolated(A, param);
-    
-    if(param.randpermute)
-        RandPermute(A, param);
-
-    // Adjust self loops
-    AdjustLoops(A);
-
-    // Make stochastic
-    MakeColStochastic(A);
-    //SpParHelper::Print("Made stochastic\n");
-
-    //if(!param.dirname.empty()) {
-        //std::string fname = param.dirname + "\/" + std::to_string(0);
-        //A.ParallelWriteMM(fname, true);
-    //}
-    
-    
-    IT nnz = A.getnnz();
-    IT nv = A.getnrow();
-    IT avgDegree = nnz/nv;
-    if(avgDegree > std::max(param.select, param.recover_num))
-    {
-        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\n");
-        param.preprune = true;
-    }
-    if(param.preprune)
-    {
-        SpParHelper::Print("Applying the prune/select/recovery logic before the first iteration\n\n");
-        MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
-    }
-
-    if(param.show)
-    {
-        A.PrintInfo();
-    }
-    
-
-    // chaos doesn't make sense for non-stochastic matrices
-    // it is in the range {0,1} for stochastic matrices
-    NT chaos = 1;
-    int it=1;
-    double tInflate = 0;
-    double tExpand = 0;
-    typedef PlusTimesSRing<NT, NT> PTFF;
-	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
-	if(param.layers > 1) {
-    	SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
-		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
-	}
-    // while there is an epsilon improvement
-    while( chaos > EPS)
-    {
-		SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
-		if(param.layers > 1) {
-			A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false); // Create new rowsplit copy of matrix from colsplit copy
-		}
-
-        double t1 = MPI_Wtime();
-        //A.Square<PTFF>() ;        // expand
-		if(param.layers == 1){
-			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
-		}
-		else{
-			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
-                A3D_cs, A3D_rs, 
-                param.phases, 
-                param.prunelimit, 
-                (IT)param.select, 
-                (IT)param.recover_num, 
-                param.recover_pct, 
-                param.kselectVersion,
-                param.compute,
-                param.perProcessMem
-         	);
-		}
-        
-		if(param.layers == 1){
-			MakeColStochastic(A);
-		}
-		else{
-            MakeColStochastic3D(A3D_cs);
-		}
-        tExpand += (MPI_Wtime() - t1);
-        
-        //if(param.show)
-        //{
-            //SpParHelper::Print("After expansion\n");
-            //A.PrintInfo();
-        //}
-        if(param.layers == 1) chaos = Chaos(A);
-        else chaos = Chaos3D(A3D_cs);
-        
-        //double tInflate1 = MPI_Wtime();
-        if (param.layers == 1) Inflate(A, param.inflation);
-        else Inflate3D(A3D_cs, param.inflation);
-
-        if(param.layers == 1) MakeColStochastic(A);
-        else MakeColStochastic3D(A3D_cs);
-
-        //tInflate += (MPI_Wtime() - tInflate1);
-        
-        //if(param.show)
-        //{
-            //SpParHelper::Print("After inflation\n");
-            //A.PrintInfo();
-        //}
-        
-        //if(!param.dirname.empty()) {
-            //std::string fname = param.dirname + "\/" + std::to_string(it);
-            //A.ParallelWriteMM(fname, true);
-        //}
-        
-        double newbalance = A.LoadImbalance();
-        double t3=MPI_Wtime();
-        stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
-        //SpParHelper::Print(s.str());
-        it++;
-        
-        
-        
-    }
-    
-    
-#ifdef TIMING    
-    double tcc1 = MPI_Wtime();
-#endif
-    
-    // bool can not be used because
-    // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
-    // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
-    // hence, we are forcing this with IT and double
-    SpParMat<IT,double, SpDCCols < IT, double >> ADouble(MPI_COMM_WORLD);
-    if(param.layers == 1) ADouble = A;
-    else ADouble = A3D_cs.Convert2D();
-    FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
-    
-    return cclabels;
-}
-
-template <typename IT, typename NT, typename DER>
 FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 {
     if(param.remove_isolated)
@@ -407,13 +262,6 @@ FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param
 
     // Make stochastic
     MakeColStochastic(A);
-    //SpParHelper::Print("Made stochastic\n");
-
-    //if(!param.dirname.empty()) {
-        //std::string fname = param.dirname + "\/" + std::to_string(0);
-        //A.ParallelWriteMM(fname, true);
-    //}
-    
     
     IT nnz = A.getnnz();
     IT nv = A.getnrow();
@@ -434,10 +282,12 @@ FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param
         A.PrintInfo();
     }
     
+    NT chaos = Chaos(A);
+    double newBalance = A.LoadImbalance();
+    stringstream s;
+    s << "Beginning: "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << endl;
+    SpParHelper::Print(s.str());
 
-    // chaos doesn't make sense for non-stochastic matrices
-    // it is in the range {0,1} for stochastic matrices
-    NT chaos = 1;
     int it=1;
     double tInflate = 0;
     double tExpand = 0;
@@ -447,6 +297,7 @@ FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param
     	SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
 		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
 	}
+
     // while there is an epsilon improvement
     while( (chaos > EPS) && (it <= param.maxIter) )
     {
@@ -456,9 +307,9 @@ FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param
 		}
 
         double t1 = MPI_Wtime();
-        //A.Square<PTFF>() ;        // expand
 		if(param.layers == 1){
 			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+            A.PrintInfo();
 		}
 		else{
 			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
@@ -496,34 +347,16 @@ FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param
 
         if(param.layers == 1) MakeColStochastic(A);
         else MakeColStochastic3D(A3D_cs);
-
-        //tInflate += (MPI_Wtime() - tInflate1);
         
-        //if(param.show)
-        //{
-            //SpParHelper::Print("After inflation\n");
-            //A.PrintInfo();
-        //}
-        
-        //if(!param.dirname.empty()) {
-            //std::string fname = param.dirname + "\/" + std::to_string(it);
-            //A.ParallelWriteMM(fname, true);
-        //}
-        
-        double newbalance = A.LoadImbalance();
+        newBalance = A.LoadImbalance();
         double t3=MPI_Wtime();
         stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
-        A.PrintInfo();
         it++;
-        
-        
-        
     }
     
-    
-#ifdef TIMING    
+#ifdef TIMING
     double tcc1 = MPI_Wtime();
 #endif
     
@@ -554,6 +387,8 @@ void RemoveInterClusterEdges(SpParMat<IT, NT, DER>& M, FullyDistVec<IT, IT>& C){
 // Given an adjacency matrix, and cluster assignment vector, removes inter cluster edges
 template <class IT, class NT, class DER>
 void ProcessNewEdges(SpParMat<IT, NT, DER>& M){
+    MakeColStochastic(M); // Make each column sum to 1
+    M.Apply(bind1st(multiplies<double>(), M.getnrow())); // Scale each column sum to number of rows in the matrix
     return;
 }
 
@@ -591,6 +426,9 @@ int main(int argc, char* argv[])
         int nSplit = 2;
         int base = 1;
         bool isMatrixMarket = true;
+
+        HipMCLParam incParam;
+        InitParam(incParam);
         
         for (int i = 1; i < argc; i++)
         {
@@ -602,22 +440,28 @@ int main(int argc, char* argv[])
             else if (strcmp(argv[i],"-M")==0)
             {
                 Mname = string(argv[i+1]);
-                if(myrank == 0) printf("Matrix filename: %s\n",Mname.c_str());
+                if(myrank == 0) printf("Matrix filename: %s\n", Mname.c_str());
             }
             else if (strcmp(argv[i],"-base")==0)
             {
                 base = atoi(argv[i + 1]);
-                if(myrank == 0) printf("Base of MM (1 or 0):%d\n",base);
+                if(myrank == 0) printf("Base of MM (1 or 0):%d\n", base);
             }
             else if (strcmp(argv[i],"-N")==0)
             {
                 nSplit = atoi(argv[i+1]);
                 if(myrank == 0) printf("Number of splits: %d\n", nSplit);
             }
+            else if(strcmp(argv[i],"--per-process-mem")==0){
+                incParam.perProcessMem = atoi(argv[i+1]);
+                if(myrank == 0) printf("Per process memory: %d GB\n", incParam.perProcessMem);
+            }
         }
 
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+
+        if(myrank == 0) printf("Running Incremental-Optimized\n");
 
         typedef int64_t IT;
         typedef double NT;
@@ -680,57 +524,28 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M22(fullWorld);
 
         SpParMat<IT, NT, DER> Minc(fullWorld);
-        SpParMat<IT, NT, DER> MincFake(fullWorld);
-        SpParMat<IT, NT, DER> Mall(fullWorld);
-
-        SpParMat<IT, NT, DER> MincTemp(fullWorld);
-        SpParMat<IT, NT, DER> MincFakeTemp(fullWorld);
-        SpParMat<IT, NT, DER> MallTemp(fullWorld);
-
         FullyDistVec<IT, IT> Cinc(fullWorld);
-        FullyDistVec<IT, IT> CincFake(fullWorld);
-        FullyDistVec<IT, IT> Call(fullWorld);
 
-        HipMCLParam mclParam;
-        InitParam(mclParam);
-
-
-        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc");
-        std::string incFakeFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".incfake");
-        std::string fullFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".full");
+        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt");
 
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
         FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
                                                                                                 //
         M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
-        Mall = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
 
-        MallTemp = Mall;
-        Call = HipMCL(MallTemp, mclParam);
-        //Mall = MallTemp;
-        RemoveInterClusterEdges(Mall, Call);
-
-        HipMCLParam incParam;
-        InitParam(incParam);
 		incParam.maxIter = 5;
 
         Minc = M11;
         Cinc = IncrementalMCL(Minc, incParam);
 		M11 = Minc;
-        RemoveInterClusterEdges(M11, Cinc);
 
         //WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), C11, prevVerticesLabels);
         WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), Cinc, base);
-        WriteMCLClusters(incFakeFileName + std::string(".") + std::to_string(0), Cinc, base);
-        WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), Call, base);
         
         std::vector< FullyDistVec<IT, IT> > toConcatenate(2, FullyDistVec<IT, IT>(fullWorld));
         std::vector< FullyDistVec<IT, std::array<char, MAXVERTNAME> > > toConcatenateLabels(2, FullyDistVec<IT, std::array<char, MAXVERTNAME> >(fullWorld));
 
         for(int s = 1; s < nSplit; s++){
-			if(s == nSplit - 1){
-				incParam.maxIter = 1000;
-			}
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("***\n", s);
             if(myrank == 0) printf("Processing %dth split\n", s);
@@ -770,22 +585,19 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("[Step: %d]\tTime to extract M22: %lf\n", s, t1 - t0);
 
             t3 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime extract subgraphs: %lf\n", s, t3 - t2);
-
-            ProcessNewEdges(M12);
-            ProcessNewEdges(M21);
+            if(myrank == 0) printf("[Step: %d]\tTime to extract subgraphs: %lf\n", s, t3 - t2);
             
-            SpParMat<IT, NT, DER> M22Temp = M22;
+            
             t0 = MPI_Wtime();
-            FullyDistVec<IT, IT> C22 = IncrementalMCL(M22Temp, incParam); // Cluster M22
+            FullyDistVec<IT, IT> C22 = IncrementalMCL(M22, incParam); // Cluster M22
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to find clusters in M22: %lf\n", s, t1 - t0);
-			M22 = M22Temp;
 
-            t0 = MPI_Wtime();
-            RemoveInterClusterEdges(M22, C22); //Summarize M22
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to remove inter-cluster edges of M22: %lf\n", s, t1 - t0);
+
+            ProcessNewEdges(M11);
+            ProcessNewEdges(M12);
+            ProcessNewEdges(M21);
+            ProcessNewEdges(M22);
 
             t2 = MPI_Wtime();
             t0 = MPI_Wtime();
@@ -837,81 +649,29 @@ int main(int argc, char* argv[])
             //M12.PrintInfo();
             //M21.PrintInfo();
             //M22.PrintInfo();
+
+			if(s == nSplit - 1){    // If in the last step then continue MCL iterations until convergence
+				incParam.maxIter = 1000;
+			}
             
-            MincTemp = Minc;
             t0 = MPI_Wtime();
-			Cinc = IncrementalMCL(MincTemp, incParam);
+			Cinc = IncrementalMCL(Minc, incParam);
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("Ran IncrementalMCL on Minc\n");
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to find clusters in Minc: %lf\n", s, t1 - t0);
-			Minc = MincTemp;
-
-            t2 = MPI_Wtime();
-            //MincFake = SpParMat<IT, NT, DER>(Minc);
-            MincFake = SpParMat<IT,NT,DER>(Mall.getnrow() + M22.getnrow(), 
-                    Mall.getnrow() + M22.getnrow(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincFake.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, Mall);
-            MincFake.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
-            MincFake.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
-            MincFake.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
-
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("MincFake prepared\n");
-
-            t3 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare MincFake: %lf\n", s, t3 - t2);
-
-            MincFake.PrintInfo();
-            float MincFakeLB = MincFake.LoadImbalance();
-            if(myrank == 0) printf("MincFake.LoadImbalance() = %f\n", MincFakeLB);
-            
-            MincFakeTemp = MincFake;
-            CincFake = IncrementalMCL(MincFakeTemp, incParam);
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Ran HipMCL on MincFake\n");
-            //MincFake = MincFakeTemp;
-
-            t0 = MPI_Wtime();
-            Mall = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (allVertices, allVertices, false);
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Mall prepared\n");
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare Mall: %lf\n", s, t1 - t0);
-            Mall.PrintInfo();
-            float MallLB = Mall.LoadImbalance();
-            if(myrank == 0) printf("Mall.LoadImbalance() = %f\n", MallLB);
-            
-            MallTemp = Mall;
-            t0 = MPI_Wtime();
-            Call = HipMCL(MallTemp, mclParam);
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Ran HipMCL on Mall\n");
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to find clusters in Mall: %lf\n", s, t1 - t0);
 
             WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, base);
-            WriteMCLClusters(incFakeFileName + std::string(".") + std::to_string(s), CincFake, base);
-            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), Call, base);
             
             t0 = MPI_Wtime();
 			M11 = Minc;
             //M11 = Mall;
-            RemoveInterClusterEdges(M11, Cinc);
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("Prepared M11 for next step\n");
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to prepare M11 for next step: %lf\n", s, t1 - t0);
 
             M11.PrintInfo();
-
-            RemoveInterClusterEdges(Mall, Call);
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Prepared M11Fake for next step\n");
-            Mall.PrintInfo();
 
             prevVertices = FullyDistVec<IT, IT>(allVertices);
             prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(allVerticesLabels);

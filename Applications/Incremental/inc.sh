@@ -12,13 +12,18 @@
 #SBATCH -J inc
 #SBATCH -o inc.o%j
 
-export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=16
 
-INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc
+#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc-full
+#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc-base
+INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc-opt
 
 #MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
-MFILE=/global/cscratch1/sd/taufique/virus-lcc/vir_vs_vir_30_50length_propermm.mtx.lcc
-srun -N 1 -n 16 -c 4 --ntasks-per-node=16 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20
+#MFILE=/global/cscratch1/sd/taufique/virus-lcc/vir_vs_vir_30_50length_propermm.mtx.lcc
+#srun -N 4 -n 16 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20
 
 #MFILE=/global/cscratch1/sd/taufique/eukarya/Renamed_euk_vs_euk_30_50length.indexed.mtx
-#srun -N 256 -n 4096 -c 4 --ntasks-per-node=16 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50
+#srun -N 256 -n 1024 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 
+
+MFILE=/global/cscratch1/sd/taufique/email-Eu-core/email-Eu-core.mtx
+srun -N 1 -n 1 -c 64 --ntasks-per-node=1 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20
