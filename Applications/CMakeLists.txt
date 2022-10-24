@@ -7,7 +7,7 @@ ADD_EXECUTABLE( fbfs FilteredBFS.cpp )
 ADD_EXECUTABLE( fmis FilteredMIS.cpp )
 ADD_EXECUTABLE( mcl MCL.cpp )
 ADD_EXECUTABLE( betwcent BetwCent.cpp )
-ADD_EXECUTABLE(lacc CC.cpp)
+ADD_EXECUTABLE( lacc CC.cpp)
 
 TARGET_LINK_LIBRARIES( tdbfs CombBLAS)
 TARGET_LINK_LIBRARIES( dobfs CombBLAS)
