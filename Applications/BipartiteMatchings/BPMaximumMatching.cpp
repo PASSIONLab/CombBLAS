@@ -49,8 +49,9 @@ void removeIsolated(Par_DCSC_Bool & A)
 {
     
     int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    MPI_Comm_size(comm,&nprocs);
+    MPI_Comm_rank(comm,&myrank);
     
     
     FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
@@ -100,7 +101,7 @@ void removeIsolated(Par_DCSC_Bool & A)
         cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
     }
     
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(comm);
     
     
 }
@@ -282,8 +283,9 @@ void experiment_maximal(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<int6
 {
     
     int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    MPI_Comm_size(comm,&nprocs);
+    MPI_Comm_rank(comm,&myrank);
     
     FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);

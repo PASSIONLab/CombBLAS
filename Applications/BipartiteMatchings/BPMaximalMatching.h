@@ -26,8 +26,9 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 {
 
 	typedef VertexTypeML < IT, IT> VertexType;
-    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    
     int nprocs, myrank;
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
     MPI_Comm_size(comm,&nprocs);
     MPI_Comm_rank(comm,&myrank);
     int nthreads = 1;

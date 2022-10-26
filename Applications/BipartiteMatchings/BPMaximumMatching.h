@@ -183,9 +183,10 @@ void AugmentPath(FullyDistVec<IT, IT>& mateRow2Col, FullyDistVec<IT, IT>& mateCo
     IT locind_row, locind_col;
     int myrank;
     
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-    
-    
+    MPI_Comm comm = mateRow2Col.getcommgrid()->GetWorld();
+    MPI_Comm_rank(comm,&myrank);
+
+
     for(IT i=0; i<leaves.LocArrSize(); i++)
     {
         int depth=0;
@@ -244,8 +245,9 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
     
     double tstart = MPI_Wtime();
     int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    MPI_Comm_size(comm,&nprocs);
+    MPI_Comm_rank(comm,&myrank);
     
     IT nrow = A.getnrow();
     IT ncol = A.getncol();
