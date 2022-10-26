@@ -26,9 +26,10 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 {
 
 	typedef VertexTypeML < IT, IT> VertexType;
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
     int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm_size(comm,&nprocs);
+    MPI_Comm_rank(comm,&myrank);
     int nthreads = 1;
 #ifdef _OPENMP
 #pragma omp parallel
@@ -76,7 +77,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
         cout << "=======================================================\n";
     }
 #endif
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(comm);
 
     
     while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
@@ -178,7 +179,7 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
 #endif
         curUnmatchedCol = unmatchedCol.getnnz();
         curUnmatchedRow = unmatchedRow.getnnz();
-        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(comm);
         
     }
     
@@ -249,9 +250,10 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
     }
 #endif
     PreAllocatedSPA<VertexType> SPA(A.seq(), nthreads*4);
-	int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    int nprocs, myrank;
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    MPI_Comm_size(comm,&nprocs);
+    MPI_Comm_rank(comm,&myrank);
 	
     
 	//unmatched row and column vertices
@@ -288,7 +290,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 		cout << "=======================================================\n";
 	}
 #endif
-	MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Barrier(comm);
 	
 	
 	while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
@@ -348,7 +350,7 @@ void WeightedGreedy(Par_MAT_Double & A, FullyDistVec<IT, IT>& mateRow2Col,
 #endif
 		curUnmatchedCol = unmatchedCol.getnnz();
 		curUnmatchedRow = unmatchedRow.getnnz();
-		MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(comm);
 		
 	}
     
@@ -402,7 +404,8 @@ bool isMaximalmatching(Par_DCSC_Bool & A, FullyDistVec<IT,NT> & mateRow2Col, Ful
 {
 	typedef VertexTypeML < IT, IT> VertexType;
     int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    MPI_Comm comm = A.getcommgrid()->GetWorld();
+    MPI_Comm_rank(comm,&myrank);
     FullyDistSpVec<IT, IT> fringeRow(A.getcommgrid(), A.getnrow());
     FullyDistSpVec<IT, IT> fringeCol(A.getcommgrid(), A.getncol());
     FullyDistSpVec<IT, IT> unmatchedRow(mateRow2Col, [](IT mate){return mate==-1;});
