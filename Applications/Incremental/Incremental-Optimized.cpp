@@ -433,7 +433,7 @@ void ShuffleVertexLists(FullyDistVec<IT, NT1> & prevVertices,
 
     // MTH: Enable multi-threading?
     for (IT i = 0; i < minLocLen; i++){ // Run as many attempts as the minimum of the candidate arrays
-        if(urdist(rng) < double(minLocLen)/(maxLocLen + minLocLen)){ // If the picked random real number is less than the ratio of new and previous vertices
+        if(urdist(rng) < double(maxLocLen)/(maxLocLen + minLocLen)){ // If the picked random real number is less than the ratio of new and previous vertices
             // Randomly select an index from the previous vertex list
             IT idxPrev = uidist(rng) % prevLocLen; 
 
@@ -704,9 +704,14 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M21(fullWorld);
         SpParMat<IT, NT, DER> M22(fullWorld);
 
+        SpParMat<IT, NT, DER> MincM11(fullWorld);
+        SpParMat<IT, NT, DER> MincM12(fullWorld);
+        SpParMat<IT, NT, DER> MincM21(fullWorld);
+        SpParMat<IT, NT, DER> MincM22(fullWorld);
         SpParMat<IT, NT, DER> Minc(fullWorld);
         FullyDistVec<IT, IT> Cinc(fullWorld);
 
+        //std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-unshuffled");
         std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-shuffled");
 
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
@@ -791,35 +796,56 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to merge vertex lists: %lf\n", s, t1 - t0);
 
+
             t0 = MPI_Wtime();
+            MincM11 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM11.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M11: %lf\n", s, t1 - t0);
+
+            t0 = MPI_Wtime();
+            MincM12 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM12.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M12: %lf\n", s, t1 - t0);
+
+            t0 = MPI_Wtime();
+            MincM21 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM21.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M21: %lf\n", s, t1 - t0);
+
+            t0 = MPI_Wtime();
+            MincM22 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM22.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M22: %lf\n", s, t1 - t0);
+            
             Minc = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
                     M11.getncol() + M22.getncol(), 
                     FullyDistVec<IT,IT>(fullWorld), 
                     FullyDistVec<IT,IT>(fullWorld), 
                     FullyDistVec<IT,IT>(fullWorld), true); 
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare empty Minc: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            Minc.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M11: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            Minc.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M12: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            Minc.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M21: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            Minc.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M22: %lf\n", s, t1 - t0);
-
+            Minc += MincM11;
+            Minc += MincM12;
+            Minc += MincM21;
+            Minc += MincM22;
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("Minc prepared\n");
 
@@ -833,7 +859,52 @@ int main(int argc, char* argv[])
             M21.PrintInfo();
             M22.PrintInfo();
             Minc.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tPrintInfo Starts\n", s);
+            if(myrank == 0) printf("[Step: %d]\tPrintInfo Ends\n", s);
+            
+            //// Debug starts
+            //FullyDistVec<IT, IT> prevVerticesSeq( fullWorld );
+            //prevVerticesSeq.iota(M11.getnrow(), 0);
+            //FullyDistVec<IT, IT> newVerticesSeq( fullWorld );
+            //newVerticesSeq.iota(M22.getnrow(), M11.getnrow());
+            //SpParMat<IT, NT, DER> MincSeq(M11.getnrow() + M22.getnrow(), 
+                    //M11.getncol() + M22.getncol(), 
+                    //FullyDistVec<IT,IT>(fullWorld), 
+                    //FullyDistVec<IT,IT>(fullWorld), 
+                    //FullyDistVec<IT,IT>(fullWorld), true); 
+            //MincSeq.SpAsgn(prevVerticesSeq, prevVerticesSeq, M11);
+            //MincSeq.SpAsgn(prevVerticesSeq, newVerticesSeq, M12);
+            //MincSeq.SpAsgn(newVerticesSeq, prevVerticesSeq, M21);
+            //MincSeq.SpAsgn(newVerticesSeq, newVerticesSeq, M22);
+            //NT lb1 = MincSeq.LoadImbalance();
+            //MincSeq.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".pre-shuffle.mtx"), true);
+
+            //NT lb2 = Minc.LoadImbalance();
+            //Minc.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".locshuffle-merge.mtx"), true);
+
+            //toConcatenate[0] = prevVerticesRemapped;
+            //toConcatenate[1] = newVerticesRemapped;
+            //FullyDistVec<IT, IT> allVerticesRemapped = Concatenate(toConcatenate);
+            //SpParMat<IT, NT, DER> MincSeq2(MincSeq);
+            //(MincSeq2)(allVerticesRemapped, allVerticesRemapped, true);
+            //NT lb3 = MincSeq2.LoadImbalance();
+            //MincSeq2.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".locshuffle-concat-matperm.mtx"), true);
+
+            //FullyDistVec<IT, IT> allVerticesSeq( fullWorld );
+            //allVerticesSeq.iota(M11.getnrow() + M22.getnrow(), 0);
+            //allVerticesSeq.RandPerm();
+            //(MincSeq)(allVerticesSeq, allVerticesSeq, true);
+            //NT lb4 = MincSeq.LoadImbalance();
+            //MincSeq.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".noshuffle-concat-matperm.mtx"), true);
+
+            //if(myrank == 0) printf("Load Imbalance: %lf vs %lf vs %lf vs %lf\n", lb1, lb2, lb3, lb4);
+            //// Debug ends
+
+            //FullyDistVec<IT, IT> allVerticesRemapped( fullWorld );
+            //allVerticesRemapped.iota(M11.getnrow() + M22.getnrow(), 0);
+            //allVertices.RandPerm(314159);
+            //allVerticesLabels.RandPerm(314159);
+            //allVerticesRemapped.RandPerm(314159);
+            //(Minc)(allVerticesRemapped, allVerticesRemapped, true);
 
 			if(s == nSplit - 1){    // If in the last step then continue MCL iterations until convergence
 				incParam.maxIter = 1000;
