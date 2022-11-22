@@ -533,8 +533,8 @@ int main(int argc, char* argv[])
         Mall = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
         Call = HipMCL(Mall, mclParam);
 
-        //WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), C11, prevVerticesLabels);
-        WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), Call, base);
+        WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), Call, prevVerticesLabels);
+        //WriteMCLClusters(fullFileName + std::string(".") + std::to_string(0), Call, base);
         
         std::vector< FullyDistVec<IT, IT> > toConcatenate(2, FullyDistVec<IT, IT>(fullWorld));
         std::vector< FullyDistVec<IT, std::array<char, MAXVERTNAME> > > toConcatenateLabels(2, FullyDistVec<IT, std::array<char, MAXVERTNAME> >(fullWorld));
@@ -578,7 +578,8 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to find clusters in Mall: %lf\n", s, t1 - t0);
 
-            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), Call, base);
+            //WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), Call, base);
+            WriteMCLClusters(fullFileName + std::string(".") + std::to_string(s), Call, allVerticesLabels);
 
             prevVertices = FullyDistVec<IT, IT>(allVertices);
             prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(allVerticesLabels);

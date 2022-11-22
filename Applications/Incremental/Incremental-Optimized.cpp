@@ -719,11 +719,11 @@ int main(int argc, char* argv[])
                                                                                                 //
         M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
 
-		incParam.maxIter = 5;
+		incParam.maxIter = 4;
 
         Minc = M11;
         Cinc = IncrementalMCL(Minc, incParam);
-		M11 = Minc;
+        M11 = Minc;
 
         //WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), Cinc, base);
         WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), Cinc, prevVerticesLabels);
@@ -740,8 +740,6 @@ int main(int argc, char* argv[])
             FullyDistVec<IT, IT> newVertices(*(dvList[s]));
             FullyDistVec<IT, std::array<char, MAXVERTNAME> > newVerticesLabels(*(dvListLabels[s]));
 
-            t2 = MPI_Wtime();
-
             t0 = MPI_Wtime();
             M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
             t1 = MPI_Wtime();
@@ -751,24 +749,13 @@ int main(int argc, char* argv[])
             M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to extract M21: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to extract M22: %lf\n", s, t1 - t0);
-
-            t3 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to extract subgraphs: %lf\n", s, t3 - t2);
             
             t0 = MPI_Wtime();
-            FullyDistVec<IT, IT> C22 = IncrementalMCL(M22, incParam); // Cluster M22
+            M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
+            //M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
             t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to find clusters in M22: %lf\n", s, t1 - t0);
-
-            //ProcessNewEdges(M11);
-            //ProcessNewEdges(M12);
-            //ProcessNewEdges(M21);
-            //ProcessNewEdges(M22);
+            if(myrank == 0) printf("[Step: %d]\tTime to extract M22: %lf\n", s, t1 - t0);
+            
 
             t2 = MPI_Wtime();
             t0 = MPI_Wtime();
@@ -780,6 +767,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("[Step: %d]\tTime to prepare vertex remapping: %lf\n", s, t1 - t0);
 
             t0 = MPI_Wtime();
+            // Possible to make more efficient
             ShuffleVertexLists(prevVertices, newVertices, prevVerticesRemapped, newVerticesRemapped, prevVerticesLabels, newVerticesLabels);
             MPI_Barrier(MPI_COMM_WORLD);
             t1 = MPI_Wtime();
@@ -797,6 +785,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("[Step: %d]\tTime to merge vertex lists: %lf\n", s, t1 - t0);
 
 
+            ProcessNewEdges(M11);
             t0 = MPI_Wtime();
             MincM11 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
                     M11.getncol() + M22.getncol(), 
@@ -806,27 +795,18 @@ int main(int argc, char* argv[])
             MincM11.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M11: %lf\n", s, t1 - t0);
+            if(myrank == 0) printf("[Step: %d]\tMincM11 PrintInfo Starts\n", s);
+            M11.PrintInfo();
+            MincM11.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM11 PrintInfo Ends\n", s);
 
             t0 = MPI_Wtime();
-            MincM12 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM12.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
+            incParam.maxIter = 4;
+            FullyDistVec<IT, IT> C22 = IncrementalMCL(M22, incParam); // Cluster M22
             t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M12: %lf\n", s, t1 - t0);
+            if(myrank == 0) printf("[Step: %d]\tTime to find clusters in M22: %lf\n", s, t1 - t0);
 
-            t0 = MPI_Wtime();
-            MincM21 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM21.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M21: %lf\n", s, t1 - t0);
-
+            ProcessNewEdges(M22);
             t0 = MPI_Wtime();
             MincM22 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
                     M11.getncol() + M22.getncol(), 
@@ -836,30 +816,90 @@ int main(int argc, char* argv[])
             MincM22.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M22: %lf\n", s, t1 - t0);
+            if(myrank == 0) printf("[Step: %d]\tMincM22 PrintInfo Starts\n", s);
+            M22.PrintInfo();
+            MincM22.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM22 PrintInfo Ends\n", s);
+
+            SpParMat<IT, NT, DER> MincM1122 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM1122 += MincM11;
+            MincM1122 += MincM22;
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("[Step: %d]\tMincM1122 PrintInfo Starts\n", s);
+            MincM1122.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM1122 PrintInfo Ends\n", s);
+            ProcessNewEdges(MincM1122);
+
+            ProcessNewEdges(M12);
+            t0 = MPI_Wtime();
+            MincM12 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM12.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M12: %lf\n", s, t1 - t0);
+            if(myrank == 0) printf("[Step: %d]\tMincM12 PrintInfo Starts\n", s);
+            M12.PrintInfo();
+            MincM12.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM12 PrintInfo Ends\n", s);
+
+            ProcessNewEdges(M21);
+            t0 = MPI_Wtime();
+            MincM21 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM21.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M21: %lf\n", s, t1 - t0);
+            if(myrank == 0) printf("[Step: %d]\tMincM21 PrintInfo Starts\n", s);
+            M21.PrintInfo();
+            MincM21.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM21 PrintInfo Ends\n", s);
+
+            t0 = MPI_Wtime();
+            SpParMat<IT,NT,DER> MincM1221 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
+                    M11.getncol() + M22.getncol(), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), 
+                    FullyDistVec<IT,IT>(fullWorld), true); 
+            MincM1221 += MincM12;
+            MincM1221 += MincM21;
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(myrank == 0) printf("[Step: %d]\tMincM1221 PrintInfo Starts\n", s);
+            MincM1221.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMincM1221 PrintInfo Ends\n", s);
+
+            ProcessNewEdges(MincM1221);
+            incParam.maxIter = 4;
+            t0 = MPI_Wtime();
+            Cinc = IncrementalMCL(MincM1221, incParam);
+            MPI_Barrier(MPI_COMM_WORLD);
+            t1 = MPI_Wtime();
+            if(myrank == 0) printf("[Step: %d]\tTime to summarize MincM1221: %lf\n", s, t1 - t0);
+            ProcessNewEdges(MincM1221);
+
             
             Minc = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
                     M11.getncol() + M22.getncol(), 
                     FullyDistVec<IT,IT>(fullWorld), 
                     FullyDistVec<IT,IT>(fullWorld), 
                     FullyDistVec<IT,IT>(fullWorld), true); 
-            Minc += MincM11;
-            Minc += MincM12;
-            Minc += MincM21;
-            Minc += MincM22;
+            Minc += MincM1122;
+            Minc += MincM1221;
             MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Minc prepared\n");
-
-            t3 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare Minc: %lf\n", s, t3 - t2);
-            
-
-            if(myrank == 0) printf("[Step: %d]\tPrintInfo Starts\n", s);
-            M11.PrintInfo();
-            M12.PrintInfo();
-            M21.PrintInfo();
-            M22.PrintInfo();
+            if(myrank == 0) printf("[Step: %d]\tMinc PrintInfo Starts\n", s);
             Minc.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tPrintInfo Ends\n", s);
+            if(myrank == 0) printf("[Step: %d]\tMinc PrintInfo Ends\n", s);
+
+            ProcessNewEdges(Minc);
             
             //// Debug starts
             //FullyDistVec<IT, IT> prevVerticesSeq( fullWorld );
@@ -906,12 +946,12 @@ int main(int argc, char* argv[])
             //allVerticesRemapped.RandPerm(314159);
             //(Minc)(allVerticesRemapped, allVerticesRemapped, true);
 
-			if(s == nSplit - 1){    // If in the last step then continue MCL iterations until convergence
-				incParam.maxIter = 1000;
-			}
+            if(s == nSplit - 1){    // If in the last step then continue MCL iterations until convergence
+                incParam.maxIter = 1000;
+            }
             
             t0 = MPI_Wtime();
-			Cinc = IncrementalMCL(Minc, incParam);
+            Cinc = IncrementalMCL(Minc, incParam);
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("Ran IncrementalMCL on Minc\n");
             t1 = MPI_Wtime();
@@ -919,14 +959,13 @@ int main(int argc, char* argv[])
 
             
             t0 = MPI_Wtime();
-			M11 = Minc;
-            //M11 = Mall;
+            M11 = Minc;
             MPI_Barrier(MPI_COMM_WORLD);
             if(myrank == 0) printf("Prepared M11 for next step\n");
             t1 = MPI_Wtime();
             if(myrank == 0) printf("[Step: %d]\tTime to prepare M11 for next step: %lf\n", s, t1 - t0);
 
-            M11.PrintInfo();
+            //M11.PrintInfo();
 
             prevVertices = FullyDistVec<IT, IT>(allVertices);
             prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(allVerticesLabels);
@@ -934,7 +973,7 @@ int main(int argc, char* argv[])
             //WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, base);
             WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, prevVerticesLabels);
 
-            allVertices.ParallelWrite(incFileName + std::string(".") + std::to_string(s)+std::string(".vtx"), base, true);
+            //allVertices.ParallelWrite(incFileName + std::string(".") + std::to_string(s)+std::string(".vtx"), base, true);
         }
 
         for(IT s = 0; s < dvList.size(); s++){
