@@ -780,7 +780,7 @@ FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 
 // Randomly permutes an already existing vector
 template <class IT, class NT>
-void FullyDistVec<IT,NT>::RandPerm(uint64_t seed = 1383098845)
+void FullyDistVec<IT,NT>::RandPerm(uint64_t seed)
 {
 	if(seed == 1383098845){
         // If seed is equal to the default value it is assumed that no seed was provided

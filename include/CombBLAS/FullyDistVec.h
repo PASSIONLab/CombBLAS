@@ -157,7 +157,7 @@ public:
     FullyDistSpVec<IT,NT> GGet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, NT nullValue);
 
 	void iota(IT globalsize, NT first);
-	void RandPerm(uint64_t seed);	// randomly permute the vector
+	void RandPerm(uint64_t seed = 1383098845);	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation
 
 	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::LengthUntil;
