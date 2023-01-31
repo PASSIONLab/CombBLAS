@@ -11,365 +11,17 @@
 #include "CombBLAS/ParFriends.h"
 #include "../CC.h"
 #include "../WriteMCLClusters.h"
+#include "IncClust.h"
 
 using namespace std;
 using namespace combblas;
 
-#define EPS 0.0001
 
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads();
 #else
 int cblas_splits = 1;
 #endif
-
-typedef struct
-{
-    //Input/Output file
-    string ifilename;
-    string dirname; // Patch to dump per iteration matrix into the directory
-    bool isInputMM;
-    int base; // only useful for matrix market files
-    
-    string ofilename;
-    
-    //Preprocessing
-    int randpermute;
-    bool remove_isolated;
-
-    //inflation
-    double inflation;
-    
-    //pruning
-    double prunelimit;
-    int64_t select;
-    int64_t recover_num;
-    double recover_pct;
-    int kselectVersion; // 0: adapt based on k, 1: kselect1, 2: kselect2
-    bool preprune;
-    
-    //HipMCL optimization
-    int phases;
-    int perProcessMem;
-    bool isDoublePrecision; // true: double, false: float
-    bool is64bInt; // true: int64_t for local indexing, false: int32_t (for local indexing)
-    int layers; // Number of layers to use in communication avoiding SpGEMM. 
-    int compute;
-    int maxIter;
-    
-    //debugging
-    bool show;
-    
-    
-}HipMCLParam;
-
-void InitParam(HipMCLParam & param)
-{
-    //Input/Output file
-    param.ifilename = "";
-    param.dirname = "";
-    param.isInputMM = false;
-    param.ofilename = "mclinc";
-    param.base = 1;
-    
-    //Preprocessing
-    // mcl removes isolated vertices by default,
-    // we don't do this because it will create different ordering of vertices!
-    param.remove_isolated = false;
-    param.randpermute = 0;
-    
-    //inflation
-    param.inflation = 2.0;
-    
-    //pruning
-    param.prunelimit = 1.0/10000.0;
-    param.select = 1100;
-    param.recover_num = 1400;
-    param.recover_pct = .9; // we allow both 90 or .9 as input. Internally, we keep it 0.9
-    param.kselectVersion = 1;
-    param.preprune = false;
-    
-    //HipMCL optimization
-    param.layers = 1;
-    param.compute = 1; // 1 means hash-based computation, 2 means heap-based computation
-    param.phases = 1;
-    param.perProcessMem = 0;
-    param.isDoublePrecision = true;
-    param.is64bInt = true;
-    param.maxIter = 1000; // No limit on number of iterations 
-    
-    //debugging
-    param.show = true;
-}
-
-
-
-// base: base of items
-// clusters are always numbered 0-based
-template <typename IT, typename NT, typename DER>
-FullyDistVec<IT, IT> Interpret(SpParMat<IT,NT,DER> & A)
-{
-    IT nCC;
-    // A is a directed graph
-    // symmetricize A
-    
-    SpParMat<IT,NT,DER> AT = A;
-    AT.Transpose();
-    A += AT;
-    SpParHelper::Print("Finding connected components....\n");
-    
-    FullyDistVec<IT, IT> cclabels = CC(A, nCC);
-    return cclabels;
-}
-
-
-template <typename IT, typename NT, typename DER>
-void MakeColStochastic(SpParMat<IT,NT,DER> & A)
-{
-    FullyDistVec<IT, NT> colsums = A.Reduce(Column, plus<NT>(), 0.0);
-    colsums.Apply(safemultinv<NT>());
-    A.DimApply(Column, colsums, multiplies<NT>());    // scale each "Column" with the given vector
-}
-
-template <typename IT, typename NT, typename DER>
-void MakeColStochastic3D(SpParMat3D<IT,NT,DER> & A3D)
-{
-    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
-    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-    FullyDistVec<IT, NT> colsums = ALayer->Reduce(Column, plus<NT>(), 0.0);
-    colsums.Apply(safemultinv<NT>());
-    ALayer->DimApply(Column, colsums, multiplies<NT>());    // scale each "Column" with the given vector
-}
-
-template <typename IT, typename NT, typename DER>
-NT Chaos(SpParMat<IT,NT,DER> & A)
-{
-    // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
-    // Matrix entries are non-negative, so max() can use zero as identity
-    FullyDistVec<IT, NT> colmaxs = A.Reduce(Column, maximum<NT>(), 0.0);
-    colmaxs -= colssqs;
-    
-    // multiplu by number of nonzeros in each column
-    FullyDistVec<IT, NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-    colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
-    
-    return colmaxs.Reduce(maximum<NT>(), 0.0);
-}
-
-template <typename IT, typename NT, typename DER>
-NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
-{
-    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
-    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-
-    // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
-    // Matrix entries are non-negative, so max() can use zero as identity
-    FullyDistVec<IT, NT> colmaxs = ALayer->Reduce(Column, maximum<NT>(), 0.0);
-    colmaxs -= colssqs;
-
-    // multiply by number of nonzeros in each column
-    FullyDistVec<IT, NT> nnzPerColumn = ALayer->Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-    colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
-    
-    NT layerChaos = colmaxs.Reduce(maximum<NT>(), 0.0);
-
-    NT totalChaos = 0.0;
-    MPI_Allreduce( &layerChaos, &totalChaos, 1, MPIType<NT>(), MPI_MAX, A3D.getcommgrid3D()->GetFiberWorld());
-    return totalChaos;
-}
-
-template <typename IT, typename NT, typename DER>
-void Inflate(SpParMat<IT,NT,DER> & A, double power)
-{
-    A.Apply(bind2nd(exponentiate(), power));
-}
-
-template <typename IT, typename NT, typename DER>
-void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
-{
-    //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
-    std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-    ALayer->Apply(bind2nd(exponentiate(), power));
-}
-
-// default adjustloop setting
-// 1. Remove loops
-// 2. set loops to max of all arc weights
-template <typename IT, typename NT, typename DER>
-void AdjustLoops(SpParMat<IT,NT,DER> & A)
-{
-
-    A.RemoveLoops();
-    FullyDistVec<IT, NT> colmaxs = A.Reduce(Column, maximum<NT>(), numeric_limits<NT>::min());
-    A.Apply([](NT val){return val==numeric_limits<NT>::min() ? 1.0 : val;}); // for isolated vertices
-    A.AddLoops(colmaxs);
-    ostringstream outs;
-    outs << "Adjusting loops" << endl;
-    SpParHelper::Print(outs.str());
-}
-
-template <typename IT, typename NT, typename DER>
-void RemoveIsolated(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
-{
-    ostringstream outs;
-    FullyDistVec<IT, NT> ColSums = A.Reduce(Column, plus<NT>(), 0.0);
-    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(greater<NT>(), 0));
-    IT numIsolated = A.getnrow() - nonisov.TotalLength();
-    outs << "Number of isolated vertices: " << numIsolated << endl;
-    SpParHelper::Print(outs.str());
-    
-    A(nonisov, nonisov, true);
-    SpParHelper::Print("Removed isolated vertices.\n");
-    if(param.show)
-    {
-        A.PrintInfo();
-    }
-    
-}
-
-//TODO: handle reordered cluster ids
-template <typename IT, typename NT, typename DER>
-void RandPermute(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
-{
-    // randomly permute for load balance
-    if(A.getnrow() == A.getncol())
-    {
-        FullyDistVec<IT, IT> p( A.getcommgrid());
-        p.iota(A.getnrow(), 0);
-        p.RandPerm();
-        (A)(p,p,true);// in-place permute to save memory
-        SpParHelper::Print("Applied symmetric permutation.\n");
-    }
-    else
-    {
-        SpParHelper::Print("Rectangular matrix: Can not apply symmetric permutation.\n");
-    }
-}
-
-template <typename IT, typename NT, typename DER>
-FullyDistVec<IT, IT> IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
-{
-    if(param.remove_isolated)
-        RemoveIsolated(A, param);
-    
-    if(param.randpermute)
-        RandPermute(A, param);
-
-    // Adjust self loops
-    AdjustLoops(A);
-
-    // Make stochastic
-    MakeColStochastic(A);
-    
-    IT nnz = A.getnnz();
-    IT nv = A.getnrow();
-    IT avgDegree = nnz/nv;
-    if(avgDegree > std::max(param.select, param.recover_num))
-    {
-        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\n");
-        param.preprune = true;
-    }
-    if(param.preprune)
-    {
-        SpParHelper::Print("Applying the prune/select/recovery logic before the first iteration\n\n");
-        MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
-    }
-
-    if(param.show)
-    {
-        A.PrintInfo();
-    }
-    
-    NT chaos = Chaos(A);
-    double newBalance = A.LoadImbalance();
-    stringstream s;
-    s << "Before starting MCL iterations, "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << endl;
-    SpParHelper::Print(s.str());
-
-    int it=1;
-    double tInflate = 0;
-    double tExpand = 0;
-    typedef PlusTimesSRing<NT, NT> PTFF;
-	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
-	if(param.layers > 1) {
-    	SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
-		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
-	}
-
-    // while there is an epsilon improvement
-    while( (chaos > EPS) && (it <= param.maxIter) )
-    {
-		SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
-		if(param.layers > 1) {
-			A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false); // Create new rowsplit copy of matrix from colsplit copy
-		}
-
-        double t1 = MPI_Wtime();
-		if(param.layers == 1){
-			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
-		}
-		else{
-			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
-                A3D_cs, A3D_rs, 
-                param.phases, 
-                param.prunelimit, 
-                (IT)param.select, 
-                (IT)param.recover_num, 
-                param.recover_pct, 
-                param.kselectVersion,
-                param.compute,
-                param.perProcessMem
-         	);
-		}
-        
-		if(param.layers == 1){
-			MakeColStochastic(A);
-		}
-		else{
-            MakeColStochastic3D(A3D_cs);
-		}
-        tExpand += (MPI_Wtime() - t1);
-        
-        if(param.show)
-        {
-            SpParHelper::Print("After expansion\n");
-            A.PrintInfo();
-        }
-        if(param.layers == 1) chaos = Chaos(A);
-        else chaos = Chaos3D(A3D_cs);
-        
-        //double tInflate1 = MPI_Wtime();
-        if (param.layers == 1) Inflate(A, param.inflation);
-        else Inflate3D(A3D_cs, param.inflation);
-
-        if(param.layers == 1) MakeColStochastic(A);
-        else MakeColStochastic3D(A3D_cs);
-        
-        newBalance = A.LoadImbalance();
-        double t3=MPI_Wtime();
-        stringstream s;
-        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << " Time: " << (t3-t1) << endl;
-        SpParHelper::Print(s.str());
-        it++;
-    }
-    
-#ifdef TIMING
-    double tcc1 = MPI_Wtime();
-#endif
-    
-    // bool can not be used because
-    // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
-    // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
-    // hence, we are forcing this with IT and double
-    SpParMat<IT,double, SpDCCols < IT, double >> ADouble(MPI_COMM_WORLD);
-    if(param.layers == 1) ADouble = A;
-    else ADouble = A3D_cs.Convert2D();
-    FullyDistVec<IT, IT> cclabels = Interpret(ADouble);
-    
-    return cclabels;
-}
 
 // Given an adjacency matrix, and cluster assignment vector, removes inter cluster edges
 template <class IT, class NT, class DER>
@@ -381,196 +33,6 @@ void RemoveInterClusterEdges(SpParMat<IT, NT, DER>& M, FullyDistVec<IT, IT>& C){
 
     //Mask.PrintInfo();
     M.SetDifference(Mask);
-}
-
-// Given an adjacency matrix, and cluster assignment vector, removes inter cluster edges
-template <class IT, class NT, class DER>
-void ProcessNewEdges(SpParMat<IT, NT, DER>& M){
-    MakeColStochastic(M); // Make each column sum to 1
-    M.Apply(bind1st(multiplies<double>(), M.getnrow())); // Scale each column sum to number of rows in the matrix
-    return;
-}
-
-template <class IT, class NT1, class NT2>
-void ShuffleVertexLists(FullyDistVec<IT, NT1> & prevVertices,
-                        FullyDistVec<IT, NT1> & newVertices,
-                        FullyDistVec<IT, NT1> & prevVerticesRemapped,
-                        FullyDistVec<IT, NT1> & newVerticesRemapped,
-                        FullyDistVec<IT, NT2 > & prevVerticesLabels,
-                        FullyDistVec<IT, NT2 > & newVerticesLabels){
-    int nprocs, myrank, nthreads = 1;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-#ifdef THREADED
-#pragma omp parallel
-    {
-        nthreads = omp_get_num_threads();
-    }
-#endif
-
-    double t0, t1;
-    
-    t0 = MPI_Wtime();
-
-    // All prev and new vectors are assumed to be of same length as the respective vertex, label and mapping vector
-    IT prevLocLen = prevVertices.LocArrSize();     
-    IT newLocLen = newVertices.LocArrSize();
-           
-    IT minLocLen = std::min(prevLocLen, newLocLen);
-    IT maxLocLen = std::max(prevLocLen, newLocLen);
-
-    // Boolean flags for each element to keep track of which elements have been swapped between prev and new
-    std::vector<bool> prevLocFlag(prevLocLen, true);
-    std::vector<bool> newLocFlag(newLocLen, true);
-    
-    // Initialize two uniform random number generators
-    // one is a real generator in a range of [0.0-1.0] to do coin toss to decide whether a swap will happen or not
-    // another is an integer generator to randomly pick positions to swap,
-    std::mt19937 rng;
-    rng.seed(myrank);
-    std::uniform_real_distribution<float> urdist(0, 1.0);
-    std::uniform_int_distribution<IT> uidist(0, 999999999); // TODO: Choose this range adaptively
-
-    // MTH: Enable multi-threading?
-    for (IT i = 0; i < minLocLen; i++){ // Run as many attempts as the minimum of the candidate arrays
-        if(urdist(rng) < double(maxLocLen)/(maxLocLen + minLocLen)){ // If the picked random real number is less than the ratio of new and previous vertices
-            // Randomly select an index from the previous vertex list
-            IT idxPrev = uidist(rng) % prevLocLen; 
-
-            // If the selected index is already swapped then cyclicly probe the indices after that 
-            // until an index is found which has not been swapped
-            while(prevLocFlag[idxPrev] == false) idxPrev = (idxPrev + 1) % prevLocLen;  
-            
-            // Mark the index as swapped
-            prevLocFlag[idxPrev] = false;
-
-            // Randomly select an index from the new vertex list
-            IT idxNew = uidist(rng) % newLocLen;
-
-            // If the selected index is already swapped then cyclicly probe the indices after that 
-            // until an index is found which has not been swapped
-            while(newLocFlag[idxNew] == false) idxNew = (idxNew + 1) % newLocLen;
-
-            // Mark the index as swapped
-            newLocFlag[idxNew] = false;
-
-            //NT1 prevVtx = prevVertices.GetLocalElement(idxPrev);
-            //NT1 newVtx = newVertices.GetLocalElement(idxNew);
-            //prevVertices.SetLocalElement(idxPrev, newVtx);
-            //newVertices.SetLocalElement(idxNew, prevVtx);
-
-            NT1 prevVtxRM = prevVerticesRemapped.GetLocalElement(idxPrev);
-            NT1 newVtxRM = newVerticesRemapped.GetLocalElement(idxNew);
-            prevVerticesRemapped.SetLocalElement(idxPrev, newVtxRM);
-            newVerticesRemapped.SetLocalElement(idxNew, prevVtxRM);
-
-            //NT2 prevVtxLabel = prevVerticesLabels.GetLocalElement(idxPrev);
-            //NT2 newVtxLabel = newVerticesLabels.GetLocalElement(idxNew);
-            //prevVerticesLabels.SetLocalElement(idxPrev, newVtxLabel);
-            //newVerticesLabels.SetLocalElement(idxNew, prevVtxLabel);
-        }
-    }
-
-    //prevVertices.RandPerm(31415929535);
-    //newVertices.RandPerm(31415929535);
-    prevVerticesRemapped.RandPerm(31415929535);
-    newVerticesRemapped.RandPerm(31415929535);
-    //newVerticesLabels.RandPerm(31415929535);
-    //prevVerticesLabels.RandPerm(31415929535);
-}
-
-template <class IT, class NT1, class NT2>
-void MergeVertexLists(FullyDistVec<IT, NT1> & prevVertices,
-                      FullyDistVec<IT, NT1> & newVertices,
-                      FullyDistVec<IT, NT1> & prevVerticesRemapped,
-                      FullyDistVec<IT, NT1> & newVerticesRemapped,
-                      FullyDistVec<IT, NT2> & prevVerticesLabels,
-                      FullyDistVec<IT, NT2> & newVerticesLabels,
-                      FullyDistVec<IT, NT1> & allVertices,
-                      FullyDistVec<IT, NT2> & allVerticesLabels){
-    int nprocs, myrank, nthreads = 1;
-    auto commGrid = prevVertices.getcommgrid(); // Assumed that all vectors are using same CommGrid
-    auto world = commGrid->GetWorld();
-    MPI_Comm_size(world, &nprocs);
-    MPI_Comm_rank(world, &myrank);
-#ifdef THREADED
-#pragma omp parallel
-    {
-        nthreads = omp_get_num_threads();
-    }
-#endif
-
-    double t0, t1;
-    
-    t0 = MPI_Wtime();
-
-    IT prevLocLen = prevVertices.LocArrSize(); // Label and mapping vectors are assumed to be of same length
-    IT newLocLen = newVertices.LocArrSize();
-    IT allLocLen = allVertices.LocArrSize();
-    const std::vector<NT1> prevVerticesLoc = prevVertices.GetLocVec();
-    const std::vector<NT1> prevVerticesRemappedLoc = prevVerticesRemapped.GetLocVec();
-    const std::vector<NT2> prevVerticesLabelsLoc = prevVerticesLabels.GetLocVec();
-    const std::vector<NT1> newVerticesLoc = newVertices.GetLocVec();
-    const std::vector<NT1> newVerticesRemappedLoc = newVerticesRemapped.GetLocVec();
-    const std::vector<NT2> newVerticesLabelsLoc = newVerticesLabels.GetLocVec();
-
-    // Must be array of `int` for MPI requirements
-    std::vector<int> sendcnt(nprocs, 0);
-    std::vector<int> sdispls(nprocs+1);
-    std::vector<int> recvcnt(nprocs, 0);
-    std::vector<int> rdispls(nprocs+1);
-
-    for (IT i = 0; i < prevLocLen; i++){
-        IT rLocIdx; // Index of the local array in the receiver side
-        int owner = allVertices.Owner(prevVerticesRemappedLoc[i], rLocIdx);
-        sendcnt[owner] = sendcnt[owner] + 1;
-    }
-    for (IT i = 0; i < newLocLen; i++){
-        IT rLocIdx; // Index of the local array in the receiver side
-        int owner = allVertices.Owner(newVerticesRemappedLoc[i], rLocIdx);
-        sendcnt[owner] = sendcnt[owner] + 1;
-    }
-
-    MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, world);
-
-    sdispls[0] = 0;
-    rdispls[0] = 0;
-    std::partial_sum(sendcnt.begin(), sendcnt.end(), sdispls.begin()+1);
-    std::partial_sum(recvcnt.begin(), recvcnt.end(), rdispls.begin()+1);
-
-    int totsend = sdispls[sdispls.size()-1]; // Can be safely assumed to be int because MPI forces the array to be of int
-    int totrecv = rdispls[rdispls.size()-1];
-
-    std::vector< std::tuple<IT, NT1, NT2> > sendTuples(totsend);
-    std::vector< std::tuple<IT, NT1, NT2> > recvTuples(totrecv);
-    std::vector<int> sidx(sdispls); // Copy sdispls array to use for preparing sendTuples
-                                    
-    for (IT i = 0; i < prevLocLen; i++){
-        IT rLocIdx; // Index of the local array in the receiver side
-        int owner = allVertices.Owner(prevVerticesRemappedLoc[i], rLocIdx);
-        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, prevVerticesLoc[i], prevVerticesLabelsLoc[i]);
-        sidx[owner]++;
-    }
-    for (IT i = 0; i < newLocLen; i++){
-        IT rLocIdx; // Index of the local array in the receiver side
-        int owner = allVertices.Owner(newVerticesRemappedLoc[i], rLocIdx);
-        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, newVerticesLoc[i], newVerticesLabelsLoc[i]);
-        sidx[owner]++;
-    }
-
-    MPI_Datatype MPI_Custom;
-    MPI_Type_contiguous(sizeof(std::tuple<IT,NT1,NT2>), MPI_CHAR, &MPI_Custom);
-    MPI_Type_commit(&MPI_Custom);
-    MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_Custom, recvTuples.data(), recvcnt.data(), rdispls.data(), MPI_Custom, world);
-
-    for(int i = 0; i < totrecv; i++){
-        IT rLocIdx = std::get<0>(recvTuples[i]);
-        NT1 rLocVtx = std::get<1>(recvTuples[i]);
-        NT2 rLocLbl = std::get<2>(recvTuples[i]);
-
-        allVertices.SetLocalElement(rLocIdx, rLocVtx);
-        allVerticesLabels.SetLocalElement(rLocIdx, rLocLbl);
-    }
 }
 
 int main(int argc, char* argv[])
@@ -607,9 +69,6 @@ int main(int argc, char* argv[])
         int nSplit = 2;
         int base = 1;
         bool isMatrixMarket = true;
-
-        HipMCLParam incParam;
-        InitParam(incParam);
         
         for (int i = 1; i < argc; i++)
         {
@@ -634,8 +93,8 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("Number of splits: %d\n", nSplit);
             }
             else if(strcmp(argv[i],"--per-process-mem")==0){
-                incParam.perProcessMem = atoi(argv[i+1]);
-                if(myrank == 0) printf("Per process memory: %d GB\n", incParam.perProcessMem);
+                //incParam.perProcessMem = atoi(argv[i+1]);
+                //if(myrank == 0) printf("Per process memory: %d GB\n", incParam.perProcessMem);
             }
         }
 
@@ -660,328 +119,141 @@ int main(int argc, char* argv[])
         else
             M.ReadGeneralizedTuples(Mname,  maximum<double>());
         M.PrintInfo();
+
+        /**********/
+        //FullyDistVec<IT, NT> colsums = M.Reduce(Column, plus<NT>(), 0.0);
+        ////colsums.DebugPrint();
+        //colsums.Apply(safemultinv<NT>());
+        ////colsums.DebugPrint();
+        //M.DimApply(Column, colsums, multiplies<NT>());    // scale each "Column" with the given vector
+
+        ////// sums of squares of columns
+        //FullyDistVec<IT, NT> colssqs = M.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+        //colssqs.DebugPrint();
+
+        ////M.ParallelWriteMM("blah-1.txt", 1);
+        ////// Matrix entries are non-negative, so max() can use zero as identity
+        //FullyDistVec<IT, NT> colmaxs = M.Reduce(Column, maximum<NT>(), 0.0);
+        //colmaxs.DebugPrint();
+        ////colmaxs -= colssqs;
         
-        /*
-         * Prepare split:
-         * Prepare a vector of FullyDistVec where each element would represent list of vertices in a particular incremental batch
-         * */
-        std::mt19937 rng;
-        rng.seed(myrank);
-        std::uniform_int_distribution<int64_t> udist(0, 9999);
+        ////// multiplu by number of nonzeros in each column
+        ////FullyDistVec<IT, NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
+        ////colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
+        /**********/
+        
+        //std::mt19937 rng;
+        //rng.seed(myrank);
+        //std::uniform_int_distribution<int64_t> udist(0, 9999);
 
-        IT gnRow = M.getnrow();
-        IT nRowPerProc = gnRow / nprocs;
-        IT lRowStart = myrank * nRowPerProc;
-        IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
+        //IT gnRow = M.getnrow();
+        //IT nRowPerProc = gnRow / nprocs;
+        //IT lRowStart = myrank * nRowPerProc;
+        //IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
 
-        std::vector < std::vector < IT > > lvList(nSplit);
-        std::vector < std::vector < std::array<char, MAXVERTNAME> > > lvListLabels(nSplit); // MAXVERTNAME is 64, defined in SpDefs
+        //std::vector < std::vector < IT > > lvList(nSplit);
+        //std::vector < std::vector < std::array<char, MAXVERTNAME> > > lvListLabels(nSplit); // MAXVERTNAME is 64, defined in SpDefs
                                                                                            
-        for (IT r = lRowStart; r < lRowEnd; r++) {
-            IT randomNum = udist(rng);
-            IT s = randomNum % nSplit;
-            lvList[s].push_back(r);
+        //for (IT r = lRowStart; r < lRowEnd; r++) {
+            //IT randomNum = udist(rng);
+            //IT s = randomNum % nSplit;
+            //lvList[s].push_back(r);
             
-            // Convert the integer vertex id to label as string
-            std::string labelStr = std::to_string(r); 
-            // Make a std::array of char with the label
-            std::array<char, MAXVERTNAME> labelArr = {};
-            for ( IT i = 0; (i < labelStr.length()) && (i < MAXVERTNAME); i++){
-                labelArr[i] = labelStr[i]; 
-            }
-            lvListLabels[s].push_back( labelArr );
-        }
+            //// Convert the integer vertex id to label as string
+            //std::string labelStr = std::to_string(r); 
+            //// Make a std::array of char with the label
+            //std::array<char, MAXVERTNAME> labelArr = {};
+            //for ( IT i = 0; (i < labelStr.length()) && (i < MAXVERTNAME); i++){
+                //labelArr[i] = labelStr[i]; 
+            //}
+            //lvListLabels[s].push_back( labelArr );
+        //}
 
-        std::vector < FullyDistVec<IT,IT>* > dvList;
-        std::vector < FullyDistVec<IT, std::array<char, MAXVERTNAME> >* > dvListLabels;
-        for (int s = 0; s < nSplit; s++){
-            dvList.push_back(new FullyDistVec<IT, IT>(lvList[s], fullWorld));
-            dvListLabels.push_back(new FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lvListLabels[s], fullWorld));
-        }
+        //std::vector < FullyDistVec<IT,IT>* > dvList;
+        //std::vector < FullyDistVec<IT, std::array<char, MAXVERTNAME> >* > dvListLabels;
+        //for (int s = 0; s < nSplit; s++){
+            //dvList.push_back(new FullyDistVec<IT, IT>(lvList[s], fullWorld));
+            //dvListLabels.push_back(new FullyDistVec<IT, std::array<char, MAXVERTNAME> >(lvListLabels[s], fullWorld));
+        //}
 
-        SpParMat<IT, NT, DER> M11(fullWorld);
-        SpParMat<IT, NT, DER> M12(fullWorld);
-        SpParMat<IT, NT, DER> M21(fullWorld);
-        SpParMat<IT, NT, DER> M22(fullWorld);
+        //SpParMat<IT, NT, DER> M11(fullWorld);
+        //SpParMat<IT, NT, DER> M12(fullWorld);
+        //SpParMat<IT, NT, DER> M21(fullWorld);
+        //SpParMat<IT, NT, DER> M22(fullWorld);
 
-        SpParMat<IT, NT, DER> MincM11(fullWorld);
-        SpParMat<IT, NT, DER> MincM12(fullWorld);
-        SpParMat<IT, NT, DER> MincM21(fullWorld);
-        SpParMat<IT, NT, DER> MincM22(fullWorld);
-        SpParMat<IT, NT, DER> Minc(fullWorld);
-        FullyDistVec<IT, IT> Cinc(fullWorld);
+        ////std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-unshuffled");
+        //std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-shuffled");
 
-        //std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-unshuffled");
-        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-opt-shuffled");
+        //FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
+        //FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
+                                                                                                ////
+        //M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
 
-        FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
-        FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
-                                                                                                //
-        M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+        //std::vector< FullyDistVec<IT, IT> > toConcatenate(2, FullyDistVec<IT, IT>(fullWorld));
+        //std::vector< FullyDistVec<IT, std::array<char, MAXVERTNAME> > > toConcatenateLabels(2, FullyDistVec<IT, std::array<char, MAXVERTNAME> >(fullWorld));
 
-		incParam.maxIter = 4;
+        //for(int s = 1; s < nSplit; s++){
+            //MPI_Barrier(MPI_COMM_WORLD);
+            //if(myrank == 0) printf("***\n", s);
+            //if(myrank == 0) printf("[Start] Processing split: %d\n", s);
 
-        Minc = M11;
-        Cinc = IncrementalMCL(Minc, incParam);
-        M11 = Minc;
+            //FullyDistVec<IT, IT> newVertices(*(dvList[s]));
+            //FullyDistVec<IT, std::array<char, MAXVERTNAME> > newVerticesLabels(*(dvListLabels[s]));
 
-        //WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), Cinc, base);
-        WriteMCLClusters(incFileName + std::string(".") + std::to_string(0), Cinc, prevVerticesLabels);
-        
-        std::vector< FullyDistVec<IT, IT> > toConcatenate(2, FullyDistVec<IT, IT>(fullWorld));
-        std::vector< FullyDistVec<IT, std::array<char, MAXVERTNAME> > > toConcatenateLabels(2, FullyDistVec<IT, std::array<char, MAXVERTNAME> >(fullWorld));
-
-        for(int s = 1; s < nSplit; s++){
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("***\n", s);
-            if(myrank == 0) printf("Processing %dth split\n", s);
-            if(myrank == 0) printf("***\n", s);
-
-            FullyDistVec<IT, IT> newVertices(*(dvList[s]));
-            FullyDistVec<IT, std::array<char, MAXVERTNAME> > newVerticesLabels(*(dvListLabels[s]));
-
-            t0 = MPI_Wtime();
-            M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to extract M12: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to extract M21: %lf\n", s, t1 - t0);
-            
-            t0 = MPI_Wtime();
-            M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
-            //M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to extract M22: %lf\n", s, t1 - t0);
-            
-
-            t2 = MPI_Wtime();
-            t0 = MPI_Wtime();
-            FullyDistVec<IT, IT> prevVerticesRemapped( fullWorld );
-            prevVerticesRemapped.iota(M11.getnrow(), 0);
-            FullyDistVec<IT, IT> newVerticesRemapped( fullWorld );
-            newVerticesRemapped.iota(M22.getnrow(), M11.getnrow());
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare vertex remapping: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-            // Possible to make more efficient
-            ShuffleVertexLists(prevVertices, newVertices, prevVerticesRemapped, newVerticesRemapped, prevVerticesLabels, newVerticesLabels);
-            MPI_Barrier(MPI_COMM_WORLD);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to shuffle vertex lists: %lf\n", s, t1 - t0);
-
-            t0 = MPI_Wtime();
-
-            IT totVertices = prevVertices.TotalLength() + newVertices.TotalLength();
-            FullyDistVec<IT, IT> allVertices(fullWorld, totVertices, 0);
-            FullyDistVec<IT, std::array<char, MAXVERTNAME> > allVerticesLabels(fullWorld, totVertices, std::array<char, MAXVERTNAME>{});
-            MergeVertexLists(prevVertices, newVertices, prevVerticesRemapped, newVerticesRemapped, prevVerticesLabels, newVerticesLabels, allVertices, allVerticesLabels);
-
-            MPI_Barrier(MPI_COMM_WORLD);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to merge vertex lists: %lf\n", s, t1 - t0);
-
-
-            ProcessNewEdges(M11);
-            t0 = MPI_Wtime();
-            MincM11 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM11.SpAsgn(prevVerticesRemapped, prevVerticesRemapped, M11);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M11: %lf\n", s, t1 - t0);
-            if(myrank == 0) printf("[Step: %d]\tMincM11 PrintInfo Starts\n", s);
-            M11.PrintInfo();
-            MincM11.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM11 PrintInfo Ends\n", s);
-
-            t0 = MPI_Wtime();
-            incParam.maxIter = 4;
-            FullyDistVec<IT, IT> C22 = IncrementalMCL(M22, incParam); // Cluster M22
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to find clusters in M22: %lf\n", s, t1 - t0);
-
-            ProcessNewEdges(M22);
-            t0 = MPI_Wtime();
-            MincM22 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM22.SpAsgn(newVerticesRemapped, newVerticesRemapped, M22);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M22: %lf\n", s, t1 - t0);
-            if(myrank == 0) printf("[Step: %d]\tMincM22 PrintInfo Starts\n", s);
-            M22.PrintInfo();
-            MincM22.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM22 PrintInfo Ends\n", s);
-
-            SpParMat<IT, NT, DER> MincM1122 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM1122 += MincM11;
-            MincM1122 += MincM22;
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("[Step: %d]\tMincM1122 PrintInfo Starts\n", s);
-            MincM1122.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM1122 PrintInfo Ends\n", s);
-            ProcessNewEdges(MincM1122);
-
-            ProcessNewEdges(M12);
-            t0 = MPI_Wtime();
-            MincM12 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM12.SpAsgn(prevVerticesRemapped, newVerticesRemapped, M12);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M12: %lf\n", s, t1 - t0);
-            if(myrank == 0) printf("[Step: %d]\tMincM12 PrintInfo Starts\n", s);
-            M12.PrintInfo();
-            MincM12.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM12 PrintInfo Ends\n", s);
-
-            ProcessNewEdges(M21);
-            t0 = MPI_Wtime();
-            MincM21 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM21.SpAsgn(newVerticesRemapped, prevVerticesRemapped, M21);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to perform SpAssign of M21: %lf\n", s, t1 - t0);
-            if(myrank == 0) printf("[Step: %d]\tMincM21 PrintInfo Starts\n", s);
-            M21.PrintInfo();
-            MincM21.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM21 PrintInfo Ends\n", s);
-
-            t0 = MPI_Wtime();
-            SpParMat<IT,NT,DER> MincM1221 = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            MincM1221 += MincM12;
-            MincM1221 += MincM21;
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("[Step: %d]\tMincM1221 PrintInfo Starts\n", s);
-            MincM1221.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMincM1221 PrintInfo Ends\n", s);
-
-            ProcessNewEdges(MincM1221);
-            incParam.maxIter = 4;
-            t0 = MPI_Wtime();
-            Cinc = IncrementalMCL(MincM1221, incParam);
-            MPI_Barrier(MPI_COMM_WORLD);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to summarize MincM1221: %lf\n", s, t1 - t0);
-            ProcessNewEdges(MincM1221);
-
-            
-            Minc = SpParMat<IT,NT,DER>(M11.getnrow() + M22.getnrow(), 
-                    M11.getncol() + M22.getncol(), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), 
-                    FullyDistVec<IT,IT>(fullWorld), true); 
-            Minc += MincM1122;
-            Minc += MincM1221;
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("[Step: %d]\tMinc PrintInfo Starts\n", s);
-            Minc.PrintInfo();
-            if(myrank == 0) printf("[Step: %d]\tMinc PrintInfo Ends\n", s);
-
-            ProcessNewEdges(Minc);
-            
-            //// Debug starts
-            //FullyDistVec<IT, IT> prevVerticesSeq( fullWorld );
-            //prevVerticesSeq.iota(M11.getnrow(), 0);
-            //FullyDistVec<IT, IT> newVerticesSeq( fullWorld );
-            //newVerticesSeq.iota(M22.getnrow(), M11.getnrow());
-            //SpParMat<IT, NT, DER> MincSeq(M11.getnrow() + M22.getnrow(), 
-                    //M11.getncol() + M22.getncol(), 
-                    //FullyDistVec<IT,IT>(fullWorld), 
-                    //FullyDistVec<IT,IT>(fullWorld), 
-                    //FullyDistVec<IT,IT>(fullWorld), true); 
-            //MincSeq.SpAsgn(prevVerticesSeq, prevVerticesSeq, M11);
-            //MincSeq.SpAsgn(prevVerticesSeq, newVerticesSeq, M12);
-            //MincSeq.SpAsgn(newVerticesSeq, prevVerticesSeq, M21);
-            //MincSeq.SpAsgn(newVerticesSeq, newVerticesSeq, M22);
-            //NT lb1 = MincSeq.LoadImbalance();
-            //MincSeq.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".pre-shuffle.mtx"), true);
-
-            //NT lb2 = Minc.LoadImbalance();
-            //Minc.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".locshuffle-merge.mtx"), true);
-
-            //toConcatenate[0] = prevVerticesRemapped;
-            //toConcatenate[1] = newVerticesRemapped;
-            //FullyDistVec<IT, IT> allVerticesRemapped = Concatenate(toConcatenate);
-            //SpParMat<IT, NT, DER> MincSeq2(MincSeq);
-            //(MincSeq2)(allVerticesRemapped, allVerticesRemapped, true);
-            //NT lb3 = MincSeq2.LoadImbalance();
-            //MincSeq2.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".locshuffle-concat-matperm.mtx"), true);
-
-            //FullyDistVec<IT, IT> allVerticesSeq( fullWorld );
-            //allVerticesSeq.iota(M11.getnrow() + M22.getnrow(), 0);
-            //allVerticesSeq.RandPerm();
-            //(MincSeq)(allVerticesSeq, allVerticesSeq, true);
-            //NT lb4 = MincSeq.LoadImbalance();
-            //MincSeq.ParallelWriteMM(incFileName + std::string(".") + std::to_string(s) + std::string(".noshuffle-concat-matperm.mtx"), true);
-
-            //if(myrank == 0) printf("Load Imbalance: %lf vs %lf vs %lf vs %lf\n", lb1, lb2, lb3, lb4);
-            //// Debug ends
-
-            //FullyDistVec<IT, IT> allVerticesRemapped( fullWorld );
-            //allVerticesRemapped.iota(M11.getnrow() + M22.getnrow(), 0);
-            //allVertices.RandPerm(314159);
-            //allVerticesLabels.RandPerm(314159);
-            //allVerticesRemapped.RandPerm(314159);
-            //(Minc)(allVerticesRemapped, allVerticesRemapped, true);
-
-            if(s == nSplit - 1){    // If in the last step then continue MCL iterations until convergence
-                incParam.maxIter = 1000;
-            }
-            
-            t0 = MPI_Wtime();
-            Cinc = IncrementalMCL(Minc, incParam);
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Ran IncrementalMCL on Minc\n");
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to find clusters in Minc: %lf\n", s, t1 - t0);
-
-            
-            t0 = MPI_Wtime();
-            M11 = Minc;
-            MPI_Barrier(MPI_COMM_WORLD);
-            if(myrank == 0) printf("Prepared M11 for next step\n");
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("[Step: %d]\tTime to prepare M11 for next step: %lf\n", s, t1 - t0);
-
+            //t0 = MPI_Wtime();
+            //M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+            //t1 = MPI_Wtime();
+            //if(myrank == 0) printf("[Step: %d]\tTime to extract M11: %lf\n", s, t1 - t0);
             //M11.PrintInfo();
 
-            prevVertices = FullyDistVec<IT, IT>(allVertices);
-            prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> >(allVerticesLabels);
+            //t0 = MPI_Wtime();
+            //M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
+            //t1 = MPI_Wtime();
+            //if(myrank == 0) printf("[Step: %d]\tTime to extract M12: %lf\n", s, t1 - t0);
+            //M12.PrintInfo();
 
-            //WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, base);
-            WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), Cinc, prevVerticesLabels);
+            //t0 = MPI_Wtime();
+            //M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
+            //t1 = MPI_Wtime();
+            //if(myrank == 0) printf("[Step: %d]\tTime to extract M21: %lf\n", s, t1 - t0);
+            //M21.PrintInfo();
+            
+            //t0 = MPI_Wtime();
+            //M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
+            //t1 = MPI_Wtime();
+            //if(myrank == 0) printf("[Step: %d]\tTime to extract M22: %lf\n", s, t1 - t0);
+            //M22.PrintInfo();
 
-            //allVertices.ParallelWrite(incFileName + std::string(".") + std::to_string(s)+std::string(".vtx"), base, true);
-        }
+            //IT totVertices = prevVertices.TotalLength() + newVertices.TotalLength();
+            //SpParMat<IT, NT, DER> Mstar(fullWorld); // Summarized graph
+            //FullyDistVec<IT, IT> clustAsn(fullWorld, totVertices, 0); // Cluster assignment of each vertex 
+            //FullyDistVec<IT, std::array<char, MAXVERTNAME> > allVerticesLabels(fullWorld, totVertices, std::array<char, MAXVERTNAME>{}); // Merged and shuffled vertex labels after being shuffled during the incremental clustering process
 
-        for(IT s = 0; s < dvList.size(); s++){
-            delete dvList[s];
-            delete dvListLabels[s];
-        }
+            //IncClust(M11, M12, M21, M22, prevVerticesLabels, newVerticesLabels, allVerticesLabels, clustAsn, Mstar, 1);
+
+            //// Store clustAsgn to appropriate place
+            
+            //// Prepare for next incremental step
+            //FullyDistVec<IT, IT> allVertices(fullWorld, totVertices, 0); 
+            //IT aLocLen = allVerticesLabels.LocArrSize();
+            //for (IT i = 0; i < aLocLen; i++){
+                //std::string strLbl(allVerticesLabels.GetLocalElement(i).data());
+                //IT numLbl = atoi(strLbl.c_str());
+                //allVertices.SetLocalElement(i, numLbl);
+            //}
+
+            //prevVertices = FullyDistVec<IT, IT > (allVertices);
+            //prevVerticesLabels = FullyDistVec<IT, std::array<char, MAXVERTNAME> > (allVerticesLabels);
+            //if(myrank == 0) printf("[End] Split: %d\n", s);
+        //}
+
+        //for(IT s = 0; s < dvList.size(); s++){
+            //delete dvList[s];
+            //delete dvListLabels[s];
+        //}
 
     }
     MPI_Finalize();
     return 0;
 }
+

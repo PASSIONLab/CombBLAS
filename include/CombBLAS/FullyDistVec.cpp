@@ -792,7 +792,7 @@ void FullyDistVec<IT,NT>::RandPerm(uint64_t seed)
     }
     else{
         // If seed is not equal to the default value it means user is providing some
-        // value as the seed. So dont touch it.
+        // value as the seed. So don't touch it.
     }
     
 	MTRand M(seed);	// generate random numbers with Mersenne Twister
