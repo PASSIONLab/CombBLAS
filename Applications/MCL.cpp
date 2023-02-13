@@ -768,6 +768,7 @@ void MainBody(HipMCLParam & param)
     
     if(param.isInputMM)
         WriteMCLClusters(param.ofilename, culstLabels, param.base);
+        //WriteMCLClusters(param.ofilename, culstLabels, 0);
     else
         WriteMCLClusters(param.ofilename, culstLabels, vtxLabels);
     

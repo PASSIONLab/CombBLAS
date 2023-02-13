@@ -2,18 +2,19 @@
 
 export OMP_NUM_THREADS=16
 
-FSCORE_BIN=/global/homes/t/taufique/Codes/CombBLAS/Applications/mcl-runs/fscore
+FSCORE_BIN=/global/homes/t/taufique/Codes/CombBLAS/Applications/Incremental/fscore
 
 #MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
 #MFILE=/global/cscratch1/sd/taufique/virus-lcc/vir_vs_vir_30_50length_propermm.mtx.lcc
 MFILE=/global/cscratch1/sd/taufique/eukarya/Renamed_euk_vs_euk_30_50length.indexed.mtx
 #MFILE=/global/cscratch1/sd/taufique/email-Eu-core/email-Eu-core.mtx
 
-NSPLIT=20
+NSPLIT=50
 START_STEP=0
-END_STEP=$(($NSPLIT - 1))
-ALG_TEST=inc-opt-shuffled
-ALG_GT=full
+#END_STEP=$(($NSPLIT - 1))
+END_STEP=38
+ALG_TEST=inc-base
+ALG_GT=inc-full
 for STEP in $(seq $START_STEP $END_STEP);
     do echo $STEP; 
     CLUSTER_FILE_1=$MFILE.$NSPLIT.$ALG_TEST.$STEP

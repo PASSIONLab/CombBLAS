@@ -1,3 +1,11 @@
+/*
+ * Incremental-V1
+ * ==============
+ * Clusters new subgraph separately using HipMCL, in the process keeps a summary of the new subgraph during 5th HipMCL iteration
+ * Assumes a summary is available of the previous subgraph, uses that summary to prepare incremental graph
+ * Finds clusters in the incremental graph using HipMCL, in the process keeps a summary during the 5th HipMCL iteration, this summary is used in next incremental step
+ * */
+
 #include <sys/time.h>
 #include <iostream>
 #include <functional>
@@ -103,7 +111,7 @@ int main(int argc, char* argv[])
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        if(myrank == 0) printf("Running Incremental-Base\n");
+        if(myrank == 0) printf("Running Incremental-V1\n");
 
         typedef int64_t IT;
         typedef double NT;
@@ -121,28 +129,6 @@ int main(int argc, char* argv[])
         else
             M.ReadGeneralizedTuples(Mname,  maximum<double>());
         M.PrintInfo();
-
-        /**********/
-        //FullyDistVec<IT, NT> colsums = M.Reduce(Column, plus<NT>(), 0.0);
-        ////colsums.DebugPrint();
-        //colsums.Apply(safemultinv<NT>());
-        ////colsums.DebugPrint();
-        //M.DimApply(Column, colsums, multiplies<NT>());    // scale each "Column" with the given vector
-
-        ////// sums of squares of columns
-        //FullyDistVec<IT, NT> colssqs = M.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
-        //colssqs.DebugPrint();
-
-        ////M.ParallelWriteMM("blah-1.txt", 1);
-        ////// Matrix entries are non-negative, so max() can use zero as identity
-        //FullyDistVec<IT, NT> colmaxs = M.Reduce(Column, maximum<NT>(), 0.0);
-        //colmaxs.DebugPrint();
-        ////colmaxs -= colssqs;
-        
-        ////// multiplu by number of nonzeros in each column
-        ////FullyDistVec<IT, NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-        ////colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
-        /**********/
         
         std::mt19937 rng;
         rng.seed(myrank);
@@ -183,7 +169,7 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M21(fullWorld);
         SpParMat<IT, NT, DER> M22(fullWorld);
 
-        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-base");
+        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-v1");
 
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
         FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
@@ -198,6 +184,7 @@ int main(int argc, char* argv[])
         }
 
         if(myrank == 0) printf("[Start] Subgraph extraction\n");
+        M11.FreeMemory();
         t0 = MPI_Wtime();
         M11 = M.SubsRef_SR < PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
         t1 = MPI_Wtime();
@@ -208,6 +195,7 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> Mstar(fullWorld); // Summarized graph
         FullyDistVec<IT, IT> clustAsn(fullWorld, M11.getnrow(), 0); // Cluster assignment of each vertex 
         if(myrank == 0) printf("[Start] Clustering incremental\n");
+        Mstar.FreeMemory();
         t0 = MPI_Wtime();
         HipMCL(M11, incParam, clustAsn, Mstar);
         t1 = MPI_Wtime();
@@ -227,43 +215,57 @@ int main(int argc, char* argv[])
             FullyDistVec<IT, std::array<char, MAXVERTNAME> > newVerticesLabels(*(dvListLabels[s]));
 
             if(myrank == 0) printf("[Start] Subgraph extraction\n");
+            M11.FreeMemory();
             t0 = MPI_Wtime();
             M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to extract M11: %lf\n", t1 - t0);
             M11.PrintInfo();
 
+            M12.FreeMemory();
             t0 = MPI_Wtime();
             M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
             M12.PrintInfo();
 
+            M21.FreeMemory();
             t0 = MPI_Wtime();
             M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
             M21.PrintInfo();
             
+            M22.FreeMemory();
             t0 = MPI_Wtime();
             M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
             M22.PrintInfo();
             if(myrank == 0) printf("[End] Subgraph extraction\n");
-            
+
+            /*
+             * Specific to the Variant-1
+             * */
+            if(myrank == 0) printf("[Start] Clustering new\n");
+            incParam.maxIter = 5;
+            FullyDistVec<IT, IT> newClustAsn = FullyDistVec<IT, IT>(fullWorld, newVertices.TotalLength(), 0); // Cluster assignment of each vertex 
+            SpParMat<IT, NT, DER> MstarNew = SpParMat<IT, NT, DER>(fullWorld); // Summarized graph
             t0 = MPI_Wtime();
-            RemoveInterClusterEdges(M11,clustAsn);
+            HipMCL(M22, incParam, newClustAsn, MstarNew);
             t1 = MPI_Wtime();
-            if(myrank == 0) printf("Time to remove inter-cluster edges from M11: %lf\n", t1 - t0);
-            M11.PrintInfo();
+            if(myrank == 0) printf("Time to find clusters in M22: %lf\n", t1 - t0);
+            incParam.maxIter = 1000000;
+            if(myrank == 0) printf("[End] Clustering new\n");
+            /*
+             * Specific to the Variant-1
+             * */
 
             IT totVertices = prevVertices.TotalLength() + newVertices.TotalLength();
-            Mstar = SpParMat<IT, NT, DER>(fullWorld); // Summarized graph
             clustAsn = FullyDistVec<IT, IT>(fullWorld, totVertices, 0); // Cluster assignment of each vertex 
             FullyDistVec<IT, std::array<char, MAXVERTNAME> > allVerticesLabels(fullWorld, totVertices, std::array<char, MAXVERTNAME>{}); // Merged and shuffled vertex labels after being shuffled during the incremental clustering process
 
-            IncClust(M11, M12, M21, M22, prevVerticesLabels, newVerticesLabels, allVerticesLabels, clustAsn, Mstar, 1, incParam);
+            IncClust(Mstar, M12, M21, MstarNew, prevVerticesLabels, newVerticesLabels, allVerticesLabels, clustAsn, Mstar, 1, incParam);
 
             // Store clustAsgn to appropriate place
             WriteMCLClusters(incFileName + std::string(".") + std::to_string(s), clustAsn, allVerticesLabels);

@@ -45,12 +45,16 @@ typedef struct
     bool is64bInt; // true: int64_t for local indexing, false: int32_t (for local indexing)
     int layers; // Number of layers to use in communication avoiding SpGEMM. 
     int compute;
-    int maxIter;
-    int summaryIter;
     
     //debugging
     bool show;
     
+    // Options related to incremental setting
+    int maxIter; // -ve value specifies number of iterations necessary to get intended summary
+    int summaryIter; // If set, MCL state of that particular iteration is saved as summary
+    double summaryThresholdNNZ; // If summaryIter is not set then summary is saved when nnz of MCL state drops below this percent of nnz in the beginning MCL state
+    bool normalizedAssign;
+
     
 }HipMCLParam;
 
@@ -87,10 +91,15 @@ void InitParam(HipMCLParam & param)
     param.perProcessMem = 0;
     param.isDoublePrecision = true;
     param.is64bInt = true;
-    param.maxIter = 1000; // No limit on number of iterations 
     
     //debugging
     param.show = true;
+
+    //Options related to incremental setting
+    param.maxIter = 1000000; // Arbitrary large number means no limit on number of iterations 
+    param.summaryIter = 0;
+    param.summaryThresholdNNZ = 0.7;
+    param.normalizedAssign = true;
 }
 
 
@@ -135,27 +144,16 @@ void MakeColStochastic3D(SpParMat3D<IT,NT,DER> & A3D)
 template <typename IT, typename NT, typename DER>
 NT Chaos(SpParMat<IT,NT,DER> & A)
 {   
-    MPI_Barrier(MPI_COMM_WORLD);
-    printf("[Chaos] Entering\n");
     // sums of squares of columns
     FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
-    colssqs.DebugPrint();
-    MPI_Barrier(MPI_COMM_WORLD);
-    printf("[Chaos] colssqs\n");
     // Matrix entries are non-negative, so max() can use zero as identity
     FullyDistVec<IT, NT> colmaxs = A.Reduce(Column, maximum<NT>(), 0.0);
-    MPI_Barrier(MPI_COMM_WORLD);
-    printf("[Chaos] colmaxs\n");
     colmaxs -= colssqs;
     
     // multiplu by number of nonzeros in each column
     FullyDistVec<IT, NT> nnzPerColumn = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return 1.0;});
-    MPI_Barrier(MPI_COMM_WORLD);
-    printf("[Chaos] nnzPerColumn\n");
     colmaxs.EWiseApply(nnzPerColumn, multiplies<NT>());
     
-    MPI_Barrier(MPI_COMM_WORLD);
-    printf("[Chaos] Leaving\n");
     return colmaxs.Reduce(maximum<NT>(), 0.0);
 }
 
@@ -256,7 +254,7 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
     if(param.remove_isolated)
         RemoveIsolated(A, param);
     
-    // Permutation would be taken care outside
+    // BecausePermutation would be taken care outside
     //if(param.randpermute)
         //RandPermute(A, param);
 
@@ -285,10 +283,6 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
         A.PrintInfo();
     }
     
-    MPI_Barrier(MPI_COMM_WORLD);
-    SpParHelper::Print("Checkpoint 2.\n");
-    MPI_Barrier(MPI_COMM_WORLD);
-
     NT chaos = Chaos(A);
     double newBalance = A.LoadImbalance();
     stringstream s;
@@ -298,6 +292,7 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
     int it=1;
     double tInflate = 0;
     double tExpand = 0;
+    double tTotal = 0;
     typedef PlusTimesSRing<NT, NT> PTFF;
 	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
 	if(param.layers > 1) {
@@ -305,8 +300,12 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
 		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
 	}
 
+    bool summarySaved = false;
+    bool stopIter = false;
+    IT nnzStart = A.getnnz();
+
     // while there is an epsilon improvement
-    while( (chaos > EPS) && (it <= param.maxIter) )
+    while( (chaos > EPS) && (stopIter == false) )
     {
 		SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
 		if(param.layers > 1) {
@@ -346,10 +345,6 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
         if(param.layers == 1) chaos = Chaos(A);
         else chaos = Chaos3D(A3D_cs);
 
-        if(param.summaryIter == it){
-            Asummary = SpParMat<IT,NT,DER>(A);
-        }
-        
         //double tInflate1 = MPI_Wtime();
         if (param.layers == 1) Inflate(A, param.inflation);
         else Inflate3D(A3D_cs, param.inflation);
@@ -362,6 +357,45 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
         stringstream s;
         s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
+
+        tTotal += (t3-t1);
+
+        // Save Markov state as summary
+        if( param.summaryIter > 0 && param.summaryIter == it){
+            // If a particular iteration is specified save that point
+            Asummary.FreeMemory();
+            Asummary = A;
+            summarySaved = true; // To prevent overwritting of summary
+            if(param.show){
+                stringstream s;
+                s << "Summary saved" << endl;
+                SpParHelper::Print(s.str());
+            }
+        }
+        else if (param.summaryIter == 0 & summarySaved == false ) {
+            // If particular iteration is not specified and summary is not saved yet
+            if (A.getnnz() < (IT)(param.summaryThresholdNNZ * nnzStart)){
+                // Save summary when nnz drops below the threshold
+                Asummary.FreeMemory();
+                Asummary = A;
+                summarySaved = true; // To prevent overwritting of summary
+                if(param.show){
+                    stringstream s;
+                    s << "Summary saved" << endl;
+                    SpParHelper::Print(s.str());
+                }
+            }
+        }
+
+        // Manage stopIter flag
+        if(param.maxIter >= 0){
+            // If maximum number of iteration is reached
+            if (it == param.maxIter) stopIter = true;
+        }
+        else{
+            // If no maximum iteration is specified as number of iterations necessary for summary to be saved
+            if (summarySaved) stopIter = true;
+        }
         it++;
     }
     
@@ -377,11 +411,18 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
     if(param.layers == 1) ADouble = A;
     else ADouble = A3D_cs.Convert2D();
     clustAsn = Interpret(ADouble);
+
+    IT nclusters = clustAsn.Reduce(maximum<IT>(), (IT) 0 ) ;
+    stringstream s2;
+    s2 << "Number of clusters: " << nclusters << endl;
+    s2 << "Total MCL time: " << tTotal << endl;
+    //s2 << "=================================================\n" << endl ;
+    SpParHelper::Print(s2.str());
 }
 
 template <class IT, class NT, class LBL, class DER>
 void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat<IT, NT, DER> &Mnp, SpParMat<IT, NT, DER> &Mnn, FullyDistVec<IT, LBL> &pVtxLbl, FullyDistVec<IT, LBL> &nVtxLbl, 
-        FullyDistVec<IT, LBL> &aVtxLbl, FullyDistVec<IT, IT> &clustAsn, SpParMat<IT, NT, DER> &Mstar){
+        FullyDistVec<IT, LBL> &aVtxLbl, FullyDistVec<IT, IT> &clustAsn, SpParMat<IT, NT, DER> &Mstar, HipMCLParam &param){
     int nprocs, myrank, nthreads = 1;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -393,6 +434,11 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
 #endif
     
     auto commGrid = pVtxLbl.getcommgrid();
+
+    double t0, t1, t2, t3;
+    
+    if(myrank == 0) printf("[Start] Preparing incremental\n");
+    t0 = MPI_Wtime();
 
     FullyDistVec<IT, IT> pVtxMap( commGrid );
     pVtxMap.iota(pVtxLbl.TotalLength(), 0); // Intialize with consecutive numbers
@@ -513,6 +559,10 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
         aVtxLbl.SetLocalElement(rLocIdx, rLocLbl);
     }
 
+    t1 = MPI_Wtime();
+    if(myrank == 0) printf("Time to calculate vertex mapping: %lf\n", t1-t0);
+
+    t0 = MPI_Wtime();
     SpParMat<IT, NT, DER> Mall = SpParMat<IT,NT,DER>(Mpp.getnrow() + Mnn.getnrow(), 
                  Mpp.getncol() + Mnn.getncol(), 
                  FullyDistVec<IT,IT>(commGrid), 
@@ -522,7 +572,17 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     SpParMat<IT, NT, DER> Mall_Mnp = SpParMat<IT,NT,DER>(Mall);
     SpParMat<IT, NT, DER> Mall_Mnn = SpParMat<IT,NT,DER>(Mall);
     
-    // Asign each piece of incremental matrix to empty matrix
+    // Assign each piece of incremental matrix to empty matrix
+    if (param.normalizedAssign){
+        MakeColStochastic(Mpp);
+        Mpp.Apply(bind1st(multiplies<double>(), Mpp.getnrow()));
+        MakeColStochastic(Mpn);
+        Mpn.Apply(bind1st(multiplies<double>(), Mpn.getnrow()));
+        MakeColStochastic(Mnp);
+        Mnp.Apply(bind1st(multiplies<double>(), Mnp.getnrow()));
+        MakeColStochastic(Mnn);
+        Mnn.Apply(bind1st(multiplies<double>(), Mnn.getnrow()));
+    }
     Mall.SpAsgn(pVtxMap, pVtxMap, Mpp);
     Mall_Mpn.SpAsgn(pVtxMap, nVtxMap, Mpn);
     Mall_Mnp.SpAsgn(nVtxMap, pVtxMap, Mnp);
@@ -531,23 +591,18 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     Mall += Mall_Mpn;
     Mall += Mall_Mnp;
     Mall += Mall_Mnn;
+    t1 = MPI_Wtime();
+    if(myrank == 0) printf("Time to assign submatrices: %lf\n", t1-t0);
+    if(myrank == 0) printf("[End] Preparing incremental\n");
     
-    //MPI_Barrier(MPI_COMM_WORLD);
-    //Mall.ParallelWriteMM("blah.txt", 1);
-    //MPI_Barrier(MPI_COMM_WORLD);
-
-    HipMCLParam incParam;
-    InitParam(incParam);
-
-    incParam.summaryIter = 5; // Save summary after 5th iteration
-    incParam.maxIter = 10000000; // Arbitrary large number as maximum number of iterations. Run as many iterations as needed to converge;
-    
-    HipMCL(Mall, incParam, clustAsn, Mstar);
+    if(myrank == 0) printf("[Start] Clustering incremental\n");
+    HipMCL(Mall, param, clustAsn, Mstar);
+    if(myrank == 0) printf("[End] Clustering incremental\n");
 };
 
 template <class IT, class NT, class LBL, class DER>
 void IncClust(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat<IT, NT, DER> &Mnp, SpParMat<IT, NT, DER> &Mnn, FullyDistVec<IT, LBL> &pVtxLbl, FullyDistVec<IT, LBL> &nVtxLbl, 
-        FullyDistVec<IT, LBL> &aVtxLbl, FullyDistVec<IT, IT> &clustAsn, SpParMat<IT, NT, DER> &Mstar, int version=1){
-    IncClustV1(Mpp, Mpn, Mnp, Mnn, pVtxLbl, nVtxLbl, aVtxLbl, clustAsn, Mstar);
+        FullyDistVec<IT, LBL> &aVtxLbl, FullyDistVec<IT, IT> &clustAsn, SpParMat<IT, NT, DER> &Mstar, int version, HipMCLParam &param){
+    IncClustV1(Mpp, Mpn, Mnp, Mnn, pVtxLbl, nVtxLbl, aVtxLbl, clustAsn, Mstar, param);
 };
 
