@@ -200,6 +200,34 @@ public:
 	FullyDistSpVec<IT, NT> Uniq(_BinaryOperation __binary_op, MPI_Op mympiop);
 #endif
 
+	// Aydin TODO: parallelize with OpenMP
+	template <typename _UnaryOperation>
+        FullyDistSpVec<IT,NT> Prune(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true (solely based on value)
+        {
+		FullyDistSpVec<IT,NT> temp(commGrid);
+                IT spsize = ind.size();
+                for(IT i=0; i< spsize; ++i)
+                {
+			if(!(__unary_op(num[i]))) // keep this nonzero
+			{
+				temp.ind.push_back(ind[i]);
+				temp.num.push_back(num[i]);
+			}
+                }
+
+                if (inPlace)
+                {
+			ind.swap(temp.ind); 
+			ind.swap(temp.num);
+
+                        return FullyDistSpVec<IT,NT>(commGrid); // return blank to match signature
+                }
+                else
+                {
+                        return temp;
+                }
+        }
+
 
 	IT getlocnnz() const 
 	{

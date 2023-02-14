@@ -95,7 +95,8 @@ public:
     template <typename _BinaryOperation>
     Dcsc<IT,NT>* PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace);
 
-    
+    void PruneColumnByIndex(const std::vector<IT>& ci);
+
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	
 	void RowSplit(int numsplits);

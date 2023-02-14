@@ -771,9 +771,66 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneColumn(NT* pvals, _BinaryOperation __binary_op, b
         jc = oldjc;
         ir = oldir;
         numx = oldnumx;
-        
+
         return ret;
     }
+}
+
+template <class IT, class NT>
+void Dcsc<IT,NT>::PruneColumnByIndex(const std::vector<IT>& ci)
+{
+    if (ci.size() == 0)
+        return;
+
+    /* ci is assumed to be pre-sorted */
+
+    IT c = 0;
+    IT j = 0;
+
+    std::vector<IT> vjc, vir, nzpercol;
+    std::vector<NT> vnumx;
+
+    while (j < nzc)
+    {
+        if (c >= ci.size() || ci[c] > jc[j]) /* this means column jc[j] shouldn't be pruned, and instead should be copied */
+        {
+            vjc.push_back(jc[j]);
+            nzpercol.push_back(cp[j+1] - cp[j]);
+
+            for (IT p = cp[j]; p < cp[j+1]; ++p)
+            {
+                vir.push_back(ir[p]);
+                vnumx.push_back(numx[p]);
+            }
+
+            ++j;
+        }
+        else if (ci[c] < jc[j]) ++c; /* this means the column we want to prune has no nonzeros already */
+        else /* this means column j should be pruned */
+        {
+            ++j, ++c;
+        }
+    }
+
+    nzc = vjc.size();
+    nz  = vir.size();
+
+    delete [] cp;
+    delete [] jc;
+    delete [] ir;
+    delete [] numx;
+
+    cp   = new IT[nzc+1];
+    jc   = new IT[nzc];
+    ir   = new IT[nz];
+    numx = new NT[nz];
+
+    cp[0] = 0;
+
+    std::partial_sum(nzpercol.begin(), nzpercol.end(), cp + 1);
+    std::copy(vjc.begin(), vjc.end(), jc);
+    std::copy(vir.begin(), vir.end(), ir);
+    std::copy(vnumx.begin(), vnumx.end(), numx);
 }
 
 
@@ -782,6 +839,7 @@ template <class IT, class NT>
 template <typename _BinaryOperation>
 Dcsc<IT,NT>* Dcsc<IT,NT>::PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace)
 {
+
     // Two-pass algorithm
     IT prunednnz = 0;
     IT prunednzc = 0;

@@ -2644,6 +2644,64 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistVec<IT,NT> &
     }
 }
 
+template <class IT, class NT, class DER>
+template <class IRRELEVANT_NT>
+void SpParMat<IT,NT,DER>::PruneColumnByIndex(const FullyDistSpVec<IT,IRRELEVANT_NT>& ci)
+{
+    MPI_Comm World = ci.commGrid->GetWorld();
+    MPI_Barrier(World);
+
+    if (getncol() != ci.TotalLength())
+    {
+        std::ostringstream outs;
+        outs << "Cannot prune column-by-column, dimensions do not match" << std::endl;
+        outs << getncol() << " != " << ci.TotalLength() << std::endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+
+    if (!(*(getcommgrid()) == *(ci.getcommgrid())))
+    {
+        std::cout << "Grids are not comparable for PruneColumnByIndex" << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+
+    MPI_Comm ColWorld = ci.commGrid->GetColWorld();
+    int diagneigh = ci.commGrid->GetComplementRank();
+
+    IT xlocnz = ci.getlocnnz();
+    IT xrofst = ci.RowLenUntil();
+    IT trxrofst;
+    IT trxlocnz = 0;
+
+    MPI_Sendrecv(&xrofst, 1, MPIType<IT>(), diagneigh, TROST, &trxrofst, 1, MPIType<IT>(), diagneigh, TROST, World, MPI_STATUS_IGNORE);
+    MPI_Sendrecv(&xlocnz, 1, MPIType<IT>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<IT>(), diagneigh, TRNNZ, World, MPI_STATUS_IGNORE);
+
+    std::vector<IT> trxinds(trxlocnz);
+
+    MPI_Sendrecv(ci.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, MPI_STATUS_IGNORE);
+
+    std::transform(trxinds.data(), trxinds.data() + trxlocnz, trxinds.data(), std::bind2nd(std::plus<IT>(), trxrofst));
+
+    int colneighs, colrank;
+    MPI_Comm_size(ColWorld, &colneighs);
+    MPI_Comm_rank(ColWorld, &colrank);
+
+    std::vector<int> colnz(colneighs);
+    colnz[colrank] = trxlocnz;
+    MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colnz.data(), 1, MPI_INT, ColWorld);
+    std::vector<int> dpls(colneighs, 0);
+    std::partial_sum(colnz.begin(), colnz.end()-1, dpls.begin()+1);
+    IT accnz = std::accumulate(colnz.begin(), colnz.end(), 0);
+
+    std::vector<IT> indacc(accnz);
+    MPI_Allgatherv(trxinds.data(), trxlocnz, MPIType<IT>(), indacc.data(), colnz.data(), dpls.data(), MPIType<IT>(), ColWorld);
+
+    std::sort(indacc.begin(), indacc.end());
+
+    spSeq->PruneColumnByIndex(indacc);
+}
+
 
 //! Prune columns of a sparse matrix selected by nonzero indices of pvals
 //! Each selected column is pruned by corresponding values in pvals
@@ -4927,13 +4985,14 @@ DER SpParMat<IT,NT,DER>::InducedSubgraphs2Procs(const FullyDistVec<IT,IT>& Assig
 
     for (auto colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit) {
         IT destproc = complement_rowvecs[colit.colid()];
-        for (auto nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit) {
-            if (destproc == rowvecs[nzit.rowid()]) {
-                svec[destproc].push_back(std::make_tuple(row_offset + nzit.rowid(), col_offset + colit.colid(), nzit.value()));
-                sendcounts[destproc]++;
-                sbuflen++;
+        if (destproc != -1)
+            for (auto nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit) {
+                if (destproc == rowvecs[nzit.rowid()]) {
+                    svec[destproc].emplace_back(row_offset + nzit.rowid(), col_offset + colit.colid(), nzit.value());
+                    sendcounts[destproc]++;
+                    sbuflen++;
+                }
             }
-        }
     }
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, recvcounts.data(), 1, MPI_INT, World);

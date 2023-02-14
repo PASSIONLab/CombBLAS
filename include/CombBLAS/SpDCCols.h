@@ -261,6 +261,8 @@ public:
     template <typename _BinaryOperation>
     SpDCCols<IT,NT>* PruneColumn(IT* pinds, NT* pvals, _BinaryOperation __binary_op, bool inPlace);
 
+    void PruneColumnByIndex(const std::vector<IT>& ci);
+
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const
 	{
