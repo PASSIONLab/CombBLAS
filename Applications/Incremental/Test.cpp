@@ -1,4 +1,3 @@
-#include <mpi.h>
 #include <sys/time.h>
 #include <iostream>
 #include <functional>
@@ -11,17 +10,18 @@
 #include "CombBLAS/ParFriends.h"
 #include "../CC.h"
 #include "../WriteMCLClusters.h"
+#include "IncClust.h"
 
 using namespace std;
 using namespace combblas;
 
-#define EPS 0.0001
 
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads();
 #else
 int cblas_splits = 1;
 #endif
+
 
 int main(int argc, char* argv[])
 {
@@ -35,166 +35,98 @@ int main(int argc, char* argv[])
         nthreads = omp_get_num_threads();
     }
 #endif
-    if(true){ // To enforce that no MPI calls happen after MPI_Finalize()
+    if(myrank == 0)
+    {
+        cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
+    }
+    if(argc < 7)
+    {
+        if(myrank == 0)
+        {
+            cout << "Usage: ./inc -I <mm|triples> -M <MATRIX_FILENAME> -N <NUMBER OF SPLITS>\n";
+            cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
+            cout << "-M <MATRIX FILE NAME>\n";
+            cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
+            cout << "-N <NUMBER OF SPLITS>\n";
+        }
+        MPI_Finalize();
+        return -1;
+    }
+    else{
+        string Mname = "";
+        int nSplit = 2;
+        int base = 1;
+        bool isMatrixMarket = true;
+
+        HipMCLParam incParam;
+        InitParam(incParam);
+        
+        for (int i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i],"-I")==0)
+            {
+                string mfiletype = string(argv[i+1]);
+                if(mfiletype == "triples") isMatrixMarket = false;
+            }
+            else if (strcmp(argv[i],"-M")==0)
+            {
+                Mname = string(argv[i+1]);
+                if(myrank == 0) printf("Matrix filename: %s\n", Mname.c_str());
+            }
+            else if (strcmp(argv[i],"-base")==0)
+            {
+                base = atoi(argv[i + 1]);
+                if(myrank == 0) printf("Base of MM (1 or 0):%d\n", base);
+            }
+            else if (strcmp(argv[i],"-N")==0)
+            {
+                nSplit = atoi(argv[i+1]);
+                if(myrank == 0) printf("Number of splits: %d\n", nSplit);
+            }
+            else if(strcmp(argv[i],"--per-process-mem")==0){
+                incParam.perProcessMem = atoi(argv[i+1]);
+                if(myrank == 0) printf("Per process memory: %d GB\n", incParam.perProcessMem);
+            }
+        }
+
+        shared_ptr<CommGrid> fullWorld;
+        fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
+
+        if(myrank == 0) printf("Running Incremental-V2\n");
+
         typedef int64_t IT;
         typedef double NT;
         typedef SpDCCols < int64_t, double > DER;
         typedef PlusTimesSRing<double, double> PTFF;
         typedef PlusTimesSRing<bool, double> PTBOOLNT;
         typedef PlusTimesSRing<double, bool> PTNTBOOL;
-
-        shared_ptr<CommGrid> fullWorld;
-        fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
-
-        FullyDistVec<IT, IT> p( fullWorld);
-        FullyDistVec<IT, IT> q( fullWorld);
-        IT np = 20, nq = 10;
-        p.iota(np, 0);
-        q.iota(nq, np);
-
-        //for (IT i = 0; i < np; i++){
-            //IT x = p[i];
-            //if(myrank == 0) printf("p[%ld]: %ld\n", i, x);
-        //}
-
-        //if(myrank == 0) printf("---\n");
-
-        //for (IT i = 0; i < nq; i++){
-            //IT x = q[i];
-            //if(myrank == 0) printf("q[%ld]: %ld\n", i, x);
-        //}
-
-        //MPI_Barrier(MPI_COMM_WORLD);
-
-        IT pLocLen = p.LocArrSize();
-        IT qLocLen = q.LocArrSize();
-        IT minLocLen = std::min(pLocLen, qLocLen);
-        IT maxLocLen = std::max(pLocLen, qLocLen);
-        std::vector<bool> pLocFlag(pLocLen, true);
-        std::vector<bool> qLocFlag(qLocLen, true);
-
-        std::mt19937 rng;
-        rng.seed(myrank);
-        std::uniform_int_distribution<IT> uidist(0, 999999999);
-        std::uniform_real_distribution<NT> urdist(0, 1.0);
-        for (IT i = 0; i < minLocLen; i++){
-            if(urdist(rng) < double(minLocLen)/maxLocLen){
-                IT pidx = uidist(rng) % pLocLen;
-                while(pLocFlag[pidx] == false) pidx++;
-                IT qidx = uidist(rng) % qLocLen;
-                while(qLocFlag[qidx] == false) qidx++;
-                //printf("myrank %d, swap %d: pidx %d <-> qidx %d\n", myrank, i, pidx, qidx);
-                IT pv = p.GetLocalElement(pidx);
-                IT qv = q.GetLocalElement(qidx);
-                p.SetLocalElement(pidx, qv);
-                q.SetLocalElement(qidx, pv);
-                pLocFlag[pidx] = false;
-                qLocFlag[qidx] = false;
-            }
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        p.RandPerm(31416);
-        q.RandPerm(31416);
         
-        MPI_Barrier(MPI_COMM_WORLD);
+        double t0, t1, t2, t3, t4, t5;
 
-        if(myrank == 0) printf("*** After Shuffle ***\n");
+        SpParMat<IT, NT, DER> M(fullWorld);
 
-        for (IT i = 0; i < np; i++){
-            IT x = p[i];
-            if(myrank == 0) printf("p[%ld]: %ld\n", i, x);
-        }
+        if(isMatrixMarket)
+            M.ParallelReadMM(Mname, base, maximum<double>());
+        else
+            M.ReadGeneralizedTuples(Mname,  maximum<double>());
+        M.PrintInfo();
+        
+        incParam.summaryIter = 0;
+        incParam.summaryThresholdNNZ = 0.7;
+        incParam.maxIter = 10000000; // Arbitrary large number as maximum number of iterations. Run as many iterations as needed to converge;
+        
+        SpParMat<IT, NT, DER> Mstar(fullWorld); // Summarized graph
+        FullyDistVec<IT, IT> clustAsn(fullWorld, M.getnrow(), 0); // Cluster assignment of each vertex 
+        if(myrank == 0) printf("[Start] Clustering incremental\n");
+        Mstar.FreeMemory();
+        t0 = MPI_Wtime();
+        HipMCL(M, incParam, clustAsn, Mstar);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to find clusters: %lf\n", t1 - t0);
 
-        if(myrank == 0) printf("---\n");
-
-        for (IT i = 0; i < nq; i++){
-            IT x = q[i];
-            if(myrank == 0) printf("q[%ld]: %ld\n", i, x);
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        FullyDistVec<IT,IT> temp(fullWorld, np+nq, 0); // Dummy vector to help calculate which process owns which index
-
-        std::vector<int> sendcnt(nprocs, 0);
-        std::vector<int> sdispls(nprocs+1);
-        std::vector<int> recvcnt(nprocs, 0);
-        std::vector<int> rdispls(nprocs+1);
-
-        const std::vector<IT> pLocVec = p.GetLocVec();
-        const std::vector<IT> qLocVec = q.GetLocVec();
-        for (IT i = 0; i < pLocLen; i++){
-            IT rLocIdx; // Index of the local array in the receiver side
-            int owner = temp.Owner(pLocVec[i], rLocIdx);
-            sendcnt[owner] = sendcnt[owner] + 1;
-        }
-        for (IT i = 0; i < qLocLen; i++){
-            IT rLocIdx; // Index of the local array in the receiver side
-            int owner = temp.Owner(qLocVec[i], rLocIdx);
-            sendcnt[owner] = sendcnt[owner] + 1;
-        }
-
-        MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, p.getcommgrid()->GetWorld() );
-
-        sdispls[0] = 0;
-        rdispls[0] = 0;
-        std::partial_sum(sendcnt.begin(), sendcnt.end(), sdispls.begin()+1);
-        std::partial_sum(recvcnt.begin(), recvcnt.end(), rdispls.begin()+1);
-
-        int totsend = sdispls[sdispls.size()-1];
-        int totrecv = rdispls[rdispls.size()-1];
-
-        std::vector< std::tuple<IT, IT> > sendTuples(totsend);
-        std::vector< std::tuple<IT, IT> > recvTuples(totrecv);
-
-        //printf("myrank %d: totsend %d, totrecv %d\n", myrank, totsend, totrecv);
-
-        std::vector<int> sidx(sdispls); // Copy sdispls array to use for preparing sendTuples
-
-        for (IT i = 0; i < pLocLen; i++){
-            IT rLocIdx; // Index of the local array in the receiver side
-            int owner = temp.Owner(pLocVec[i], rLocIdx);
-            //if(sidx[owner] >= totsend){
-                //printf("myrank %d: sidx[%d] %d/%d\n", myrank, owner, sidx[owner], totsend-1);
-            //}
-            sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, pLocVec[i]);
-            sidx[owner]++;
-        }
-        for (IT i = 0; i < qLocLen; i++){
-            IT rLocIdx; // Index of the local array in the receiver side
-            int owner = temp.Owner(qLocVec[i], rLocIdx);
-            sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, qLocVec[i]);
-            sidx[owner]++;
-        }
-
-        MPI_Datatype MPI_tuple;
-        MPI_Type_contiguous(sizeof(std::tuple<IT,IT>), MPI_CHAR, &MPI_tuple);
-        MPI_Type_commit(&MPI_tuple);
-        MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_tuple, recvTuples.data(), recvcnt.data(), rdispls.data(), MPI_tuple, p.getcommgrid()->GetWorld());
-
-        std::vector<IT> rLocVec(totrecv);
-        for(int i = 0; i < totrecv; i++){
-            IT rLocIdx = std::get<0>(recvTuples[i]);
-            IT rLocVal = std::get<1>(recvTuples[i]);
-            rLocVec[rLocIdx] = rLocVal;
-        }
-
-        FullyDistVec<IT, IT> a(rLocVec, fullWorld);
-
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        if(myrank == 0) printf("*** After Merge ***\n");
-
-        for (IT i = 0; i < np + nq; i++){
-            IT x = a[i];
-            if(myrank == 0) printf("a[%ld]: %ld\n", i, x);
-        }
-
+        Mstar.ParallelWriteMM(Mname+std::string(".summary"), base);
     }
-
     MPI_Finalize();
     return 0;
 }
+

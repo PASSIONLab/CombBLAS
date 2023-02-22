@@ -54,6 +54,8 @@ typedef struct
     int summaryIter; // If set, MCL state of that particular iteration is saved as summary
     double summaryThresholdNNZ; // If summaryIter is not set then summary is saved when nnz of MCL state drops below this percent of nnz in the beginning MCL state
     bool normalizedAssign;
+    bool selectivePrune;
+    double selectivePruneThreshold;
 
     
 }HipMCLParam;
@@ -100,6 +102,8 @@ void InitParam(HipMCLParam & param)
     param.summaryIter = 0;
     param.summaryThresholdNNZ = 0.7;
     param.normalizedAssign = true;
+    param.selectivePrune = false; // Turn off selective prunning by default
+    param.selectivePruneThreshold = 0.3;
 }
 
 
@@ -248,15 +252,253 @@ void RandPermute(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
     }
 }
 
+// Given an adjacency matrix, and cluster assignment vector, removes inter cluster edges
+template <class IT, class NT, class DER>
+void RemoveInterClusterEdges(SpParMat<IT, NT, DER>& M, FullyDistVec<IT, IT>& C){
+    FullyDistVec<IT, NT> Ctemp(C); // To convert value types from IT to NT. Because DimApply and PruneColumn requires that.
+    SpParMat<IT, NT, DER> Mask(M);
+    Mask.DimApply(Row, Ctemp, [](NT mv, NT vv){return vv;});
+    Mask.PruneColumn(Ctemp, [](NT mv, NT vv){return static_cast<NT>(vv == mv);}, true);
+
+    //Mask.PrintInfo();
+    M.SetDifference(Mask);
+}
+
+/*
+ * Prune nz from A depending on provided mask, vertex flag and provided threshold
+ * Dont prune a nz if -
+ * either (1) the flags corresponding to row and column of the nz are different
+ * or (2) mask has an nz at the same location
+ * or (3) nz value is higher than the threshold provided in the parameter
+ * */
+template <typename IT, typename NT, typename DER, typename FLAGTYPE> 
+void SelectivePrune (SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & Mask, FullyDistVec<IT,FLAGTYPE>& isOld, HipMCLParam & param){
+    // Make a copy. This copy would keep the information which nz to be pruned
+    SpParMat<IT, NT, DER> Ap(A);
+
+    // IMPORTANT: Apply criteria(2) at first
+    Ap.SetDifference(Mask);
+
+    // IMPORTANT: Apply criteria(3) next
+    Ap.Prune(std::bind2nd(std::greater_equal<NT>(), param.selectivePruneThreshold), true); // Remove nz where value stays above threshold. Those values would never be pruned.
+
+    // Apply criteria (1)
+    FullyDistVec<IT, NT> isOldTemp(isOld); // To convert value types from IT to NT. Because DimApply and PruneColumn requires that.
+    Ap.DimApply(Row, isOldTemp, [](NT mv, NT vv){return vv;}); // Store row flag at the nz locations
+    Ap.PruneColumn(isOldTemp, [](NT mv, NT vv){return static_cast<NT>(vv != mv);}, true); // Remove nz where row flag and column flag does not match
+
+    //// Apply criteria (3)
+    //Ap.Prune(std::bind2nd(std::less_equal<NT>(), param.selectivePruneThreshold), true); // Remove nz where value falls below threshold
+
+    // Prune everything from A where a corresponding entry exists in Ap
+    A.SetDifference(Ap);
+
+    return;
+}
+
 template <typename IT, typename NT, typename DER>
 void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> & clustAsn, SpParMat<IT, NT, DER> & Asummary)
+{
+    int nprocs, myrank, nthreads = 1;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+
+    double newBalance; 
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+
+    if(param.remove_isolated)
+        RemoveIsolated(A, param);
+
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+    
+    if(param.randpermute)
+        RandPermute(A, param);
+
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+
+    // Adjust self loops
+    AdjustLoops(A);
+
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+    
+    // Make stochastic
+    MakeColStochastic(A);
+
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+    
+    IT nnz = A.getnnz();
+    IT nv = A.getnrow();
+    IT avgDegree = nnz/nv;
+    if(avgDegree > std::max(param.select, param.recover_num))
+    {
+        SpParHelper::Print("Average degree of the input graph is greater than max{S,R}.\n");
+        param.preprune = true;
+    }
+    if(param.preprune)
+    {
+        SpParHelper::Print("Applying the prune/select/recovery logic before the first iteration\n\n");
+        MCLPruneRecoverySelect(A, (NT)param.prunelimit, (IT)param.select, (IT)param.recover_num, (NT)param.recover_pct, param.kselectVersion);
+    }
+
+    newBalance = A.LoadImbalance();
+    if(myrank == 0) printf("LoadImbalance: %lf\n", newBalance);
+
+    if(param.show)
+    {
+        A.PrintInfo();
+    }
+    
+    NT chaos = Chaos(A);
+    newBalance = A.LoadImbalance();
+    stringstream s;
+    s << "Iteration# "  << setw(3) << -1 << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << " Time: " << -1 << endl;
+    SpParHelper::Print(s.str());
+
+    int it=1;
+    double tInflate = 0;
+    double tExpand = 0;
+    double tTotal = 0;
+    typedef PlusTimesSRing<NT, NT> PTFF;
+	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
+	if(param.layers > 1) {
+    	SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
+		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
+	}
+
+    bool summarySaved = false;
+    bool stopIter = false;
+    IT nnzStart = A.getnnz();
+
+    // while there is an epsilon improvement
+    while( (chaos > EPS) && (stopIter == false) )
+    {
+		SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
+		if(param.layers > 1) {
+			A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false); // Create new rowsplit copy of matrix from colsplit copy
+		}
+
+        double t1 = MPI_Wtime();
+		if(param.layers == 1){
+			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+		}
+		else{
+			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
+                A3D_cs, A3D_rs, 
+                param.phases, 
+                param.prunelimit, 
+                (IT)param.select, 
+                (IT)param.recover_num, 
+                param.recover_pct, 
+                param.kselectVersion,
+                param.compute,
+                param.perProcessMem
+         	);
+		}
+        
+		if(param.layers == 1){
+			MakeColStochastic(A);
+		}
+		else{
+            MakeColStochastic3D(A3D_cs);
+		}
+        tExpand += (MPI_Wtime() - t1);
+        
+        if(param.show)
+        {
+            A.PrintInfo();
+        }
+
+        if(param.layers == 1) chaos = Chaos(A);
+        else chaos = Chaos3D(A3D_cs);
+
+        //double tInflate1 = MPI_Wtime();
+        if (param.layers == 1) Inflate(A, param.inflation);
+        else Inflate3D(A3D_cs, param.inflation);
+
+        if(param.layers == 1) MakeColStochastic(A);
+        else MakeColStochastic3D(A3D_cs);
+        
+        newBalance = A.LoadImbalance();
+        double t3=MPI_Wtime();
+        stringstream s;
+        s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newBalance << " Time: " << (t3-t1) << endl;
+        SpParHelper::Print(s.str());
+
+        tTotal += (t3-t1);
+
+        // Save Markov state as summary
+        if( param.summaryIter > 0 && param.summaryIter == it){
+            // If a particular iteration is specified save that point
+            Asummary.FreeMemory();
+            Asummary = A;
+            summarySaved = true; // To prevent overwritting of summary
+            //if(param.show){
+                //stringstream s;
+                //s << "Summary saved" << endl;
+                //SpParHelper::Print(s.str());
+            //}
+        }
+        else if (param.summaryIter == 0 & summarySaved == false ) {
+            // If particular iteration is not specified and summary is not saved yet
+            if (A.getnnz() < (IT)(param.summaryThresholdNNZ * nnzStart)){
+                // Save summary when nnz drops below the threshold
+                Asummary.FreeMemory();
+                Asummary = A;
+                summarySaved = true; // To prevent overwritting of summary
+                //if(param.show){
+                    //stringstream s;
+                    //s << "Summary saved" << endl;
+                    //SpParHelper::Print(s.str());
+                //}
+            }
+        }
+
+        // Manage stopIter flag
+        if(param.maxIter >= 0){
+            // If maximum number of iteration is reached
+            if (it == param.maxIter) stopIter = true;
+        }
+        else{
+            // If no maximum iteration is specified as number of iterations necessary for summary to be saved
+            if (summarySaved) stopIter = true;
+        }
+        it++;
+    }
+    
+#ifdef TIMING
+    double tcc1 = MPI_Wtime();
+#endif
+    
+    // bool can not be used because
+    // bool does not work in A.AddLoops(1) used in LACC: can not create a fullydist vector with Bool
+    // SpParMat<IT,NT,DER> A does not work because int64_t and float promote trait not defined
+    // hence, we are forcing this with IT and double
+    SpParMat<IT,double, SpDCCols < IT, double >> ADouble(MPI_COMM_WORLD);
+    if(param.layers == 1) ADouble = A;
+    else ADouble = A3D_cs.Convert2D();
+    clustAsn = Interpret(ADouble);
+
+    IT nclusters = clustAsn.Reduce(maximum<IT>(), (IT) 0 ) ;
+    stringstream s2;
+    s2 << "Number of clusters: " << nclusters << endl;
+    s2 << "Total MCL time: " << tTotal << endl;
+    //s2 << "=================================================\n" << endl ;
+    SpParHelper::Print(s2.str());
+}
+
+template <typename IT, typename NT, typename DER, typename FLAGTYPE>
+void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> & clustAsn, SpParMat<IT, NT, DER> & Asummary, FullyDistVec<IT, FLAGTYPE>& isOld, SpParMat<IT,NT,DER> & Mask)
 {
     if(param.remove_isolated)
         RemoveIsolated(A, param);
     
-    // BecausePermutation would be taken care outside
-    //if(param.randpermute)
-        //RandPermute(A, param);
+    if(param.randpermute)
+        RandPermute(A, param);
 
     // Adjust self loops
     AdjustLoops(A);
@@ -342,6 +584,11 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
         {
             A.PrintInfo();
         }
+
+        if(param.selectivePrune == true){
+            SelectivePrune(A, Mask, isOld, param); //in-place
+        }
+
         if(param.layers == 1) chaos = Chaos(A);
         else chaos = Chaos3D(A3D_cs);
 
@@ -366,11 +613,11 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
             Asummary.FreeMemory();
             Asummary = A;
             summarySaved = true; // To prevent overwritting of summary
-            if(param.show){
-                stringstream s;
-                s << "Summary saved" << endl;
-                SpParHelper::Print(s.str());
-            }
+            //if(param.show){
+                //stringstream s;
+                //s << "Summary saved" << endl;
+                //SpParHelper::Print(s.str());
+            //}
         }
         else if (param.summaryIter == 0 & summarySaved == false ) {
             // If particular iteration is not specified and summary is not saved yet
@@ -379,11 +626,11 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
                 Asummary.FreeMemory();
                 Asummary = A;
                 summarySaved = true; // To prevent overwritting of summary
-                if(param.show){
-                    stringstream s;
-                    s << "Summary saved" << endl;
-                    SpParHelper::Print(s.str());
-                }
+                //if(param.show){
+                    //stringstream s;
+                    //s << "Summary saved" << endl;
+                    //SpParHelper::Print(s.str());
+                //}
             }
         }
 
@@ -432,18 +679,23 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
         nthreads = omp_get_num_threads();
     }
 #endif
-    
     auto commGrid = pVtxLbl.getcommgrid();
 
     double t0, t1, t2, t3;
     
+    MPI_Barrier(MPI_COMM_WORLD);
     if(myrank == 0) printf("[Start] Preparing incremental\n");
+    MPI_Barrier(MPI_COMM_WORLD);
     t0 = MPI_Wtime();
+    
+    typedef int FLAGTYPE;
 
     FullyDistVec<IT, IT> pVtxMap( commGrid );
     pVtxMap.iota(pVtxLbl.TotalLength(), 0); // Intialize with consecutive numbers
+    FullyDistVec<IT, FLAGTYPE> pVtxFlags(commGrid, pVtxLbl.TotalLength(), 1); // True is to indicate previous vertices
     FullyDistVec<IT, IT> nVtxMap( commGrid );
     nVtxMap.iota(nVtxLbl.TotalLength(), pVtxLbl.TotalLength()); // Initialize with consecutive numbers
+    FullyDistVec<IT, FLAGTYPE> nVtxFlags(commGrid, nVtxLbl.TotalLength(), 0); // False is to indicate new vertices
 
     // All prev and new vectors are assumed to be of same length as the respective vertex, label and mapping vector
     IT pLocLen = pVtxLbl.LocArrSize();     
@@ -473,7 +725,7 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
 
             // If the selected index is already swapped then cyclicly probe the indices after that 
             // until an index is found which has not been swapped
-            while(pLocFlag[idxPrev] == false) idxPrev = (idxPrev + 1) % pLocLen;  
+            while(pLocFlag[idxPrev] == false) idxPrev = (idxPrev + 1) % pLocLen;
             
             // Mark the index as swapped
             pLocFlag[idxPrev] = false;
@@ -490,19 +742,28 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
 
             IT pVtxRM = pVtxMap.GetLocalElement(idxPrev);
             IT nVtxRM = nVtxMap.GetLocalElement(idxNew);
+            FLAGTYPE pVtxFlag = pVtxFlags.GetLocalElement(idxPrev);
+            FLAGTYPE nVtxFlag = nVtxFlags.GetLocalElement(idxNew);
             pVtxMap.SetLocalElement(idxPrev, nVtxRM);
             nVtxMap.SetLocalElement(idxNew, pVtxRM);
+            pVtxFlags.SetLocalElement(idxPrev, nVtxFlag);
+            nVtxFlags.SetLocalElement(idxNew, pVtxFlag);
         }
     }
     
     // Global permutation after local shuffle will result in true shuffle
+    // MTH: Can be done in a single all-to-all?
     pVtxMap.RandPerm(31415929535);
     nVtxMap.RandPerm(31415929535);
+    pVtxFlags.RandPerm(31415929535);
+    nVtxFlags.RandPerm(31415929535);
 
     const std::vector<IT> pVtxMapLoc = pVtxMap.GetLocVec();
     const std::vector<LBL> pVtxLblLoc = pVtxLbl.GetLocVec();
     const std::vector<IT> nVtxMapLoc = nVtxMap.GetLocVec();
     const std::vector<LBL> nVtxLblLoc = nVtxLbl.GetLocVec();
+    const std::vector<FLAGTYPE> pVtxFlagsLoc = pVtxFlags.GetLocVec();
+    const std::vector<FLAGTYPE> nVtxFlagsLoc = nVtxFlags.GetLocVec();
 
     // Must be array of `int` for MPI requirements
     std::vector<int> sendcnt(nprocs, 0);
@@ -531,32 +792,36 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     int totsend = sdispls[sdispls.size()-1]; // Can be safely assumed to be int because MPI forces the array to be of int
     int totrecv = rdispls[rdispls.size()-1];
 
-    std::vector< std::tuple<IT, LBL> > sendTuples(totsend);
-    std::vector< std::tuple<IT, LBL> > recvTuples(totrecv);
+    std::vector< std::tuple<IT, LBL, FLAGTYPE> > sendTuples(totsend);
+    std::vector< std::tuple<IT, LBL, FLAGTYPE> > recvTuples(totrecv);
     std::vector<int> sidx(sdispls); // Copy sdispls array to use for preparing sendTuples
                                     
     for (IT i = 0; i < pLocLen; i++){
         IT rLocIdx; // Index of the local array in the receiver side
         int owner = aVtxLbl.Owner(pVtxMapLoc[i], rLocIdx);
-        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, pVtxLblLoc[i]);
+        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, pVtxLblLoc[i], pVtxFlagsLoc[i]);
         sidx[owner]++;
     }
     for (IT i = 0; i < nLocLen; i++){
         IT rLocIdx; // Index of the local array in the receiver side
         int owner = aVtxLbl.Owner(nVtxMapLoc[i], rLocIdx);
-        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, nVtxLblLoc[i]);
+        sendTuples[sidx[owner]] = std::make_tuple(rLocIdx, nVtxLblLoc[i], nVtxFlagsLoc[i]);
         sidx[owner]++;
     }
 
     MPI_Datatype MPI_Custom;
-    MPI_Type_contiguous(sizeof(std::tuple<IT,LBL>), MPI_CHAR, &MPI_Custom);
+    MPI_Type_contiguous(sizeof(std::tuple<IT,LBL,FLAGTYPE>), MPI_CHAR, &MPI_Custom);
     MPI_Type_commit(&MPI_Custom);
     MPI_Alltoallv(sendTuples.data(), sendcnt.data(), sdispls.data(), MPI_Custom, recvTuples.data(), recvcnt.data(), rdispls.data(), MPI_Custom, commGrid->GetWorld());
+
+    FullyDistVec<IT, FLAGTYPE> isOld( commGrid, aVtxLbl.TotalLength(), 1); // No significance of the initval
 
     for(int i = 0; i < totrecv; i++){
         IT rLocIdx = std::get<0>(recvTuples[i]);
         LBL rLocLbl = std::get<1>(recvTuples[i]);
+        FLAGTYPE rLocFlag = std::get<2>(recvTuples[i]);
         aVtxLbl.SetLocalElement(rLocIdx, rLocLbl);
+        isOld.SetLocalElement(rLocIdx, rLocFlag);
     }
 
     t1 = MPI_Wtime();
@@ -571,6 +836,7 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     SpParMat<IT, NT, DER> Mall_Mpn = SpParMat<IT,NT,DER>(Mall);
     SpParMat<IT, NT, DER> Mall_Mnp = SpParMat<IT,NT,DER>(Mall);
     SpParMat<IT, NT, DER> Mall_Mnn = SpParMat<IT,NT,DER>(Mall);
+    SpParMat<IT, NT, DER> Mask = SpParMat<IT,NT,DER>(Mall);
     
     // Assign each piece of incremental matrix to empty matrix
     if (param.normalizedAssign){
@@ -588,6 +854,9 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     Mall_Mnp.SpAsgn(nVtxMap, pVtxMap, Mnp);
     Mall_Mnn.SpAsgn(nVtxMap, nVtxMap, Mnn);
     // Sum them up
+    Mask += Mall;
+    Mask += Mall_Mnn;
+
     Mall += Mall_Mpn;
     Mall += Mall_Mnp;
     Mall += Mall_Mnn;
@@ -596,13 +865,13 @@ void IncClustV1(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
     if(myrank == 0) printf("[End] Preparing incremental\n");
     
     if(myrank == 0) printf("[Start] Clustering incremental\n");
-    HipMCL(Mall, param, clustAsn, Mstar);
+    IncrementalMCL(Mall, param, clustAsn, Mstar, isOld, Mask);
     if(myrank == 0) printf("[End] Clustering incremental\n");
 };
 
 template <class IT, class NT, class LBL, class DER>
 void IncClust(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat<IT, NT, DER> &Mnp, SpParMat<IT, NT, DER> &Mnn, FullyDistVec<IT, LBL> &pVtxLbl, FullyDistVec<IT, LBL> &nVtxLbl, 
         FullyDistVec<IT, LBL> &aVtxLbl, FullyDistVec<IT, IT> &clustAsn, SpParMat<IT, NT, DER> &Mstar, int version, HipMCLParam &param){
-    IncClustV1(Mpp, Mpn, Mnp, Mnn, pVtxLbl, nVtxLbl, aVtxLbl, clustAsn, Mstar, param);
+    if(version == 1) IncClustV1(Mpp, Mpn, Mnp, Mnn, pVtxLbl, nVtxLbl, aVtxLbl, clustAsn, Mstar, param);
 };
 

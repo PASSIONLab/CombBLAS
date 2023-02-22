@@ -1,9 +1,9 @@
 /*
- * Incremental-V1
+ * Incremental-V2
  * ==============
- * Clusters new subgraph separately using HipMCL, in the process keeps a summary of the new subgraph during 5th HipMCL iteration
+ * Clusters new subgraph separately using HipMCL, in the process keeps a summary of the new subgraph when nnz drops below a threshold
  * Assumes a summary is available of the previous subgraph, uses that summary to prepare incremental graph
- * Finds clusters in the incremental graph using HipMCL, in the process keeps a summary during the 5th HipMCL iteration, this summary is used in next incremental step
+ * Finds clusters in the incremental graph using HipMCL, in the process keeps a summary when nnz drops below a threshold, this summary is used in next incremental step
  * */
 
 #include <sys/time.h>
@@ -29,6 +29,7 @@ int cblas_splits = omp_get_max_threads();
 #else
 int cblas_splits = 1;
 #endif
+
 
 int main(int argc, char* argv[])
 {
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
         shared_ptr<CommGrid> fullWorld;
         fullWorld.reset( new CommGrid(MPI_COMM_WORLD, 0, 0) );
 
-        if(myrank == 0) printf("Running Incremental-V1\n");
+        if(myrank == 0) printf("Running Incremental-V2\n");
 
         typedef int64_t IT;
         typedef double NT;
@@ -157,12 +158,16 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M21(fullWorld);
         SpParMat<IT, NT, DER> M22(fullWorld);
 
-        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-v1");
+        std::string incFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-v2");
 
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
         FullyDistVec<IT, std::array<char, MAXVERTNAME>> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
-
-        incParam.summaryIter = 5; // Save summary after 5th iteration
+        
+        /*
+         * Specific to Incremental-V2
+         * */
+        incParam.summaryIter = 0;
+        incParam.summaryThresholdNNZ = 0.7;
         incParam.maxIter = 10000000; // Arbitrary large number as maximum number of iterations. Run as many iterations as needed to converge;
         
         /* Run clustering on first split*/
@@ -233,10 +238,10 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("[End] Subgraph extraction\n");
 
             /*
-             * Specific to the Variant-1
+             * Specific to the Incremental-V2
              * */
             if(myrank == 0) printf("[Start] Clustering new\n");
-            incParam.maxIter = 5;
+            incParam.maxIter = -1;
             FullyDistVec<IT, IT> newClustAsn = FullyDistVec<IT, IT>(fullWorld, newVertices.TotalLength(), 0); // Cluster assignment of each vertex 
             SpParMat<IT, NT, DER> MstarNew = SpParMat<IT, NT, DER>(fullWorld); // Summarized graph
             t0 = MPI_Wtime();
@@ -246,7 +251,7 @@ int main(int argc, char* argv[])
             incParam.maxIter = 1000000;
             if(myrank == 0) printf("[End] Clustering new\n");
             /*
-             * Specific to the Variant-1
+             * Specific to the Incremental-V2
              * */
 
             IT totVertices = prevVertices.TotalLength() + newVertices.TotalLength();

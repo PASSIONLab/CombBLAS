@@ -14,38 +14,29 @@
 
 export OMP_NUM_THREADS=16
 
-ALG=inc-v1
-MCL_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/mcl
-INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc-base
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc-opt
+M11FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m11.mtx
+M12FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m12.mtx
+M21FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m21.mtx
+M22FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m22.mtx
+MS11FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m11.mtx.summary
+L11FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m11.lbl
+L22FILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.m22.lbl
+MSOFILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.mtx.summary
+LOFILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.lbl
+COFILE=/global/cscratch1/sd/taufique/eukarya-90-10-split/Renamed_euk_vs_euk_30_50length.indexed.inc
+INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/inc
+srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -base 1 \
+    -M11 $M11FILE \
+    -M12 $M12FILE \
+    -M21 $M21FILE \
+    -M22 $M22FILE \
+    -summary-in $MS11FILE \
+    -L11 $L11FILE \
+    -L22 $L22FILE \
+    -label-out $LOFILE \
+    -summary-out $MSOFILE \
+    -cluster-out $COFILE $ \
+    -inc v2 \
+    -per-process-mem 20 &> debug.out.inc.euk.n16.s50
 
-#MFILE=/global/cscratch1/sd/taufique/virus-lcc/vir_vs_vir_30_50length_propermm.mtx.lcc
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus-lcc.n1.s20
-
-#MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
-#ALG=inc-v1
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#ALG=inc-base
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#ALG=inc-full
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $MCL_BIN -I 2 -M $MFILE --matrix-market -per-process-mem 20 -o $MFILE.hipmcl
-
-MFILE=/global/cscratch1/sd/taufique/eukarya/Renamed_euk_vs_euk_30_50length.indexed.mtx
-ALG=inc-v1
-INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
-#ALG=inc-base
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
-#ALG=inc-full
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
-
-#MFILE=/global/cscratch1/sd/taufique/email-Eu-core/email-Eu-core.mtx
-#srun -N 1 -n 1 -c 64 --ntasks-per-node=1 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20
+#srun -N 256 -n 1024 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n256.s50
