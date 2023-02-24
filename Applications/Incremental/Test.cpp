@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     {
         cout << "Process Grid (p x p x t): " << sqrt(nprocs) << " x " << sqrt(nprocs) << " x " << nthreads << endl;
     }
-    if(argc < 7)
+    if(argc < 5)
     {
         if(myrank == 0)
         {
@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
             cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
             cout << "-M <MATRIX FILE NAME>\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
-            cout << "-N <NUMBER OF SPLITS>\n";
         }
         MPI_Finalize();
         return -1;
@@ -77,11 +76,6 @@ int main(int argc, char* argv[])
             {
                 base = atoi(argv[i + 1]);
                 if(myrank == 0) printf("Base of MM (1 or 0):%d\n", base);
-            }
-            else if (strcmp(argv[i],"-N")==0)
-            {
-                nSplit = atoi(argv[i+1]);
-                if(myrank == 0) printf("Number of splits: %d\n", nSplit);
             }
             else if(strcmp(argv[i],"--per-process-mem")==0){
                 incParam.perProcessMem = atoi(argv[i+1]);

@@ -44,9 +44,8 @@ int main(int argc, char* argv[])
         {
             cout << "Usage: ./prep-data -I <mm|triples> -M <matrix> -old <0.9> -prefix <directory path + file prefix>\n";
             cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
-            cout << "-M <MATRIX FILE NAME>\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
-            //cout << "-N <NUMBER OF SPLITS>\n";
+            cout << "-M <MATRIX FILE NAME>\n";
             cout << "-old <PERCENTAGE OF OLD VERTICES>\n";
             cout << "-prefix <PREFIX OF FILES TO BE SAVED>\n";
         }
