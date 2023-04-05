@@ -1,10 +1,3 @@
-/*
- * Incremental-V1
- * ==============
- * Clusters new subgraph separately using HipMCL, in the process keeps a summary of the new subgraph during 5th HipMCL iteration
- * Assumes a summary is available of the previous subgraph, uses that summary to prepare incremental graph
- * Finds clusters in the incremental graph using HipMCL, in the process keeps a summary during the 5th HipMCL iteration, this summary is used in next incremental step
- * */
 
 #include <sys/time.h>
 #include <iostream>
@@ -172,6 +165,9 @@ int main(int argc, char* argv[])
             FullyDistVec<IT, IT> newVertices(*(dvList[s]));
             FullyDistVec<IT, LBL> newVerticesLabels(*(dvListLabels[s]));
 
+            for(int it=0; it<50 && s==2; it++){
+
+            if(myrank == 0) printf("It: %d\n", it);
             if(myrank == 0) printf("[Start] Subgraph extraction\n");
             if(s == 1){
                 M11.FreeMemory();
@@ -181,9 +177,9 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("Time to extract M11: %lf\n", t1 - t0);
                 M11.PrintInfo();
                 outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("mtx");
-                M11.ParallelWriteMM(outFileName, base);
+                //M11.ParallelWriteMM(outFileName, base);
                 outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("lbl");
-                prevVertices.ParallelWrite(outFileName, base);
+                //prevVertices.ParallelWrite(outFileName, base);
             }
 
             M12.FreeMemory();
@@ -193,7 +189,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
             M12.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
-            M12.ParallelWriteMM(outFileName, base);
+            //M12.ParallelWriteMM(outFileName, base);
 
             M21.FreeMemory();
             t0 = MPI_Wtime();
@@ -202,7 +198,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
             M21.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
-            M21.ParallelWriteMM(outFileName, base);
+            //M21.ParallelWriteMM(outFileName, base);
             
             M22.FreeMemory();
             t0 = MPI_Wtime();
@@ -211,11 +207,12 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
             M22.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
-            M22.ParallelWriteMM(outFileName, base);
+            //M22.ParallelWriteMM(outFileName, base);
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
-            newVertices.ParallelWrite(outFileName, base);
+            //newVertices.ParallelWrite(outFileName, base);
             if(myrank == 0) printf("[End] Subgraph extraction\n");
-
+            
+            }
             
             std::vector<FullyDistVec<IT, IT>> toConcatenate(2); 
             toConcatenate[0] = prevVertices;
