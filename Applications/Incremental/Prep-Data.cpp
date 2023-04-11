@@ -47,7 +47,9 @@ int main(int argc, char* argv[])
             cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
             cout << "-M <MATRIX FILE NAME>\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
-            cout << "-N <NUMBER OF SPLITS>\n";
+            cout << "-num-split <NUMBER OF SPLITS>\n";
+            cout << "-split-start <DUMP INCREMENTAL DATA FROM SPLIT#>\n";
+            cout << "-split-end <DUMP INCREMENTAL DATA FROM SPLIT#>\n";
         }
         MPI_Finalize();
         return -1;
@@ -58,9 +60,13 @@ int main(int argc, char* argv[])
         int base = 1;
         bool isMatrixMarket = true;
         string outPrefix = "";
+        int startSplit = 0;
+        int endSplit = nSplit;
 
         HipMCLParam incParam;
         InitParam(incParam);
+
+        string outFileName = "";
         
         for (int i = 1; i < argc; i++)
         {
@@ -79,10 +85,20 @@ int main(int argc, char* argv[])
                 base = atoi(argv[i + 1]);
                 if(myrank == 0) printf("Base of MM (1 or 0):%d\n", base);
             }
-            else if (strcmp(argv[i],"-N")==0)
+            else if (strcmp(argv[i],"-num-split")==0)
             {
                 nSplit = atoi(argv[i+1]);
                 if(myrank == 0) printf("Number of splits: %d\n", nSplit);
+            }
+            else if (strcmp(argv[i],"-split-start")==0)
+            {
+                startSplit = atoi(argv[i+1]);
+                if(myrank == 0) printf("Start split: %d\n", startSplit);
+            }
+            else if (strcmp(argv[i],"-split-end")==0)
+            {
+                endSplit = atoi(argv[i+1]);
+                if(myrank == 0) printf("End split: %d\n", endSplit);
             }
             else if (strcmp(argv[i],"-out-prefix")==0)
             {
@@ -153,8 +169,6 @@ int main(int argc, char* argv[])
         SpParMat<IT, NT, DER> M21(fullWorld);
         SpParMat<IT, NT, DER> M22(fullWorld);
 
-        std::string outFileName = Mname + std::string(".") + std::to_string(nSplit) + std::string(".inc-v1");
-
         FullyDistVec<IT, IT> prevVertices(*(dvList[0])); // Create a distributed vector to keep track of the vertices being considered at each incremental step
         FullyDistVec<IT, LBL> prevVerticesLabels(*(dvListLabels[0])); // Create a distributed vector to keep track of the vertex labels being considered at each incremental step
 
@@ -165,9 +179,9 @@ int main(int argc, char* argv[])
             FullyDistVec<IT, IT> newVertices(*(dvList[s]));
             FullyDistVec<IT, LBL> newVerticesLabels(*(dvListLabels[s]));
 
-            for(int it=0; it<50 && s==2; it++){
+            for(int it=0; it<1 && (s >= startSplit) && (s < endSplit); it++){
 
-            if(myrank == 0) printf("It: %d\n", it);
+            //if(myrank == 0) printf("It: %d\n", it);
             if(myrank == 0) printf("[Start] Subgraph extraction\n");
             if(s == 1){
                 M11.FreeMemory();
@@ -177,9 +191,9 @@ int main(int argc, char* argv[])
                 if(myrank == 0) printf("Time to extract M11: %lf\n", t1 - t0);
                 M11.PrintInfo();
                 outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("mtx");
-                //M11.ParallelWriteMM(outFileName, base);
+                M11.ParallelWriteMM(outFileName, base);
                 outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("lbl");
-                //prevVertices.ParallelWrite(outFileName, base);
+                prevVertices.ParallelWrite(outFileName, base);
             }
 
             M12.FreeMemory();
@@ -189,7 +203,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
             M12.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
-            //M12.ParallelWriteMM(outFileName, base);
+            M12.ParallelWriteMM(outFileName, base);
 
             M21.FreeMemory();
             t0 = MPI_Wtime();
@@ -198,7 +212,7 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
             M21.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
-            //M21.ParallelWriteMM(outFileName, base);
+            M21.ParallelWriteMM(outFileName, base);
             
             M22.FreeMemory();
             t0 = MPI_Wtime();
@@ -207,9 +221,9 @@ int main(int argc, char* argv[])
             if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
             M22.PrintInfo();
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
-            //M22.ParallelWriteMM(outFileName, base);
+            M22.ParallelWriteMM(outFileName, base);
             outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
-            //newVertices.ParallelWrite(outFileName, base);
+            newVertices.ParallelWrite(outFileName, base);
             if(myrank == 0) printf("[End] Subgraph extraction\n");
             
             }
