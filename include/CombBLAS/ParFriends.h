@@ -571,6 +571,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
 
+    stringstream strn;
+
     for(int p = 0; p< phases; ++p)
     {
         SpParHelper::GetSetSizes( PiecesOfB[p], BRecvSizes, (B.commGrid)->GetColWorld());
@@ -596,6 +598,19 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             t1 = MPI_Wtime();
             mcl_Abcasttime += (t1-t0);
+            int64_t nnz_local = ARecv->getnnz();
+            int64_t nnz_min;
+            int64_t nnz_max;
+            MPI_Allreduce(&nnz_local, &nnz_min, 1, MPI_LONG_LONG_INT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&nnz_local, &nnz_max, 1, MPI_LONG_LONG_INT, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", A_nnz_max: " << nnz_max << ", A_nnz_min: " << nnz_min << std::endl;;
+            double time_local = t1-t0;
+            double time_min;
+            double time_max;
+            MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", A_bcast_time_max: " << time_max << ", A_bcast_time_min: " << time_min << std::endl;;
+
 #endif
             ess.clear();
 
@@ -616,6 +631,14 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             double t3=MPI_Wtime();
             mcl_Bbcasttime += (t3-t2);
+            nnz_local = BRecv->getnnz();
+            MPI_Allreduce(&nnz_local, &nnz_min, 1, MPI_LONG_LONG_INT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&nnz_local, &nnz_max, 1, MPI_LONG_LONG_INT, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", B_nnz_max: " << nnz_max << ", B_nnz_min: " << nnz_min << std::endl;;
+            time_local = t3-t2;
+            MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", B_bcast_time_max: " << time_max << ", B_bcast_time_min: " << time_min << std::endl;;
 #endif
             
             
@@ -631,6 +654,15 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
+
+            nnz_local = C_cont->getnnz();
+            MPI_Allreduce(&nnz_local, &nnz_min, 1, MPI_LONG_LONG_INT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&nnz_local, &nnz_max, 1, MPI_LONG_LONG_INT, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", C_nnz_max: " << nnz_max << ", C_nnz_min: " << nnz_min << std::endl;;
+            time_local = t5-t4;
+            MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+            strn << "Phase: " << p << ", Stage: " << i << ", spgemm_time_max: " << time_max << ", spgemm_time_min: " << time_min << std::endl;;
 #endif
 
             if(!C_cont->isZero())
@@ -720,6 +752,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
         // ABAB: Change this to accept pointers to objects
         toconcatenate.push_back(OnePieceOfC_mat.seq());
     }
+    SpParHelper::Print(strn.str());
     
     UDERO * C = new UDERO(0,C_m, C_n,0);
     C->ColConcatenate(toconcatenate); // ABAB: Change this to accept a vector of pointers to pointers to DER objects
@@ -885,11 +918,13 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
         
         	*/
         
-        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
-                        (*ARecv, *BRecv, // parameters themselves
-                        i != Aself,    // 'delete A' condition
-                        i != Bself);   // 'delete B' condition
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                    (*ARecv, *BRecv, // parameters themselves
+                    false,    // 'delete A' condition
+                    false);   // 'delete B' condition
         
+        if(i != Bself && (!BRecv->isZero())) delete BRecv;
+        if(i != Aself && (!ARecv->isZero())) delete ARecv;
         
         
 		
@@ -952,10 +987,13 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
         
         	*/
         
-        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
-                	(*ARecv, *BRecv, // parameters themselves
-                 	i != Aself,    // 'delete A' condition
-                 	i != Bself);   // 'delete B' condition
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                (*ARecv, *BRecv, // parameters themselves
+                false,    // 'delete A' condition
+                false);   // 'delete B' condition
+
+        if(i != Bself && (!BRecv->isZero())) delete BRecv;
+        if(i != Aself && (!ARecv->isZero())) delete ARecv;
         
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
@@ -991,8 +1029,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		delete B2seq;
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
-			
-	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+
+    SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true); // Last parameter to delete input tuples
+    UDERO * C = new UDERO(*C_tuples, false); // Last parameter to prevent transpose
+    delete C_tuples;
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
@@ -1066,11 +1106,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-
+        
 		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
-						i != Aself, 	// 'delete A' condition
-						i != Bself);	// 'delete B' condition
+						false, 	// 'delete A' condition
+						false);	// 'delete B' condition
+
+        if(i != Bself && (!BRecv->isZero())) delete BRecv;
+        if(i != Aself && (!ARecv->isZero())) delete ARecv;
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -1096,9 +1139,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
-
-    SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,false);
-    UDERO * C = new UDERO(*C_tuples, false);
+    SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true); // Last parameter to delete input tuples
+    UDERO * C = new UDERO(*C_tuples, false); // Last parameter to prevent transpose
     delete C_tuples;
 
 	//if(!clearB)
@@ -1106,9 +1148,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
-    
-template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
-SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap 
+
+/*
+ * Experimental SUMMA implementation with communication and computation overlap.
+ * Not stable.
+ * */
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
+SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 {
     int myrank;
@@ -1118,15 +1164,15 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 		return SpParMat< IU,NUO,UDERO >();
 	}
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
-	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
-	
+
 	//const_cast< UDERB* >(B.spSeq)->Transpose(); // do not transpose for colum-by-column multiplication
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
-	
+
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 
@@ -3703,6 +3749,69 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
     SpParMat3D<IU, NUO, UDERO> C3D(localResultant, grid3d, A.isColSplit(), A.isSpecial());
     return C3D;
 }
+
+/**
+ * Prune all nz of A keeping only those having -
+ * either (a) value of isOld corresponding to the two endpoints of the nz is different ( Edge between old and new vertices)
+ * or (b) value is higher than the threshold (edge between old-old or new-new but edge weight is high)
+ * or (c) nz exists in M (edge exists in the Mask matrix)
+ **/  
+//template <typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename FLAGTYPE> 
+//SpParMat<IU, NUO, UDERO> SelectivePrune (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & M, FullyDistVec<IU,FLAGTYPE>& isOld, double threshold, bool inPlace ) {
+    /* 
+     * Parameter compatibility check
+     * */
+    //if((A.getncol() != M.getncol()) && (A.getnrow() != M.getnrow()) && (A.getnrow() != isOld.TotalLength()) ){
+        //std::ostringstream outs;
+        //outs << "Can not perform selective prune, dimensions does not match"<< std::endl;
+        //SpParHelper::Print(outs.str());
+        //MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    //}
+
+    //int nprocs, myrank, nthreads = 1;
+    //MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    //MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+//#ifdef THREADED
+//#pragma omp parallel
+    //{
+        //nthreads = omp_get_num_threads();
+    //}
+//#endif
+
+    /*
+     * Gather isOld vector along grid row and column
+     * */
+    //// MTH: Potential bug. count can technically be larger than int ( depending on IU type)
+    //// But later MPI call will need it as int
+    //int rankInRow = isOld.getcommgrid()->GetRankInProcRow();
+    //int rankInCol = isOld.getcommgrid()->GetRankInProcCol();
+    //int nGridRow = isOld.getcommgrid()->GetGridRow();
+    //int sendcnt = int(isOld.MyLocLength()); // Have to be int because the same number will be used as count in Allgatherv call
+    //std::vector<int> recvcnt(isOld.getcommgrid()->GetGridRow(), 0); // Can be reused later because of square process grid
+    //std::vector<int> rdispls(isOld.getcommgrid()->GetGridRow()+1, 0); // Can be reused later because of square process grid
+
+    //MPI_Allgather(&sendcnt, 1, MPI_INT, recvcnt.data(), 1, MPI_INT, isOld.getcommgrid()->GetRowWorld());
+    //rdispls[0] = 0; // First element 0 for prefix sum
+    //std::partial_sum(recvcnt.begin(), recvcnt.end(), rdispls.begin() + 1); // Prefix sum
+    //std::vector<FLAGTYPE> isOldRow(rdispls[rankInRow]);
+    //MPI_Allgatherv(isOld.GetLocArr(), sendcnt, MPI_INT, isOldRow.data(), recvcnt.data(), rdispls.data(), MPI_INT, isOld.getcommgrid()->GetRowWorld());
+
+    //// Do same thing along column
+    //MPI_Allgather(&sendcnt, 1, MPI_INT, recvcnt.data(), 1, MPI_INT, isOld.getcommgrid()->GetColWorld());
+    //rdispls[0] = 0; // First element 0 for prefix sum
+    //std::partial_sum(recvcnt.begin(), recvcnt.end(), rdispls.begin() + 1); // Prefix sum
+    //std::vector<FLAGTYPE> isOldCol(rdispls[rankInCol]);
+    //MPI_Allgatherv(isOld.GetLocArr(), sendcnt, MPI_INT, isOldCol.data(), recvcnt.data(), rdispls.data(), MPI_INT, isOld.getcommgrid()->GetColWorld());
+
+    //if(inPlace){
+        //A.seqptr()->SelectivePrune(M.seqptr(), isOldRow, isOldCol, threshold, inPlace); 
+        //return SpParMat<IU, NUO, UDERO>(MPI_COMM_WORLD); // Return empty SpParMat to match function signature
+    //}
+    //else{
+        //return SpParMat<IU, NUO, UDERO>(A.seqptr()->SelectivePrune(M.seqptr(), isOldRow, isOldCol, threshold, inPlace), A.getcommgrid());
+    //}
+    //return PrunedA;
+//}
 
 
 }
