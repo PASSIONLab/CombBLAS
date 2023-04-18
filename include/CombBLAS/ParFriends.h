@@ -647,8 +647,13 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             double t4=MPI_Wtime();
 #endif
             SpTuples<LIC,NUO> * C_cont;
-            if(computationKernel == 1) C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself, false); // Hash SpGEMM without per-column sorting
-            else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            //if(computationKernel == 1) C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself, false); // Hash SpGEMM without per-column sorting
+            //else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
+            if(computationKernel == 1) C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv, false, false, false); // Hash SpGEMM without per-column sorting
+            else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv, false, false);
+
+            if(i != Bself && (!BRecv->isZero())) delete BRecv;
+            if(i != Aself && (!ARecv->isZero())) delete ARecv;
 
 #ifdef TIMING
             MPI_Barrier(A.getcommgrid()->GetWorld());
@@ -3506,20 +3511,37 @@ SpParMat3D<IU, NUO, UDERO> MemEfficientSpGEMM3D(SpParMat3D<IU, NU1, UDERA> & A, 
             t2 = MPI_Wtime();
 #endif
             SpTuples<LIC,NUO> * C_cont;
+            //if(computationKernel == 1){
+                //C_cont = LocalSpGEMMHash<SR, NUO>
+                                    //(*ARecv, *BRecv,    // parameters themselves
+                                    //i != Aself,         // 'delete A' condition
+                                    //i != Bself,         // 'delete B' condition
+                                    //false);             // not to sort each column
+            //}
+            //else if(computationKernel == 2){
+                //C_cont = LocalSpGEMM<SR, NUO>
+                                    //(*ARecv, *BRecv,    // parameters themselves
+                                    //i != Aself,         // 'delete A' condition
+                                    //i != Bself);        // 'delete B' condition
+            
+            //}
+            
             if(computationKernel == 1){
                 C_cont = LocalSpGEMMHash<SR, NUO>
                                     (*ARecv, *BRecv,    // parameters themselves
-                                    i != Aself,         // 'delete A' condition
-                                    i != Bself,         // 'delete B' condition
+                                    false,         // 'delete A' condition
+                                    false,         // 'delete B' condition
                                     false);             // not to sort each column
             }
             else if(computationKernel == 2){
                 C_cont = LocalSpGEMM<SR, NUO>
                                     (*ARecv, *BRecv,    // parameters themselves
-                                    i != Aself,         // 'delete A' condition
-                                    i != Bself);        // 'delete B' condition
+                                    false,         // 'delete A' condition
+                                    false);        // 'delete B' condition
             
             }
+            if(i != Bself && (!BRecv->isZero())) delete BRecv;
+            if(i != Aself && (!ARecv->isZero())) delete ARecv;
             
 #ifdef TIMING
             t3 = MPI_Wtime();
