@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(CombBLAS VERSION 1.16.0 LANGUAGES C CXX)
+project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX)
 
 # require c++14
 set(CMAKE_CXX_STANDARD 14)
