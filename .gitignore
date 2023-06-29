@@ -23,3 +23,5 @@ SpGEMM3D
 mcl3d
 _build
 _install
+.clangd
+.cache
