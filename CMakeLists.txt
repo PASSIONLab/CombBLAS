@@ -22,9 +22,11 @@ target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOU
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(CombBLAS PRIVATE include/CombBLAS)
 
-# MPI and OpenMP dependencies
+# MPI and OpenMP and CUDA dependencies
 find_package(MPI REQUIRED)
 find_package(OpenMP)
+# This needs to be split based on if CMake >= 3.17, as this is deprecated above that
+find_package(CUDA)
 
 if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -41,6 +43,18 @@ elseif(OPENMP_FOUND)
   target_compile_definitions(CombBLAS PUBLIC THREADED)
   target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
   target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
+endif()
+
+if(CUDA_FOUND)
+  target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
+  enable_language(CUDA)
+  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--expt-relaxed-constexpr")
+  # Hack to avoid using #include
+  target_link_libraries(CombBLAS PRIVATE ${CUDA_LIBRARIES})
+  cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
+  target_sources(CombBLAS PRIVATE ${CUDASpGEMM})
+else()
+  message(STATUS "CUDA features disabled")
 endif()
 
 add_subdirectory(usort)

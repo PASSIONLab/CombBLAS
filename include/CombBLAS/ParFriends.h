@@ -44,6 +44,10 @@
 #include <unistd.h>
 #include <type_traits>
 
+
+
+
+
 namespace combblas {
 
 template <class IT, class NT, class DER>
@@ -973,6 +977,226 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	else
 	{
 		(A.spSeq)->Merge(*A1seq, *A2seq);
+		delete A1seq;
+		delete A2seq;
+	}
+	if(clearB) 
+	{
+		delete B2seq;
+		delete B.spSeq;
+		B.spSeq = NULL;	
+	}
+	else
+	{
+		B1seq->Transpose();
+		B2seq->Transpose();
+		(B.spSeq)->Merge(*B1seq, *B2seq);	
+		delete B1seq;
+		delete B2seq;
+		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	}
+			
+	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
+}
+
+/**
+ * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but 
+ * this time with CUDA
+ * @pre { Input matrices, A and B, should not alias }
+ * Most memory efficient version available. Total stages: 2*sqrt(p)
+ * Memory requirement during first sqrt(p) stages: <= (3/2)*(nnz(A)+nnz(B))+(1/2)*nnz(C)
+ * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
+ * Final memory requirement: nnz(C) if clearA and clearB are true 
+ **/  
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
+		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
+
+{
+	if(!CheckSpGEMMCompliance(A,B))
+	{
+		return SpParMat< IU,NUO,UDERO >();
+	}
+	typedef typename UDERA::LocalIT LIA;
+    	typedef typename UDERB::LocalIT LIB;
+	typedef typename UDERO::LocalIT LIC;
+
+	static_assert(std::is_same<LIA, LIB>::value, "local index types for both input matrices should be the same");
+    	static_assert(std::is_same<LIA, LIC>::value, "local index types for input and output matrices should be the same");
+
+	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
+	LIA C_m = A.spSeq->getnrow();
+	LIB C_n = B.spSeq->getncol();
+    
+	UDERA * A1seq = new UDERA();
+	UDERA * A2seq = new UDERA(); 
+	UDERB * B1seq = new UDERB();
+	UDERB * B2seq = new UDERB();
+    
+	(A.spSeq)->Split( *A1seq, *A2seq); 
+	const_cast< UDERB* >(B.spSeq)->Transpose();
+	(B.spSeq)->Split( *B1seq, *B2seq);
+    //A1seq->Transpose();
+    //A2seq->Transpose();
+    
+    	// Transpose back for the column-by-column algorithm
+    	const_cast< UDERB* >(B1seq)->Transpose();
+    	const_cast< UDERB* >(B2seq)->Transpose();
+        //const_cast< UDERB* >(A1seq)->Transpose();
+    	//const_cast< UDERB* >(A2seq)->Transpose();
+    
+	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
+	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
+
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();
+	SpParHelper::GetSetSizes( *A1seq, ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *B1seq, BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	UDERA * ARecv; 
+	UDERB * BRecv;
+	std::vector< SpTuples<LIC,NUO>  *> tomerge;
+
+	
+
+	for(int i = 0; i < stages; ++i) 
+	{
+		std::vector<LIA> ess;	
+		if(i == Aself)
+		{	
+			ARecv = A1seq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();				// first, create the object
+		}
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		ess.clear();	
+		if(i == Bself)
+		{
+			BRecv = B1seq;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+		
+		// before activating this remove transposing B1seq
+        	/*
+		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+						(*ARecv, *BRecv, // parameters themselves
+						false, true,	// transpose information (B is transposed)
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
+                        (*ARecv, *BRecv, // parameters themselves
+                        i != Aself,    // 'delete A' condition
+                        i != Bself);   // 'delete B' condition
+        
+        
+        
+		
+		if(!C_cont->isZero())
+			tomerge.push_back(C_cont);
+		else
+			delete C_cont;
+	}
+	if(clearA) delete A1seq;
+	if(clearB) delete B1seq;
+	
+    //const_cast< UDERB* >(A2seq)->Transpose();
+	// Set the new dimensions
+	SpParHelper::GetSetSizes( *A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Start the second round
+	for(int i = 0; i < stages; ++i) 
+	{
+		std::vector<LIA> ess;	
+		if(i == Aself)
+		{	
+			ARecv = A2seq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();				// first, create the object
+		}
+
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		ess.clear();	
+		
+		if(i == Bself)
+		{
+			BRecv = B2seq;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+
+        	// before activating this remove transposing B2seq
+        	/*
+		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+						(*ARecv, *BRecv, // parameters themselves
+						false, true,	// transpose information (B is transposed)
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+		
+        
+        	*/
+        
+        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
+                	(*ARecv, *BRecv, // parameters themselves
+                 	i != Aself,    // 'delete A' condition
+                 	i != Bself);   // 'delete B' condition
+        
+		if(!C_cont->isZero())
+			tomerge.push_back(C_cont);
+		else
+			delete C_cont;
+	}
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+	if(clearA) 
+	{
+		delete A2seq;
+		delete A.spSeq;
+		A.spSeq = NULL;
+	}
+	else
+	{
+        //A1seq->Transpose();
+		//A2seq->Transpose();
+		(A.spSeq)->Merge(*A1seq, *A2seq);
+        //A.Transpose();
 		delete A1seq;
 		delete A2seq;
 	}
