@@ -4,10 +4,8 @@
 #include <thrust/device_vector.h>
 #include <cuda_runtime.h>
 
-int five;
-
 template <typename NTO, typename IT, typename NT1, typename NT2>
-__global__ void transformColumn_d(IT A_nzc, size_t i, size_t nnzcolB, IT curptr, IT* A_Tran_CP,
+__global__ void transformColumn_d(IT A_nzc, size_t i, size_t nnzcolB, uint* curptr, IT* A_Tran_CP,
     IT* A_Tran_IR,
     IT* A_Tran_JC,
     NT1* A_Tran_numx,
@@ -20,6 +18,7 @@ __global__ void transformColumn_d(IT A_nzc, size_t i, size_t nnzcolB, IT curptr,
                 bool made = false;
                 size_t r = A_Tran_CP[j];
                 for (size_t k = 0; k < nnzcolB; ++k) {
+                    uint ptr = *curptr;
                     while (r < A_Tran_CP[j + 1] && B_IR[B_CP[i]+k] > A_Tran_IR[r]) { 
                         r++;
                     }
@@ -30,12 +29,14 @@ __global__ void transformColumn_d(IT A_nzc, size_t i, size_t nnzcolB, IT curptr,
                         NTO mrhs = A_Tran_numx[r] * B_numx[B_CP[i]+k];
                         if(true) {
                             if (made) {
-                                std::get<2>(tuplesC[curptr + j]) = std::get<2>(tuplesC[curptr + j]) + mrhs;
+                                std::get<2>(tuplesC[ptr]) = std::get<2>(tuplesC[ptr]) + mrhs;
                             } else {
                                 made = true;
-                                std::get<0>(tuplesC[curptr + j]) = A_Tran_JC[j];
-                                std::get<1>(tuplesC[curptr + j]) = B_JC[i];
-                                std::get<2>(tuplesC[curptr + j]) = mrhs;
+                                ptr = atomicAdd(curptr, 1u);
+                                __syncthreads();
+                                std::get<0>(tuplesC[ptr]) = A_Tran_JC[j];
+                                std::get<1>(tuplesC[ptr]) = B_JC[i];
+                                std::get<2>(tuplesC[ptr]) = mrhs;
                             }
                         }
                     }
@@ -43,7 +44,7 @@ __global__ void transformColumn_d(IT A_nzc, size_t i, size_t nnzcolB, IT curptr,
             }
 }
 template < typename NTO, typename IT, typename NT1, typename NT2>
-void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, IT curptr, IT* A_Tran_CP,
+void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, uint* curptr, IT* A_Tran_CP,
     IT* A_Tran_IR,
     IT* A_Tran_JC,
     NT1* A_Tran_numx,
@@ -57,7 +58,7 @@ void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, IT curptr, IT* A_Tran_C
 }
 
 template void transformColumn< double, int64_t, double, double>(
-    int64_t A_nzc, size_t i, size_t nnzcolB, int64_t curptr, int64_t* A_Tran_CP,
+    int64_t A_nzc, size_t i, size_t nnzcolB, uint* curptr, int64_t* A_Tran_CP,
     int64_t* A_Tran_IR,
     int64_t* A_Tran_JC,
     double* A_Tran_numx,

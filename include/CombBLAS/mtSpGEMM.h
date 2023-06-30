@@ -557,6 +557,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     IT* B_JC;
     NT2* B_numx;
     std::tuple<IT,IT,NTO> * tuplesC_d;
+    uint* curptr_d;
+    cudaMalloc((void**) &curptr_d, sizeof(uint));
     cudaMalloc((void**) &tuplesC_d, (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
     cudaMalloc((void**) &A_Tran_CP, sizeof(IT[Adcsc_Tran->nzc + 1]));
     cudaMalloc((void**) &A_Tran_IR, sizeof(IT[Adcsc_Tran->nz]));
@@ -574,6 +576,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     cudaMemcpy(B_IR, Bdcsc->ir, sizeof(IT[Bdcsc->nz]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_JC, Bdcsc->jc, sizeof(IT[Bdcsc->nzc]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_numx, Bdcsc->numx, sizeof(NT1[Bdcsc->nz]), cudaMemcpyHostToDevice);
+    
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -606,7 +609,10 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
         //    IT hsize = 0;
         
-            IT curptr = colptrC[i];
+            uint* curptr = new uint; 
+            *curptr = (uint) colptrC[i];
+            cudaMemcpy(curptr_d, curptr, sizeof(uint), cudaMemcpyHostToDevice);
+            delete curptr;
             /*for(size_t j = 0; j < Adcsc_Tran->nzc; ++j) {
                 bool made = false;
                 size_t r = Adcsc_Tran->cp[j];
@@ -633,7 +639,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                     }
                 }
             }*/
-            transformColumn(Adcsc_Tran->nzc, i, nnzcolB, curptr, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d);
+            transformColumn(Adcsc_Tran->nzc, i, nnzcolB, curptr_d, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d);
             cudaDeviceSynchronize();
             // This is a semi-inefficient sparse multiply, need working on a way to avoid the transpose of A would be best
             // nzc(A^T) == nzr(A)
@@ -768,7 +774,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     	delete [] aux;
     
     cudaMemcpy(tuplesC, tuplesC_d, (sizeof(std::tuple<IT,IT,NTO>[nnzc])), cudaMemcpyDeviceToHost);
-    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, true, true);
+    SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, false, true);
 
 
     // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;

@@ -3,7 +3,7 @@
 
 #include <tuple>
     template < typename NTO, typename IT, typename NT1, typename NT2>
-void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, IT curptr, IT* A_Tran_CP,
+void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, uint* curptr, IT* A_Tran_CP,
     IT* A_Tran_IR,
     IT* A_Tran_JC,
     NT1* A_Tran_numx,
