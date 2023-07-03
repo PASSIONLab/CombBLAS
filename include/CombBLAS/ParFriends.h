@@ -1014,7 +1014,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 
 {
-	if(!CheckSpGEMMCompliance(A,B))
+	if(!CheckSpGEMMCompliance(A,B) )
 	{
 		return SpParMat< IU,NUO,UDERO >();
 	}
@@ -1034,24 +1034,17 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERA * A2seq = new UDERA(); 
 	UDERB * B1seq = new UDERB();
 	UDERB * B2seq = new UDERB();
-    
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
-    //A1seq->Transpose();
-    //A2seq->Transpose();
     
     	// Transpose back for the column-by-column algorithm
     	const_cast< UDERB* >(B1seq)->Transpose();
     	const_cast< UDERB* >(B2seq)->Transpose();
-        //const_cast< UDERB* >(A1seq)->Transpose();
-    	//const_cast< UDERB* >(A2seq)->Transpose();
     
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
 
-	int Aself = (A.commGrid)->GetRankInProcRow();
-	int Bself = (B.commGrid)->GetRankInProcCol();
 	SpParHelper::GetSetSizes( *A1seq, ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *B1seq, BRecvSizes, (B.commGrid)->GetColWorld());
 
@@ -1060,7 +1053,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERB * BRecv;
 	std::vector< SpTuples<LIC,NUO>  *> tomerge;
 
-	
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
 
 	for(int i = 0; i < stages; ++i) 
 	{
@@ -1121,7 +1115,6 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	if(clearA) delete A1seq;
 	if(clearB) delete B1seq;
 	
-    //const_cast< UDERB* >(A2seq)->Transpose();
 	// Set the new dimensions
 	SpParHelper::GetSetSizes( *A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
@@ -1193,10 +1186,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 	else
 	{
-        //A1seq->Transpose();
-		//A2seq->Transpose();
 		(A.spSeq)->Merge(*A1seq, *A2seq);
-        //A.Transpose();
 		delete A1seq;
 		delete A2seq;
 	}
@@ -1217,7 +1207,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 			
 	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
-	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
+	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object	// return the result object
 }
 
 /**

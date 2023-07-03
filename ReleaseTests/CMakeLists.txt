@@ -22,10 +22,9 @@ ADD_EXECUTABLE( KTipsTest KTipsTest.cpp )
 
 TARGET_LINK_LIBRARIES( MultTiming CombBLAS)
 TARGET_LINK_LIBRARIES( MultTest CombBLAS)
-  # Hack to avoid using #include
-  cuda_add_library(CUDASpGEMM ../include/CombBLAS/cudaSpGEMM.cu)
 
-TARGET_LINK_LIBRARIES( MultTimingCUDA CombBLAS CUDASpGEMM)
+
+TARGET_LINK_LIBRARIES( MultTimingCUDA CombBLAS )
 TARGET_LINK_LIBRARIES( ReduceTest CombBLAS)
 TARGET_LINK_LIBRARIES( TransposeTest CombBLAS)
 TARGET_LINK_LIBRARIES( IteratorTest CombBLAS)

@@ -547,7 +547,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
 
     SpDCCols<IT, NT1> A_Tran = A.TransposeConst();
-    Dcsc<IT,NT1>* Adcsc_Tran = A.GetDCSC();
+    Dcsc<IT,NT1>* Adcsc_Tran = A_Tran.GetDCSC();
     IT* A_Tran_CP;
     IT* A_Tran_IR;
     IT* A_Tran_JC;
@@ -576,7 +576,6 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     cudaMemcpy(B_IR, Bdcsc->ir, sizeof(IT[Bdcsc->nz]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_JC, Bdcsc->jc, sizeof(IT[Bdcsc->nzc]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_numx, Bdcsc->numx, sizeof(NT1[Bdcsc->nz]), cudaMemcpyHostToDevice);
-    
 #ifdef THREADED
 #pragma omp parallel for
 #endif
@@ -608,9 +607,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             //HeapEntry<IT, NT1> * wset = globalHeapVecAll[myThread].data();
 
         //    IT hsize = 0;
-        
-            uint* curptr = new uint; 
-            *curptr = (uint) colptrC[i];
+            uint* curptr = new uint;
+            *curptr = colptrC[i];
             cudaMemcpy(curptr_d, curptr, sizeof(uint), cudaMemcpyHostToDevice);
             delete curptr;
             /*for(size_t j = 0; j < Adcsc_Tran->nzc; ++j) {
@@ -627,20 +625,21 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                         NTO mrhs = Adcsc_Tran->numx[r] * Bdcsc->numx[Bdcsc->cp[i]+k];
                         if(true) {
                             if (made) {
-                                std::get<2>(tuplesC[curptr - 1]) = std::get<2>(tuplesC[curptr - 1]) + mrhs;
+                                std::get<2>(tuplesC[curptr + j]) = std::get<2>(tuplesC[curptr + j]) + mrhs;
                             } else {
                                 made = true;
                                 //tuplesC[curptr++] = std::make_tuple(Adcsc_Tran->jc[j], Bdcsc->jc[i], mrhs);
-                                std::get<0>(tuplesC[curptr]) = Adcsc_Tran->jc[j];
-                                std::get<1>(tuplesC[curptr]) = Bdcsc->jc[i];
-                                std::get<2>(tuplesC[curptr++]) = mrhs;
+                                std::get<0>(tuplesC[curptr + j]) = Adcsc_Tran->jc[j];
+                                std::get<1>(tuplesC[curptr + j]) = Bdcsc->jc[i];
+                                std::get<2>(tuplesC[curptr + j]) = mrhs;
                             }
                         }
                     }
                 }
             }*/
-            transformColumn(Adcsc_Tran->nzc, i, nnzcolB, curptr_d, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d);
+            transformColumn(Adcsc_Tran->nzc, i, nnzcolB, curptr, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d);
             cudaDeviceSynchronize();
+            
             // This is a semi-inefficient sparse multiply, need working on a way to avoid the transpose of A would be best
             // nzc(A^T) == nzr(A)
             
@@ -779,7 +778,6 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
     // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
     // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
-
     return spTuplesC;
 }
 #endif
