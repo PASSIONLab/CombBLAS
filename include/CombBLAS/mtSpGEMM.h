@@ -9,6 +9,16 @@
 #include <cuda_runtime_api.h>
 #include "cudaSpGEMM.h"
 #endif
+
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
 namespace combblas {
 /*
  Multithreaded prefix sum
@@ -491,7 +501,6 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     IT nA = A.getncol();
     float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc->nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
-    //IT * aux;
     bool deleteAux = false;
     if(aux==nullptr)
     {
@@ -506,13 +515,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
         numThreads = omp_get_num_threads();
     }
 #endif
-   
-    // std::cout << "numThreads: " << numThreads << std::endl;
 
     IT* flopC =  estimateFLOP(A, B, aux);
-    //IT* flopptr = prefixsum<IT>(flopC, Bdcsc->nzc, numThreads);
-    //IT flop = flopptr[Bdcsc->nzc];
-    // std::cout << "FLOP of A * B is " << flop << std::endl;
 
 
     IT* colnnzC = estimateNNZ_Hash(A, B, flopC, aux);
@@ -522,27 +526,14 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     delete [] colnnzC;
     delete [] flopC;
     IT nnzc = colptrC[Bdcsc->nzc];
-    //double compression_ratio = (double)flop / nnzc;
-
-
-    // std::cout << "NNZ of A * B is " << nnzc << std::endl;
-    // std::cout << "Compression ratio is " << compression_ratio << std::endl;
 
     
    std::tuple<IT,IT,NTO> * tuplesC = static_cast<std::tuple<IT,IT,NTO> *> (::operator new (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
        
-    // thread private space for heap and colinds
     std::vector<std::vector< std::pair<IT,IT>>> colindsVec(numThreads);
    
      std::vector<std::vector< std::pair<IT,NTO>>> globalHashVecAll(numThreads); 
      std::vector<std::vector< HeapEntry<IT,NT1>>> globalHeapVecAll(numThreads);
-    /*
-    for(int i=0; i<numThreads; i++) //inital allocation per thread, may be an overestimate, but does not require more memoty than inputs
-    {
-        colindsVec[i].resize(nnzA/numThreads);
-    }*/
-
-    // IT hashSelected = 0;
 
 
 
@@ -557,9 +548,19 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     IT* B_JC;
     NT2* B_numx;
     std::tuple<IT,IT,NTO> * tuplesC_d;
+    IT * tuplesC_d_o;
+    IT * tuplesC_d_t;
+    NTO * tuplesC_d_th;
+    uint * colptr_size_d;
     uint* curptr_d;
+    IT * colptrC_d;
     cudaMalloc((void**) &curptr_d, sizeof(uint));
+    cudaMalloc((void**) &tuplesC_d_o, (sizeof(IT[nnzc])));
+    cudaMalloc((void**) &tuplesC_d_t, (sizeof(IT[nnzc])));
+    cudaMalloc((void**) &tuplesC_d_th, (sizeof(NTO[nnzc])));
     cudaMalloc((void**) &tuplesC_d, (sizeof(std::tuple<IT,IT,NTO>[nnzc])));
+    cudaMalloc((void**) &colptr_size_d, (sizeof(uint[Bdcsc->nzc])));
+    cudaMemset(colptr_size_d, 0, sizeof(uint[Bdcsc->nzc]));
     cudaMalloc((void**) &A_Tran_CP, sizeof(IT[Adcsc_Tran->nzc + 1]));
     cudaMalloc((void**) &A_Tran_IR, sizeof(IT[Adcsc_Tran->nz]));
     cudaMalloc((void**) &A_Tran_JC, sizeof(IT[Adcsc_Tran->nzc]));
@@ -568,6 +569,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     cudaMalloc((void**) &B_IR, sizeof(IT[Bdcsc->nz]));
     cudaMalloc((void**) &B_JC, sizeof(IT[Bdcsc->nzc]));
     cudaMalloc((void**) &B_numx, sizeof(NT2[Bdcsc->nz]));
+    cudaMalloc((void**) &colptrC_d, sizeof(IT[Bdcsc->nzc]));
+    cudaMemcpy(colptrC_d, colptrC, sizeof(IT[Bdcsc->nzc]), cudaMemcpyHostToDevice);
     cudaMemcpy(A_Tran_CP, Adcsc_Tran->cp, sizeof(IT[Adcsc_Tran->nzc + 1]), cudaMemcpyHostToDevice);
     cudaMemcpy(A_Tran_IR, Adcsc_Tran->ir, sizeof(IT[Adcsc_Tran->nz]), cudaMemcpyHostToDevice);
     cudaMemcpy(A_Tran_JC, Adcsc_Tran->jc, sizeof(IT[Adcsc_Tran->nzc]), cudaMemcpyHostToDevice);
@@ -576,7 +579,7 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
     cudaMemcpy(B_IR, Bdcsc->ir, sizeof(IT[Bdcsc->nz]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_JC, Bdcsc->jc, sizeof(IT[Bdcsc->nzc]), cudaMemcpyHostToDevice);
     cudaMemcpy(B_numx, Bdcsc->numx, sizeof(NT1[Bdcsc->nz]), cudaMemcpyHostToDevice);
-#ifdef THREADED
+/*#ifdef THREADED
 #pragma omp parallel for
 #endif
     for(size_t i=0; i < Bdcsc->nzc; ++i)
@@ -587,30 +590,11 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 #ifdef THREADED
         myThread = omp_get_thread_num();
 #endif
-        //if(colindsVec[myThread].size() < nnzcolB) //resize thread private vectors if needed
-        //{
-        //    colindsVec[myThread].resize(nnzcolB);
-        //}
-         
-        // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-        // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
-        //Adcsc->FillColInds(Bdcsc->ir + Bdcsc->cp[i], nnzcolB, colindsVec[myThread], aux, csize);
-        //std::pair<IT,IT> * colinds = colindsVec[myThread].data();
-
-        //double cr = static_cast<double>(flopptr[i+1] - flopptr[i]) / (colptrC[i+1] - colptrC[i]);
-        //if (cr < 2.0) // Heap Algorithm
-        //{
-	    //if(globalHeapVecAll[myThread].size() < nnzcolB)
-	    //	globalHeapVecAll[myThread].resize(nnzcolB);	    
-            //std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
-            //HeapEntry<IT, NT1> * wset = globalheapVec.data();
-            //HeapEntry<IT, NT1> * wset = globalHeapVecAll[myThread].data();
-
-        //    IT hsize = 0;
             uint* curptr = new uint;
             *curptr = colptrC[i];
             cudaMemcpy(curptr_d, curptr, sizeof(uint), cudaMemcpyHostToDevice);
             delete curptr;
+            //uint curptr = colptrC[i];
             /*for(size_t j = 0; j < Adcsc_Tran->nzc; ++j) {
                 bool made = false;
                 size_t r = Adcsc_Tran->cp[j];
@@ -625,157 +609,66 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
                         NTO mrhs = Adcsc_Tran->numx[r] * Bdcsc->numx[Bdcsc->cp[i]+k];
                         if(true) {
                             if (made) {
-                                std::get<2>(tuplesC[curptr + j]) = std::get<2>(tuplesC[curptr + j]) + mrhs;
+                                std::get<2>(tuplesC[curptr - 1]) = std::get<2>(tuplesC[curptr - 1]) + mrhs;
                             } else {
                                 made = true;
                                 //tuplesC[curptr++] = std::make_tuple(Adcsc_Tran->jc[j], Bdcsc->jc[i], mrhs);
-                                std::get<0>(tuplesC[curptr + j]) = Adcsc_Tran->jc[j];
-                                std::get<1>(tuplesC[curptr + j]) = Bdcsc->jc[i];
-                                std::get<2>(tuplesC[curptr + j]) = mrhs;
+                                std::get<0>(tuplesC[curptr]) = Adcsc_Tran->jc[j];
+                                std::get<1>(tuplesC[curptr]) = Bdcsc->jc[i];
+                                std::get<2>(tuplesC[curptr++]) = mrhs;
                             }
                         }
                     }
                 }
-            }*/
-            transformColumn(Adcsc_Tran->nzc, i, nnzcolB, curptr, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d);
-            cudaDeviceSynchronize();
-            
-            // This is a semi-inefficient sparse multiply, need working on a way to avoid the transpose of A would be best
-            // nzc(A^T) == nzr(A)
-            
-           /** for(size_t j = 0; j < nnzcolB; ++j)		// create the initial heap
-            {
-                if(colinds[j].first != colinds[j].second)	// current != end
-                {
-                    wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc->ir[colinds[j].first], j, Adcsc->numx[colinds[j].first]);
-                }
             }
-            std::make_heap(wset, wset+hsize);
-            while(hsize > 0)
-            {
-                std::pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
-                IT locb = wset[hsize-1].runr;	// relative location of the nonzero in B's current column
-            
-                NTO mrhs = SR::multiply(wset[hsize-1].num, Bdcsc->numx[Bdcsc->cp[i]+locb]);
-                if (!SR::returnedSAID())
-                {
-                    if( (curptr > colptrC[i]) && std::get<0>(tuplesC[curptr-1]) == wset[hsize-1].key)
-                    {
-                        std::get<2>(tuplesC[curptr-1]) = SR::add(std::get<2>(tuplesC[curptr-1]), mrhs);
-                    }
-                    else
-                    {
-                        tuplesC[curptr++]= std::make_tuple(wset[hsize-1].key, Bdcsc->jc[i], mrhs) ;
-                    }
-                }
-                if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
-                {
-                    // runr stays the same !
-                    wset[hsize-1].key = Adcsc->ir[colinds[locb].first];
-                    wset[hsize-1].num = Adcsc->numx[colinds[locb].first];
-                    std::push_heap(wset, wset+hsize);
-                }
-                else
-                {
-                    --hsize;
-                }
-            }**/
-        //} // Finish Heap
-        
-        /**else // Hash Algorithm
-        {
-	// #pragma omp atomic
-	// 	hashSelected++;
-            const IT minHashTableSize = 16;
-            const IT hashScale = 107;
-            size_t nnzcolC = colptrC[i+1] - colptrC[i]; //nnz in the current column of C (=Output)
-
-            size_t ht_size = minHashTableSize;
-            while(ht_size < nnzcolC) //ht_size is set as 2^n
-            {
-                ht_size <<= 1;
-            }
-            
-	    
-	    if(globalHashVecAll[myThread].size() < ht_size)
-                globalHashVecAll[myThread].resize(ht_size);
-            //std::vector<HeapEntry<IT,NT1>> globalheapVec(nnzcolB);
-            //HeapEntry<IT, NT1> * wset = globalheapVec.data();
-            //HeapEntry<IT, NT1> * wset = globalheapVecAll[myThread].data();
-
-	    //std::vector< std::pair<IT,NTO>> globalHashVec(ht_size);
-	    std::pair<IT,NTO>* globalHashVec =  globalHashVecAll[myThread].data();
-            // colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-            // colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
-            
-            // Initialize hash tables
-            for(size_t j=0; j < ht_size; ++j)
-            {
-                globalHashVec[j].first = -1;
-            }
-            
-            // Multiply and add on Hash table
-            for (size_t j=0; j < nnzcolB; ++j)
-            {
-                IT t_bcol = Bdcsc->ir[Bdcsc->cp[i] + j];
-                NT2 t_bval = Bdcsc->numx[Bdcsc->cp[i] + j];
-                for (IT k = colinds[j].first; k < colinds[j].second; ++k)
-                {
-                    NTO mrhs = SR::multiply(Adcsc->numx[k], t_bval);
-                    IT key = Adcsc->ir[k];
-                    IT hash = (key*hashScale) & (ht_size-1);
-                    while (1) //hash probing
-                    {
-                        if (globalHashVec[hash].first == key) //key is found in hash table
-                        {
-                            globalHashVec[hash].second = SR::add(mrhs, globalHashVec[hash].second);
-                            break;
-                        }
-                        else if (globalHashVec[hash].first == -1) //key is not registered yet
-                        {
-                            globalHashVec[hash].first = key;
-                            globalHashVec[hash].second = mrhs;
-                            break;
-                        }
-                        else //key is not found
-                        {
-                            hash = (hash+1) & (ht_size-1);
-                        }
-                    }
-                }
-            }
-            // gather non-zero elements from hash table, and then sort them by row indices
-            size_t index = 0;
-            for (size_t j=0; j < ht_size; ++j)
-            {
-                if (globalHashVec[j].first != -1)
-                {
-                    globalHashVec[index++] = globalHashVec[j];
-                }
-            }
-            //std::sort(globalHashVec.begin(), globalHashVec.begin() + index, sort_less<IT, NTO>);
-	    std::sort(globalHashVecAll[myThread].begin(), globalHashVecAll[myThread].begin() + index, sort_less<IT, NTO>);
-            IT curptr = colptrC[i];
-            for (size_t j=0; j < index; ++j)
-            {
-                tuplesC[curptr++]= std::make_tuple(globalHashVec[j].first, Bdcsc->jc[i], globalHashVec[j].second);
-            }
-        }**/
-    }
+              //cudaDeviceSynchronize();
+    }*/
+    
+    transformColumn(Adcsc_Tran->nzc, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d, colptrC_d, Bdcsc->nzc);
+    
     if(clearA)
         delete const_cast<SpDCCols<IT, NT1> *>(&A);
     if(clearB)
         delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
-    delete [] colptrC;
-    delete [] flopptr;
+    
+    
     if(deleteAux)
     	delete [] aux;
+    //std::cout << "Made it to receive" << std::endl;
+    IT * tuplesC_o = static_cast<IT *> (::operator new (sizeof(IT[nnzc])));
+    IT * tuplesC_t = static_cast<IT *> (::operator new (sizeof(IT[nnzc])));
+    NTO * tuplesC_th = static_cast<NTO *> (::operator new (sizeof(NTO[nnzc])));
     
-    cudaMemcpy(tuplesC, tuplesC_d, (sizeof(std::tuple<IT,IT,NTO>[nnzc])), cudaMemcpyDeviceToHost);
+    uint * colptr_size = static_cast<uint *> (::operator new (sizeof(uint[Bdcsc->nzc])));
+    cudaMemcpy(tuplesC, tuplesC_d, sizeof(std::tuple<IT,IT,NTO>[nnzc]), cudaMemcpyDeviceToHost);
+    gpuErrchk( cudaPeekAtLastError() );
+gpuErrchk( cudaDeviceSynchronize() );
+    /*std::cout << "Made it to loop" << std::endl;
+   #ifdef THREADED
+#pragma omp parallel for
+#endif
+    for (IT i = 0; i < Bdcsc -> nzc; ++i) {
+        //std::cout << "Getting: " << i << std::endl;
+        for (IT j = 0; j < colptr_size[i]; ++j) {
+            IT in = colptrC[i] + j;
+            //std::cout << "Grabbed: " << j << " with " << in << std::endl;
+            tuplesC[in] = std::make_tuple(tuplesC_o[in], tuplesC_t[in], tuplesC_th[in]);
+            //printf("Made tuple at in %i, with values %i, %i, and %i", in, tuplesC_o[in], tuplesC_t[in], tuplesC_th[in]);
+            //std::cout << "Built!" << std::endl;
+            //std::cout << "Done" <<std::endl;
+        }
+    }*/
+    delete [] colptrC;
+    delete [] flopptr;
+    delete [] tuplesC_o;
+    delete [] tuplesC_t;
+    delete [] tuplesC_th;
+    delete [] colptr_size;
+    //std::cout << "Made it to build" << std::endl;
     SpTuples<IT, NTO>* spTuplesC = new SpTuples<IT, NTO> (nnzc, mdim, ndim, tuplesC, false, true);
 
-
+    //std::cout << "Made it to return" << std::endl;
     // std::cout << "localspgemminfo," << flop << "," << nnzc << "," << compression_ratio << "," << t1-t0 << std::endl;
     // std::cout << hashSelected << ", " << Bdcsc->nzc << ", " << (float)hashSelected / Bdcsc->nzc << std::endl;
     return spTuplesC;

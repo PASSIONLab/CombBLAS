@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # require c++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -48,7 +48,8 @@ endif()
 if(CUDA_FOUND)
   target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
   enable_language(CUDA)
-  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--expt-relaxed-constexpr")
+  set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
+  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--expt-relaxed-constexpr --disable-warnings")
   # Hack to avoid using #include
   target_link_libraries(CombBLAS PRIVATE ${CUDA_LIBRARIES})
   cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)

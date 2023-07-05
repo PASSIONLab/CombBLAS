@@ -3,7 +3,7 @@
 
 #include <tuple>
     template < typename NTO, typename IT, typename NT1, typename NT2>
-void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, uint* curptr, IT* A_Tran_CP,
+void transformColumn(IT A_nzc, IT* A_Tran_CP,
     IT* A_Tran_IR,
     IT* A_Tran_JC,
     NT1* A_Tran_numx,
@@ -11,6 +11,6 @@ void transformColumn(IT A_nzc, size_t i, size_t nnzcolB, uint* curptr, IT* A_Tra
     IT* B_IR,
     IT* B_JC,
     NT2* B_numx,
-    std::tuple<IT,IT,NTO> * tuplesC);
+     std::tuple<IT,IT,NTO> * tuplesC_d, IT* curptrC, IT B_nzc);
 
 #endif
