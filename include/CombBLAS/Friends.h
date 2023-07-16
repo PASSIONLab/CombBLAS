@@ -46,6 +46,7 @@
 // #include "mkl.h"
 #include "cuda.h"
 #include "cusparse.h"
+#include "cuda_runtime_api.h"
 #include <string>
 using std::string;
 

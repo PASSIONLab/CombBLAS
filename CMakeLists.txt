@@ -128,7 +128,7 @@ enable_testing()
 include(CTest)
 
 add_subdirectory(ReleaseTests)
-# add_subdirectory(Applications)
+add_subdirectory(Applications)
 # add_subdirectory(Applications/Ordering)
 # add_subdirectory(Applications/BipartiteMatchings)
 # add_subdirectory(Applications/SpMSpV-IPDPS2017)

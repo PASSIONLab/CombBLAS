@@ -117,8 +117,9 @@ Row
 
 
 // force 8-bytes alignment in heap allocated memory
-#ifndef ALIGN
-#define ALIGN 8
+// @OGUZ-COMMENT this is not used anywhere - screws nvcc. changed ALIGN -> ALIGNX
+#ifndef ALIGNX
+#define ALIGNX 8
 #endif
 
 #ifndef THRESHOLD

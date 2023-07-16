@@ -36,9 +36,9 @@ ADD_EXECUTABLE( SpMM-gpu-sA-2D SpMM-gpu-sA-2D.cu )
 TARGET_LINK_LIBRARIES(SpMM-gpu-sA CombBLAS cudart cusparse)
 TARGET_LINK_LIBRARIES(SpMM-gpu-sC CombBLAS cudart cusparse)
 TARGET_LINK_LIBRARIES(SpMM-gpu-sA-2D CombBLAS cudart cusparse)
-set_target_properties(SpMM-gpu-sA PROPERTIES CUDA_ARCHITECTURES "70;72")
-set_target_properties(SpMM-gpu-sC PROPERTIES CUDA_ARCHITECTURES "70;72")
-set_target_properties(SpMM-gpu-sA-2D PROPERTIES CUDA_ARCHITECTURES "70;72")
+set_target_properties(SpMM-gpu-sA PROPERTIES CUDA_ARCHITECTURES "70;72;80")
+set_target_properties(SpMM-gpu-sC PROPERTIES CUDA_ARCHITECTURES "70;72;80")
+set_target_properties(SpMM-gpu-sA-2D PROPERTIES CUDA_ARCHITECTURES "70;72;80")
 
 
 # ADD_TEST(NAME GenMMWrite_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:GenWrMat> 20 16 1 scale20_ef16_symmetric.mtx)
