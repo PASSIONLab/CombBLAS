@@ -272,11 +272,6 @@ MemEfficientSpGEMMg (
 	static int iter = -1;
 	++iter;
 	std::ofstream lfile;
-
-	if (perProcessMemory == 0)	// need memory estimation for cf in spgemm
-	{
-	}
-	
 	
 	#ifdef LOG_GNRL_ME_SPGEMM
 	double t_tmp;
