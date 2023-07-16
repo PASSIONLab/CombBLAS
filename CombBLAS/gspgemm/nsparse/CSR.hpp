@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <cuda.h>
 
@@ -6,31 +7,49 @@ using namespace std;
 
 #ifndef CSR_H
 #define CSR_H
-template <class idType, class valType>
+
+
+template <class idType,
+		  class valType>
 class CSR
 {
+	
 public:
-    CSR():nrow(0), ncolumn(0), nnz(0), devise_malloc(false)
+
+	
+    CSR():nrow(0), ncolumn(0), nnz(0), device_malloc(false)
     {
     }
-    ~CSR()
+
+	
+
+	~CSR()
     {
     }
-    void release_cpu_csr()
+
+	
+
+	void release_cpu_csr()
     {
         delete[] rpt;
         delete[] colids;
         delete[] values;
     }
+
+
+	
     void release_csr()
     {
-        if (devise_malloc) {
+        if (device_malloc) {
             cudaFree(d_rpt);
             cudaFree(d_colids);
             cudaFree(d_values);
         }
-        devise_malloc = false;
+        device_malloc = false;
     }
+
+
+	
     bool operator==(CSR mat)
     {
         bool f = false;
@@ -90,21 +109,29 @@ public:
         return f;
     }
 
+	
+
     void init_data_from_mtx(string file_path);
-    void memcpyHtD()
+
+	
+
+	void memcpyHtD()
     {
-        if (!devise_malloc) {
-//             cout << "Allocating memory space for matrix data on devise memory" << endl;
+        if (!device_malloc) {
+//             cout << "Allocating memory space for matrix data on device memory" << endl;
             cudaMalloc((void **)&d_rpt, sizeof(idType) * (nrow + 1));
             cudaMalloc((void **)&d_colids, sizeof(idType) * nnz);
             cudaMalloc((void **)&d_values, sizeof(valType) * nnz);
         }
-//         cout << "Copying matrix data to GPU devise" << endl;
+//         cout << "Copying matrix data to GPU device" << endl;
         cudaMemcpy(d_rpt, rpt, sizeof(idType) * (nrow + 1), cudaMemcpyHostToDevice);
         cudaMemcpy(d_colids, colids, sizeof(idType) * nnz, cudaMemcpyHostToDevice);
         cudaMemcpy(d_values, values, sizeof(valType) * nnz, cudaMemcpyHostToDevice);
-        devise_malloc = true;
+        device_malloc = true;
     }
+
+
+	
     void memcpyDtH()
     {
         rpt = new idType[nrow + 1];
@@ -116,7 +143,26 @@ public:
         cudaMemcpy(values, d_values, sizeof(valType) * nnz, cudaMemcpyDeviceToHost);
     }
 
+	
+
     void spmv_cpu(valType *x, valType *y);
+
+
+
+	void
+	write_csr (string fname)
+	{
+		ofstream ofs;
+		ofs.open(fname);
+		for (idType r = 0; r < nrow; ++r)
+		{
+			ofs << "row " << r << " : ";
+			for (idType cptr = rpt[r]; cptr < rpt[r+1]; ++cptr)
+				ofs << "(" << colids[cptr] << ", " << values[cptr] << ") ";
+			ofs << endl;
+		}
+		ofs.close();
+	}
     
     idType *rpt;
     idType *colids;
@@ -128,11 +174,15 @@ public:
     idType ncolumn;
     idType nnz;
     bool host_malloc;
-    bool devise_malloc;
+    bool device_malloc;
 };
 
-template <class idType, class valType>
-void CSR<idType, valType>::init_data_from_mtx(string file_path)
+
+
+template <class idType,
+		  class valType>
+void
+CSR<idType, valType>::init_data_from_mtx(string file_path)
 {
     idType i, num;
     bool isUnsy;
@@ -142,7 +192,7 @@ void CSR<idType, valType>::init_data_from_mtx(string file_path)
     valType *val_coo;
     idType LINE_LENGTH_MAX = 256;
 
-    devise_malloc = false;
+    device_malloc = false;
     
     isUnsy = false;
     line = new char[LINE_LENGTH_MAX];
@@ -243,8 +293,12 @@ void CSR<idType, valType>::init_data_from_mtx(string file_path)
 
 }
 
-template <class idType, class valType>
-void CSR<idType, valType>::spmv_cpu(valType *x, valType *y)
+
+
+template <class idType,
+		  class valType>
+void
+CSR<idType, valType>::spmv_cpu(valType *x, valType *y)
 {
     idType i, j;
     valType ans;

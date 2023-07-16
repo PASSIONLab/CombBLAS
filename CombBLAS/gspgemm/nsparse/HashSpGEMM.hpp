@@ -6,10 +6,10 @@
 #include <thrust/execution_policy.h>
 #include <thrust/scan.h>
 
-#include <nsparse.hpp>
-#include <nsparse_asm.hpp>
-#include <CSR.hpp>
-#include <BIN.hpp>
+#include "nsparse.hpp"
+#include "nsparse_asm.hpp"
+#include "CSR.hpp"
+#include "BIN.hpp"
 
 #ifndef HASHSPGEMM_H
 #define HASHSPGEMM_H
@@ -27,8 +27,31 @@
 
 #define ORIGINAL_HASH
 
+
+
 template <class idType>
-__global__ void init_id_table(idType *d_id_table, idType nnz)
+__global__
+void
+print_arr (idType *arr,
+		   idType sz,
+		   idType low,
+		   idType high)
+{
+	idType i = blockIdx.x * blockDim.x + threadIdx.x;
+	if (i >= sz)
+		return;
+
+	if (i >= low && i <= high)
+		printf("thread %d val %d\n", i, arr[i]);
+}
+
+
+
+template <class idType>
+__global__
+void
+init_id_table(idType *d_id_table,
+			  idType nnz)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= nnz) {
@@ -37,8 +60,13 @@ __global__ void init_id_table(idType *d_id_table, idType nnz)
     d_id_table[i] = -1;
 }
 
-template <class idType, class valType>
-__global__ void init_value_table(valType *d_values, idType nnz)
+
+
+template <class idType,
+		  class valType>
+__global__
+void init_value_table(valType *d_values,
+					  idType nnz)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= nnz) {
@@ -47,13 +75,19 @@ __global__ void init_value_table(valType *d_values, idType nnz)
     d_values[i] = 0;
 }
 
+
+
 template <class idType>
-__global__ void hash_symbolic_pwarp(const idType *d_arpt, const idType *d_acolids,
-                                    const idType* __restrict__ d_brpt,
-                                    const idType* __restrict__ d_bcolids,
-                                    const idType *d_permutation,
-                                    idType *d_row_nz,
-                                    idType bin_offset, idType M)
+__global__
+void
+hash_symbolic_pwarp(const idType *d_arpt,
+					const idType *d_acolids,
+					const idType* __restrict__ d_brpt,
+					const idType* __restrict__ d_bcolids,
+					const idType *d_permutation,
+					idType *d_row_nz,
+					idType bin_offset,
+					idType M)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     idType rid = i / PWARP;
@@ -78,6 +112,7 @@ __global__ void hash_symbolic_pwarp(const idType *d_arpt, const idType *d_acolid
     nz = 0;
     for (j = d_arpt[rid] + tid; j < d_arpt[rid + 1]; j += PWARP) {
         acol = ld_gbl_col(d_acolids + j);
+		// acol = d_acolids[j]; // @OGUZ-BEWARE
         for (k = d_brpt[acol]; k < d_brpt[acol + 1]; k++) {
             bcol = d_bcolids[k];
             key = bcol;
@@ -103,7 +138,7 @@ __global__ void hash_symbolic_pwarp(const idType *d_arpt, const idType *d_acolid
     }
   
     for (j = PWARP / 2; j >= 1; j /= 2) {
-        nz += __shfl_xor(nz, j);
+		nz += __shfl_xor(nz, j); // @OGUZ-BEWARE
     }
 
     if (tid == 0) {
@@ -111,17 +146,25 @@ __global__ void hash_symbolic_pwarp(const idType *d_arpt, const idType *d_acolid
     }
 }
 
-template <class idType, int SH_ROW>
-__global__ void hash_symbolic_tb(const idType *d_arpt, const idType *d_acolids,
-                                 const idType* __restrict__ d_brpt,
-                                 const idType* __restrict__ d_bcolids,
-                                 idType *d_permutation, idType *d_row_nz,
-                                 idType bin_offset, idType M)
+
+
+template <class idType,
+		  int SH_ROW>
+__global__
+void
+hash_symbolic_tb(const idType *d_arpt,
+				 const idType *d_acolids,
+				 const idType* __restrict__ d_brpt,
+				 const idType* __restrict__ d_bcolids,
+				 idType *d_permutation,
+				 idType *d_row_nz,
+				 idType bin_offset,
+				 idType M)
 {
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j, k;
     idType bcol, key, hash, old;
     idType nz, adr;
@@ -142,7 +185,8 @@ __global__ void hash_symbolic_tb(const idType *d_arpt, const idType *d_acolids,
     rid = d_permutation[rid + bin_offset];
     for (j = d_arpt[rid] + wid; j < d_arpt[rid + 1]; j += wnum) {
         acol = ld_gbl_col(d_acolids + j);
-        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += warp) {
+		// acol = d_acolids[j]; // @OGUZ-BEWARE
+        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += nsp_warp_sz) {
             bcol = d_bcolids[k];
             key = bcol;
             hash = (bcol * HASH_SCAL) & (SH_ROW - 1);
@@ -166,8 +210,8 @@ __global__ void hash_symbolic_tb(const idType *d_arpt, const idType *d_acolids,
         }
     }
 
-    for (j = warp / 2; j >= 1; j /= 2) {
-        nz += __shfl_xor(nz, j);
+    for (j = nsp_warp_sz / 2; j >= 1; j /= 2) {
+        nz += __shfl_xor(nz, j); // @OGUZ-BEWARE
     }
   
     __syncthreads();
@@ -186,18 +230,27 @@ __global__ void hash_symbolic_tb(const idType *d_arpt, const idType *d_acolids,
     }
 }
 
-template <class idType, int SH_ROW>
-__global__ void hash_symbolic_tb_large(const idType *d_arpt, const idType *d_acolids,
-                                       const idType* __restrict__ d_brpt,
-                                       const idType* __restrict__ d_bcolids,
-                                       idType *d_permutation, idType *d_row_nz,
-                                       idType *d_fail_count, idType *d_fail_perm,
-                                       idType bin_offset, idType M)
+
+
+template <class idType,
+		  int SH_ROW>
+__global__
+void
+hash_symbolic_tb_large(const idType *d_arpt,
+					   const idType *d_acolids,
+					   const idType* __restrict__ d_brpt,
+					   const idType* __restrict__ d_bcolids,
+					   idType *d_permutation,
+					   idType *d_row_nz,
+					   idType *d_fail_count,
+					   idType *d_fail_perm,
+					   idType bin_offset,
+					   idType M)
 {
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j, k;
     idType bcol, key, hash, old;
     idType adr;
@@ -223,7 +276,8 @@ __global__ void hash_symbolic_tb_large(const idType *d_arpt, const idType *d_aco
     idType border = SH_ROW >> 1;
     for (j = d_arpt[rid] + wid; j < d_arpt[rid + 1]; j += wnum) {
         acol = ld_gbl_col(d_acolids + j);
-        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += warp) {
+		// acol = d_acolids[j]; // @OGUZ-BEWARE
+        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += nsp_warp_sz) {
             bcol = d_bcolids[k];
             key = bcol;
             hash = (bcol * HASH_SCAL) & (SH_ROW - 1);
@@ -268,18 +322,25 @@ __global__ void hash_symbolic_tb_large(const idType *d_arpt, const idType *d_aco
     }
 }
 
+
+
 template <class idType>
-__global__ void hash_symbolic_gl(const idType *d_arpt, const idType *d_acol,
-                                 const idType* __restrict__ d_brpt,
-                                 const idType* __restrict__ d_bcol,
-                                 const idType *d_permutation,
-                                 idType *d_row_nz, idType *d_id_table,
-                                 idType max_row_nz, idType bin_offset, idType M)
+__global__
+void hash_symbolic_gl(const idType *d_arpt,
+					  const idType *d_acol,
+					  const idType* __restrict__ d_brpt,
+					  const idType* __restrict__ d_bcol,
+					  const idType *d_permutation,
+					  idType *d_row_nz,
+					  idType *d_id_table,
+					  idType max_row_nz,
+					  idType bin_offset,
+					  idType M)
 {
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j, k;
     idType bcol, key, hash, old;
     idType nz, adr;
@@ -299,8 +360,9 @@ __global__ void hash_symbolic_gl(const idType *d_arpt, const idType *d_acol,
     nz = 0;
     rid = d_permutation[rid + bin_offset];
     for (j = d_arpt[rid] + wid; j < d_arpt[rid + 1]; j += wnum) {
-        acol = ld_gbl_col(d_acol + j);
-        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += warp) {
+        acol = ld_gbl_col(d_acol + j); 
+		// acol = d_acol[j]; // @OGUZ-BEWARE
+        for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += nsp_warp_sz) {
             bcol = d_bcol[k];
             key = bcol;
             hash = (bcol * HASH_SCAL) % max_row_nz;
@@ -324,8 +386,8 @@ __global__ void hash_symbolic_gl(const idType *d_arpt, const idType *d_acol,
         }
     }
   
-    for (j = warp / 2; j >= 1; j /= 2) {
-        nz += __shfl_xor(nz, j);
+    for (j = nsp_warp_sz / 2; j >= 1; j /= 2) {
+        nz += __shfl_xor(nz, j); // @OGUZ-BEWARE
     }
   
     if (tid == 0) {
@@ -337,19 +399,27 @@ __global__ void hash_symbolic_gl(const idType *d_arpt, const idType *d_acol,
     }
 }
 
+
+
 template <class idType>
-__global__ void hash_symbolic_gl2(const idType *d_arpt, const idType *d_acol,
-                                  const idType* __restrict__ d_brpt,
-                                  const idType* __restrict__ d_bcol,
-                                  const idType *d_permutation,
-                                  idType *d_row_nz, idType *d_id_table,
-                                  idType max_row_nz, idType bin_offset,
-                                  idType total_row_num, idType conc_row_num)
+__global__
+void
+hash_symbolic_gl2(const idType *d_arpt,
+				  const idType *d_acol,
+				  const idType* __restrict__ d_brpt,
+				  const idType* __restrict__ d_bcol,
+				  const idType *d_permutation,
+				  idType *d_row_nz,
+				  idType *d_id_table,
+				  idType max_row_nz,
+				  idType bin_offset,
+				  idType total_row_num,
+				  idType conc_row_num)
 {
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j, k;
     idType bcol, key, hash, old;
     idType nz, adr;
@@ -372,7 +442,8 @@ __global__ void hash_symbolic_gl2(const idType *d_arpt, const idType *d_acol,
         target = d_permutation[rid + bin_offset];
         for (j = d_arpt[target] + wid; j < d_arpt[target + 1]; j += wnum) {
             acol = ld_gbl_col(d_acol + j);
-            for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += warp) {
+			// acol = d_acol[j]; // @OGUZ-BEWARE
+            for (k = d_brpt[acol] + tid; k < d_brpt[acol + 1]; k += nsp_warp_sz) {
                 bcol = d_bcol[k];
                 key = bcol;
                 hash = (bcol * HASH_SCAL) % max_row_nz;
@@ -396,8 +467,8 @@ __global__ void hash_symbolic_gl2(const idType *d_arpt, const idType *d_acol,
             }
         }
   
-        for (j = warp / 2; j >= 1; j /= 2) {
-            nz += __shfl_xor(nz, j);
+        for (j = nsp_warp_sz / 2; j >= 1; j /= 2) {
+            nz += __shfl_xor(nz, j); // @OGUZ-BEWARE
         }
   
         if (tid == 0) {
@@ -411,40 +482,58 @@ __global__ void hash_symbolic_gl2(const idType *d_arpt, const idType *d_acol,
     }
 }
 
-template <class idType, class valType>
-void hash_symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c, BIN<idType, BIN_NUM> &bin)
+
+
+
+template <class idType,
+		  class valType>
+void
+hash_symbolic(CSR<idType, valType> a,
+			  CSR<idType, valType> b,
+			  CSR<idType, valType> &c,
+			  BIN<idType, BIN_NUM> &bin)
 {
     idType i;
     idType GS, BS;
-    for (i = BIN_NUM - 1; i >= 0; i--) {
-        if (bin.bin_size[i] > 0) {
+
+    for (i = BIN_NUM - 1; i >= 0; i--)
+	{
+		// std::cout << "bin " << i << " size " << bin.bin_size[i] << std::endl;
+        if (bin.bin_size[i] > 0)
+		{
             switch (i) {
             case 0 :
+				// std::cout << "case 0 calling hash_symbolic_pwarp" << std::endl;
                 BS = 512;
                 GS = div_round_up(bin.bin_size[i] * PWARP, BS);
                 hash_symbolic_pwarp<<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 1 :
+				// std::cout << "case 1 calling hash_symbolic_tb-512" << std::endl;
                 BS = 64;
                 GS = bin.bin_size[i];
             	hash_symbolic_tb<idType, 512><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
             	break;
             case 2 :
+				// std::cout << "case 2 calling hash_symbolic_tb-1024" << std::endl;
                 BS = 128;
                 GS = bin.bin_size[i];
             	hash_symbolic_tb<idType, 1024><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
             	break;
             case 3 :
+				// std::cout << "case 3 calling hash_symbolic_tb-2048" << std::endl;
                 BS = 256;
                 GS = bin.bin_size[i];
             	hash_symbolic_tb<idType, 2048><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
             	break;
             case 4 :
+				// std::cout << "case 4 calling hash_symbolic_tb-4096" << std::endl;
                 BS = 512;
                 GS = bin.bin_size[i];
             	hash_symbolic_tb<idType, 4096><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
             	break;
             case 5 :
+				// std::cout << "case 5 calling hash_symbolic_tb-8192" << std::endl;
                 BS = 1024;
                 GS = bin.bin_size[i];
             	hash_symbolic_tb<idType, 8192><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
@@ -452,21 +541,23 @@ void hash_symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, v
             case 6 :
                 {
 #ifdef ORIGINAL_HASH
+					// std::cout << "case 6 ORIGINAL_HASH version" << std::endl;
             	    idType fail_count;
             	    idType *d_fail_count, *d_fail_perm;
             	    fail_count = 0;
-            	    checkCudaErrors(cudaMalloc((void **)&d_fail_count, sizeof(idType)));
-            	    checkCudaErrors(cudaMalloc((void **)&d_fail_perm, sizeof(idType) * bin.bin_size[i]));
+            	    cudaMalloc((void **)&d_fail_count, sizeof(idType));
+            	    cudaMalloc((void **)&d_fail_perm, sizeof(idType) * bin.bin_size[i]);
             	    cudaMemcpy(d_fail_count, &fail_count, sizeof(idType), cudaMemcpyHostToDevice);
             	    BS = 1024;
             	    GS = bin.bin_size[i];
             	    hash_symbolic_tb_large<idType, 8192><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, d_fail_count, d_fail_perm, bin.bin_offset[i], bin.bin_size[i]);
             	    cudaMemcpy(&fail_count, d_fail_count, sizeof(idType), cudaMemcpyDeviceToHost);
             	    if (fail_count > 0) {
+						// std::cout << "fail_count > 0, calling hash_symbolic_gl" << std::endl;
               	        idType max_row_nz = bin.max_flop;
             	        size_t table_size = (size_t)max_row_nz * fail_count;
             	        idType *d_id_table;
-            	        checkCudaErrors(cudaMalloc((void **)&(d_id_table), sizeof(idType) * table_size));
+            	        cudaMalloc((void **)&(d_id_table), sizeof(idType) * table_size);
             	        BS = 1024;
             	        GS = div_round_up(table_size, BS);
             	        init_id_table<idType><<<GS, BS, 0, bin.stream[i]>>>(d_id_table, table_size);
@@ -477,6 +568,7 @@ void hash_symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, v
                     cudaFree(d_fail_count);
                     cudaFree(d_fail_perm);
 #else
+					// std::cout << "case 6 not ORIGINAL_HASH version" << std::endl;
                     idType max_row_nz = bin.max_flop;
                     idType conc_row_num = min(56 * 2, bin.bin_size[i]);
                     idType table_size = max_row_nz * conc_row_num;
@@ -485,10 +577,11 @@ void hash_symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, v
                         table_size = max_row_nz * conc_row_num;
                     }
                     idType *d_id_table;
-                    checkCudaErrors(cudaMalloc((void **)&d_id_table, sizeof(idType) * table_size));
+                    cudaMalloc((void **)&d_id_table, sizeof(idType) * table_size);
                     BS = 1024;
                     // GS = div_round_up(table_size, BS);
                     // init_id_table<idType><<<GS, BS, 0, bin.stream[i]>>>(d_id_table, table_size);
+					// std::cout << "case 6 calling hash_symbolic_gl2" << std::endl;
                     GS = conc_row_num;
                     hash_symbolic_gl2<idType><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, b.d_rpt, b.d_colids, bin.d_permutation, bin.d_count, d_id_table, max_row_nz, bin.bin_offset[i], bin.bin_size[i], conc_row_num);
                     cudaFree(d_id_table);
@@ -505,12 +598,30 @@ void hash_symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, v
     cudaMemcpy(&(c.nnz), c.d_rpt + c.nrow, sizeof(idType), cudaMemcpyDeviceToHost);
 }
 
-template <class idType, class valType, bool sort>
-__global__ void hash_numeric_pwarp(const idType *d_arpt, const idType *d_acol, const valType *d_aval, const idType* __restrict__ d_brpt, const idType* __restrict__ d_bcol, const valType* __restrict__ d_bval, idType *d_crpt, idType *d_ccol, valType *d_cval, const idType *d_permutation, idType *d_nz, idType bin_offset, idType bin_size)
-{
-//@OGUZ-EDIT
-    AtomicAdd<valType> atomic_add_x;
 
+
+template <class idType,
+		  class valType,
+		  bool sort>
+__global__
+void
+hash_numeric_pwarp(const idType *d_arpt,
+				   const idType *d_acol,
+				   const valType *d_aval,
+				   const idType* __restrict__ d_brpt,
+				   const idType* __restrict__ d_bcol,
+				   const valType* __restrict__ d_bval,
+				   idType *d_crpt,
+				   idType *d_ccol,
+				   valType *d_cval,
+				   const idType *d_permutation,
+				   idType *d_nz,
+				   idType bin_offset,
+				   idType bin_size)
+{
+	//@OGUZ-EDIT
+    AtomicAdd<valType> atomic_add_x;
+	
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     idType rid = i / PWARP;
     idType tid = i % PWARP;
@@ -545,6 +656,8 @@ __global__ void hash_numeric_pwarp(const idType *d_arpt, const idType *d_acol, c
     for (j = d_arpt[rid] + tid; j < d_arpt[rid + 1]; j += PWARP) {
         acol = ld_gbl_col(d_acol + j);
         aval = ld_gbl_val(d_aval + j);
+		// acol = d_acol[j]; // @OGUZ-BEWARE
+		// aval = d_aval[j]; // @OGUZ-BEWARE
         for (k = d_brpt[acol]; k < d_brpt[acol + 1]; k++) {
             bcol = d_bcol[k];
             bval = d_bval[k];
@@ -571,7 +684,9 @@ __global__ void hash_numeric_pwarp(const idType *d_arpt, const idType *d_acol, c
             }
         }
     }
-  
+
+    // __syncthreads(); // @OGUZ-BEWARE
+    
     for (j = tid; j < (TS_N_P); j += PWARP) {
         if (id_table[soffset + j] != -1) {
             index = atomicAdd(d_nz + rid, 1);
@@ -579,6 +694,8 @@ __global__ void hash_numeric_pwarp(const idType *d_arpt, const idType *d_acol, c
             value_table[soffset + index] = value_table[soffset + j];
         }
     }
+    
+    // __syncthreads(); // @OGUZ-BEWARE
     
     idType nz = d_nz[rid];
     if (sort) {
@@ -603,16 +720,35 @@ __global__ void hash_numeric_pwarp(const idType *d_arpt, const idType *d_acol, c
     }
 }
 
-template <class idType, class valType, int SH_ROW, bool sort>
-__global__ void hash_numeric_tb(const idType *d_arpt, const idType *d_acolids, const valType *d_avalues, const idType* __restrict__ d_brpt, const idType* __restrict__ d_bcolids, const valType* __restrict__ d_bvalues, idType *d_crpt, idType *d_ccolids, valType *d_cvalues, const idType *d_permutation, idType *d_nz, idType bin_offset, idType bin_size)
-{
-//@OGUZ-EDIT
-    AtomicAdd<valType> atomic_add_x;
 
+
+template <class idType,
+		  class valType,
+		  int SH_ROW,
+		  bool sort>
+__global__
+void
+hash_numeric_tb(const idType *d_arpt,
+				const idType *d_acolids,
+				const valType *d_avalues,
+				const idType* __restrict__ d_brpt,
+				const idType* __restrict__ d_bcolids,
+				const valType* __restrict__ d_bvalues,
+				idType *d_crpt,
+				idType *d_ccolids,
+				valType *d_cvalues,
+				const idType *d_permutation,
+				idType *d_nz,
+				idType bin_offset,
+				idType bin_size)
+{
+	//@OGUZ-EDIT
+    AtomicAdd<valType> atomic_add_x;
+	
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j;
     __shared__ idType id_table[SH_ROW];
     __shared__ valType value_table[SH_ROW];
@@ -643,7 +779,9 @@ __global__ void hash_numeric_tb(const idType *d_arpt, const idType *d_acolids, c
     for (j = d_arpt[rid] + wid; j < d_arpt[rid + 1]; j += wnum) {
         acolids = ld_gbl_col(d_acolids + j);
         avalues = ld_gbl_val(d_avalues + j);
-        for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += warp) {
+		// acolids = d_acolids[j]; // @OGUZ-BEWARE
+		// avalues = d_avalues[j]; // @OGUZ-BEWARE
+        for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += nsp_warp_sz) {
             bcolids = d_bcolids[k];
             bvalues = d_bvalues[k];
 	
@@ -669,8 +807,8 @@ __global__ void hash_numeric_tb(const idType *d_arpt, const idType *d_acolids, c
     }
   
     __syncthreads();
-    if (threadIdx.x < warp) {
-        for (j = tid; j < SH_ROW; j += warp) {
+    if (threadIdx.x < nsp_warp_sz) {
+        for (j = tid; j < SH_ROW; j += nsp_warp_sz) {
             if (id_table[j] != -1) {
                 index = atomicAdd(d_nz + rid, 1);
                 id_table[index] = id_table[j];
@@ -702,17 +840,38 @@ __global__ void hash_numeric_tb(const idType *d_arpt, const idType *d_acolids, c
     }
 }
 
-#ifdef ORIGINAL_HASH
-template <class idType, class valType, bool sort>
-__global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, const valType *d_avalues, const idType* __restrict__ d_brpt, const idType* __restrict__ d_bcolids, const valType* __restrict__ d_bvalues, idType *d_crpt, idType *d_ccolids, valType *d_cvalues, const idType *d_permutation, idType *d_nz, idType *d_id_table, valType *d_value_table, idType max_row_nz, idType bin_offset, idType M)
-{
-//@OGUZ-EDIT
-    AtomicAdd<valType> atomic_add_x;
 
+
+#ifdef ORIGINAL_HASH
+template <class idType,
+		  class valType,
+		  bool sort>
+__global__
+void
+hash_numeric_gl(const idType *d_arpt,
+				const idType *d_acolids,
+				const valType *d_avalues,
+				const idType* __restrict__ d_brpt,
+				const idType* __restrict__ d_bcolids,
+				const valType* __restrict__ d_bvalues,
+				idType *d_crpt,
+				idType *d_ccolids,
+				valType *d_cvalues,
+				const idType *d_permutation,
+				idType *d_nz,
+				idType *d_id_table,
+				valType *d_value_table,
+				idType max_row_nz,
+				idType bin_offset,
+				idType M)
+{
+	//@OGUZ-EDIT
+    AtomicAdd<valType> atomic_add_x;
+	
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j;
   
     if (rid >= M) {
@@ -738,7 +897,9 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
     for (j = d_arpt[rid] + wid; j < d_arpt[rid + 1]; j += wnum) {
         acolids = ld_gbl_col(d_acolids + j);
         avalues = ld_gbl_val(d_avalues + j);
-        for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += warp) {
+		// acolids = d_acolids[j]; // @OGUZ-BEWARE
+		// avalues = d_avalues[j]; // @OGUZ-BEWARE
+        for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += nsp_warp_sz) {
             bcolids = d_bcolids[k];
             bvalues = d_bvalues[k];
       
@@ -766,8 +927,8 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
     }
   
     __syncthreads();
-    if (threadIdx.x < warp) {
-        for (j = tid; j < max_row_nz; j += warp) {
+    if (threadIdx.x < nsp_warp_sz) {
+        for (j = tid; j < max_row_nz; j += nsp_warp_sz) {
             if (d_id_table[doffset + j] != -1) {
                 index = atomicAdd(d_nz + rid, 1);
                 d_id_table[doffset + index] = d_id_table[doffset + j];
@@ -798,14 +959,36 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
         }
     }
 }
+
+
+
 #else
-template <class idType, class valType, bool sort>
-__global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, const valType *d_avalues, const idType* __restrict__ d_brpt, const idType* __restrict__ d_bcolids, const valType* __restrict__ d_bvalues, idType *d_crpt, idType *d_ccolids, valType *d_cvalues, const idType *d_permutation, idType *d_nz, idType *d_id_table, valType *d_value_table, idType max_row_nz, idType bin_offset, idType M)
+template <class idType,
+		  class valType,
+		  bool sort>
+__global__
+void
+hash_numeric_gl(const idType *d_arpt,
+				const idType *d_acolids,
+				const valType *d_avalues,
+				const idType* __restrict__ d_brpt,
+				const idType* __restrict__ d_bcolids,
+				const valType* __restrict__ d_bvalues,
+				idType *d_crpt,
+				idType *d_ccolids,
+				valType *d_cvalues,
+				const idType *d_permutation,
+				idType *d_nz,
+				idType *d_id_table,
+				valType *d_value_table,
+				idType max_row_nz,
+				idType bin_offset,
+				idType M)
 {
     idType rid = blockIdx.x;
-    idType tid = threadIdx.x & (warp - 1);
-    idType wid = threadIdx.x / warp;
-    idType wnum = blockDim.x / warp;
+    idType tid = threadIdx.x & (nsp_warp_sz - 1);
+    idType wid = threadIdx.x / nsp_warp_sz;
+    idType wnum = blockDim.x / nsp_warp_sz;
     idType j;
     idType conc_row_num = gridDim.x;
     idType target;
@@ -838,7 +1021,9 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
         for (j = d_arpt[target] + wid; j < d_arpt[target + 1]; j += wnum) {
             acolids = ld_gbl_col(d_acolids + j);
             avalues = ld_gbl_val(d_avalues + j);
-            for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += warp) {
+			// acolids = d_acolids[j]; // @OGUZ-BEWARE
+			// avalues = d_avalues[j]; // @OGUZ-BEWARE
+            for (k = d_brpt[acolids] + tid; k < d_brpt[acolids + 1]; k += nsp_warp_sz) {
                 bcolids = d_bcolids[k];
                 bvalues = d_bvalues[k];
       
@@ -866,8 +1051,8 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
         }
   
         __syncthreads();
-        if (threadIdx.x < warp) {
-            for (j = tid; j < max_row_nz; j += warp) {
+        if (threadIdx.x < nsp_warp_sz) {
+            for (j = tid; j < max_row_nz; j += nsp_warp_sz) {
                 if (d_id_table[doffset + j] != -1) {
                     index = atomicAdd(d_nz + target, 1);
                     d_id_table[doffset + index] = d_id_table[doffset + j];
@@ -901,46 +1086,63 @@ __global__ void hash_numeric_gl(const idType *d_arpt, const idType *d_acolids, c
 }
 #endif
 
-template <class idType, class valType, bool sort>
-void hash_numeric(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c, BIN<idType, BIN_NUM> &bin)
+
+template <class idType,
+		  class valType,
+		  bool sort>
+void
+hash_numeric(CSR<idType, valType> a,
+			 CSR<idType, valType> b,
+			 CSR<idType, valType> &c,
+			 BIN<idType, BIN_NUM> &bin)
 {
     idType i;
     idType GS, BS;
-    for (i = BIN_NUM - 1; i >= 0; i--) {
-        if (bin.bin_size[i] > 0) {
+    for (i = BIN_NUM - 1; i >= 0; i--)
+	{
+		// std::cout << "bin " << i << " size " << bin.bin_size[i] << std::endl;
+        if (bin.bin_size[i] > 0)
+		{
             switch (i) {
             case 0:
-                BS = 512;
+				// std::cout << "case 0 calling hash_numeric_pwarp" << std::endl;				
+				BS = 512;
                 GS = div_round_up(bin.bin_size[i] * PWARP, BS);
                 hash_numeric_pwarp<idType, valType, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 1:
+				// std::cout << "case 1 calling hash_numeric_tb-256" << std::endl;
                 BS = 64;
                 GS = bin.bin_size[i];
                 hash_numeric_tb<idType, valType, 256, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 2:
+				// std::cout << "case 2 calling hash_numeric_tb-512" << std::endl;
                 BS = 128;
                 GS = bin.bin_size[i];
                 hash_numeric_tb<idType, valType, 512, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 3:
+				// std::cout << "case 3 calling hash_numeric_tb-1024" << std::endl;
                 BS = 256;
                 GS = bin.bin_size[i];
                 hash_numeric_tb<idType, valType, 1024, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 4:
+				// std::cout << "case 4 calling hash_numeric_tb-2048" << std::endl;
                 BS = 512;
                 GS = bin.bin_size[i];
                 hash_numeric_tb<idType, valType, 2048, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 5:
+				// std::cout << "case 5 calling hash_numeric_tb-4096" << std::endl;
                 BS = 1024;
                 GS = bin.bin_size[i];
                 hash_numeric_tb<idType, valType, 4096, sort><<<GS, BS, 0, bin.stream[i]>>>(a.d_rpt, a.d_colids, a.d_values, b.d_rpt, b.d_colids, b.d_values, c.d_rpt, c.d_colids, c.d_values, bin.d_permutation, bin.d_count, bin.bin_offset[i], bin.bin_size[i]);
                 break;
             case 6 :
                 {
+					// std::cout << "case 6 calling hash_numeric_gl" << std::endl;
 #ifdef ORIGINAL_HASH
                     idType max_row_nz = bin.max_nz * 2;
                     idType table_size = max_row_nz * bin.bin_size[i];
@@ -954,8 +1156,8 @@ void hash_numeric(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, va
 #endif
                     idType *d_id_table;
                     valType *d_value_table;
-                    checkCudaErrors(cudaMalloc((void **)&(d_id_table), sizeof(idType) * table_size));
-                    checkCudaErrors(cudaMalloc((void **)&(d_value_table), sizeof(valType) * table_size));
+                    cudaMalloc((void **)&(d_id_table), sizeof(idType) * table_size);
+                    cudaMalloc((void **)&(d_value_table), sizeof(valType) * table_size);
                     BS = 1024;
 #ifdef ORIGINAL_HASH
                     GS = div_round_up(table_size, BS);
@@ -976,8 +1178,15 @@ void hash_numeric(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, va
     cudaThreadSynchronize();
 }
 
-template <bool sort, class idType, class valType>
-void SpGEMM_Hash(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c)
+
+
+template <bool sort,
+		  class idType,
+		  class valType>
+void
+SpGEMM_Hash(CSR<idType, valType> a,
+			CSR<idType, valType> b,
+			CSR<idType, valType> &c)
 {
     cudaEvent_t event[2];
     float msec;
@@ -987,76 +1196,104 @@ void SpGEMM_Hash(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, val
 
     BIN<idType, BIN_NUM> bin(a.nrow);
 
+	// cudaEventRecord(event[0], 0);
     c.nrow = a.nrow;
     c.ncolumn = b.ncolumn;
-    c.devise_malloc = true;
+    c.device_malloc = true;
     cudaMalloc((void **)&(c.d_rpt), sizeof(idType) * (c.nrow + 1));
+	bin.set_max_bin(a.d_rpt, a.d_colids, b.d_rpt, a.nrow, TS_S_P, TS_S_T);
+	// cudaEventRecord(event[1], 0);
+	// cudaThreadSynchronize();
+    // cudaEventElapsedTime(&msec, event[0], event[1]);
+	// cout << "before HashSymbolic: " << msec << endl;
     
-    bin.set_max_bin(a.d_rpt, a.d_colids, b.d_rpt, a.nrow, TS_S_P, TS_S_T);
-
-    cudaEventRecord(event[0], 0);
+    // cudaEventRecord(event[0], 0);
     hash_symbolic(a, b, c, bin);
-    cudaEventRecord(event[1], 0);
-    cudaThreadSynchronize();
-    cudaEventElapsedTime(&msec, event[0], event[1]);
-//     cout << "HashSymbolic: " << msec << endl;
-    
-    cudaMalloc((void **)&(c.d_colids), sizeof(idType) * (c.nnz));
-    cudaMalloc((void **)&(c.d_values), sizeof(valType) * (c.nnz));
+    // cudaEventRecord(event[1], 0);
+    // cudaThreadSynchronize();
+    // cudaEventElapsedTime(&msec, event[0], event[1]);
 
+	// std::cout << "symbolic finish c.nnz = " << c.nnz << std::endl;
+    // cout << "HashSymbolic: " << msec << endl;
+
+	// cudaEventRecord(event[0], 0);
+	cudaMalloc((void **)&(c.d_colids), sizeof(idType) * (c.nnz));
+    cudaMalloc((void **)&(c.d_values), sizeof(valType) * (c.nnz));
     bin.set_min_bin(a.nrow, TS_N_P, TS_N_T);
+	// cudaEventRecord(event[1], 0);
+	// cudaThreadSynchronize();
+    // cudaEventElapsedTime(&msec, event[0], event[1]);
+	// cout << "in-between: " << msec << endl;
 
     cudaEventRecord(event[0], 0);
     hash_numeric<idType, valType, sort>(a, b, c, bin);
     cudaEventRecord(event[1], 0);
     cudaThreadSynchronize();
     cudaEventElapsedTime(&msec, event[0], event[1]);
-//     cout << "HashNumeric: " << msec << endl;
+
+	// std::cout << "HashNumeric: " << msec << endl;
+	// long long int flop_count;
+	// get_spgemm_flop(a, b, flop_count);
+	// printf("total flops %lld\n", flop_count);
+	// float flops = (float)(flop_count) / 1000 / 1000 / msec;
+    // printf("SpGEMM using CSR format (Hash, only numeric phase): %f[GFLOPS], %f[ms]\n", flops, msec);
 }
 
-// @OGUZ-EDIT Begin
-template <class idType, class valType>
-idType SpGEMM_Hash_Symbolic(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c)
-{   
-    BIN<idType, BIN_NUM> bin(a.nrow);
-
-    c.nrow = a.nrow;
-    c.ncolumn = b.ncolumn;
-    c.devise_malloc = true;
-    cudaMalloc((void **)&(c.d_rpt), sizeof(idType) * (c.nrow + 1));
-    
-    bin.set_max_bin(a.d_rpt, a.d_colids, b.d_rpt, a.nrow, TS_S_P, TS_S_T);
-    hash_symbolic(a, b, c, bin);
-	cudaThreadSynchronize();
-	cudaFree(c.d_rpt);
-
-	return c.nnz;
-}
-// @OGUZ-EDIT End
 
 
-template <class idType, class valType>
-void SpGEMM_Hash(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c)
+template <class idType,
+		  class valType>
+void
+SpGEMM_Hash(CSR<idType, valType> a,
+			CSR<idType, valType> b,
+			CSR<idType, valType> &c)
 {
     SpGEMM_Hash<true, idType, valType>(a, b, c);
 }
 
-template <bool sort, class idType, class valType>
-void SpGEMM_Hash_Numeric(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c)
+
+
+template <bool sort,
+		  class idType,
+		  class valType>
+void
+SpGEMM_Hash_Numeric(CSR<idType, valType> a,
+					CSR<idType, valType> b,
+					CSR<idType, valType> &c,
+					float &msec)
 {
+    cudaEvent_t event[2];
+    // float msec;
+    for (int i = 0; i < 2; i++) {
+        cudaEventCreate(&(event[i]));
+    }
+
     BIN<idType, BIN_NUM> bin(a.nrow);
 
     bin.set_min_bin(c.d_rpt, a.nrow, TS_N_P, TS_N_T);
+
+	cudaEventRecord(event[0], 0);
     hash_numeric<idType, valType, sort>(a, b, c, bin);
+	cudaEventRecord(event[1], 0);
+	cudaThreadSynchronize();
+	cudaEventElapsedTime(&msec, event[0], event[1]);
+
+	// cout << "hash_numeric took " << msec << " msec\n";
 }
 
-template <class idType, class valType>
-void SpGEMM_Hash_Numeric(CSR<idType, valType> a, CSR<idType, valType> b, CSR<idType, valType> &c)
+
+
+template <class idType,
+		  class valType>
+void
+SpGEMM_Hash_Numeric(CSR<idType, valType> a,
+					CSR<idType, valType> b,
+					CSR<idType, valType> &c,
+					float &msec)
 {
-    SpGEMM_Hash_Numeric<true, idType, valType>(a, b, c);
+    SpGEMM_Hash_Numeric<true, idType, valType>(a, b, c, msec);
 }
 
 
 
 #endif
-

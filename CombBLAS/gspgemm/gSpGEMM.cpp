@@ -26,10 +26,7 @@
 #include "mpi.h"
 
 #include "gSpGEMM.h"
-#include "RMerge.h"
-#include "Bhsparse.h"
 #include "NSparse.h"
-#include "NSparseSymbolic.h"
 
 #define CP  0
 #define JC  1
@@ -228,24 +225,25 @@ template<class NT>
 int64_t
 GSpGEMM<NT>::get_flops (void)
 {
-	// note we compute B^T A^T
-	HostVector<int64_t> tmp(B_ncols_);
+	// // note we compute B^T A^T
+	// HostVector<int64_t> tmp(B_ncols_);	
 
-	#ifdef THREADED
-	#pragma omp parallel for
-	#endif
-	for (unsigned int r = 0; r < B_ncols_; ++r)
-	{
-		int64_t nops = 0;
-		for (unsigned int c = B_cp_[r]; c < B_cp_[r+1]; ++c)
-		{
-			unsigned int cidx = B_ind_[c];
-			nops += A_cp_[cidx + 1] - A_cp_[cidx];
-		}
-		tmp[r] = nops;
-	}
+	// #ifdef THREADED
+	// #pragma omp parallel for
+	// #endif
+	// for (unsigned int r = 0; r < B_ncols_; ++r)
+	// {
+	// 	int64_t nops = 0;
+	// 	for (unsigned int c = B_cp_[r]; c < B_cp_[r+1]; ++c)
+	// 	{
+	// 		unsigned int cidx = B_ind_[c];
+	// 		nops += A_cp_[cidx + 1] - A_cp_[cidx];
+	// 	}
+	// 	tmp[r] = nops;
+	// }
 
-	return 2 * Sum(tmp);
+	// return 2 * Sum(tmp);
+	return 0;
 }
 
 
@@ -415,14 +413,19 @@ GSpGEMM<NT>::mult (
 	(*lfile_) << std::setprecision(5);
 	(*lfile_) << "rank " << rank_ << " #devices " << ndevices_ << std::endl;
 	#endif
+
+	// std::cout << std::fixed;
+	// std::cout << std::setprecision(5);
+	// std::cout << "rank " << rank_ << " #devices " << ndevices_ << std::endl;
 	
 	unsigned int	nelems	= B_ncols_ / ndevices_;
 	unsigned int	nnz_tot = 0;
-	vector<mult_res<NT> > 	mres(ndevices_);
-	vector<unsigned int>	nnz_cnts(ndevices_);
+	int use_ndevs = ndevices_;
+	vector<mult_res<NT> > 	mres(use_ndevs);
+	vector<unsigned int>	nnz_cnts(use_ndevs);
 	double t_spgemm, t_spgemm_copy, t_post_tuple;
 	std::tuple<IT,IT,NT>   *tuplesC;
-	omp_set_num_threads(ndevices_);
+	omp_set_num_threads(use_ndevs);
 	#pragma omp parallel reduction(max: t_spgemm, t_spgemm_copy, t_post_tuple)
 	{
 		int tid = omp_get_thread_num();
@@ -431,10 +434,12 @@ GSpGEMM<NT>::mult (
 		int gpu_id = -1;
 		int num_cpu_threads = omp_get_num_threads();
 		cudaGetDevice(&gpu_id);
+
+		// std::cout << "rank " << rank_ << " is using gpu device id " << gpu_id << std::endl; 
 		
 		unsigned int beg = tid * nelems;
 		unsigned int end = -1;
-		if (tid == ndevices_ - 1)
+		if (tid == use_ndevs - 1)
 			end = B_ncols_;
 		else
 			end = (tid + 1) * nelems;
@@ -487,10 +492,10 @@ GSpGEMM<NT>::mult (
 		if (tid == 0)
 		{
 			nnz_cnts[0]	= 0;
-			for (int i = 0; i < ndevices_; ++i)
+			for (int i = 0; i < use_ndevs; ++i)
 			{
 				nnz_tot += mres[i].nnzs;
-				if (i < ndevices_ - 1)
+				if (i < use_ndevs - 1)
 					nnz_cnts[i + 1] = nnz_cnts[i] + mres[i].nnzs;
 			}
 			tuplesC = static_cast<std::tuple<IT,IT,NT> *>

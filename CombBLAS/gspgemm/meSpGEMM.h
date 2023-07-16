@@ -30,8 +30,7 @@
 // #define LOG_GNRL_ME_SPGEMM
 
 
-typedef enum {LSPG_CPU, LSPG_RMERGE2,
-			  LSPG_BHSPARSE, LSPG_NSPARSE, LSPG_HYBRID} lspg_t;
+typedef enum {LSPG_CPU, LSPG_NSPARSE, LSPG_HYBRID} lspg_t;
 
 
 template <typename UDERA, typename UDERB, typename LIC,
@@ -131,18 +130,6 @@ run_spgemm (
 			pthread_cond_signal(tds->input_freed);
 			pthread_mutex_unlock(tds->mutex);
 		}
-		// else if (tds->local_spgemm == LSPG_RMERGE2)
-		// 	C_cont = gsp->template mult<LIC, RMerge>
-		// 		(**(tds->ARecv), **(tds->BRecv),
-		// 		 i != tds->Aself, i != tds->Bself,
-		// 		 tds->iter, tds->phase, i, tds->input_freed,
-		// 		 tds->mutex);
-		// else if (tds->local_spgemm == LSPG_BHSPARSE)
-		// 	C_cont = gsp->template mult<LIC, Bhsparse>
-		// 		(**(tds->ARecv), **(tds->BRecv),
-		// 		 i != tds->Aself, i != tds->Bself,
-		// 		 tds->iter, tds->phase, i, tds->input_freed,
-		// 		 tds->mutex);		
 		else if (tds->local_spgemm == LSPG_NSPARSE)
 			C_cont = gsp->template mult<LIC, NSparse>
 				(**(tds->ARecv), **(tds->BRecv),
@@ -285,6 +272,11 @@ MemEfficientSpGEMMg (
 	static int iter = -1;
 	++iter;
 	std::ofstream lfile;
+
+	if (perProcessMemory == 0)	// need memory estimation for cf in spgemm
+	{
+	}
+	
 	
 	#ifdef LOG_GNRL_ME_SPGEMM
 	double t_tmp;
@@ -292,12 +284,11 @@ MemEfficientSpGEMMg (
 	memset(logstr, '\0', 64);
 	sprintf(logstr, "p%04d_%s_log.%04d", np,
 			(local_spgemm == LSPG_CPU ? "cpu" :
-			 (local_spgemm == LSPG_RMERGE2 ? "gpu_rmerge2" :
-			  (local_spgemm == LSPG_BHSPARSE ? "gpu_bhsparse" :
-			   (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" :
-		"hybrid")))), myrank);	
+			 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" :
+			  "hybrid")), myrank);
 	lfile.open(std::string(logstr), std::ofstream::out | std::ofstream::app);
 	gsp.lfile_ = &lfile;
+
 	
 	lfile << ">iter " << iter << std::endl;
 	static double	t_Abcast		= 0.0;
@@ -437,35 +428,81 @@ MemEfficientSpGEMMg (
     }
 
 
-	// hybrid spgemm selection
-	int64_t flops = 0;
-	double	cf	  = 0.0;
-	for (int i = 0; i < stages; ++i)
+	// hybrid spgemm selection based on flops and cf is only enabled
+	// if we estimate memory above (perProcessMemory must be > 0)
+	std::string info;
+	if (perProcessMemory > 0)
 	{
-		flops += stage_stats[i].first;
-		cf	  += stage_stats[i].second;
-	}
-	flops /= stages;
-	cf	  /= stages;
-	if (local_spgemm == LSPG_HYBRID)
-	{
-		local_spgemm = LSPG_NSPARSE;
-		if (flops / phases < (2 * 1e6))
-			local_spgemm = LSPG_CPU;
-		else if (cf <= 3)
+		int64_t flops = 0;
+		double	cf	  = 0.0;
+		for (int i = 0; i < stages; ++i)
 		{
-			// local_spgemm = LSPG_RMERGE2;
-			local_spgemm = LSPG_CPU;
+			flops += stage_stats[i].first;
+			cf	  += stage_stats[i].second;
 		}
+		flops /= stages;
+		cf	  /= stages;		
+		if (local_spgemm == LSPG_HYBRID)
+		{
+			info += std::string("local spgemm hybrid ");
+			local_spgemm = LSPG_NSPARSE;
+			if (flops / phases < (2 * 1e6))
+				local_spgemm = LSPG_CPU;
+			else if (cf <= 3)
+			{
+				local_spgemm = LSPG_CPU;
+			}
+
+			info += (local_spgemm == LSPG_CPU ? "cpu" :
+					 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A"));
+		}
+		else
+		{
+			info += std::string("local spgemm ") +
+				(local_spgemm == LSPG_CPU ? "cpu" :
+				 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A"));
+		}
+
+		info += " cf " + std::to_string(cf) +
+			+ " flops " + std::to_string(flops) + std::string("\n");
 		
-		#ifdef LOG_GNRL_ME_SPGEMM
-		lfile << "local hybrid spgemm " <<
-			(local_spgemm == LSPG_CPU ? "cpu" :
-			 (local_spgemm == LSPG_RMERGE2 ? "gpu_rmerge2" :
-			  (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A")))
-			  << std::endl;
-		#endif
 	}
+	else						// otherwise use iteration number
+	{
+		if (local_spgemm == LSPG_HYBRID)
+		{
+			info += std::string("local spgemm hybrid ");
+			local_spgemm = LSPG_CPU;
+			if (iter <= 7)
+				local_spgemm = LSPG_NSPARSE;
+
+			info += (local_spgemm == LSPG_CPU ? "cpu" :
+					 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A"));
+		}
+		else
+		{
+			if (iter > 7)		// no need to use gpu if the matrix is
+								// too sparse
+				local_spgemm = LSPG_CPU;
+
+			info += std::string("local spgemm ") +
+				(local_spgemm == LSPG_CPU ? "cpu" :
+				 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A"));
+		}
+
+		info += std::string("\n");			
+	}
+
+	combblas::SpParHelper::Print(info);
+		
+
+	#ifdef LOG_GNRL_ME_SPGEMM
+	lfile << "local hybrid spgemm " <<
+		(local_spgemm == LSPG_CPU ? "cpu" :
+		 (local_spgemm == LSPG_NSPARSE ? "gpu_nsparse" : "N/A"))
+		  << std::endl;
+	#endif
+	
 
 	LIA C_m = A.seqptr()->getnrow();
     LIB C_n = B.seqptr()->getncol();

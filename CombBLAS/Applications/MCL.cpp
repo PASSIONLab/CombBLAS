@@ -144,6 +144,7 @@ void InitParam(HipMCLParam & param)
 
 	// @EDIT
 	param.local_spgemm = LSPG_CPU;
+	param.nrounds	   = 10;
 }
 
 void ShowParam(HipMCLParam & param)
@@ -205,10 +206,8 @@ void ShowParam(HipMCLParam & param)
 
 	// @EDIT
 	string tmp = param.local_spgemm == LSPG_CPU ? "on cpu" :
-		(param.local_spgemm == LSPG_RMERGE2 ? "gpu/rmerge2" :
-		 (param.local_spgemm == LSPG_BHSPARSE ? "gpu/bhsparse" :
-		  (param.local_spgemm == LSPG_NSPARSE ? "gpu/nsparse" :
-		   "hybrid")));
+		(param.local_spgemm == LSPG_NSPARSE ? "gpu/nsparse" :
+		 "hybrid");
 	runinfo << "local spgemm type: " << tmp << endl;
 												  
     runinfo << "======================================" << endl;
@@ -278,15 +277,21 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
 		// @EDIT
 		else if (strcmp(argv[i],"-lspgemm") == 0) {
 			if (strcmp(argv[i+1], "cpu")==0)
-				param.local_spgemm = LSPG_CPU;
-			else if (strcmp(argv[i+1], "rmerge2")==0)
-				param.local_spgemm = LSPG_RMERGE2;
-			else if (strcmp(argv[i+1], "bhsparse")==0)
-				param.local_spgemm = LSPG_BHSPARSE;
+				param.local_spgemm = LSPG_CPU;			
 			else if (strcmp(argv[i+1], "nsparse")==0)
+			{
+				SpParHelper::Print("SpGEMM on gpus requires 32-bit indices, "
+								   "enforcing 32-bit local indices.\n");
 				param.local_spgemm = LSPG_NSPARSE;
+				param.is64bInt = false;
+			}
 			else if (strcmp(argv[i+1], "hybrid")==0)
+			{
+				SpParHelper::Print("SpGEMM on gpus requires 32-bit indices, "
+								   "enforcing 32-bit local indices.\n");
 				param.local_spgemm = LSPG_HYBRID;
+				param.is64bInt = false;
+			}
 		}
 		else if (strcmp(argv[i],"--nrounds") == 0) {
 			param.nrounds = atoi(argv[i + 1]);

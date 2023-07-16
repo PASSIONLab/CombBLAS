@@ -117,8 +117,9 @@ Row
 
 
 // force 8-bytes alignment in heap allocated memory
-#ifndef ALIGN
-#define ALIGN 8
+// @OGUZ-EDIT ALIGN macro was causing problem with cuda cub (changed to ALIGNX)
+#ifndef ALIGNX
+#define ALIGNX 8
 #endif
 
 #ifndef THRESHOLD

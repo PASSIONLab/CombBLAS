@@ -1,7 +1,11 @@
 #ifndef BIN_H
 #define BIN_H
 
-template <class idType, int BIN_NUM>
+#include <iostream>
+
+
+template <class idType,
+		  int BIN_NUM>
 class BIN
 {
 public:
@@ -51,8 +55,16 @@ public:
     idType max_nz;
 };
 
+
+
 template <class idType>
-__global__ void set_flop_per_row(idType *d_arpt, idType *d_acol, const idType* __restrict__ d_brpt, idType *d_count, idType *d_max_flop, idType nrow)
+__global__
+void set_flop_per_row(idType *d_arpt,
+					  idType *d_acol,
+					  const idType* __restrict__ d_brpt,
+					  idType *d_count,
+					  idType *d_max_flop,
+					  idType nrow)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= nrow) {
@@ -67,8 +79,17 @@ __global__ void set_flop_per_row(idType *d_arpt, idType *d_acol, const idType* _
     atomicMax(d_max_flop, flop_per_row);
 }
 
-template <class idType, int BIN_NUM>
-__global__ void set_bin(idType *d_count, idType *d_bin_size, idType *d_max, idType nrow, idType min, idType mmin)
+
+
+template <class idType,
+		  int BIN_NUM>
+__global__
+void set_bin(idType *d_count,
+			 idType *d_bin_size,
+			 idType *d_max,
+			 idType nrow,
+			 idType min,
+			 idType mmin)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= nrow) {
@@ -92,8 +113,13 @@ __global__ void set_bin(idType *d_count, idType *d_bin_size, idType *d_max, idTy
     atomicAdd(d_bin_size + BIN_NUM - 1, 1);
 }
 
+
+
 template <class idType>
-__global__ void init_row_perm(idType *d_permutation, idType M)
+__global__
+void
+init_row_perm(idType *d_permutation,
+			  idType M)
 {
     idType i = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -104,10 +130,19 @@ __global__ void init_row_perm(idType *d_permutation, idType M)
     d_permutation[i] = i;
 }
 
-template <class idType, int BIN_NUM>
-__global__ void set_row_perm(idType *d_bin_size, idType *d_bin_offset,
-                             idType *d_max_row_nz, idType *d_permutation,
-                             idType M, idType min, idType mmin)
+
+
+template <class idType,
+		  int BIN_NUM>
+__global__
+void
+set_row_perm(idType *d_bin_size,
+			 idType *d_bin_offset,
+			 idType *d_max_row_nz,
+			 idType *d_permutation,
+			 idType M,
+			 idType min,
+			 idType mmin)
 {
     idType i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i >= M) {
@@ -133,11 +168,19 @@ __global__ void set_row_perm(idType *d_bin_size, idType *d_bin_offset,
     }
     dest = atomicAdd(d_bin_size + BIN_NUM - 1, 1);
     d_permutation[d_bin_offset[BIN_NUM - 1] + dest] = i;
-
 }
 
-template <class idType, int BIN_NUM>
-void BIN<idType, BIN_NUM>::set_max_bin(idType *d_arpt, idType *d_acol, idType *d_brpt, idType M, int TS_S_P, int TS_S_T)
+
+
+template <class idType,
+		  int BIN_NUM>
+void
+BIN<idType, BIN_NUM>::set_max_bin(idType *d_arpt,
+								  idType *d_acol,
+								  idType *d_brpt,
+								  idType M,
+								  int TS_S_P,
+								  int TS_S_T)
 {
     idType i;
     idType GS, BS;

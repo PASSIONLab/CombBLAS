@@ -20,9 +20,6 @@
 #ifndef __NSPARSE_H__
 #define __NSPARSE_H__
 
-#include <cuda.h>
-#include <helper_cuda.h>
-
 #include "nsparse.hpp"
 #include "CSR.hpp"
 #include "SpGEMM.hpp"
@@ -46,10 +43,10 @@ public:
 	{	
 		A_.rpt = (int *)A_cp; A_.colids = (int *)A_ind; A_.values = A_val;
 		A_.nrow = A_ncol; A_.ncolumn = A_nrow; A_.nnz = A_nnz;
-		A_.devise_malloc = false;
+		A_.device_malloc = false;
 		B_.rpt = (int *)B_cp; B_.colids = (int *)B_ind; B_.values = B_val;
 		B_.nrow = B_ncol; B_.ncolumn = B_nrow; B_.nnz = B_nnz;
-		B_.devise_malloc = false;
+		B_.device_malloc = false;
 
 		A_.memcpyHtD();
 		B_.memcpyHtD();
