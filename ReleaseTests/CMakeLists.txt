@@ -3,7 +3,9 @@
 #TOMMY REMEMBER TO UNCOMMENT
 #ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 #ADD_EXECUTABLE( MultTest MultTest.cpp )
-ADD_EXECUTABLE( MultTimingCUDA MultTimingCUDA.cpp)
+cuda_add_executable( MultTimingCUDA MultTimingCUDA.cu)
+
+
 #ADD_EXECUTABLE( ReduceTest ReduceTest.cpp )
 #ADD_EXECUTABLE( TransposeTest TransposeTest.cpp )
 #ADD_EXECUTABLE( IteratorTest IteratorTest.cpp )

@@ -19,6 +19,16 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
       if (abort) exit(code);
    }
 }
+
+#define CHECK_CUSPARSE(func)                                                   \
+{                                                                              \
+    cusparseStatus_t status = (func);                                          \
+    if (status != CUSPARSE_STATUS_SUCCESS) {                                   \
+        printf("CUSPARSE API failed at line %d with error: %s (%d)\n",         \
+               __LINE__, cusparseGetErrorString(status), status);              \
+        return EXIT_FAILURE;                                                   \
+    }                                                                          \
+}
 namespace combblas {
 /*
  Multithreaded prefix sum
@@ -538,6 +548,8 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
 
 
     SpDCCols<IT, NT1> A_Tran = A.TransposeConst();
+    SpDCCols<IT, NT1> B_Tran = B.TransposeConst();
+
     Dcsc<IT,NT1>* Adcsc_Tran = A_Tran.GetDCSC();
     IT* A_Tran_CP;
     IT* A_Tran_IR;
@@ -623,8 +635,9 @@ SpTuples<IT, NTO> * LocalHybridSpGEMM
             }
               //cudaDeviceSynchronize();
     }*/
-    
+
     transformColumn(Adcsc_Tran->nzc, A_Tran_CP, A_Tran_IR, A_Tran_JC, A_Tran_numx, B_CP, B_IR, B_JC, B_numx, tuplesC_d, colptrC_d, Bdcsc->nzc);
+    
     
     if(clearA)
         delete const_cast<SpDCCols<IT, NT1> *>(&A);

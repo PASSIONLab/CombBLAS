@@ -44,6 +44,12 @@
 #include <unistd.h>
 #include <type_traits>
 
+#include <cuda.h>
+#include "../GALATIC/include/dCSR.cuh"
+#include "../GALATIC/include/CSR.cuh"
+#include "../GALATIC/include/SemiRingInterface.h"
+#include "../GALATIC/source/device/Multiply.cuh"
+
 
 
 
@@ -1039,8 +1045,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	(B.spSeq)->Split( *B1seq, *B2seq);
     
     	// Transpose back for the column-by-column algorithm
-    	const_cast< UDERB* >(B1seq)->Transpose();
-    	const_cast< UDERB* >(B2seq)->Transpose();
+    	//const_cast< UDERB* >(B1seq)->Transpose();
+    	//const_cast< UDERB* >(B2seq)->Transpose();
+
+        //const_cast< UDERB* >(A1seq)->Transpose();
+    	//const_cast< UDERB* >(A2seq)->Transpose();
     
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
@@ -1099,10 +1108,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         
         	*/
         
-        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
-                        (*ARecv, *BRecv, // parameters themselves
-                        i != Aself,    // 'delete A' condition
-                        i != Bself);   // 'delete B' condition
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
+                	(*ARecv, *BRecv, // parameters themselves
+                 	i != Aself,    // 'delete A' condition
+                 	i != Bself);   // 'delete B' condition
+        	//const_cast< UDERB* >(B.spSeq)->Transpose();
         
         
         

@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include <cuda.h>
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
@@ -50,7 +51,7 @@ int cblas_splits = 1;
 #endif
 
 #define ElementType double
-#define ITERATIONS 20
+#define ITERATIONS 1
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -63,6 +64,13 @@ public:
 	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 };
 
+
+// Outline of debug stages
+// stage = 0: LocalHybrid does not run/immediately returns
+// stage = 1: LocalHybrid mallocs and transposes as needed, but returns immediately after
+// stage = 2: LocalHybrid runs the kernel, but does not perform cleanup
+// stage = 3: Full run of LocalHybrid
+// stages 1 & 2 may lead to memory leaks, be aware on memory limited systems
 int main(int argc, char* argv[])
 {
 	#ifdef GPU_ENABLED
