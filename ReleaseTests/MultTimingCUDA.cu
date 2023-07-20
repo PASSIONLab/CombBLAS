@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-#include <cuda.h>
+//#include <cuda.h>
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>

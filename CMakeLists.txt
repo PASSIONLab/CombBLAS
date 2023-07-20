@@ -48,9 +48,9 @@ endif()
 if(CUDA_FOUND)
   target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
   enable_language(CUDA)
-  #set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
+  set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
   set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--ftemplate-backtrace-limit 1 --expt-relaxed-constexpr --disable-warnings")
-  set_source_files_properties(src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CUDA)
+  #set_source_files_properties(include/CombBLAS/ParFriends.h PROPERTIES LANGUAGE CUDA)
   # Hack to avoid using #include
   target_link_libraries(CombBLAS PRIVATE ${CUDA_LIBRARIES})
   cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)

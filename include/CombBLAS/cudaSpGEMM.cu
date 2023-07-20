@@ -1,6 +1,7 @@
 
 
 #include "cudaSpGEMM.h"
+#include <cstdint>
 #include <device_launch_parameters.h>
 #include <stdio.h>
 #include <thrust/device_vector.h>
@@ -8,8 +9,8 @@
 #include <algorithm>
 //#include "../GALATIC/include/CSR.cuh"
 //#include "../GALATIC/include/dCSR.cuh"
-//#include "../GALATIC/include/SemiRingInterface.h"
-//#include "../GALATIC/source/device/Multiply.cuh"
+
+#include "../GALATIC/source/device/Multiply.cuh"
 
 template <typename NTO, typename IT, typename NT1, typename NT2>
 __global__ void transformColumn_d(IT A_nzc, IT* A_Tran_CP,
@@ -94,7 +95,7 @@ template void transformColumn< double, int64_t, double, double>(
     double* B_numx,
     std::tuple<int64_t,int64_t,double> * tuplesC_d, int64_t* curptrC, int64_t B_nzc);
 
-/*template <typename Arith_SR, typename NTO, typename NT1, typename NT2, typename IT>
+template <typename Arith_SR, typename NTO, typename NT1, typename NT2, typename IT>
 __host__  CSR<NTO> LocalGalaticSPGEMM
 (CSR<NT1> input_A_CPU,
 CSR<NT2> input_B_CPU,
@@ -138,4 +139,9 @@ CSR<NTO> result_mat_CPU;
 // load results  onto CPU.
 convert(result_mat_CPU, result_mat_GPU);
 return result_mat_CPU;
- }*/
+ }
+
+template CSR<double> LocalGalaticSPGEMM<Arith_SR, double, double, double, int64_t>
+(CSR<double> input_A_CPU,
+CSR<double> input_B_CPU,
+ bool clearA, bool clearB, Arith_SR semiring, int64_t * aux = nullptr);

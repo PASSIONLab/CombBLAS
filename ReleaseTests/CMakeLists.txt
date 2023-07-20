@@ -1,5 +1,6 @@
 # Top level directory has the include files
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #TOMMY REMEMBER TO UNCOMMENT
 #ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 #ADD_EXECUTABLE( MultTest MultTest.cpp )

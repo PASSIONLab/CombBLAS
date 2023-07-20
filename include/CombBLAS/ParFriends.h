@@ -41,15 +41,17 @@
 #include "OptBuf.h"
 #include "mtSpGEMM.h"
 #include "MultiwayMerge.h"
+#include <memory>
 #include <unistd.h>
 #include <type_traits>
 
 #include <cuda.h>
-#include "../GALATIC/include/dCSR.cuh"
-#include "../GALATIC/include/CSR.cuh"
-#include "../GALATIC/include/SemiRingInterface.h"
-#include "../GALATIC/source/device/Multiply.cuh"
-
+#include "cudaSpGEMM.h"
+//#include "../GALATIC/include/dCSR.cuh"
+//#include "../GALATIC/include/CSR.cuh"
+//#include "../GALATIC/include/SemiRingInterface.h"
+//#include "../GALATIC/source/device/Multiply.cuh"
+//#include "cudaSpGEMM.cu"
 
 
 
@@ -823,7 +825,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
 	std::shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
-	LIA C_m = A.spSeq->getnrow();
+	
+    LIA C_m = A.spSeq->getnrow();
 	LIB C_n = B.spSeq->getncol();
     
 	UDERA * A1seq = new UDERA();
@@ -1045,11 +1048,30 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	(B.spSeq)->Split( *B1seq, *B2seq);
     
     	// Transpose back for the column-by-column algorithm
-    	//const_cast< UDERB* >(B1seq)->Transpose();
-    	//const_cast< UDERB* >(B2seq)->Transpose();
+    	const_cast< UDERB* >(B1seq)->Transpose();
+    	const_cast< UDERB* >(B2seq)->Transpose();
 
         //const_cast< UDERB* >(A1seq)->Transpose();
     	//const_cast< UDERB* >(A2seq)->Transpose();
+
+        CSR<NU1> CSR_A1;
+        CSR<NU2> CSR_B1;
+
+        CSR<NU1> CSR_A2;
+        CSR<NU2> CSR_B2;
+
+        CSR_A1.rows = A1seq->getncol();
+        CSR_A1.cols = A1seq->getnrow();
+        CSR_A1.nnz = A1seq->getnnz();
+        /*CSR_A1.data = std::unique_ptr<NU1>(A1seq->GetDCSC()->numx);
+        CSR_A1.col_ids = std::unique_ptr<unsigned int[]>(A1seq->GetDCSC()->ir);
+        CSR_A1.row_offsets = std::unique_ptr<unsigned int[]>(new unsigned int[CSR_A1.rows + 1]);
+        int j = 0;
+        for (int i = 0; i <= CSR_A1.rows; ++i) {
+            while (j <= A1seq->GetDCSC()->jc[i]) {
+                CSR_A1.row_offsets[j++] = A1seq->GetDCSC()->colinds[i];
+            }
+        }*/
     
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
