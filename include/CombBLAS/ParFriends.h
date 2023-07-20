@@ -45,7 +45,7 @@
 #include <unistd.h>
 #include <type_traits>
 
-#include <cuda.h>
+//#include <cuda.h>
 #include "cudaSpGEMM.h"
 //#include "../GALATIC/include/dCSR.cuh"
 //#include "../GALATIC/include/CSR.cuh"
