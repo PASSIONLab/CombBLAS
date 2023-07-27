@@ -35,6 +35,7 @@
 #include <vector>
 #include <sstream>
 #include "CombBLAS/CombBLAS.h"
+//#include "../include/GALATIC/source/device/Multiply.cuh"
 
 using namespace std;
 using namespace combblas;
@@ -60,8 +61,8 @@ template <class NT>
 class PSpMat 
 { 
 public: 
-	typedef SpDCCols < int64_t, NT > DCCols;
-	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
+	typedef SpDCCols <unsigned int, NT > DCCols;
+	typedef SpParMat <unsigned int, NT, DCCols > MPI_DCCols;
 };
 
 

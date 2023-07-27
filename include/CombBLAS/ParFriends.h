@@ -44,16 +44,15 @@
 #include <memory>
 #include <unistd.h>
 #include <type_traits>
+#include <unordered_set>
 
 //#include <cuda.h>
 #include "cudaSpGEMM.h"
-//#include "../GALATIC/include/dCSR.cuh"
-//#include "../GALATIC/include/CSR.cuh"
-//#include "../GALATIC/include/SemiRingInterface.h"
-//#include "../GALATIC/source/device/Multiply.cuh"
+#include "../GALATIC/include/dCSR.cuh"
+#include "../GALATIC/include/CSR.cuh"
+#include "../GALATIC/include/SemiRingInterface.h"
+#include "../GALATIC/source/device/Multiply.cuh"
 //#include "cudaSpGEMM.cu"
-
-
 
 
 namespace combblas {
@@ -855,6 +854,32 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
 
+
+    const int Threads = 256;
+    const int BlocksPerMP = 1;
+    const int NNZPerThread = 2;
+    const int InputElementsPerThreads = 2;
+    const int RetainElementsPerThreads = 1;
+    const int MaxChunksToMerge = 16;
+    const int MaxChunksGeneralizedMerge = 256; // MAX: 865
+    const int MergePathOptions = 8;
+
+    GPUMatrixMatrixMultiplyTraits  DefaultTraits(Threads, BlocksPerMP, NNZPerThread,
+                                             InputElementsPerThreads, RetainElementsPerThreads,
+                                             MaxChunksToMerge, MaxChunksGeneralizedMerge, MergePathOptions);
+
+    const bool Debug_Mode = false;
+    DefaultTraits.preferLoadBalancing = true;
+    ExecutionStats stats;
+    stats.measure_all = false;
+    struct GEN_SR : SemiRing<NU1, NU2, NUO>
+    {
+  __host__ __device__ NUO multiply(const NU1& a, const NU2& b) const { return SR::multiply(a, b); }
+  __host__ __device__ NUO add(const NU1& a, const NU2& b)   const   { return SR::add(a,b); }
+   __host__ __device__  static NUO AdditiveIdentity()                  { return     SR::id(); }
+    };
+    Arith_SR semiring;
+
 	for(int i = 0; i < stages; ++i) 
 	{
 		std::vector<LIA> ess;	
@@ -898,14 +923,52 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
         
         	*/
         
-        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
-                        (*ARecv, *BRecv, // parameters themselves
-                        i != Aself,    // 'delete A' condition
-                        i != Bself);   // 'delete B' condition
+        dCSR<NU1> input_A_GPU;
+        dCSR<NU2> input_B_GPU;
+        CSR<NU1> input_A_CPU;
+        CSR<NU2> input_B_CPU;
+        input_A_CPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
+        input_B_CPU.alloc(BRecv->getncol(), BRecv->getnrow(), BRecv->getnnz());
+        LIA j = 0;
+        for(LIA i = 0; i < ARecv->getnzc(); ++i) {
+            while(j <= ARecv->GetDCSC()->jc[i]) {
+                input_A_CPU.row_offsets[j] = ARecv->GetDCSC()->cp[i];
+                j++;
+            }
+        }
+        input_A_CPU.row_offsets[ARecv->getncol()] = ARecv->GetDCSC()->cp[++j];
+        std::copy(ARecv->GetDCSC()->ir, ARecv->GetDCSC()->ir + ARecv->getnnz(), input_A_CPU.col_ids.get());
+        std::copy(ARecv->GetDCSC()->numx, ARecv->GetDCSC()->numx + ARecv->getnnz(), input_A_CPU.data.get());
+
+        j = 0;
+        for(LIA i = 0; i < BRecv->getnzc(); ++i) {
+            while(j <= BRecv->GetDCSC()->jc[i]) {
+                input_B_CPU.row_offsets[j] = BRecv->GetDCSC()->cp[i];
+                j++;
+            }
+        }
+        input_B_CPU.row_offsets[BRecv->getncol()] = BRecv->GetDCSC()->cp[++j];
+        std::copy(BRecv->GetDCSC()->ir, BRecv->GetDCSC()->ir + BRecv->getnnz(), input_B_CPU.col_ids.get());
+        std::copy(BRecv->GetDCSC()->numx, BRecv->GetDCSC()->numx + BRecv->getnnz(), input_B_CPU.data.get());
+        dCSR<NUO> result_mat_GPU;
+        convert(input_A_GPU, input_A_CPU);
+        convert(input_B_GPU, input_B_CPU);
+        	ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
         
+        CSR<NUO> result_mat_CPU;
+        std::tuple<LIC, LIC, NUO> * tuplesC = static_cast<std::tuple<LIC, LIC, NUO> *> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[result_mat_CPU.nnz])));
+        size_t it = 0;
+        std::unordered_set<LIC> nnzc_set;
+        convert(result_mat_CPU, result_mat_GPU);
+        for (LIC i = 0; i < result_mat_CPU.rows; ++i) {
+            for (LIC j = result_mat_CPU.row_offsets[i]; j < result_mat_CPU.row_offsets[i + 1]; ++j) {
+                nnzc_set.insert(result_mat_CPU.col_ids[j]);
+                tuplesC[it++] = std::make_tuple(i, result_mat_CPU.col_ids[j], result_mat_CPU.data[j]);
+            }
+        }
+// load results  onto CPU.
         
-        
-		
+		SpTuples<LIC,NUO> * C_cont = new SpTuples<LIC, NUO> (nnzc_set.size(), result_mat_CPU.rows, result_mat_CPU.cols, tuplesC, true, false);
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -1048,11 +1111,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	(B.spSeq)->Split( *B1seq, *B2seq);
     
     	// Transpose back for the column-by-column algorithm
-    	const_cast< UDERB* >(B1seq)->Transpose();
-    	const_cast< UDERB* >(B2seq)->Transpose();
+    	//const_cast< UDERB* >(B1seq)->Transpose();
+    	//const_cast< UDERB* >(B2seq)->Transpose();
 
-        //const_cast< UDERB* >(A1seq)->Transpose();
-    	//const_cast< UDERB* >(A2seq)->Transpose();
+        const_cast< UDERB* >(A1seq)->Transpose();
+    	const_cast< UDERB* >(A2seq)->Transpose();
 
         CSR<NU1> CSR_A1;
         CSR<NU2> CSR_B1;
@@ -1130,19 +1193,19 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         
         	*/
         
-        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
-                	(*ARecv, *BRecv, // parameters themselves
-                 	i != Aself,    // 'delete A' condition
-                 	i != Bself);   // 'delete B' condition
+        //SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
+        //        	(*ARecv, *BRecv, // parameters themselves
+         //        	i != Aself,    // 'delete A' condition
+         //        	i != Bself);   // 'delete B' condition
         	//const_cast< UDERB* >(B.spSeq)->Transpose();
         
         
         
 		
-		if(!C_cont->isZero())
-			tomerge.push_back(C_cont);
-		else
-			delete C_cont;
+		//if(!C_cont->isZero())
+		//	tomerge.push_back(C_cont);
+		//else
+		//	delete C_cont;
 	}
 	if(clearA) delete A1seq;
 	if(clearB) delete B1seq;
@@ -1198,15 +1261,15 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         
         	*/
         
-        	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
-                	(*ARecv, *BRecv, // parameters themselves
-                 	i != Aself,    // 'delete A' condition
-                 	i != Bself);   // 'delete B' condition
+        	//SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
+            //    	(*ARecv, *BRecv, // parameters themselves
+            //     	i != Aself,    // 'delete A' condition
+            //     	i != Bself);   // 'delete B' condition
         
-		if(!C_cont->isZero())
-			tomerge.push_back(C_cont);
-		else
-			delete C_cont;
+		//if(!C_cont->isZero())
+		//	tomerge.push_back(C_cont);
+		//else
+		//	delete C_cont;
 	}
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
@@ -1218,6 +1281,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 	else
 	{
+        A1seq->Transpose();
+		A2seq->Transpose();
 		(A.spSeq)->Merge(*A1seq, *A2seq);
 		delete A1seq;
 		delete A2seq;
@@ -1230,8 +1295,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 	else
 	{
-		B1seq->Transpose();
-		B2seq->Transpose();
+		
 		(B.spSeq)->Merge(*B1seq, *B2seq);	
 		delete B1seq;
 		delete B2seq;
