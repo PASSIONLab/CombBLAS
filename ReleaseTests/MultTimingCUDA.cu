@@ -52,7 +52,7 @@ int cblas_splits = 1;
 #endif
 
 #define ElementType double
-#define ITERATIONS 1
+#define ITERATIONS 100
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -61,8 +61,8 @@ template <class NT>
 class PSpMat 
 { 
 public: 
-	typedef SpDCCols <unsigned int, NT > DCCols;
-	typedef SpParMat <unsigned int, NT, DCCols > MPI_DCCols;
+	typedef SpDCCols <uint32_t, NT > DCCols;
+	typedef SpParMat <uint32_t, NT, DCCols > MPI_DCCols;
 };
 
 

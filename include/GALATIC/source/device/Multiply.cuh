@@ -854,7 +854,7 @@ namespace ACSpGEMM {
 	EnumOption<16, 16, 8,
 	EnumOption<256, 256, 128,
 	EnumOption<8, 8, 8,
-	EnumOption<1, 1, 1>>>>>>>>>
+	EnumOption<0, 1, 1>>>>>>>>>
 			::call(Selection<MultiplyCall<typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, typename SEMIRING_t::output_t, SEMIRING_t>>(call), scheduling_traits.Threads, scheduling_traits.BlocksPerMp, scheduling_traits.NNZPerThread, scheduling_traits.InputElementsPerThreads, scheduling_traits.RetainElementsPerThreads, scheduling_traits.MaxChunksToMerge, scheduling_traits.MaxChunksGeneralizedMerge, scheduling_traits.MergePathOptions, (int)DEBUG_MODE);
 		if(!called)
 		{
