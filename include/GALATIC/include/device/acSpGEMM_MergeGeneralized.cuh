@@ -585,10 +585,10 @@ mergeSharedRowsGeneralized(const uint32_t* __restrict blockOffsets, const uint32
 				return true;
 			}, semiring);
 			// ######## DEBUG
-			if (numOut == 0 && threadIdx.x == 0)
-			{
-				printf("%d %d oops in generalized\n", blockIdx.x, threadIdx.x);
-			}
+			//if (numOut == 0 && threadIdx.x == 0)
+			//{
+			//	printf("%d %d oops in generalized\n", blockIdx.x, threadIdx.x);
+			//}
 			// ######## DEBUG
 		}
 

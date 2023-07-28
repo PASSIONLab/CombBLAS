@@ -855,10 +855,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
 
-
+    double mpi_overhead = 0.0;
     
 	for(int i = 0; i < stages; ++i) 
 	{
+       
 		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
@@ -902,10 +903,14 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
         
 // load results  onto CPU.
         
+         double start = MPI_Wtime();
 		SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
                 	(*ARecv, *BRecv, // parameters themselves
                  	i != Aself,    // 'delete A' condition
                  	i != Bself);   // 'delete B' condition
+
+                            //printf("O = %i\n", C_cont->getnnz());
+mpi_overhead += MPI_Wtime() - start;
         if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -921,6 +926,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	// Start the second round
 	for(int i = 0; i < stages; ++i) 
 	{
+       
 		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
@@ -964,12 +970,12 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		
         
         	*/
-        
+        double start = MPI_Wtime();
         	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
                 	(*ARecv, *BRecv, // parameters themselves
                  	i != Aself,    // 'delete A' condition
                  	i != Bself);   // 'delete B' condition
-        
+         mpi_overhead += MPI_Wtime() - start;
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
@@ -1006,6 +1012,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	}
 
         cudaDeviceSynchronize();	
+        printf("%.6lf\n", mpi_overhead);
 	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
@@ -1045,6 +1052,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERA * A2seq = new UDERA(); 
 	UDERB * B1seq =new UDERA(); 
 	UDERB * B2seq = new UDERB();
+    int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
@@ -1052,10 +1061,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     
     	// Transpose back for the column-by-column algorithm
     	//const_cast< UDERB* >(B1seq)->Transpose();
-    	const_cast< UDERB* >(B2seq)->Transpose();
+    	//const_cast< UDERB* >(B2seq)->Transpose();
 
         const_cast< UDERB* >(A1seq)->Transpose();
-    	//const_cast< UDERB* >(A2seq)->Transpose();
+    	const_cast< UDERB* >(A2seq)->Transpose();
     
 	LIA ** ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
 	LIB ** BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
@@ -1068,8 +1077,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERB * BRecv;
 	std::vector< SpTuples<LIC,NUO>  *> tomerge;
 
-	int Aself = (A.commGrid)->GetRankInProcRow();
-	int Bself = (B.commGrid)->GetRankInProcCol();	
+	
     const int Threads = 128;
     const int BlocksPerMP = 1;
     const int NNZPerThread = 2;
@@ -1078,8 +1086,11 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     const int MaxChunksToMerge = 16;
     const int MaxChunksGeneralizedMerge = 256; // MAX: 865
     const int MergePathOptions = 8;
+    
+    double mpi_overhead = 0.0;
 	for(int i = 0; i < stages; ++i) 
 	{
+        
 		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
@@ -1111,6 +1122,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		
+        
 		// before activating this remove transposing B1seq
         	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -1120,22 +1132,24 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 						i != Bself);	// 'delete B' condition
         
         	*/
-        
-        //SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM_CUDA<SR, NUO>
-        //        	(*ARecv, *BRecv, // parameters themselves
-         //        	i != Aself,    // 'delete A' condition
-         //        	i != Bself);   // 'delete B' condition
+       /* ARecv->Transpose();
+        BRecv->Transpose();
+        SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                	(*ARecv, *BRecv, // parameters themselves
+                	i != Aself,    // 'delete A' condition
+                 	i != Bself);   // 'delete B' condition*/
         	//const_cast< UDERB* >(B.spSeq)->Transpose();
         
         
-        GPUMatrixMatrixMultiplyTraits  DefaultTraits(Threads, BlocksPerMP, NNZPerThread,
+       GPUMatrixMatrixMultiplyTraits  DefaultTraits(Threads, BlocksPerMP, NNZPerThread,
                                              InputElementsPerThreads, RetainElementsPerThreads,
                                              MaxChunksToMerge, MaxChunksGeneralizedMerge, MergePathOptions);
 
     const bool Debug_Mode = false;
-    DefaultTraits.preferLoadBalancing = true;
+    DefaultTraits.preferLoadBalancing = false;
     ExecutionStats stats;
     //stats.measure_all = false;
+    cudaDeviceSynchronize();	
         dCSR<NU1> input_A_GPU;
         dCSR<NU2> input_B_GPU;
         CSR<NU1> input_A_CPU;
@@ -1162,7 +1176,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         std::copy(ARecv->GetDCSC()->numx, ARecv->GetDCSC()->numx + ARecv->getnnz(), input_A_CPU.data.get());
 
         j = 0;
-        for(LIA i = 0; i <= BRecv->getnzc(); ++i) {
+        for(LIB i = 0; i <= BRecv->getnzc(); ++i) {
             if (i == BRecv->getnzc()) {
                 while(j <= BRecv->getncol()) {
             input_B_CPU.row_offsets[j++] = BRecv->GetDCSC()->cp[i];
@@ -1181,19 +1195,21 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         convert(input_A_GPU, input_A_CPU);
         convert(input_B_GPU, input_B_CPU);
         cudaDeviceSynchronize();	
-        
+        double start = MPI_Wtime();
         //double t1 = MPI_Wtime(); 
         	ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
         
         cudaDeviceSynchronize();	
+        mpi_overhead += MPI_Wtime() - start;
         //double t2 = MPI_Wtime(); 
         //printf("Time for actual mult = %.6lf \n", t2 - t1);
         CSR<NUO> result_mat_CPU;
-        
         size_t it = 0;
         //std::unordered_set<LIC> nnzc_set;
         convert(result_mat_CPU, result_mat_GPU);
         cudaDeviceSynchronize();	
+        //printf("OC = %i\n", result_mat_CPU.nnz);
+        
         std::tuple<LIC, LIC, NUO> * tuplesC = static_cast<std::tuple<LIC,LIC,NUO> *> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[result_mat_CPU.nnz])));
         for (LIC i = 0; i < result_mat_CPU.rows; ++i) {
             for (LIC j = result_mat_CPU.row_offsets[i]; j < result_mat_CPU.row_offsets[i + 1]; ++j) {
@@ -1203,14 +1219,18 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
             }
         }
 // load results  onto CPU.
-		SpTuples<LIC,NUO> * C_cont = new SpTuples<LIC, NUO> (result_mat_CPU.nnz, result_mat_CPU.rows, result_mat_CPU.cols, tuplesC, true, false);
-		
+		SpTuples<LIC,NUO> * C_cont = new SpTuples<LIC, NUO> (result_mat_CPU.nnz, result_mat_CPU.rows, result_mat_CPU.cols, tuplesC, false, true);
+		if (i != Aself) delete ARecv;
+        if (i != Bself) delete BRecv;
+        
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
 		else
 			delete C_cont;
             
 	}
+    //A1seq->Transpose();
+      //  B1seq->Transpose();
 	if(clearA) delete A1seq;
 	if(clearB) delete B1seq;
 	
@@ -1221,6 +1241,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	// Start the second round
 	for(int i = 0; i < stages; ++i) 
 	{
+        
 		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
@@ -1254,6 +1275,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
+        
         	// before activating this remove transposing B2seq
         	/*
 		SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -1265,10 +1287,100 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         
         	
         
+       /* ARecv->Transpose();
+        BRecv->Transpose();
         	SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
                 	(*ARecv, *BRecv, // parameters themselves
-                 	i != Aself,    // 'delete A' condition
-                 	i != Bself);   // 'delete B' condition
+            	i != Aself,    // 'delete A' condition
+                	i != Bself);   // 'delete B' condition
+        */
+		GPUMatrixMatrixMultiplyTraits  DefaultTraits(Threads, BlocksPerMP, NNZPerThread,
+                                             InputElementsPerThreads, RetainElementsPerThreads,
+                                             MaxChunksToMerge, MaxChunksGeneralizedMerge, MergePathOptions);
+
+    const bool Debug_Mode = false;
+    DefaultTraits.preferLoadBalancing = true;
+    ExecutionStats stats;
+    //stats.measure_all = false;
+        dCSR<NU1> input_A_GPU;
+        dCSR<NU2> input_B_GPU;
+        CSR<NU1> input_A_CPU;
+        CSR<NU2> input_B_CPU;
+        Arith_SR semiring;
+        input_A_CPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
+        input_B_CPU.alloc(BRecv->getncol(), BRecv->getnrow(), BRecv->getnnz());
+        LIA j = 0;
+        for(LIA i = 0; i <= ARecv->getnzc(); ++i) {
+            if (i == ARecv->getnzc()) {
+                if (ARecv->GetDCSC()->cp[i] != ARecv->getnnz()) {
+                    printf("ERRORR\n"); std::flush(std::cout);
+                }
+                while(j <= ARecv->getncol()) {
+            input_A_CPU.row_offsets[j++] = ARecv->GetDCSC()->cp[i];
+        }
+        break;
+            }
+            while(j <= ARecv->GetDCSC()->jc[i]) {
+                input_A_CPU.row_offsets[j] = ARecv->GetDCSC()->cp[i];
+                j++;
+            }
+        }
+        
+        
+        std::copy(ARecv->GetDCSC()->ir, ARecv->GetDCSC()->ir + ARecv->getnnz(), input_A_CPU.col_ids.get());
+        std::copy(ARecv->GetDCSC()->numx, ARecv->GetDCSC()->numx + ARecv->getnnz(), input_A_CPU.data.get());
+
+        j = 0;
+        for(LIA i = 0; i <= BRecv->getnzc(); ++i) {
+            if (i == BRecv->getnzc()) {
+                if (BRecv->GetDCSC()->cp[i] != BRecv->getnnz()) {
+                    printf("ERRORR\n"); std::flush(std::cout);
+                }
+                while(j <= BRecv->getncol()) {
+            input_B_CPU.row_offsets[j++] = BRecv->GetDCSC()->cp[i];
+        }
+        break;}
+            while(j <= BRecv->GetDCSC()->jc[i]) {
+                input_B_CPU.row_offsets[j] = BRecv->GetDCSC()->cp[i];
+                j++;
+            }
+        }
+        
+        std::copy(BRecv->GetDCSC()->ir, BRecv->GetDCSC()->ir + BRecv->getnnz() , input_B_CPU.col_ids.get());
+        std::copy(BRecv->GetDCSC()->numx, BRecv->GetDCSC()->numx + BRecv->getnnz() , input_B_CPU.data.get());
+        dCSR<NUO> result_mat_GPU;
+        cudaDeviceSynchronize();	
+        convert(input_A_GPU, input_A_CPU);
+        convert(input_B_GPU, input_B_CPU);
+        cudaDeviceSynchronize();	
+        double start = MPI_Wtime();
+        
+        //double t1 = MPI_Wtime(); 
+        	ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
+        
+        cudaDeviceSynchronize();	
+        mpi_overhead += MPI_Wtime() - start;
+        //double t2 = MPI_Wtime(); 
+        //printf("Time for actual mult = %.6lf \n", t2 - t1);
+        CSR<NUO> result_mat_CPU;
+        
+        size_t it = 0;
+        //std::unordered_set<LIC> nnzc_set;
+        convert(result_mat_CPU, result_mat_GPU);
+        cudaDeviceSynchronize();	
+        std::tuple<LIC, LIC, NUO> * tuplesC = static_cast<std::tuple<LIC,LIC,NUO> *> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[result_mat_CPU.nnz])));
+        for (LIC i = 0; i < result_mat_CPU.rows; ++i) {
+            for (LIC j = result_mat_CPU.row_offsets[i]; j < result_mat_CPU.row_offsets[i + 1]; ++j) {
+                //nzc_set.insert(result_mat_CPU.col_ids[j]);
+                //std::cout << "IT " << it << " EXCEEDED " << result_mat_CPU.nnz <<std::endl;
+                tuplesC[it++] = std::make_tuple(i, result_mat_CPU.col_ids[j], result_mat_CPU.data[j]);
+            }
+        }
+// load results  onto CPU.
+		SpTuples<LIC,NUO> * C_cont = new SpTuples<LIC, NUO> (result_mat_CPU.nnz, result_mat_CPU.rows, result_mat_CPU.cols, tuplesC, false, true);
+		
+        if (i != Aself) delete ARecv;
+        if (i != Bself) delete BRecv;
         
 		if(!C_cont->isZero())
 			tomerge.push_back(C_cont);
@@ -1277,6 +1389,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+    //A2seq->Transpose();
+    //    B2seq->Transpose();
 	if(clearA) 
 	{
 		delete A2seq;
@@ -1286,7 +1400,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	else
 	{
         A1seq->Transpose();
-		//A2seq->Transpose();
+		A2seq->Transpose();
 		(A.spSeq)->Merge(*A1seq, *A2seq);
 		delete A1seq;
 		delete A2seq;
@@ -1299,14 +1413,16 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	}
 	else
 	{
-		B2seq->Transpose();
+		//B2seq->Transpose();
 		(B.spSeq)->Merge(*B1seq, *B2seq);	
 		delete B1seq;
 		delete B2seq;
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
-			
+	printf("%.6lf\n", mpi_overhead);
 	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
+    //printf("Full output has rows = %i, cols = %i, nnz = %i\n", C->getnrow(), C->getncol(), C->getnnz());
+        
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object	// return the result object
 }
 
