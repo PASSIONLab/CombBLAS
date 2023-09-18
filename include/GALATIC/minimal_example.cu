@@ -47,8 +47,7 @@ int main(int argc, const char* argv[])
 
     CSR<Arith_SR::output_t> result_mat_CPU;
     
-    dCSR<Arith_SR::leftInput_t> input_A_GPU;
-    dCSR<Arith_SR::rightInput_t> input_B_GPU;
+    
 
     
 
@@ -65,8 +64,7 @@ int main(int argc, const char* argv[])
 
     
     // Transfer input matrices onto GPU
-    convert(input_A_GPU, input_A_CPU);
-    convert(input_B_GPU, input_B_CPU);
+    
 
     // load data into semiring struct. For this one, we don't need to do anything
     Arith_SR semiring;
@@ -88,7 +86,7 @@ int main(int argc, const char* argv[])
                                                  InputElementsPerThreads, RetainElementsPerThreads,
                                                  MaxChunksToMerge, MaxChunksGeneralizedMerge, MergePathOptions );
     
-    const bool Debug_Mode = true;
+    const bool Debug_Mode = false;
     // DefaultTraits.preferLoadBalancing = true;
      ExecutionStats stats;
     // stats.measure_all = false;
@@ -97,16 +95,28 @@ int main(int argc, const char* argv[])
     typedef std::chrono::duration<float> fsec;
     auto t0 = Time::now();
     
-    for (int i =0; i < 1000; i++){
+    for (int i =0; i < 100; i++){
     // Actually perform the matrix multiplicaiton
+    if (i % 10 == 0) printf("%i\n",i);
+    dCSR<Arith_SR::leftInput_t> input_A_GPU;
+    dCSR<Arith_SR::rightInput_t> input_B_GPU;
+    convert(input_A_GPU, input_A_CPU);
+    convert(input_B_GPU, input_B_CPU);
+    cudaDeviceSynchronize();
     dCSR<Arith_SR::output_t> result_mat_GPU;
         ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
+         cudaDeviceSynchronize();
+         convert(result_mat_CPU, result_mat_GPU);
          cudaDeviceSynchronize();
     }
     auto t1 = Time::now();
     fsec fs = t1 - t0;
     ms d = std::chrono::duration_cast<ms>(fs);
     dCSR<Arith_SR::output_t> result_mat_GPU;
+    dCSR<Arith_SR::leftInput_t> input_A_GPU;
+    dCSR<Arith_SR::rightInput_t> input_B_GPU;
+    convert(input_A_GPU, input_A_CPU);
+    convert(input_B_GPU, input_B_CPU);
     ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
          cudaDeviceSynchronize();
     printf("Took %d for 1000 tries, for an average of %d\n", d, (d / 1000));
