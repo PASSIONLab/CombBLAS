@@ -567,7 +567,7 @@ namespace ACSpGEMM {
 			}
 
 			// // Copy back flags
-			 HANDLE_ERROR(cudaMemcpy(&flagsAndListAllocCounters[0], chunckAllocations + chunckAllocationsSize, (numFlags + numCounters) * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+			HANDLE_ERROR(cudaMemcpy(&flagsAndListAllocCounters[0], chunckAllocations + chunckAllocationsSize, (numFlags + numCounters) * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 			completed = flagsAndListAllocCounters[run + chunk_pointer_restart_run] == 0;
 
 			if (!completed)

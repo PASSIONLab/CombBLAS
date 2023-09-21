@@ -1021,24 +1021,25 @@ template <typename UDERA, typename NU1>
 void convertCSR(UDERA * ARecv, CSR<NU1>& input_CPU, dCSR<NU1>& input_GPU) {
     typedef typename UDERA::LocalIT LIA;
     LIA j = 0;
-    std::cout <<"starting rows/cols" << std::endl;
-    for(LIA i = 0; i < ARecv->getnzc(); ++i) {
-           
+    for(LIA i = 0; i <= ARecv->getnzc(); ++i) {
+            if (i == ARecv->getnzc()) {
+                while(j <= ARecv->getncol()) {
+            input_CPU.row_offsets[j++] = ARecv->GetDCSC()->cp[i];
+        }
+        break;
+            }
             while(j <= ARecv->GetDCSC()->jc[i]) {
                 input_CPU.row_offsets[j] = ARecv->GetDCSC()->cp[i];
                 j++;
             }
         }
-               // while(j <= ARecv->getncol()) {
-           // input_CPU.row_offsets[j++] = ARecv->GetDCSC()->cp[ARecv->getnzc()];
-       // }
-        input_GPU.alloc(input_CPU.rows, input_CPU.cols, input_CPU.nnz);
-    input_GPU.rows = input_CPU.rows; input_GPU.nnz = input_CPU.nnz; input_GPU.cols = input_CPU.cols;
-    std::cout <<"ending rows/cols" << std::endl;
-    cudaMemcpy(input_GPU.data, &ARecv->GetDCSC()->numx[0], input_CPU.nnz * sizeof(NU1), cudaMemcpyHostToDevice);
-    cudaMemcpy(input_GPU.col_ids, &ARecv->GetDCSC()->ir[0], input_CPU.nnz * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy(input_GPU.row_offsets, &input_CPU.row_offsets[0], (input_CPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice);
+        input_GPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
+        std::cout << "STARTING COPY" << std::endl;
+    gpuErrchk(cudaMemcpy(input_GPU.data, &ARecv->GetDCSC()->numx[0], input_CPU.nnz * sizeof(NU1), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(input_GPU.col_ids, &ARecv->GetDCSC()->ir[0], input_CPU.nnz * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(input_GPU.row_offsets, &input_CPU.row_offsets[0], (input_CPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice));
 }
+
 /**
  * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but 
  * this time with CUDA
@@ -1076,6 +1077,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERB * B2seq = new UDERB();
     int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
+    cudaSetDevice(stages * Aself + Bself);
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
@@ -1083,7 +1085,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     
     	// Transpose back for the column-by-column algorithm
     	const_cast< UDERB* >(B1seq)->Transpose();
-    	const_cast< UDERB* >(B2seq)->Transpose();
+        const_cast< UDERB* >(B2seq)->Transpose();
 
         //const_cast< UDERB* >(A1seq)->Transpose();
     	//const_cast< UDERB* >(A2seq)->Transpose();
@@ -1112,7 +1114,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     double mpi_overhead = 0.0;
 	for(int i = 0; i < stages; ++i) 
 	{
-        std::cout << Aself << " " << Bself << " starting stage " << i << std::endl;
+        //std::cout << Aself << " " << Bself << " starting stage " << i << std::endl;
 		std::vector<LIA> ess;	
 		if(i == Aself)
 		{	
@@ -1172,7 +1174,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     ExecutionStats stats;
     //stats.measure_all = false;
     cudaDeviceSynchronize();	
-    std::cout << Aself << " " << Bself << " starting GPU" << std::endl;
+    //std::cout << Aself << " " << Bself << " starting GPU" << std::endl;
         dCSR<NU1> input_A_GPU;
         dCSR<NU2> input_B_GPU;
         CSR<NU1> input_A_CPU;
@@ -1180,18 +1182,21 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         Arith_SR semiring;
         input_A_CPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
         input_B_CPU.alloc(BRecv->getncol(), BRecv->getnrow(), BRecv->getnnz());
-        std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
+        //std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
+        std::cout << "STARTING CONVERT" << std::endl;
         convertCSR<UDERA, NU1>(ARecv, input_A_CPU, input_A_GPU);
         convertCSR<UDERB, NU2>(BRecv, input_B_CPU, input_B_GPU);
         dCSR<NUO> result_mat_GPU;
         
-        cudaDeviceSynchronize();	
-        std::cout << Aself << " " << Bself << " ending alloc" << std::endl;
+        gpuErrchk(cudaDeviceSynchronize());	
+        //std::cout << Aself << " " << Bself << " ending alloc" << std::endl;
         //double start = MPI_Wtime();
         //double t1 = MPI_Wtime(); 
+        std::cout << "STARTING MULT" << std::endl;
         	ACSpGEMM::Multiply<Arith_SR>(input_B_GPU, input_A_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
-        
-        cudaDeviceSynchronize();	
+       
+        gpuErrchk(cudaDeviceSynchronize());	
+         std::cout << "ENDING MULT" << std::endl;
         //mpi_overhead += MPI_Wtime() - start;
         //double t2 = MPI_Wtime(); 
         //printf("Time for actual mult = %.6lf \n", t2 - t1);
@@ -1200,7 +1205,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         //std::unordered_set<LIC> nnzc_set;
         convert(result_mat_CPU, result_mat_GPU);
         cudaDeviceSynchronize();
-        std::cout << Aself << " " << Bself << " ending GPU " << i << std::endl;	
+       // std::cout << Aself << " " << Bself << " ending GPU " << i << std::endl;	
         //printf("OC = %i\n", result_mat_CPU.nnz);
         
         std::tuple<LIC, LIC, NUO> * tuplesC = static_cast<std::tuple<LIC,LIC,NUO> *> (::operator new (sizeof(std::tuple<LIC,LIC,NUO>[result_mat_CPU.nnz])));
@@ -1212,7 +1217,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
             }
         }
         
-        std::cout << Aself << " " << Bself << " ending tupling " << i << std::endl;	
+        //std::cout << Aself << " " << Bself << " ending tupling " << i << std::endl;	
 // load results  onto CPU.
 		SpTuples<LIC,NUO> * C_cont = new SpTuples<LIC, NUO> (result_mat_CPU.nnz, result_mat_CPU.rows, result_mat_CPU.cols, tuplesC, false, true);
 		if (i != Aself) delete ARecv;
@@ -1373,7 +1378,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	else
 	{
         B1seq->Transpose();
-		B2seq->Transpose();
+	    B2seq->Transpose();
 		(B.spSeq)->Merge(*B1seq, *B2seq);	
 		delete B1seq;
 		delete B2seq;
