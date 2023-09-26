@@ -1,50 +1,128 @@
 #!/bin/bash -l
 
-#SBATCH -q debug 
-#SBATCH -C knl
+#SBATCH -q regular 
+#SBATCH -C cpu
 ##SBATCH -A m1982 # Aydin's project (PASSION: Scalable Graph Learning for Scientific Discovery)
 #SBATCH -A m2865 # Exabiome project
 ##SBATCH -A m4012 # Ariful's project (GraphML: Intelligent Premitives for Graph Machine Learning)
+##SBATCH -A m4293 # Sparsitute project (A Mathematical Institute for Sparse Computations in Science and Engineering)
 
-#SBATCH -t 00:30:00
+#SBATCH -t 2:30:00
 
-#SBATCH -N 256
-#SBATCH -J inc
-##SBATCH -o out.inc.o%j
+#SBATCH -N 2
+#SBATCH -J inc-pipeline
+#SBATCH -o slurm.inc-pipeline.o%j
 
-export OMP_NUM_THREADS=16
+SYSTEM=perlmutter_cpu
+CORE_PER_NODE=128 # Never change. Specific to the system
+PER_NODE_MEMORY=256 # Never change. Specific to the system
+N_NODE=2
+PROC_PER_NODE=8
+N_PROC=$(( $N_NODE * $PROC_PER_NODE ))
+THREAD_PER_PROC=$(( $CORE_PER_NODE / $PROC_PER_NODE ))
+PER_PROC_MEM=$(( $PER_NODE_MEMORY / $PROC_PER_NODE - 2)) #2GB margin of error
+export OMP_NUM_THREADS=$THREAD_PER_PROC
 
-ALG=inc-v1
-MCL_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/mcl
-INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
+#IN_FILE=$SCRATCH/geom/geom.mtx
+#OUT_PREFIX=$SCRATCH/geom-incremental/3-split/geom
+#DATA_NAME=geom
+#N_SPLIT=3
 
-#MFILE=/global/cscratch1/sd/taufique/virus-lcc/vir_vs_vir_30_50length_propermm.mtx.lcc
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus-lcc.n1.s20
+BINARY=$HOME/Codes/CombBLAS/_build/Applications/Incremental/inc-pipeline
 
-#MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
-#ALG=inc-v1
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#ALG=inc-base
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#ALG=inc-full
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20 &> out.$ALG.virus.n1.s20
-#MFILE=/global/cscratch1/sd/taufique/virus/vir_vs_vir_30_50length_propermm.mtx
-#srun -N 1 -n 4 -c 16 --ntasks-per-node=4 --cpu-bind=cores $MCL_BIN -I 2 -M $MFILE --matrix-market -per-process-mem 20 -o $MFILE.hipmcl
+DATA_NAME=virus-lcc
+N_SPLIT=10
+INCREMENTAL_START=10
+SUMMARY_THRESHOLD=70
+SELECTIVE_PRUNE_THRESHOLD=10 
+INPUT_DIR=$CFS/m1982/taufique/virus-lcc-incremental/"$N_SPLIT"-split/
+INFILE_PREFIX=lcc_virus_30_50_length
 
-MFILE=/global/cscratch1/sd/taufique/eukarya-debug/Renamed_euk_vs_euk_30_50length.indexed.mtx
-ALG=inc-v1
-INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
-srun -N 256 -n 1024 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n256.s50
-#ALG=inc-base
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
-#ALG=inc-full
-#INC_BIN=/global/homes/t/taufique/Codes/CombBLAS/_build/Applications/Incremental/$ALG
-#srun -N 16 -n 64 -c 16 --ntasks-per-node=4 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 50 --per-process-mem 20 &> debug.out.$ALG.euk.n16.s50
+#DATA_NAME=virus
+#N_SPLIT=10
+#INCREMENTAL_START=10
+#SUMMARY_THRESHOLD=70
+#SELECTIVE_PRUNE_THRESHOLD=10 
+#INPUT_DIR=$CFS/m1982/taufique/virus-incremental/"$N_SPLIT"-split/
+#INFILE_PREFIX=vir_30_50_length
 
-#MFILE=/global/cscratch1/sd/taufique/email-Eu-core/email-Eu-core.mtx
-#srun -N alloc -N <numNodes> -t <walltime> -q interactive -C knl -n 1 -c 64 --ntasks-per-node=1 --cpu-bind=cores $INC_BIN -I mm -M $MFILE -N 20 --per-process-mem 20
+#DATA_NAME=eukarya-lcc
+#N_SPLIT=50
+#INCREMENTAL_START=50 
+#SUMMARY_THRESHOLD=70 
+#SELECTIVE_PRUNE_THRESHOLD=10 
+#INPUT_DIR=$CFS/m1982/taufique/eukarya-lcc-incremental/"$N_SPLIT"-split/
+#INFILE_PREFIX=lcc_eukarya_30_50_length
+
+#DATA_NAME=eukarya
+#N_SPLIT=50
+#INCREMENTAL_START=50 
+#SUMMARY_THRESHOLD=70 
+#SELECTIVE_PRUNE_THRESHOLD=10 
+#INPUT_DIR=$CFS/m1982/taufique/eukarya-incremental/"$N_SPLIT"-split/
+#INFILE_PREFIX=eukarya_30_50_length
+
+OUTPUT_DIR_NAME=incremental.$DATA_NAME.$N_SPLIT.$INCREMENTAL_START.$SUMMARY_THRESHOLD.$SELECTIVE_PRUNE_THRESHOLD.$SYSTEM.node_"$N_NODE".proc_"$PROC_PER_NODE".thread_"$THREAD_PER_PROC"
+OUTPUT_DIR=$SCRATCH/$OUTPUT_DIR_NAME/
+if [ -d $OUTPUT_DIR ]; then 
+    rm -rf $OUTPUT_DIR; 
+fi
+mkdir -p $OUTPUT_DIR
+STDOUT_FILE=$SCRATCH/stdout.$OUTPUT_DIR_NAME
+
+echo Running incremental pipeline simulation: $BINARY
+echo Using $N_NODE nodes: $N_PROC processes x $THREAD_PER_PROC threads
+echo Input directory: $INPUT_DIR
+echo Input fileprefix: $INFILE_PREFIX
+echo Number of splits: $N_SPLIT
+echo Incremental start step: $INCREMENTAL_START
+echo Summary threshold: $SUMMARY_THRESHOLD
+echo Selective prune threshold: $SELECTIVE_PRUNE_THRESHOLD
+echo Output directory: $OUTPUT_DIR
+echo Per process memory: $PER_PROC_MEM GB
+
+srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores \
+    $BINARY \
+    --input-dir $INPUT_DIR --infile-prefix $INFILE_PREFIX \
+    --num-split $N_SPLIT --incremental-start $INCREMENTAL_START --summary-threshold $SUMMARY_THRESHOLD --selective-prune-threshold $SELECTIVE_PRUNE_THRESHOLD\
+    --hipmcl-before-incremental 1\
+    --output-dir $OUTPUT_DIR --per-process-mem $PER_PROC_MEM &> $STDOUT_FILE
+echo ---
+
+for INCREMENTAL_START in 4 6 8 # For virus
+#for INCREMENTAL_START in 40 # For eukarya 20, 30, 40
+do
+    for SUMMARY_THRESHOLD in 30 50 70 90 # 30%, 50%, 70%, 90%
+    do
+        for SELECTIVE_PRUNE_THRESHOLD in 5 10 30 50 70 # 5% 10%, 30%, 50%, 70%
+        do
+            OUTPUT_DIR_NAME=incremental.$DATA_NAME.$N_SPLIT.$INCREMENTAL_START.$SUMMARY_THRESHOLD.$SELECTIVE_PRUNE_THRESHOLD.$SYSTEM.node_"$N_NODE".proc_"$PROC_PER_NODE".thread_"$THREAD_PER_PROC"
+            OUTPUT_DIR=$SCRATCH/$OUTPUT_DIR_NAME/
+            if [ -d $OUTPUT_DIR ]; then 
+                rm -rf $OUTPUT_DIR; 
+            fi
+            mkdir -p $OUTPUT_DIR
+            STDOUT_FILE=$SCRATCH/stdout.$OUTPUT_DIR_NAME
+
+            echo Running incremental pipeline simulation: $BINARY
+            echo Using $N_NODE nodes: $N_PROC processes x $THREAD_PER_PROC threads
+            echo Input directory: $INPUT_DIR
+            echo Input fileprefix: $INFILE_PREFIX
+            echo Number of splits: $N_SPLIT
+            echo Incremental start step: $INCREMENTAL_START
+            echo Summary threshold: $SUMMARY_THRESHOLD
+            echo Selective prune threshold: $SELECTIVE_PRUNE_THRESHOLD
+            echo Output directory: $OUTPUT_DIR
+            echo Per process memory: $PER_PROC_MEM GB
+
+            srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores \
+                $BINARY \
+                --input-dir $INPUT_DIR --infile-prefix $INFILE_PREFIX \
+                --num-split $N_SPLIT --incremental-start $INCREMENTAL_START --summary-threshold $SUMMARY_THRESHOLD --selective-prune-threshold $SELECTIVE_PRUNE_THRESHOLD\
+                --output-dir $OUTPUT_DIR --per-process-mem $PER_PROC_MEM &> $STDOUT_FILE
+            echo ---
+
+        done
+    done
+done
+
