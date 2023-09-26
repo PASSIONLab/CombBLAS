@@ -1,19 +1,20 @@
 # Top level directory has the include files
 
+## Add timing flag for timing breakdown prints
+## https://stackoverflow.com/questions/44284275/passing-compiler-options-in-cmake
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTIMING")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTIMING")
+
 ADD_EXECUTABLE(inc Main.cpp)
 ADD_EXECUTABLE(testideas Test.cpp)
+ADD_EXECUTABLE(spgemm SpGEMM.cpp)
 ADD_EXECUTABLE(prep-data Prep-Data.cpp)
 ADD_EXECUTABLE(lcc LargestCC.cpp)
-ADD_EXECUTABLE(inc-full Incremental-Full.cpp)
-ADD_EXECUTABLE(inc-base Incremental-Baseline.cpp)
-ADD_EXECUTABLE(inc-v1 Incremental-V1.cpp)
-ADD_EXECUTABLE(inc-v2 Incremental-V2.cpp)
+ADD_EXECUTABLE(inc-pipeline Incremental-Pipeline.cpp)
 
 TARGET_LINK_LIBRARIES( inc CombBLAS )
 TARGET_LINK_LIBRARIES( testideas CombBLAS )
+TARGET_LINK_LIBRARIES( spgemm CombBLAS )
 TARGET_LINK_LIBRARIES( prep-data CombBLAS )
 TARGET_LINK_LIBRARIES( lcc CombBLAS )
-TARGET_LINK_LIBRARIES( inc-full CombBLAS )
-TARGET_LINK_LIBRARIES( inc-base CombBLAS )
-TARGET_LINK_LIBRARIES( inc-v1 CombBLAS )
-TARGET_LINK_LIBRARIES( inc-v2 CombBLAS )
+TARGET_LINK_LIBRARIES( inc-pipeline CombBLAS )

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     {
         if(myrank == 0)
         {
-            cout << "Usage: ./inc -I <mm|triples> -M <MATRIX_FILENAME> -N <NUMBER OF SPLITS>\n";
+            cout << "Usage: ./prep-data -I <mm|triples> -M <MATRIX_FILENAME> -N <NUMBER OF SPLITS>\n";
             cout << "-I <INPUT FILE TYPE> (mm: matrix market, triples: (vtx1, vtx2, edge_weight) triples, default: mm)\n";
             cout << "-M <MATRIX FILE NAME>\n";
             cout << "-base <BASE OF MATRIX MARKET> (default:1)\n";
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         typedef PlusTimesSRing<double, double> PTFF;
         typedef PlusTimesSRing<bool, double> PTBOOLNT;
         typedef PlusTimesSRing<double, bool> PTNTBOOL;
-        typedef std::array<char, MAXVERTNAME> LBL;
+        typedef std::array<char, MAXVERTNAME> LBL; // MAXVERTNAME is 64, defined in SpDefs
         
         double t0, t1, t2, t3, t4, t5;
 
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
         
         std::mt19937 rng;
         rng.seed(myrank);
-        std::uniform_int_distribution<IT> udist(0, 9999);
+        std::uniform_int_distribution<IT> udist(0, 999999); // Range of the random number is between 0 and 1million
 
         IT gnRow = M.getnrow();
         IT nRowPerProc = gnRow / nprocs;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         IT lRowEnd = (myrank == nprocs - 1) ? gnRow : (myrank + 1) * nRowPerProc;
 
         std::vector < std::vector < IT > > lvList(nSplit);
-        std::vector < std::vector < LBL > > lvListLabels(nSplit); // MAXVERTNAME is 64, defined in SpDefs
+        std::vector < std::vector < LBL > > lvListLabels(nSplit); 
                                                                                            
         for (IT r = lRowStart; r < lRowEnd; r++) {
             IT randomNum = udist(rng);
@@ -179,52 +179,107 @@ int main(int argc, char* argv[])
             FullyDistVec<IT, IT> newVertices(*(dvList[s]));
             FullyDistVec<IT, LBL> newVerticesLabels(*(dvListLabels[s]));
 
-            for(int it=0; it<1 && (s >= startSplit) && (s < endSplit); it++){
+            if( (s >= startSplit) && (s < endSplit))
+            {
+                if(myrank == 0) printf("[Start] Subgraph extraction\n");
+                if(s == 1){
+                    M11.FreeMemory();
+                    t0 = MPI_Wtime();
+                    M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+                    t1 = MPI_Wtime();
+                    if(myrank == 0) printf("Time to extract M11: %lf\n", t1 - t0);
+                    M11.PrintInfo();
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("mtx");
+                    M11.ParallelWriteMM(outFileName, base);
+                    {
+                        if(myrank == 0) printf("---\n");
+                        SpParMat<IT, NT, DER> Mreadback(fullWorld);
+                        Mreadback.ParallelReadMM(outFileName, base, maximum<NT>());
+                        Mreadback.PrintInfo();
+                        bool isEqual = (Mreadback == M11);
+                        if(isEqual){
+                            if(myrank == 0) printf("Equal\n");
+                        }
+                        else{
+                            if(myrank == 0) printf("Not equal\n");
+                        }
+                        if(myrank == 0) printf("---\n");
+                    }
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("lbl");
+                    prevVertices.ParallelWrite(outFileName, base);
+                }
 
-            //if(myrank == 0) printf("It: %d\n", it);
-            if(myrank == 0) printf("[Start] Subgraph extraction\n");
-            if(s == 1){
-                M11.FreeMemory();
+                M12.FreeMemory();
                 t0 = MPI_Wtime();
-                M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
+                M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
                 t1 = MPI_Wtime();
-                if(myrank == 0) printf("Time to extract M11: %lf\n", t1 - t0);
-                M11.PrintInfo();
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("mtx");
-                M11.ParallelWriteMM(outFileName, base);
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("lbl");
-                prevVertices.ParallelWrite(outFileName, base);
-            }
+                if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
+                M12.PrintInfo();
+                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
+                M12.ParallelWriteMM(outFileName, base);
+                {
+                    if(myrank == 0) printf("---\n");
+                    SpParMat<IT, NT, DER> Mreadback(fullWorld);
+                    Mreadback.ParallelReadMM(outFileName, base, maximum<NT>());
+                    Mreadback.PrintInfo();
+                    bool isEqual = (Mreadback == M12);
+                    if(isEqual){
+                        if(myrank == 0) printf("Equal\n");
+                    }
+                    else{
+                        if(myrank == 0) printf("Not equal\n");
+                    }
+                    if(myrank == 0) printf("---\n");
+                }
 
-            M12.FreeMemory();
-            t0 = MPI_Wtime();
-            M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
-            M12.PrintInfo();
-            outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
-            M12.ParallelWriteMM(outFileName, base);
-
-            M21.FreeMemory();
-            t0 = MPI_Wtime();
-            M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
-            M21.PrintInfo();
-            outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
-            M21.ParallelWriteMM(outFileName, base);
-            
-            M22.FreeMemory();
-            t0 = MPI_Wtime();
-            M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
-            t1 = MPI_Wtime();
-            if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
-            M22.PrintInfo();
-            outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
-            M22.ParallelWriteMM(outFileName, base);
-            outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
-            newVertices.ParallelWrite(outFileName, base);
-            if(myrank == 0) printf("[End] Subgraph extraction\n");
+                M21.FreeMemory();
+                t0 = MPI_Wtime();
+                M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
+                t1 = MPI_Wtime();
+                if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
+                M21.PrintInfo();
+                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
+                M21.ParallelWriteMM(outFileName, base);
+                {
+                    if(myrank == 0) printf("---\n");
+                    SpParMat<IT, NT, DER> Mreadback(fullWorld);
+                    Mreadback.ParallelReadMM(outFileName, base, maximum<NT>());
+                    Mreadback.PrintInfo();
+                    bool isEqual = (Mreadback == M21);
+                    if(isEqual){
+                        if(myrank == 0) printf("Equal\n");
+                    }
+                    else{
+                        if(myrank == 0) printf("Not equal\n");
+                    }
+                    if(myrank == 0) printf("---\n");
+                }
+                
+                M22.FreeMemory();
+                t0 = MPI_Wtime();
+                M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
+                t1 = MPI_Wtime();
+                if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
+                M22.PrintInfo();
+                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
+                M22.ParallelWriteMM(outFileName, base);
+                {
+                    if(myrank == 0) printf("---\n");
+                    SpParMat<IT, NT, DER> Mreadback(fullWorld);
+                    Mreadback.ParallelReadMM(outFileName, base, maximum<NT>());
+                    Mreadback.PrintInfo();
+                    bool isEqual = (Mreadback == M22);
+                    if(isEqual){
+                        if(myrank == 0) printf("Equal\n");
+                    }
+                    else{
+                        if(myrank == 0) printf("Not equal\n");
+                    }
+                    if(myrank == 0) printf("---\n");
+                }
+                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
+                newVertices.ParallelWrite(outFileName, base);
+                if(myrank == 0) printf("[End] Subgraph extraction\n");
             
             }
             
