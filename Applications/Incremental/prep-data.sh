@@ -9,7 +9,7 @@
 
 #SBATCH -t 0:30:00
 
-#SBATCH -N 1
+#SBATCH -N 8
 #SBATCH -J prep-data
 #SBATCH -o slurm.prep-data.o%j
 
