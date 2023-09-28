@@ -88,11 +88,14 @@ if __name__=="__main__":
                             fscore = float(last_line_tokens[2])
                         else:
                             print("Could not read fscore from", fscore_filename);
+                            pass
                 else:
                     print(fscore_filename, "does not exist")
+                    pass
                 split_stat["fscore"] = fscore
                 if(current_state == state_ready):
-                    stats.append(copy.deepcopy(split_stat));
+                    # stats.append(copy.deepcopy(split_stat));
+                    stats.append(dict(split_stat))
                     current_state = state_start
             elif (line.startswith("[Start] Subgraph extraction")):
                 if (current_state == state_ready):
@@ -112,7 +115,7 @@ if __name__=="__main__":
             elif (line.startswith("[End] Preparing Minc")):
                 if (current_state == state_prep_minc):
                     current_state = state_ready
-            elif (line.startswith("[Start] Clustering Minc")):
+            elif (line.startswith("[Start] Clustering Minc") or line.startswith("[Start] Clustering Mall")):
                 if (current_state == state_ready):
                     current_state = state_cluster_minc
             elif (line.startswith("[End] Clustering Minc")):
@@ -159,7 +162,7 @@ if __name__=="__main__":
     
     # Write collected data to a JSON file
     data = { "metadata": metadata, "stats": stats}
-    # js_stats = json.dumps(data)
+    js_stats = json.dumps(data)
     # with open(ofname+".json", "w", encoding='utf-8') as f:
         # json.dump(data, f, ensure_ascii=False, indent=4)
 	# csv_data = normalize_json(data)
