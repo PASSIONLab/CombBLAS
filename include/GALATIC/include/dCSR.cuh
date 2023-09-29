@@ -36,6 +36,7 @@
 #include <algorithm>
 #pragma once
 
+
 template<typename T>
 struct CSR;
 

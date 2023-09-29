@@ -1018,27 +1018,52 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 }
 
 template <typename UDERA, typename NU1> 
-void convertCSR(UDERA * ARecv, CSR<NU1>& input_CPU, dCSR<NU1>& input_GPU) {
+void convertCSR(UDERA *& ARecv, dCSR<NU1>& input_GPU, int id) {
     typedef typename UDERA::LocalIT LIA;
     LIA j = 0;
-    for(LIA i = 0; i <= ARecv->getnzc(); ++i) {
-            if (i == ARecv->getnzc()) {
-                while(j <= ARecv->getncol()) {
-            input_CPU.row_offsets[j++] = ARecv->GetDCSC()->cp[i];
-        }
-        break;
-            }
-            while(j <= ARecv->GetDCSC()->jc[i]) {
-                input_CPU.row_offsets[j] = ARecv->GetDCSC()->cp[i];
-                j++;
-            }
-        }
-        input_GPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
-        std::cout << "STARTING COPY" << std::endl;
-    gpuErrchk(cudaMemcpy(input_GPU.data, &ARecv->GetDCSC()->numx[0], input_CPU.nnz * sizeof(NU1), cudaMemcpyHostToDevice));
-    gpuErrchk(cudaMemcpy(input_GPU.col_ids, &ARecv->GetDCSC()->ir[0], input_CPU.nnz * sizeof(unsigned int), cudaMemcpyHostToDevice));
-    gpuErrchk(cudaMemcpy(input_GPU.row_offsets, &input_CPU.row_offsets[0], (input_CPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    unsigned int* rows;
+    cudaMallocHost(&rows, sizeof(unsigned int) * (ARecv->getncol() + 1));
+    std::cout << "Starting LOOP " << id << std::endl;
+    for (LIA i = 0; i <= ARecv->getnzc(); ++i) {
+                if (i == ARecv->getnzc()) {
+                        while (j <= ARecv->getncol()) {
+                                unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
+                                rows[j] = val;
+                                j++;
+                        }
+                        break;
+                }
+                while (j <= ARecv->GetDCSC()->jc[i] && j <= ARecv->getncol()) {
+                        unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
+                        rows[j] = val;
+                        j++;
+                }
+    }
+        std::cout << "STARTING ALLOCING in CONV " << id << std::endl;
+        dealloc(input_GPU);
+        input_GPU.rows = ARecv->getncol() ;
+        input_GPU.cols = ARecv->getnrow();
+        input_GPU.nnz = ARecv->getnnz();
+        gpuErrchk(cudaMalloc(&input_GPU.data, sizeof(NU1)*(ARecv->getnnz())));
+        gpuErrchk(cudaMalloc(&input_GPU.col_ids, sizeof(unsigned int)*(ARecv->getnnz())));
+        gpuErrchk(cudaMalloc(&input_GPU.row_offsets, sizeof(unsigned int)*(ARecv->getncol() + 1)));
+        gpuErrchk(cudaDeviceSynchronize());
+        std::cout << "STARTING COPY " << id << std::endl;
+        
+    cudaMemcpy(&input_GPU.row_offsets, rows, (input_GPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    
+    gpuErrchk(cudaDeviceSynchronize());
+    std::cout << "CPED ROW/COLS " << id << std::endl;
+    //gpuErrchk(cudaMemcpy(input_GPU.data, &ARecv->GetDCSC()->numx[0], 1 * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaDeviceSynchronize());
+    std::cout << "CPED NUM " << id << std::endl;
+    //gpuErrchk(cudaMemcpy(input_GPU.col_ids, &ARecv->GetDCSC()->ir[0], 1 * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaDeviceSynchronize());
+    std::cout << "DELETING ROWS " << id << std::endl;
+    
+    delete [] rows;
 }
+
 
 /**
  * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but 
@@ -1180,12 +1205,12 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         CSR<NU1> input_A_CPU;
         CSR<NU2> input_B_CPU;
         Arith_SR semiring;
-        input_A_CPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
-        input_B_CPU.alloc(BRecv->getncol(), BRecv->getnrow(), BRecv->getnnz());
+        int id; 
+        MPI_Comm_rank(MPI_COMM_WORLD, &id);
         //std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
-        std::cout << "STARTING CONVERT" << std::endl;
-        convertCSR<UDERA, NU1>(ARecv, input_A_CPU, input_A_GPU);
-        convertCSR<UDERB, NU2>(BRecv, input_B_CPU, input_B_GPU);
+        std::cout << "STARTING CONVERT" << id << std::endl;
+        convertCSR<UDERA, NU1>(ARecv,  input_A_GPU, id);
+        convertCSR<UDERB, NU2>(BRecv,  input_B_GPU, id);
         dCSR<NUO> result_mat_GPU;
         
         gpuErrchk(cudaDeviceSynchronize());	
@@ -1307,10 +1332,8 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         CSR<NU1> input_A_CPU;
         CSR<NU2> input_B_CPU;
         Arith_SR semiring;
-        input_A_CPU.alloc(ARecv->getncol(), ARecv->getnrow(), ARecv->getnnz());
-        input_B_CPU.alloc(BRecv->getncol(), BRecv->getnrow(), BRecv->getnnz());
-        convertCSR<UDERA, NU1>(ARecv, input_A_CPU, input_A_GPU);
-        convertCSR<UDERB, NU2>(BRecv, input_B_CPU, input_B_GPU);
+        convertCSR<UDERA, NU1>(ARecv,  input_A_GPU, Aself * 2 + Bself);
+        convertCSR<UDERB, NU2>(BRecv,  input_B_GPU, Aself * 2 + Bself);
         cudaDeviceSynchronize();	
         dCSR<NUO> result_mat_GPU;
         cudaDeviceSynchronize();	
