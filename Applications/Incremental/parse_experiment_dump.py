@@ -3,6 +3,7 @@ import copy
 import json
 import os
 import pandas as pd
+import csv
 
 def normalize_json(data: dict) -> dict:
     new_data = dict()
@@ -73,6 +74,13 @@ if __name__=="__main__":
                     current_state = state_ready
             elif (line.startswith("[End] Split")):
                 # Read fscore for the specific file for current split
+                #fscore_filename = metadata["output-directory"] + str(current_split) + ".fscore"
+                fscore_filename = "/home/mth/Data/nersc/temp/parameter-study/eukarya/incremental." + \
+                                  metadata["dataname"] + "." + \
+                                  str(metadata["nsplit"]) + "." + \
+                                  str(metadata["incremental-kickin-step"]) + "." + \
+                                  str(metadata["summary-threshold"]) + "." + \
+                                  str(metadata["selective-prune-threshold"]) + ".perlmutter_cpu.node_8.proc_8.thread_16" + "/" + str(current_split) + ".fscore"
                 fscore_filename = metadata["output-directory"] + str(current_split) + ".fscore"
                 fscore = -1.0
                 if(os.path.exists(fscore_filename)):
@@ -166,14 +174,18 @@ if __name__=="__main__":
     # with open(ofname+".json", "w", encoding='utf-8') as f:
         # json.dump(data, f, ensure_ascii=False, indent=4)
 	# csv_data = normalize_json(data)
-    
+
     # Write collected data to a CSV file, for easier analysis with spreadsheets
     csv_data = copy.deepcopy(stats)
+    headers = [] 
     for i in range(len(csv_data)):
         for k in metadata.keys():
             csv_data_key = "metadata"+ "_" + k
             csv_data[i][csv_data_key] = metadata[k]
-    
-    columns = sorted(csv_data[0].keys())
-    df = pd.DataFrame(csv_data)
-    df.to_csv(ofname, index=False, columns=columns)
+        headers += csv_data[i].keys()
+    headers = sorted(set(headers))
+
+    with open(ofname, "w") as f:
+        dict_writer = csv.DictWriter(f, fieldnames=headers)
+        dict_writer.writeheader()
+        dict_writer.writerows(csv_data)
