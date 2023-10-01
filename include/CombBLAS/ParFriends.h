@@ -598,6 +598,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             t1 = MPI_Wtime();
             mcl_Abcasttime += (t1-t0);
+            /*
             int64_t nnz_local = ARecv->getnnz();
             int64_t nnz_min;
             int64_t nnz_max;
@@ -610,6 +611,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
             MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
             strn << "Phase: " << p << ", Stage: " << i << ", A_bcast_time_max: " << time_max << ", A_bcast_time_min: " << time_min << std::endl;;
+            */
 
 #endif
             ess.clear();
@@ -631,6 +633,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             double t3=MPI_Wtime();
             mcl_Bbcasttime += (t3-t2);
+            /*
             nnz_local = BRecv->getnnz();
             MPI_Allreduce(&nnz_local, &nnz_min, 1, MPI_LONG_LONG_INT, MPI_MIN, MPI_COMM_WORLD);
             MPI_Allreduce(&nnz_local, &nnz_max, 1, MPI_LONG_LONG_INT, MPI_MAX, MPI_COMM_WORLD);
@@ -639,6 +642,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
             MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
             strn << "Phase: " << p << ", Stage: " << i << ", B_bcast_time_max: " << time_max << ", B_bcast_time_min: " << time_min << std::endl;;
+            */
 #endif
             
             
@@ -659,7 +663,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Barrier(A.getcommgrid()->GetWorld());
             double t5=MPI_Wtime();
             mcl_localspgemmtime += (t5-t4);
-
+            /*
             nnz_local = C_cont->getnnz();
             MPI_Allreduce(&nnz_local, &nnz_min, 1, MPI_LONG_LONG_INT, MPI_MIN, MPI_COMM_WORLD);
             MPI_Allreduce(&nnz_local, &nnz_max, 1, MPI_LONG_LONG_INT, MPI_MAX, MPI_COMM_WORLD);
@@ -668,6 +672,7 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             MPI_Allreduce(&time_local, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
             MPI_Allreduce(&time_local, &time_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
             strn << "Phase: " << p << ", Stage: " << i << ", spgemm_time_max: " << time_max << ", spgemm_time_min: " << time_min << std::endl;;
+            */
 #endif
 
             if(!C_cont->isZero())

@@ -87,6 +87,8 @@ typedef struct
     double selectivePruneThreshold;
     string incMatFname;
     bool shuffleVertexOrder;
+    bool dumpMarkovStates;
+    string markovStatePrefix;
 }HipMCLParam;
 
 void InitParam(HipMCLParam & param)
@@ -133,6 +135,8 @@ void InitParam(HipMCLParam & param)
     param.normalizedAssign = false; // Turn off normalized assign by default
     param.selectivePruneThreshold = -1.0; // Turn off selective prunning by default
     param.shuffleVertexOrder = false; // Turn off vertex shuffle by default
+    param.dumpMarkovStates = false;
+    param.markovStatePrefix = "";
 }
 
 
@@ -565,6 +569,11 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
             // If no maximum iteration is specified as number of iterations necessary for summary to be saved
             if (summarySaved) stopIter = true;
         }
+        if(param.dumpMarkovStates ){
+            std::string itMatName = param.markovStatePrefix + std::string(".") + std::string("markov-it-") + std::to_string(it) + std::string(".") + std::string("mtx");
+            cout << "Iteration matrix: " << it << itMatName << endl;
+            A.ParallelWriteMM(itMatName, param.base);
+        }
         it++;
     }
     
@@ -585,15 +594,15 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
     stringstream s2;
     s2 << "Number of clusters: " << nclusters << endl;
     s2 << "Total MCL time: " << tTotal << endl;
-//#ifdef TIMING
-    //s2 << "Abcasttime: " << mcl_Abcasttime << endl;
-    //s2 << "Bbcasttime: " << mcl_Bbcasttime << endl;
-    //s2 << "localspgemmtime: " << mcl_localspgemmtime << endl;
-    //s2 << "multiwaymergetime: " << mcl_multiwaymergetime << endl;
-    //s2 << "kselecttime: " << mcl_kselecttime << endl;
-    //s2 << "prunecolumntime: " << mcl_prunecolumntime << endl;
-//#endif
-    //s2 << "=================================================\n" << endl ;
+#ifdef TIMING
+    s2 << "Abcasttime: " << mcl_Abcasttime << endl;
+    s2 << "Bbcasttime: " << mcl_Bbcasttime << endl;
+    s2 << "localspgemmtime: " << mcl_localspgemmtime << endl;
+    s2 << "multiwaymergetime: " << mcl_multiwaymergetime << endl;
+    s2 << "kselecttime: " << mcl_kselecttime << endl;
+    s2 << "prunecolumntime: " << mcl_prunecolumntime << endl;
+#endif
+    s2 << "=================================================\n" << endl ;
     SpParHelper::Print(s2.str());
 }
 
@@ -651,6 +660,7 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
     double tInflate = 0;
     double tExpand = 0;
     double tTotal = 0;
+    double tSelectivePrune = 0;
     typedef PlusTimesSRing<NT, NT> PTFF;
 	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
 	if(param.layers > 1) {
@@ -707,9 +717,11 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
             A.PrintInfo();
         }
         
+        double t2 = MPI_Wtime();
         if( (nnzAfterIter > nnzBeforeIter) && (param.selectivePruneThreshold >= 0.0) ){
             SelectivePrune(A, Mask, isOld, param); //in-place
         }
+        tSelectivePrune += (MPI_Wtime()-t2);
 
         if(param.layers == 1) chaos = Chaos(A);
         else chaos = Chaos3D(A3D_cs);
@@ -814,6 +826,12 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
             // If no maximum iteration is specified as number of iterations necessary for summary to be saved
             if (summarySaved) stopIter = true;
         }
+        
+        if(param.dumpMarkovStates ){
+            std::string itMatName = param.markovStatePrefix + std::string(".") + std::string("markov-it-") + std::to_string(it) + std::string(".") + std::string("mtx");
+            cout << "Iteration matrix: " << it << itMatName << endl;
+            A.ParallelWriteMM(itMatName, param.base);
+        }
         it++;
     }
     
@@ -834,15 +852,16 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
     stringstream s2;
     s2 << "Number of clusters: " << nclusters << endl;
     s2 << "Total MCL time: " << tTotal << endl;
-//#ifdef TIMING
-    //s2 << "Abcasttime: " << mcl_Abcasttime << endl;
-    //s2 << "Bbcasttime: " << mcl_Bbcasttime << endl;
-    //s2 << "localspgemmtime: " << mcl_localspgemmtime << endl;
-    //s2 << "multiwaymergetime: " << mcl_multiwaymergetime << endl;
-    //s2 << "kselecttime: " << mcl_kselecttime << endl;
-    //s2 << "prunecolumntime: " << mcl_prunecolumntime << endl;
-//#endif
-    //s2 << "=================================================\n" << endl ;
+#ifdef TIMING
+    s2 << "Abcasttime: " << mcl_Abcasttime << endl;
+    s2 << "Bbcasttime: " << mcl_Bbcasttime << endl;
+    s2 << "localspgemmtime: " << mcl_localspgemmtime << endl;
+    s2 << "multiwaymergetime: " << mcl_multiwaymergetime << endl;
+    s2 << "kselecttime: " << mcl_kselecttime << endl;
+    s2 << "prunecolumntime: " << mcl_prunecolumntime << endl;
+    s2 << "selectiveprunetime: " << tSelectivePrune << endl;
+#endif
+    s2 << "=================================================\n" << endl ;
     SpParHelper::Print(s2.str());
 }
 
@@ -878,7 +897,7 @@ void PrepIncMat(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
 
     double t0, t1, t2, t3;
     
-    //t0 = MPI_Wtime();
+    t0 = MPI_Wtime();
     
     /*
      *  Prepare a position mapping of where each old and new vertex will go in the incremental matrix
@@ -1055,8 +1074,8 @@ void PrepIncMat(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
      * Combining the two pieces(old, new) of each vector(label, mapping, old-new flag) done
      * */
 
-    //t1 = MPI_Wtime();
-    //if(myrank == 0) printf("Time to calculate vertex mapping: %lf\n", t1-t0);
+    t1 = MPI_Wtime();
+    if(myrank == 0) printf("Time to calculate vertex mapping: %lf\n", t1-t0);
 
     /*
      * Combine four pieces of matrix to prepare final incremental matrix
@@ -1093,49 +1112,34 @@ void PrepIncMat(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
             Mnn.Apply(bind1st(multiplies<NT>(), Mnn.getnrow()));
             //MakeColStochastic(Mnn);
         }
+        t0 = MPI_Wtime();
         Minc.SpAsgn(pMap, pMap, Mpp);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to assign M11: %lf\n", t1-t0);
+
+        t0 = MPI_Wtime();
         Minc_Mpn.SpAsgn(pMap, nMap, Mpn);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to assign M12: %lf\n", t1-t0);
+
+        t0 = MPI_Wtime();
         Minc_Mnp.SpAsgn(nMap, pMap, Mnp);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to assign M21: %lf\n", t1-t0);
+
+        t0 = MPI_Wtime();
         Minc_Mnn.SpAsgn(nMap, nMap, Mnn);
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to assign M22: %lf\n", t1-t0);
 
         // Sum them up
         //Mask += Mall; Mask += Mall_Mnn;
+        t0 = MPI_Wtime();
         Minc += Minc_Mpn; Minc += Minc_Mnp; Minc += Minc_Mnn;
         //MakeColStochastic(Minc);
         t1 = MPI_Wtime();
-        //Minc = Mall;
-
-        //Minc = SpParMat<IT,NT,DER>(Mpp.getnrow() + Mnn.getnrow(), 
-                     //Mpp.getncol() + Mnn.getncol(), 
-                     //FullyDistVec<IT,IT>(commGrid), 
-                     //FullyDistVec<IT,IT>(commGrid), 
-                     //FullyDistVec<IT,IT>(commGrid), true); 
-        //Minc.SpAsgn(pMap, pMap, Mpp);
-        //Minc.SpAsgn(pMap, nMap, Mpn);
-        //Minc.SpAsgn(nMap, pMap, Mnp);
-        //Minc.SpAsgn(nMap, nMap, Mnn);
+        if(myrank == 0) printf("Time to sum-up: %lf\n", t1-t0);
     } // All intermediate copies get deleted here
-
-    //{
-        //FullyDistVec<IT, IT> x( commGrid );
-        //x.iota(pMap.TotalLength(), 0); // Intialize with consecutive numbers
-        //FullyDistVec<IT, IT> y( commGrid );
-        //y.iota(nMap.TotalLength(), pMap.TotalLength()); // Initialize with consecutive numbers
-
-        //SpParMat<IT, NT, DER> MincTemp = SpParMat<IT,NT,DER>(Mpp.getnrow() + Mnn.getnrow(), Mpp.getncol() + Mnn.getncol(), 
-                     //FullyDistVec<IT,IT>(commGrid), FullyDistVec<IT,IT>(commGrid), FullyDistVec<IT,IT>(commGrid), true); 
-
-        //MincTemp.SpAsgn(x, x, Mpp);
-        //MincTemp.SpAsgn(x, y, Mpn);
-        //MincTemp.SpAsgn(y, x, Mnp);
-        //MincTemp.SpAsgn(y, y, Mnn);
-        //MincTemp(permMap, permMap, true);
-
-        //bool eq = (MincTemp == Minc);
-        //if (myrank == 0) cout << eq << endl;
-        
-        //fprintf(stderr, "[PrepIncMat] myrank: %d\t total nnz: %ld - %ld - %ld | local nnz: %ld - %ld - %ld\n", myrank, Minc.getnnz(), Mall.getnnz(), MincTemp.getnnz(), Minc.seqptr()->getnnz(), Mall.seqptr()->getnnz(), MincTemp.seqptr()->getnnz());
-    //}
 };
 
 template <class IT, class NT, class LBL, class DER>
