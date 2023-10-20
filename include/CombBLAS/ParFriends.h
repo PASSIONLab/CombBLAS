@@ -1061,7 +1061,7 @@ void convertCSR(UDERA *& ARecv, dCSR<NU1>& input_GPU, int id) {
     gpuErrchk(cudaDeviceSynchronize());
     std::cout << "DELETING ROWS " << id << std::endl;
     
-    delete [] rows;
+    cudaFree(rows);
 }
 
 
