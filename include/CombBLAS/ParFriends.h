@@ -655,7 +655,8 @@ SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<
             //else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv,i != Aself, i != Bself);
             if(computationKernel == 1) C_cont = LocalSpGEMMHash<SR, NUO>(*ARecv, *BRecv, false, false, false); // Hash SpGEMM without per-column sorting
             else if(computationKernel == 2) C_cont=LocalSpGEMM<SR, NUO>(*ARecv, *BRecv, false, false);
-
+            
+            // Explicitly delete ARecv and BRecv because it effectively does not get freed inside LocalSpGEMM function
             if(i != Bself && (!BRecv->isZero())) delete BRecv;
             if(i != Aself && (!ARecv->isZero())) delete ARecv;
 
@@ -3107,6 +3108,9 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
                             i != Aself,         // 'delete A' condition
                             i != Bself,         // 'delete B' condition
                             false);             // not to sort each column
+
+        if(i != Bself && (!BRecv->isZero())) delete BRecv;
+        if(i != Aself && (!ARecv->isZero())) delete ARecv;
 #ifdef TIMING
         t3 = MPI_Wtime();
         Local_multiplication_time += (t3-t2);
