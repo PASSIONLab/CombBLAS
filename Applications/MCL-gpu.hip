@@ -148,7 +148,7 @@ void InitParam(HipMCLParam & param)
     param.show = false;
 
 	// @EDIT
-	param.local_spgemm = LSPG_CPU;
+	param.local_spgemm = LSPG_HYBRID;
 	param.nrounds	   = 10;
 }
 
