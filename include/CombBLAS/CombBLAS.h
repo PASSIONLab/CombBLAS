@@ -58,11 +58,11 @@ NOTICE.  This Software was developed under funding from the U.S. Department of E
 
 
 // Just in case the -fopenmp didn't define _OPENMP by itself
-#ifdef THREADED
-	#ifndef _OPENMP
-	#define _OPENMP
-	#endif
-#endif
+// #ifdef THREADED
+// 	#ifndef _OPENMP
+// 	#define _OPENMP
+// 	#endif
+// #endif
 
 #ifdef _OPENMP
 	#include <omp.h>

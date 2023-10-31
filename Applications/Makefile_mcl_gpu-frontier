@@ -1,0 +1,65 @@
+CXX := CC
+HIP_CC := ${ROCM_PATH}/bin/hipcc
+CPP_OPT_FLAGS := -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
+CPP_DBG_FLAGS := -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+CPP_COM_FLAGS := -DTIMING -std=c++14 -DTHREADED -fopenmp
+C_COM_FLAGS := -DTIMING -DTHREADED -fopenmp
+CPP_FLAGS := $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
+C_FLAGS := $(CPP_OPT_FLAGS) $(C_COM_FLAGS)
+
+HIP_FLAGS := -std=c++14 -DTHREADED -fopenmp --amdgpu-target=gfx90a -w
+# HIP_XCMP := $(addprefix -Xcompiler , -DNDEBUG -w -std=c++14 -fopenmp -DTHREADED \
+#     -DGRAPH_GENERATOR_SEQ -O2 -DMPICH_IGNORE_CXX_SEEK \
+#     -DSHOW_MEMORY_USAGE -DTIMING )
+HIP_XCMP := $(addprefix -Xcompiler , -DNDEBUG -w \
+     -DGRAPH_GENERATOR_SEQ -O2 -DMPICH_IGNORE_CXX_SEEK \
+     -DSHOW_MEMORY_USAGE -DTIMING )
+HIP_FLAGS += $(HIP_XCMP)
+HIP_INC := -I${HIP_PATH}/include -I${CRAY_MPICH_DIR}/include
+EXTRA_LIBS := -L${ROCM_PATH}/lib -lamdhip64 -L${ROCM_PATH}/llvm/lib
+
+COMBBLAS := ..
+CBLAS_DIR := $(COMBBLAS)/include
+CBLAS_SRC := $(addprefix $(COMBBLAS)/src/, CommGrid.cpp mmio.c MPIType.cpp hash.cpp)
+CBLAS_OBJ := $(addprefix $(COMBBLAS)/src/, CommGrid.o mmio.o MPIType.o hash.o)
+CBLAS_INC := -I$(CBLAS_DIR) -I$(COMBBLAS)/psort-1.0/include/ \
+  -I$(COMBBLAS)/usort/include/ -I$(COMBBLAS)/graph500-1.2/generator/include/ 
+
+NSPARSE_DIR := ./gspgemm/nsparse
+NSPARSE_FLAGS := 
+NSPARSE_INC := -I$(NSPARSE_DIR)
+
+GSPGEMM_INC := -I./gspgemm
+
+EXECS := mcl_gpu
+
+export
+default: all
+all: $(EXECS)
+opt: CPP_FLAGS = $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS)
+opt: all
+dbg: CPP_FLAGS = $(CPP_DBG_FLAGS) $(CPP_COM_FLAGS)
+dbg: all
+prf: CPP_FLAGS = $(CPP_OPT_FLAGS) $(CPP_COM_FLAGS) -pg
+prf: all
+
+mcl_gpu: build $(CBLAS_OBJ) MCL-gpu.o
+	$(CXX) $(CPP_FLAGS) -o $@ $(CBLAS_OBJ) MCL-gpu.o -lm $(EXTRA_LIBS)
+
+%.o: %.hip
+	$(HIP_CC) $(HIP_FLAGS) -c $< -o $@  \
+      $(NSPARSE_INC) $(NSPARSE_FLAGS) $(CBLAS_INC) $(GSPGEMM_INC) $(HIP_INC)
+
+%.o: %.cpp
+	$(HIP_CC) $(CBLAS_INC) $(CPP_FLAGS) -c $< -o $@  $(HIP_INC)
+
+%.o: %.c
+	$(CXX) $(CBLAS_INC) $(C_FLAGS) -x c -c $< -o $@
+
+build:
+	@echo $(value CBLAS_OBJ)
+	test -d bin || mkdir bin
+
+.PHONY: clean
+clean:
+	rm $(CBLAS_OBJ) $(RMERGE_OBJ) mcl_gpu

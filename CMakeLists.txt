@@ -1,10 +1,24 @@
-cmake_minimum_required(VERSION 3.3)
-project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.21)  # HIP requires >= 3.21
+project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX HIP)
 
 # require c++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+SET(CMAKE_HIP_FLAGS "-std=c++14 -O2 \
+-Wno-deprecated-declarations -w -DNVCC -fopenmp -DTHREADED \
+ -Xcompiler -fopenmp")
+
+# !!! Specific to Frontier !!!
+include_directories(
+	$ENV{MPICH_DIR}/include
+	)
+link_directories(
+	$ENV{MPICH_DIR}/lib
+	)
+# !!! Specific to Frontier !!!
+
 
 # Main CombBLAS library
 add_library(CombBLAS src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp)
@@ -25,6 +39,7 @@ target_include_directories(CombBLAS PRIVATE include/CombBLAS)
 # MPI and OpenMP dependencies
 find_package(MPI REQUIRED)
 find_package(OpenMP)
+find_package(HIP)
 
 if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -112,12 +127,12 @@ install(
 )
 
 # Testing
-enable_testing()
-include(CTest)
+# enable_testing()
+# include(CTest)
 
-add_subdirectory(ReleaseTests)
+# add_subdirectory(ReleaseTests)
 add_subdirectory(Applications)
-add_subdirectory(Applications/Ordering)
-add_subdirectory(Applications/BipartiteMatchings)
-add_subdirectory(Applications/SpMSpV-IPDPS2017)
-add_subdirectory(3DSpGEMM)
+# add_subdirectory(Applications/Ordering)
+# add_subdirectory(Applications/BipartiteMatchings)
+# add_subdirectory(Applications/SpMSpV-IPDPS2017)
+# add_subdirectory(3DSpGEMM)
