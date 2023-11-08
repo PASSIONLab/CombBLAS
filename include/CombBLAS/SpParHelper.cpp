@@ -605,6 +605,27 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
   * 		For all others, it is a (yet) empty object to be filled by the received data}
   * @param[in] essentials {irrelevant for the root}
  **/
+template<typename IT, typename NT>	
+void SpParHelper::BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const std::vector<IT> & essentials, int root)
+{
+	int myrank;
+	MPI_Comm_rank(comm1d, &myrank);
+	if(myrank != root)
+	{
+		Matrix.alloc(essentials[2],essentials[1],essentials[0],true);	// allocate memory for arrays		
+	}
+
+
+	MPI_Bcast(Matrix.row_offsets, essentials[2]+1, MPIType<IT>(), root, comm1d);
+	MPI_Bcast(Matrix.col_ids, essentials[0], MPIType<IT>(), root, comm1d);
+	MPI_Bcast(Matrix.data, essentials[0], MPIType<IT>(), root, comm1d);	
+}
+
+/**
+  * @param[in] Matrix {For the root processor, the local object to be sent to all others.
+  * 		For all others, it is a (yet) empty object to be filled by the received data}
+  * @param[in] essentials {irrelevant for the root}
+ **/
 template<typename IT, typename NT, typename DER>	
 void SpParHelper::IBCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root, std::vector<MPI_Request> & indarrayReq , std::vector<MPI_Request> & numarrayReq)
 {
