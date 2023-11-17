@@ -1028,7 +1028,7 @@ void convertCSR(UDERA *& ARecv, dCSR<NU1>& input_GPU, int id) {
                 if (i == ARecv->getnzc()) {
                         while (j <= ARecv->getncol()) {
                                 unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
-                                rows[j] = val;
+                                //rows[j] = val;
                                 j++;
                         }
                         break;
@@ -1116,10 +1116,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
         int id; 
         MPI_Comm_rank(MPI_COMM_WORLD, &id);
         //std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
-        std::cout << "STARTING CONVERT" << id << std::endl;
-        convertCSR<UDERA, NU1>(A1seq,  input_A_GPU, id);
-        convertCSR<UDERB, NU2>(B1seq,  input_B_GPU, id);
-        dCSR<NUO> result_mat_GPU;
+        
         
         gpuErrchk(cudaDeviceSynchronize());	
     
@@ -1141,7 +1138,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 	UDERB * BRecv;
 	std::vector< SpTuples<LIC,NUO>  *> tomerge;
 
-	
+	std::cout << "STARTING CONVERT" << id << std::endl;
+        convertCSR<UDERA, NU1>(A1seq,  input_A_GPU, id);
+        convertCSR<UDERB, NU2>(B1seq,  input_B_GPU, id);
+        dCSR<NUO> result_mat_GPU;
     const int Threads = 128;
     const int BlocksPerMP = 1;
     const int NNZPerThread = 2;
@@ -1150,7 +1150,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
     const int MaxChunksToMerge = 16;
     const int MaxChunksGeneralizedMerge = 256; // MAX: 865
     const int MergePathOptions = 8;
-    
+    std::cout << "STARTING MPI" << id << std::endl;
     double mpi_overhead = 0.0;
 	for(int i = 0; i < stages; ++i) 
 	{
@@ -1171,8 +1171,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff_CUDA
 			}
 			ARecv = new UDERA();				// first, create the object
 		}
+        std::cout << "STARTING BCAST " << id << std::endl;
 		SpParHelper::BCastMatrixCUDA<uint,NU1>(GridC->GetRowWorld(), input_A_recv_GPU, ess, i);	// then, receive its elements	
-		ess.clear();	
+		std::cout << "ENDING BCAST " << id << std::endl;
+        ess.clear();	
 		if(i == Bself)
 		{
 			input_B_recv_GPU = input_B_GPU;	// shallow-copy
