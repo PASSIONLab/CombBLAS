@@ -615,11 +615,12 @@ void SpParHelper::BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const st
 		Matrix.alloc(essentials[2],essentials[1],essentials[0],true);	// allocate memory for arrays		
 	}
 
-	std::cout << "BCASTING 0" << std::endl;
-	MPI_Bcast(Matrix.row_offsets, 1, MPIType<IT>(), root, comm1d);
-	std::cout << "BCASTING 1" << std::endl;
+	//std::cout << "BCASTING 0" << std::endl;
+	//std::cout << essentials.size() <<  " " <<  std::endl;
+	MPI_Bcast(Matrix.row_offsets, essentials[2] + 1, MPIType<IT>(), root, comm1d);
+	//std::cout << "BCASTING 1" << std::endl;
 	MPI_Bcast(Matrix.col_ids, essentials[0], MPIType<IT>(), root, comm1d);
-	std::cout << "BCASTING 2" << std::endl;
+	//std::cout << "BCASTING 2" << std::endl;
 	MPI_Bcast(Matrix.data, essentials[0], MPIType<NT>(), root, comm1d);	
 }
 

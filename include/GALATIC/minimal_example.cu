@@ -106,6 +106,7 @@ int main(int argc, const char* argv[])
     dCSR<Arith_SR::output_t> result_mat_GPU;
         ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
          cudaDeviceSynchronize();
+         std::cout << result_mat_GPU.nnz << std::endl;
          convert(result_mat_CPU, result_mat_GPU);
          cudaDeviceSynchronize();
     }

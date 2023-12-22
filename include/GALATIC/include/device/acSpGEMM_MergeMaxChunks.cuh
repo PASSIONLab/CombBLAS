@@ -639,7 +639,7 @@ mergeSharedRowsMaxChunks(const uint32_t* __restrict blockOffsets, const uint32_t
 		// ######## DEBUG
 		if (threadIdx.x == 0 && elements == 0 /*&& sharedRows[blockIdx.x] == ROW_TO_INVESTIGATE*/)
 		{
-			printf("Row: %u got 0 elements with maxID: %u\n", sharedRows[blockIdx.x], smem.useMaxId);
+			//printf("Row: %u got 0 elements with maxID: %u\n", sharedRows[blockIdx.x], smem.useMaxId);
 		}
 		// ######## DEBUG
 

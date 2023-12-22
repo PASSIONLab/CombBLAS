@@ -52,7 +52,7 @@ int cblas_splits = 1;
 #endif
 
 #define ElementType double
-#define ITERATIONS 100
+#define ITERATIONS 5
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
