@@ -1011,82 +1011,132 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
 
-        cudaDeviceSynchronize();	
         //printf("%.6lf\n", mpi_overhead);
 	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
-template <typename NT1,typename NT2,typename NT3,typename sr>
+template <typename NT1, typename NT2, typename NT3, typename sr>
 struct Wrap_SR : SemiRing<NT1, NT2, NT3>
 {
-  __host__ __device__ NT3 multiply(const NT1& a, const NT2& b) const { return sr::multiply(a,b); }
-  __host__ __device__ NT3 add(const NT1& a, const NT2& b)   const   { return sr::add(a,b); }
-   __host__ __device__  static double AdditiveIdentity()                  { return     0; }
+    __host__ __device__ NT3 multiply(const NT1 &a, const NT2 &b) const { return sr::multiply(a, b); }
+    __host__ __device__ NT3 add(const NT1 &a, const NT2 &b) const { return sr::add(a, b); }
+    __host__ __device__ static double AdditiveIdentity() { return 0; }
 };
 
-template <typename UDERA, typename NU1> 
-void convertCSR(UDERA *& ARecv, dCSR<NU1>& input_GPU, int id) {
+template <typename UDERA, typename NU1>
+void convertCSR(UDERA *&ARecv, dCSR<NU1> &input_GPU, int id)
+{
     typedef typename UDERA::LocalIT LIA;
     LIA j = 0;
-    unsigned int* rows;
+    unsigned int *rows;
     cudaMallocHost(&rows, sizeof(unsigned int) * (ARecv->getncol() + 1));
-    //std::cout << "Starting LOOP " << id << std::endl;
-    for (LIA i = 0; i <= ARecv->getnzc(); ++i) {
-                if (i == ARecv->getnzc()) {
-                        while (j <= ARecv->getncol()) {
-                                unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
-                                rows[j] = val;
-                                j++;
-                        }
-                        break;
-                }
-                while (j <= ARecv->GetDCSC()->jc[i] && j <= ARecv->getncol()) {
-                        unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
-                        rows[j] = val;
-                        j++;
-                }
-    }
-        //std::cout << "STARTING ALLOCING in CONV " << id << std::endl;
-        dealloc(input_GPU);
-        input_GPU.rows = ARecv->getncol() ;
-        input_GPU.cols = ARecv->getnrow();
-        input_GPU.nnz = ARecv->getnnz();
-        //std::cout << input_GPU.nnz << std::endl;
-        for(int i = 0; i < ARecv->getnnz(); ++i) {
-            if(ARecv->GetDCSC()->numx[i] == 0) {
-               // std::cout << "ZERO at " << i << std::endl;
+    // std::cout << "Starting LOOP " << id << std::endl;
+    for (LIA i = 0; i <= ARecv->getnzc(); ++i)
+    {
+        if (i == ARecv->getnzc())
+        {
+            while (j <= ARecv->getncol())
+            {
+                unsigned int val = (unsigned int)ARecv->GetDCSC()->cp[i];
+                rows[j] = val;
+                j++;
             }
+            break;
         }
-        gpuErrchk(cudaMalloc(&input_GPU.data, sizeof(NU1)*(ARecv->getnnz())));
-        gpuErrchk(cudaMalloc(&input_GPU.col_ids, sizeof(unsigned int)*(ARecv->getnnz())));
-        gpuErrchk(cudaMalloc(&input_GPU.row_offsets, sizeof(unsigned int)*(ARecv->getncol() + 1)));
-        gpuErrchk(cudaDeviceSynchronize());
-        //std::cout << "STARTING COPY " << id << std::endl;
-        
-    cudaMemcpy(input_GPU.row_offsets, rows, (input_GPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    
+        while (j <= ARecv->GetDCSC()->jc[i] && j <= ARecv->getncol())
+        {
+            unsigned int val = (unsigned int)ARecv->GetDCSC()->cp[i];
+            rows[j] = val;
+            j++;
+        }
+    }
+    // std::cout << "STARTING ALLOCING in CONV " << id << std::endl;
+    dealloc(input_GPU);
+    input_GPU.rows = ARecv->getncol();
+    input_GPU.cols = ARecv->getnrow();
+    input_GPU.nnz = ARecv->getnnz();
+    // std::cout << input_GPU.nnz << std::endl;
+    for (int i = 0; i < ARecv->getnnz(); ++i)
+    {
+        if (ARecv->GetDCSC()->numx[i] == 0)
+        {
+            // std::cout << "ZERO at " << i << std::endl;
+        }
+    }
+    gpuErrchk(cudaMalloc(&input_GPU.data, sizeof(NU1) * (ARecv->getnnz())));
+    gpuErrchk(cudaMalloc(&input_GPU.col_ids, sizeof(unsigned int) * (ARecv->getnnz())));
+    gpuErrchk(cudaMalloc(&input_GPU.row_offsets, sizeof(unsigned int) * (ARecv->getncol() + 1)));
     gpuErrchk(cudaDeviceSynchronize());
-    //std::cout << "CPED ROW/COLS " << id << std::endl;
+    // std::cout << "STARTING COPY " << id << std::endl;
+
+    cudaMemcpy(input_GPU.row_offsets, rows, (input_GPU.rows + 1) * sizeof(unsigned int), cudaMemcpyHostToDevice);
+
+    gpuErrchk(cudaDeviceSynchronize());
+    // std::cout << "CPED ROW/COLS " << id << std::endl;
     gpuErrchk(cudaMemcpy(input_GPU.data, &(ARecv->GetDCSC()->numx[0]), (ARecv->getnnz()) * sizeof(NU1), cudaMemcpyHostToDevice));
     gpuErrchk(cudaDeviceSynchronize());
-    //std::cout << "CPED NUM " << id << std::endl;
+    // std::cout << "CPED NUM " << id << std::endl;
     gpuErrchk(cudaMemcpy(input_GPU.col_ids, &(ARecv->GetDCSC()->ir[0]), (ARecv->getnnz()) * sizeof(unsigned int), cudaMemcpyHostToDevice));
     gpuErrchk(cudaDeviceSynchronize());
-    //std::cout << "DELETING ROWS " << id << std::endl;
-    
-    cudaFree(rows);
+    // std::cout << "DELETING ROWS " << id << std::endl;
+
+    cudaFreeHost(rows);
+    // free(rows);
 }
 
+template <typename SR, typename NU1, typename NU2, typename NUO>
+CSR<NUO> GPULocalMultiply(dCSR<NU1> A, dCSR<NU2> B)
+{
+    const int Threads = 128;
+    const int BlocksPerMP = 1;
+    const int NNZPerThread = 2;
+    const int InputElementsPerThreads = 2;
+    const int RetainElementsPerThreads = 1;
+    const int MaxChunksToMerge = 16;
+    const int MaxChunksGeneralizedMerge = 256; // MAX: 865
+    const int MergePathOptions = 8;
+    cudaDeviceSynchronize();
+    Arith_SR semiring2;
+    dCSR<Arith_SR::output_t> result_mat_GPU;
+    GPUMatrixMatrixMultiplyTraits DefaultTraits(
+        Threads, BlocksPerMP, NNZPerThread, InputElementsPerThreads,
+        RetainElementsPerThreads, MaxChunksToMerge,
+        MaxChunksGeneralizedMerge, MergePathOptions);
+
+    const bool Debug_Mode = false;
+    // DefaultTraits.preferLoadBalancing = false;
+    ExecutionStats stats;
+    // stats.measure_all = false;
+
+    ACSpGEMM::Multiply<Arith_SR>(
+        A, B, result_mat_GPU,
+        DefaultTraits, stats, Debug_Mode, semiring2);
+
+    gpuErrchk(cudaDeviceSynchronize());
+    // std::cout << "DONE" << std::endl;
+    CSR<NUO> result_mat_CPU;
+    size_t it = 0;
+    // std::unordered_set<LIC> nnzc_set;
+    // std::cout << result_mat_GPU.rows << std::endl;
+    convert(result_mat_CPU, result_mat_GPU);
+
+    cudaDeviceSynchronize();
+    cudaFree(result_mat_GPU.col_ids);
+    cudaFree(result_mat_GPU.data);
+    cudaFree(result_mat_GPU.row_offsets);
+    cudaDeviceSynchronize();
+    return result_mat_CPU;
+}
 
 /**
- * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but 
+ * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but
  * this time with CUDA
  * @pre { Input matrices, A and B, should not alias }
  * Most memory efficient version available. Total stages: 2*sqrt(p)
  * Memory requirement during first sqrt(p) stages: <= (3/2)*(nnz(A)+nnz(B))+(1/2)*nnz(C)
  * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
- * Final memory requirement: nnz(C) if clearA and clearB are true 
+ * Final memory requirement: nnz(C) if clearA and clearB are true
  **/
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1,
           typename NU2, typename UDERA, typename UDERB>
@@ -1096,13 +1146,15 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                                                     bool clearB = false)
 
 {
-    if (!CheckSpGEMMCompliance(A, B)) {
-                return SpParMat<IU, NUO, UDERO>();
+    if (!CheckSpGEMMCompliance(A, B))
+    {
+        return SpParMat<IU, NUO, UDERO>();
     }
     typedef typename UDERA::LocalIT LIA;
     typedef typename UDERB::LocalIT LIB;
     typedef typename UDERO::LocalIT LIC;
 
+    double over = 0;
     static_assert(
         std::is_same<LIA, LIB>::value,
         "local index types for both input matrices should be the same");
@@ -1126,28 +1178,21 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     int id;
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     int devs;
+
     cudaGetDeviceCount(&devs);
     cudaSetDevice(id % devs); // Prevents crashes where processes > # devs
+    double t1 = MPI_Wtime();
     (A.spSeq)->Split(*A1seq, *A2seq);
     const_cast<UDERB *>(B.spSeq)->Transpose();
     (B.spSeq)->Split(*B1seq, *B2seq);
-    
-    const int Threads = 128;
-    const int BlocksPerMP = 1;
-    const int NNZPerThread = 2;
-    const int InputElementsPerThreads = 2;
-    const int RetainElementsPerThreads = 1;
-    const int MaxChunksToMerge = 16;
-    const int MaxChunksGeneralizedMerge = 256; // MAX: 865
-    const int MergePathOptions = 8;
-    cudaDeviceSynchronize();
+
     // std::cout << Aself << " " << Bself << " starting GPU" << std::endl;
     dCSR<NU1> input_A_GPU;
     dCSR<NU2> input_B_GPU;
     CSR<NU1> input_A_CPU;
     CSR<NU2> input_B_CPU;
     Wrap_SR<NU1, NU2, NUO, SR> semiring;
-    
+
     // std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
 
     gpuErrchk(cudaDeviceSynchronize());
@@ -1165,284 +1210,270 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     UDERA *ARecv;
     UDERB *BRecv;
     std::vector<SpTuples<LIC, NUO> *> tomerge;
+
     convertCSR<UDERA, NU1>(A1seq, input_A_GPU, id);
     convertCSR<UDERB, NU2>(B1seq, input_B_GPU, id);
 
     double mpi_overhead = 0.0;
 
-    for (int i = 0; i < stages; ++i) {
-                dCSR<NU1> input_A_recv_GPU;
-                dCSR<NU2> input_B_recv_GPU;
-                std::vector<LIA> ess;
-                if (i == Aself) {
-                        input_A_recv_GPU = input_A_GPU; // shallow-copy
-                } else {
+    for (int i = 0; i < stages; ++i)
+    {
+        dCSR<NU1> input_A_recv_GPU;
+        dCSR<NU2> input_B_recv_GPU;
+        std::vector<LIA> ess;
+        if (i == Aself)
+        {
+            input_A_recv_GPU = input_A_GPU; // shallow-copy
+        }
+        else
+        {
 
-                        ARecv = new UDERA(); // first, create the object
-                }
-                ess.resize(UDERA::esscount);
-                for (int j = 0; j < UDERA::esscount; ++j) {
-                        ess[j] = ARecvSizes[j][i]; // essentials of the ith
-                                                   // matrix in this row
-                }
-                // std::cout << "STARTING BCAST " << id << std::endl;
-                SpParHelper::BCastMatrixCUDA<uint,NU1>(GridC->GetRowWorld(),
-                input_A_recv_GPU, ess, i);	// then, receive its elements
-                // std::cout << "ENDING BCAST " << id << std::endl;
-                ess.clear();
-                if (i == Bself) {
-                        input_B_recv_GPU = input_B_GPU; // shallow-copy
-                } else {
+            ARecv = new UDERA(); // first, create the object
+        }
+        ess.resize(UDERA::esscount);
+        for (int j = 0; j < UDERA::esscount; ++j)
+        {
+            ess[j] = ARecvSizes[j][i]; // essentials of the ith
+                                       // matrix in this row
+        }
+        // std::cout << "STARTING BCAST " << id << std::endl;
+        SpParHelper::BCastMatrixCUDA<uint, NU1>(GridC->GetRowWorld(),
+                                                input_A_recv_GPU, ess, i); // then, receive its elements
+        // std::cout << "ENDING BCAST " << id << std::endl;
+        ess.clear();
+        if (i == Bself)
+        {
+            input_B_recv_GPU = input_B_GPU; // shallow-copy
+        }
+        else
+        {
 
-                        BRecv = new UDERB();
-                }
-                ess.resize(UDERB::esscount);
-                for (int j = 0; j < UDERB::esscount; ++j) {
-                        ess[j] = BRecvSizes[j][i];
-                }
-                SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
-                input_B_recv_GPU, ess, i);	// then, receive its elements
-                //  before activating this remove transposing B1seq
-                /*
-                SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-                                                (*ARecv, *BRecv, // parameters
-                themselves false, true,	// transpose information (B is
-                transposed) i != Aself, 	// 'delete A' condition i !=
-                Bself);	// 'delete B' condition
+            BRecv = new UDERB();
+        }
+        ess.resize(UDERB::esscount);
+        for (int j = 0; j < UDERB::esscount; ++j)
+        {
+            ess[j] = BRecvSizes[j][i];
+        }
+        SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
+                                     input_B_recv_GPU, ess, i); // then, receive its elements
+        //  before activating this remove transposing B1seq
+        /*
+        SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+                                        (*ARecv, *BRecv, // parameters
+        themselves false, true,	// transpose information (B is
+        transposed) i != Aself, 	// 'delete A' condition i !=
+        Bself);	// 'delete B' condition
 
-                */
+        */
 
-                // load results  onto CPU.
+        // load results  onto CPU.
 
-                // double start = MPI_Wtime();
-                GPUMatrixMatrixMultiplyTraits DefaultTraits(
-                    Threads, BlocksPerMP, NNZPerThread, InputElementsPerThreads,
-                    RetainElementsPerThreads, MaxChunksToMerge,
-                    MaxChunksGeneralizedMerge, MergePathOptions);
+        // double start = MPI_Wtime();
 
-                const bool Debug_Mode = true;
-                //DefaultTraits.preferLoadBalancing = false;
-                ExecutionStats stats;
-                // stats.measure_all = false;
+        // std::cout << Aself << " " << Bself << " ending alloc" <<
+        // std::endl; double start = MPI_Wtime(); double t1 =
+        // MPI_Wtime();
 
-                // std::cout << Aself << " " << Bself << " ending alloc" <<
-                // std::endl; double start = MPI_Wtime(); double t1 =
-                // MPI_Wtime();
+        // std::cout << "STARTING MULT" << std::endl;
+        // std::cout << input_A_recv_GPU.rows << std::endl;
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        over += MPI_Wtime() - t1;
+        // std::cout << "TUPLING" << std::endl;
+        //  printf("O = %i\n", C_cont->getnnz());
+        //  mpi_overhead += MPI_Wtime() - start;
+        size_t it = 0;
+        std::tuple<LIC, LIC, NUO> *tuplesC =
+            static_cast<std::tuple<LIC, LIC, NUO> *>(::operator new(
+                sizeof(std::tuple<LIC, LIC, NUO>[result_mat_CPU.nnz])));
+        for (LIC i = 0; i < result_mat_CPU.rows; ++i)
+        {
 
-                // std::cout << "STARTING MULT" << std::endl;
-                //std::cout << input_A_recv_GPU.rows << std::endl;
-                Arith_SR semiring2;
-                dCSR<Arith_SR::output_t> result_mat_GPU;
-                ACSpGEMM::Multiply<Arith_SR>(
-                    input_B_recv_GPU, input_A_recv_GPU, result_mat_GPU,
-                    DefaultTraits, stats, Debug_Mode, semiring2);
+            for (LIC j = result_mat_CPU.row_offsets[i];
+                 j < result_mat_CPU.row_offsets[i + 1]; ++j)
+            {
+                // nzc_set.insert(result_mat_CPU.col_ids[j]);
+                // std::cout << "IT " << it << " EXCEEDED " <<
+                // result_mat_CPU.nnz <<std::endl;
+                tuplesC[it++] =
+                    std::make_tuple(result_mat_CPU.col_ids[j],
+                                    i, result_mat_CPU.data[j]);
+            }
+        }
 
-                gpuErrchk(cudaDeviceSynchronize());
-                std::cout << "DONE" << std::endl;
-                CSR<NUO> result_mat_CPU;
-                size_t it = 0;
-                // std::unordered_set<LIC> nnzc_set;
-                //std::cout << result_mat_GPU.rows << std::endl;
-                convert(result_mat_CPU, result_mat_GPU);
-                
-                cudaDeviceSynchronize();
-                //dealloc(result_mat_GPU);
-                std::cout << "TUPLING" << std::endl;
-                // printf("O = %i\n", C_cont->getnnz());
-                // mpi_overhead += MPI_Wtime() - start;
-                std::tuple<LIC, LIC, NUO> *tuplesC =
-                    static_cast<std::tuple<LIC, LIC, NUO> *>(::operator new(
-                        sizeof(std::tuple<LIC, LIC, NUO>[result_mat_CPU.nnz])));
-                for (LIC i = 0; i < result_mat_CPU.rows; ++i) {
+        // std::cout << Aself << " " << Bself << " ending tupling " << i;
+        // << std::endl;
+        // load results  onto CPU.
+        SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
+            result_mat_CPU.nnz, result_mat_CPU.rows,
+            result_mat_CPU.cols, tuplesC, false, true);
+        //(*C_cont).PrintInfo();
+        if (i != Aself)
+            delete ARecv;
+        if (i != Bself)
+            delete BRecv;
 
-                        for (LIC j = result_mat_CPU.row_offsets[i];
-                             j < result_mat_CPU.row_offsets[i + 1]; ++j) {
-                                // nzc_set.insert(result_mat_CPU.col_ids[j]);
-                                // std::cout << "IT " << it << " EXCEEDED " <<
-                                // result_mat_CPU.nnz <<std::endl;
-                                tuplesC[it++] =
-                                    std::make_tuple(result_mat_CPU.col_ids[j],
-                                                    i, result_mat_CPU.data[j]);
-                        }
-                }
-
-                 std::cout << Aself << " " << Bself << " ending tupling " << i;
-                // << std::endl;
-                // load results  onto CPU.
-                SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
-                    result_mat_CPU.nnz, result_mat_CPU.rows,
-                    result_mat_CPU.cols, tuplesC, false, true);
-                //(*C_cont).PrintInfo();
-                if (i != Aself)
-                        delete ARecv;
-                if (i != Bself)
-                        delete BRecv;
-
-                if (!C_cont->isZero())
-                        tomerge.push_back(C_cont);
-                else
-                        delete C_cont;
+        if (!C_cont->isZero())
+            tomerge.push_back(C_cont);
+        else
+            delete C_cont;
     }
     if (clearA)
-                delete A1seq;
+        delete A1seq;
     if (clearB)
-                delete B1seq;
+        delete B1seq;
 
     // Set the new dimensions
+    t1 = MPI_Wtime();
     convertCSR<UDERA, NU1>(A2seq, input_A_GPU, id);
     convertCSR<UDERB, NU2>(B2seq, input_B_GPU, id);
 
     SpParHelper::GetSetSizes(*A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
     SpParHelper::GetSetSizes(*B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
-     std::cout << "ROUND 2" << std::endl;
-    for (int i = 0; i < stages; ++i) {
-                dCSR<NU1> input_A_recv_GPU;
-                dCSR<NU2> input_B_recv_GPU;
-                // std::cout << Aself << " " << Bself << " starting stage " << i
-                // << std::endl;
-                std::vector<LIA> ess;
-                if (i == Aself) {
-                        input_A_recv_GPU = input_A_GPU; // shallow-copy
-                } else {
+    // std::cout << "ROUND 2" << std::endl;
+    for (int i = 0; i < stages; ++i)
+    {
+        dCSR<NU1> input_A_recv_GPU;
+        dCSR<NU2> input_B_recv_GPU;
+        // std::cout << Aself << " " << Bself << " starting stage " << i
+        // << std::endl;
+        std::vector<LIA> ess;
+        if (i == Aself)
+        {
+            input_A_recv_GPU = input_A_GPU; // shallow-copy
+        }
+        else
+        {
 
-                        ARecv = new UDERA(); // first, create the object
-                }
-                ess.resize(UDERA::esscount);
-                for (int j = 0; j < UDERA::esscount; ++j) {
-                        ess[j] = ARecvSizes[j][i]; // essentials of the ith
-                                                   // matrix in this row
-                }
-                // std::cout << "STARTING BCAST " << id << std::endl;
-                SpParHelper::BCastMatrixCUDA<uint,NU1>(GridC->GetRowWorld(),
-                input_A_recv_GPU, ess, i);	// then, receive its elements
-                // std::cout << "ENDING BCAST " << id << std::endl;
-                ess.clear();
-                if (i == Bself) {
-                        input_B_recv_GPU = input_B_GPU; // shallow-copy
-                } else {
+            ARecv = new UDERA(); // first, create the object
+        }
+        ess.resize(UDERA::esscount);
+        for (int j = 0; j < UDERA::esscount; ++j)
+        {
+            ess[j] = ARecvSizes[j][i]; // essentials of the ith
+                                       // matrix in this row
+        }
+        // std::cout << "STARTING BCAST " << id << std::endl;
+        SpParHelper::BCastMatrixCUDA<uint, NU1>(GridC->GetRowWorld(),
+                                                input_A_recv_GPU, ess, i); // then, receive its elements
+        // std::cout << "ENDING BCAST " << id << std::endl;
+        ess.clear();
+        if (i == Bself)
+        {
+            input_B_recv_GPU = input_B_GPU; // shallow-copy
+        }
+        else
+        {
 
-                        BRecv = new UDERB();
-                }
-                ess.resize(UDERB::esscount);
-                for (int j = 0; j < UDERB::esscount; ++j) {
-                        ess[j] = BRecvSizes[j][i];
-                }
-                SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
-                input_B_recv_GPU, ess, i);	// then, receive its elements
+            BRecv = new UDERB();
+        }
+        ess.resize(UDERB::esscount);
+        for (int j = 0; j < UDERB::esscount; ++j)
+        {
+            ess[j] = BRecvSizes[j][i];
+        }
+        SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
+                                     input_B_recv_GPU, ess, i); // then, receive its elements
 
-                // before activating this remove transposing B1seq
-                /*
-                SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-                                                (*ARecv, *BRecv, // parameters
-                themselves false, true,	// transpose information (B is
-                transposed) i != Aself, 	// 'delete A' condition i !=
-                Bself);	// 'delete B' condition
+        // before activating this remove transposing B1seq
+        /*
+        SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+                                        (*ARecv, *BRecv, // parameters
+        themselves false, true,	// transpose information (B is
+        transposed) i != Aself, 	// 'delete A' condition i !=
+        Bself);	// 'delete B' condition
 
-                */
-                /* ARecv->Transpose();
-                 BRecv->Transpose();
-                 SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
-                                 (*ARecv, *BRecv, // parameters themselves
-                                 i != Aself,    // 'delete A' condition
-                                 i != Bself);   // 'delete B' condition*/
-                // const_cast< UDERB* >(B.spSeq)->Transpose();
+        */
+        /* ARecv->Transpose();
+         BRecv->Transpose();
+         SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+                         (*ARecv, *BRecv, // parameters themselves
+                         i != Aself,    // 'delete A' condition
+                         i != Bself);   // 'delete B' condition*/
+        // const_cast< UDERB* >(B.spSeq)->Transpose();
 
-                GPUMatrixMatrixMultiplyTraits DefaultTraits(
-                    Threads, BlocksPerMP, NNZPerThread, InputElementsPerThreads,
-                    RetainElementsPerThreads, MaxChunksToMerge,
-                    MaxChunksGeneralizedMerge, MergePathOptions);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        gpuErrchk(cudaDeviceSynchronize());
+        over += MPI_Wtime() - t1;
+        std::cout << "OVER = " << over << std::endl;
+        // std::cout << "ENDING MULT" << std::endl;
+        // mpi_overhead += MPI_Wtime() - start;
+        // double t2 = MPI_Wtime();
+        // printf("Time for actual mult = %.6lf \n", t2 - t1);
+        size_t it = 0;
+        // std::unordered_set<LIC> nnzc_set;
+        // std::cout << result_mat_GPU.nnz << std::endl;
+        // std::cout << Aself << " " << Bself << " ending GPU " << i <<
+        // std::endl;
+        // printf("OC = %i\n", result_mat_CPU.nnz);
 
-                const bool Debug_Mode = true;
-                //DefaultTraits.preferLoadBalancing = false;
-                ExecutionStats stats;
-                // stats.measure_all = false;
+        std::tuple<LIC, LIC, NUO> *tuplesC =
+            static_cast<std::tuple<LIC, LIC, NUO> *>(::operator new(
+                sizeof(std::tuple<LIC, LIC, NUO>[result_mat_CPU.nnz])));
+        for (LIC i = 0; i < result_mat_CPU.rows; ++i)
+        {
+            for (LIC j = result_mat_CPU.row_offsets[i];
+                 j < result_mat_CPU.row_offsets[i + 1]; ++j)
+            {
+                // nzc_set.insert(result_mat_CPU.col_ids[j]);
+                // std::cout << "IT " << it << " EXCEEDED " <<
+                // result_mat_CPU.nnz <<std::endl;
+                tuplesC[it++] =
+                    std::make_tuple(result_mat_CPU.col_ids[j],
+                                    i, result_mat_CPU.data[j]);
+            }
+        }
 
-                // std::cout << Aself << " " << Bself << " ending alloc" <<
-                // std::endl; double start = MPI_Wtime(); double t1 =
-                // MPI_Wtime();
+        // std::cout << Aself << " " << Bself << " ending tupling " << i
+        // << std::endl;
+        // load results  onto CPU.
+        SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
+            result_mat_CPU.nnz, result_mat_CPU.rows,
+            result_mat_CPU.cols, tuplesC, false, true);
+        //(*C_cont).PrintInfo();
+        if (i != Aself)
+            delete ARecv;
+        if (i != Bself)
+            delete BRecv;
 
-                //std::cout << "STARTING 2 MULT" << std::endl;
-                dCSR<Arith_SR::output_t> result_mat_GPU;
-                // std::cout << input_A_recv_GPU.nnz << std::endl;
-                ACSpGEMM::Multiply<Wrap_SR<NU1, NU2, NUO, SR>>(
-                    input_B_recv_GPU, input_A_recv_GPU, result_mat_GPU,
-                    DefaultTraits, stats, Debug_Mode, semiring);
-
-                gpuErrchk(cudaDeviceSynchronize());
-                // std::cout << "ENDING MULT" << std::endl;
-                // mpi_overhead += MPI_Wtime() - start;
-                // double t2 = MPI_Wtime();
-                // printf("Time for actual mult = %.6lf \n", t2 - t1);
-                CSR<NUO> result_mat_CPU;
-                size_t it = 0;
-                // std::unordered_set<LIC> nnzc_set;
-                // std::cout << result_mat_GPU.nnz << std::endl;
-                convert(result_mat_CPU, result_mat_GPU);
-
-                cudaDeviceSynchronize();
-                // std::cout << Aself << " " << Bself << " ending GPU " << i <<
-                // std::endl;
-                // printf("OC = %i\n", result_mat_CPU.nnz);
-
-                std::tuple<LIC, LIC, NUO> *tuplesC =
-                    static_cast<std::tuple<LIC, LIC, NUO> *>(::operator new(
-                        sizeof(std::tuple<LIC, LIC, NUO>[result_mat_CPU.nnz])));
-                for (LIC i = 0; i < result_mat_CPU.rows; ++i) {
-                        for (LIC j = result_mat_CPU.row_offsets[i];
-                             j < result_mat_CPU.row_offsets[i + 1]; ++j) {
-                                // nzc_set.insert(result_mat_CPU.col_ids[j]);
-                                // std::cout << "IT " << it << " EXCEEDED " <<
-                                // result_mat_CPU.nnz <<std::endl;
-                                tuplesC[it++] =
-                                    std::make_tuple(result_mat_CPU.col_ids[j],
-                                                    i, result_mat_CPU.data[j]);
-                        }
-                }
-
-                // std::cout << Aself << " " << Bself << " ending tupling " << i
-                // << std::endl;
-                // load results  onto CPU.
-                SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
-                    result_mat_CPU.nnz, result_mat_CPU.rows,
-                    result_mat_CPU.cols, tuplesC, false, true);
-                //(*C_cont).PrintInfo();
-                if (i != Aself)
-                        delete ARecv;
-                if (i != Bself)
-                        delete BRecv;
-
-                if (!C_cont->isZero())
-                        tomerge.push_back(C_cont);
-                else
-                        delete C_cont;
+        if (!C_cont->isZero())
+            tomerge.push_back(C_cont);
+        else
+            delete C_cont;
     }
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
     // A2seq->Transpose();
     //     B2seq->Transpose();
-    if (clearA) {
-                delete A2seq;
-                delete A.spSeq;
-                A.spSeq = NULL;
-    } else {
-                // A1seq->Transpose();
-                // A2seq->Transpose();
-                (A.spSeq)->Merge(*A1seq, *A2seq);
-                delete A1seq;
-                delete A2seq;
+    if (clearA)
+    {
+        delete A2seq;
+        delete A.spSeq;
+        A.spSeq = NULL;
     }
-    if (clearB) {
-                delete B2seq;
-                delete B.spSeq;
-                B.spSeq = NULL;
-    } else {
-                B1seq->Transpose();
-                B2seq->Transpose();
-                (B.spSeq)->Merge(*B1seq, *B2seq);
-                delete B1seq;
-                delete B2seq;
-                const_cast<UDERB *>(B.spSeq)
-                    ->Transpose(); // transpose back to original
+    else
+    {
+        // A1seq->Transpose();
+        // A2seq->Transpose();
+        (A.spSeq)->Merge(*A1seq, *A2seq);
+        delete A1seq;
+        delete A2seq;
+    }
+    if (clearB)
+    {
+        delete B2seq;
+        delete B.spSeq;
+        B.spSeq = NULL;
+    }
+    else
+    {
+        B1seq->Transpose();
+        B2seq->Transpose();
+        (B.spSeq)->Merge(*B1seq, *B2seq);
+        delete B1seq;
+        delete B2seq;
+        const_cast<UDERB *>(B.spSeq)
+            ->Transpose(); // transpose back to original
     }
     // printf("%.6lf\n", mpi_overhead);
     UDERO *C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n, true), false);

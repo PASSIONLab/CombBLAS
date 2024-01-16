@@ -52,7 +52,7 @@ int cblas_splits = 1;
 #endif
 
 #define ElementType double
-#define ITERATIONS 5
+#define ITERATIONS 0
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -118,8 +118,11 @@ int main(int argc, char* argv[])
 #endif
 		
 #ifndef NOGEMM
-
+		double t3 = MPI_Wtime(); 
 		C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
+		double t4 = MPI_Wtime(); 
+		std::cout << "Time taken: " << t4-t3 << std::endl;
+		C.PrintInfo();
 		if (CControl == C)
 		{
 			SpParHelper::Print("Double buffered multiplication working correctly\n");	
@@ -129,11 +132,22 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in double CUDA  buffered multiplication, go fix it!\n");	
 		}
 		{ // force the calling of C's destructor
+		t3 = MPI_Wtime(); 
 			C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
-			int64_t cnnz = C.getnnz();
-			ostringstream tinfo;
-			tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
-			SpParHelper::Print(tinfo.str());
+			t4 = MPI_Wtime(); 
+			std::cout << "Time taken: " << t4-t3 << std::endl;
+			if (CControl == C)
+		{
+			SpParHelper::Print("Double buffered multiplication working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in double non-CUDA  buffered multiplication, go fix it!\n");	
+		}
+			//int64_t cnnz = C.getnnz();
+			//ostringstream tinfo;
+			//tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
+			//SpParHelper::Print(tinfo.str());
 			SpParHelper::Print("Warmed up for DoubleBuff\n");
 			C.PrintInfo();
 		}	
