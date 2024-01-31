@@ -2150,7 +2150,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 			#ifdef SPREFDEBUG	
 			SpParHelper::Print("In place multiplication\n", commGrid->GetWorld());
 			#endif
-        		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
+                //*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
+        		*this = Mult_AnXBn_Synch<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
 
 			//ostringstream outb;
 			//outb << "P_after_" << commGrid->myrank;
@@ -2158,14 +2159,17 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 			//P.put(ofb);
 
 			P.Transpose();	
-       	 		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, P, true, true);	// clear the memory of both *this and P
+                    //*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, P, true, true);	// clear the memory of both *this and P
+       	 		*this = Mult_AnXBn_Synch<PTNTBOOL, NT, DER>(*this, P, true, true);	// clear the memory of both *this and P
 			return SpParMat<IT,NT,DER>(commGrid);	// dummy return to match signature
 		}
 		else
 		{
-			PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P,*this);
+			//PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P,*this);
+			PA = Mult_AnXBn_Synch<PTBOOLNT, NT, DER>(P,*this);
 			P.Transpose();
-			return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, P);
+			//return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, P);
+			return Mult_AnXBn_Synch<PTNTBOOL, NT, DER>(PA, P);
 		}
 	}
 	else
@@ -2175,7 +2179,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 
 		// Do parallel matrix-matrix multiply
-        	PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this);
+            //PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this);
+            PA = Mult_AnXBn_Synch<PTBOOLNT, NT, DER>(P, *this);
 	}	// P is destructed here
 #ifndef NDEBUG
 	PA.PrintInfo();
@@ -2237,12 +2242,14 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	Q.Transpose();	
 	if(inplace)
 	{
-       		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q, true, true);	// clear the memory of both PA and P
+               //*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q, true, true);	// clear the memory of both PA and P
+       		*this = Mult_AnXBn_Synch<PTNTBOOL, NT, DER>(PA, Q, true, true);	// clear the memory of both PA and P
 		return SpParMat<IT,NT,DER>(commGrid);	// dummy return to match signature
 	}
 	else
 	{
-        	return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q);
+            //return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q);
+            return Mult_AnXBn_Synch<PTNTBOOL, NT, DER>(PA, Q);
 	}
 }
 

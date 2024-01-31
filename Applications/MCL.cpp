@@ -268,8 +268,7 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         } else if (strcmp(argv[i],"-R")==0) {
             param.recover_num = atoi(argv[i + 1]);
             
-        } else if (strcmp(argv[i],"-pct")==0)
-        {
+        } else if (strcmp(argv[i],"-pct")==0){
             param.recover_pct = atof(argv[i + 1]);
             if(param.recover_pct>1) param.recover_pct/=100.00;
         } else if (strcmp(argv[i],"-base")==0) {
@@ -285,7 +284,7 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
             param.layers = atoi(argv[i + 1]);
         }
 		else if (strcmp(argv[i],"-compute")==0) {
-            param.layers = atoi(argv[i + 1]);
+            param.compute = atoi(argv[i + 1]);
         }
         else if (strcmp(argv[i],"-phases")==0) {
             param.phases = atoi(argv[i + 1]);
@@ -571,7 +570,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;        // expand
 		if(param.layers == 1){
-			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, 1, param.perProcessMem);
+			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
 		}
 		else{
 			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
@@ -582,7 +581,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
                 (IT)param.recover_num, 
                 param.recover_pct, 
                 param.kselectVersion,
-                1,
+                param.compute,
                 param.perProcessMem
          	);
 		}
@@ -769,6 +768,7 @@ void MainBody(HipMCLParam & param)
     
     if(param.isInputMM)
         WriteMCLClusters(param.ofilename, culstLabels, param.base);
+        //WriteMCLClusters(param.ofilename, culstLabels, 0);
     else
         WriteMCLClusters(param.ofilename, culstLabels, vtxLabels);
     
