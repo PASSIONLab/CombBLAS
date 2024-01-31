@@ -261,12 +261,12 @@ int main(int argc, char* argv[])
             t0 = MPI_Wtime();
             M12.ParallelReadMM(M12name, base, maximum<NT>());
             t1 = MPI_Wtime();
-            if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
-            M12.PrintInfo();
+                if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
+                M12.PrintInfo();
 
-            M21.FreeMemory();
-            t0 = MPI_Wtime();
-            M21.ParallelReadMM(M21name, base, maximum<NT>());
+                M21.FreeMemory();
+                t0 = MPI_Wtime();
+                M21.ParallelReadMM(M21name, base, maximum<NT>());
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
             M21.PrintInfo();
@@ -348,7 +348,21 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if(myrank == 0) printf("Time to prepare Minc: %lf\n", t1 - t0);
             Minc.PrintInfo();
+            float loadImbalance = Minc.LoadImbalance();
+            if(myrank == 0) printf("Minc LoadImbalance: %lf\n", loadImbalance);
             SpParHelper::Print("[End] Preparing Minc\n");
+            //if(s == nSplit-1){
+                //string MincFileName = outputDir + std::to_string(s) + std::string(".") + std::string("minc");
+                //Minc.ParallelWriteMM(MincFileName, base);
+            //}
+            
+            {
+                SpParMat<IT, NT, DER> MincCopy(Minc);
+                IT nDiag = MincCopy.RemoveLoops();
+                IT nNonDiag = MincCopy.getnnz();
+                if(myrank == 0) printf("Number of diagonal elements in Minc: %lld\n", nDiag);
+                if(myrank == 0) printf("Number of non-diagonal elements in Minc: %lld\n", nNonDiag);
+            }
 
             M11.FreeMemory();
             M12.FreeMemory();
@@ -382,6 +396,17 @@ int main(int argc, char* argv[])
                 SpParMat<IT, NT, DER> SelectivePruneMask(Minc);
 
                 SpParHelper::Print("[Start] Clustering Minc\n");
+                
+                //{
+                    //// Debug plug
+                    //// Takes effect only if self loop adjustment is turned off
+                    //FullyDistVec<IT, IT> p( Minc.getcommgrid());
+                    //p.iota(Minc.getnrow(), 0);
+                    //SpParMat<IT, NT, DER> P = SpParMat<IT,NT,DER>(Minc.getnrow(), Minc.getnrow(), p, p, 1.0, false); // Identity
+                    //Minc.SetDifference(P);
+                    //loadImbalance = Minc.LoadImbalance();
+                    //if(myrank == 0) fprintf(stderr, "Load Imbalance after diagonal removal: %f\n", loadImbalance);
+                //}
 
                 t0 = MPI_Wtime();
                 IncrementalMCL(Minc, incParam, CO, MSO, isOld, SelectivePruneMask);

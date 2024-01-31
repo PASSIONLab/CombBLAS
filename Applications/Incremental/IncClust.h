@@ -609,8 +609,18 @@ void HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> &
 template <typename IT, typename NT, typename DER, typename FLAGTYPE>
 void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<IT, IT> & clustAsn, SpParMat<IT, NT, DER> & Asummary, FullyDistVec<IT, FLAGTYPE>& isOld, SpParMat<IT,NT,DER> & Mask)
 {
+    int nprocs, myrank, nthreads = 1;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+#ifdef THREADED
+#pragma omp parallel
+    {
+        nthreads = omp_get_num_threads();
+    }
+#endif
 
 #ifdef TIMING
+    // Reset the time counters
     mcl_Abcasttime = 0;
     mcl_Bbcasttime = 0;
     mcl_localspgemmtime = 0;
@@ -626,7 +636,7 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
         RandPermute(A, param);
 
     // Adjust self loops
-    AdjustLoops(A);
+    //AdjustLoops(A);
     
     // Make stochastic
     MakeColStochastic(A);
@@ -687,7 +697,26 @@ void IncrementalMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param, FullyDistVec<I
 
         double t1 = MPI_Wtime();
 		if(param.layers == 1){
-			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+            //SpParMat<IT, NT, DER> C(A);
+            A = IncrementalMCLSquare<PTFF, IT, NT, DER>(
+                 A, 
+                 param.phases, 
+                 param.prunelimit, 
+                 (IT)param.select, 
+                 (IT)param.recover_num, 
+                 param.recover_pct, 
+                 param.kselectVersion, 
+                 param.compute, 
+                 param.perProcessMem
+            );
+            //A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+
+            //bool flag = (B == A);
+            //IT Annz = A.getnnz();
+            //IT Bnnz = B.getnnz();
+            //if (myrank == 0){
+                //fprintf(stderr, "%d: %lld - %lld\n", flag, Annz, Bnnz);
+            //}
 		}
 		else{
 			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(

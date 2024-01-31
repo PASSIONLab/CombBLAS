@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
 
             if(incParam.shuffleVertexOrder){
                 reversePermutation(M11, LOLbl, CO, permMap);
-                reversePermutation(Mall, LOLblAll, permMap);
+                reversePermutation(Mall, LOLblAll, permMapAll);
             }
             if (baseline == 1){
                 M11all = Mall;

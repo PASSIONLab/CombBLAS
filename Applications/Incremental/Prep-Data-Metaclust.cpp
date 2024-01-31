@@ -1,4 +1,3 @@
-
 #include <sys/time.h>
 #include <iostream>
 #include <functional>
@@ -124,10 +123,14 @@ int main(int argc, char* argv[])
 
         SpParMat<IT, NT, DER> M(fullWorld);
 
+        t0 = MPI_Wtime();
         if(isMatrixMarket)
             M.ParallelReadMM(Mname, base, maximum<NT>());
         else
             M.ReadGeneralizedTuples(Mname,  maximum<NT>());
+        t1 = MPI_Wtime();
+        if(myrank == 0) printf("Time to read file: %lf\n", t1 - t0);
+
         M.PrintInfo();
         
         std::mt19937 rng;
@@ -182,7 +185,8 @@ int main(int argc, char* argv[])
             if( (s >= startSplit) && (s < endSplit))
             {
                 if(myrank == 0) printf("[Start] Subgraph extraction\n");
-                if(s == 1){
+                if(s == endSplit-1){
+
                     M11.FreeMemory();
                     t0 = MPI_Wtime();
                     M11 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, prevVertices, false);
@@ -193,36 +197,37 @@ int main(int argc, char* argv[])
                     M11.ParallelWriteMM(outFileName, base);
                     outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(0) + std::string(".m11.") + std::string("lbl");
                     prevVertices.ParallelWrite(outFileName, base);
+
+                    M12.FreeMemory();
+                    t0 = MPI_Wtime();
+                    M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
+                    t1 = MPI_Wtime();
+                    if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
+                    M12.PrintInfo();
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
+                    M12.ParallelWriteMM(outFileName, base);
+
+                    M21.FreeMemory();
+                    t0 = MPI_Wtime();
+                    M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
+                    t1 = MPI_Wtime();
+                    if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
+                    M21.PrintInfo();
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
+                    M21.ParallelWriteMM(outFileName, base);
+                    
+                    M22.FreeMemory();
+                    t0 = MPI_Wtime();
+                    M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
+                    t1 = MPI_Wtime();
+                    if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
+                    M22.PrintInfo();
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
+                    M22.ParallelWriteMM(outFileName, base);
+                    outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
+                    newVertices.ParallelWrite(outFileName, base);
                 }
 
-                M12.FreeMemory();
-                t0 = MPI_Wtime();
-                M12 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (prevVertices, newVertices, false);
-                t1 = MPI_Wtime();
-                if(myrank == 0) printf("Time to extract M12: %lf\n", t1 - t0);
-                M12.PrintInfo();
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m12.") + std::string("mtx");
-                M12.ParallelWriteMM(outFileName, base);
-
-                M21.FreeMemory();
-                t0 = MPI_Wtime();
-                M21 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, prevVertices, false);
-                t1 = MPI_Wtime();
-                if(myrank == 0) printf("Time to extract M21: %lf\n", t1 - t0);
-                M21.PrintInfo();
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m21.") + std::string("mtx");
-                M21.ParallelWriteMM(outFileName, base);
-                
-                M22.FreeMemory();
-                t0 = MPI_Wtime();
-                M22 = M.SubsRef_SR <PTNTBOOL, PTBOOLNT> (newVertices, newVertices, false); // Get subgraph induced by newly added vertices in current step
-                t1 = MPI_Wtime();
-                if(myrank == 0) printf("Time to extract M22: %lf\n", t1 - t0);
-                M22.PrintInfo();
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("mtx");
-                M22.ParallelWriteMM(outFileName, base);
-                outFileName = outPrefix + std::string(".") + std::to_string(nSplit) + std::string(".") + std::to_string(s) + std::string(".m22.") + std::string("lbl");
-                newVertices.ParallelWrite(outFileName, base);
                 if(myrank == 0) printf("[End] Subgraph extraction\n");
             
             }
@@ -235,7 +240,6 @@ int main(int argc, char* argv[])
             toConcatenateLabels[0] = prevVerticesLabels;
             toConcatenateLabels[1] = newVerticesLabels;
             
-
             prevVertices = Concatenate(toConcatenate);
             prevVerticesLabels = Concatenate(toConcatenateLabels);
             if(myrank == 0) printf("[End] Split: %d\n***\n", s);
