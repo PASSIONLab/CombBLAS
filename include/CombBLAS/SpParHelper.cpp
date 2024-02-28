@@ -605,24 +605,39 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
   * 		For all others, it is a (yet) empty object to be filled by the received data}
   * @param[in] essentials {irrelevant for the root}
  **/
+
+#ifdef GPU_ENABLED
+
 template<typename IT, typename NT>	
 void SpParHelper::BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const std::vector<IT> & essentials, int root)
 {
+	cudaDeviceSynchronize();
 	int myrank;
 	MPI_Comm_rank(comm1d, &myrank);
 	if(myrank != root)
 	{
-		Matrix.alloc(essentials[2],essentials[1],essentials[0],true);	// allocate memory for arrays		
+		Matrix.alloc(essentials[2],essentials[1],essentials[0],true);		
 	}
-
-	//std::cout << "BCASTING 0" << std::endl;
-	//std::cout << essentials.size() <<  " " <<  std::endl;
-	MPI_Bcast(Matrix.row_offsets, essentials[2] + 1, MPIType<IT>(), root, comm1d);
-	//std::cout << "BCASTING 1" << std::endl;
-	MPI_Bcast(Matrix.col_ids, essentials[0], MPIType<IT>(), root, comm1d);
-	//std::cout << "BCASTING 2" << std::endl;
-	MPI_Bcast(Matrix.data, essentials[0], MPIType<NT>(), root, comm1d);	
+	//std::cout << myrank << " " <<  Matrix.rows << " " << Matrix.cols << " " << Matrix.nnz << std::endl;
+	cudaDeviceSynchronize();
+	//std::cout << myrank << " BCASTING FIRST FROM " << root << std::endl;
+	//if(!essentials[0]) return;
+	//size_t free;
+	//size_t total;
+	//cudaMemGetInfo(&free, &total);
+	//std::cout << myrank << " has " << free << " of " << total << std::endl;
+	MPI_Bcast(Matrix.row_offsets, Matrix.rows + 1, MPIType<uint>(), root, comm1d);
+	cudaDeviceSynchronize();
+	//std::cout << myrank << " BCASTING SECOND" << std::endl;
+	MPI_Bcast(Matrix.col_ids, Matrix.nnz, MPIType<uint>(), root, comm1d);
+	cudaDeviceSynchronize();
+	//std::cout << "BCASTING 2 " << myrank << std::endl;
+	MPI_Bcast(Matrix.data, Matrix.nnz, MPIType<NT>(), root, comm1d);	
+	cudaDeviceSynchronize();
+	//std::cout << "BCAST DONE " << myrank << std::endl;
 }
+
+#endif
 
 /**
   * @param[in] Matrix {For the root processor, the local object to be sent to all others.

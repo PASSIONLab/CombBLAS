@@ -27,6 +27,9 @@
  */
 
 // #include <cuda.h>
+
+#ifdef GPU_ENABLED
+
 #include <mpi.h>
 #include <sys/time.h>
 #include <iostream>
@@ -52,7 +55,7 @@ int cblas_splits = 1;
 #endif
 
 #define ElementType double
-#define ITERATIONS 5
+#define ITERATIONS 100
 
 // Simple helper class for declarations: Just the numerical type is templated
 // The index type and the sequential matrix type stays the same for the whole code
@@ -115,6 +118,7 @@ int main(int argc, char *argv[])
 
 		CControl.ParallelReadMM(Cname, true, maximum<double>());
 #endif
+		A.PrintInfo();
 
 #ifndef NOGEMM
 		double t3 = MPI_Wtime();
@@ -186,3 +190,5 @@ int main(int argc, char *argv[])
 	MPI_Finalize();
 	return 0;
 }
+
+#endif

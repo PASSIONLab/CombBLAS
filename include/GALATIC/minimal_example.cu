@@ -95,9 +95,9 @@ int main(int argc, const char* argv[])
     typedef std::chrono::duration<float> fsec;
     auto t0 = Time::now();
     
-    for (int i =0; i < 100; i++){
+    for (int i =0; i < 10000; i++){
     // Actually perform the matrix multiplicaiton
-    if (i % 10 == 0) printf("%i\n",i);
+    //if (i % 10 == 0) printf("%i\n",i);
     dCSR<Arith_SR::leftInput_t> input_A_GPU;
     dCSR<Arith_SR::rightInput_t> input_B_GPU;
     convert(input_A_GPU, input_A_CPU);
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[])
     dCSR<Arith_SR::output_t> result_mat_GPU;
         ACSpGEMM::Multiply<Arith_SR>(input_A_GPU, input_B_GPU, result_mat_GPU, DefaultTraits, stats, Debug_Mode, semiring);
          cudaDeviceSynchronize();
-         std::cout << result_mat_GPU.nnz << std::endl;
+         //std::cout << result_mat_GPU.nnz << std::endl;
          convert(result_mat_CPU, result_mat_GPU);
          cudaDeviceSynchronize();
     }

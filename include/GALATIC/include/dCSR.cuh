@@ -68,6 +68,7 @@ namespace
             cudaFree(mat.data);
         if (mat.row_offsets != nullptr)
             cudaFree(mat.row_offsets);
+        mat.nnz = 0;
         mat.col_ids = nullptr;
         mat.data = nullptr;
         mat.row_offsets = nullptr;

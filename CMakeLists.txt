@@ -48,7 +48,7 @@ endif()
 if(CUDA_FOUND)
   target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
   enable_language(CUDA)
-  set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
+  #set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
   set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--ftemplate-backtrace-limit 1 --expt-relaxed-constexpr --disable-warnings")
   FILE(GLOB_RECURSE MyCSources *)
   FILE(GLOB_RECURSE MyHSources *.h*)
@@ -57,7 +57,7 @@ if(CUDA_FOUND)
   set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
   # Hack to avoid using #include
   target_link_libraries(CombBLAS PUBLIC ${CUDA_LIBRARIES})
-  cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
+  #cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
   target_sources(CombBLAS PRIVATE ${CUDASpGEMM})
   set(THREADS_PREFER_PTHREAD_FLAG OFF)
   set_property(TARGET Threads::Threads
