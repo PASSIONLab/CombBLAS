@@ -46,7 +46,7 @@
 #include <type_traits>
 #include <unordered_set>
 
-#ifdef GPU_ENABLED
+#ifdef __CUDACC__
 #include <cuda.h>
 #include "cudaSpGEMM.h"
 #include "../GALATIC/include/dCSR.cuh"
@@ -1018,6 +1018,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
+#ifdef __CUDACC__
 template <typename NT1, typename NT2, typename NT3, typename sr>
 struct Wrap_SR : SemiRing<NT1, NT2, NT3>
 {
@@ -1026,7 +1027,7 @@ struct Wrap_SR : SemiRing<NT1, NT2, NT3>
     __host__ __device__ static double AdditiveIdentity() { return 0; }
 };
 
-#ifdef GPU_ENABLED
+
 
 template <typename UDERA, typename NU1>
 void convertCSR(UDERA *&ARecv, dCSR<NU1> &input_GPU, int id)

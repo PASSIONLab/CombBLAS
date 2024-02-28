@@ -606,7 +606,7 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
   * @param[in] essentials {irrelevant for the root}
  **/
 
-#ifdef GPU_ENABLED
+#ifdef __CUDACC__
 
 template<typename IT, typename NT>	
 void SpParHelper::BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const std::vector<IT> & essentials, int root)

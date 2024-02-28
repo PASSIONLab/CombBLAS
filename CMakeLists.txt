@@ -17,6 +17,7 @@ else()
   target_compile_features(CombBLAS PUBLIC cxx_return_type_deduction)
 endif()
 
+
 # set include directories
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include> $<INSTALL_INTERFACE:include>)
@@ -27,6 +28,29 @@ find_package(MPI REQUIRED)
 find_package(OpenMP)
 # This needs to be split based on if CMake >= 3.17, as this is deprecated above that
 find_package(CUDA)
+
+
+if(CUDA_FOUND)
+  #target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
+  enable_language(CUDA)
+  #set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
+  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--ftemplate-backtrace-limit 1 --expt-relaxed-constexpr --disable-warnings")
+  #FILE(GLOB_RECURSE MyCSources *)
+  #FILE(GLOB_RECURSE MyHSources *.h*)
+  #cset_source_files_properties(${MyCSources} PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(src/CommGrid.cpp src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CXX)
+  set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
+  # Hack to avoid using #include
+  #target_link_libraries(CombBLAS PUBLIC ${CUDA_LIBRARIES})
+  #cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
+  #target_sources(CombBLAS PRIVATE ${CUDASpGEMM})
+  set(THREADS_PREFER_PTHREAD_FLAG OFF)
+  set_property(TARGET Threads::Threads
+				 PROPERTY INTERFACE_COMPILE_OPTIONS $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler -pthread>
+													"$<$<NOT:$<COMPILE_LANGUAGE:CUDA>>:-pthread>")
+else()
+  message(STATUS "CUDA features disabled")
+endif()
 
 if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -45,27 +69,7 @@ elseif(OPENMP_FOUND)
   target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
 endif()
 
-if(CUDA_FOUND)
-  target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
-  enable_language(CUDA)
-  #set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
-  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--ftemplate-backtrace-limit 1 --expt-relaxed-constexpr --disable-warnings")
-  FILE(GLOB_RECURSE MyCSources *)
-  FILE(GLOB_RECURSE MyHSources *.h*)
-  set_source_files_properties(${MyCSources} PROPERTIES LANGUAGE CUDA)
-  set_source_files_properties(src/CommGrid.cpp src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CXX)
-  set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
-  # Hack to avoid using #include
-  target_link_libraries(CombBLAS PUBLIC ${CUDA_LIBRARIES})
-  #cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
-  target_sources(CombBLAS PRIVATE ${CUDASpGEMM})
-  set(THREADS_PREFER_PTHREAD_FLAG OFF)
-  set_property(TARGET Threads::Threads
-				 PROPERTY INTERFACE_COMPILE_OPTIONS $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler -pthread>
-													"$<$<NOT:$<COMPILE_LANGUAGE:CUDA>>:-pthread>")
-else()
-  message(STATUS "CUDA features disabled")
-endif()
+
 
 
 add_subdirectory(usort)
@@ -141,8 +145,8 @@ enable_testing()
 include(CTest)
 
 add_subdirectory(ReleaseTests)
-#add_subdirectory(Applications)
-#add_subdirectory(Applications/Ordering)
-#add_subdirectory(Applications/BipartiteMatchings)
-#add_subdirectory(Applications/SpMSpV-IPDPS2017)
-#add_subdirectory(3DSpGEMM)
+add_subdirectory(Applications)
+add_subdirectory(Applications/Ordering)
+add_subdirectory(Applications/BipartiteMatchings)
+add_subdirectory(Applications/SpMSpV-IPDPS2017)
+add_subdirectory(3DSpGEMM)

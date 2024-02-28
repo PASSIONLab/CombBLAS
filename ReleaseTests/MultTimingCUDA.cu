@@ -28,7 +28,7 @@
 
 // #include <cuda.h>
 
-#ifdef GPU_ENABLED
+#ifdef __CUDACC__
 
 #include <mpi.h>
 #include <sys/time.h>
