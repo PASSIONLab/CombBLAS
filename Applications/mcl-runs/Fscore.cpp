@@ -7,6 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include <omp.h>
+#include <map>
 using namespace std;
 
 template <typename T>
@@ -34,6 +35,9 @@ double Fscore(string mclFile, string hipmclFile, int base)
     int64_t numMCLClusters, numHipMCLClusters;
     int64_t nproteins = 0;
     // item 0-based
+    std::map<int64_t, int64_t> vtxMap;
+    std::map<int64_t, int64_t> vtxMapR;
+    int64_t vtxCount=0;
     
     vector<vector<int64_t>> mclClusters;
     
@@ -49,7 +53,10 @@ double Fscore(string mclFile, string hipmclFile, int base)
             while ( iss >> item)
             {
                 if(base==1) item --;
-                mclClusters[clustID].push_back(item);
+                vtxMap[item] = vtxCount;
+                vtxMapR[vtxCount] = item;
+                mclClusters[clustID].push_back(vtxCount);
+                vtxCount = vtxCount + 1;
             }
             
             nproteins += mclClusters[clustID].size();
@@ -75,9 +82,10 @@ double Fscore(string mclFile, string hipmclFile, int base)
             while ( iss >> item)
             {
                 if(base==1) item --;
-                clust2[item] = clustID;
-                if(item >= nproteins)
-                {
+                clust2[vtxMap.find(item)->second] = clustID;
+                if(vtxMap.find(item)->second >= nproteins)
+                {   
+                    cout << item << "-" << nproteins << endl;
                     cout << "The number of vertices in MCL and HipMCL outputs does not match. \n Please check if there are isolated vertices in HipMCL.\n Exiting.............." << endl;
                     exit(1);
                 }

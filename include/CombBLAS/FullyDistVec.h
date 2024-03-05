@@ -66,7 +66,7 @@ public:
 	FullyDistVec ( std::shared_ptr<CommGrid> grid);
 	FullyDistVec ( std::shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
-    	FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector of length n/p from each processor
+    FullyDistVec ( const std::vector<NT> & fillarr, std::shared_ptr<CommGrid> grid ); // initialize a FullyDistVec with a vector of length n/p from each processor
 
 
 	template <class ITRHS, class NTRHS>
@@ -96,7 +96,8 @@ public:
 	void ParallelWrite(const std::string & filename, bool onebased, HANDLER handler, bool includeindices = true)
 	{
         	FullyDistSpVec<IT,NT> tmpSpVec = *this;	// delegate
-        	tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices);
+        	if(includeindices == true) tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices, true); //If indices are asked to be included last parameter(true) specifies that header would also be written.
+            else tmpSpVec.ParallelWrite(filename, onebased, handler, includeindices, false); //If indices are asked not to be included last parameter(false) specifies that header would also not be written.
 	}
 	void ParallelWrite(const std::string & filename, bool onebased, bool includeindices = true) { ParallelWrite(filename, onebased, ScalarReadSaveHandler(), includeindices); };
 
@@ -147,6 +148,7 @@ public:
 	{
 		return GetElement(indx);
 	}
+    NT GetLocalElement(IT index) const{ return arr[index]; }
 
 	void Set(const FullyDistSpVec< IT,NT > & rhs);
     template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>
@@ -155,7 +157,7 @@ public:
     FullyDistSpVec<IT,NT> GGet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, NT nullValue);
 
 	void iota(IT globalsize, NT first);
-	void RandPerm();	// randomly permute the vector
+	void RandPerm(uint64_t seed = 1383098845);	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation
 
 	using FullyDist<IT,NT,typename combblas::disable_if< combblas::is_boolean<NT>::value, NT >::type>::LengthUntil;

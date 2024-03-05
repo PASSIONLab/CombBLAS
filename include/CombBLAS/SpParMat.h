@@ -359,6 +359,10 @@ public:
     friend SpParMat<IU,NUO,UDERO> MemEfficientSpGEMM (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                                int phases, NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int computationKernel, int64_t perProcessMem);
 
+    template <typename SR, typename ITA, typename NTA, typename DERA>
+    friend SpParMat<ITA, NTA, DERA> IncrementalMCLSquare (SpParMat<ITA, NTA, DERA> & A,
+                                               int phases, NTA hardThreshold, NTA selectNum, ITA recoverNum, NTA recoverPct, int kselectVersion, int computationKernel, int64_t perProcessMem);
+
     template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB>
     friend int CalculateNumberOfPhases (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B,
                                                NUO hardThreshold, IU selectNum, IU recoverNum, NUO recoverPct, int kselectVersion, int64_t perProcessMem);

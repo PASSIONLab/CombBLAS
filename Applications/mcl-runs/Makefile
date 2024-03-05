@@ -1,4 +1,4 @@
-CC = g++ 
+CC = CC 
 FLAGS = -fopenmp -O2 -DNDEBUG 
 
 all: mclconvert fscore

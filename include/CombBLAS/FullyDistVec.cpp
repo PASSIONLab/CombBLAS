@@ -368,12 +368,12 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator-=(const FullyDistVec<IT,NT>
 template <class IT, class NT>
 bool FullyDistVec<IT,NT>::operator==(const FullyDistVec<IT,NT> & rhs) const
 {
-	ErrorTolerantEqual<NT> epsilonequal;
-	int local = 1;
-	local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
-	int whole = 1;
-	MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, commGrid->GetWorld());
-	return static_cast<bool>(whole);	
+    ErrorTolerantEqual<NT> epsilonequal;
+    int local = 1;
+    local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
+    int whole = 1;
+    MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, commGrid->GetWorld());
+    return static_cast<bool>(whole);	
 }
 
 template <class IT, class NT>
@@ -780,13 +780,20 @@ FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 
 // Randomly permutes an already existing vector
 template <class IT, class NT>
-void FullyDistVec<IT,NT>::RandPerm()
+void FullyDistVec<IT,NT>::RandPerm(uint64_t seed)
 {
+	if(seed == 1383098845){
+        // If seed is equal to the default value it is assumed that no seed was provided
 #ifdef DETERMINISTIC
-	uint64_t seed = 1383098845;
+        seed = 1383098845;
 #else
-	uint64_t seed= time(NULL);
+        seed = time(NULL);
 #endif
+    }
+    else{
+        // If seed is not equal to the default value it means user is providing some
+        // value as the seed. So don't touch it.
+    }
     
 	MTRand M(seed);	// generate random numbers with Mersenne Twister
     MPI_Comm World = commGrid->GetWorld();
