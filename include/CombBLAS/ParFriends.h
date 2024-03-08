@@ -1540,8 +1540,8 @@ CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
     const int MaxChunksGeneralizedMerge = 256; // MAX: 865
     const int MergePathOptions = 8;
     cudaDeviceSynchronize();
-    Arith_SR semiring2;
-    dCSR<Arith_SR::output_t> result_mat_GPU;
+    SR semiring2;
+    dCSR<NUO> result_mat_GPU;
     GPUMatrixMatrixMultiplyTraits DefaultTraits(
         Threads, BlocksPerMP, NNZPerThread, InputElementsPerThreads,
         RetainElementsPerThreads, MaxChunksToMerge,
@@ -1552,7 +1552,7 @@ CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
     ExecutionStats stats;
     // stats.measure_all = false;
 
-    ACSpGEMM::Multiply<Arith_SR>(
+    ACSpGEMM::Multiply<SR>(
         A, B, result_mat_GPU,
         DefaultTraits, stats, Debug_Mode, semiring2);
 
@@ -1725,7 +1725,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
 
         // std::cout << input_A_recv_GPU.rows << std::endl;
         mpi_overhead += MPI_Wtime() - t2;
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Wrap_SR<NU1, NU2, NUO, SR>, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         //over += MPI_Wtime() - t1;
         //std::cout << "TUPLING " << id << std::endl;
         //  printf("O = %i\n", C_cont->getnnz());
@@ -1847,7 +1847,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                          i != Bself);   // 'delete B' condition*/
         // const_cast< UDERB* >(B.spSeq)->Transpose();
         mpi_overhead += MPI_Wtime() - t2;
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Wrap_SR<NU1, NU2, NUO, SR>, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         gpuErrchk(cudaDeviceSynchronize());
         //over += MPI_Wtime() - t1;
         //std::cout << over << std::endl;
