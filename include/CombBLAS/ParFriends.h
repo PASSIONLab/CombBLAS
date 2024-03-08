@@ -1597,6 +1597,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     typedef typename UDERO::LocalIT LIC;
 
     double over = 0;
+    double t1 = MPI_Wtime();
     static_assert(
         std::is_same<LIA, LIB>::value,
         "local index types for both input matrices should be the same");
@@ -1625,7 +1626,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     int Bself = (B.commGrid)->GetRankInProcCol();
     
     
-    double t1 = MPI_Wtime();
+    
     (A.spSeq)->Split(*A1seq, *A2seq);
     const_cast<UDERB *>(B.spSeq)->Transpose();
     (B.spSeq)->Split(*B1seq, *B2seq);
@@ -1656,10 +1657,12 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     convertCSR<UDERA, NU1>(A1seq, input_A_GPU, id);
     convertCSR<UDERB, NU2>(B1seq, input_B_GPU, id);
 
+    over += MPI_Wtime() - t1;
     double mpi_overhead = 0.0;
 
     for (int i = 0; i < stages; ++i)
     {
+        double t2 = MPI_Wtime();
         dCSR<NU1> input_A_recv_GPU;
         dCSR<NU2> input_B_recv_GPU;
         std::vector<LIA> ess;
@@ -1721,8 +1724,9 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         // MPI_Wtime();
 
         // std::cout << input_A_recv_GPU.rows << std::endl;
+        mpi_overhead += MPI_Wtime() - t2;
         CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
-        over += MPI_Wtime() - t1;
+        //over += MPI_Wtime() - t1;
         //std::cout << "TUPLING " << id << std::endl;
         //  printf("O = %i\n", C_cont->getnnz());
         //  mpi_overhead += MPI_Wtime() - start;
@@ -1779,8 +1783,11 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
 
     SpParHelper::GetSetSizes(*A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
     SpParHelper::GetSetSizes(*B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
+    over += MPI_Wtime() - t1;
+
     for (int i = 0; i < stages; ++i)
     {
+        double t2 = MPI_Wtime();
         dCSR<NU1> input_A_recv_GPU;
         dCSR<NU2> input_B_recv_GPU;
         // std::cout << Aself << " " << Bself << " starting stage " << i
@@ -1839,10 +1846,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                          i != Aself,    // 'delete A' condition
                          i != Bself);   // 'delete B' condition*/
         // const_cast< UDERB* >(B.spSeq)->Transpose();
-
+        mpi_overhead += MPI_Wtime() - t2;
         CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         gpuErrchk(cudaDeviceSynchronize());
-        over += MPI_Wtime() - t1;
+        //over += MPI_Wtime() - t1;
         //std::cout << over << std::endl;
         // std::cout << "ENDING MULT" << std::endl;
         // mpi_overhead += MPI_Wtime() - start;
@@ -1890,6 +1897,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         else
             delete C_cont;
     }
+    t1 = MPI_Wtime();
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
     // A2seq->Transpose();
@@ -1929,6 +1937,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     // printf("Full output has rows = %i, cols = %i, nnz = %i\n", C->getnrow(),
     // C->getncol(), C->getnnz());
     cudaDeviceSynchronize();
+    over += MPI_Wtime() - t1;
+    std::cout << over << "\n";
     return SpParMat<IU, NUO, UDERO>(
         C, GridC); // return the result object	// return the result object
 }

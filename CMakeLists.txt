@@ -39,8 +39,8 @@ if(CUDA_FOUND)
   #FILE(GLOB_RECURSE MyCSources *)
   #FILE(GLOB_RECURSE MyHSources *.h*)
   #cset_source_files_properties(${MyCSources} PROPERTIES LANGUAGE CUDA)
-  set_source_files_properties(src/CommGrid.cpp src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CXX)
-  set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
+  #set_source_files_properties(src/CommGrid.cpp src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CXX)
+  #set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
   # Hack to avoid using #include
   #target_link_libraries(CombBLAS PUBLIC ${CUDA_LIBRARIES})
   #cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
@@ -144,6 +144,9 @@ install(
 # Testing
 enable_testing()
 include(CTest)
+
+# Warnings cause the compiler to crash, surpress them to prevent that
+add_definitions(-w)
 
 add_subdirectory(ReleaseTests)
 add_subdirectory(Applications)
