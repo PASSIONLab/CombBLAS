@@ -1479,6 +1479,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
+
+#ifdef TIMING
+	double t0, t1, t2, t3;
+    double Abcasttime = 0;
+    double Bbcasttime = 0;
+    double LocalSpGEMMtime = 0;
+    double Mergetime = 0;
+#endif
 	
 	for(int i = 0; i < stages; ++i) 
 	{
@@ -1496,7 +1504,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}
 			ARecv = new UDERA();				// first, create the object
 		}
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        Abcasttime += (t1-t0);
+#endif
 		ess.clear();	
 		
 		if(i == Bself)
@@ -1512,15 +1527,29 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 			}	
 			BRecv = new UDERB();
 		}
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        Bbcasttime += (t1-t0);
+#endif
         
-		SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
+		SpTuples<IU,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, 	// 'delete A' condition
 						false);	// 'delete B' condition
 
         if(i != Bself && (!BRecv->isZero())) delete BRecv;
         if(i != Aself && (!ARecv->isZero())) delete ARecv;
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        LocalSpGEMMtime += (t1-t0);
+#endif
 		
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -1546,12 +1575,26 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
-    SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true); // Last parameter to delete input tuples
+#ifdef TIMING
+        t0 = MPI_Wtime();
+#endif
+    SpTuples<IU,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n,true); // Last parameter to delete input tuples
+#ifdef TIMING
+        t1 = MPI_Wtime();
+        Mergetime += (t1-t0);
+#endif
     UDERO * C = new UDERO(*C_tuples, false); // Last parameter to prevent transpose
     delete C_tuples;
 
 	//if(!clearB)
 	//	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+
+#ifdef TIMING
+    if(myrank == 0) printf("[Mult_AnXBn_Synch] Abcasttime: %lf\n", Abcasttime);
+    if(myrank == 0) printf("[Mult_AnXBn_Synch] Bbcasttime: %lf\n", Bbcasttime);
+    if(myrank == 0) printf("[Mult_AnXBn_Synch] LocalSpGEMMtime: %lf\n", LocalSpGEMMtime);
+    if(myrank == 0) printf("[Mult_AnXBn_Synch] Mergetime: %lf\n", Mergetime);
+#endif
 
 	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
@@ -3501,10 +3544,10 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
 #endif
         SpTuples<IU,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
                             (*ARecv, *BRecv,    // parameters themselves
-                            i != Aself,         // 'delete A' condition
-                            i != Bself,         // 'delete B' condition
+                            false,         // 'delete A' condition
+                            false,         // 'delete B' condition
                             false);             // not to sort each column
-
+        // delete received copies of A and B explicitly
         if(i != Bself && (!BRecv->isZero())) delete BRecv;
         if(i != Aself && (!ARecv->isZero())) delete ARecv;
 #ifdef TIMING

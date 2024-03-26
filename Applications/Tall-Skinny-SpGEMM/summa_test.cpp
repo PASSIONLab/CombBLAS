@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
     string Bname;
     string Cname = "";
     string perm;
+    int nLayer=1; // Default 1
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i],"-A")==0){
@@ -70,6 +71,10 @@ int main(int argc, char* argv[])
         if (strcmp(argv[i],"-permute")==0){
             perm = string(argv[i+1]);
             if(myrank == 0) printf("Random permutation: %s\n", perm.c_str());
+        }
+        if (strcmp(argv[i],"-layer")==0){
+            nLayer = atoi(argv[i+1]);
+            if(myrank == 0) printf("Number of layers in 3D matrix: %s\n", perm.c_str());
         }
     }
     shared_ptr<CommGrid> fullWorld;
@@ -127,15 +132,38 @@ int main(int argc, char* argv[])
 
     typedef PlusTimesSRing<double, double> PTFF;
 
-    //Run 2D multiplication to compare against
-    t0 = MPI_Wtime();
-    SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D =
-        Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
-        (A2D, B2D);
-    t1 = MPI_Wtime();
-    if(myrank == 0) fprintf(stdout, "Time taken for Mult_AnXBn_Synch: %lf\n", t1-t0);
-    if(Cname != "") C2D.ParallelWriteMM(Cname, 1);
-    if(myrank == 0) fprintf(stdout, "2D Multiplication done \n");
+    if (nLayer == 1){
+        //Run 2D multiplication
+        t0 = MPI_Wtime();
+        SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D =
+            Mult_AnXBn_Synch<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
+            (A2D, B2D);
+        t1 = MPI_Wtime();
+        if(myrank == 0) fprintf(stdout, "Time taken for Mult_AnXBn_Synch: %lf\n", t1-t0);
+        if(Cname != "") C2D.ParallelWriteMM(Cname, 1);
+        if(myrank == 0) fprintf(stdout, "2D Multiplication done \n");
+    }
+    else{
+        if(myrank == 0) fprintf(stdout, "Trying %d layers\n", nLayer);
+
+        // Convert 2D matrices to 3D
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> A3D(A2D, nLayer, true, false);
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> B3D(B2D, nLayer, false, false);
+
+        t0 = MPI_Wtime();
+        SpParMat3D<int64_t, double, SpDCCols < int64_t, double >> C3D = 
+            Mult_AnXBn_SUMMA3D<PTFF, double, SpDCCols<int64_t, double>, int64_t, double, double, SpDCCols<int64_t, double>, SpDCCols<int64_t, double> >
+            (A3D, B3D);
+        t1 = MPI_Wtime();
+        if(myrank == 0) fprintf(stdout, "Time taken for Mult_AnXBn_SUMMA3D: %lf\n", t1-t0);
+        if(Cname != "") {
+            SpParMat<int64_t, double, SpDCCols < int64_t, double >> C2D = C3D.Convert2D();
+            C2D.ParallelWriteMM(Cname, 1);
+        }
+        if(myrank == 0) fprintf(stdout, "3D Multiplication done \n");
+
+    }
+
   }
   MPI_Finalize();
   return 0;

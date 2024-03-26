@@ -10,8 +10,8 @@
 #SBATCH -t 0:30:00
 
 #SBATCH -N 2
-#SBATCH -J test
-#SBATCH -o slurm.test.o%j
+#SBATCH -J summa_test
+#SBATCH -o slurm.summa_test.o%j
 
 SYSTEM=perlmutter_cpu
 CORE_PER_NODE=128 # Never change. Specific to the system
@@ -23,14 +23,18 @@ THREAD_PER_PROC=$(( $CORE_PER_NODE / $PROC_PER_NODE ))
 PER_PROC_MEM=$(( $PER_NODE_MEMORY / $PROC_PER_NODE - 2)) #2GB margin of error
 export OMP_NUM_THREADS=$THREAD_PER_PROC
 
-A_FILE=$CFS/m4293/summa_spgemm/uk-2002.mtx
-B_FILE=$CFS/m4293/summa_spgemm/sparse_local.txt
-C_FILE=$CFS/m4293/summa_spgemm/c.mtx
-#A_FILE=$SCRATCH/spgemm_summa/uk-2002.mtx
-##B_FILE=$SCRATCH/spgemm_summa/uk-2002.mtx
+#A_FILE=$CFS/m4293/summa_spgemm/uk-2002.mtx
+#B_FILE=$CFS/m4293/summa_spgemm/sparse_local.txt
+#C_FILE=$CFS/m4293/summa_spgemm/c.mtx
+A_FILE=$SCRATCH/spgemm_summa/uk-2002.mtx
+B_FILE=$SCRATCH/spgemm_summa/uk-2002.mtx
 #B_FILE=$SCRATCH/spgemm_summa/sparse_local.txt
-#C_FILE=$SCRATCH/summa_spgemm/c.mtx
-BINARY=$HOME/Codes/CombBLAS/_build/Applications/Incremental/testideas
+C_FILE=$SCRATCH/summa_spgemm/c.mtx
+
+#A_FILE=$SCRATCH/TESTDATA/rmat_scale16_A.mtx
+#B_FILE=$SCRATCH/TESTDATA/rmat_scale16_B.mtx
+
+BINARY=$HOME/Codes/CombBLAS/_build/Applications/Tall-Skinny-SpGEMM/summa_test
 
 # -permute would take either "no" or "sym" or "unsym" 
 # This parameter affects only A-permutation
@@ -38,5 +42,6 @@ BINARY=$HOME/Codes/CombBLAS/_build/Applications/Incremental/testideas
 # If "sym", A-permutation would be symmetric, B-permutation would be row-permutation in accordance with A-permutation
 # If "unsym", both matrices would be permuted completely randomly
 # If -C parameter is given, output would be written into $C_FILE, else no output would be written
-srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores $BINARY -A $A_FILE -B $B_FILE -permute unsym
+#srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores $BINARY -A $A_FILE -B $B_FILE -permute unsym
+srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores $BINARY -A $A_FILE -B $B_FILE -permute unsym -layer 4
 #srun -N $N_NODE -n $N_PROC -c $THREAD_PER_PROC --ntasks-per-node=$PROC_PER_NODE --cpu-bind=cores $BINARY -A $A_FILE -B $B_FILE -C $C_FILE -permute sym
