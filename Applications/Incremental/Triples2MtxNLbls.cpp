@@ -37,103 +37,9 @@ typedef int64_t IT;
 typedef double NT;
 typedef SpDCCols < int64_t, double > DER;
 typedef PlusTimesSRing<double, double> PTFF;
-typedef PlusTimesSRing<int64_t, int64_t> PTII;
 typedef PlusTimesSRing<bool, double> PTBOOLNT;
 typedef PlusTimesSRing<double, bool> PTNTBOOL;
 typedef std::array<char, MAXVERTNAME> LBL;
-typedef std::map<std::string, IT> KEYMAP;    
-typedef std::pair<LBL, IT> TYPE2SEND;
-typedef std::tuple<LBL, IT, IT, IT> TUPLE2SEND; // Label, gidx on M11, gidx in M22, gidx in Mixed
-
-void SendLblNIdxToOwner(FullyDistVec<IT, LBL> &Lbl, 
-                     std::vector<int> &sendcnt, 
-                     std::vector<int> &recvcnt,
-                     std::vector<int> &sdispls,
-                     std::vector<int> &rdispls,
-                     IT &totsend,
-                     IT &totrecv,
-                     std::vector<TYPE2SEND> &senddata,
-                     std::vector<TYPE2SEND> &recvdata){
-    int nprocs, myrank;
-    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    auto commGrid = Lbl.getcommgrid();
-
-    std::vector< KEYMAP > keys(nprocs); 
-    std::vector<LBL> lLbl = Lbl.GetLocVec();
-    
-    for(IT i = 0; i < lLbl.size(); i++){
-        LBL lbl = lLbl[i];
-        auto lblStart = lbl.begin();
-        auto lblEnd = std::find(lbl.begin(), lbl.end(), '\0');
-        std::string lblStr( lblStart, lblEnd );
-
-        int owner = 0;
-        for (int j = 0; j < lLbl[i].size(); j++){
-            owner += (lLbl[i][j]*107) & (nprocs-1);
-            if(lLbl[i][j] == '\0') break;
-        }
-        owner = owner % nprocs;
-        
-        IT gIdx = Lbl.LengthUntil() + i;
-        keys[owner].insert( std::make_pair(lblStr, gIdx) ); 
-        
-        ////std::string seqLbl = std::string("iso_pr_archaea|8061901736|8061903926|");
-        ////std::string seqLbl = std::string("iso_pr_archaea|8058535375|8058537160|");
-        //std::string seqLbl = std::string("UPI00001A7D32");
-        //auto res = std::mismatch(seqLbl.begin(), seqLbl.end(), lblStr.begin());
-        //if( res.first == seqLbl.end() ){
-            //printf("%s going to be processed at process %d\n", str.c_str(), owner);
-        //}
-    }
-
-    for(int i=0; i<nprocs; ++i) sendcnt[i] = keys[i].size();
-
-    MPI_Alltoall(sendcnt.data(), 1, MPI_INT, recvcnt.data(), 1, MPI_INT, commGrid->GetWorld()); // share the counts
-
-    sdispls[0] = 0;
-    rdispls[0] = 0;
-    std::partial_sum(sendcnt.begin(), sendcnt.end(), sdispls.begin() + 1 );
-    std::partial_sum(recvcnt.begin(), recvcnt.end(), rdispls.begin() + 1 );
-    totsend = static_cast<IT>(sdispls[nprocs]);
-    totrecv = static_cast<IT>(rdispls[nprocs]);
-    ////fprintf(stderr, "myrank %d totsend: %lld, totrecv %lld\n", myrank, totsend, totrecv);
-    //if(myrank == 0){
-        //printf("sendcnt[%d]\t+\tsdispls[%d]\t=\t%d\t+\t%d\t=\t%d\n", 0, -1, sendcnt[0], 0, sdispls[0]);
-        //for(int p = 1; p < nprocs; p++){
-            //printf("sendcnt[%d]\t+\tsdispls[%d]\t=\t%d\t+\t%d\t=\t%d\n", p, p, sendcnt[p], sdispls[p-1], sdispls[p]);
-        //}
-        //printf("sendcnt[%d]\t+\tsdispls[%d]\t=\t%d\t+\t%d\t=\t%d\n", 0, -1, sendcnt[0], 0, sdispls[0]);
-    //}
-
-    senddata.resize(totsend);
-    recvdata.resize(totrecv);
-
-    int sdidx = 0;
-    for (int p = 0; p < nprocs; p++){
-        int cnt = 0;
-        for(auto const& elem : keys[p]){
-            LBL lbl;
-            lbl.fill('\0');
-            std::copy( elem.first.begin(), elem.first.end(), lbl.begin() );  
-            //if(elem.first.length() < MAXVERTNAME)  lbl[elem.first.length()] = '\0';	// null termination		
-            sdidx = sdispls[p] + cnt;
-            senddata[sdidx] = TYPE2SEND(lbl, elem.second);
-            string str(senddata[sdidx].first.begin(), senddata[sdidx].first.end());
-            cnt++;
-        }
-    }
-
-    MPI_Datatype MPI_PAIR;
-    MPI_Type_contiguous(sizeof(TYPE2SEND), MPI_CHAR, &MPI_PAIR);
-    MPI_Type_commit(&MPI_PAIR);
-
-    MPI_Alltoallv(senddata.data(), sendcnt.data(), sdispls.data(), MPI_PAIR, recvdata.data(), recvcnt.data(), rdispls.data(), MPI_PAIR, commGrid->GetWorld());
-    
-    MPI_Type_free(&MPI_PAIR);
-
-    return;
-}
 
 int main(int argc, char* argv[])
 {
@@ -152,43 +58,19 @@ int main(int argc, char* argv[])
     return -1;
   }
   else {
-    string TriplesM11;
-    string TriplesM22;
-    string TriplesM21;
-    string MtxM11;
-    string MtxM22;
-    string MtxM12;
-    string MtxM21;
-    string LblM11;
-    string LblM22;
+    string TriplesName;
+    string MtxName;
+    string LblName;
     for (int i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i],"--triples-m11")==0){
+        if (strcmp(argv[i],"--triples")==0){
             TriplesM11 = string(argv[i+1]);
         }
-        if (strcmp(argv[i],"--triples-m22")==0){
-            TriplesM22 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--triples-m21")==0){
-            TriplesM21 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--mtx-m11")==0){
+        if (strcmp(argv[i],"--mtx")==0){
             MtxM11 = string(argv[i+1]);
         }
-        if (strcmp(argv[i],"--mtx-m12")==0){
-            MtxM12 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--mtx-m21")==0){
-            MtxM21 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--mtx-m22")==0){
-            MtxM22 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--lbl-m11")==0){
+        if (strcmp(argv[i],"--lbl")==0){
             LblM11 = string(argv[i+1]);
-        }
-        if (strcmp(argv[i],"--lbl-m22")==0){
-            LblM22 = string(argv[i+1]);
         }
     }
     shared_ptr<CommGrid> fullWorld;
@@ -405,7 +287,7 @@ int main(int argc, char* argv[])
     M21.ParallelWriteMM(MtxM21, 1);
     M22.ParallelWriteMM(MtxM22, 1);
     gM11Lbl.ParallelWrite(LblM11, 1);
-    gM22Lbl.ParallelWrite(LblM22, 1);
+    gM23Lbl.ParallelWrite(LblM22, 1);
 
   }
 
