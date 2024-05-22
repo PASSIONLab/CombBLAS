@@ -9,10 +9,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
 ADD_EXECUTABLE(summa_test summa_test.cpp)
 ADD_EXECUTABLE(msbfs msbfs.cpp)
+ADD_EXECUTABLE(msbfs-3d msbfs-3d.cpp)
 #ADD_EXECUTABLE(summa_test summa_test.cpp)
 
 TARGET_LINK_LIBRARIES( summa_test CombBLAS )
 TARGET_LINK_LIBRARIES( msbfs CombBLAS )
+TARGET_LINK_LIBRARIES( msbfs-3d CombBLAS )
 
 
 # Following portions taken from $PETSC_DIR/share/petsc/CMakeLists.txt
