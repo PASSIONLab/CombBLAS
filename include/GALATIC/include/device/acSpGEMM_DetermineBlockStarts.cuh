@@ -87,7 +87,7 @@ __global__ void DetermineBlockStarts(int num_other, const OFFSET_TYPE*__restrict
 	{
 		toClear5[i] = 0;
 		toClear6[i] = 0;
-		toClear7[i] = 0;
+		//toClear7[i] = 0;
 	}
 
 	for (int i = id; i < num8; i += num_other)
@@ -100,6 +100,7 @@ template<typename OFFSET_TYPE, uint32_t NNZ_PER_BLOCK>
 void AcSpGEMMKernels::h_DetermineBlockStarts(int num_other, const uint32_t*__restrict offsets, uint32_t* startingIds, uint64_t* toClear, uint32_t* toClear1, uint32_t* toClear2, int num3, uint32_t* toClear3, int num4, uint32_t* toClear4,
 	int num5, uint32_t* toClear5, uint32_t* toClear6, uint32_t* toClear7, int num8, uint32_t* toClear8)
 {
+	// This method has a tendency to access memory illegally
 	DetermineBlockStarts <OFFSET_TYPE, NNZ_PER_BLOCK> <<<gridDim, blockDim, 0 , stream>>>(num_other, offsets, startingIds, toClear, toClear1, toClear2, num3, toClear3,
 		num4, toClear4,
 		num5, toClear5, toClear6, toClear7, 

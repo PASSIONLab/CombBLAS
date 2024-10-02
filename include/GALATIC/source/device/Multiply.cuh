@@ -109,11 +109,15 @@ namespace ACSpGEMM {
 		return divup<T>(size, alignment) * alignment;
 	}
 
+	int id; 
+
 	template <typename DataType, uint32_t threads, uint32_t blocks_per_mp, uint32_t nnz_per_thread, uint32_t input_elements_per_thread, uint32_t retain_elements_per_thread, uint32_t merge_max_chunks, uint32_t generalized_merge_max_path_options, uint32_t merge_max_path_options,  bool DEBUG_MODE,
             typename T, typename U, typename Label,
             typename SEMIRING_t>
             void MultiplyImplementation(const dCSR<typename SEMIRING_t::leftInput_t>& matA, const dCSR<typename SEMIRING_t::rightInput_t>& matB, dCSR<typename SEMIRING_t::output_t>& matOut, const GPUMatrixMatrixMultiplyTraits& traits, ExecutionStats& stats, SEMIRING_t semiring)
 	{
+		HANDLE_ERROR(cudaGetLastError());
+
 		using ConsistentGPUMemory = ConsistentMemory<MemorySpace::device>;
 
 		// the magic numbers to make it run smoother
@@ -182,6 +186,8 @@ namespace ACSpGEMM {
 			single_chunk_estimate += (1 - current_overlap)*b_avg_row;
 			current_overlap = current_overlap + (1 - current_overlap)*avg_row_overlap;
 		}
+		HANDLE_ERROR(cudaGetLastError());
+
 		double intermediate_estimate = OverallocationFactor * a_avg_row / std::min(merges, a_avg_row) * single_chunk_estimate * Arows;
 		double mergepointer_estimate = std::max(intermediate_estimate, output_estimate) / (retain_elements_per_thread*threads) + 16 * 1024;
 		size_t expectedNNZ = std::max(minExpectedNNZ, std::min(maxExpectedNNZ, static_cast<size_t>(lastChunckBufferRequirementRatio*std::max(intermediate_estimate, output_estimate))));
@@ -199,6 +205,7 @@ namespace ACSpGEMM {
 			std::cout << "mergepointer alloc " << static_cast<size_t>(ChunkPointerOverestimationFactor*mergepointer_estimate) << " mergepointer estimate: " << mergepointer_estimate << "\n";
 		}
 
+		HANDLE_ERROR(cudaGetLastError());
 
 		// CUDA variables
 		CUstream stream = 0;
@@ -213,10 +220,11 @@ namespace ACSpGEMM {
 			else
 				cudaStreamCreate(&mergeStreams[i]);
 		}
+		HANDLE_ERROR(cudaGetLastError());
 
 		cudaEvent_t ce_start, ce_stop, individual_start, individual_stop;
 		cudaEventCreate(&ce_start); cudaEventCreate(&ce_stop); cudaEventCreate(&individual_start); cudaEventCreate(&individual_stop);
-
+		HANDLE_ERROR(cudaGetLastError());
 		// GPU Memory Helper structures - general
 		static ConsistentGPUMemory chunckPointers;
 		static ConsistentGPUMemory combinedGeneralMemory;
@@ -250,6 +258,7 @@ namespace ACSpGEMM {
 		static IndexType** chunk_indices{ nullptr };
 		static Either<typename SEMIRING_t::rightInput_t*, typename SEMIRING_t::output_t*>* chunk_values{ nullptr };
 		static typename SEMIRING_t::leftInput_t* chunk_multiplier{ nullptr };
+		HANDLE_ERROR(cudaDeviceSynchronize());
 
 
 		// CPU Memory Helper structures
@@ -272,7 +281,7 @@ namespace ACSpGEMM {
 		// Allocate temporary memory for chunks
 		tempChunkBuffers[0] = CU::allocMemory(tempChunkBufferSizes[0]);
 
-		cudaDeviceSynchronize();
+		HANDLE_ERROR(cudaDeviceSynchronize());
 		// ##############################
 		startTimer(ce_start, stream);
 		// ##############################
@@ -282,6 +291,7 @@ namespace ACSpGEMM {
 
 		// Allocate memory for block offsets
 		uint32_t requiredBlocks = divup<uint32_t>(matA.nnz, nnzperblock);
+		HANDLE_ERROR(cudaDeviceSynchronize());
 
 		// Allocate memory for chunk and shared row tracker
 		if (outputRowInfoSize < Crows)
@@ -292,6 +302,7 @@ namespace ACSpGEMM {
 			outputRowInfoSize = Crows;
 		}
 
+		HANDLE_ERROR(cudaGetLastError());
 
 
 		// Allocate combined general memory
@@ -316,6 +327,7 @@ namespace ACSpGEMM {
 		outputRowChunkCounter = blockStarts + (alignment((requiredBlocks + 2) * sizeof(uint32_t), 8) / sizeof(uint32_t));
 		sharedRowTracker = outputRowChunkCounter + (alignment(Crows * sizeof(uint32_t), 8) / sizeof(uint32_t));
 		prefixSumTemp = reinterpret_cast<void*>(sharedRowTracker + (alignment(Crows * sizeof(uint32_t), 8) / sizeof(uint32_t)));
+		HANDLE_ERROR(cudaGetLastError());
 
 		// TODO: Move back in, currently sometimes produces crashes for whatever reason
 		chunk_counter_cptr.assure((requiredBlocks + 2) * sizeof(uint32_t));
@@ -343,9 +355,10 @@ namespace ACSpGEMM {
 			newmat_offsets.consume(reinterpret_cast<CUdeviceptr>(matOut.row_offsets));
 			matOut.row_offsets = nullptr;
 		}
-
+		HANDLE_ERROR(cudaDeviceSynchronize());
 
 		spgemm.setLaunchDimensions(gridSize, stream, blockSize);
+		HANDLE_ERROR(cudaDeviceSynchronize());
 		//----------------------------------------------------------
 		spgemm.h_DetermineBlockStarts<OffsetType, threads*nnz_per_thread>(
 			Arows,
@@ -365,12 +378,14 @@ namespace ACSpGEMM {
 			(lastSharedRows) * (generalized_merge_max_path_options + helper_overhead),
 			chunkElementConsumedAndPath
 			);
+		HANDLE_ERROR(cudaDeviceSynchronize());
 		//----------------------------------------------------------
 		if(stats.measure_all)
 			stats.duration_blockstarts = recordTimer(individual_start, individual_stop, stream);
-
+		HANDLE_ERROR(cudaGetLastError());
 		do
 		{
+			HANDLE_ERROR(cudaDeviceSynchronize());
 			currentChunckAllocation = chunckAllocations + (2 * run);
 			currentFlag = chunckAllocations + (chunckAllocationsSize + run + chunk_pointer_restart_run);
 			currentCounters = chunckAllocations + (chunckAllocationsSize + numFlags);
@@ -388,12 +403,16 @@ namespace ACSpGEMM {
 				// Stage 2 - Compute SpGEMM
 				// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 				spgemm.setLaunchDimensions(requiredBlocks, stream, threads);
+				HANDLE_ERROR(cudaDeviceSynchronize());
 				if (Arows < 0x10000 && Bcols < 0x10000)
 				{
 				if(DEBUG_MODE)
 				{
 					std::cout << "Case 1:\n";
 				}
+				    HANDLE_ERROR(cudaGetLastError());
+					cudaDeviceSynchronize();
+
 					//we can just use 16bit
 					//----------------------------------------------------------
 					spgemm.h_computeSpgemmPart<nnz_per_thread, threads, blocks_per_mp, input_elements_per_thread, retain_elements_per_thread, merge_max_path_options, typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, IndexType, OffsetType, 0, T,U,Label, SEMIRING_t>(
@@ -406,6 +425,9 @@ namespace ACSpGEMM {
 						sharedRowTracker, currentCounters + 1, avg_row_overlap, 1.0f / avg_row_overlap,
 						currentFlag, completion_status, chunk_counter, currentCounters + 2, semiring);
 					//----------------------------------------------------------
+					cudaDeviceSynchronize();
+
+					HANDLE_ERROR(cudaGetLastError());
 				}
 				else if (Bcols < (1ull << LZCNT(nnz_per_thread*threads)) - 1)
 				{
@@ -413,18 +435,33 @@ namespace ACSpGEMM {
 					{
 						std::cout << "Case 2:\n";
 					}
+					HANDLE_ERROR(cudaDeviceSynchronize());
 					//remap every local row to reduce bit count and use remaining for col ids
 					//----------------------------------------------------------
+					HANDLE_ERROR(cudaGetLastError());
+
+					HANDLE_ERROR(cudaDeviceSynchronize());
+					uint32_t* tempC = tempChunkBuffers[run].get<uint32_t>();
+					HANDLE_ERROR(cudaGetLastError());
+
+					void** chunckP = chunckPointers.get<void*>();
+					HANDLE_ERROR(cudaGetLastError());
+
+					OffsetType* nmat_f = newmat_offsets.get<OffsetType>();
+					HANDLE_ERROR(cudaGetLastError());
+
                     spgemm.h_computeSpgemmPart<nnz_per_thread, threads, blocks_per_mp, input_elements_per_thread, retain_elements_per_thread, merge_max_path_options, typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, IndexType, OffsetType, true, T,U,Label, SEMIRING_t>(
                             matA.data, matA.col_ids, matA.row_offsets,
                             matB.data, matB.col_ids, matB.row_offsets,
 						blockStarts, matA.nnz, Arows,
-						tempChunkBuffers[run].get<uint32_t>(), currentChunckAllocation, currentChunckAllocation + 1, tempChunkBufferSizes[run],
-						chunckPointers.get<void*>(), currentCounters, chunkPointerSize,
-						newmat_offsets.get<OffsetType>(), outputRowListHead, outputRowChunkCounter,
+						tempC, currentChunckAllocation, currentChunckAllocation + 1, tempChunkBufferSizes[run],
+						chunckP, currentCounters, chunkPointerSize,
+						nmat_f, outputRowListHead, outputRowChunkCounter,
 						sharedRowTracker, currentCounters + 1, avg_row_overlap, 1.0f / avg_row_overlap,
 						currentFlag, completion_status, chunk_counter, currentCounters + 2, semiring);
 					//----------------------------------------------------------
+					cudaDeviceSynchronize();
+					HANDLE_ERROR(cudaGetLastError());
 				}
 				else
 				{
@@ -432,6 +469,8 @@ namespace ACSpGEMM {
 					{
 						std::cout << "Case 3:\n";
 					}
+					HANDLE_ERROR(cudaGetLastError());
+					cudaDeviceSynchronize();
 					//----------------------------------------------------------
 					spgemm.h_computeSpgemmPart<nnz_per_thread, threads, blocks_per_mp, input_elements_per_thread, retain_elements_per_thread, merge_max_path_options, typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, IndexType, OffsetType, 2,T,U,Label, SEMIRING_t>(
 						matA.data, matA.col_ids, matA.row_offsets,
@@ -443,6 +482,8 @@ namespace ACSpGEMM {
 						sharedRowTracker, currentCounters + 1, avg_row_overlap, 1.0f / avg_row_overlap,
 						currentFlag, completion_status, chunk_counter, currentCounters + 2,semiring);
 					//----------------------------------------------------------
+					cudaDeviceSynchronize();
+					HANDLE_ERROR(cudaGetLastError());
 				}
 				// if (cudaDeviceSynchronize() != cudaSuccess) {
 				// 	throw SpGEMMException();
@@ -506,7 +547,7 @@ namespace ACSpGEMM {
 					if(stats.measure_all)
 						stats.duration_merge_simple += recordTimer(individual_start, individual_stop, mergeStreams[0]);
 				}
-
+				HANDLE_ERROR(cudaGetLastError());
 				// Complex Case -> Output gets merged through paths over MAX_CHUNKS
 				if (mergeBlocks.shared_rows_max_chunks)
 				{
@@ -534,7 +575,7 @@ namespace ACSpGEMM {
 					if(stats.measure_all)
 						stats.duration_merge_max += recordTimer(individual_start, individual_stop, mergeStreams[1]);
 				}
-
+				HANDLE_ERROR(cudaGetLastError());
 				// General Case -> Handles cases with more than MAX_CHUNKS chunks
 				if (mergeBlocks.shared_rows_generalized)
 				{
@@ -565,11 +606,38 @@ namespace ACSpGEMM {
 						stats.duration_merge_generalized += recordTimer(individual_start, individual_stop, mergeStreams[2]);
 				}
 			}
-
+			//HANDLE_ERROR(cudaGetLastError());
 			// // Copy back flags
-			HANDLE_ERROR(cudaMemcpy(&flagsAndListAllocCounters[0], chunckAllocations + chunckAllocationsSize, (numFlags + numCounters) * sizeof(uint32_t), cudaMemcpyDeviceToHost));
-			completed = flagsAndListAllocCounters[run + chunk_pointer_restart_run] == 0;
+			/*cudaPointerAttributes attr;
+			for (int i = 0; i < numFlags+numCounters; ++i) {
+				HANDLE_ERROR(cudaPointerGetAttributes(&attr, chunckAllocations + chunckAllocationsSize + i));
+				uint32_t test = flagsAndListAllocCounters[i];
+				if(attr.type != 2) std::cout << attr.type << std::endl;
+			}*/
+			
+			//std::cout << "FLAG COPY " << id << std::endl;
+			/*for (int i = 0; i < (numFlags + numCounters); ++i)
+			{
+				cudaPointerAttributes attr;
+				cudaError_t error = cudaPointerGetAttributes(&attr, chunckAllocations + chunckAllocationsSize + i);
 
+				if (error != cudaSuccess)
+				{
+					std::cerr << "Error getting pointer attributes: "
+							  << cudaGetErrorString(error) << std::endl;
+				}
+				else if (attr.type != cudaMemoryTypeDevice && id == 0)
+				{
+					std::cout << "ERR" << std::endl; // This should never happen
+				}
+			}*/
+			//MPI_Barrier(MPI_COMM_WORLD); // Synchronize after CUDA operations
+			HANDLE_ERROR(cudaGetLastError());
+			HANDLE_ERROR(cudaMemcpy(flagsAndListAllocCounters, chunckAllocations + chunckAllocationsSize, (numFlags + numCounters) * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+			//MPI_Barrier(MPI_COMM_WORLD); // Synchronize after CUDA operations
+			//std::cout << "FLAG COPY DONE " << id << std::endl;
+			completed = flagsAndListAllocCounters[run + chunk_pointer_restart_run] == 0;
+			
 			if (!completed)
 			{
 				// if (stats.measure_all && stats.duration_merge_simple + stats.duration_merge_max + stats.duration_merge_generalized > 10000)
@@ -591,6 +659,7 @@ namespace ACSpGEMM {
 						std::cout << "Out of memory " << std::endl; 
 						throw RestartOutOfMemoryException();
 					}
+					HANDLE_ERROR(cudaGetLastError());
 				}
 				if (UintBitSet(return_value).test(1))
 				{
@@ -662,7 +731,7 @@ namespace ACSpGEMM {
 						///*chunk_multiplier*/(((mergeBlocks.shared_rows_max_chunks) * merge_max_chunks) * sizeof(typename SEMIRING_t::input_t));
 					combinedMergeStageMemory.assure(combinedMergeStageMemory_size);
 					memory_usage_in_Bytes += combinedMergeStageMemory_size;
-
+					HANDLE_ERROR(cudaGetLastError());
 					//// Place pointers in memory allocation
 					shared_rows_handled = combinedMergeStageMemory.get<uint32_t>();
 					restart_completion = shared_rows_handled + (numSharedRows);
@@ -700,10 +769,11 @@ namespace ACSpGEMM {
 					}
 					if(stats.measure_all)
 						stats.duration_merge_case_computation = recordTimer(individual_start, individual_stop, stream);
+					HANDLE_ERROR(cudaGetLastError());
 				}
 			}
 		} while (!completed);
-
+		delete[] flagsAndListAllocCounters;
 		// Let's write the chunks out to a csr matrix
 		if(stats.measure_all)
 			startTimer(individual_start, stream);
@@ -721,7 +791,7 @@ namespace ACSpGEMM {
 		if (matOut.nnz != matrix_elements)
 		{
 			//std::cout << "Reallocation HERE ################" << matOut.nnz << " | " << matrix_elements <<"\n";
-			matOut.alloc(Crows, Ccols, matrix_elements, true);
+			matOut.alloc(Crows, Ccols, matrix_elements, false);
 		}
 		matOut.row_offsets = std::move(newmat_offsets.getRelease<IndexType>());
 
@@ -741,7 +811,7 @@ namespace ACSpGEMM {
 			stats.mem_used_chunks = tempChunkBufferSizes[0] * run + h_current_chunk_allocation;
 		}
 		stats.restarts = run + chunk_pointer_restart_run;
-
+		HANDLE_ERROR(cudaGetLastError());
 		// ##############################
 		stats.duration = recordTimer(ce_start, ce_stop, stream);
 		// ##############################
@@ -752,7 +822,7 @@ namespace ACSpGEMM {
 			for (int i = 0; i < number_merge_streams; ++i)
 				cudaStreamDestroy(mergeStreams[i]);
 		}
-
+		HANDLE_ERROR(cudaGetLastError());	
 		return;
 	}
 
@@ -843,16 +913,17 @@ namespace ACSpGEMM {
 	template < typename SEMIRING_t>
 	        void Multiply(const dCSR<typename SEMIRING_t::leftInput_t>& A, const dCSR<typename SEMIRING_t::rightInput_t>& B, dCSR<typename SEMIRING_t::output_t>& matOut, const GPUMatrixMatrixMultiplyTraits& scheduling_traits, ExecutionStats& exec_stats, bool DEBUG_MODE, SEMIRING_t semiring)
 	{
+		HANDLE_ERROR(cudaGetLastError());
 		MultiplyCall<typename SEMIRING_t::leftInput_t,typename SEMIRING_t::rightInput_t,typename SEMIRING_t::output_t,typename SEMIRING_t::output_t, SEMIRING_t> call(A, B, matOut, scheduling_traits, exec_stats, semiring);
-
+		HANDLE_ERROR(cudaGetLastError());
 	
-	bool called = EnumOption<128, 128, 256,
+	bool called = EnumOption<128, 256, 128,
 	EnumOption<1, 1, 1,
-	EnumOption<2, 2,1,
+	EnumOption<2, 2,2,
 	EnumOption<2, 2, 2,
 	EnumOption<1, 1, 1,
 	EnumOption<16, 16, 8,
-	EnumOption<256, 256, 128,
+	EnumOption<512, 512, 256,
 	EnumOption<8, 8, 8,
 	EnumOption<0, 1, 1>>>>>>>>>
 			::call(Selection<MultiplyCall<typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, typename SEMIRING_t::output_t, SEMIRING_t>>(call), scheduling_traits.Threads, scheduling_traits.BlocksPerMp, scheduling_traits.NNZPerThread, scheduling_traits.InputElementsPerThreads, scheduling_traits.RetainElementsPerThreads, scheduling_traits.MaxChunksToMerge, scheduling_traits.MaxChunksGeneralizedMerge, scheduling_traits.MergePathOptions, (int)DEBUG_MODE);

@@ -1091,10 +1091,14 @@ template<uint32_t NNZ_PER_THREAD, uint32_t THREADS, uint32_t BLOCKS_PER_MP, uint
 	uint32_t* shared_rows_tracker, uint32_t* shared_rows_alloc, float expected_row_overlap, float expected_row_overlap_inv,
 	uint32_t* run_flag, uint32_t* completion_status, uint32_t* chunk_counter, uint32_t* chunk_pointer_pos, SEMIRING_t semiring)
 {
+	HANDLE_ERROR(cudaGetLastError());
+
 	computeSpgemmPart< NNZ_PER_THREAD, THREADS, BLOCKS_PER_MP, INPUT_ELEMENTS_PER_THREAD, RETAIN_ELEMENTS_PER_THREAD, MERGE_MAX_PATH_OPTIONS, typename SEMIRING_t::leftInput_t, typename SEMIRING_t::rightInput_t, typename SEMIRING_t::output_t, INDEX_TYPE, OFFSET_TYPE, SORT_TYPE_MODE,  T,  U,  Label,SEMIRING_t> <<<gridDim, blockDim>>>
 		(valA, indicesA, offsetsA, valB, indicesB, offsetsB, startingIdsA, nnz, rows, chunks, chunk_alloc, chunk_worst_case, chunk_size,
 		chunks_pointers, chunk_pointer_alloc, chunk_pointer_sizes, output_row_count, output_row_list_heads, output_row_chunk_count,
 		shared_rows_tracker, shared_rows_alloc, expected_row_overlap, expected_row_overlap_inv, run_flag, completion_status, chunk_counter, chunk_pointer_pos, semiring);
+	HANDLE_ERROR(cudaGetLastError());
+
 }
 
 

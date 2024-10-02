@@ -68,6 +68,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "__nullptr": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp"
     }
 }

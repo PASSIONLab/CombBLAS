@@ -1474,37 +1474,41 @@ struct Wrap_SR : SemiRing<NT1, NT2, NT3>
 
 
 template <typename UDERA, typename NU1>
-void convertCSR(UDERA *&ARecv, dCSR<NU1> &input_GPU, int id)
+void convertCSR(UDERA *ARecv, dCSR<NU1> &input_GPU, int id)
 {
     typedef typename UDERA::LocalIT LIA;
     LIA j = 0;
     unsigned int *rows;
     cudaMallocHost(&rows, sizeof(unsigned int) * (ARecv->getncol() + 1));
-    // std::cout << "Starting LOOP " << id << std::endl;
-    for (LIA i = 0; i <= ARecv->getnzc(); ++i)
+            HANDLE_ERROR(cudaGetLastError());
+
+    for (LIA i = 0; i <= ARecv->getnzc(); ++i) 
     {
         if (i == ARecv->getnzc())
         {
             while (j <= ARecv->getncol())
             {
-                unsigned int val = (unsigned int)ARecv->GetDCSC()->cp[i];
-                rows[j] = val;
+                rows[j] = ARecv->getnnz();
                 j++;
             }
             break;
         }
+        unsigned int val = (unsigned int) ARecv->GetDCSC()->cp[i];
         while (j <= ARecv->GetDCSC()->jc[i] && j <= ARecv->getncol())
         {
-            unsigned int val = (unsigned int)ARecv->GetDCSC()->cp[i];
             rows[j] = val;
             j++;
         }
     }
-    // std::cout << "STARTING ALLOCING in CONV " << id << std::endl;
+            HANDLE_ERROR(cudaGetLastError());
+
+    //std::cout << "STARTING ALLOCING in CONV " << id << std::endl;
     if(input_GPU.nnz != 0) dealloc(input_GPU);
     input_GPU.rows = ARecv->getncol();
     input_GPU.cols = ARecv->getnrow();
     input_GPU.nnz = ARecv->getnnz();
+            HANDLE_ERROR(cudaGetLastError());
+
     // std::cout << input_GPU.nnz << std::endl;
     gpuErrchk(cudaMalloc(&input_GPU.data, sizeof(NU1) * (ARecv->getnnz())));
     gpuErrchk(cudaMalloc(&input_GPU.col_ids, sizeof(unsigned int) * (ARecv->getnnz())));
@@ -1516,31 +1520,44 @@ void convertCSR(UDERA *&ARecv, dCSR<NU1> &input_GPU, int id)
 
     gpuErrchk(cudaDeviceSynchronize());
     // std::cout << "CPED ROW/COLS " << id << std::endl;
-    gpuErrchk(cudaMemcpy(input_GPU.data, &(ARecv->GetDCSC()->numx[0]), (ARecv->getnnz()) * sizeof(NU1), cudaMemcpyHostToDevice));
+    if(ARecv->getnnz() > 0) gpuErrchk(cudaMemcpy(input_GPU.data, ARecv->GetDCSC()->numx, (ARecv->getnnz()) * sizeof(NU1), cudaMemcpyHostToDevice));
     gpuErrchk(cudaDeviceSynchronize());
     // std::cout << "CPED NUM " << id << std::endl;
-    gpuErrchk(cudaMemcpy(input_GPU.col_ids, &(ARecv->GetDCSC()->ir[0]), (ARecv->getnnz()) * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    if(ARecv->getnnz() > 0) gpuErrchk(cudaMemcpy(input_GPU.col_ids, &(ARecv->GetDCSC()->ir[0]), (ARecv->getnnz()) * sizeof(unsigned int), cudaMemcpyHostToDevice));
     gpuErrchk(cudaDeviceSynchronize());
     // std::cout << "DELETING ROWS " << id << std::endl;
-
+    
     cudaFreeHost(rows);
     gpuErrchk(cudaDeviceSynchronize());
+            HANDLE_ERROR(cudaGetLastError());
+
     // free(rows);
+    
 }
 
+double comptime = 0;
 template <typename SR, typename NU1, typename NU2, typename NUO>
 CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
 {
+
+    double t1 = MPI_Wtime();
     const int Threads = 128;
     const int BlocksPerMP = 1;
     const int NNZPerThread = 2;
     const int InputElementsPerThreads = 2;
     const int RetainElementsPerThreads = 1;
     const int MaxChunksToMerge = 16;
-    const int MaxChunksGeneralizedMerge = 256; // MAX: 865
+    const int MaxChunksGeneralizedMerge = 512; // MAX: 865
     const int MergePathOptions = 8;
+    HANDLE_ERROR(cudaGetLastError());
+
     cudaDeviceSynchronize();
     SR semiring2;
+    if(A.nnz == 0 || B.nnz == 0) {
+        CSR<NUO> C;
+        C.alloc(A.rows, B.rows, 0);
+        return C;
+    }
     dCSR<NUO> result_mat_GPU;
     GPUMatrixMatrixMultiplyTraits DefaultTraits(
         Threads, BlocksPerMP, NNZPerThread, InputElementsPerThreads,
@@ -1551,26 +1568,42 @@ CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
     // DefaultTraits.preferLoadBalancing = false;
     ExecutionStats stats;
     // stats.measure_all = false;
+    HANDLE_ERROR(cudaGetLastError());
 
+    
+    //std::cout << "ENTERED MULT" << std::endl;
     ACSpGEMM::Multiply<SR>(
         A, B, result_mat_GPU,
         DefaultTraits, stats, Debug_Mode, semiring2);
+        //std::cout << "EXITED MULT" << std::endl;
+
 
     gpuErrchk(cudaDeviceSynchronize());
+    HANDLE_ERROR(cudaGetLastError());
     // std::cout << "DONE" << std::endl;
     CSR<NUO> result_mat_CPU;
     size_t it = 0;
     // std::unordered_set<LIC> nnzc_set;
     // std::cout << result_mat_GPU.rows << std::endl;
     convert(result_mat_CPU, result_mat_GPU);
-
-    //cudaFree(result_mat_GPU.col_ids);
-    //cudaFree(result_mat_GPU.data);
-    //cudaFree(result_mat_GPU.row_offsets);
+    //::cout << sizeof(NUO) * result_mat_GPU.nnz << std::endl;
+    //std::cout << sizeof(uint) * result_mat_GPU.rows << std::endl;
+    HANDLE_ERROR(cudaGetLastError());
     cudaDeviceSynchronize();
+    //cudaFree(result_mat_GPU.data);
+    //cudaFree(result_mat_GPU.col_ids);
+    //cudaFree(result_mat_GPU.row_offsets);
+    HANDLE_ERROR(cudaGetLastError());
+    //result_mat_GPU.reset();
+    cudaDeviceSynchronize();
+    double t2 = MPI_Wtime();
+    comptime += (t2 - t1);
+    HANDLE_ERROR(cudaGetLastError());
     return result_mat_CPU;
 }
 
+
+int GPUTradeoff = 1024 * 1024;
 /**
  * Parallel C = A*B routine that uses a double buffered broadcasting scheme, but
  * this time with CUDA
@@ -1580,6 +1613,7 @@ CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
  * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
  * Final memory requirement: nnz(C) if clearA and clearB are true
  **/
+double checkingTime = 0;
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1,
           typename NU2, typename UDERA, typename UDERB>
 SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
@@ -1588,6 +1622,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                                                     bool clearB = false)
 
 {
+            HANDLE_ERROR(cudaGetLastError());
+
     if (!CheckSpGEMMCompliance(A, B))
     {
         return SpParMat<IU, NUO, UDERO>();
@@ -1609,10 +1645,21 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                        // Synch multiplication
                        int id;
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    ACSpGEMM::id = id;
+    int devices;
+            HANDLE_ERROR(cudaGetLastError());
+
+    cudaGetDeviceCount(&devices);
+    int local_rank, local_size;
+	//MPI_Comm local_comm;
+	//MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, id, MPI_INFO_NULL, &local_comm);
+	//MPI_Comm_size(local_comm, &local_size);
+	//MPI_Comm_rank(local_comm, &local_rank);
+	cudaSetDevice(id % devices);
     int devs;
 
-    cudaGetDeviceCount(&devs);
-    cudaSetDevice(id % devs); // Prevents crashes where processes > # devs
+    //cudaGetDeviceCount(&devs);
+    //cudaSetDevice(id % devs); // Prevents crashes where processes > # devs
     std::shared_ptr<CommGrid> GridC = ProductGrid(
         (A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);
     LIA C_m = A.spSeq->getnrow();
@@ -1625,16 +1672,18 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     int Aself = (A.commGrid)->GetRankInProcRow();
     int Bself = (B.commGrid)->GetRankInProcCol();
     
-    
+    checkingTime += MPI_Wtime() - t1;
     
     (A.spSeq)->Split(*A1seq, *A2seq);
     const_cast<UDERB *>(B.spSeq)->Transpose();
     (B.spSeq)->Split(*B1seq, *B2seq);
+    HANDLE_ERROR(cudaGetLastError());
 
     // std::cout << Aself << " " << Bself << " starting GPU" << std::endl;
     dCSR<NU1> input_A_GPU;
     dCSR<NU2> input_B_GPU;
     Wrap_SR<NU1, NU2, NUO, SR> semiring;
+    HANDLE_ERROR(cudaGetLastError());
 
     // std::cout << Aself << " " << Bself << " ending cpus" << std::endl;
 
@@ -1645,7 +1694,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     const_cast<UDERB *>(B2seq)->Transpose();
     LIA **ARecvSizes = SpHelper::allocate2D<LIA>(UDERA::esscount, stages);
     LIB **BRecvSizes = SpHelper::allocate2D<LIB>(UDERB::esscount, stages);
-
+    
     SpParHelper::GetSetSizes(*A1seq, ARecvSizes, (A.commGrid)->GetRowWorld());
     SpParHelper::GetSetSizes(*B1seq, BRecvSizes, (B.commGrid)->GetColWorld());
 
@@ -1653,22 +1702,26 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
     UDERA *ARecv;
     UDERB *BRecv;
     std::vector<SpTuples<LIC, NUO> *> tomerge;
+    HANDLE_ERROR(cudaGetLastError());
 
-    convertCSR<UDERA, NU1>(A1seq, input_A_GPU, id);
-    convertCSR<UDERB, NU2>(B1seq, input_B_GPU, id);
+
+    HANDLE_ERROR(cudaGetLastError());
 
     over += MPI_Wtime() - t1;
+    
     double mpi_overhead = 0.0;
 
-    for (int i = 0; i < stages; ++i)
+    for (int i = 0; i < stages; ++i) 
     {
+        HANDLE_ERROR(cudaGetLastError());
         double t2 = MPI_Wtime();
         dCSR<NU1> input_A_recv_GPU;
         dCSR<NU2> input_B_recv_GPU;
         std::vector<LIA> ess;
         if (i == Aself)
         {
-            input_A_recv_GPU = input_A_GPU; // shallow-copy
+                convertCSR<UDERA, NU1>(A1seq, input_A_recv_GPU, id);
+                
         }
         else
         {
@@ -1683,12 +1736,12 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         }
         // std::cout << "STARTING BCAST " << id << std::endl;
         SpParHelper::BCastMatrixCUDA<uint, NU1>(GridC->GetRowWorld(),
-                                                input_A_recv_GPU, ess, i); // then, receive its elements
+                                                input_A_recv_GPU, ess, i, GPUTradeoff); // then, receive its elements
         // std::cout << "ENDING BCAST " << id << std::endl;
         ess.clear();
         if (i == Bself)
         {
-            input_B_recv_GPU = input_B_GPU; // shallow-copy
+            convertCSR<UDERB, NU2>(B1seq, input_B_recv_GPU, id); // shallow-copy
         }
         else
         {
@@ -1701,10 +1754,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             ess[j] = BRecvSizes[j][i];
         }
         SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
-                                     input_B_recv_GPU, ess, i); // then, receive its elements
+                                     input_B_recv_GPU, ess, i, GPUTradeoff); // then, receive its elements
+        HANDLE_ERROR(cudaGetLastError());
         //std::cout << "first bcast done for " << id << std::endl;
         
-        if(input_B_recv_GPU.nnz == 0 || input_A_recv_GPU.nnz == 0) continue;
+        //if(input_B_recv_GPU.nnz == 0 || input_A_recv_GPU.nnz == 0) {
+        //    std::cout << "ZEROOO " << id << std::endl;
+        //    continue;
+        //}
         //  before activating this remove transposing B1seq
         /*
         SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
@@ -1725,7 +1782,15 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
 
         // std::cout << input_A_recv_GPU.rows << std::endl;
         mpi_overhead += MPI_Wtime() - t2;
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Wrap_SR<NU1, NU2, NUO, SR>, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        //std::cout << "mult on " << id << std::endl;
+        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        
+        cudaDeviceSynchronize();
+        HANDLE_ERROR(cudaGetLastError());
+        //std::cout << "mult off" << id << std::endl;
+        MPI_Barrier(MPI_COMM_WORLD);
         //over += MPI_Wtime() - t1;
         //std::cout << "TUPLING " << id << std::endl;
         //  printf("O = %i\n", C_cont->getnnz());
@@ -1758,14 +1823,19 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         //(*C_cont).PrintInfo();
         if (i != Aself)
             delete ARecv;
+            //dealloc(input_A_recv_GPU);
+        
         if (i != Bself)
             delete BRecv;
+            //dealloc(input_B_recv_GPU);
 
         if (!C_cont->isZero())
             tomerge.push_back(C_cont);
         else
             delete C_cont;
     }
+    HANDLE_ERROR(cudaGetLastError());
+
     if (clearA)
         delete A1seq;
     if (clearB)
@@ -1773,18 +1843,22 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
 
     // Set the new dimensions
     t1 = MPI_Wtime();
-    dealloc(input_A_GPU);
-    dealloc(input_B_GPU);
+    //dealloc(input_A_GPU);
+    //dealloc(input_B_GPU);
     cudaDeviceSynchronize();
     dCSR<NU1> input_A2_GPU;
     dCSR<NU2> input_B2_GPU;
-    convertCSR<UDERA, NU1>(A2seq, input_A2_GPU, id);
-    convertCSR<UDERB, NU2>(B2seq, input_B2_GPU, id);
+    HANDLE_ERROR(cudaGetLastError());
+
+
+    HANDLE_ERROR(cudaGetLastError());
 
     SpParHelper::GetSetSizes(*A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
     SpParHelper::GetSetSizes(*B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
     over += MPI_Wtime() - t1;
 
+
+    //std::cout << "S3 " << id << std::endl;
     for (int i = 0; i < stages; ++i)
     {
         double t2 = MPI_Wtime();
@@ -1795,9 +1869,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         std::vector<LIA> ess;
         if (i == Aself)
         {
-            input_A_recv_GPU = input_A2_GPU; // shallow-copy
-        }
-        else
+    convertCSR<UDERA, NU1>(A2seq, input_A_recv_GPU, id);
+           }   else
         {
 
             ARecv = new UDERA(); // first, create the object
@@ -1808,15 +1881,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             ess[j] = ARecvSizes[j][i]; // essentials of the ith
                                        // matrix in this row
         }
-        // std::cout << "STARTING BCAST " << id << std::endl;
+        //std::cout << "STARTING BCAST " << id << std::endl;
         SpParHelper::BCastMatrixCUDA<uint, NU1>(GridC->GetRowWorld(),
-                                                input_A_recv_GPU, ess, i); // then, receive its elements
+                                                input_A_recv_GPU, ess, i, GPUTradeoff); // then, receive its elements
         //std::cout << "ENDING BCAST " << id << std::endl;
         ess.clear();
         if (i == Bself)
         {
-            input_B_recv_GPU = input_B2_GPU; // shallow-copy
-        }
+    convertCSR<UDERB, NU2>(B2seq, input_B_recv_GPU, id);         }
         else
         {
 
@@ -1828,7 +1900,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             ess[j] = BRecvSizes[j][i];
         }
         SpParHelper::BCastMatrixCUDA(GridC->GetColWorld(),
-                                     input_B_recv_GPU, ess, i); // then, receive its elements
+                                     input_B_recv_GPU, ess, i, GPUTradeoff); // then, receive its elements
 
         // before activating this remove transposing B1seq
         /*
@@ -1846,9 +1918,13 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
                          i != Aself,    // 'delete A' condition
                          i != Bself);   // 'delete B' condition*/
         // const_cast< UDERB* >(B.spSeq)->Transpose();
+            HANDLE_ERROR(cudaGetLastError());
+
         mpi_overhead += MPI_Wtime() - t2;
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Wrap_SR<NU1, NU2, NUO, SR>, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         gpuErrchk(cudaDeviceSynchronize());
+        HANDLE_ERROR(cudaGetLastError());
+
         //over += MPI_Wtime() - t1;
         //std::cout << over << std::endl;
         // std::cout << "ENDING MULT" << std::endl;
@@ -1888,9 +1964,12 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         //(*C_cont).PrintInfo();
         if (i != Aself)
             delete ARecv;
+            //dealloc(input_A_recv_GPU);
+
             
         if (i != Bself)
             delete BRecv;
+            //dealloc(input_B_recv_GPU);
 
         if (!C_cont->isZero())
             tomerge.push_back(C_cont);
@@ -1898,6 +1977,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             delete C_cont;
     }
     t1 = MPI_Wtime();
+    //dealloc(input_A2_GPU);
+    //dealloc(input_B2_GPU);
     SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
     SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
     // A2seq->Transpose();
@@ -1932,15 +2013,20 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         const_cast<UDERB *>(B.spSeq)
             ->Transpose(); // transpose back to original
     }
+    //checkingTime += MPI_Wtime() - t1;
     // printf("%.6lf\n", mpi_overhead);
     UDERO *C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n, true), false);
     // printf("Full output has rows = %i, cols = %i, nnz = %i\n", C->getnrow(),
     // C->getncol(), C->getnnz());
     cudaDeviceSynchronize();
+    HANDLE_ERROR(cudaGetLastError());
+
     over += MPI_Wtime() - t1;
-    std::cout << over << "\n";
+    //std::cout << over << "\n";
     return SpParMat<IU, NUO, UDERO>(
         C, GridC); // return the result object	// return the result object
+                HANDLE_ERROR(cudaGetLastError());
+
 }
 
 #endif

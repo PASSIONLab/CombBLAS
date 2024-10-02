@@ -4,8 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 ADD_EXECUTABLE( MultTest MultTest.cpp )
 cuda_add_executable( MultTimingCUDA MultTimingCUDA.cu)
-
-
+target_compile_options(MultTimingCUDA PRIVATE -Mlarge_arrays)
 
 
 ADD_EXECUTABLE( ReduceTest ReduceTest.cpp )

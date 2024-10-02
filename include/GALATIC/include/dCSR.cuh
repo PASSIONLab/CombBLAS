@@ -62,16 +62,27 @@ namespace
     template<typename T>
     void dealloc(dCSR<T>& mat)
     {
+        cudaPointerAttributes attr;
+        //cudaPointerGetAttributes(&attr, mat.col_ids);
+        //if (attr.type == 2) {
         if (mat.col_ids != nullptr)
             cudaFree(mat.col_ids);
+        //}
+        //cudaPointerGetAttributes(&attr, mat.data);
+        //if (attr.type == 2) 
         if (mat.data != nullptr)
             cudaFree(mat.data);
+        //cudaPointerGetAttributes(&attr, mat.row_offsets);
+        //if (attr.type == 2)
         if (mat.row_offsets != nullptr)
             cudaFree(mat.row_offsets);
+
         mat.nnz = 0;
         mat.col_ids = nullptr;
         mat.data = nullptr;
         mat.row_offsets = nullptr;
+        //if(cudaSuccess != cudaGetLastError()) std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
+
     }
 }
 
