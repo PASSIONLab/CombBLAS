@@ -23,6 +23,12 @@
 #include "CombBLAS/CombBLAS.h"
 #include "../CC.h"
 
+double cblas_alltoalltime;
+double cblas_allgathertime;
+double cblas_mergeconttime;
+double cblas_transvectime;
+double cblas_localspmvtime;
+
 using namespace std;
 using namespace combblas;
 
@@ -186,7 +192,7 @@ int main(int argc, char* argv[])
 #pragma omp parallel for
 #endif
         for(int64_t i = 0; i < nclusters; i++){
-            ccSizesLocal[i] = std::count_if( ccLabelsLocal.begin(), ccLabelsLocal.end(), bind2nd(equal_to<int64_t>(), i));
+            ccSizesLocal[i] = std::count_if( ccLabelsLocal.begin(), ccLabelsLocal.end(), bind(equal_to<int64_t>(), std::placeholders::_1,  i));
         }
         MPI_Allreduce(ccSizesLocal, ccSizesGlobal, (int)nclusters, MPI_LONG, MPI_SUM, MPI_COMM_WORLD); // Type casting because MPI does not take count as something other than integer
 
@@ -211,7 +217,7 @@ int main(int argc, char* argv[])
 
 		if(myrank == 0) printf("Largest connected component is %dth component, size %d\n",largestCC, largestCCSize);
 		
-		FullyDistVec<int64_t,int64_t> isov = ccLabels.FindInds(bind2nd(equal_to<int64_t>(), largestCC));
+		FullyDistVec<int64_t,int64_t> isov = ccLabels.FindInds(bind(equal_to<int64_t>(), std::placeholders::_1,  largestCC));
 		Dist::MPI_DCCols MCC = M.SubsRef_SR<PTNTBOOL,PTBOOLNT>(isov, isov, false);
         MCC.PrintInfo();
         MCC.ParallelWriteMM(ofilename, true);

@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 		OptBuf<int32_t, int64_t> optbuf;
 		PSpMat<bool>::MPI_DCCols ABool(A);
 
-		spx.Apply(bind1st (multiplies<double>(), 100));
+		spx.Apply(bind(multiplies<double>(),  100, std::placeholders::_1 ));
 		FullyDistSpVec<int64_t, int64_t> spxint64 (spx);
 		//FullyDistSpVec<int64_t, int64_t> spyint64 = SpMV<SR>(ABool, spxint64, false);
 		FullyDistSpVec<int64_t, int64_t> spyint64(spxint64.getcommgrid(), ABool.getnrow());

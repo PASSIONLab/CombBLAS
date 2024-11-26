@@ -133,7 +133,7 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 						
 					if(beg_rec == end_recs[i])	// fast case
 					{
-            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
+            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind(std::minus<int32_t>(), std::placeholders::_1,  perproc*beg_rec));
             std::copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
             std::copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
 					}

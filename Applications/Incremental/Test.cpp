@@ -388,7 +388,7 @@ int main(int argc, char* argv[])
             //A.SetDifference(D); // A: Matrix without diagonal elements
 
             t0 = MPI_Wtime();
-            D.Apply(bind2nd(exponentiate(), 2));
+            D.Apply(bind(exponentiate(), std::placeholders::_1,  2));
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to exponentiate diagonal matrix: %lf\n",t1-t0 );
             D.ParallelWriteMM("randmat-D2.mtx", 1);
@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> AD(A);
             t0 = MPI_Wtime();
             AD.DimApply(Column, diag, [](NT mv, NT vv){return mv * vv;});
-            AD.Prune(std::bind2nd(std::less_equal<NT>(), 1e-8), true);
+            AD.Prune(std::bind(std::less_equal<NT>(), std::placeholders::_1,  1e-8), true);
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to perform dimApply column-wise: %lf\n",t1-t0 );
             ADNNZ = AD.getnnz();
@@ -411,7 +411,7 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> DA(A);
             t0 = MPI_Wtime();
             DA.DimApply(Row, diag, [](NT mv, NT vv){return mv * vv;});
-            DA.Prune(std::bind2nd(std::less_equal<NT>(), 1e-8), true);
+            DA.Prune(std::bind(std::less_equal<NT>(), std::placeholders::_1,  1e-8), true);
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to perform dimApply row-Wise: %lf\n",t1-t0 );
             DANNZ = DA.getnnz();

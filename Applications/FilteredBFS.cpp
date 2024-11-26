@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 			time_t mysincedate = timegm(&timeinfo);
 			
 			PSpMat_Twitter B = A;
-			B.Prune(bind2nd(Twitter_materialize(), mysincedate));
+			B.Prune(bind(Twitter_materialize(), std::placeholders::_1,  mysincedate));
 			PSpMat_Bool BBool = B;
 			BBool.PrintInfo();
 			BBool.Reduce(oudegrees_filt, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
@@ -308,7 +308,7 @@ int main(int argc, char* argv[])
 			A.Apply(Twitter_obj_randomizer());
 			A.PrintInfo();
 			
-			FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
+			FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind(greater<int64_t>(), std::placeholders::_1,  0)));	
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov->RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			A(*nonisov, *nonisov, true);	// in-place permute to save memory
@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
 			for (int i=0; i < PERCENTS; i++) 
 			{
 				PSpMat_Twitter B = A;
-				B.Prune(bind2nd(Twitter_materialize(), keep[i]));
+				B.Prune(bind(Twitter_materialize(), std::placeholders::_1,  keep[i]));
 				PSpMat_Bool BBool = B;
 				BBool.PrintInfo();
 				float balance = B.LoadImbalance();
@@ -580,7 +580,7 @@ int main(int argc, char* argv[])
 			os << "Max nedges: " << EDGES[sruns-1] << endl;
  			double mean = accumulate( EDGES, EDGES+sruns, 0.0 )/ sruns;
 			vector<double> zero_mean(sruns);	// find distances to the mean
-			transform(EDGES, EDGES+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			transform(EDGES, EDGES+sruns, zero_mean.begin(), bind( minus<double>(), std::placeholders::_1,  mean )); 	
 			// self inner-product is sum of sum of squares
 			double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) );
@@ -594,7 +594,7 @@ int main(int argc, char* argv[])
 			os << "Median time: " << (TIMES[(sruns/2)-1] + TIMES[sruns/2])/2 << " seconds" << endl;
 			os << "Max time: " << TIMES[sruns-1] << " seconds" << endl;
  			mean = accumulate( TIMES, TIMES+sruns, 0.0 )/ sruns;
-			transform(TIMES, TIMES+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			transform(TIMES, TIMES+sruns, zero_mean.begin(), bind( minus<double>(), std::placeholders::_1,  mean )); 	
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) );
    			os << "Mean time: " << mean << " seconds" << endl;
@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
 			transform(MTEPS, MTEPS+sruns, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
 			double hteps = static_cast<double>(sruns) / accumulate(INVMTEPS, INVMTEPS+sruns, 0.0);	
 			os << "Harmonic mean of MTEPS: " << hteps << endl;
-			transform(INVMTEPS, INVMTEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
+			transform(INVMTEPS, INVMTEPS+sruns, zero_mean.begin(), bind(minus<double>(), std::placeholders::_1,  1/hteps));
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) ) * (hteps*hteps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
@@ -621,7 +621,7 @@ int main(int argc, char* argv[])
 			transform(MPEPS, MPEPS+sruns, INVMPEPS, safemultinv<double>()); 	// returns inf for zero teps
 			double hpeps = static_cast<double>(sruns) / accumulate(INVMPEPS, INVMPEPS+sruns, 0.0);	
 			os << "Harmonic mean of MPEPS: " << hpeps << endl;
-			transform(INVMPEPS, INVMPEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hpeps));
+			transform(INVMPEPS, INVMPEPS+sruns, zero_mean.begin(), bind(minus<double>(), std::placeholders::_1,  1/hpeps));
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) ) * (hpeps*hpeps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MPEPS: " << deviation << endl;

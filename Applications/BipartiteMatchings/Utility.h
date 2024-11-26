@@ -29,14 +29,14 @@ void removeIsolated(PARMAT & A)
 	// this steps for general graph
 	/*
 	 ColSums->EWiseApply(*RowSums, plus<int64_t>()); not needed for bipartite graph
-	 nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+	 nonisov = ColSums->FindInds(bind(greater<int64_t>(), std::placeholders::_1,  0));
 	 nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 	 A.operator()(nonisov, nonisov, true);	// in-place permute to save memory
 	 */
 	
 	// this steps for bipartite graph
-	nonisoColV = ColSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
-	nonisoRowV = RowSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
+	nonisoColV = ColSums->FindInds(bind(std::greater<int64_t>(), std::placeholders::_1,  0));
+	nonisoRowV = RowSums->FindInds(bind(std::greater<int64_t>(), std::placeholders::_1,  0));
 	delete ColSums;
 	delete RowSums;
 	

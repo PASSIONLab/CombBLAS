@@ -1894,7 +1894,7 @@ void SpParMat<IT,NT,DER>::MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpV
     std::partial_sum(rownz.begin(), rownz.end(), dpls.data()+1);
     int accnz = std::accumulate(rownz.begin(), rownz.end(), 0);
     std::vector<GIT> sendInd(locnnzMask);
-    std::transform(mask.ind.begin(), mask.ind.end(),sendInd.begin(), bind2nd(std::plus<GIT>(), mask.RowLenUntil()));
+    std::transform(mask.ind.begin(), mask.ind.end(),sendInd.begin(), bind(std::plus<GIT>(), std::placeholders::_1,  mask.RowLenUntil()));
     
     std::vector<GIT> indMask(accnz);
     MPI_Allgatherv(sendInd.data(), rownz[rowrank], MPIType<GIT>(), indMask.data(), rownz.data(), dpls.data(), MPIType<GIT>(), RowWorld);
@@ -2688,7 +2688,7 @@ void SpParMat<IT,NT,DER>::PruneColumnByIndex(const FullyDistSpVec<IT,IRRELEVANT_
 
     MPI_Sendrecv(ci.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, MPI_STATUS_IGNORE);
 
-    std::transform(trxinds.data(), trxinds.data() + trxlocnz, trxinds.data(), std::bind2nd(std::plus<IT>(), trxrofst));
+    std::transform(trxinds.data(), trxinds.data() + trxlocnz, trxinds.data(), std::bind(std::plus<IT>(), std::placeholders::_1,  trxrofst));
 
     int colneighs, colrank;
     MPI_Comm_size(ColWorld, &colneighs);
@@ -2749,7 +2749,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::PruneColumn(const FullyDistSpVec<IT,NT>
     std::vector<NT> trxnums (trxlocnz);
     MPI_Sendrecv(pvals.ind.data(), xlocnz, MPIType<IT>(), diagneigh, TRI, trxinds.data(), trxlocnz, MPIType<IT>(), diagneigh, TRI, World, &status);
     MPI_Sendrecv(pvals.num.data(), xlocnz, MPIType<NT>(), diagneigh, TRX, trxnums.data(), trxlocnz, MPIType<NT>(), diagneigh, TRX, World, &status);
-    std::transform(trxinds.data(), trxinds.data()+trxlocnz, trxinds.data(), std::bind2nd(std::plus<IT>(), roffset));
+    std::transform(trxinds.data(), trxinds.data()+trxlocnz, trxinds.data(), std::bind(std::plus<IT>(), std::placeholders::_1,  roffset));
     
     int colneighs, colrank;
     MPI_Comm_size(ColWorld, &colneighs);

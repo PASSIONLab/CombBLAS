@@ -244,7 +244,7 @@ int main()
 	float * arrfloat = new float[5];
 
 	__gnu_cxx::iota(arrfloat, arrfloat+5,1);
-	transform(arrfloat, arrfloat+5,arrfloat, bind1st(divides<float>(), 1)); 
+	transform(arrfloat, arrfloat+5,arrfloat, bind(divides<float>(),  1, std::placeholders::_1 )); 
 	for(int i=0; i<5; ++i)
                 cout << arrfloat[i] << " ";
         cout << endl;
@@ -255,7 +255,7 @@ int main()
 	int * A = new int[5];
 	__gnu_cxx::iota(A, A+5, 1);
 	
-	transform(A, A+5, A, bind2nd(minus<int>(), 10));
+	transform(A, A+5, A, bind(minus<int>(), std::placeholders::_1,  10));
 	for(int i=0; i<5; ++i)
 		cout << A[i] << " ";
 	cout << endl;

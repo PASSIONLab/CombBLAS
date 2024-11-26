@@ -264,7 +264,7 @@ int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, 
 					// else set sdispls[0] to zero (already done)
 					if(beg_rec == end_recs[i])	// fast case
 					{
-						std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
+						std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind(std::minus<int32_t>(), std::placeholders::_1,  perproc*beg_rec));
             std::copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
             std::copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
 					}
@@ -397,7 +397,7 @@ void generic_gespmv_threaded_setbuffers (const SpMat<IU,NUM,DER> & A, const int3
 						
 					if(beg_rec == end_recs[i])	// fast case
 					{
-            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
+            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind(std::minus<int32_t>(), std::placeholders::_1,  perproc*beg_rec));
             std::copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
             std::copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
 					}

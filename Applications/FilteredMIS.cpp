@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
 		A.PrintInfo();
 
 
-		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));
+		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind(greater<int64_t>(), std::placeholders::_1,  0)));
 		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");
 		nonisov->RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 		A(*nonisov, *nonisov, true);	// in-place permute to save memory
@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 		for (int i=0; i < PERCENTS; i++)
 		{
 			PSpMat_Twitter B = A;
-			B.Prune(bind2nd(Twitter_materialize(), keep[i]));
+			B.Prune(bind(Twitter_materialize(), std::placeholders::_1,  keep[i]));
 			PSpMat_Bool BBool = B;
 			BBool.PrintInfo();
 			float balance = B.LoadImbalance();
@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
 			os << "Max MIS vertices: " << MISVS[ITERS-1] << endl;
 			double mean = accumulate( MISVS, MISVS+ITERS, 0.0 )/ ITERS;
 			vector<double> zero_mean(ITERS);	// find distances to the mean
-			transform(MISVS, MISVS+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean ));
+			transform(MISVS, MISVS+ITERS, zero_mean.begin(), bind( minus<double>(), std::placeholders::_1,  mean ));
 			// self inner-product is sum of sum of squares
 			double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
 			deviation = sqrt( deviation / (ITERS-1) );
@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
 			os << "Median time: " << (TIMES[(ITERS/2)-1] + TIMES[ITERS/2])/2 << " seconds" << endl;
 			os << "Max time: " << TIMES[ITERS-1] << " seconds" << endl;
 			mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ ITERS;
-			transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean ));
+			transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind( minus<double>(), std::placeholders::_1,  mean ));
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
 			deviation = sqrt( deviation / (ITERS-1) );
 			os << "Mean time: " << mean << " seconds" << endl;

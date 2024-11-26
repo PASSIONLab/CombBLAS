@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 		FullyDistVec<int,int> firstrowrids(A.getcommgrid(), A.getncol()+1, 0);	// M(1,:)
 		FullyDistVec<int,int> firstcolrids(A.getcommgrid(), A.getncol(), 0);	// M(2:end,1)
 		firstcolrids.iota(A.getncol(),1);	// fill M(2:end,1)'s row ids
-		rowsym.Apply(bind2nd(plus<int>(), 1));
+		rowsym.Apply(bind(plus<int>(), std::placeholders::_1,  1));
 
 	#if defined(COMBBLAS_TR1) || defined(COMBBLAS_BOOST) || defined(NOTGNU)
 		vector< FullyDistVec<int,int> > rows2concat;
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 		FullyDistVec<int,int> firstrowcids(A.getcommgrid(), A.getncol()+1, 0);	// M(1,:)
 		firstrowcids.iota(A.getncol()+1,0);	// fill M(1,:)'s column ids
 		FullyDistVec<int,int> firstcolcids(A.getcommgrid(), A.getncol(), 0);	// M(2:end,1)
-		colsym.Apply(bind2nd(plus<int>(), 1));
+		colsym.Apply(bind(plus<int>(), std::placeholders::_1,  1));
 
 	#if defined(COMBBLAS_TR1) || defined(COMBBLAS_BOOST) || defined(NOTGNU)
 		vector< FullyDistVec<int,int> > cols2concat;

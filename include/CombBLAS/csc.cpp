@@ -237,7 +237,7 @@ Csc<IT, NT>::Split (Csc<IT, NT> *	&A,
 		B = new Csc<IT, NT>(nz - jc[cut], n - cut);
 		std::copy(jc + cut, jc + n + 1, B->jc);
 		transform(B->jc, B->jc + (n - cut + 1), B->jc,
-				  bind2nd(std::minus<IT>(), jc[cut]));
+				  bind(std::minus<IT>(), std::placeholders::_1,  jc[cut]));
 		std::copy(ir + jc[cut], ir + nz, B->ir);
 		std::copy(num + jc[cut], num + nz, B->num);
 	}
@@ -263,7 +263,7 @@ Csc<IT, NT>::Merge (const Csc<IT, NT>	*A,
 		std::copy(A->jc, A->jc + A->n, jc);
 		std::copy(B->jc, B->jc + B->n + 1, jc + A->n);
 		transform(jc + A->n, jc + cn + 1, jc + A->n,
-				  bind2nd(std::plus<IT>(), A->jc[A->n]));
+				  bind(std::plus<IT>(), std::placeholders::_1,  A->jc[A->n]));
 
 		std::copy(A->ir, A->ir + A->nz, ir);
 		std::copy(B->ir, B->ir + B->nz, ir + A->nz);

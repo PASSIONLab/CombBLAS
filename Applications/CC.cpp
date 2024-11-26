@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
         
         /*
         FullyDistVec<int64_t,double> ColSums = A.Reduce(Column, plus<double>(), 0.0);
-        FullyDistVec<int64_t, int64_t> isov = ColSums.FindInds(bind2nd(equal_to<double>(), 0));
+        FullyDistVec<int64_t, int64_t> isov = ColSums.FindInds(bind(equal_to<double>(), std::placeholders::_1,  0));
         outs.str("");
         outs.clear();
         outs << "isolated vertice: " << isov.TotalLength() << endl;

@@ -193,7 +193,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 #endif
     
     // Prune and create a new pruned matrix
-    SpParMat<IT,NT,DER> PrunedA = A.Prune(std::bind2nd(std::less_equal<NT>(), hardThreshold), false);
+    SpParMat<IT,NT,DER> PrunedA = A.Prune(std::bind(std::less_equal<NT>(), std::placeholders::_1,  hardThreshold), false);
     // column-wise statistics of the pruned matrix
     FullyDistVec<IT,NT> colSums = PrunedA.Reduce(Column, std::plus<NT>(), 0.0);
     FullyDistVec<IT,NT> nnzPerColumnUnpruned = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
@@ -204,7 +204,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
 
     PrunedA.FreeMemory();
 
-    FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, std::bind2nd(std::less<NT>(), recoverNum));
+    FullyDistSpVec<IT,NT> recoverCols(nnzPerColumn, std::bind(std::less<NT>(), std::placeholders::_1,  recoverNum));
     
     // recover only when nnzs in unprunned columns are greater than nnzs in pruned column
     recoverCols = EWiseApply<NT>(recoverCols, nnzPerColumnUnpruned,
@@ -344,7 +344,7 @@ void MCLPruneRecoverySelect(SpParMat<IT,NT,DER> & A, NT hardThreshold, IT select
     if(recoverNum<=0 ) // if recoverNum>0, recovery would have added nonzeros in empty columns
     {
         FullyDistVec<IT,NT> nnzPerColumnA = A.Reduce(Column, std::plus<NT>(), 0.0, [](NT val){return 1.0;});
-        FullyDistSpVec<IT,NT> emptyColumns(nnzPerColumnA, std::bind2nd(std::equal_to<NT>(), 0.0));
+        FullyDistSpVec<IT,NT> emptyColumns(nnzPerColumnA, std::bind(std::equal_to<NT>(), std::placeholders::_1,  0.0));
         emptyColumns = 1.00;
         //Ariful: We need a selective AddLoops function with a sparse vector
         //A.AddLoops(emptyColumns);
@@ -875,14 +875,14 @@ SpParMat<ITA, NTA, DERA> IncrementalMCLSquare(SpParMat<ITA, NTA, DERA> & A,
 
         SpParMat<ITA, NTA, DERA> AD(A);
         AD.DimApply(Column, diag, [](NTA mv, NTA vv){return mv * vv;});
-        AD.Prune(std::bind2nd(std::less_equal<NTA>(), 1e-8), true);
+        AD.Prune(std::bind(std::less_equal<NTA>(), std::placeholders::_1,  1e-8), true);
 
         SpParMat<ITA, NTA, DERA> DA(A);
         DA.DimApply(Row, diag, [](NTA mv, NTA vv){return mv * vv;});
-        DA.Prune(std::bind2nd(std::less_equal<NTA>(), 1e-8), true);
+        DA.Prune(std::bind(std::less_equal<NTA>(), std::placeholders::_1,  1e-8), true);
 
         X = D;
-        X.Apply(bind2nd(exponentiate(), 2));
+        X.Apply(bind(exponentiate(), std::placeholders::_1,  2));
 
         X += DA;
         X += AD;
@@ -1861,7 +1861,7 @@ void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t 
 		MPI_Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX, World, &status);
 	}
     
-  std::transform(trxinds, trxinds+trxlocnz, trxinds, std::bind2nd(std::plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
+  std::transform(trxinds, trxinds+trxlocnz, trxinds, std::bind(std::plus<int32_t>(), std::placeholders::_1,  roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
 }
 
 
@@ -2472,7 +2472,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	NUV * trxnums = new NUV[trxlocnz];
 	MPI_Sendrecv(const_cast<IU*>(SpHelper::p2a(x.ind)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX, World, &status);
 	MPI_Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX, World, &status);
-  std::transform(trxinds, trxinds+trxlocnz, trxinds, std::bind2nd(std::plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
+  std::transform(trxinds, trxinds+trxlocnz, trxinds, std::bind(std::plus<IU>(), std::placeholders::_1,  offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
 
         int colneighs, colrank;
 	MPI_Comm_size(ColWorld, &colneighs);

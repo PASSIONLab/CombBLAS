@@ -57,7 +57,7 @@ IT LabelCC(FullyDistVec<IT, IT> & father, FullyDistVec<IT, IT> & cclabel)
 {
     cclabel = father;
     cclabel.ApplyInd([](IT val, IT ind){return val==ind ? -1 : val;});
-    FullyDistSpVec<IT, IT> roots (cclabel, bind2nd(std::equal_to<IT>(), -1));
+    FullyDistSpVec<IT, IT> roots (cclabel, bind(std::equal_to<IT>(), std::placeholders::_1,  -1));
     roots.nziota(0);
     cclabel.Set(roots);
     cclabel = cclabel(father);

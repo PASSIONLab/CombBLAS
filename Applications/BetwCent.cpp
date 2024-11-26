@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
 			Dist<double>::MPI_DCCols nspInv = nsp;
-			nspInv.Apply(bind1st(divides<double>(), 1));
+			nspInv.Apply(bind(divides<double>(),  1, std::placeholders::_1 ));
 
 			// create a dense matrix with all 1's 
 			DenseParMat<int, double> bcu(1.0, AT.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Adding bc contributions...\n");
 			bc += FullyDistVec<int, double>(bcu.Reduce(Row, plus<double>(), 0.0));	// pack along rows
 		}
-		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
+		bc.Apply(bind(minus<double>(), std::placeholders::_1,  nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
 		
 		double t2=MPI_Wtime();
 		double TEPS = (nPasses * static_cast<float>(A.getnnz())) / (t2-t1);

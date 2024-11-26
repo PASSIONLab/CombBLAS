@@ -1205,7 +1205,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	else if(partA.nnz == 0)
 	{
 		Cdcsc = new Dcsc<IT,NT>(*(partB.dcsc));
-    std::transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, std::bind2nd(std::plus<IT>(), partA.n));
+    std::transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, std::bind(std::plus<IT>(), std::placeholders::_1,  partA.n));
 	}
 	else if(partB.nnz == 0)
 	{

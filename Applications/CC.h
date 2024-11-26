@@ -1386,9 +1386,9 @@ namespace combblas {
         cclabel = parent;
         cclabel.ApplyInd([](IT val, IT ind){return val==ind ? -1 : val;});
         
-        FullyDistSpVec<IT, IT> roots (cclabel, bind2nd(std::equal_to<IT>(), -1));
+        FullyDistSpVec<IT, IT> roots (cclabel, bind(std::equal_to<IT>(), std::placeholders::_1,  -1));
         // parents of leaves are still correct
-        FullyDistSpVec<IT, IT> pOfLeaves (cclabel, bind2nd(std::not_equal_to<IT>(), -1));
+        FullyDistSpVec<IT, IT> pOfLeaves (cclabel, bind(std::not_equal_to<IT>(), std::placeholders::_1,  -1));
         
         roots.nziota(0);
         cclabel.Set(roots);
@@ -1549,7 +1549,7 @@ namespace combblas {
     {
         for(IT i=0; i< nCC; i++)
         {
-            FullyDistVec<IT, IT> ith = CC.FindInds(bind2nd(std::equal_to<IT>(), i));
+            FullyDistVec<IT, IT> ith = CC.FindInds(bind(std::equal_to<IT>(), std::placeholders::_1,  i));
             ith.DebugPrint();
         }
     }
@@ -1579,7 +1579,7 @@ namespace combblas {
         FullyDistVec<IT, IT> ccSizes(CC.getcommgrid(), nCC, 0);
         for(IT i=0; i< nCC; i++)
         {
-            FullyDistSpVec<IT, IT> ith = CC.Find(bind2nd(std::equal_to<IT>(), i));
+            FullyDistSpVec<IT, IT> ith = CC.Find(bind(std::equal_to<IT>(), std::placeholders::_1,  i));
             ccSizes.SetElement(i, ith.getnnz());
         }
         

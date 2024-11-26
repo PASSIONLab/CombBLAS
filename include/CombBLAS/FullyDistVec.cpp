@@ -210,7 +210,7 @@ void FullyDistVec<IT,NT>::SelectCandidates(double nver)
 	{
 		for(int i=0; i<length; ++i)
 			loccands[i] = M.rand();
-      std::transform(loccands.begin(), loccands.end(), loccands.begin(), std::bind2nd( std::multiplies<double>(), nver ));
+      std::transform(loccands.begin(), loccands.end(), loccands.begin(), std::bind( std::multiplies<double>(), std::placeholders::_1,  nver ));
 		
 		for(int i=0; i<length; ++i)
 			loccandints[i] = static_cast<NT>(loccands[i]);

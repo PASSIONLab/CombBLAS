@@ -114,8 +114,8 @@ int main(int argc, char* argv[])
 		vec1.ReadDistribute(inputvec1, 0);
 		vec2.ReadDistribute(inputvec2, 0);
 
-		vec1.Apply(bind2nd(minus<int>(), 1));	// For 0-based indexing
-		vec2.Apply(bind2nd(minus<int>(), 1));	
+		vec1.Apply(bind(minus<int>(), std::placeholders::_1,  1));	// For 0-based indexing
+		vec2.Apply(bind(minus<int>(), std::placeholders::_1,  1));	
 		ACID = A(vec1, vec2);
 
 		if (ACID == AID)

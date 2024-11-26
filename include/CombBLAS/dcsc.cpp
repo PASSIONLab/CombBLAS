@@ -1123,9 +1123,9 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	{
 		B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
 		std::copy(jc+pos, jc+ nzc, B->jc);
-		transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(std::minus<IT>(), cut));
+		transform(B->jc, B->jc + (nzc-pos), B->jc, bind(std::minus<IT>(), std::placeholders::_1,  cut));
 		std::copy(cp+pos, cp+nzc+1, B->cp);
-		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(std::minus<IT>(), cp[pos]));
+		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind(std::minus<IT>(), std::placeholders::_1,  cp[pos]));
 		std::copy(ir+cp[pos], ir+nz, B->ir);
 		std::copy(numx+cp[pos], numx+nz, B->numx);	// copy(first, last, result)
 	}
@@ -1172,10 +1172,10 @@ void Dcsc<IT,NT>::ColSplit(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> 
         {
             parts[i] = new Dcsc<IT,NT>(cp[pos[i]] - cp[pos[i-1]], pos[i] - pos[i-1]); // Dcsc(nnz, nzc)
             std::copy(jc+pos[i-1], jc+pos[i], parts[i]->jc);    // std::copy
-            transform(parts[i]->jc, parts[i]->jc + (pos[i]-pos[i-1]), parts[i]->jc, bind2nd(std::minus<IT>(), cuts[i-1]));  // cuts[i-1] is well defined as i>=1
+            transform(parts[i]->jc, parts[i]->jc + (pos[i]-pos[i-1]), parts[i]->jc, bind(std::minus<IT>(), std::placeholders::_1,  cuts[i-1]));  // cuts[i-1] is well defined as i>=1
 
             std::copy(cp+pos[i-1], cp+pos[i]+1, parts[i]->cp);
-            transform(parts[i]->cp, parts[i]->cp + (pos[i]-pos[i-1]+1), parts[i]->cp, bind2nd(std::minus<IT>(), cp[pos[i-1]]));
+            transform(parts[i]->cp, parts[i]->cp + (pos[i]-pos[i-1]+1), parts[i]->cp, bind(std::minus<IT>(), std::placeholders::_1,  cp[pos[i-1]]));
 
             std::copy(ir+cp[pos[i-1]], ir+cp[pos[i]], parts[i]->ir);
             std::copy(numx+cp[pos[i-1]], numx + cp[pos[i]], parts[i]->numx);	// copy(first, last, result)
@@ -1189,10 +1189,10 @@ void Dcsc<IT,NT>::ColSplit(std::vector< Dcsc<IT,NT>* > & parts, std::vector<IT> 
     {
         parts[ncuts] = new Dcsc<IT,NT>(nz-cp[pos[ncuts-1]], nzc-pos[ncuts-1]);  // ncuts = npieces -1
         std::copy(jc+pos[ncuts-1], jc+ nzc, parts[ncuts]->jc);
-        transform(parts[ncuts]->jc, parts[ncuts]->jc + (nzc-pos[ncuts-1]), parts[ncuts]->jc, bind2nd(std::minus<IT>(), cuts[ncuts-1]));
+        transform(parts[ncuts]->jc, parts[ncuts]->jc + (nzc-pos[ncuts-1]), parts[ncuts]->jc, bind(std::minus<IT>(), std::placeholders::_1,  cuts[ncuts-1]));
         
         std::copy(cp+pos[ncuts-1], cp+nzc+1, parts[ncuts]->cp);
-        transform(parts[ncuts]->cp, parts[ncuts]->cp + (nzc-pos[ncuts-1]+1), parts[ncuts]->cp, bind2nd(std::minus<IT>(), cp[pos[ncuts-1]]));
+        transform(parts[ncuts]->cp, parts[ncuts]->cp + (nzc-pos[ncuts-1]+1), parts[ncuts]->cp, bind(std::minus<IT>(), std::placeholders::_1,  cp[pos[ncuts-1]]));
         std::copy(ir+cp[pos[ncuts-1]], ir+nz, parts[ncuts]->ir);
         std::copy(numx+cp[pos[ncuts-1]], numx+nz, parts[ncuts]->numx);
     }
@@ -1213,11 +1213,11 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 
 		std::copy(A->jc, A->jc + A->nzc, jc);	// copy(first, last, result)
 		std::copy(B->jc, B->jc + B->nzc, jc + A->nzc);
-		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(std::plus<IT>(), cut));
+		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind(std::plus<IT>(), std::placeholders::_1,  cut));
 
 		std::copy(A->cp, A->cp + A->nzc, cp);
 		std::copy(B->cp, B->cp + B->nzc +1, cp + A->nzc);
-		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(std::plus<IT>(), A->cp[A->nzc]));
+		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind(std::plus<IT>(), std::placeholders::_1,  A->cp[A->nzc]));
 	
 		std::copy(A->ir, A->ir + A->nz, ir);
 		std::copy(B->ir, B->ir + B->nz, ir + A->nz);
@@ -1255,11 +1255,11 @@ void Dcsc<IT,NT>::ColConcatenate(std::vector< Dcsc<IT,NT>* > & parts, std::vecto
         for(size_t i=0; i< nmembers; ++i)
         {
             std::copy(parts[i]->jc, parts[i]->jc + parts[i]->nzc, jc + run_nzc);
-            transform(jc + run_nzc, jc + run_nzc + parts[i]->nzc, jc + run_nzc, bind2nd(std::plus<IT>(), offsets[i]));
+            transform(jc + run_nzc, jc + run_nzc + parts[i]->nzc, jc + run_nzc, bind(std::plus<IT>(), std::placeholders::_1,  offsets[i]));
             
             // remember: cp[nzc] = nnz
             std::copy(parts[i]->cp, parts[i]->cp + parts[i]->nzc, cp + run_nzc);
-            transform(cp + run_nzc, cp + run_nzc + parts[i]->nzc, cp + run_nzc, bind2nd(std::plus<IT>(),run_nz));
+            transform(cp + run_nzc, cp + run_nzc + parts[i]->nzc, cp + run_nzc, bind(std::plus<IT>(), std::placeholders::_1, run_nz));
             
             std::copy(parts[i]->ir, parts[i]->ir + parts[i]->nz, ir + run_nz);
             std::copy(parts[i]->numx, parts[i]->numx + parts[i]->nz, numx + run_nz);

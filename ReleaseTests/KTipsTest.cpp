@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
         A.ParallelReadMM(std::string(argv[1]), false, maximum<int>());
 
         FullyDistVec<int,int> D = A.Reduce(Column, std::plus<int>(), static_cast<int>(0));
-        FullyDistSpVec<int,int> R = D.Find(std::bind2nd(std::equal_to<int>(), static_cast<int>(1)));
+        FullyDistSpVec<int,int> R = D.Find(std::bind(std::equal_to<int>(), std::placeholders::_1,  static_cast<int>(1)));
 
         SpParMat<int,int, SpDCCols<int,int>> F0 = FrontierMat(A, R, static_cast<int>(1));
 
@@ -118,8 +118,8 @@ int main(int argc, char *argv[])
 
             FullyDistVec<int,int> Ns = F2.Reduce(Column, std::plus<int>(), static_cast<int>(0));
 
-            FullyDistSpVec<int,int> Tc = Ns.Find(std::bind2nd(std::greater_equal<int>(), static_cast<int>(2)));
-            FullyDistSpVec<int,int> Td = Ns.Find(std::bind2nd(std::not_equal_to<int>(), static_cast<int>(1)));
+            FullyDistSpVec<int,int> Tc = Ns.Find(std::bind(std::greater_equal<int>(), std::placeholders::_1,  static_cast<int>(2)));
+            FullyDistSpVec<int,int> Td = Ns.Find(std::bind(std::not_equal_to<int>(), std::placeholders::_1,  static_cast<int>(1)));
 
             FullyDistVec<int,int> C0 = LastNzRowIdxPerCol(F0);
             FullyDistVec<int,int> C1 = LastNzRowIdxPerCol(F1);
