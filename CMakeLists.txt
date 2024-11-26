@@ -49,6 +49,7 @@ target_link_libraries(CombBLAS PUBLIC Usortlib)
 
 add_subdirectory(graph500-1.2/generator)
 target_link_libraries(CombBLAS PUBLIC GraphGenlib)
+    
 
 # Set up exported configuration
 # This allows CombBLAS to be installed in two ways:

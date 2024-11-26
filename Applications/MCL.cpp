@@ -53,6 +53,7 @@ using namespace std;
 using namespace combblas;
 
 #define EPS 0.0001
+#define CHAOS_DIFF 0.00000001
 
 double mcl_symbolictime;
 double mcl_Abcasttime;
@@ -114,7 +115,8 @@ typedef struct
     //HipMCL optimization
     int phases;
     int perProcessMem;
-    bool isDoublePrecision; // true: double, false: float
+    string numtype; // "fp64", "fp32", "fp16"
+    string dataset; // "virus"
     bool is64bInt; // true: int64_t for local indexing, false: int32_t (for local indexing)
     int layers; // Number of layers to use in communication avoiding SpGEMM. 
     int compute;
@@ -156,7 +158,7 @@ void InitParam(HipMCLParam & param)
     param.compute = 1; // 1 means hash-based computation, 2 means heap-based computation
     param.phases = 1;
     param.perProcessMem = 0;
-    param.isDoublePrecision = true;
+    param.numtype = "fp64"; // default to double precision
     param.is64bInt = true;
     
     //debugging
@@ -217,8 +219,7 @@ void ShowParam(HipMCLParam & param)
     runinfo << "    Memory avilable per process: ";
     if(param.perProcessMem>0) runinfo << param.perProcessMem << "GB" << endl;
     else runinfo << "not provided" << endl;
-    if(param.isDoublePrecision) runinfo << "Using double precision floating point" << endl;
-    else runinfo << "Using single precision floating point" << endl;
+    runinfo << "    Precision: " << param.numtype << endl;
     if(param.is64bInt ) runinfo << "Using 64 bit local indexing" << endl;
     else runinfo << "Using 32 bit local indexing" << endl;
     
@@ -280,10 +281,10 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"--preprune")==0) {
             param.preprune = true;
         }
-		else if (strcmp(argv[i],"-layers")==0) {
+        else if (strcmp(argv[i],"-layers")==0) {
             param.layers = atoi(argv[i + 1]);
         }
-		else if (strcmp(argv[i],"-compute")==0) {
+        else if (strcmp(argv[i],"-compute")==0) {
             param.compute = atoi(argv[i + 1]);
         }
         else if (strcmp(argv[i],"-phases")==0) {
@@ -292,11 +293,18 @@ void ProcessParam(int argc, char* argv[], HipMCLParam & param)
         else if (strcmp(argv[i],"-per-process-mem")==0) {
             param.perProcessMem = atoi(argv[i + 1]);
         }
-        else if (strcmp(argv[i],"--single-precision")==0) {
-            param.isDoublePrecision = false;
+        else if (strcmp(argv[i],"--numtype")==0) {
+            param.numtype = string(argv[i + 1]);
+            if (param.numtype != "fp64" && param.numtype != "fp32" && param.numtype != "fp16") {
+                SpParHelper::Print("Precision must be either fp64, fp32, or fp16\n");
+                exit(0);
+            }
         }
         else if (strcmp(argv[i],"--32bit-local-index")==0) {
             param.is64bInt = false;
+        }
+        else if (strcmp(argv[i],"--dataset")==0) {
+            param.dataset = string(argv[i + 1]);
         }
     }
     
@@ -549,31 +557,49 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 
     // chaos doesn't make sense for non-stochastic matrices
     // it is in the range {0,1} for stochastic matrices
-    NT chaos = 1;
+    NT chaos = 1e5;
+    NT chaos_prev = 1e10; // initialize to a large value
+    NT chaos_diff = abs(chaos_prev - chaos);
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     int it=1;
     double tInflate = 0;
     double tExpand = 0;
     typedef PlusTimesSRing<NT, NT> PTFF;
-	SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
-	if(param.layers > 1) {
-    	SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
-		A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
-	}
-    // while there is an epsilon improvement
+    typedef PlusTimesSRing<half_float::half, half_float::half> PTHH;
+    SpParMat3D<IT,NT,DER> A3D_cs(param.layers);
+    if(param.layers > 1) {
+        SpParMat<IT,NT,DER> A2D_cs = SpParMat<IT, NT, DER>(A);
+        A3D_cs = SpParMat3D<IT,NT,DER>(A2D_cs, param.layers, true, false);    // Non-special column split
+    }
+    // the iteration won't continue if any of the criteria is met
     while( chaos > EPS)
     {
-		SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
-		if(param.layers > 1) {
-			A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false); // Create new rowsplit copy of matrix from colsplit copy
-		}
+        SpParMat3D<IT,NT,DER> A3D_rs(param.layers);
+        if(param.layers > 1) {
+            A3D_rs  = SpParMat3D<IT,NT,DER>(A3D_cs, false); // Create new rowsplit copy of matrix from colsplit copy
+        }
 
         double t1 = MPI_Wtime();
         //A.Square<PTFF>() ;        // expand
-		if(param.layers == 1){
-			A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
-		}
-		else{
-			A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
+        if(param.layers == 1){
+            string Afilename = "A_"+param.dataset+"_it"+to_string(it)+"_"+param.numtype+".mtx";
+            string Cfilename = "C_"+param.dataset+"_it"+to_string(it)+"_"+param.numtype+".mtx";
+            if(myrank==0){
+                std::cerr << Afilename << endl;
+            }
+            A.ParallelWriteMM(Afilename, true);
+            if(param.numtype == "fp64"){
+                A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+            }else if(param.numtype == "fp16"){
+                A = MemEfficientSpGEMM<PTHH, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+            }else if (param.numtype == "fp32") {
+                A = MemEfficientSpGEMM<PTFF, NT, DER>(A, A, param.phases, param.prunelimit, (IT)param.select, (IT)param.recover_num, param.recover_pct, param.kselectVersion, param.compute, param.perProcessMem);
+            }
+            A.ParallelWriteMM(Cfilename, true);
+        }
+        else{
+            A3D_cs = MemEfficientSpGEMM3D<PTFF, NT, DER, IT, NT, NT, DER, DER >(
                 A3D_cs, A3D_rs, 
                 param.phases, 
                 param.prunelimit, 
@@ -583,15 +609,15 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
                 param.kselectVersion,
                 param.compute,
                 param.perProcessMem
-         	);
-		}
+             );
+        }
         
-		if(param.layers == 1){
-			MakeColStochastic(A);
-		}
-		else{
+        if(param.layers == 1){
+            MakeColStochastic(A);
+        }
+        else{
             MakeColStochastic3D(A3D_cs);
-		}
+        }
         tExpand += (MPI_Wtime() - t1);
         
         if(param.show)
@@ -599,9 +625,13 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
             SpParHelper::Print("After expansion\n");
             A.PrintInfo();
         }
+        chaos_prev = chaos; // save prev choas before updating it
         if(param.layers == 1) chaos = Chaos(A);
         else chaos = Chaos3D(A3D_cs);
-        
+        chaos_diff = abs(chaos_prev - chaos); // update chaos diff
+        if(param.numtype == "fp16"){
+            if(chaos_diff <= CHAOS_DIFF) break; // break if chaos diff is small enough
+        }
         double tInflate1 = MPI_Wtime();
         if (param.layers == 1) Inflate(A, param.inflation);
         else Inflate3D(A3D_cs, param.inflation);
@@ -625,9 +655,7 @@ FullyDistVec<IT, IT> HipMCL(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
         s << "Iteration# "  << setw(3) << it << " : "  << " chaos: " << setprecision(3) << chaos << "  load-balance: "<< newbalance << " Time: " << (t3-t1) << endl;
         SpParHelper::Print(s.str());
         it++;
-        
-        
-        
+
     }
     
     
@@ -838,21 +866,21 @@ int main(int argc, char* argv[])
     }
     
     {
-        if(param.isDoublePrecision)
+        if( param.numtype == "fp64" || param.numtype == "fp16")
+        {
+            if(param.is64bInt) // default case
+                MainBody<int64_t, int64_t, double>(param);
+            else
+                MainBody<int64_t, int32_t, double>(param);
+        }else if (param.numtype == "fp32")
         {
             if(param.is64bInt) // default case
                 MainBody<int64_t, int64_t, double>(param);
             else
                 MainBody<int64_t, int32_t, double>(param);
         }
-        else if(param.is64bInt)
-            MainBody<int64_t, int64_t, float>(param);
-        else
-            MainBody<int64_t, int32_t, float>(param);
     }
-    
-    
-    
+
     // make sure the destructors for all objects are called before MPI::Finalize()
     MPI_Finalize();    
     return 0;

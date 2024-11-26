@@ -31,6 +31,7 @@
 #define _PROMOTE_H_
 
 #include "myenableif.h"
+#include <cstdint>
 
 namespace combblas {
 
