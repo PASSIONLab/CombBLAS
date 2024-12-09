@@ -1319,11 +1319,16 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		
 		// before activating this remove transposing B1seq
             
-        SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-                        (*ARecv, *BRecv,  //parameters themselves
-                        false, true,	 //transpose information (B is transposed)
-                        false, 	 //'delete A' condition
-                        false);	 // 'delete B' condition
+        //SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+                        //(*ARecv, *BRecv,  //parameters themselves
+                        //false, true,	 //transpose information (B is transposed)
+                        //false, 	 //'delete A' condition
+                        //false);	 // 'delete B' condition
+        
+		SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+			(*ARecv, *BRecv, // parameters themselves
+			false,    // 'delete A' condition
+			false);   // 'delete B' condition
         
         if(i != Bself && (!BRecv->isZero())) delete BRecv;
         if(i != Aself && (!ARecv->isZero())) delete ARecv;
@@ -1380,11 +1385,17 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 
         	// before activating this remove transposing B2seq
             
-        SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
-                        (*ARecv, *BRecv,  //parameters themselves
-                        false, true,	 //transpose information (B is transposed)
-                        false, 	 //'delete A' condition
-                        false);	 //'delete B' condition
+        //SpTuples<LIC,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
+                        //(*ARecv, *BRecv,  //parameters themselves
+                        //false, true,	 //transpose information (B is transposed)
+                        //false, 	 //'delete A' condition
+                        //false);	 //'delete B' condition
+        
+		SpTuples<LIC,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
+			(*ARecv, *BRecv, // parameters themselves
+			false,    // 'delete A' condition
+			false);   // 'delete B' condition
+
 
         if(i != Bself && (!BRecv->isZero())) delete BRecv;
         if(i != Aself && (!ARecv->isZero())) delete ARecv;
