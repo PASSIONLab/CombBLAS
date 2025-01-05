@@ -282,6 +282,7 @@ namespace ACSpGEMM {
 		tempChunkBuffers[0] = CU::allocMemory(tempChunkBufferSizes[0]);
 
 		HANDLE_ERROR(cudaDeviceSynchronize());
+
 		// ##############################
 		startTimer(ce_start, stream);
 		// ##############################
@@ -332,7 +333,7 @@ namespace ACSpGEMM {
 		// TODO: Move back in, currently sometimes produces crashes for whatever reason
 		chunk_counter_cptr.assure((requiredBlocks + 2) * sizeof(uint32_t));
 		chunk_counter = chunk_counter_cptr.get<uint32_t>();
-
+		//std::cout << "MADE IT IN " << std::endl;
 		// Allocate memory for chunk pointers
 		size_t targetChunkPointerSize =ChunkPointerOverestimationFactor*mergepointer_estimate; //fixme : rl
 		if (chunkPointerSize < targetChunkPointerSize)
@@ -773,7 +774,8 @@ namespace ACSpGEMM {
 				}
 			}
 		} while (!completed);
-		delete[] flagsAndListAllocCounters;
+		//std::cout << "WE OUT" << std::endl;
+		//delete[] flagsAndListAllocCounters;
 		// Let's write the chunks out to a csr matrix
 		if(stats.measure_all)
 			startTimer(individual_start, stream);

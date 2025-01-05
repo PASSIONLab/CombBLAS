@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 		bool COMMTESTON = std::stoi(COMMTEST) > 0;
 		//if(!COMMTESTON) GPUTradeoff = 1024 * 100 * 500;
 		MPI_Barrier(MPI_COMM_WORLD);
-		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;
+		typedef PlusTimesSRing<double, double> MinPlusSRing;
 		typedef SelectMaxSRing<bool, int64_t> SR;
 
 		shared_ptr<CommGrid> fullWorld;
@@ -143,9 +143,11 @@ int main(int argc, char *argv[])
 
 #ifndef NOGEMM
 		double t3 = MPI_Wtime();
-		C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
+		C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
 		cudaDeviceSynchronize();
 		HANDLE_ERROR(cudaGetLastError());
+		double t4 = MPI_Wtime();
+		std::cout << "Time taken: " << t4 - t3 << std::endl;
 
 		SpDCCols<uint32_t, double> spdcsc = C.seq();
 		Dcsc<uint32_t, double> *dcsc = C.seq().GetDCSC();
@@ -164,8 +166,7 @@ int main(int argc, char *argv[])
 		//std::cout << "MAX DIFF = " << maxdiff << std::endl;
 		//std::cout << a << std::endl;
 		//std::cout << b << std::endl;
-		double t4 = MPI_Wtime();
-		//std::cout << "Time taken: " << t4 - t3 << std::endl;
+		
 		C.PrintInfo();
 		cudaDeviceSynchronize();
 		if (CControl == C)
@@ -178,9 +179,9 @@ int main(int argc, char *argv[])
 		}
 		{ // force the calling of C's destructor
 			t3 = MPI_Wtime();
-			C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
 			t4 = MPI_Wtime();
-			//std::cout << "Time taken: " << t4 - t3 << std::endl;
+			std::cout << "Time taken: " << t4 - t3 << std::endl;
 			C.PrintInfo();
 			if (CControl == C)
 			{
@@ -201,7 +202,7 @@ int main(int argc, char *argv[])
 		double t1 = MPI_Wtime(); // initilize (wall-clock) timer
 		for (int i = 0; i < ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		double t2 = MPI_Wtime();
@@ -225,7 +226,7 @@ int main(int argc, char *argv[])
 			int id;
 			MPI_Comm_rank(MPI_COMM_WORLD, &id);
 			cudaMemGetInfo(&free, &total);
-			// cout << "GPU " << id << " memory: free=" << free << ", total=" << total << endl;
+			//std::cout << "GPU " << id << " memory: free=" << free << ", total=" << total << std::endl;
 
 			commtime = 0;
 			comms = 0;
@@ -236,7 +237,7 @@ int main(int argc, char *argv[])
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Pcontrol(1, "SpGEMM_DoubleBuff");
 			{
-				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
 			}
 			
 			int svdhits = datahits + rowshits + colhits;
@@ -249,7 +250,7 @@ int main(int argc, char *argv[])
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Pcontrol(1, "SpGEMM_DoubleBuff");
 			{
-				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
 			}
 			
 			bool allt;
@@ -290,7 +291,7 @@ int main(int argc, char *argv[])
 			for (int i = 0; i < ITERATIONS; i++)
 			{
 				// std::cout << "--------------NEW ITER------------" << std::endl;
-				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
 			}
 			MPI_Barrier(MPI_COMM_WORLD);
 			t2 = MPI_Wtime();

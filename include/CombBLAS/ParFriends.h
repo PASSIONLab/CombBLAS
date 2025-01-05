@@ -1535,6 +1535,19 @@ void convertCSR(UDERA *ARecv, dCSR<NU1> &input_GPU, int id)
     
 }
 
+// Workaround for now
+
+
+
+
+struct MinPlusSRingGPU : SemiRing<double, double, double> {
+      __host__ __device__ double multiply(const double& a, const double& b) const { if(a == std::numeric_limits<double>::max() || b == std::numeric_limits<double>::max()) { return std::numeric_limits<double>::max();} else return a + b; }
+  __host__ __device__ double add(const double& a, const double& b)   const   { return std::min(a, b); }
+   __host__ __device__  static double AdditiveIdentity()                  { return  std::numeric_limits<double>::max(); }
+};
+
+typedef MinPlusSRingGPU ringss;
+MinPlusSRingGPU sr;
 double comptime = 0;
 template <typename SR, typename NU1, typename NU2, typename NUO>
 CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
@@ -1572,9 +1585,9 @@ CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
 
     
     //std::cout << "ENTERED MULT" << std::endl;
-    ACSpGEMM::Multiply<SR>(
+    ACSpGEMM::Multiply<ringss>(
         A, B, result_mat_GPU,
-        DefaultTraits, stats, Debug_Mode, semiring2);
+        DefaultTraits, stats, Debug_Mode, sr);
         //std::cout << "EXITED MULT" << std::endl;
 
 
@@ -1734,10 +1747,10 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             ess[j] = ARecvSizes[j][i]; // essentials of the ith
                                        // matrix in this row
         }
-        // std::cout << "STARTING BCAST " << id << std::endl;
+        //std::cout << "STARTING BCAST " << id << std::endl;
         SpParHelper::BCastMatrixCUDA<uint, NU1>(GridC->GetRowWorld(),
                                                 input_A_recv_GPU, ess, i, GPUTradeoff); // then, receive its elements
-        // std::cout << "ENDING BCAST " << id << std::endl;
+        //std::cout << "ENDING BCAST " << id << std::endl;
         ess.clear();
         if (i == Bself)
         {
@@ -1783,9 +1796,9 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         // std::cout << input_A_recv_GPU.rows << std::endl;
         mpi_overhead += MPI_Wtime() - t2;
         //std::cout << "mult on " << id << std::endl;
-        MPI_Barrier(MPI_COMM_WORLD);
         //MPI_Barrier(MPI_COMM_WORLD);
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        //MPI_Barrier(MPI_COMM_WORLD);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         
         cudaDeviceSynchronize();
         HANDLE_ERROR(cudaGetLastError());
@@ -1921,7 +1934,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
             HANDLE_ERROR(cudaGetLastError());
 
         mpi_overhead += MPI_Wtime() - t2;
-        CSR<NUO> result_mat_CPU = GPULocalMultiply<Arith_SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
+        CSR<NUO> result_mat_CPU = GPULocalMultiply<SR, NU1, NU2, NUO>(input_B_recv_GPU, input_A_recv_GPU);
         gpuErrchk(cudaDeviceSynchronize());
         HANDLE_ERROR(cudaGetLastError());
 

@@ -70,6 +70,7 @@
         "__nullptr": "cpp",
         "filesystem": "cpp",
         "__locale": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "__config": "cpp"
     }
 }
