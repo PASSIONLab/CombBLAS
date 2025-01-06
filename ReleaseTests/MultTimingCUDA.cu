@@ -84,7 +84,8 @@ int main(int argc, char *argv[])
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	
+	typedef PlusTimesSRing<ElementType, ElementType> PTDOUBLEDOUBLE;	
+
 
 	if (argc < 4)
 	{
@@ -143,7 +144,7 @@ int main(int argc, char *argv[])
 
 #ifndef NOGEMM
 		double t3 = MPI_Wtime();
-		C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
+		C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
 		cudaDeviceSynchronize();
 		HANDLE_ERROR(cudaGetLastError());
 		double t4 = MPI_Wtime();
@@ -175,11 +176,12 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			SpParHelper::Print("ERROR in double CUDA  buffered multiplication, go fix it!\n");
+			SpParHelper::Print("ERROR in double CUDA from source file!\n");
 		}
 		{ // force the calling of C's destructor
 			t3 = MPI_Wtime();
-			C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			//C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			CControl = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
 			t4 = MPI_Wtime();
 			std::cout << "Time taken: " << t4 - t3 << std::endl;
 			C.PrintInfo();
@@ -189,7 +191,27 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				SpParHelper::Print("ERROR in double non-CUDA  buffered multiplication, go fix it!\n");
+				SpParHelper::Print("ERROR in double CUDA  buffered multiplication, from CPU!\n");
+				A.PrintInfo();
+				C.PrintInfo();
+				CControl.PrintInfo();
+				SpDCCols<uint32_t, double> spdcsc = C.seq();
+		Dcsc<uint32_t, double> *dcsc = C.seq().GetDCSC();
+		double maxdiff = 0;
+		double a = 0;
+		double b = 0;
+		for (int i = 0; i < spdcsc.getnnz(); ++i)
+		{
+			if (abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]) > maxdiff)
+			{
+				maxdiff = abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]);
+				a = dcsc->numx[i];
+				b = CControl.seq().GetDCSC()->numx[i];
+			}
+		}
+		std::cout << "MAX DIFF = " << maxdiff << std::endl;
+		std::cout << a << std::endl;
+		std::cout << b << std::endl;
 			}
 			// int64_t cnnz = C.getnnz();
 			// ostringstream tinfo;
@@ -202,7 +224,7 @@ int main(int argc, char *argv[])
 		double t1 = MPI_Wtime(); // initilize (wall-clock) timer
 		for (int i = 0; i < ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		double t2 = MPI_Wtime();
@@ -237,7 +259,7 @@ int main(int argc, char *argv[])
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Pcontrol(1, "SpGEMM_DoubleBuff");
 			{
-				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
 			}
 			
 			int svdhits = datahits + rowshits + colhits;
@@ -250,7 +272,7 @@ int main(int argc, char *argv[])
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Pcontrol(1, "SpGEMM_DoubleBuff");
 			{
-				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
 			}
 			
 			bool allt;
@@ -291,7 +313,7 @@ int main(int argc, char *argv[])
 			for (int i = 0; i < ITERATIONS; i++)
 			{
 				// std::cout << "--------------NEW ITER------------" << std::endl;
-				C = Mult_AnXBn_DoubleBuff_CUDA<MinPlusSRing, double, PSpMat<double>::DCCols>(A, B);
+				C = Mult_AnXBn_DoubleBuff_CUDA<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols>(A, B);
 			}
 			MPI_Barrier(MPI_COMM_WORLD);
 			t2 = MPI_Wtime();

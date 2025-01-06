@@ -1546,8 +1546,8 @@ struct MinPlusSRingGPU : SemiRing<double, double, double> {
    __host__ __device__  static double AdditiveIdentity()                  { return  std::numeric_limits<double>::max(); }
 };
 
-typedef MinPlusSRingGPU ringss;
-MinPlusSRingGPU sr;
+typedef Arith_SR ringss;
+Arith_SR sr;
 double comptime = 0;
 template <typename SR, typename NU1, typename NU2, typename NUO>
 CSR<NUO> GPULocalMultiply(dCSR<NU1>& A, dCSR<NU2>& B)
@@ -1831,8 +1831,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         // << std::endl;
         // load results  onto CPU.
         SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
-            result_mat_CPU.nnz, result_mat_CPU.rows,
-            result_mat_CPU.cols, tuplesC, false, true);
+            result_mat_CPU.nnz, C_m,
+            C_n, tuplesC, false, true);
         //(*C_cont).PrintInfo();
         if (i != Aself)
             delete ARecv;
@@ -1972,8 +1972,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_DoubleBuff_CUDA(SpParMat<IU, NU1, UDERA> &A,
         // << std::endl;
         // load results  onto CPU.
         SpTuples<LIC, NUO> *C_cont = new SpTuples<LIC, NUO>(
-            result_mat_CPU.nnz, result_mat_CPU.rows,
-            result_mat_CPU.cols, tuplesC, false, true);
+            result_mat_CPU.nnz, C_m,
+            C_n, tuplesC, false, true);
         //(*C_cont).PrintInfo();
         if (i != Aself)
             delete ARecv;

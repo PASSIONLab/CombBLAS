@@ -5,6 +5,7 @@ ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 ADD_EXECUTABLE( MultTest MultTest.cpp )
 cuda_add_executable( MultTimingCUDA MultTimingCUDA.cu)
 target_compile_options(MultTimingCUDA PRIVATE -Mlarge_arrays)
+cuda_add_executable( MultAccuracyCUDA MultAccuracyCUDA.cu)
 
 
 ADD_EXECUTABLE( ReduceTest ReduceTest.cpp )
@@ -29,6 +30,7 @@ TARGET_LINK_LIBRARIES( MultTest CombBLAS)
 
 
 TARGET_LINK_LIBRARIES( MultTimingCUDA CombBLAS)
+TARGET_LINK_LIBRARIES( MultAccuracyCUDA CombBLAS)
 TARGET_LINK_LIBRARIES( ReduceTest CombBLAS MPI::MPI_CXX)
 TARGET_LINK_LIBRARIES( TransposeTest CombBLAS)
 TARGET_LINK_LIBRARIES( IteratorTest CombBLAS)
