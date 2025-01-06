@@ -102,12 +102,10 @@ int main(int argc, char *argv[])
 		string COMMTEST(argv[2]);
 		string Aname(argv[3]);
 		string Bname(argv[4]);
-		string Cname(argv[5]);
 
 		if(myrank == 0 || nprocs == 1) {
 		std::cout << Aname << std::endl;
 		std::cout << Bname << std::endl;
-		std::cout << Cname << std::endl;
 		std::cout << nprocs << std::endl;
 		std::string filename = "output" + Aname.substr(0, Aname.length() - 4) + ".txt";
 
@@ -132,13 +130,11 @@ int main(int argc, char *argv[])
 		PSpMat<double>::MPI_DCCols A(fullWorld);
 		PSpMat<double>::MPI_DCCols B(fullWorld);
 		PSpMat<double>::MPI_DCCols C(fullWorld);
-		PSpMat<double>::MPI_DCCols CControl(fullWorld);
 
 		A.ParallelReadMM(Aname, true, maximum<double>());
 #ifndef NOGEMM
 		B.ParallelReadMM(Bname, true, maximum<double>());
 
-		CControl.ParallelReadMM(Cname, true, maximum<double>());
 #endif
 		//A.PrintInfo();
 
@@ -149,75 +145,16 @@ int main(int argc, char *argv[])
 		HANDLE_ERROR(cudaGetLastError());
 		double t4 = MPI_Wtime();
 		std::cout << "Time taken: " << t4 - t3 << std::endl;
-
-		SpDCCols<uint32_t, double> spdcsc = C.seq();
-		Dcsc<uint32_t, double> *dcsc = C.seq().GetDCSC();
-		double maxdiff = 0;
-		double a = 0;
-		double b = 0;
-		for (int i = 0; i < spdcsc.getnnz(); ++i)
-		{
-			if (abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]) > maxdiff)
-			{
-				maxdiff = abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]);
-				a = dcsc->numx[i];
-				b = CControl.seq().GetDCSC()->numx[i];
-			}
-		}
-		//std::cout << "MAX DIFF = " << maxdiff << std::endl;
-		//std::cout << a << std::endl;
-		//std::cout << b << std::endl;
 		
 		C.PrintInfo();
 		cudaDeviceSynchronize();
-		if (CControl == C)
-		{
-		//	SpParHelper::Print("Double buffered multiplication working correctly\n");
-		}
-		else
-		{
-			SpParHelper::Print("ERROR in double CUDA from source file!\n");
-		}
 		{ // force the calling of C's destructor
 			t3 = MPI_Wtime();
 			//C = Mult_AnXBn_DoubleBuff<MinPlusSRing, ElementType, PSpMat<ElementType>::DCCols>(A, B);
-			CControl = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
+			C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols>(A, B);
 			t4 = MPI_Wtime();
 			std::cout << "Time taken: " << t4 - t3 << std::endl;
 			C.PrintInfo();
-			if (CControl == C)
-			{
-			//	SpParHelper::Print("Double buffered multiplication working correctly\n");
-			}
-			else
-			{
-				SpParHelper::Print("ERROR in double CUDA  buffered multiplication, from CPU!\n");
-				A.PrintInfo();
-				C.PrintInfo();
-				CControl.PrintInfo();
-				SpDCCols<uint32_t, double> spdcsc = C.seq();
-		Dcsc<uint32_t, double> *dcsc = C.seq().GetDCSC();
-		double maxdiff = 0;
-		double a = 0;
-		double b = 0;
-		for (int i = 0; i < spdcsc.getnnz(); ++i)
-		{
-			if (abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]) > maxdiff)
-			{
-				maxdiff = abs(dcsc->numx[i] - CControl.seq().GetDCSC()->numx[i]);
-				a = dcsc->numx[i];
-				b = CControl.seq().GetDCSC()->numx[i];
-			}
-		}
-		std::cout << "MAX DIFF = " << maxdiff << std::endl;
-		std::cout << a << std::endl;
-		std::cout << b << std::endl;
-			}
-			// int64_t cnnz = C.getnnz();
-			// ostringstream tinfo;
-			// tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
-			// SpParHelper::Print(tinfo.str());
-			//SpParHelper::Print("Warmed up for DoubleBuff\n");
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(1, "SpGEMM_DoubleBuff");
