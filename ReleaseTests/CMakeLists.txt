@@ -1,7 +1,13 @@
 # Top level directory has the include files
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 ADD_EXECUTABLE( MultTest MultTest.cpp )
+cuda_add_executable( MultTimingCUDA MultTimingCUDA.cu)
+target_compile_options(MultTimingCUDA PRIVATE -Mlarge_arrays)
+cuda_add_executable( MultAccuracyCUDA MultAccuracyCUDA.cu)
+
+
 ADD_EXECUTABLE( ReduceTest ReduceTest.cpp )
 ADD_EXECUTABLE( TransposeTest TransposeTest.cpp )
 ADD_EXECUTABLE( IteratorTest IteratorTest.cpp )
@@ -21,7 +27,11 @@ ADD_EXECUTABLE( KTipsTest KTipsTest.cpp )
 
 TARGET_LINK_LIBRARIES( MultTiming CombBLAS)
 TARGET_LINK_LIBRARIES( MultTest CombBLAS)
-TARGET_LINK_LIBRARIES( ReduceTest CombBLAS)
+
+
+TARGET_LINK_LIBRARIES( MultTimingCUDA CombBLAS)
+TARGET_LINK_LIBRARIES( MultAccuracyCUDA CombBLAS)
+TARGET_LINK_LIBRARIES( ReduceTest CombBLAS MPI::MPI_CXX)
 TARGET_LINK_LIBRARIES( TransposeTest CombBLAS)
 TARGET_LINK_LIBRARIES( IteratorTest CombBLAS)
 TARGET_LINK_LIBRARIES( IndexingTest CombBLAS)
@@ -40,6 +50,7 @@ TARGET_LINK_LIBRARIES( KTipsTest CombBLAS)
 
 ADD_TEST(NAME GenMMWrite_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:GenWrMat> 20 16 1 scale20_ef16_symmetric.mtx)
 ADD_TEST(NAME Multiplication_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:MultTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx ../TESTDATA/x_65536_halfdense.txt ../TESTDATA/y_65536_halfdense.txt )
+ADD_TEST(NAME Multiplication_Test_CUDA COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:MultTimingCUDA> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx ../TESTDATA/x_65536_halfdense.txt ../TESTDATA/y_65536_halfdense.txt )
 ADD_TEST(NAME SpGEMM3D_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 16 $<TARGET_FILE:SpGEMM3DTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx )
 ADD_TEST(NAME HashSpGEMMTest COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:HashSpGEMMTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx )
 ADD_TEST(NAME Reduction_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:ReduceTest> ../TESTDATA/sprand10000 ../TESTDATA/sprand10000_sumcols ../TESTDATA/sprand10000_sumrows)
