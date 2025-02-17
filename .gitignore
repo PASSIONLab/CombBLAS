@@ -21,5 +21,3 @@ test/temp_fullydistvec
 *.o
 SpGEMM3D
 mcl3d
-.cache
-build
