@@ -1,6 +1,22 @@
 #include <cstdlib>
 
+// Insert compatibility layer
+// Aydin Buluc, March 2025
+
+#ifdef THREADED
+        #ifndef _OPENMP
+        #define _OPENMP
+        #endif
+#endif
+
+#if defined(_OPENMP)
 #include <omp.h>
+#else
+static int omp_get_thread_num (void) { return 0; }
+static int omp_get_num_threads (void) { return 1; }
+static int omp_get_max_threads (void) { return 1; }
+#endif
+
 #include <iterator>
 #include <vector>
 #include <algorithm>

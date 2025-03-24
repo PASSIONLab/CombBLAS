@@ -12,8 +12,6 @@
 #include "CombBLAS/CombBLAS.h"
 #include "BPMaximalMatching.h"
 #include "BPMaximumMatching.h"
-#include <parallel/algorithm>
-#include <parallel/numeric>
 #include <memory>
 #include <limits>
 
@@ -563,7 +561,11 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
     double tstart = MPI_Wtime();
     
     // Step 1: Sort for effecient searching of indices
+#if defined(GNU_PARALLEL) && defined(_OPENMP)
     __gnu_parallel::sort(recvTuples.begin(), recvTuples.end());
+#else
+    std::sort(recvTuples.begin(), recvTuples.end());
+#endif
     std::vector<std::vector<std::tuple<IT,IT, IT, NT>>> tempTuples1 (param.nprocs);
     
     std::vector<int> sendcnt(param.nprocs,0); // number items to be sent to each processor
