@@ -1209,7 +1209,6 @@ template <typename _BinaryOperation>
 void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool onebased, _BinaryOperation BinOp)
 {
     int64_t gnnz;	// global nonzeros (glen is already declared as part of this class's private data)
-    int64_t linesread = 0;
 
     FILE *f;
     int myrank = commGrid->GetRank();

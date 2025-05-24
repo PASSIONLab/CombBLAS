@@ -781,10 +781,6 @@ int CalculateNumberOfPhases (SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> 
     
     int phases;
 
-    typedef typename UDERA::LocalIT LIA;
-    typedef typename UDERB::LocalIT LIB;
-    typedef typename UDERO::LocalIT LIC;
-    
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     

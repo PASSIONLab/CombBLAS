@@ -5,7 +5,7 @@ INCADD = -I$(COMBBLAS)/include/ -I$(COMBBLAS)/psort-1.0/include/ -I$(COMBBLAS)/u
 
 OPT = -O3 -DMPICH_IGNORE_CXX_SEEK #-DNDEBUG (disables important assertions)
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DCOMBBLAS_DEBUG
-COMPILER = mpicxx -cxx=g++-9 -std=c++14 -DTHREADED -fopenmp
+COMPILER = mpicxx -std=c++14 -DTHREADED -fopenmp
 FLAGS = $(OPT) -Wall -Wno-maybe-uninitialized 
 
 #
@@ -18,7 +18,7 @@ CommGrid.o:	$(COMBBLAS_SRC)/CommGrid.cpp $(COMBBLAS_INC)/CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS_SRC)/CommGrid.cpp 
 
 mmio.o: $(COMBBLAS_SRC)/mmio.c
-	mpicc -cc=gcc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
+	mpicc $(INCADD) $(FLAGS) -c -o mmio.o $(COMBBLAS_SRC)/mmio.c
 
 MPIType.o:	$(COMBBLAS_SRC)/MPIType.cpp $(COMBBLAS_INC)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS_SRC)/MPIType.cpp 
