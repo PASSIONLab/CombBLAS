@@ -54,6 +54,7 @@ public:
 
 	Dcsc (IT nnz, const std::vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
 	Dcsc (StackEntry<NT, std::pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
+    Dcsc (IT * colptrs, IT * rowinds, NT * vals, IT ncols, IT nonzeros);           // CSC -> DCSC constructor (except that CSC's internals are passed)
 
 	Dcsc (const Dcsc<IT,NT> & rhs);				// copy constructor
 	Dcsc<IT,NT> & operator=(const Dcsc<IT,NT> & rhs);	// assignment operator

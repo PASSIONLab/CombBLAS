@@ -189,6 +189,53 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, std::pair<IT,IT> > * mul
 
 
 /**
+  * constructs DCSC from CSC internals
+  * rowinds and vals are reused (moved) into the DCSC format to avoid copies
+  * so they should not be deleted by the caller
+  * colptrs are destructed here as well
+  */
+template <class IT, class NT>
+Dcsc<IT,NT>::Dcsc (IT * colptrs, IT * rowinds, NT * vals, IT ncols, IT nonzeros):
+    nz(nonzeros)
+{
+        IT cur = colptrs[0];
+        IT emptycols = 0;
+        for (IT i=0; i< ncols; i++)
+        {
+            while(cur == colptrs[i+1] && i < ncols)
+            {
+                i++;
+                emptycols++;
+            }
+            cur = colptrs[i+1];
+        }
+        
+        nzc = ncols-emptycols;
+        std::cout << "total nzc in new array is " << nzc << std::endl;
+
+        assert((nzc != 0) );
+        cp = new IT[nzc+1];
+        jc = new IT[nzc];
+        
+        IT curnzc = 0;
+        cp[0] = colptrs[0];
+        for (IT i=0; i< ncols; i++)
+        {
+            if(cp[curnzc] == colptrs[i+1]) continue;
+            else
+            {
+                cp[curnzc+1] = colptrs[i+1];
+                jc[curnzc] = i;  // whenever there is a change, I register the previous index
+                curnzc++;
+            }
+        }
+        assert((nzc == curnzc));
+        ir = rowinds;
+        numx = vals;
+        delete [] colptrs;
+}
+
+/**
   * Creates DCSC structure from an array of StackEntry's
   * \remark Complexity: O(nnz)
   */

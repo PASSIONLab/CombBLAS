@@ -888,7 +888,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     // construct an array of size nnz to record the relative
     // position of a nonzero element in corresponding column
     // this is what allows us to parallelize the last loop
-    IT * dloc = new IT[nnz]();
+    IT * dloc = new IT[nnz]();  // also initialize to zero
     #pragma omp parallel for schedule(dynamic)
     for (IT i=0; i < mynzc; i++)
     {
@@ -926,39 +926,11 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
             newrowindices[loc] = colid;
             newvalues[loc] = mydcsc->numx[j];
         }
-        delete[] dloc;
     }
-    
-    IT cur = cscColPtr[0];
-    IT newnzc = 0;
-    for (IT i=0; i< m; i++)
-    {
-        while(cur == cscColPtr[i+1] && i < m) i++;
-        
-        newnzc++; // now cscColPtr[i+1] != cur (which means we got a new nonzero column registered)
-    }
-    cout << "total nzc in new array is " << newnzc << endl;
+    delete[] dloc;
 
-    assert(newnzc != 0 );
-    IT * newcp = new IT[newnzc+1];    // to be shrinked
-    IT * newjc = new IT[newnzc];    // to be shrinked
     
-    IT curnzc = 0;
-    newcp[0] = cscColPtr[0];
-    newjc[0] = 0;
-    for (IT i=0; i< m; i++)
-    {
-        if(newcp[curnzc] == cscColPtr[i+1]) continue;
-        else
-        {
-            newcp[curnzc+1] = cscColPtr[i+1];
-            newjc[curnzc] = i;  // ABAB: this needs to be fixed, I need to register what here?
-            curnzc++;
-        }
-        
-    }
-    
-    Dcsc<IT, NT> * newDcsc = new Dcsc<IT, NT>(newcp, newjc, newrowindices, newvalues, nnz, newnzc);
+    Dcsc<IT, NT> * newDcsc = new Dcsc<IT, NT>(cscColPtr, newrowindices, newvalues, m, nnz); // m is the new #columns
     return SpDCCols<IT,NT>(n, m, newDcsc);
 }
 
