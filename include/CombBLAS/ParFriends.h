@@ -1672,8 +1672,8 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 		B.spSeq = NULL;
 	}
 
-    delete ARecv;
-    delete BRecv;
+    delete[] ARecv;
+    delete[] BRecv;
 
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
