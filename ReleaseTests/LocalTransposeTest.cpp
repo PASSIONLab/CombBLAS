@@ -74,6 +74,8 @@ int main(int argc, char* argv[])
         else
         {
             SpParHelper::Print("ERROR in matrix transpose!\n");
+            localA.PrintInfo();
+            localAT.PrintInfo();
         }
     }
     MPI_Finalize();

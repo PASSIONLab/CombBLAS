@@ -869,8 +869,8 @@ void SpDCCols<IT,NT>::Transpose()
 
 
 /**
-  * O(nnz log(nnz)) time Transpose function
-  * \remarks Performs a lexicographical sort
+  * Really fast shared-memory parallel Transpose function
+  * \remarks Uses atomics and bucket sort
   * \remarks Const function (doesn't mutate the calling object)
   */
 template <class IT, class NT>
@@ -878,9 +878,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
 {
     std::atomic<int> * atomicColPtr = new std::atomic<int>[m];  // m is the number of rows, hence the new number of columns
     for (IT i=0; i < m; i++)
-    {
         atomicColPtr[i] = 0;
-    }
     
     Dcsc<IT, NT> * mydcsc = GetInternal();
     IT mynzc = mydcsc->nzc;
@@ -889,7 +887,10 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     // position of a nonzero element in corresponding column
     // this is what allows us to parallelize the last loop
     IT * dloc = new IT[nnz]();  // also initialize to zero
-    #pragma omp parallel for schedule(dynamic)
+    
+#ifdef THREADED
+#pragma omp parallel for schedule(dynamic)
+#endif
     for (IT i=0; i < mynzc; i++)
     {
         for(IT j=mydcsc->cp[i]; j < mydcsc->cp[i+1]; ++j)
@@ -900,22 +901,26 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
             // but second is to write the post incremented value to dloc so we can
             // use them as exact indices later in the second loop
             dloc[j] = std::atomic_fetch_add(&(atomicColPtr[rowid]), 1);
-
         }
     }
         
     IT * cscColPtr = new IT[m+1]; // pretend we are writing to CSC
     cscColPtr[0] = 0;
     for (IT i=0; i < m; i++)
-    {
         cscColPtr[i+1] = atomicColPtr[i] + cscColPtr[i]; // prefix sum (parallelize?)
-    }
+    
+    IT maxnnzpercol = *std::max_element(atomicColPtr, atomicColPtr+m);
+    
     delete [] atomicColPtr;
+    //std::copy( cscColPtr, cscColPtr+m+1, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+    //std::copy( dloc, dloc+nnz, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+
     
     IT * newrowindices = new IT[nnz];
     NT * newvalues = new NT[nnz];
-        
-    #pragma omp parallel for schedule(dynamic)
+#ifdef THREADED
+#pragma omp parallel for schedule(dynamic)
+#endif
     for (IT i=0; i < mynzc; i++)
     {
         IT colid = mydcsc->jc[i];   // remember, i is not the column id because this is dcsc
@@ -927,6 +932,52 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
             newvalues[loc] = mydcsc->numx[j];
         }
     }
+    
+    
+    int myThread = 0;
+    int numThreads = 1;
+
+#ifdef THREADED
+#pragma omp parallel
+#endif
+    {
+        numThreads = omp_get_num_threads();
+        myThread = omp_get_thread_num();
+    }
+    std::vector< std::vector< std::pair<IT,NT> > > workspaces(numThreads);
+#ifdef THREADED
+#pragma omp parallel
+#endif
+    {
+        workspaces[myThread].reserve(maxnnzpercol); // max-per-column pre-transpose is max-per-row post transpose
+    }
+        
+    
+    // the issue with the above code is that row indices within a column might not be sorted (depending on parallelism)
+    // not we need to fix that as some downstream DCSC applications might ask for it (ABAB: does it?)
+#ifdef THREADED
+#pragma omp parallel for schedule(dynamic)
+#endif
+    for (IT i=0; i<m; ++i)
+    {
+        int tid = omp_get_thread_num();
+        for(IT j=cscColPtr[i]; j<cscColPtr[i+1]; ++j)
+        {
+            workspaces[tid].emplace_back(std::make_pair(newrowindices[j], newvalues[j]));
+        }
+        std::sort(workspaces[tid].begin(), workspaces[tid].end());
+        
+        size_t index = 0;
+        for(IT j=cscColPtr[i]; j<cscColPtr[i+1]; ++j)
+        {
+            newrowindices[j] =  workspaces[tid][index].first;
+            newvalues[j] = workspaces[tid][index].second;
+            index++;
+        }
+
+        workspaces[tid].clear();    // After this call, size() returns zero. Calling clear() does not affect the result of capacity().
+    }
+    
     delete[] dloc;
 
     

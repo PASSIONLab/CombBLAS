@@ -211,7 +211,7 @@ Dcsc<IT,NT>::Dcsc (IT * colptrs, IT * rowinds, NT * vals, IT ncols, IT nonzeros)
         }
         
         nzc = ncols-emptycols;
-        std::cout << "total nzc in new array is " << nzc << std::endl;
+     //   std::cout << "total nzc in new array is " << nzc << std::endl;
 
         assert((nzc != 0) );
         cp = new IT[nzc+1];
@@ -520,10 +520,21 @@ template <class IT, class NT>
 bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 {
 	if(nzc != rhs.nzc) return false;
+
 	bool same = std::equal(cp, cp+nzc+1, rhs.cp);
 	same = same && std::equal(jc, jc+nzc, rhs.jc);
 	same = same && std::equal(ir, ir+nz, rhs.ir);
+    
+  //  std::copy( cp, cp+nzc+1, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+  //  std::copy( rhs.cp, rhs.cp+rhs.nzc+1, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+    
+  //  std::copy( ir, ir+nz, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+  //  std::copy( rhs.ir, rhs.ir+rhs.nz, std::ostream_iterator<IT>( std::cout, " ")); std::cout << std::endl;
+    
+  //  std::copy( numx, numx+nz, std::ostream_iterator<NT>( std::cout, " ")); std::cout << std::endl;
+  //  std::copy( rhs.numx, rhs.numx+rhs.nz, std::ostream_iterator<NT>( std::cout, " ")); std::cout << std::endl;
 	
+//#define DEBUG
 #ifdef DEBUG
   std::vector<NT> error(nz);
   std::transform(numx, numx+nz, rhs.numx, error.begin(), absdiff<NT>());

@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
 #set(CMAKE_BUILD_TYPE Debug)
 
+#set(CMAKE_BUILD_TYPE Release)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g -fsanitize=thread")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 # Main CombBLAS library
 add_library(CombBLAS src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp)
 
@@ -34,6 +39,7 @@ else()
   target_link_libraries(CombBLAS PUBLIC "${MPI_CXX_LIBRARIES}" "${MPI_CXX_LINKFLAGS}")
   target_include_directories(CombBLAS PUBLIC "${MPI_CXX_INCLUDE_PATH}")
 endif()
+
 
 if(TARGET OpenMP::OpenMP_CXX) # Use target if available (CMake >= 3.9)
   target_compile_definitions(CombBLAS PUBLIC THREADED)
