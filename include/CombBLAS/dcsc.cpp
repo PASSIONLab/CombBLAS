@@ -202,12 +202,14 @@ Dcsc<IT,NT>::Dcsc (IT * colptrs, IT * rowinds, NT * vals, IT ncols, IT nonzeros)
         IT emptycols = 0;
         for (IT i=0; i< ncols; i++)
         {
-            while(cur == colptrs[i+1] && i < ncols)
+            if( cur == colptrs[i+1])
             {
-                i++;
                 emptycols++;
             }
-            cur = colptrs[i+1];
+            else
+            {
+                cur = colptrs[i+1];
+            }
         }
         
         nzc = ncols-emptycols;

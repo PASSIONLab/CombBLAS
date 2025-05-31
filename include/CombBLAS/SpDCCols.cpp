@@ -934,23 +934,26 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     }
     
     
-    int myThread = 0;
     int numThreads = 1;
-
 #ifdef THREADED
 #pragma omp parallel
 #endif
     {
         numThreads = omp_get_num_threads();
-        myThread = omp_get_thread_num();
     }
     std::vector< std::vector< std::pair<IT,NT> > > workspaces(numThreads);
 #ifdef THREADED
 #pragma omp parallel
-#endif
     {
+        int myThread = omp_get_thread_num();
         workspaces[myThread].reserve(maxnnzpercol); // max-per-column pre-transpose is max-per-row post transpose
     }
+#else
+    {
+        workspaces[0].reserve(maxnnzpercol);
+    }
+#endif
+
         
     
     // the issue with the above code is that row indices within a column might not be sorted (depending on parallelism)
