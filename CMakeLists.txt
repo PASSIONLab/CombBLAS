@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # require c++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -23,14 +23,40 @@ else()
   target_compile_features(CombBLAS PUBLIC cxx_return_type_deduction)
 endif()
 
+
 # set include directories
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(CombBLAS PRIVATE include/CombBLAS)
 
-# MPI and OpenMP dependencies
+# MPI and OpenMP and CUDA dependencies
 find_package(MPI REQUIRED)
 find_package(OpenMP)
+# This needs to be split based on if CMake >= 3.17, as this is deprecated above that
+find_package(CUDA)
+
+
+if(CUDA_FOUND)
+  #target_compile_definitions(CombBLAS PUBLIC GPU_ENABLED)
+  enable_language(CUDA)
+  #set(CUDA_HOST_COMPILER "nvc++") # NVHPC requires this...sorry if this causes any issues for anyone
+  set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" "--ftemplate-backtrace-limit 1 --expt-relaxed-constexpr --disable-warnings")
+  #FILE(GLOB_RECURSE MyCSources *)
+  #FILE(GLOB_RECURSE MyHSources *.h*)
+  #cset_source_files_properties(${MyCSources} PROPERTIES LANGUAGE CUDA)
+  #set_source_files_properties(src/CommGrid.cpp src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp PROPERTIES LANGUAGE CXX)
+  #set_source_files_properties(src/mmio.c PROPERTIES LANGUAGE C)
+  # Hack to avoid using #include
+  #target_link_libraries(CombBLAS PUBLIC ${CUDA_LIBRARIES})
+  #cuda_compile(CUDASpGEMM include/CombBLAS/cudaSpGEMM.cu)
+  #target_sources(CombBLAS PRIVATE ${CUDASpGEMM})
+  set(THREADS_PREFER_PTHREAD_FLAG OFF)
+  set_property(TARGET Threads::Threads
+				 PROPERTY INTERFACE_COMPILE_OPTIONS $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler -pthread>
+													"$<$<NOT:$<COMPILE_LANGUAGE:CUDA>>:-pthread>")
+else()
+  message(STATUS "CUDA features disabled")
+endif()
 
 if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
   target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
@@ -49,6 +75,9 @@ elseif(OPENMP_FOUND)
   target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
   target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
 endif()
+
+
+
 
 add_subdirectory(usort)
 target_link_libraries(CombBLAS PUBLIC Usortlib)
@@ -121,6 +150,9 @@ install(
 # Testing
 enable_testing()
 include(CTest)
+
+# Warnings cause the compiler to crash, surpress them to prevent that
+add_definitions(-w)
 
 add_subdirectory(ReleaseTests)
 add_subdirectory(Applications)

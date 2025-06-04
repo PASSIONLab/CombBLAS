@@ -92,7 +92,7 @@ SpParMat< IT,NT,DER >::SpParMat ()
 	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
-}
+} 
 
 /**
 * If there is a single file read by the master process only, use this and then call ReadDistribute()
