@@ -273,9 +273,14 @@ public:
 	void EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);
 	void EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
 	void SetDifference (const SpDCCols<IT,NT> & rhs);
-	
-	void Transpose();				//!< Mutator version, replaces the calling object 
-	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
+
+	//!< Mutator version, replaces the calling object, slow but correct, for check use
+	void DeprecatedTranspose();
+	//!< Mutator version, replaces the calling object, fast
+	void Transpose();
+	//!< Const version, doesn't touch the existing object
+	SpDCCols<IT,NT> TransposeConst() const;
+	//!< Const version, doesn't touch the existing object, allocate memory inside, return pointer
 	SpDCCols<IT,NT> * TransposeConstPtr() const;
 
 	void RowSplit(int numsplits)
