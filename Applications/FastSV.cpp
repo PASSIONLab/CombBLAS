@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
         }
 
         FullyDistVec<Int, Int> ColSums = A.Reduce(Column, plus<Int>(), 0.0);
-        FullyDistVec<Int, Int> isov = ColSums.FindInds(bind2nd(equal_to<Int>(), 0));
+        FullyDistVec<Int, Int> isov = ColSums.FindInds([](Int val){return val == 0;});
         outs.str("");
         outs.clear();
         outs << "isolated vertice: " << isov.TotalLength() << endl;

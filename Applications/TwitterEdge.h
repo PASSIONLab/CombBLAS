@@ -305,7 +305,7 @@ void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 
 MPI_Op LatestRetwitterBFS::MPI_BFSADD;
 
-struct getfringe: public std::binary_function<ParentType, ParentType, ParentType>
+struct getfringe
 {
   	ParentType operator()(ParentType x, const ParentType & y) const
 	{
@@ -316,7 +316,7 @@ struct getfringe: public std::binary_function<ParentType, ParentType, ParentType
 
 // x: Parent type (always 1 if exits, sparse)
 // y: degree (dense)
-struct seldegree: public std::binary_function<ParentType, int64_t, int64_t>
+struct seldegree
 {
   	int64_t operator()(ParentType x, const int64_t & y) const
 	{
@@ -326,7 +326,7 @@ struct seldegree: public std::binary_function<ParentType, int64_t, int64_t>
 };
 
 // This is like an "isparentset" with the extra parameter that we don't care
-struct passifthere: public std::binary_function<ParentType, int64_t, bool>
+struct passifthere
 {
   	bool operator()(ParentType x, const int64_t & y) const
 	{
@@ -336,7 +336,7 @@ struct passifthere: public std::binary_function<ParentType, int64_t, bool>
 };
 
 // DoOp for MIS's EWiseApply
-struct is2ndSmaller: public std::binary_function<double, double, bool>
+struct is2ndSmaller
 {
   	bool operator()(double m, double c) const
 	{
@@ -345,7 +345,7 @@ struct is2ndSmaller: public std::binary_function<double, double, bool>
 };
 
 // BinOp for MIS's EWiseApply
-struct return1_uint8: public std::binary_function<double, double, uint8_t>
+struct return1_uint8
 {
 	uint8_t operator() (double t1, double t2)
 	{
@@ -358,7 +358,7 @@ struct return1_uint8: public std::binary_function<double, double, uint8_t>
 // return true for edges that are not filtered out, and not previously discovered
 // if the edge was filtered out, then x would be ParentType()
 // if y was already discovered its parent would NOT be ParentType()
-struct keepinfrontier_f: public std::binary_function<ParentType, ParentType, bool>
+struct keepinfrontier_f
 {
   	bool operator()(ParentType x, const ParentType & y) const
 	{
@@ -367,7 +367,7 @@ struct keepinfrontier_f: public std::binary_function<ParentType, ParentType, boo
 	
 };
 
-struct isparentset: public std::unary_function<ParentType, bool>
+struct isparentset
 {
   	bool operator()(const ParentType & x) const
 	{
