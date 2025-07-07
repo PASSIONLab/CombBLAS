@@ -605,6 +605,101 @@ void SpParHelper::BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, cons
   * 		For all others, it is a (yet) empty object to be filled by the received data}
   * @param[in] essentials {irrelevant for the root}
  **/
+
+#ifdef __CUDACC__
+
+double commtime = 0;
+int comms = 0;
+int datahits = 0;
+
+int rowshits = 0;
+
+int colhits = 0;
+
+
+template<typename IT, typename NT>	
+void SpParHelper::BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const std::vector<IT> & essentials, int root, int GPUTradeoff)
+{
+	comms += 1;
+	double t1 = MPI_Wtime();
+	cudaDeviceSynchronize();
+	int myrank;
+	MPI_Comm_rank(comm1d, &myrank);
+	if(myrank != root)
+	{
+		Matrix.alloc(essentials[2],essentials[1],essentials[0],true);		
+	}
+	
+	//if(sizeof(uint)*(Matrix.nnz) <= 32000) std::cout << "UNDER COLS" << std::endl;
+	//if(sizeof(NT)*(Matrix.nnz) <= 32000) std::cout << "UNDER DATA" << std::endl;
+	//std::cout << myrank << " " <<  Matrix.rows << " " << Matrix.cols << " " << Matrix.nnz << std::endl;
+	cudaDeviceSynchronize();
+	//std::cout << myrank << " BCASTING FIRST FROM " << root << std::endl;
+	//if(!essentials[0]) return;
+	//size_t free;
+	//size_t total;
+	//cudaMemGetInfo(&free, &total);
+	//std::cout << myrank << " has " << free << " of " << total << std::endl;
+	//int GPUTradeoff = 1024 * 1024;
+	//std::cout << GPUTradeoff << std::endl;
+	if(sizeof(uint)*(Matrix.rows + 1) >= GPUTradeoff) {
+		rowshits += 1;
+		MPI_Bcast(Matrix.row_offsets, Matrix.rows + 1, MPIType<uint>(), root, comm1d);
+	} else {
+		uint* temp = (uint*) malloc(sizeof(uint)*(Matrix.rows + 1));
+		if(myrank == root) cudaMemcpy(temp, Matrix.row_offsets, (Matrix.rows + 1)*sizeof(uint), cudaMemcpyDeviceToHost);
+		cudaDeviceSynchronize();
+		MPI_Bcast(temp, Matrix.rows + 1, MPIType<uint>(), root, comm1d);
+		cudaDeviceSynchronize();
+		if(myrank != root) cudaMemcpy(Matrix.row_offsets, temp, (Matrix.rows + 1)*sizeof(uint), cudaMemcpyHostToDevice);
+		free(temp);
+	}
+	
+	cudaDeviceSynchronize();
+	//std::cout << myrank << " BCASTING SECOND" << std::endl;
+	if(sizeof(uint)*(Matrix.nnz) >= GPUTradeoff) {
+		colhits += 1;
+		MPI_Bcast(Matrix.col_ids, Matrix.nnz, MPIType<uint>(), root, comm1d);
+	} else {
+		//std::cout << "ACTIVATED WOOHOO" << std::endl;
+		uint* temp = (uint*) malloc(sizeof(uint)*Matrix.nnz);
+		if(myrank == root) cudaMemcpy(temp, Matrix.col_ids, Matrix.nnz*sizeof(uint), cudaMemcpyDeviceToHost);
+		cudaDeviceSynchronize();
+		MPI_Bcast(temp, Matrix.nnz, MPIType<uint>(), root, comm1d);
+		cudaDeviceSynchronize();
+		if(myrank != root) cudaMemcpy(Matrix.col_ids, temp, Matrix.nnz*sizeof(uint), cudaMemcpyHostToDevice);
+		free(temp);
+		//MPI_Bcast(Matrix.col_ids, Matrix.nnz, MPIType<uint>(), root, comm1d);
+	}
+	
+	cudaDeviceSynchronize();
+	//std::cout << "BCASTING 2 " << myrank << std::endl;
+	if(sizeof(NT)*(Matrix.nnz) >= GPUTradeoff) {
+		datahits += 1;
+		MPI_Bcast(Matrix.data, Matrix.nnz, MPIType<NT>(), root, comm1d);	
+	} else {
+		//std::cout << "WE ARE ON" << std::endl;
+		NT* temp = (NT*) malloc(sizeof(NT)*Matrix.nnz);
+		if(myrank == root) cudaMemcpy(temp, Matrix.data, Matrix.nnz*sizeof(NT), cudaMemcpyDeviceToHost);
+		cudaDeviceSynchronize();
+		MPI_Bcast(temp, Matrix.nnz, MPIType<NT>(), root, comm1d);
+		cudaDeviceSynchronize();
+		if(myrank != root) cudaMemcpy(Matrix.data, temp, Matrix.nnz*sizeof(NT), cudaMemcpyHostToDevice);
+		free(temp);
+	}
+	
+	cudaDeviceSynchronize();
+	//std::cout << "BCAST DONE " << myrank << std::endl;
+	commtime += MPI_Wtime() - t1;
+}
+
+#endif
+
+/**
+  * @param[in] Matrix {For the root processor, the local object to be sent to all others.
+  * 		For all others, it is a (yet) empty object to be filled by the received data}
+  * @param[in] essentials {irrelevant for the root}
+ **/
 template<typename IT, typename NT, typename DER>	
 void SpParHelper::IBCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root, std::vector<MPI_Request> & indarrayReq , std::vector<MPI_Request> & numarrayReq)
 {

@@ -42,6 +42,7 @@
 #include "MPIType.h"
 #include "SpDefs.h"
 #include "psort/psort.h"
+#include "../GALATIC/include/dCSR.cuh"
 
 namespace combblas {
 
@@ -79,6 +80,11 @@ public:
 
 	template<typename IT, typename NT, typename DER>	
 	static void BCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root);
+
+#ifdef __CUDACC__
+	template<typename IT, typename NT>	
+	static void BCastMatrixCUDA(MPI_Comm & comm1d, dCSR<NT> & Matrix, const std::vector<IT> & essentials, int root, int GPUTradeoff=1024*1024);
+#endif
 
 	template<typename IT, typename NT, typename DER>	
 	static void IBCastMatrix(MPI_Comm & comm1d, SpMat<IT,NT,DER> & Matrix, const std::vector<IT> & essentials, int root, std::vector<MPI_Request> & indarrayReq , std::vector<MPI_Request> & numarrayReq);

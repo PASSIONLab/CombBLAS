@@ -68,11 +68,11 @@
 ////////////// min, max etc. //////////////////////////////////////
 
 #ifndef Max
-#define Max(x,y) ((x)>=(y)?(x):(y))
+//#define Max(x,y) ((x)>=(y)?(x):(y))
 #endif
 
 #ifndef Min
-#define Min(x,y) ((x)<=(y)?(x):(y))
+//#define Min(x,y) ((x)<=(y)?(x):(y))
 #endif
 
 #ifndef Abs

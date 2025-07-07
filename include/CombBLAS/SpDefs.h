@@ -118,8 +118,8 @@ Row
 
 
 // force 8-bytes alignment in heap allocated memory
-#ifndef ALIGN
-#define ALIGN 8
+#ifndef ALIGNX
+#define ALIGNX 8
 #endif
 
 #ifndef THRESHOLD
