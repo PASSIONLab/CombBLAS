@@ -35,6 +35,7 @@
 #include <climits>
 #include <iomanip>
 #include <cassert>
+#include <atomic>
 
 namespace combblas {
 
@@ -845,6 +846,22 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 	return arr;
 }
 
+	template <class IT, class NT>void SpDCCols<IT,NT>::DeprecatedTranspose()
+{
+	if(nnz > 0)
+	{
+		SpTuples<IT,NT> Atuples(*this);
+		Atuples.SortRowBased();
+
+		// destruction of (*this) is handled by the assignment operator
+		*this = SpDCCols<IT,NT>(Atuples,true);
+	}
+	else
+	{
+		*this = SpDCCols<IT,NT>(0, n, m, 0);
+	}
+}
+
 /**
   * O(nnz log(nnz)) time Transpose function
   * \remarks Performs a lexicographical sort
@@ -855,11 +872,8 @@ void SpDCCols<IT,NT>::Transpose()
 {
 	if(nnz > 0)
 	{
-		SpTuples<IT,NT> Atuples(*this);
-		Atuples.SortRowBased();
-
-		// destruction of (*this) is handled by the assignment operator
-		*this = SpDCCols<IT,NT>(Atuples,true);
+		auto tmp = TransposeConst();
+		*this = tmp;
 	}
 	else
 	{
@@ -996,10 +1010,8 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
 template <class IT, class NT>
 SpDCCols<IT,NT> * SpDCCols<IT,NT>::TransposeConstPtr() const
 {
-	SpTuples<IT,NT> Atuples(*this);
-	Atuples.SortRowBased();
-	
-	return new SpDCCols<IT,NT>(Atuples,true);
+	auto tmp = TransposeConst();
+	return new SpDCCols<IT,NT>(tmp);
 }
 
 /** 
