@@ -921,7 +921,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     IT * cscColPtr = new IT[m+1]; // pretend we are writing to CSC
     cscColPtr[0] = 0;
     for (IT i=0; i < m; i++)
-        cscColPtr[i+1] = atomicColPtr[i] + cscColPtr[i]; // prefix sum (parallelize?)
+        cscColPtr[i+1] = static_cast<IT>(atomicColPtr[i]) + cscColPtr[i]; // prefix sum (parallelize?)
     
     IT maxnnzpercol = *std::max_element(atomicColPtr, atomicColPtr+m);
     
