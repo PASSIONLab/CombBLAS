@@ -158,7 +158,7 @@ void BFS_CSC(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int64_t> 
         double t2 = MPI_Wtime();
         tall += (t2 - t1);
         
-        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find([](int64_t val){return val > -1;});
         parentsp.Apply(myset<int64_t>(1));
         
         // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
@@ -244,7 +244,7 @@ void BFS_DCSC(PSpMat_s32p64 Aeff1, int64_t source, FullyDistVec<int64_t, int64_t
         double t2 = MPI_Wtime();
         tall += (t2 - t1);
         
-        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find([](int64_t val){return val > -1;});
         parentsp.Apply(myset<int64_t>(1));
         
         // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
@@ -334,7 +334,7 @@ void BFS_CSC_Split(PSpMat_s32p64 Aeff, int64_t source, FullyDistVec<int64_t, int
         double t2 = MPI_Wtime();
         tall += (t2-t1);
         
-        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+        FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find([](int64_t val){return val > -1;});
         parentsp.Apply(myset<int64_t>(1));
         
         // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
@@ -461,14 +461,15 @@ int main(int argc, char* argv[])
            
             FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
             A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
-            nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+            // only the indices of non-isolated vertices
+            nonisov = ColSums->FindInds([](int64_t val){return val > 0;});
             delete ColSums;
             
             if(randpermute)
                 nonisov.RandPerm();
             A(nonisov, nonisov, true);	// in-place permute to save memory
             degrees = degrees(nonisov);	// fix the degrees array too
-            FullyDistVec<int64_t, int64_t> newsource = nonisov.FindInds(bind2nd(equal_to<int64_t>(), source));
+            FullyDistVec<int64_t, int64_t> newsource = nonisov.FindInds([source](int64_t val){return val == source;});
             source = newsource.GetElement(0);
             degrees = degrees(nonisov);	// fix the source vertex too
             Aeff = PSpMat_s32p64(A);

@@ -921,7 +921,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     IT * cscColPtr = new IT[m+1]; // pretend we are writing to CSC
     cscColPtr[0] = 0;
     for (IT i=0; i < m; i++)
-        cscColPtr[i+1] = atomicColPtr[i] + cscColPtr[i]; // prefix sum (parallelize?)
+        cscColPtr[i+1] = static_cast<IT>(atomicColPtr[i]) + cscColPtr[i]; // prefix sum (parallelize?)
     
     IT maxnnzpercol = *std::max_element(atomicColPtr, atomicColPtr+m);
     
@@ -968,8 +968,6 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
     }
 #endif
 
-        
-    
     // the issue with the above code is that row indices within a column might not be sorted (depending on parallelism)
     // not we need to fix that as some downstream DCSC applications might ask for it (ABAB: does it?)
 #ifdef THREADED
@@ -982,8 +980,10 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
         {
             workspaces[tid].emplace_back(std::make_pair(newrowindices[j], newvalues[j]));
         }
-        std::sort(workspaces[tid].begin(), workspaces[tid].end());
-        
+    	// we only need to compare row id and should avoid compare the NT
+    	// because it's possible that NT compare function is not defined (e.g. in SpAsgnTest)
+        std::sort(workspaces[tid].begin(), workspaces[tid].end(),
+        	[](std::pair<IT,NT> &a,std::pair<IT,NT> &b){return a.first < b.first;});
         size_t index = 0;
         for(IT j=cscColPtr[i]; j<cscColPtr[i+1]; ++j)
         {
@@ -1323,7 +1323,12 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	else if(partA.nnz == 0)
 	{
 		Cdcsc = new Dcsc<IT,NT>(*(partB.dcsc));
-    std::transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, std::bind2nd(std::plus<IT>(), partA.n));
+		{
+			IT partAn = partA.n;
+			std::transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc,
+				[partAn](IT val){return val + partAn;});
+		}
+
 	}
 	else if(partB.nnz == 0)
 	{

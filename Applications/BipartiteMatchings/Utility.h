@@ -35,8 +35,8 @@ void removeIsolated(PARMAT & A)
 	 */
 	
 	// this steps for bipartite graph
-	nonisoColV = ColSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
-	nonisoRowV = RowSums->FindInds(bind2nd(std::greater<int64_t>(), 0));
+	nonisoColV = ColSums->FindInds([](int64_t val){ return val > 0; });
+	nonisoRowV = RowSums->FindInds([](int64_t val){ return val > 0; });
 	delete ColSums;
 	delete RowSums;
 	

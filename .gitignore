@@ -21,3 +21,5 @@ test/temp_fullydistvec
 *.o
 SpGEMM3D
 mcl3d
+.idea
+cmake-build-*

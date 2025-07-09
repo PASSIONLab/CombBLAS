@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include "CombBLAS/CombBLAS.h"
 #include "CombBLAS/ParFriends.h"
+#include <math.h>
 using namespace std;
 using namespace combblas;
 
@@ -182,7 +183,7 @@ template <typename IT, typename NT, typename DER>
 NT Chaos(SpParMat<IT,NT,DER> & A)
 {   
     // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+    FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0, [](NT val){return val * val;});
     // Matrix entries are non-negative, so max() can use zero as identity
     FullyDistVec<IT, NT> colmaxs = A.Reduce(Column, maximum<NT>(), 0.0);
     colmaxs -= colssqs;
@@ -201,7 +202,7 @@ NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
     std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
 
     // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, [](NT val){return val * val;});
     // Matrix entries are non-negative, so max() can use zero as identity
     FullyDistVec<IT, NT> colmaxs = ALayer->Reduce(Column, maximum<NT>(), 0.0);
     colmaxs -= colssqs;
@@ -220,7 +221,7 @@ NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
 template <typename IT, typename NT, typename DER>
 void Inflate(SpParMat<IT,NT,DER> & A, double power)
 {
-    A.Apply(bind2nd(exponentiate(), power));
+    A.Apply([power](NT val){return pow(NT, power);});
 }
 
 template <typename IT, typename NT, typename DER>
@@ -228,7 +229,7 @@ void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
 {
     //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
     std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-    ALayer->Apply(bind2nd(exponentiate(), power));
+    ALayer->Apply([power](NT val){return pow(NT, power);});
 }
 
 // default adjustloop setting
@@ -252,7 +253,7 @@ void RemoveIsolated(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 {
     ostringstream outs;
     FullyDistVec<IT, NT> ColSums = A.Reduce(Column, plus<NT>(), 0.0);
-    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(greater<NT>(), 0));
+    FullyDistVec<IT, IT> nonisov = ColSums.FindInds([](NT val){ return val > 0; });
     IT numIsolated = A.getnrow() - nonisov.TotalLength();
     outs << "Number of isolated vertices: " << numIsolated << endl;
     SpParHelper::Print(outs.str());
