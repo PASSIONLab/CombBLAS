@@ -694,7 +694,7 @@ SpTuples<IU,NU> MergeAll( const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU m
 			estnnz += ArrSpTups[i]->getnnz();
 			heap[i] = std::make_tuple(std::get<0>(ArrSpTups[i]->tuples[0]), std::get<1>(ArrSpTups[i]->tuples[0]), i);
 		}	
-		std::make_heap(heap, heap+hsize, [&](const auto& a, const auto& b) {
+		std::make_heap(heap, heap+hsize, [&heapcomp](const auto& a, const auto& b) {
 			return !heapcomp(a, b);
 		});
 
@@ -703,7 +703,7 @@ SpTuples<IU,NU> MergeAll( const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU m
 
 		while(hsize > 0)
 		{
-			std::pop_heap(heap, heap + hsize, [&](const auto& a, const auto& b) {
+			std::pop_heap(heap, heap + hsize, [&heapcomp](const auto& a, const auto& b) {
 			  return !heapcomp(a, b);
 		  });         // result is stored in heap[hsize-1]
 			int source = std::get<2>(heap[hsize-1]);

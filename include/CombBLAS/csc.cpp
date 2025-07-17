@@ -236,11 +236,9 @@ Csc<IT, NT>::Split (Csc<IT, NT> *	&A,
 	{
 		B = new Csc<IT, NT>(nz - jc[cut], n - cut);
 		std::copy(jc + cut, jc + n + 1, B->jc);
+        auto jccut = jc[cut];
 		transform(B->jc, B->jc + (n - cut + 1), B->jc,
-		// Lambdas can only capture variables with automatic storage duration,
-		// i.e., local variables — not member variables like this->jc.
-		// If jc is a class member, you should capture `this` in the lambda:
-		[this, cut](IT val) { return val - jc[cut]; }
+		[jccut](IT val) { return val - jccut; }
 		);
 		std::copy(ir + jc[cut], ir + nz, B->ir);
 		std::copy(num + jc[cut], num + nz, B->num);

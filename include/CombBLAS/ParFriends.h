@@ -3504,8 +3504,8 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
 #endif
         SpTuples<LIC,NUO> * C_cont = LocalSpGEMMHash<SR, NUO>
                             (*ARecv, *BRecv,    // parameters themselves
-                            i != Aself,         // 'delete A' condition
-                            i != Bself,         // 'delete B' condition
+                            false,         // 'delete A' condition
+                            false,         // 'delete B' condition
                             false);             // not to sort each column
 
         if(i != Bself && (!BRecv->isZero())) delete BRecv;

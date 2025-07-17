@@ -1894,8 +1894,9 @@ void SpParMat<IT,NT,DER>::MaskedReduce(FullyDistVec<GIT,VT> & rvec, FullyDistSpV
     std::partial_sum(rownz.begin(), rownz.end(), dpls.data()+1);
     int accnz = std::accumulate(rownz.begin(), rownz.end(), 0);
     std::vector<GIT> sendInd(locnnzMask);
+    auto rowlenuntil = mask.RowLenUntil();
 	std::transform(mask.ind.begin(), mask.ind.end(), sendInd.begin(),
-			   [mask](const GIT& val) { return val + mask.RowLenUntil(); });
+			   [rowlenuntil](const GIT& val) { return val + rowlenuntil; });
     
     std::vector<GIT> indMask(accnz);
     MPI_Allgatherv(sendInd.data(), rownz[rowrank], MPIType<GIT>(), indMask.data(), rownz.data(), dpls.data(), MPIType<GIT>(), RowWorld);

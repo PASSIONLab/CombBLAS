@@ -168,7 +168,7 @@ namespace vpsort {
 		    std::reverse_iterator<_RandomAccessIter> (out + disps[next]),
 		    std::reverse_iterator<_RandomAccessIter> (out),
 		    std::reverse_iterator<_RandomAccessIter> (out + disps[nproc]),
-		    [&](const auto& a, const auto& b) {
+		    [&comp](const auto& a, const auto& b) {
 		return !comp(a, b);
 	});
       } else {

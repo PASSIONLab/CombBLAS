@@ -221,7 +221,7 @@ NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
 template <typename IT, typename NT, typename DER>
 void Inflate(SpParMat<IT,NT,DER> & A, double power)
 {
-    A.Apply([power](NT val){return pow(NT, power);});
+    A.Apply([power](NT val){return pow(val, power);});
 }
 
 template <typename IT, typename NT, typename DER>
@@ -229,7 +229,7 @@ void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
 {
     //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
     std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-    ALayer->Apply([power](NT val){return pow(NT, power);});
+    ALayer->Apply([power](NT val){return pow(val, power);});
 }
 
 // default adjustloop setting

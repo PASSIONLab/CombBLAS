@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Multiplication time for un-altered Minc: %lf\n",t1-t0 );
             XNNZ = X.getnnz();
-            if (myrank == 0) fprintf(stderr, "nnz(X): %lld\n", XNNZ );
+            if (myrank == 0) fprintf(stderr, "nnz(X): %ld\n", XNNZ );
             X.ParallelWriteMM("randmat-X.mtx", 1);
         }
         if (myrank == 0) fprintf(stderr, "---\n");
@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
             //t1 = MPI_Wtime();
             //if (myrank == 0) fprintf(stderr, "Multiplication time for diagonal removed Minc: %lf\n",t1-t0 );
             //IT Cnnz = C.getnnz();
-            //if (myrank == 0) fprintf(stderr, "nnz after multiplication: %lld\n",Cnnz );
+            //if (myrank == 0) fprintf(stderr, "nnz after multiplication: %ld\n",Cnnz );
         //}
         ////MPI_Barrier(MPI_COMM_WORLD);
         ////for(int i = 0; i < 32; i++){
@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> MaskOffDiag(M);
 
             MaskNNZ = MaskOffDiag.getnnz();
-            if (myrank == 0) fprintf(stderr, "nnz(MaskOffDiag) before diagonal removal: %lld\n", MaskNNZ );
+            if (myrank == 0) fprintf(stderr, "nnz(MaskOffDiag) before diagonal removal: %ld\n", MaskNNZ );
 
             t0 = MPI_Wtime();
             FullyDistVec<IT, IT> iota( fullWorld );
@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
             IT RemovedNNZ = MaskOffDiag.RemoveLoops();
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to remove diagonal from Mask using RemoveLoops: %lf\n",t1-t0 );
-            if (myrank == 0) fprintf(stderr, "Number of loops removed: %lld\n", RemovedNNZ );
+            if (myrank == 0) fprintf(stderr, "Number of loops removed: %ld\n", RemovedNNZ );
 
             SpParMat<IT, NT, DER> D(M);
             t0 = MPI_Wtime();
@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to get diagonal matrix: %lf\n",t1-t0 );
             DNNZ = D.getnnz();
-            if (myrank == 0) fprintf(stderr, "DNNZ: %lld\n", DNNZ );
+            if (myrank == 0) fprintf(stderr, "DNNZ: %ld\n", DNNZ );
             D.ParallelWriteMM("randmat-D.mtx", 1);
 
             SpParMat<IT, NT, DER> A(M);
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to get off-diagonal matrix: %lf\n",t1-t0 );
             ANNZ = A.getnnz();
-            if (myrank == 0) fprintf(stderr, "ANNZ: %lld\n", ANNZ );
+            if (myrank == 0) fprintf(stderr, "ANNZ: %ld\n", ANNZ );
             A.ParallelWriteMM("randmat-A.mtx", 1);
 
             //A += D;
