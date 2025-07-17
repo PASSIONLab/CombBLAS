@@ -144,7 +144,7 @@ IT SerialMergeNNZ( const std::vector<SpTuples<IT,NT> *> & ArrSpTups)
         
     }
     std::make_heap(heap.data(), heap.data()+hsize,
-        [&](const auto& a, const auto& b) {
+        [&heapcomp](const auto& a, const auto& b) {
         return !heapcomp(a, b);
     });
     
@@ -153,7 +153,7 @@ IT SerialMergeNNZ( const std::vector<SpTuples<IT,NT> *> & ArrSpTups)
     while(hsize > 0)
     {
         std::pop_heap(heap.data(), heap.data() + hsize,
-            [&](const auto& a, const auto& b) {
+            [&heapcomp](const auto& a, const auto& b) {
           return !heapcomp(a, b);
       });   // result is stored in heap[hsize-1]
         int source = std::get<2>(heap[hsize-1]);
@@ -168,7 +168,7 @@ IT SerialMergeNNZ( const std::vector<SpTuples<IT,NT> *> & ArrSpTups)
             heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]),
                                        std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
             std::push_heap(heap.data(), heap.data()+hsize,
-                [&](const auto& a, const auto& b) {
+                [&heapcomp](const auto& a, const auto& b) {
                 return !heapcomp(a, b);
     });
         }
@@ -209,7 +209,7 @@ void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<I
         
     }
     std::make_heap(heap.data(), heap.data()+hsize,
-        [&](const auto& a, const auto& b) {
+        [&heapcomp](const auto& a, const auto& b) {
         return !heapcomp(a, b);
     });
     IT cnz = 0;
@@ -217,7 +217,7 @@ void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<I
     while(hsize > 0)
     {
         std::pop_heap(heap.data(), heap.data() + hsize,
-            [&](const auto& a, const auto& b) {
+            [&heapcomp](const auto& a, const auto& b) {
           return !heapcomp(a, b);
       });   // result is stored in heap[hsize-1]
         int source = std::get<2>(heap[hsize-1]);
@@ -236,7 +236,7 @@ void SerialMerge( const std::vector<SpTuples<IT,NT> *> & ArrSpTups, std::tuple<I
         {
             heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]),
                                        std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-            std::push_heap(heap.data(), heap.data()+hsize, [&](const auto& a, const auto& b) {
+            std::push_heap(heap.data(), heap.data()+hsize, [&heapcomp](const auto& a, const auto& b) {
         return !heapcomp(a, b);
     });
         }

@@ -722,7 +722,7 @@ SpTuples<IU,NU> MergeAll( const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU m
 			{
 				heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
 								std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-				std::push_heap(heap, heap+hsize, [&](const auto& a, const auto& b) {
+				std::push_heap(heap, heap+hsize, [&heapcomp](const auto& a, const auto& b) {
 				return !heapcomp(a, b);
 			});
 			}
