@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Multiplication time for un-altered Minc: %lf\n",t1-t0 );
             XNNZ = X.getnnz();
-            if (myrank == 0) fprintf(stderr, "nnz(X): %lld\n", XNNZ );
+            if (myrank == 0) fprintf(stderr, "nnz(X): %ld\n", XNNZ );
             X.ParallelWriteMM("randmat-X.mtx", 1);
         }
         if (myrank == 0) fprintf(stderr, "---\n");
@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
             //t1 = MPI_Wtime();
             //if (myrank == 0) fprintf(stderr, "Multiplication time for diagonal removed Minc: %lf\n",t1-t0 );
             //IT Cnnz = C.getnnz();
-            //if (myrank == 0) fprintf(stderr, "nnz after multiplication: %lld\n",Cnnz );
+            //if (myrank == 0) fprintf(stderr, "nnz after multiplication: %ld\n",Cnnz );
         //}
         ////MPI_Barrier(MPI_COMM_WORLD);
         ////for(int i = 0; i < 32; i++){
@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> MaskOffDiag(M);
 
             MaskNNZ = MaskOffDiag.getnnz();
-            if (myrank == 0) fprintf(stderr, "nnz(MaskOffDiag) before diagonal removal: %lld\n", MaskNNZ );
+            if (myrank == 0) fprintf(stderr, "nnz(MaskOffDiag) before diagonal removal: %ld\n", MaskNNZ );
 
             t0 = MPI_Wtime();
             FullyDistVec<IT, IT> iota( fullWorld );
@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
             IT RemovedNNZ = MaskOffDiag.RemoveLoops();
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to remove diagonal from Mask using RemoveLoops: %lf\n",t1-t0 );
-            if (myrank == 0) fprintf(stderr, "Number of loops removed: %lld\n", RemovedNNZ );
+            if (myrank == 0) fprintf(stderr, "Number of loops removed: %ld\n", RemovedNNZ );
 
             SpParMat<IT, NT, DER> D(M);
             t0 = MPI_Wtime();
@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to get diagonal matrix: %lf\n",t1-t0 );
             DNNZ = D.getnnz();
-            if (myrank == 0) fprintf(stderr, "DNNZ: %lld\n", DNNZ );
+            if (myrank == 0) fprintf(stderr, "DNNZ: %ld\n", DNNZ );
             D.ParallelWriteMM("randmat-D.mtx", 1);
 
             SpParMat<IT, NT, DER> A(M);
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to get off-diagonal matrix: %lf\n",t1-t0 );
             ANNZ = A.getnnz();
-            if (myrank == 0) fprintf(stderr, "ANNZ: %lld\n", ANNZ );
+            if (myrank == 0) fprintf(stderr, "ANNZ: %ld\n", ANNZ );
             A.ParallelWriteMM("randmat-A.mtx", 1);
 
             //A += D;
@@ -388,7 +388,9 @@ int main(int argc, char* argv[])
             //A.SetDifference(D); // A: Matrix without diagonal elements
 
             t0 = MPI_Wtime();
-            D.Apply(bind2nd(exponentiate(), 2));
+            D.Apply(
+                [](NT val){return val * val;}
+                );
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to exponentiate diagonal matrix: %lf\n",t1-t0 );
             D.ParallelWriteMM("randmat-D2.mtx", 1);
@@ -401,7 +403,9 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> AD(A);
             t0 = MPI_Wtime();
             AD.DimApply(Column, diag, [](NT mv, NT vv){return mv * vv;});
-            AD.Prune(std::bind2nd(std::less_equal<NT>(), 1e-8), true);
+            AD.Prune(
+                [](NT val){return val <= 1e-8;},
+                true);
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to perform dimApply column-wise: %lf\n",t1-t0 );
             ADNNZ = AD.getnnz();
@@ -411,7 +415,9 @@ int main(int argc, char* argv[])
             SpParMat<IT, NT, DER> DA(A);
             t0 = MPI_Wtime();
             DA.DimApply(Row, diag, [](NT mv, NT vv){return mv * vv;});
-            DA.Prune(std::bind2nd(std::less_equal<NT>(), 1e-8), true);
+            DA.Prune(
+                [](NT val){return val <= 1e-8;},
+                true);
             t1 = MPI_Wtime();
             if (myrank == 0) fprintf(stderr, "Time to perform dimApply row-Wise: %lf\n",t1-t0 );
             DANNZ = DA.getnnz();

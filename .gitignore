@@ -21,3 +21,12 @@ test/temp_fullydistvec
 *.o
 SpGEMM3D
 mcl3d
+.idea
+.zed
+.vscode
+.clangd
+cmake-build-*
+.cache
+build
+.claude
+CLAUDE.md

@@ -153,7 +153,7 @@ public:
             for (auto itr=lines.begin(); itr != lines.end(); ++itr)
             {
                 // string::c_str() -> Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string)
-                sscanf(itr->c_str(), "%lld %lld %lg", &ii, &jj, &vv);
+                sscanf(itr->c_str(), "%ld %ld %lg", &ii, &jj, &vv);
                 SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric, onebased);
             }
         }
@@ -162,7 +162,7 @@ public:
             int64_t ii, jj, vv;
             for (auto itr=lines.begin(); itr != lines.end(); ++itr)
             {
-                sscanf(itr->c_str(), "%lld %lld %lld", &ii, &jj, &vv);
+                sscanf(itr->c_str(), "%ld %ld %ld", &ii, &jj, &vv);
                 SpHelper::push_to_vectors(rows, cols, vals, ii, jj, vv, symmetric, onebased);
             }
         }
@@ -171,7 +171,7 @@ public:
             int64_t ii, jj;
             for (auto itr=lines.begin(); itr != lines.end(); ++itr)
             {
-                sscanf(itr->c_str(), "%lld %lld", &ii, &jj);
+                sscanf(itr->c_str(), "%ld %ld", &ii, &jj);
                 SpHelper::push_to_vectors(rows, cols, vals, ii, jj, 1, symmetric, onebased);
             }
         }

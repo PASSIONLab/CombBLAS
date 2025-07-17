@@ -264,9 +264,11 @@ int generic_gespmv_threaded (const SpMat<IU,NUM,DER> & A, const int32_t * indx, 
 					// else set sdispls[0] to zero (already done)
 					if(beg_rec == end_recs[i])	// fast case
 					{
-						std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
-            std::copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
-            std::copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
+						const int32_t offset = perproc * beg_rec;
+						std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(),
+							[offset](int32_t val) { return val - offset; });
+						std::copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
+						std::copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
 					}
 					else	// slow case
 					{
@@ -397,9 +399,11 @@ void generic_gespmv_threaded_setbuffers (const SpMat<IU,NUM,DER> & A, const int3
 						
 					if(beg_rec == end_recs[i])	// fast case
 					{
-            std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(), std::bind2nd(std::minus<int32_t>(), perproc*beg_rec));
-            std::copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
-            std::copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
+						const int32_t offset = perproc * beg_rec;
+						std::transform(indy[i].begin(), indy[i].end(), indy[i].begin(),
+							[offset](int32_t val) { return val - offset; });
+			            std::copy(indy[i].begin(), indy[i].end(), sendindbuf + dspls[beg_rec] + alreadysent);
+			            std::copy(numy[i].begin(), numy[i].end(), sendnumbuf + dspls[beg_rec] + alreadysent);
 					}
 					else	// slow case
 					{
@@ -690,14 +694,18 @@ SpTuples<IU,NU> MergeAll( const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU m
 			estnnz += ArrSpTups[i]->getnnz();
 			heap[i] = std::make_tuple(std::get<0>(ArrSpTups[i]->tuples[0]), std::get<1>(ArrSpTups[i]->tuples[0]), i);
 		}	
-    std::make_heap(heap, heap+hsize, std::not2(heapcomp));
+		std::make_heap(heap, heap+hsize, [&heapcomp](const auto& a, const auto& b) {
+			return !heapcomp(a, b);
+		});
 
 		std::tuple<IU, IU, NU> * ntuples = new std::tuple<IU,IU,NU>[estnnz]; 
 		IU cnz = 0;
 
 		while(hsize > 0)
 		{
-      std::pop_heap(heap, heap + hsize, std::not2(heapcomp));         // result is stored in heap[hsize-1]
+			std::pop_heap(heap, heap + hsize, [&heapcomp](const auto& a, const auto& b) {
+			  return !heapcomp(a, b);
+		  });         // result is stored in heap[hsize-1]
 			int source = std::get<2>(heap[hsize-1]);
 
 			if( (cnz != 0) && 
@@ -714,7 +722,9 @@ SpTuples<IU,NU> MergeAll( const std::vector<SpTuples<IU,NU> *> & ArrSpTups, IU m
 			{
 				heap[hsize-1] = std::make_tuple(std::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
 								std::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-        std::push_heap(heap, heap+hsize, std::not2(heapcomp));
+				std::push_heap(heap, heap+hsize, [&heapcomp](const auto& a, const auto& b) {
+				return !heapcomp(a, b);
+			});
 			}
 			else
 			{

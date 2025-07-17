@@ -93,17 +93,15 @@ void removeIsolated(PSpMat_Bool & A)
      */
     
     // this steps for bipartite graph
-    nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
-    nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    nonisoColV = ColSums->FindInds([](int64_t val){ return val > 0; });
+    nonisoRowV = RowSums->FindInds([](int64_t val){ return val > 0; });
     delete ColSums;
     delete RowSums;
-    
 
     {
         nonisoColV.RandPerm();
         nonisoRowV.RandPerm();
     }
-    
     
     int64_t nrows1=A.getnrow(), ncols1=A.getncol(), nnz1 = A.getnnz();
     double avgDeg1 = (double) nnz1/(nrows1+ncols1);

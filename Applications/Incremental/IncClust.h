@@ -182,7 +182,8 @@ template <typename IT, typename NT, typename DER>
 NT Chaos(SpParMat<IT,NT,DER> & A)
 {   
     // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+    FullyDistVec<IT, NT> colssqs = A.Reduce(Column, plus<NT>(), 0.0,
+        [](NT val){return pow(val,2);});
     // Matrix entries are non-negative, so max() can use zero as identity
     FullyDistVec<IT, NT> colmaxs = A.Reduce(Column, maximum<NT>(), 0.0);
     colmaxs -= colssqs;
@@ -201,7 +202,8 @@ NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
     std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
 
     // sums of squares of columns
-    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0, bind2nd(exponentiate(), 2));
+    FullyDistVec<IT, NT> colssqs = ALayer->Reduce(Column, plus<NT>(), 0.0,
+    [](NT val){return pow(val,2);});
     // Matrix entries are non-negative, so max() can use zero as identity
     FullyDistVec<IT, NT> colmaxs = ALayer->Reduce(Column, maximum<NT>(), 0.0);
     colmaxs -= colssqs;
@@ -220,7 +222,7 @@ NT Chaos3D(SpParMat3D<IT,NT,DER> & A3D)
 template <typename IT, typename NT, typename DER>
 void Inflate(SpParMat<IT,NT,DER> & A, double power)
 {
-    A.Apply(bind2nd(exponentiate(), power));
+    A.Apply([power](NT val){return pow(val, power);});
 }
 
 template <typename IT, typename NT, typename DER>
@@ -228,7 +230,7 @@ void Inflate3D(SpParMat3D<IT,NT,DER> & A3D, double power)
 {
     //SpParMat<IT, NT, DER> * ALayer = A3D.GetLayerMat();
     std::shared_ptr< SpParMat<IT, NT, DER> > ALayer = A3D.GetLayerMat();
-    ALayer->Apply(bind2nd(exponentiate(), power));
+    ALayer->Apply([power](NT val){return pow(val, power);});
 }
 
 // default adjustloop setting
@@ -252,7 +254,7 @@ void RemoveIsolated(SpParMat<IT,NT,DER> & A, HipMCLParam & param)
 {
     ostringstream outs;
     FullyDistVec<IT, NT> ColSums = A.Reduce(Column, plus<NT>(), 0.0);
-    FullyDistVec<IT, IT> nonisov = ColSums.FindInds(bind2nd(greater<NT>(), 0));
+    FullyDistVec<IT, IT> nonisov = ColSums.FindInds([](NT val){return val > 0;});
     IT numIsolated = A.getnrow() - nonisov.TotalLength();
     outs << "Number of isolated vertices: " << numIsolated << endl;
     SpParHelper::Print(outs.str());
@@ -320,7 +322,14 @@ void SelectivePrune (SpParMat<IT,NT,DER> & A, SpParMat<IT,NT,DER> & Mask, FullyD
     //SpParHelper::Print("===\n");
 
     // IMPORTANT: Apply criteria(3) next
-    Ap.Prune(std::bind2nd(std::greater_equal<NT>(), param.selectivePruneThreshold), true); // Remove nz where value stays above threshold. Those values would never be pruned.
+    {
+        auto selectivePruneThreshold = param.selectivePruneThreshold;
+        // Remove nz where value stays above threshold. Those values would never be pruned.
+        Ap.Prune(
+            [selectivePruneThreshold](NT val){return val >= selectivePruneThreshold;},
+            true);
+    }
+
     //Ap.PrintInfo();
     //SpParHelper::Print("===\n");
 
@@ -1125,21 +1134,34 @@ void PrepIncMat(SpParMat<IT, NT, DER> &Mpp, SpParMat<IT, NT, DER> &Mpn, SpParMat
         
         // Assign each piece of incremental matrix to empty matrix
         if (param.normalizedAssign){
-            MakeColStochastic(Mpp);
-            Mpp.Apply(bind1st(multiplies<NT>(), Mpp.getnrow()));
-            //MakeColStochastic(Mpp);
+            {
+                MakeColStochastic(Mpp);
+                const NT nrows = Mpp.getnrow();
+                Mpp.Apply([nrows](NT val){return nrows * val;});
+            }
 
-            MakeColStochastic(Mpn);
-            Mpn.Apply(bind1st(multiplies<NT>(), Mpn.getnrow()));
-            //MakeColStochastic(Mpn);
 
-            MakeColStochastic(Mnp);
-            Mnp.Apply(bind1st(multiplies<NT>(), Mnp.getnrow()));
-            //MakeColStochastic(Mnp);
+            {
+                MakeColStochastic(Mpn);
+                const NT nrows = Mpn.getnrow();
+                Mpn.Apply([nrows](NT val){return nrows * val;});
+            }
 
-            MakeColStochastic(Mnn);
-            Mnn.Apply(bind1st(multiplies<NT>(), Mnn.getnrow()));
-            //MakeColStochastic(Mnn);
+
+            {
+                MakeColStochastic(Mnp);
+                const NT nrows = Mnp.getnrow();
+                Mnp.Apply([nrows](NT val){return nrows * val;});
+            }
+
+
+            {
+                MakeColStochastic(Mnn);
+                const NT nrows = Mnn.getnrow();
+                Mnn.Apply([nrows](NT val){return nrows * val;});
+            }
+
+
         }
         t0 = MPI_Wtime();
         Minc.SpAsgn(pMap, pMap, Mpp);
