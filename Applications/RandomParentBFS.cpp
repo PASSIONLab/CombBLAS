@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
         ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
         ColSums->EWiseApply(*RowSums, plus<int64_t>());
         delete RowSums;
-        nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+        nonisov = ColSums->FindInds([](int64_t val){return val > 0;});
         delete ColSums;
         nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 #ifndef NOPERMUTE

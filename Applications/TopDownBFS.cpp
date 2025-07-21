@@ -94,7 +94,7 @@ void Symmetricize(PARMAT & A)
  * Binary function to prune the previously discovered vertices from the current frontier 
  * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
 **/
-struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
+struct prunediscovered
 {
   	int64_t operator()(int64_t x, const int64_t & y) const
 	{
@@ -162,7 +162,8 @@ int main(int argc, char* argv[])
 			Symmetricize(A);	// A += A';
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
-			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			nonisov = ColSums->FindInds([](int64_t val){ return val > 0; });	// only the indices of non-isolated vertices
+
 			delete ColSums;
 			A = A(nonisov, nonisov);
 			Aeff = PSpMat_s32p64(A);
@@ -219,7 +220,8 @@ int main(int argc, char* argv[])
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
 			delete RowSums;
 
-			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			// only the indices of non-isolated vertices
+			nonisov = ColSums->FindInds([](int64_t val){ return val > 0; });
 			delete ColSums;
 
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
@@ -334,8 +336,8 @@ int main(int argc, char* argv[])
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
 			delete RowSums;
 			SpParHelper::Print("Intersection of colsums and rowsums found\n");
-
-			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			// only the indices of non-isolated vertices
+			nonisov = ColSums->FindInds([](int64_t val){return val > 0;});
 			delete ColSums;
 
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
@@ -395,13 +397,16 @@ int main(int argc, char* argv[])
 		vector<int64_t> loccandints(ITERS);
 		if(myrank == 0)
 		{
-			for(int i=0; i<ITERS; ++i)
+			for(int i=0; i<ITERS; ++i) {
 				loccands[i] = M.rand();
+			}
 			copy(loccands.begin(), loccands.end(), ostream_iterator<double>(cout," ")); cout << endl;
-			transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
+			transform(loccands.begin(), loccands.end(), loccands.begin(),
+				[nver](double val){return val * nver;});
 			
-			for(int i=0; i<ITERS; ++i)
+			for(int i=0; i<ITERS; ++i) {
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
+			}
 			copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
 		}
 		MPI_Bcast(&(loccandints[0]), ITERS, MPIType<int64_t>(),0,MPI_COMM_WORLD);
@@ -445,7 +450,7 @@ int main(int argc, char* argv[])
 				MPI_Barrier(MPI_COMM_WORLD);
 				double t2 = MPI_Wtime();
 	
-				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find([](int64_t val){return val > -1;});
 				parentsp.Apply(myset<int64_t>(1));
 	
 				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
@@ -487,7 +492,7 @@ int main(int argc, char* argv[])
 			os << "Max nedges: " << EDGES[ITERS-1] << endl;
  			double mean = accumulate( EDGES, EDGES+ITERS, 0.0 )/ ITERS;
 			vector<double> zero_mean(ITERS);	// find distances to the mean
-			transform(EDGES, EDGES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			transform(EDGES, EDGES+ITERS, zero_mean.begin(), [mean](double val){return val - mean;});
 			// self inner-product is sum of sum of squares
 			double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (ITERS-1) );
@@ -502,7 +507,7 @@ int main(int argc, char* argv[])
 			os << "Third Quartile time: " << (TIMES[(3*ITERS/4)-1] + TIMES[3*ITERS/4])/2 << " seconds" << endl;
 			os << "Max time: " << TIMES[ITERS-1] << " seconds" << endl;
  			mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ ITERS;
-			transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			transform(TIMES, TIMES+ITERS, zero_mean.begin(), [mean](double val){return val - mean;});
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (ITERS-1) );
    			os << "Mean time: " << mean << " seconds" << endl;
@@ -518,7 +523,7 @@ int main(int argc, char* argv[])
 			transform(MTEPS, MTEPS+ITERS, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
 			double hteps = static_cast<double>(ITERS) / accumulate(INVMTEPS, INVMTEPS+ITERS, 0.0);	
 			os << "Harmonic mean of MTEPS: " << hteps << endl;
-			transform(INVMTEPS, INVMTEPS+ITERS, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
+			transform(INVMTEPS, INVMTEPS+ITERS, zero_mean.begin(), [hteps](double val){return val - 1/hteps;});
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (ITERS-1) ) * (hteps*hteps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;

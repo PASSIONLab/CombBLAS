@@ -17,8 +17,10 @@ public:
     //      - Number of processors along the column of each layer in the 3D grid
     //      - A flag which will denote if matrix distribution in the comm grid will be in column split manner or row split manner
     //      - A flag which will denote that this CommGrid3D object will be formed in special fashion for communication optimization
-    // Information about number of layers, rows and colunmns is being saved to member variables before the execution of this constructor with the help of copy constructors
-    CommGrid3D(MPI_Comm world, int nlayers, int nrowproc, int ncolproc, bool special = false): gridLayers(nlayers), gridRows(nrowproc), gridCols(ncolproc), special(special)
+    // Information about number of layers, rows and colunmns is being saved to member variables
+    // before the execution of this constructor with the help of copy constructors
+    CommGrid3D(MPI_Comm world, int nlayers, int nrowproc, int ncolproc, bool special = false)
+    :gridLayers(nlayers), gridRows(nrowproc), gridCols(ncolproc), special(special)
     {
         int nproc;
         MPI_Comm_dup(world, & world3D);
@@ -89,9 +91,10 @@ public:
     // Function to return rank of a processor in global 2D CommGrid from it's layer, row and column information in 3D CommGrid
     int GetRank(int layerrank, int rowrank, int colrank) { 
         if(!special) return layerrank * gridRows * gridCols + rowrank * gridCols + colrank;
-        //else {
-             ////Do something else. Logic would not be as straight-forward          
-        //}
+        else {
+            std::cerr << "for specical cases do something! Now just return the same as non-special one to avoid warning!!!!" << std::endl;
+            return layerrank * gridRows * gridCols + rowrank * gridCols + colrank;
+        }
     }
     int GetGridLayers() {return gridLayers;}
     int GetGridRows() {return gridRows;}

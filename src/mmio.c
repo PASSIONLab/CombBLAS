@@ -135,13 +135,13 @@ int mm_read_mtx_crd_size(FILE *f, int64_t *M, int64_t *N, int64_t *nz, int64_t *
     }while (line[0] == '%');
 
     /* line[] is either blank or has M,N, nz */
-    if (sscanf(line, "%lld %lld %lld", M, N, nz) == 3)
+    if (sscanf(line, "%ld %ld %ld", M, N, nz) == 3)
         return 0;
         
     else
     do
     { 
-        num_items_read = fscanf(f, "%lld %lld %lld", M, N, nz);
+        num_items_read = fscanf(f, "%ld %ld %ld", M, N, nz);
         if (num_items_read == EOF) return MM_PREMATURE_EOF;
     }
     while (num_items_read != 3);

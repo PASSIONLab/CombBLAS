@@ -1222,7 +1222,7 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool one
 	}
 	else
 	{
-		fscanf(f,"%lld %lld\n", &glen, &gnnz);
+		fscanf(f,"%ld %ld\n", &glen, &gnnz);
 	}
         std::cout << "Total number of nonzeros expected across all processors is " << gnnz << std::endl;
 
