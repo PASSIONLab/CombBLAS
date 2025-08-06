@@ -71,7 +71,12 @@ int main(int argc, char* argv[])
         
         // Increase number of layers 1 -> 4 -> 16
         for(int layers = 1; layers <= 16; layers = layers * 4){
-            
+            if(layers > nprocs){
+                if(myrank == 0){
+                    printf("we only have %d mpi processes, skip layer %d test \n", nprocs, layers);
+                }
+                continue;
+            }
             if(myrank == 0) fprintf(stderr, "Trying %d layers\n", layers);
 
             // Convert 2D matrices to 3D
