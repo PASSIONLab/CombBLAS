@@ -42,7 +42,16 @@ TARGET_LINK_LIBRARIES( KTipsTest CombBLAS)
 
 ADD_TEST(NAME GenMMWrite_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:GenWrMat> 20 16 1 scale20_ef16_symmetric.mtx)
 ADD_TEST(NAME Multiplication_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:MultTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx ../TESTDATA/x_65536_halfdense.txt ../TESTDATA/y_65536_halfdense.txt )
-ADD_TEST(NAME SpGEMM3D_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 16 $<TARGET_FILE:SpGEMM3DTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx )
+
+# Set number of processes based on platform
+if(APPLE) # osx usually has less cores, so make it 4 for just correctness check
+    set(TEST_PROCS 4)
+else()
+    set(TEST_PROCS 16)
+endif()
+ADD_TEST(NAME SpGEMM3D_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${TEST_PROCS} $<TARGET_FILE:SpGEMM3DTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx )
+
+
 ADD_TEST(NAME HashSpGEMMTest COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:HashSpGEMMTest> ../TESTDATA/rmat_scale16_A.mtx ../TESTDATA/rmat_scale16_B.mtx ../TESTDATA/rmat_scale16_productAB.mtx )
 ADD_TEST(NAME Reduction_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:ReduceTest> ../TESTDATA/sprand10000 ../TESTDATA/sprand10000_sumcols ../TESTDATA/sprand10000_sumrows)
 ADD_TEST(NAME Iterator_Test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:IteratorTest> ../TESTDATA sprand10000)

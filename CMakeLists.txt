@@ -1,53 +1,43 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.20...4.0)
 project(CombBLAS VERSION 2.0.1 LANGUAGES C CXX)
 
-# require c++14
-set(CMAKE_CXX_STANDARD 14)
+# require c++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
-#set(CMAKE_BUILD_TYPE Debug)
-
-#set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+include(GNUInstallDirs)
+
 # Main CombBLAS library
 add_library(CombBLAS src/CommGrid.cpp src/mmio.c src/MPIType.cpp src/MPIOp.cpp src/MemoryPool.cpp src/hash.cpp)
 
-# require c++14 in CombBLAS interface
-if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES) # Use language feature if available (CMake >= 3.8)
-  target_compile_features(CombBLAS PUBLIC cxx_std_14)
-else()
-  # Use C++14-specific features for CMake >= 3.3, which will force the appropriate language level flags.
-  target_compile_features(CombBLAS PUBLIC cxx_return_type_deduction)
-endif()
 
 # set include directories
-target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
-target_include_directories(CombBLAS PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include> $<INSTALL_INTERFACE:include>)
-target_include_directories(CombBLAS PRIVATE include/CombBLAS)
+target_include_directories(CombBLAS PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/psort-1.0/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        PRIVATE include/CombBLAS
+)
 
-# MPI and OpenMP dependencies
+# MPI dependencies
 find_package(MPI REQUIRED)
-find_package(OpenMP)
-
-if(TARGET MPI::MPI_CXX) # Use target if available (CMake >= 3.9)
-  target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
-else()
-  target_compile_options(CombBLAS PUBLIC "${MPI_CXX_COMPILE_FLAGS}")
-  target_link_libraries(CombBLAS PUBLIC "${MPI_CXX_LIBRARIES}" "${MPI_CXX_LINKFLAGS}")
-  target_include_directories(CombBLAS PUBLIC "${MPI_CXX_INCLUDE_PATH}")
+if(TARGET MPI::MPI_CXX)
+    target_link_libraries(CombBLAS PUBLIC MPI::MPI_CXX)
 endif()
 
+# OpenMP dependencies
+find_package(OpenMP)
+option(USE_OPENMP "default on, but can be turned off by users" ON)
 
-if(TARGET OpenMP::OpenMP_CXX) # Use target if available (CMake >= 3.9)
-  target_compile_definitions(CombBLAS PUBLIC THREADED)
-  target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
-elseif(OPENMP_FOUND)
-  target_compile_definitions(CombBLAS PUBLIC THREADED)
-  target_compile_options(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
-  target_link_libraries(CombBLAS PUBLIC "${OpenMP_CXX_FLAGS}")
+if(TARGET OpenMP::OpenMP_CXX)
+if(USE_OPENMP)
+    target_compile_definitions(CombBLAS PUBLIC THREADED)
+    target_link_libraries(CombBLAS PUBLIC OpenMP::OpenMP_CXX)
+endif()
 endif()
 
 add_subdirectory(usort)
@@ -63,7 +53,7 @@ target_link_libraries(CombBLAS PUBLIC GraphGenlib)
 #      modifications to CombBLAS and have the changes automatically recompiled for
 #      dependent projects.
 # Either way, we need to create a CombBLASConfig.cmake.
-set(ConfigPackageLocation lib/cmake/CombBLAS)
+set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/CombBLAS)
 
 # Generate version number header
 include(GenerateExportHeader)
@@ -71,34 +61,21 @@ generate_export_header(CombBLAS)
 set_target_properties(CombBLAS PROPERTIES VERSION ${CombBLAS_VERSION})
 
 # installation
-install(DIRECTORY include/ DESTINATION include)
-install(DIRECTORY psort-1.0/include/ DESTINATION include)
-install(TARGETS CombBLAS EXPORT CombBLASTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-        )
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY psort-1.0/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(TARGETS CombBLAS EXPORT CombBLASTargets)
 
 include(CMakePackageConfigHelpers)
 
+configure_package_config_file(cmake/CombBLASConfig.cmake
+        "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfig.cmake"
+        INSTALL_DESTINATION ${ConfigPackageLocation}
+)
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfigVersion.cmake"
     VERSION ${CombBLAS_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
-
-# The following commands allow for option 2.
-export(EXPORT CombBLASTargets
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASTargets.cmake"
-       NAMESPACE CombBLAS::
-       )
-configure_file(cmake/CombBLASConfig.cmake
-               "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfig.cmake"
-               COPYONLY
-               )
-
-# Allow for option 2
 install(EXPORT CombBLASTargets
         FILE
         CombBLASTargets.cmake
@@ -106,11 +83,16 @@ install(EXPORT CombBLASTargets
         CombBLAS::
         DESTINATION
         ${ConfigPackageLocation}
-        )
-export(PACKAGE CombBLAS)
+)
+
+# The following command allow for option 2.
+export(EXPORT CombBLASTargets
+       FILE "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASTargets.cmake"
+       NAMESPACE CombBLAS::
+       )
 install(
     FILES
-    cmake/CombBLASConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/CombBLAS/CombBLASConfigVersion.cmake"
     DESTINATION
     ${ConfigPackageLocation}
