@@ -48,12 +48,14 @@ int main(int argc, char* argv[])
 		typedef PlusTimesSRing<ElementType, ElementType> PTDOUBLEDOUBLE;	
 		PSpMat<ElementType>::MPI_DCCols A, B;	// construct objects
 		
-		A.ReadDistribute(Aname, 0);
+		//A.ReadDistribute(Aname, 0);
+        A.ReadGeneralizedTuples(Aname,  maximum<ElementType>());
 		A.PrintInfo();
-		B.ReadDistribute(Bname, 0);
+		//B.ReadDistribute(Bname, 0);
+        B.ReadGeneralizedTuples(Bname,  maximum<ElementType>());
 		B.PrintInfo();
 		SpParHelper::Print("Data read\n");
-
+        
 		{ // force the calling of C's destructor
 			PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 			int64_t cnnz = C.getnnz();
@@ -99,6 +101,27 @@ int main(int argc, char* argv[])
 			cout<<"Synchronous multiplications finished"<<endl;	
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
+
+        {// force the calling of C's destructor
+            PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_Overlap<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
+            C.PrintInfo();
+        }
+        SpParHelper::Print("Warmed up for Overlap\n");
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Pcontrol(1,"SpGEMM_Overlap");
+        t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
+        for(int i=0; i<ITERATIONS; i++)
+        {
+            PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_Overlap<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Pcontrol(-1,"SpGEMM_Overlap");
+        t2 = MPI_Wtime(); 	
+        if(myrank == 0)
+        {
+            cout<<"Comm-Comp overlapped multiplications finished"<<endl;	
+            printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
+        }
 
 
 		/*
