@@ -179,6 +179,16 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in double buffered multiplication, go fix it!\n");	
 		}
+
+		C = Mult_AnXBn_Overlap<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
+		if (CControl == C)
+		{
+			SpParHelper::Print("Overlapped multiplication working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in overlapped multiplication, go fix it!\n");	
+		}
 #endif
 		OptBuf<int32_t, int64_t> optbuf;
 		PSpMat<bool>::MPI_DCCols ABool(A);

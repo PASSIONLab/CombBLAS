@@ -1639,6 +1639,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
                 // Continuously probe with MPI_Test to progress asynchronous broadcast
                 #pragma omp task
                 {
+                    // Use only one thread for continuous probing
                     omp_set_num_threads(1);
                     double t_comm = omp_get_wtime();
                     while(!comm_complete){
@@ -1661,21 +1662,23 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 
 				// Computation task
                 // Performs local SpGEMM and then merge on the data received for previous stage
+                // Can be safely assumed that the broadcasts of previous stage has finished because tasks are sychronized at the end of every stage
                 #pragma omp task
                 {
+                    // Use one less thread for computation
                     omp_set_num_threads(T - 1);
                     double t_comp = omp_get_wtime();
 					if(i > 0){
-						//MPI_Waitall(ABCastIndarrayReq[i-1].size(), ABCastIndarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
-						//MPI_Waitall(ABCastNumarrayReq[i-1].size(), ABCastNumarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
-						//MPI_Waitall(BBCastIndarrayReq[i-1].size(), BBCastIndarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
-						//MPI_Waitall(BBCastNumarrayReq[i-1].size(), BBCastNumarrayReq[i-1].data(), MPI_STATUSES_IGNORE);
 
+                        // MTH: Don't ask SpGEMM routing to delete ARecv and BRecv pieces
+                        // Because that delete is not being successful due to some C++ issue
+                        // TODO: Needs to be figured out why
 						SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
 										(*(ARecv[i-1]), *(BRecv[i-1]), // parameters themselves
 										false, 	// 'delete A' condition
 										false);	// 'delete B' condition
 
+                        // MTH: Explicitly detele respective ARecv and BRecv pieces
                         if(i-1 != Bself && (!BRecv[i-1]->isZero())) delete BRecv[i-1];
                         if(i-1 != Aself && (!ARecv[i-1]->isZero())) delete ARecv[i-1];
 
@@ -1703,17 +1706,14 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 			
         }
     }
-
-    //MPI_Waitall(ABCastIndarrayReq[stages-1].size(), ABCastIndarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
-    //MPI_Waitall(ABCastNumarrayReq[stages-1].size(), ABCastNumarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
-    //MPI_Waitall(BBCastIndarrayReq[stages-1].size(), BBCastIndarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
-    //MPI_Waitall(BBCastNumarrayReq[stages-1].size(), BBCastNumarrayReq[stages-1].data(), MPI_STATUSES_IGNORE);
-
+    
+    // MTH: Same reason as above
     SpTuples<IU,NUO> * C_cont = LocalHybridSpGEMM<SR, NUO>
                     (*(ARecv[stages-1]), *(BRecv[stages-1]), // parameters themselves
                     false, 	// 'delete A' condition
                     false);	// 'delete B' condition
 
+    // MTH: Same reason as above
     if(stages-1 != Bself && (!BRecv[stages-1]->isZero())) delete BRecv[stages-1];
     if(stages-1 != Aself && (!ARecv[stages-1]->isZero())) delete ARecv[stages-1];
 
@@ -1734,7 +1734,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Overlap
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
-	// the last parameter to MergeAll deletes tomerge arrays
+	// the last parameter to merge function deletes tomerge arrays
 	SpTuples<IU,NUO> * C_tuples = MultiwayMerge<SR>(tomerge, C_m, C_n,true);
     std::vector< SpTuples<IU,NUO> *>().swap(tomerge);
 	
