@@ -85,5 +85,9 @@ template<> MPI_Datatype MPIType< bool >( void )
 {
 	return MPI_BYTE;  // usually  #define MPI_BOOL MPI_BYTE anyway
 };
+template<> MPI_Datatype MPIType< long long>( void )
+{
+	return MPI_LONG_LONG;
+};
 
 }
