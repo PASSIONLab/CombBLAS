@@ -1273,7 +1273,17 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool one
     for (auto itr=lines.begin(); itr != lines.end(); ++itr)
     {
 	std::stringstream ss(*itr);
-	ss >> ii >> vv;
+	ss >> ii;
+	if constexpr (std::is_same_v<NT, std::array<char, MAXVERTNAME>>) {
+	    vv.fill('\0');
+	    std::string str;
+	    ss >> str;
+	    std::size_t n = std::min(str.size(), (std::size_t)MAXVERTNAME);
+	    std::copy(str.begin(), str.begin() + n, vv.begin());
+	    if (n < MAXVERTNAME) vv[n] = '\0';
+	} else {
+	    ss >> vv;
+	}
 	if(onebased)	ii--;
 	IT locind;
 	int owner = Owner(ii, locind);       // recipient (owner) processor
@@ -1287,7 +1297,17 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool one
         for (auto itr=lines.begin(); itr != lines.end(); ++itr)
     	{
 		std::stringstream ss(*itr);
-		ss >> ii >> vv;
+		ss >> ii;
+		if constexpr (std::is_same_v<NT, std::array<char, MAXVERTNAME>>) {
+		    vv.fill('\0');
+		    std::string str;
+		    ss >> str;
+		    std::size_t n = std::min(str.size(), (std::size_t)MAXVERTNAME);
+		    std::copy(str.begin(), str.begin() + n, vv.begin());
+		    if (n < MAXVERTNAME) vv[n] = '\0';
+		} else {
+		    ss >> vv;
+		}
 		if(onebased)	ii--;
 		IT locind;
 		int owner = Owner(ii, locind);       // recipient (owner) processor
