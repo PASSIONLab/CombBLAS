@@ -1075,6 +1075,10 @@ SpDCCols<IU, N_promote> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<I
  * In that case the operation becomes c[i,j] = __binary_op(ANullVal, b[i,j])
  * If both allowANulls and allowBNulls is false then the function degenerates into intersection
  */
+#ifdef EWISE_PROFILE
+inline double ewp_desc = 0.0, ewp_symb = 0.0, ewp_pref = 0.0, ewp_num = 0.0;
+inline long   ewp_calls = 0;
+#endif
 template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
 {
@@ -1158,8 +1162,215 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 	
 	IU estnzc = A.nzc + B.nzc;
 	IU estnz  = A.nz + B.nz;
-	Dcsc<IU,RETT> temp(estnz, estnzc);
 
+#ifdef THREADED
+	// ---- OpenMP-parallel path (byte-identical output to the serial #else below) ----
+	// The output column set (jc/nzc) is fully determined by the column-index merge and the
+	// null-flags (NOT by do_op); only per-column entries depend on do_op. So: (1) a cheap serial
+	// column-merge builds the output-column descriptor list, (2) a parallel symbolic pass counts
+	// surviving entries per column, (3) a serial prefix-sum yields exact cp offsets, (4) a parallel
+	// numeric pass fills ir/numx at disjoint offsets. Entry order within a column is preserved
+	// (ascending row id, same emit decisions), so the result matches the serial kernel exactly.
+	// NB: a single-walk per-thread-buffer variant was tried and REGRESSED (false sharing on the
+	// vector-of-vectors control blocks + push_back/extra-copy overhead); this two-pass design with
+	// direct indexed writes + dynamic scheduling was measurably faster (see output/SUMMARIES).
+	{
+#ifdef EWISE_PROFILE
+		double _tp = MPI_Wtime();
+#endif
+		// PARALLELIZED descriptor build (was the dominant serial phase). Partition the column-id
+		// space into Pd contiguous jc-value windows; split keys are taken from A.jc so a matched
+		// pair (which shares a jc value) is never split across threads. Each thread merges its
+		// A/B sub-ranges: pass 1 counts its output columns, a tiny prefix-sum gives its output base,
+		// pass 2 writes kind/aidx/bidx/ocol at that base (direct indexed writes -> no false sharing).
+		// Windows are contiguous & in order, so the concatenated output is the exact serial merge.
+		int Pd = 1;
+#pragma omp parallel
+		{ Pd = omp_get_num_threads(); }
+		if(Pd > (int)A.nzc) Pd = (A.nzc > 0) ? (int)A.nzc : 1;
+		if(Pd < 1) Pd = 1;
+
+		// window bounds: thread t owns A[aBeg[t],aBeg[t+1]) and B[bBeg[t],bBeg[t+1])
+		std::vector<IU> aBeg(Pd + 1), bBeg(Pd + 1), tcols(Pd + 1, 0);
+		aBeg[0] = 0; bBeg[0] = 0; aBeg[Pd] = A.nzc; bBeg[Pd] = B.nzc;
+		for(int t = 1; t < Pd; ++t) {
+			IU a = (IU)(((long double)A.nzc * t) / Pd);   // split A's columns evenly by count
+			aBeg[t] = a;
+			IU key = A.jc[a];                              // bBeg[t] = lower_bound(B.jc, key)
+			IU lo = 0, hi = B.nzc;
+			while(lo < hi) { IU mid = lo + (hi - lo) / 2; if(B.jc[mid] < key) lo = mid + 1; else hi = mid; }
+			bBeg[t] = lo;
+		}
+
+		// pass 1: count output columns per window
+#pragma omp parallel num_threads(Pd)
+		{
+			int t = omp_get_thread_num();
+			IU a1 = aBeg[t+1], b1 = bBeg[t+1];
+			IU i = aBeg[t], j = bBeg[t], c = 0;
+			while(i < a1 && j < b1) {
+				if(A.jc[i] > B.jc[j])      { if(allowANulls) ++c; ++j; }
+				else if(A.jc[i] < B.jc[j]) { if(allowBNulls) ++c; ++i; }
+				else                       { ++c; ++i; ++j; }
+			}
+			if(allowBNulls) c += (a1 - i);
+			if(allowANulls) c += (b1 - j);
+			tcols[t+1] = c;
+		}
+		for(int t = 0; t < Pd; ++t) tcols[t+1] += tcols[t];   // exclusive prefix over Pd entries
+		IU onzc = tcols[Pd];
+		if(onzc == 0) return Dcsc<IU,RETT>();
+
+		// EXACT-size, UNINITIALIZED descriptor scratch (default-init new[] leaves POD uninitialized,
+		// so NO std::vector value-init memset of the estnzc upper bound).
+		std::unique_ptr<char[]> kind_(new char[onzc]);
+		std::unique_ptr<IU[]>   aidx_(new IU[onzc]);
+		std::unique_ptr<IU[]>   bidx_(new IU[onzc]);
+		std::unique_ptr<IU[]>   ocol_(new IU[onzc]);
+		std::unique_ptr<IU[]>   cnt_ (new IU[onzc]);
+		char* kind = kind_.get();  IU* aidx = aidx_.get();  IU* bidx = bidx_.get();  IU* ocol = ocol_.get();  IU* cnt = cnt_.get();
+
+		// pass 2 (FUSED write-descriptor + symbolic count): each thread, over its STATIC window,
+		// writes kind/aidx/bidx/ocol AND the per-column survivor count cnt[w]. Static windows keep
+		// each thread's memory accesses local, so this scales under spread/NUMA placement — unlike a
+		// separate schedule(dynamic) symbolic pass, which loses locality and stalls on remote memory.
+#pragma omp parallel num_threads(Pd)
+		{
+			int t = omp_get_thread_num();
+			IU a1 = aBeg[t+1], b1 = bBeg[t+1];
+			IU i = aBeg[t], j = bBeg[t], w = tcols[t];
+			while(i < a1 && j < b1) {
+				if(A.jc[i] > B.jc[j]) {
+					if(allowANulls) {
+						IU c = 0; for(IU p = B.cp[j]; p < B.cp[j+1]; ++p) if(do_op(ANullVal, B.numx[p], true, false)) ++c;
+						kind[w]=1; aidx[w]=0; bidx[w]=j; ocol[w]=B.jc[j]; cnt[w]=c; ++w;
+					}
+					++j;
+				} else if(A.jc[i] < B.jc[j]) {
+					if(allowBNulls) {
+						IU c = 0; for(IU p = A.cp[i]; p < A.cp[i+1]; ++p) if(do_op(A.numx[p], BNullVal, false, true)) ++c;
+						kind[w]=0; aidx[w]=i; bidx[w]=0; ocol[w]=A.jc[i]; cnt[w]=c; ++w;
+					}
+					++i;
+				} else {
+					IU c = 0, ii = A.cp[i], ie = A.cp[i+1], jj = B.cp[j], je = B.cp[j+1];
+					while(ii < ie && jj < je) {
+						if(A.ir[ii] < B.ir[jj])      { if(allowBNulls   && do_op(A.numx[ii], BNullVal, false, true)) ++c; ++ii; }
+						else if(A.ir[ii] > B.ir[jj]) { if(allowANulls   && do_op(ANullVal, B.numx[jj], true, false)) ++c; ++jj; }
+						else                         { if(allowIntersect && do_op(A.numx[ii], B.numx[jj], false, false)) ++c; ++ii; ++jj; }
+					}
+					while(ii < ie) { if(allowBNulls && do_op(A.numx[ii], BNullVal, false, true)) ++c; ++ii; }
+					while(jj < je) { if(allowANulls && do_op(ANullVal, B.numx[jj], true, false)) ++c; ++jj; }
+					kind[w]=2; aidx[w]=i; bidx[w]=j; ocol[w]=A.jc[i]; cnt[w]=c; ++w; ++i; ++j;
+				}
+			}
+			while(allowBNulls && i < a1) {
+				IU c = 0; for(IU p = A.cp[i]; p < A.cp[i+1]; ++p) if(do_op(A.numx[p], BNullVal, false, true)) ++c;
+				kind[w]=0; aidx[w]=i; bidx[w]=0; ocol[w]=A.jc[i]; cnt[w]=c; ++w; ++i;
+			}
+			while(allowANulls && j < b1) {
+				IU c = 0; for(IU p = B.cp[j]; p < B.cp[j+1]; ++p) if(do_op(ANullVal, B.numx[p], true, false)) ++c;
+				kind[w]=1; aidx[w]=0; bidx[w]=j; ocol[w]=B.jc[j]; cnt[w]=c; ++w; ++j;
+			}
+		}
+#ifdef EWISE_PROFILE
+		{ double _t = MPI_Wtime(); ewp_desc += _t - _tp; _tp = _t; }   // desc = build + fused count
+#endif
+		// (3) PARALLEL exclusive prefix-sum cnt -> cp, then EXACT-size output alloc (NO Resize).
+		std::unique_ptr<IU[]> cp_(new IU[onzc + 1]);
+		IU* cp = cp_.get();
+		{
+			std::vector<IU> psum(Pd + 1, 0);
+#pragma omp parallel num_threads(Pd)
+			{
+				int t = omp_get_thread_num();
+				IU lo = (IU)(((long double)onzc * t) / Pd);
+				IU hi = (t == Pd - 1) ? onzc : (IU)(((long double)onzc * (t + 1)) / Pd);
+				IU s = 0; for(IU k = lo; k < hi; ++k) s += cnt[k];
+				psum[t+1] = s;
+#pragma omp barrier
+#pragma omp single
+				{ for(int u = 0; u < Pd; ++u) psum[u+1] += psum[u]; }
+				IU run = psum[t];
+				for(IU k = lo; k < hi; ++k) { cp[k] = run; run += cnt[k]; }
+			}
+			cp[onzc] = psum[Pd];
+		}
+		IU onz = cp[onzc];
+		if(onz == 0) {   // columns exist but no surviving entries (rare)
+			Dcsc<IU,RETT> temp(1, onzc);
+			for(IU k = 0; k <= onzc; ++k) temp.cp[k] = 0;
+			for(IU k = 0; k < onzc; ++k) temp.jc[k] = ocol[k];
+			temp.Resize(onzc, 0);
+			return temp;
+		}
+		Dcsc<IU,RETT> temp(onz, onzc);   // exact size (uninitialized ctor); filled below, no Resize
+#pragma omp parallel for num_threads(Pd) schedule(static)
+		for(IU k = 0; k < onzc; ++k) { temp.cp[k] = cp[k]; temp.jc[k] = ocol[k]; }
+		temp.cp[onzc] = onz;
+#ifdef EWISE_PROFILE
+		{ double _t = MPI_Wtime(); ewp_pref += _t - _tp; _tp = _t; }
+#endif
+
+		// (4) numeric fill — MERGE-PATH load balancing. Partition the OUTPUT range [0,onz) into
+		// equal contiguous slices across threads (independent of per-column sizes), so even a few
+		// dominant columns get split across threads. Each thread walks the columns overlapping its
+		// slice and writes ONLY output positions in [lo,hi). Position of the s-th survivor of column
+		// k is temp.cp[k]+s (exactly the serial write offset), so output content/order is identical
+		// to the serial kernel; disjoint [lo,hi) slices => lock-free. Boundary columns are re-walked
+		// by (at most) two threads but each writes only its own positions.
+		int P = 1;
+#pragma omp parallel
+		{ P = omp_get_num_threads(); }
+		if(onz > 0 && P > (int)onz) P = (int)onz;
+		if(P < 1) P = 1;
+#pragma omp parallel num_threads(P)
+		{
+			int tid = omp_get_thread_num();
+			IU lo = (IU)(((long double)onz * tid) / P);
+			IU hi = (tid == P - 1) ? onz : (IU)(((long double)onz * (tid + 1)) / P);
+			if(lo < hi)
+			{
+				// kstart = column containing output position lo: largest k in [0,onzc] with cp[k] <= lo
+				IU klo = 0, khi = onzc;
+				while(klo < khi) { IU mid = klo + (khi - klo + 1) / 2; if(temp.cp[mid] <= lo) klo = mid; else khi = mid - 1; }
+
+				IU base = 0, s = 0;
+				auto emit = [&](IU irv, RETT valv) {
+					IU pos = base + s;
+					if(pos >= lo && pos < hi) { temp.ir[pos] = irv; temp.numx[pos] = valv; }
+					++s;
+				};
+				for(IU k = klo; k < onzc && temp.cp[k] < hi; ++k)
+				{
+					base = temp.cp[k]; s = 0;
+					if(kind[k] == 0) {
+						for(IU p = A.cp[aidx[k]]; p < A.cp[aidx[k]+1]; ++p)
+							if(do_op(A.numx[p], BNullVal, false, true)) emit(A.ir[p], __binary_op(A.numx[p], BNullVal, false, true));
+					} else if(kind[k] == 1) {
+						for(IU p = B.cp[bidx[k]]; p < B.cp[bidx[k]+1]; ++p)
+							if(do_op(ANullVal, B.numx[p], true, false)) emit(B.ir[p], __binary_op(ANullVal, B.numx[p], true, false));
+					} else {
+						IU ii = A.cp[aidx[k]], ie = A.cp[aidx[k]+1];
+						IU jj = B.cp[bidx[k]], je = B.cp[bidx[k]+1];
+						while(ii < ie && jj < je) {
+							if(A.ir[ii] < B.ir[jj])      { if(allowBNulls   && do_op(A.numx[ii], BNullVal, false, true)) emit(A.ir[ii], __binary_op(A.numx[ii], BNullVal, false, true)); ++ii; }
+							else if(A.ir[ii] > B.ir[jj]) { if(allowANulls   && do_op(ANullVal, B.numx[jj], true, false)) emit(B.ir[jj], __binary_op(ANullVal, B.numx[jj], true, false)); ++jj; }
+							else                         { if(allowIntersect && do_op(A.numx[ii], B.numx[jj], false, false)) emit(A.ir[ii], __binary_op(A.numx[ii], B.numx[jj], false, false)); ++ii; ++jj; }
+						}
+						while(ii < ie) { if(allowBNulls && do_op(A.numx[ii], BNullVal, false, true)) emit(A.ir[ii], __binary_op(A.numx[ii], BNullVal, false, true)); ++ii; }
+						while(jj < je) { if(allowANulls && do_op(ANullVal, B.numx[jj], true, false)) emit(B.ir[jj], __binary_op(ANullVal, B.numx[jj], true, false)); ++jj; }
+					}
+				}
+			}
+		}
+#ifdef EWISE_PROFILE
+		{ double _t = MPI_Wtime(); ewp_num += _t - _tp; ewp_calls += 1; }
+#endif
+		return temp;
+	}
+#else
+	Dcsc<IU,RETT> temp(estnz, estnzc);
 	IU curnzc = 0;
 	IU curnz = 0;
 	IU i = 0;
@@ -1304,9 +1515,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 	}
 	temp.Resize(curnzc, curnz);
 	return temp;
+#endif
 }
 
-template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate> 
+template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
 {
 	assert(A.m == B.m);
