@@ -3371,8 +3371,12 @@ EstPerProcessNnzSpMV(
 	
 }
 
+// sortOutput=false (default): fast, row-UNSORTED output -- fine for callers that only need nnz
+//   or feed the result into another SUMMA3D (repeated squaring / chained multiplies).
+// sortOutput=true: row-sort the result so it is valid input to sorted-merge ops like EWiseApply
+//   (the element-wise min in linear APSP). Cheap local sort, NO extra communication.
 template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
-SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B){
+SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B, bool sortOutput = false){
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     typedef typename UDERO::LocalIT LIC;
@@ -3525,7 +3529,7 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
 #ifdef TIMING
     t2 = MPI_Wtime();
 #endif
-    SpTuples<LIC,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, false); // Delete input arrays and do not sort
+    SpTuples<LIC,NUO> * C_tuples = MultiwayMergeHash<SR>(tomerge, C_m, C_n, true, sortOutput); // Delete input arrays; sort per-layer only if caller asked (also keeps single-layer output sorted, since the fiber merge's nlists==1 fast path does not sort)
     //SpTuples<LIC,NUO> * C_tuples = MultiwayMergeHashSliding<SR>(tomerge, C_m, C_n, true, false); // Delete input arrays and do not sort
 #ifdef TIMING
     t3 = MPI_Wtime();
@@ -3639,7 +3643,7 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
     /*
      * 3d-merge starts 
      * */
-    SpTuples<LIC, NUO> * merged_tuples = MultiwayMergeHash<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, false); // Do not delete
+    SpTuples<LIC, NUO> * merged_tuples = MultiwayMergeHash<SR, LIC, NUO>(recvChunks, recvChunks[0]->getnrow(), recvChunks[0]->getncol(), false, sortOutput); // Do not delete; sort rows only if caller asked
 #ifdef TIMING
     t1 = MPI_Wtime();
     if(myrank == 0) fprintf(stderr, "[SUMMA3D]\tMerge_fiber_time: %lf\n", (t1-t0));
@@ -3664,6 +3668,45 @@ SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParM
     grid3d.reset(new CommGrid3D(A.getcommgrid3D()->GetWorld(), A.getcommgrid3D()->GetGridLayers(), A.getcommgrid3D()->GetGridRows(), A.getcommgrid3D()->GetGridCols(), A.isSpecial()));
     SpParMat3D<IU, NUO, UDERO> C(localResultant, grid3d, A.isColSplit(), A.isSpecial());
     return C;
+}
+
+/**
+ * Element-wise apply on two 3D-distributed matrices (SpParMat3D), mirroring the 2D EWiseApply.
+ * The operation is purely LAYER-LOCAL: each layer's 2D submatrix is combined independently, so
+ * there is NO inter-layer (fiber) communication.
+ * Preconditions: A and B share the same 3D layout (nrow, ncol, nlayers, colsplit) on congruent
+ * grids, and both are in canonical, row-sorted form -- as produced by the 2D->3D constructor,
+ * Convert2D(), or Mult_AnXBn_SUMMA3D(..., sortOutput=true). The per-layer 2D kernel is a sorted
+ * merge, so unsorted input (e.g. the default unsorted SUMMA3D output) yields incorrect results.
+ */
+template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate>
+SpParMat3D<IU,RETT,RETDER> EWiseApply
+    (SpParMat3D<IU,NU1,UDERA> & A, SpParMat3D<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect, const bool useExtendedBinOp)
+{
+    if(A.getnrow() != B.getnrow() || A.getncol() != B.getncol())
+    {
+        std::ostringstream outs;
+        outs << "Matrices have incompatible dimensions for 3D elementwise apply: "
+             << A.getnrow() << "x" << A.getncol() << " vs " << B.getnrow() << "x" << B.getncol() << std::endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+    }
+    // Combine the per-layer 2D submatrices (delegates to the 2D EWiseApply; layer-local, no comm).
+    SpParMat<IU,RETT,RETDER> resultLayer = EWiseApply<RETT,RETDER>(*(A.GetLayerMat()), *(B.GetLayerMat()),
+                __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, useExtendedBinOp);
+    RETDER * localResultant = new RETDER(*(resultLayer.seqptr()));
+    return SpParMat3D<IU,RETT,RETDER>(localResultant, A.getcommgrid3D(), A.isColSplit(), A.isSpecial());
+}
+
+// plain adapter (mirrors the 2D EWiseApply plain adapter)
+template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate>
+SpParMat3D<IU,RETT,RETDER> EWiseApply
+    (SpParMat3D<IU,NU1,UDERA> & A, SpParMat3D<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
+{
+    return EWiseApply<RETT, RETDER>(A, B,
+                EWiseExtToPlainAdapter<RETT, NU1, NU2, _BinaryOperation>(__binary_op),
+                EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(do_op),
+                allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, true);
 }
 
 /*
