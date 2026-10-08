@@ -3694,7 +3694,9 @@ SpParMat3D<IU,RETT,RETDER> EWiseApply
     // Combine the per-layer 2D submatrices (delegates to the 2D EWiseApply; layer-local, no comm).
     SpParMat<IU,RETT,RETDER> resultLayer = EWiseApply<RETT,RETDER>(*(A.GetLayerMat()), *(B.GetLayerMat()),
                 __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, useExtendedBinOp);
-    RETDER * localResultant = new RETDER(*(resultLayer.seqptr()));
+    // Move-construct (steal the local DCSC) instead of deep-copying it; resultLayer is a local
+    // temporary about to be destroyed, so its tile can be moved out at O(1).
+    RETDER * localResultant = new RETDER(std::move(*(resultLayer.seqptr())));
     return SpParMat3D<IU,RETT,RETDER>(localResultant, A.getcommgrid3D(), A.isColSplit(), A.isSpecial());
 }
 

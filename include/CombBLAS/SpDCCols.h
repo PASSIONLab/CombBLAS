@@ -60,7 +60,14 @@ public:
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose);
     SpDCCols (IT nRow, IT nCol, IT nnz1, const std::tuple<IT, IT, NT> * rhs, bool transpose);
 
-	SpDCCols (const SpDCCols<IT,NT> & rhs);					// Actual copy constructor		
+	SpDCCols (const SpDCCols<IT,NT> & rhs);					// Actual copy constructor
+	// Move constructor: steal the Dcsc pointer (O(1)); zero the source so its nnz-guarded
+	// destructor is a no-op. Complements the Dcsc move ctor; avoids deep-copying the arrays.
+	SpDCCols (SpDCCols<IT,NT> && rhs) noexcept
+		: dcsc(rhs.dcsc), m(rhs.m), n(rhs.n), nnz(rhs.nnz), splits(rhs.splits)
+	{
+		rhs.dcsc = NULL; rhs.nnz = 0; rhs.m = 0; rhs.n = 0; rhs.splits = 0;
+	}
 	~SpDCCols();
 
 	template <typename NNT> operator SpDCCols<IT,NNT> () const;		//!< NNT: New numeric type
