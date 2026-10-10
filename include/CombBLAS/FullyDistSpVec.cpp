@@ -1204,6 +1204,11 @@ void FullyDistSpVec<IT,NT>::SparseCommon(std::vector< std::vector < std::pair<IT
 	delete [] recvdata;
 }
 
+// On-disk vector format consumed by ParallelRead (produced by ParallelWrite):
+//   Header:  "<glen>\t<gnnz>\n"
+//   Body:    "<idx>\t<value>\n" per entry      (idx is 0- or 1-based per `onebased`)
+// Does NOT accept the MatrixMarket-style "<nrows> <ncols> <nnz>" + "<row> <col> <val>" format.
+// For that legacy 3-column format, use ReadDistribute.
 template <class IT, class NT>
 template <typename _BinaryOperation>
 void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool onebased, _BinaryOperation BinOp)
@@ -1324,6 +1329,12 @@ void FullyDistSpVec<IT,NT>::ParallelRead (const std::string & filename, bool one
     SparseCommon(data, BinOp);
 }
 
+// On-disk vector format produced by ParallelWrite (compatible with ParallelRead):
+//   Header:  "<glen>\t<gnnz>\n"                (if includeheader = true)
+//   Body:    "<idx>\t<value>\n" per entry      (if includeindices = true;
+//                                               idx is 0- or 1-based per `onebased`)
+// This is NOT the MatrixMarket-style "<nrows> <ncols> <nnz>" + "<row> <col> <val>" format.
+// For that legacy 3-column format, use SaveGathered.
 template <class IT, class NT>
 template <class HANDLER>
 void FullyDistSpVec<IT,NT>::ParallelWrite(const std::string & filename, bool onebased, HANDLER handler, bool includeindices, bool includeheader)
@@ -1350,7 +1361,12 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const std::string & filename, bool one
 		for(IT i=0; i< entries; ++i)
 		{
 			ss << ind[i]+sizeuntil << '\t';
-			handler.save(ss, num[i], ind[i]+sizeuntil);
+			if constexpr (std::is_same_v<NT, std::array<char, MAXVERTNAME>>) {
+			    auto locnull = std::find(num[i].begin(), num[i].end(), '\0');
+			    ss.write(num[i].data(), locnull - num[i].begin());
+			} else {
+			    handler.save(ss, num[i], ind[i]+sizeuntil);
+			}
 			ss << '\n';
 		}
 	}
@@ -1359,7 +1375,12 @@ void FullyDistSpVec<IT,NT>::ParallelWrite(const std::string & filename, bool one
 		IT dummy = 0;	// dummy because we don't want indices to be printed
 		for(IT i=0; i< entries; ++i)
 		{
-			handler.save(ss, num[i], dummy);
+			if constexpr (std::is_same_v<NT, std::array<char, MAXVERTNAME>>) {
+			    auto locnull = std::find(num[i].begin(), num[i].end(), '\0');
+			    ss.write(num[i].data(), locnull - num[i].begin());
+			} else {
+			    handler.save(ss, num[i], dummy);
+			}
 			ss << '\n';
 		}
 	}
