@@ -57,6 +57,23 @@ public:
     Dcsc (IT * colptrs, IT * rowinds, NT * vals, IT ncols, IT nonzeros);           // CSC -> DCSC constructor (except that CSC's internals are passed)
 
 	Dcsc (const Dcsc<IT,NT> & rhs);				// copy constructor
+	// Move constructor / assignment: steal the arrays instead of a serial O(nnz) deep copy.
+	// (Without these, returning a Dcsc by value -- e.g. from EWiseApply -- deep-copies the whole
+	//  result, a serial cost that does not parallelize and dominates at high thread counts.)
+	Dcsc (Dcsc<IT,NT> && rhs) noexcept
+		: cp(rhs.cp), jc(rhs.jc), ir(rhs.ir), numx(rhs.numx), nz(rhs.nz), nzc(rhs.nzc), memowned(rhs.memowned)
+	{ rhs.cp = NULL; rhs.jc = NULL; rhs.ir = NULL; rhs.numx = NULL; rhs.nz = 0; rhs.nzc = 0; }
+	Dcsc<IT,NT> & operator=(Dcsc<IT,NT> && rhs) noexcept
+	{
+		if(this != &rhs)
+		{
+			if(nz  > 0) { delete[] numx; delete[] ir; }
+			if(nzc > 0) { delete[] jc;   delete[] cp; }
+			cp = rhs.cp; jc = rhs.jc; ir = rhs.ir; numx = rhs.numx; nz = rhs.nz; nzc = rhs.nzc; memowned = rhs.memowned;
+			rhs.cp = NULL; rhs.jc = NULL; rhs.ir = NULL; rhs.numx = NULL; rhs.nz = 0; rhs.nzc = 0;
+		}
+		return *this;
+	}
 	Dcsc<IT,NT> & operator=(const Dcsc<IT,NT> & rhs);	// assignment operator
 	Dcsc<IT,NT> & operator+=(const Dcsc<IT,NT> & rhs);	// add and assign operator
 	~Dcsc();

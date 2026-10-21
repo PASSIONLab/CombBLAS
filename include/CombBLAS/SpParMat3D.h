@@ -72,9 +72,9 @@ namespace combblas
         std::shared_ptr<CommGrid3D> getcommgrid() const { return commGrid3D; } 	
         std::shared_ptr<CommGrid3D> getcommgrid3D() const {return commGrid3D;}
 
-        /* 3D SUMMA*/
+        /* 3D SUMMA (sortOutput: row-sort the result; default false = fast, unsorted) */
         template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>
-        friend SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B);
+        friend SpParMat3D<IU,NUO,UDERO> Mult_AnXBn_SUMMA3D(SpParMat3D<IU,NU1,UDER1> & A, SpParMat3D<IU,NU2,UDER2> & B, bool sortOutput);
         
         /* Memory efficient 3D SUMMA*/
         template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2>

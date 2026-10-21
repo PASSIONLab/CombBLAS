@@ -116,7 +116,7 @@ template <class T>
 void integerSort(std::pair<uint32_t,T> *A, int n) {
   uint32_t maxV = 0;
   for (int i=0; i<n; i++) maxV = std::max(maxV,A[i].first);
-  intSort::iSort(A, n, maxV,  utils::firstF<uint32_t,T>());
+  intSort::iSort(A, n, maxV+1,  utils::firstF<uint32_t,T>()); // +1: iSort uses log2Up(m) bits; keys range [0,maxV], so m must be maxV+1 (matches the uint32_t overload above). Without it the max key mis-sorts when maxV is a power of 2.
 }
 
 #endif // _S_RADIX_INCLUDED
